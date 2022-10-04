@@ -3,13 +3,15 @@
 namespace App\Repositories;
 
 use App\Interfaces\UniversityRepositoryInterface;
+use App\Models\CountryTranslations;
 use App\Models\University;
+use Illuminate\Http\JsonResponse;
 
 class UniversityRepository implements UniversityRepositoryInterface 
 {
     public function getAllUniversities()
     {
-        return University::all();   
+        return University::all();
     }
 
     public function getUniversityById($universityId)

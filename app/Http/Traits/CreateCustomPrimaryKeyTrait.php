@@ -3,10 +3,9 @@ namespace App\Http\Traits;
 
 trait CreateCustomPrimaryKeyTrait {
 
-    public function add_digit($number) {
+    public function add_digit($number, $max_len) {
         $return = '';
         $len = strlen((string) $number);
-        $max_len = 4;
         for ($i = $len ; $i < $max_len ; $i++) {
             $return .= 0;
         }

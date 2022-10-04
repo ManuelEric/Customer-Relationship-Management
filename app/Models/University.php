@@ -28,7 +28,7 @@ class University extends Model
         'univ_country',
     ];
 
-    public function scopeWhereUniversityId($id)
+    public static function whereUniversityId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
         

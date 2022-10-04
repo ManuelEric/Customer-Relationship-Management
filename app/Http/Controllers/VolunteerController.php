@@ -48,7 +48,7 @@ class VolunteerController extends Controller
         
         $last_id = Volunteer::max('volunt_id');
         $volunteer_id_without_label = $this->remove_primarykey_label($last_id, 4);
-        $volunteer_id_with_label = 'VLT-' . $this->add_digit($volunteer_id_without_label+1);
+        $volunteer_id_with_label = 'VLT-' . $this->add_digit($volunteer_id_without_label+1, 4);
 
         DB::beginTransaction();
         try {

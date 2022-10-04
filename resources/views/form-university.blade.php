@@ -28,9 +28,9 @@
         <br>
         Country
         <select name="univ_country">
-            @foreach ($type as $item)
+            @foreach ($countries as $item)
             <option value="{{ $item->name }}" 
-                @if ((isset($vendor->vendor_type) && $item->name == $vendor->vendor_type) || (old('vendor_type') == $item->name))
+                @if ((isset($university->univ_country) && $item->name == $university->univ_country) || (old('univ_country') == $item->name))
                 {{ "selected" }}
                 @endif
                 >{{ $item->name }}</option>
@@ -39,6 +39,7 @@
         <br>
         Address
         <input type="text" name="univ_address" value="@if(isset($university->univ_address)){{ $university->univ_address }}@else{{ old('univ_address') }}@endif">
+        <br>
         <input type="submit" name="Submit">
     </form>
 </body>

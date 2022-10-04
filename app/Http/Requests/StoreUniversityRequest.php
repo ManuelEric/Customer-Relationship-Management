@@ -25,8 +25,8 @@ class StoreUniversityRequest extends FormRequest
     {
         return [
             'univ_name' => 'required',
-            'univ_country' => 'required',
-            'univ_address' => 'required'
+            'univ_country' => 'required|exists:lc_countries_translations,name',
+            'univ_address' => 'nullable'
         ];
     }
 }

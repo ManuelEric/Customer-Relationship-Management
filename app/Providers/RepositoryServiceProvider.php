@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Interfaces\AssetRepositoryInterface;
+use App\Interfaces\CountryRepositoryInterface;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\EmployeeRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
@@ -11,6 +12,7 @@ use App\Interfaces\VendorRepositoryInterface;
 use App\Interfaces\VendorTypeRepositoryInterface;
 use App\Interfaces\VolunteerRepositoryInterface;
 use App\Repositories\AssetRepository;
+use App\Repositories\CountryRepository;
 use App\Repositories\DepartmentRepository;
 use App\Repositories\EmployeeRepository;
 use App\Repositories\UniversityRepository;
@@ -35,6 +37,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AssetRepositoryInterface::class, AssetRepository::class);   
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(UniversityRepositoryInterface::class, UniversityRepository::class);
+        $this->app->bind(CountryRepositoryInterface::class, CountryRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(DepartmentRepositoryInterface::class, DepartmentRepository::class);
