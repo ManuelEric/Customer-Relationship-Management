@@ -198,8 +198,12 @@ return [
         /*
          * Repository Service Providers...
          */
-        App\Providers\RepositoryServiceProvider::class
+        App\Providers\RepositoryServiceProvider::class,
 
+        /*
+         * DataTables Service Providers...
+         */
+        Yajra\DataTables\DataTablesServiceProvider::class,
     ],
 
     /*

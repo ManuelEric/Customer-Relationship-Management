@@ -12,6 +12,11 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         return Employee::orderBy('empl_department', 'asc')->select('empl_department as dept_name')->distinct()->get();
     }
 
+    public function getDistinctUniversity()
+    {
+        return Employee::orderBy('empl_graduatefr', 'asc')->select('empl_graduatefr')->distinct()->get();
+    }
+
     public function getAllEmployees()
     {
         return Employee::all();

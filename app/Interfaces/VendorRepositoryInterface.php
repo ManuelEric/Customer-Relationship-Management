@@ -4,6 +4,7 @@ namespace App\Interfaces;
 
 interface VendorRepositoryInterface 
 {
+    public function getAllVendorDataTables();
     public function getAllVendor();
     public function getVendorById($vendorId);
     public function deleteVendor($vendorId);

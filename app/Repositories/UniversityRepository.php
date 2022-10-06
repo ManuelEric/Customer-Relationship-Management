@@ -19,9 +19,19 @@ class UniversityRepository implements UniversityRepositoryInterface
         return University::findOrFail($universityId);
     }
 
+    public function getUniversityByName($universityName)
+    {
+        return University::findByName($universityName);
+    }
+
     public function deleteUniversity($universityId) 
     {
         return University::destroy($universityId);
+    }
+
+    public function createUniversities(array $universityDetails)
+    {
+        return University::insert($universityDetails);
     }
 
     public function createUniversity(array $universityDetails) 

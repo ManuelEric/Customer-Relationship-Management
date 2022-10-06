@@ -16,13 +16,13 @@ return new class extends Migration
         Schema::create('tbl_user_educations', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('univ_id')->nullable();
+            $table->unsignedBigInteger('univ_id');
             $table->foreign('univ_id')->references('id')->on('tbl_univ')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('major_id')->nullable();
+            $table->unsignedBigInteger('major_id');
             $table->foreign('major_id')->references('id')->on('tbl_major')->onUpdate('cascade')->onDelete('cascade');
             
             $table->string('degree');
