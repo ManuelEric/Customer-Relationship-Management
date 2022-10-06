@@ -28,13 +28,6 @@ class University extends Model
         'univ_country',
     ];
 
-    public static function findByName($name)
-    {
-        $instance = new static;
-
-        return $instance->newQuery()->find($name, 'univ_name');
-    }
-
     public static function whereUniversityId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;

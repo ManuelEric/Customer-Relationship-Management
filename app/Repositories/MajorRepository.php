@@ -7,6 +7,12 @@ use App\Models\Major;
 
 class MajorRepository implements MajorRepositoryInterface 
 {
+
+    public function getMajorByName($majorName)
+    {
+        return Major::whereRaw('LOWER(name) = (?)', [strtolower($majorName)])->first();
+    }
+
     public function createMajors(array $majorDetails) 
     {
         return Major::insert($majorDetails);

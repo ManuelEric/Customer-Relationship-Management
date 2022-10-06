@@ -21,7 +21,7 @@ class UniversityRepository implements UniversityRepositoryInterface
 
     public function getUniversityByName($universityName)
     {
-        return University::findByName($universityName);
+        return University::whereRaw('LOWER(univ_name) = (?)', [strtolower($universityName)])->first();
     }
 
     public function deleteUniversity($universityId) 

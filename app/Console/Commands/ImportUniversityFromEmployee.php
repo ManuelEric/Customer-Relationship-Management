@@ -7,6 +7,7 @@ use App\Interfaces\EmployeeRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\University;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 
 class ImportUniversityFromEmployee extends Command
 {
@@ -45,27 +46,29 @@ class ImportUniversityFromEmployee extends Command
     {
         $emplUniversity = $this->employeeRepository->getDistinctUniversity();
 
-        echo $this->universityRepository->getUniversityByName("Universitas Pasundan");
-        exit;
+        $count = 1;
+        foreach ($emplUniversity as $university) {
 
-        $univDetails = $emplUniversity->map(function ($university, $key){
-
-            # initialize
-            $last_id = University::max('univ_id');
-            $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
-            $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label+$key, 3);
-
+            # validate existing university name
             if (!$this->universityRepository->getUniversityByName($university->empl_graduatefr)) {
-                return [
+    
+                # initialize
+                $last_id = University::max('univ_id');
+                $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
+                $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label + $count, 3);
+    
+                $univDetails[] = [
                     'univ_id' => $univ_id_with_label,
                     'univ_name' => $university->empl_graduatefr,
                     'univ_address' => null,
                     'univ_country' => null,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
                 ];
+                $count++;
             }
-        });
-        
-        echo json_encode($univDetails);exit;
+        }
+
         $this->universityRepository->createuniversities($univDetails);
         return Command::SUCCESS;
     }
