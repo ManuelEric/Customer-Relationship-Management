@@ -52,22 +52,20 @@ class VendorController extends Controller
             'vendor_processingtime',
             'vendor_notes',
         ]);
-        
+
         $last_id = Vendor::max('vendor_id');
         $vendor_id_without_label = $this->remove_primarykey_label($last_id, 3);
-        $vendor_id_with_label = 'VD-' . $this->add_digit($vendor_id_without_label+1, 4);
+        $vendor_id_with_label = 'VD-' . $this->add_digit($vendor_id_without_label + 1, 4);
 
         DB::beginTransaction();
         try {
 
             $this->vendorRepository->createVendor(['vendor_id' => $vendor_id_with_label] + $vendorDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store vendor failed : ' . $e->getMessage());
-
         }
 
         return Redirect::to('vendor');
@@ -124,14 +122,12 @@ class VendorController extends Controller
 
             $this->vendorRepository->updateVendor($vendorId, $vendorDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update vendor failed : ' . $e->getMessage());
+        }
 
-        }   
-        
         return Redirect::to('vendor');
     }
 
@@ -144,12 +140,10 @@ class VendorController extends Controller
 
             $this->vendorRepository->deleteVendor($vendorId);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete vendor failed : ' . $e->getMessage());
-
         }
 
         return Redirect::to('vendor');

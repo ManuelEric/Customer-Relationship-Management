@@ -182,6 +182,7 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
+
         /*
          * Package Service Providers...
          */
@@ -198,7 +199,9 @@ return [
         /*
          * Repository Service Providers...
          */
-        App\Providers\RepositoryServiceProvider::class
+        App\Providers\RepositoryServiceProvider::class,
+
+        Yajra\Datatables\DatatablesServiceProvider::class,
 
     ],
 
@@ -212,6 +215,8 @@ return [
     | the aliases are "lazy" loaded so they don't hinder performance.
     |
     */
+
+    'Datatables' => Yajra\Datatables\Facades\Datatables::class,
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
