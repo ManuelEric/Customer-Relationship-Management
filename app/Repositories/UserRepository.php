@@ -12,9 +12,24 @@ class UserRepository implements UserRepositoryInterface
         return User::all();
     }
 
+    public function getUserById($userId)
+    {
+        return User::findOrFail($userId);
+    }
+
+    public function getUserByExtendedId($extendedId)
+    {
+        return User::whereExtendedId($extendedId);
+    }
+
+    public function createUsers(array $userDetails)
+    {
+        return User::insert($userDetails);
+    }
+
     public function createUser(array $userDetails)
     {
-        return User::create();
+        return User::create($userDetails);
     }
 
 }

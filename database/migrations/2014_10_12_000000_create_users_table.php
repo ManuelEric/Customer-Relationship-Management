@@ -16,7 +16,8 @@ return new class extends Migration
         #based on employee table
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('extended_id', 15);
+            $table->string('nip', 30)->unique()->nullable();
+            $table->string('extended_id', 15)->unique()->nullable();
             $table->string('first_name');
             $table->string('last_name')->nullable();
             $table->string('address')->nullable();

@@ -29,6 +29,6 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     public function getAllEmployees()
     {
-        return Employee::all();
+        return Employee::orderBy('empl_id', 'asc')->get();
     }
 }

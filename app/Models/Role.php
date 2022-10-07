@@ -20,7 +20,7 @@ class Role extends Model
         'role_name',
     ];
 
-    public function has_user()
+    public function user()
     {
         return $this->belongsToMany(User::class, 'tbl_user_roles', 'role_id', 'user_id');
     }

@@ -12,6 +12,11 @@ class DepartmentRepository implements DepartmentRepositoryInterface
         return Department::all();
     }
 
+    public function getDepartmentByName($departmentName)
+    {
+        return Department::where('dept_name', '=', $departmentName)->first();
+    }
+
     public function createDepartments(array $departmentDetails) 
     {
         return Department::insert($departmentDetails);

@@ -19,4 +19,9 @@ class Department extends Model
     protected $fillable = [
         'dept_name',
     ];
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'department_id', 'id');
+    }
 }

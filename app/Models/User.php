@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -35,7 +36,7 @@ class User extends Authenticatable
         'bankacc',
         'npwp',
         'tax',
-        'status',
+        'active',
         'health_insurance',
         'empl_insurance',
         'export',
@@ -61,8 +62,22 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function has_roles()
+    public static function whereExtendedId($id)
+    {
+        if (is_array($id) && empty($id)) return new Collection();
+        
+        $instance = new static;
+
+        return $instance->newQuery()->find($id, 'extended_id');
+    }
+
+    public function roles()
     {
         return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id', 'id');
     }
 }
