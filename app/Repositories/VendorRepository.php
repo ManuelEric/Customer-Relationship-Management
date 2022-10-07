@@ -4,9 +4,15 @@ namespace App\Repositories;
 
 use App\Interfaces\VendorRepositoryInterface;
 use App\Models\Vendor;
+use DataTables;
 
 class VendorRepository implements VendorRepositoryInterface 
 {
+    public function getAllVendorDataTables()
+    {
+        return Datatables::eloquent(Vendor::query())->make(true);
+    }
+
     public function getAllVendor()
     {
         return Vendor::orderBy('vendor_name', 'asc')->get();

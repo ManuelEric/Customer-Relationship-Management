@@ -17,15 +17,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
 Route::get('/', function () {
     return view('home');
 });
 
-Route::get('/login', function () {
+Route::get('login', function () {
     return view('auth.login');
 });
 
+Route::get('dashboard', function () {
+    return view('layout.main');
+});
+
+Route::get('vendor/datatables', [VendorController::class, 'data'])->name('vendor.datatables');
 Route::resource('vendor', VendorController::class);
+
 Route::resource('volunteer', VolunteerController::class);
 Route::resource('asset', AssetController::class);
 Route::resource('university', UniversityController::class);

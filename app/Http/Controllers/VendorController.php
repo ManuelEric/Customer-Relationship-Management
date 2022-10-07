@@ -30,14 +30,27 @@ class VendorController extends Controller
         $this->vendorTypeRepository = $vendorTypeRepository;
     }
 
-    public function index(): JsonResponse
+
+    public function index()
     {
-        return response()->json(
-            [
-                'data' => $this->vendorRepository->getAllVendor()
-            ]
-        );
+        return view('vendor.index');
     }
+
+    public function data()
+    {
+        return $this->vendorRepository->getAllVendorDataTables();
+    }
+
+
+
+    // public function index(): JsonResponse
+    // {
+    //     return response()->json(
+    //         [
+    //             'data' => $this->vendorRepository->getAllVendor()
+    //         ]
+    //     );
+    // }
 
     public function store(StoreVendorRequest $request)
     {
@@ -73,7 +86,7 @@ class VendorController extends Controller
 
     public function create()
     {
-        return view('form-vendor')->with(
+        return view('vendor.form')->with(
             [
                 'type' => $this->vendorTypeRepository->getAllVendorType()
             ]
@@ -92,7 +105,7 @@ class VendorController extends Controller
         # put the link to update vendor form below
         # example
 
-        return view('form-vendor')->with(
+        return view('vendor.form')->with(
             [
                 'vendor' => $vendor,
                 'type' => $vendorType

@@ -201,8 +201,10 @@ return [
          */
         App\Providers\RepositoryServiceProvider::class,
 
-        Yajra\Datatables\DatatablesServiceProvider::class,
-
+        /*
+         * DataTables Service Providers...
+         */
+        Yajra\DataTables\DataTablesServiceProvider::class,
     ],
 
     /*
