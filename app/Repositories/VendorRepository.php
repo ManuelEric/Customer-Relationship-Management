@@ -25,7 +25,7 @@ class VendorRepository implements VendorRepositoryInterface
 
     public function deleteVendor($vendorId) 
     {
-        Vendor::destroy($vendorId);
+        return Vendor::whereVendorId($vendorId)->delete();
     }
 
     public function createVendor(array $vendorDetails) 
