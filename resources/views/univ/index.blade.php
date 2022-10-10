@@ -8,14 +8,15 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> University
         </a>
-        <a href="{{ url('university/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
+        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#univForm"><i
+                class="bi bi-plus-square me-1"></i> Add
             University</a>
     </div>
 
 
     <div class="card rounded">
         <div class="card-body">
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="uniTable">
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="univTable">
                 <thead class="bg-dark text-white">
                     <tr>
                         <th>#</th>
@@ -28,16 +29,74 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="10"></td>
+                        <td colspan="6"></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
 
+    {{-- Create and Updated  --}}
+    <!-- Modal -->
+    <div class="modal fade" id="univForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form
+                        action="@if (isset($university)) {{ '/university/' . $university->univ_id }}@else{{ '/university' }} @endif"
+                        method="POST">
+                        @csrf
+                        @if (isset($university))
+                            @method('put')
+                        @endif
+                        <div class="mb-2">
+                            <label for="">
+                                University Name
+                            </label>
+                            <input type="text" name="univ_name" class="form-control form-control-sm rounded"
+                                value="{{ isset($university->univ_name) ? $university->univ_name : old('univ_name') }}">
+                        </div>
+                        <div class="mb-2">
+                            <label for="">
+                                Country
+                            </label>
+                            <select name="univ_country" class="form-select form-select-sm rounded">
+                                @foreach ($countries as $item)
+                                    <option value="{{ $item->name }}"
+                                        {{ (isset($university->univ_country) && $item->name == $university->univ_country) ||
+                                        old('univ_country') == $item->name
+                                            ? 'selected'
+                                            : '' }}>
+                                        {{ $item->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label for="">
+                                Address
+                            </label>
+                            <textarea name="univ_address" class="form-control form-control-sm rounded">{{ isset($university->univ_address) ? $university->univ_address : old('univ_address') }}</textarea>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                                <i class="bi bi-x-square me-1"></i>
+                                Cancel</button>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-save2 me-1"></i>
+                                Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         $(document).ready(function() {
-            var table = $('#uniTable').DataTable({
+            var table = $('#univTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -58,7 +117,7 @@
                 serverSide: true,
                 ajax: '{!! route('university.datatables') !!}',
                 columns: [{
-                        data: 'univ_id',
+                        data: 'id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
@@ -85,14 +144,14 @@
                 ]
             });
 
-            $('#uniTable tbody').on('click', '.editUniv ', function() {
+            $('#univTable tbody').on('click', '.editUniv ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('asset') }}/" + data.asset_id.toLowerCase() + '/edit';
+                window.location.href = "{{ url('university') }}/" + data.univ_id.toLowerCase() + '/edit';
             });
 
-            $('#uniTable tbody').on('click', '.deleteUniv ', function() {
+            $('#univTable tbody').on('click', '.deleteUniv ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('asset', data.asset_id)
+                confirmDelete('university', data.univ_id)
             });
         });
     </script>

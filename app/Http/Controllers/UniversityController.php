@@ -29,7 +29,11 @@ class UniversityController extends Controller
 
     public function index()
     {
-        return view('univ.index');
+        return view('univ.index')->with(
+            [
+                'countries' => $this->countryRepository->getAllCountries()
+            ]
+        );
     }
 
     public function data(): JsonResponse
@@ -64,7 +68,7 @@ class UniversityController extends Controller
             Log::error('Store university failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('university');
+        return Redirect::to('university')->withSuccess('University successfully created');
     }
 
     public function create()
@@ -118,7 +122,7 @@ class UniversityController extends Controller
             Log::error('Update university failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('university');
+        return Redirect::to('university')->withSuccess('University successfully updated');
     }
 
     public function destroy(Request $request)
@@ -136,6 +140,6 @@ class UniversityController extends Controller
             Log::error('Delete university failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('university');
+        return Redirect::to('university')->withSuccess('University successfully deleted');
     }
 }
