@@ -31,7 +31,7 @@ class University extends Model
         
         $instance = new static;
 
-        return $instance->newQuery()->find($id, 'univ_id');
+        return $instance->newQuery()->where('univ_id', $id)->first();
     }
 
     protected function univAddress(): Attribute

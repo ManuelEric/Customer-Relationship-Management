@@ -84,7 +84,7 @@ class UniversityController extends Controller
         $countries = $this->countryRepository->getAllCountries();
 
         # retrieve university data by id
-        $university = $this->universityRepository->getUniversityById($universityId);
+        $university = $this->universityRepository->getUniversityByUnivId($universityId);
         # put the link to update vendor form below
         # example
 

@@ -25,6 +25,11 @@ class UniversityRepository implements UniversityRepositoryInterface
         return University::findOrFail($universityId);
     }
 
+    public function getUniversityByUnivId($universityId)
+    {
+        return University::whereUniversityId($universityId);
+    }
+
     public function getUniversityByName($universityName)
     {
         return University::whereRaw('LOWER(univ_name) = (?)', [strtolower($universityName)])->first();
