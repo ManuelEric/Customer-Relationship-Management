@@ -71,6 +71,7 @@ class User extends Authenticatable
         return $instance->newQuery()->find($id, 'extended_id');
     }
 
+    # relation
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id');
@@ -79,5 +80,12 @@ class User extends Authenticatable
     public function department()
     {
         return $this->belongsTo(Department::class, 'department_id', 'id');
+    }
+
+    public function educations()
+    {
+        return $this->belongsToMany(University::class, 'tbl_user_educations', 'user_id', 'univ_id')
+                    ->withPivot('major_id')
+                    ->join('tbl_major', 'major_id', '=', 'tbl_major.id');
     }
 }
