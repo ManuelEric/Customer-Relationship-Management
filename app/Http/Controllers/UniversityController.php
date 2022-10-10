@@ -27,13 +27,9 @@ class UniversityController extends Controller
         $this->countryRepository = $countryRepository;
     }
     
-    public function index(): JsonResponse
+    public function index()
     {
-        return response()->json(
-            [
-                'data' => $this->universityRepository->getAllUniversities()
-            ]
-        );
+        return $this->universityRepository->getAllUniversitiesDataTables();
     }
 
     public function store(StoreUniversityRequest $request)

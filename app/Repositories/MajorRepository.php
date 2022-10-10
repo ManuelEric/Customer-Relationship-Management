@@ -17,4 +17,9 @@ class MajorRepository implements MajorRepositoryInterface
     {
         return Major::insert($majorDetails);
     }
+
+    public function createMajor(array $majorDetails)
+    {
+        return Major::create($majorDetails);
+    }
 }

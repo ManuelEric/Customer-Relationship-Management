@@ -21,4 +21,9 @@ class DepartmentRepository implements DepartmentRepositoryInterface
     {
         return Department::insert($departmentDetails);
     }
+
+    public function createDepartment(array $departmentDetails)
+    {
+        return Department::create($departmentDetails);
+    }
 }

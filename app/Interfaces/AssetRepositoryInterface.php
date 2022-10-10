@@ -4,6 +4,7 @@ namespace App\Interfaces;
 
 interface AssetRepositoryInterface 
 {
+    public function getAllAssetsDataTables();
     public function getAllAssets();
     public function getAssetById($assetId);
     public function deleteAsset($assetId);

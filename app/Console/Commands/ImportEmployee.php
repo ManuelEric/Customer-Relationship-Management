@@ -2,15 +2,23 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\EmployeeRepositoryInterface;
+use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
+use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\University;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ImportEmployee extends Command
 {
+    use CreateCustomPrimaryKeyTrait;
     /**
      * The name and signature of the console command.
      *
@@ -29,8 +37,10 @@ class ImportEmployee extends Command
     protected DepartmentRepositoryInterface $departmentRepository;
     protected UserRepositoryInterface $userRepository;
     protected RoleRepositoryInterface $roleRepository;
+    protected UniversityRepositoryInterface $universityRepository;
+    protected MajorRepositoryInterface $majorRepository;
 
-    public function __construct(EmployeeRepositoryInterface $employeeRepository, DepartmentRepositoryInterface $departmentRepository, UserRepositoryInterface $userRepository, RoleRepositoryInterface $roleRepository)
+    public function __construct(EmployeeRepositoryInterface $employeeRepository, DepartmentRepositoryInterface $departmentRepository, UserRepositoryInterface $userRepository, RoleRepositoryInterface $roleRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository)
     {
         parent::__construct();
 
@@ -38,6 +48,8 @@ class ImportEmployee extends Command
         $this->departmentRepository = $departmentRepository;
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;
+        $this->universityRepository = $universityRepository;
+        $this->majorRepository = $majorRepository;
     }
 
     public function getRole($id)
@@ -58,6 +70,10 @@ class ImportEmployee extends Command
             case 4:
                 $role = 'hr';
                 break;
+
+            default:
+                $role = false; # which mean he/she doesn't have any crm role
+
         }
 
         return $role;
@@ -72,89 +88,282 @@ class ImportEmployee extends Command
     {
         $employees = $this->employeeRepository->getAllEmployees();
 
-        foreach ($employees as $employee) {
+        DB::beginTransaction();
 
-            if (!$this->userRepository->getUserByExtendedId($employee->empl_id)) {
+        try {
+        
+            foreach ($employees as $employee) {
 
-                $userDetails = [
-                    'nip' => null,
-                    'extended_id' => $employee->empl_id,
-                    'first_name' => $employee->empl_firstname,
-                    'last_name' => $employee->empl_lastname,
-                    'address' => $employee->empl_address,
-                    'email' => $employee->empl_email == '' ? null : $employee->empl_email,
-                    'phone' => $employee->empl_phone == '' ? null : $employee->empl_phone,
-                    'emergency_contact' => $employee->empl_emergency_contact == '' ? null : $employee->empl_emergency_contact,
-                    'datebirth' => $employee->empl_datebirth,
-                    'department_id' => $this->departmentRepository->getDepartmentByName($employee->empl_department)->id,
-                    'password' => $employee->empl_password,
-                    'hiredate' => $employee->empl_hiredate,
-                    'nik' => $employee->empl_nik == '' ? null : $employee->empl_nik,
-                    'idcard' => $employee->empl_idcard == '' ? null : $employee->empl_idcard,
-                    'cv' => $employee->empl_cv == '' ? null : $employee->empl_cv,
-                    'bankname' => $employee->empl_bankaccountname == '' ? null : $employee->empl_bankaccountname,
-                    'bankacc' => $employee->empl_bankaccount == '' ? null : $employee->empl_bankaccount,
-                    'npwp' => $employee->empl_npwp == '' ? null : $employee->empl_npwp,
-                    'tax' => $employee->empl_tax == '' ? null : $employee->empl_tax,
-                    'active' => true,
-                    'health_insurance' => $employee->empl_healthinsurance == '' ? null : $employee->empl_healthinsurance,
-                    'empl_insurance' => $employee->empl_emplinsurance == '' ? null : $employee->empl_emplinsurance,
-                    'export' => $employee->emply_export,
-                    'notes' => null,
-                    'remember_token' => null,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ];
+                # validate if the data that about to inserted is not exist in the table
+                if (!$this->userRepository->getUserByExtendedId($employee->empl_id)) {
 
-                # insert into tbl user
-                $createdUser = $this->userRepository->createUser($userDetails);
+                    # validate
+                    # if $employee->empl_department doesn't exist in database
+                    # then create a new one
 
-                # initialize new details by role
-                for ($i = 0 ; $i < 2 ; $i++) {
-
-                    # the first role to be assigned is employee 
-                    if ($i == 0 ) {
-
-                        $userRoleDetails[] = [
-                            'user_id' => $createdUser->id,
-                            'role_id' => $this->roleRepository->getRoleByName('employee'),
+                    if (!$department = $this->departmentRepository->getDepartmentByName($employee->empl_department)) 
+                    {
+                        $departmentDetails = [
+                            'dept_name' => $employee->empl_department,
                             'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now()
+                            'updated_at' => Carbon::now(),
                         ];
 
-                    }
-                    # the second role to be assigned is depends on employee role from big data v1
-                    else {
-
-                        $userRoleDetails[] = [
-                            'user_id' => $createdUser->id,
-                            'role_id' => $this->roleRepository->getRoleByName($this->getRole($employee->empl_role)),
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now()
-                        ];
-
+                        $department = $this->departmentRepository->createDepartment($departmentDetails);
                     }
 
-                }
+                    $userDetails = [
+                        'nip' => null,
+                        'extended_id' => $employee->empl_id,
+                        'first_name' => $employee->empl_firstname,
+                        'last_name' => $employee->empl_lastname,
+                        'address' => $employee->empl_address,
+                        'email' => $employee->empl_email == '' ? null : $employee->empl_email,
+                        'phone' => $employee->empl_phone == '' ? null : $employee->empl_phone,
+                        'emergency_contact' => $employee->empl_emergency_contact == '' ? null : $employee->empl_emergency_contact,
+                        'datebirth' => $employee->empl_datebirth == '0000-00-00' ? null : $employee->empl_datebirth,
+                        'department_id' => $department->id,
+                        'password' => $employee->empl_password,
+                        'hiredate' => $employee->empl_hiredate,
+                        'nik' => $employee->empl_nik == '' ? null : $employee->empl_nik,
+                        'idcard' => $employee->empl_idcard == '' ? null : $employee->empl_idcard,
+                        'cv' => $employee->empl_cv == '' ? null : $employee->empl_cv,
+                        'bankname' => $employee->empl_bankaccountname == '' ? null : $employee->empl_bankaccountname,
+                        'bankacc' => $employee->empl_bankaccount == '' ? null : $employee->empl_bankaccount,
+                        'npwp' => $employee->empl_npwp == '' ? null : $employee->empl_npwp,
+                        'tax' => $employee->empl_tax == '' ? null : $employee->empl_tax,
+                        'active' => true,
+                        'health_insurance' => $employee->empl_healthinsurance == '' ? null : $employee->empl_healthinsurance,
+                        'empl_insurance' => $employee->empl_emplinsurance == '' ? null : $employee->empl_emplinsurance,
+                        'export' => $employee->empl_export,
+                        'notes' => null,
+                        'remember_token' => null,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ];
 
-                # insert into tbl user roles
-                $createdUser->roles()->attach($userRoleDetails);
-
-                # initialize #2
-                $graduatedFrom = $employee->empl_graduatefr;
-                $graduatedMajor = $employee->empl_major;
-
-                # if she/he has more than one major on table employee v1
-                # then do this
-                if ( count($multiMajor = explode(';', $graduatedMajor)) > 0 ) { 
+                    # insert into tbl user
+                    $createdUser = $this->userRepository->createUser($userDetails);
                     
-                    for ($i = 0 ; $i < count($multiMajor) ; $i++) {
+                    $userRoleDetails = array();
 
-                        
+                    # initialize new details by role
+                    for ($i = 0 ; $i < 2 ; $i++) {
+
+                        # the first role to be assigned is employee 
+                        if ($i == 0 ) {
+
+                            $roleDetail = $this->roleRepository->getRoleByName('employee');
+
+                            $userRoleDetails[] = [
+                                'user_id' => $createdUser->id,
+                                'role_id' => $roleDetail->id,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+
+                        }
+                        # the second role to be assigned is depends on employee role from big data v1
+                        else {
+
+                            if ($role = $this->getRole($employee->empl_role)) {
+                                
+                                $roleDetail = $this->roleRepository->getRoleByName($role);
+                                
+                                $userRoleDetails[] = [
+                                    'user_id' => $createdUser->id,
+                                    'role_id' => $roleDetail->id,
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now()
+                                ];
+
+                            }
+
+                        }
 
                     }
+
+                    # insert into tbl user roles
+                    # end of process insert into user roles
+                    $createdUser->roles()->attach($userRoleDetails);
+                    
+                    # initialize new details by education 'bachelor'
+                    $graduatedFrom = $employee->empl_graduatefr;
+                    $graduatedMajor = $employee->empl_major;
+
+                    $userMajorDetails = array();
+
+                    if ( ($graduatedFrom != '') && ($graduatedFrom != null) )
+                    {
+                        
+                        $univDetail = $this->universityRepository->getUniversityByName($graduatedFrom);
+
+                        # if she/he (employee) has more than one major on table employee v1
+                        # then do this
+                        if ( count($multiMajor = explode(' ; ', $graduatedMajor)) > 0 ) {
+                            
+                            for ($i = 0 ; $i < count($multiMajor) ; $i++) {
+                                
+                                if ($majorDetail = $this->majorRepository->getMajorByName($multiMajor[$i])) {
+                                    
+                                    $userMajorDetails[] = [
+                                        'user_id' => $createdUser->id,
+                                        'univ_id' => $univDetail->id,
+                                        'major_id' => $majorDetail->id,
+                                        'degree' => 'Bachelor',
+                                        'graduation_date' => null,
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now()
+                                    ];
+
+                                } 
+
+                                # if multiMajor[$i] doesn't exist in database
+                                # then create a new one
+                                
+                                else {
+                                    
+                                    $majorDetail = [
+                                        'name' => $multiMajor[$i],
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now(),
+                                    ];
+
+                                    $createdMajor = $this->majorRepository->createMajors($majorDetail);
+
+                                    $userMajorDetails[] = [
+                                        'user_id' => $createdUser->id,
+                                        'univ_id' => $univDetail->id,
+                                        'major_id' => $createdMajor->id,
+                                        'degree' => 'Bachelor',
+                                        'graduation_date' => null,
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now()
+                                    ];
+
+                                }
+
+                            }
+                        }
+
+                        # if she/he has only one major on table employee v1
+
+                        else {
+                            
+                            if ($majorDetail = $this->majorRepository->getMajorByName($graduatedMajor)) {
+
+                                $userMajorDetails[] = [
+                                    'user_id' => $createdUser->id,
+                                    'univ_id' => $univDetail->id,
+                                    'major_id' => $majorDetail->id,
+                                    'degree' => 'Bachelor',
+                                    'graduation_date' => null,
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now()
+                                ];
+                            }
+
+                            # if multiMajor[$i] doesn't exist in database
+                            # then create a new one
+                            
+                            else {
+                                
+                                $majorDetail = [
+                                    'name' => $graduatedMajor,
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now(),
+                                ];
+
+                                $createdMajor = $this->majorRepository->createMajors($majorDetail);
+
+                                $userMajorDetails[] = [
+                                    'user_id' => $createdUser->id,
+                                    'univ_id' => $univDetail->id,
+                                    'major_id' => $createdMajor->id,
+                                    'degree' => 'Bachelor',
+                                    'graduation_date' => null,
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now()
+                                ];
+
+                            }
+                            
+
+                        }
+                    }
+
+                    # initialize new details by education 'magister'
+                    $graduatedMagisterFrom = $employee->empl_graduatefr_magister;
+                    $graduatedMagisterMajor = $employee->empl_major_magister;
+                    
+                    if ( ($graduatedMagisterMajor != "") && ($graduatedMagisterMajor != null) )
+                    {
+                        # validate university
+                        # if $graduatedMagisterFrom doesn't exist in database
+                        # then create a new one
+
+                        if (!$univMagisterDetail = $this->universityRepository->getUniversityByName($graduatedMagisterFrom)) 
+                        {
+
+                            $last_id = University::max('univ_id');
+                            $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
+                            $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label + 1, 3);
+
+                            $univDetails = [
+                                'univ_id' => $univ_id_with_label,
+                                'univ_name' => $graduatedMagisterFrom,
+                                'univ_address' => null,
+                                'univ_country' => null,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+
+                            $univMagisterDetail = $this->universityRepository->createUniversity($univDetails);
+                    
+                        }
+
+                        # validate major magister
+                        # if $graduatedMagisterMajor doesn't exist in database
+                        # then create a new one
+                        
+                        if (!$majorMagisterDetail = $this->majorRepository->getMajorByName($graduatedMagisterMajor))
+                        {
+                            $majorDetails = [
+                                'name' => $graduatedMagisterMajor,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now(),
+                            ];
+
+                            $majorMagisterDetail = $this->majorRepository->createMajor($majorDetails);
+                            
+                        }
+
+                        $userMajorDetails[] = [
+                            'user_id' => $createdUser->id,
+                            'univ_id' => $univMagisterDetail->id,
+                            'major_id' => $majorMagisterDetail->id,
+                            'degree' => 'Magister',
+                            'graduation_date' => null,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
+                        ];
+
+                    }
+
+                    # insert into tbl_user_educations
+                    if (isset($userMajorDetails))
+                        $createdUser->educations()->attach($userMajorDetails);
                 }
             }
+            
+        DB::commit();
+
+        } catch (Exception $e) {
+            
+            DB::rollBack();
+            Log::error('Import employees failed : ' . $e->getMessage());
+            echo $e->getMessage();
+            
         }
 
         return Command::SUCCESS;

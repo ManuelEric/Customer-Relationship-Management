@@ -24,13 +24,9 @@ class VolunteerController extends Controller
         $this->volunteerRepository = $volunteerRepository;
     }
 
-    public function index(): JsonResponse
+    public function index()
     {
-        return response()->json(
-            [
-                'data' => $this->volunteerRepository->getAllVolunteer()
-            ]
-        );
+        return $this->volunteerRepository->getAllVolunteerDataTables();
     }
 
     public function store(StoreVolunteerRequest $request)

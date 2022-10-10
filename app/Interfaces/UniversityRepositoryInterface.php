@@ -4,6 +4,7 @@ namespace App\Interfaces;
 
 interface UniversityRepositoryInterface 
 {
+    public function getAllUniversitiesDataTables();
     public function getAllUniversities();
     public function getUniversityById($universityId);
     public function getUniversityByName($universityName);

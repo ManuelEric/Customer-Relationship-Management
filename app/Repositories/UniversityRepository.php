@@ -6,9 +6,15 @@ use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\CountryTranslations;
 use App\Models\University;
 use Illuminate\Http\JsonResponse;
+use DataTables;
 
 class UniversityRepository implements UniversityRepositoryInterface 
 {
+    public function getAllUniversitiesDataTables()
+    {
+        return Datatables::eloquent(University::query())->make(true);
+    }
+
     public function getAllUniversities()
     {
         return University::all();

@@ -4,9 +4,15 @@ namespace App\Repositories;
 
 use App\Interfaces\VolunteerRepositoryInterface;
 use App\Models\Volunteer;
+use DataTables;
 
 class VolunteerRepository implements VolunteerRepositoryInterface 
 {
+    public function getAllVolunteerDataTables()
+    {
+        return Datatables::eloquent(Volunteer::query())->make(true);
+    }
+
     public function getAllVolunteer()
     {
         return Volunteer::orderBy('volunt_firstname', 'asc')->orderBy('volunt_lastname', 'asc')->get();

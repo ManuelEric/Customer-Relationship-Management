@@ -26,7 +26,7 @@ return new class extends Migration
             $table->foreign('major_id')->references('id')->on('tbl_major')->onUpdate('cascade')->onDelete('cascade');
             
             $table->string('degree');
-            $table->date('graduation_date');
+            $table->date('graduation_date')->nullable();
             $table->timestamps();
         });
     }
