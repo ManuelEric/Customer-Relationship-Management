@@ -88,7 +88,7 @@ class UniversityController extends Controller
         # put the link to update vendor form below
         # example
 
-        return view('form-university')->with(
+        return view('univ.index')->with(
             [
                 'university' => $university,
                 'countries' => $countries

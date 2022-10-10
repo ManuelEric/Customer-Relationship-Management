@@ -44,7 +44,7 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <form
-                        action="@if (isset($university)) {{ '/university/' . $university->univ_id }}@else{{ '/university' }} @endif"
+                        action="@if (isset($university)) {{ '/university/' . strtolower($university->univ_id) }}@else{{ '/university' }} @endif"
                         method="POST">
                         @csrf
                         @if (isset($university))
@@ -54,14 +54,14 @@
                             <label for="">
                                 University Name
                             </label>
-                            <input type="text" name="univ_name" class="form-control form-control-sm rounded"
+                            <input type="text" name="univ_name" class="form-control form-control-sm rounded" required
                                 value="{{ isset($university->univ_name) ? $university->univ_name : old('univ_name') }}">
                         </div>
                         <div class="mb-2">
                             <label for="">
                                 Country
                             </label>
-                            <select name="univ_country" class="form-select form-select-sm rounded">
+                            <select name="univ_country" class="form-select form-select-sm rounded" required>
                                 @foreach ($countries as $item)
                                     <option value="{{ $item->name }}"
                                         {{ (isset($university->univ_country) && $item->name == $university->univ_country) ||
@@ -81,9 +81,10 @@
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between">
-                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                            <a href="{{ url('university') }}" class="btn btn-outline-danger btn-sm"
+                                data-bs-dismiss="{{ isset($university) ? '' : 'modal' }}">
                                 <i class="bi bi-x-square me-1"></i>
-                                Cancel</button>
+                                Cancel</a>
                             <button type="submit" class="btn btn-primary btn-sm">
                                 <i class="bi bi-save2 me-1"></i>
                                 Save</button>
@@ -93,6 +94,16 @@
             </div>
         </div>
     </div>
+
+    @if (isset($university))
+        <script>
+            $(document).ready(function() {
+                // show modal 
+                var myModal = new bootstrap.Modal(document.getElementById('univForm'))
+                myModal.show()
+            });
+        </script>
+    @endif
 
     <script>
         $(document).ready(function() {
@@ -119,9 +130,6 @@
                 columns: [{
                         data: 'id',
                         className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
-                        }
                     },
                     {
                         data: 'univ_id',
@@ -146,12 +154,12 @@
 
             $('#univTable tbody').on('click', '.editUniv ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('university') }}/" + data.univ_id.toLowerCase() + '/edit';
+                window.location.href = "{{ url('university') }}/" + data.id + '/edit';
             });
 
             $('#univTable tbody').on('click', '.deleteUniv ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('university', data.univ_id)
+                confirmDelete('university', data.id)
             });
         });
     </script>
