@@ -7,6 +7,7 @@
     <script src="{{ asset('dashboard-template/js/hoverable-collapse.js') }}"></script>
     <script src="{{ asset('dashboard-template/js/template.js') }}"></script>
     <script src="{{ asset('dashboard-template/js/settings.js') }}"></script>
+    <script src="{{ asset('dashboard-template/js/jquery.cookie.js') }}" type="text/javascript"></script>
 @endsection
 
 @section('body')
@@ -110,20 +111,20 @@
                         </a>
                         <div class="collapse" id="master">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/employee') }}">Program</a>
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Program</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/employee') }}">Lead
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('/lead') }}">Lead
                                         Source</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/client') }}">Universities</a>
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('/university') }}">Universities</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Vendors</a>
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('/vendor') }}">Vendors</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Assets</a>
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('/asset') }}">Assets</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Department</a>
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('/department') }}">Department</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Purchase
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('/purchase') }}">Purchase
                                         Request</a>
                                 </li>
                             </ul>
@@ -311,25 +312,4 @@
         </div>
         <!-- page-body-wrapper ends -->
     </div>
-
-    <script>
-        function confirmDelete(subject, id) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You want to delete this data?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "{{ url('') }}/" + subject + '/' + id,
-                        type: 'DELETE'
-                    });
-                }
-            })
-        }
-    </script>
 @endsection

@@ -5,7 +5,7 @@
 @section('content')
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('vendor') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Add Vendor
+            <i class="bi bi-arrow-left me-2"></i> Vendor
         </a>
     </div>
 
@@ -30,7 +30,7 @@
                                 Vendor Name <sup class="text-danger">*</sup>
                             </label>
                             <input type="text" name="vendor_name" class="form-control form-control-sm rounded"
-                                value="@if (isset($vendor->vendor_name)) {{ $vendor->vendor_name }}@else{{ old('vendor_name') }} @endif">
+                                value="{{ isset($vendor->vendor_name) ? $vendor->vendor_name : old('vendor_name') }}">
                             @error('vendor_name')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
@@ -39,11 +39,7 @@
                             <label for="">
                                 Alamat
                             </label>
-                            <textarea name="vendor_address" class="form-control form-control-sm rounded" rows="3">
-@if (isset($vendor->vendor_address))
-{{ $vendor->vendor_address }}@else{{ old('vendor_address') }}
-@endif
-        </textarea>
+                            <textarea name="vendor_address" class="form-control form-control-sm rounded" rows="3">{{ isset($vendor->vendor_address) ? $vendor->vendor_address : old('vendor_address') }}</textarea>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -52,7 +48,7 @@
                                         Phone <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="text" name="vendor_phone" class="form-control form-control-sm rounded"
-                                        value="@if (isset($vendor->vendor_phone)) {{ $vendor->vendor_phone }}@else{{ old('vendor_phone') }} @endif">
+                                        value="{{ isset($vendor->vendor_phone) ? $vendor->vendor_phone : old('vendor_phone') }}">
                                     @error('vendor_phone')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -79,7 +75,7 @@
                                     </label>
                                     <input type="text" name="vendor_material"
                                         class="form-control form-control-sm rounded"
-                                        value="@if (isset($vendor->vendor_material)) {{ $vendor->vendor_material }}@else{{ old('vendor_material') }} @endif">
+                                        value="{{ isset($vendor->vendor_material) ? $vendor->vendor_material : old('vendor_material') }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -88,7 +84,7 @@
                                         Size
                                     </label>
                                     <input type="text" name="vendor_size" class="form-control form-control-sm rounded"
-                                        value="@if (isset($vendor->vendor_size)) {{ $vendor->vendor_size }}@else{{ old('vendor_size') }} @endif">
+                                        value="{{ isset($vendor->vendor_size) ? $vendor->vendor_size : old('vendor_size') }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -98,7 +94,7 @@
                                     </label>
                                     <input type="text" name="vendor_processingtime"
                                         class="form-control form-control-sm rounded"
-                                        value="@if (isset($vendor->vendor_processingtime)) {{ $vendor->vendor_processingtime }}@else{{ old('vendor_processingtime') }} @endif">
+                                        value="{{ isset($vendor->vendor_processingtime) ? $vendor->vendor_processingtime : old('vendor_processingtime') }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -108,7 +104,7 @@
                                     </label>
                                     <input type="text" name="vendor_unitprice"
                                         class="form-control form-control-sm rounded"
-                                        value="@if (isset($vendor->vendor_unitprice)) {{ $vendor->vendor_unitprice }}@else{{ old('vendor_unitprice') }} @endif">
+                                        value="{{ isset($vendor->vendor_unitprice) ? $vendor->vendor_unitprice : old('vendor_unitprice') }}">
                                     @error('vendor_unitprice')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -119,11 +115,7 @@
                             <label for="">
                                 Notes
                             </label>
-                            <textarea type="text" name="vendor_notes" class="form-control form-control-sm rounded" rows="3">
-        @if (isset($vendor->vendor_notes))
-{{ $vendor->vendor_notes }}@else{{ old('vendor_notes') }}
-@endif
-        </textarea>
+                            <textarea type="text" name="vendor_notes" class="form-control form-control-sm rounded" rows="3">{{ isset($vendor->vendor_notes) ? $vendor->vendor_notes : old('vendor_notes') }}</textarea>
                         </div>
                         <div class="text-center">
                             <hr>

@@ -26,6 +26,11 @@ class VolunteerController extends Controller
 
     public function index()
     {
+        # put view volunteer here
+    }
+
+    public function data(): JsonResponse
+    {
         return $this->volunteerRepository->getAllVolunteerDataTables();
     }
 
