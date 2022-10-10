@@ -1,3 +1,11 @@
+form label {
+  font-size: .75em;
+}
+
+form small {
+  font-size: .6em;
+}
+
 .offcanvas {
   position: fixed;
   bottom: 0;
@@ -5696,14 +5704,14 @@ code {
   padding: 15px;
 }
 
-.demo-modal {
+/* .demo-modal {
   position: static;
   display: block;
 }
 
 .demo-modal .modal-dialog.modal-lg {
   max-width: 100%;
-}
+} */
 
 .loader-demo-box {
   width: 100%;
@@ -10001,7 +10009,7 @@ dl li {
 }
 
 /* Modals */
-.modal .modal-dialog {
+/* .modal .modal-dialog {
   margin-top: 100px;
 }
 
@@ -10043,7 +10051,7 @@ dl li {
   .modal .modal-dialog .modal-content .modal-footer> :not(:first-child) {
     margin-left: 0;
   }
-}
+} */
 
 /* Pagination */
 .pagination .page-item .page-link {
@@ -14159,7 +14167,8 @@ div.tagsinput span.tag a {
 .sidebar .nav .nav-item .nav-link .menu-title {
   color: inherit;
   display: inline-block;
-  font-size: 15px;
+  font-size: 14px;
+  font-weight: normal;
   line-height: 1;
   vertical-align: middle;
 }
@@ -14199,7 +14208,8 @@ div.tagsinput span.tag a {
 }
 
 .sidebar .nav .nav-item.active>.nav-link .menu-title {
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: normal;
 }
 
 .sidebar .nav .nav-item.active>.nav-link i.menu-arrow::before {

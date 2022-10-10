@@ -26,8 +26,13 @@ class UniversityController extends Controller
         $this->universityRepository = $universityRepository;
         $this->countryRepository = $countryRepository;
     }
-    
-    public function index(): JsonResponse
+
+    public function index()
+    {
+        return view('univ.index');
+    }
+
+    public function data(): JsonResponse
     {
         return response()->json(
             [
@@ -43,22 +48,20 @@ class UniversityController extends Controller
             'univ_country',
             'univ_address',
         ]);
-        
+
         $last_id = University::max('univ_id');
         $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
-        $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label+1, 3);
+        $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label + 1, 3);
 
         DB::beginTransaction();
         try {
 
             $this->universityRepository->createUniversity(['univ_id' => $univ_id_with_label] + $universityDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store university failed : ' . $e->getMessage());
-
         }
 
         return Redirect::to('university');
@@ -109,14 +112,12 @@ class UniversityController extends Controller
 
             $this->universityRepository->updateUniversity($universityId, $universityDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update university failed : ' . $e->getMessage());
+        }
 
-        }   
-        
         return Redirect::to('university');
     }
 
@@ -129,12 +130,10 @@ class UniversityController extends Controller
 
             $this->universityRepository->deleteUniversity($universityId);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete university failed : ' . $e->getMessage());
-
         }
 
         return Redirect::to('university');

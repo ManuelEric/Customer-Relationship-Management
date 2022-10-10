@@ -1,33 +1,33 @@
 @extends('layout.main')
 
-@section('title', 'Vendor - Bigdata Platform')
+@section('title', 'Asset - Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Vendor
+            <i class="bi bi-arrow-left me-2"></i> Asset
         </a>
-        <a href="{{ url('vendor/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
-            Vendor</a>
+        <a href="{{ url('asset/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
+            Asset</a>
     </div>
 
 
     <div class="card rounded">
         <div class="card-body">
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="vendor-table">
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="assetTable">
                 <thead class="bg-dark text-white">
                     <tr>
                         <th>#</th>
-                        <th class="bg-info text-white">Vendor ID</th>
-                        <th class="bg-info text-white">Vendor Name</th>
-                        <th>Address</th>
-                        <th>Phone</th>
-                        <th>Type</th>
-                        <th>Material</th>
-                        <th>Size</th>
-                        <th>Processing Time</th>
-                        <th>Unit Price</th>
+                        <th class="bg-info text-white">Asset ID</th>
+                        <th class="bg-info text-white">Asset Name</th>
+                        <th>Merk/Type</th>
+                        <th>Achieved Date</th>
+                        <th>Amont</th>
+                        <th>Unit</th>
+                        <th>Condition</th>
+                        <th>Notes</th>
+                        <th>Last Update</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -42,7 +42,7 @@
 
     <script>
         $(document).ready(function() {
-            var table = $('#vendor-table').DataTable({
+            var table = $('#assetTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -61,65 +61,58 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '{!! route('vendor.datatables') !!}',
+                ajax: '{!! route('asset.datatables') !!}',
                 columns: [{
-                        data: 'vendor_id',
+                        data: 'asset_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
                     {
-                        data: 'vendor_id',
+                        data: 'asset_id',
                     },
                     {
-                        data: 'vendor_name',
+                        data: 'asset_name',
                     },
                     {
-                        data: 'vendor_address',
+                        data: 'asset_merktype',
                     },
                     {
-                        data: 'vendor_phone',
+                        data: 'asset_dateachieved',
                     },
                     {
-                        data: 'vendor_type',
+                        data: 'asset_amount',
                     },
                     {
-                        data: 'vendor_material',
+                        data: 'asset_unit',
                     },
                     {
-                        data: 'vendor_size',
+                        data: 'asset_condition',
                     },
                     {
-                        data: 'vendor_processingtime',
+                        data: 'asset_notes',
                     },
                     {
-                        data: 'vendor_unitprice',
-                        render: function(data, type) {
-                            var number = $.fn.dataTable.render
-                                .number(',', '.', 2, 'Rp. ')
-                                .display(data);
-
-                            return number;
-                        },
+                        data: 'asset_lastupdatedate',
                     },
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editVendor"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteVendor"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editAsset"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteAsset"><i class="bi bi-trash"></i></button>'
                     }
                 ]
             });
 
-            $('#vendor-table tbody').on('click', '.editVendor ', function() {
+            $('#assetTable tbody').on('click', '.editAsset ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('vendor') }}/" + data.vendor_id.toLowerCase() + '/edit';
+                window.location.href = "{{ url('asset') }}/" + data.asset_id.toLowerCase() + '/edit';
             });
 
-            $('#vendor-table tbody').on('click', '.deleteVendor ', function() {
+            $('#assetTable tbody').on('click', '.deleteAsset ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('vendor', data.vendor_id)
+                confirmDelete('asset', data.asset_id)
             });
         });
     </script>

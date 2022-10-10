@@ -34,5 +34,9 @@ Route::get('vendor/datatables', [VendorController::class, 'data'])->name('vendor
 Route::resource('vendor', VendorController::class);
 
 Route::resource('volunteer', VolunteerController::class);
+
+Route::get('asset/datatables', [AssetController::class, 'data'])->name('asset.datatables');
 Route::resource('asset', AssetController::class);
+
+Route::get('university/datatables', [UniversityController::class, 'data'])->name('university.datatables');
 Route::resource('university', UniversityController::class);

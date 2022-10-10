@@ -81,7 +81,7 @@ class VendorController extends Controller
             Log::error('Store vendor failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('vendor');
+        return Redirect::to('vendor')->withSuccess('Vendor successfully created');;
     }
 
     public function create()
@@ -141,7 +141,7 @@ class VendorController extends Controller
             Log::error('Update vendor failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('vendor');
+        return Redirect::to('vendor')->withSuccess('Vendor successfully updated');;
     }
 
     public function destroy(Request $request)
@@ -159,6 +159,8 @@ class VendorController extends Controller
             Log::error('Delete vendor failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('vendor');
+        // return Redirect::to('vendor')->with('alert', ['status' => 'success', 'message' => 'Item successfully deleted']);
+
+        return Redirect::to('vendor')->withSuccess('Vendor successfully deleted');
     }
 }

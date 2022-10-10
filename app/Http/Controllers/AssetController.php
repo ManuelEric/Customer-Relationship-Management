@@ -24,7 +24,12 @@ class AssetController extends Controller
         $this->assetRepository = $assetRepository;
     }
 
-    public function index(): JsonResponse
+    public function index()
+    {
+        return view('asset.index');
+    }
+
+    public function data(): JsonResponse
     {
         return response()->json(
             [
@@ -44,30 +49,28 @@ class AssetController extends Controller
             'asset_condition',
             'asset_notes',
         ]);
-        
+
         $last_id = Asset::max('asset_id');
         $asset_id_without_label = $this->remove_primarykey_label($last_id, 3);
-        $asset_id_with_label = 'AS-' . $this->add_digit($asset_id_without_label+1, 4);
+        $asset_id_with_label = 'AS-' . $this->add_digit($asset_id_without_label + 1, 4);
 
         DB::beginTransaction();
         try {
 
             $this->assetRepository->createAsset(['asset_id' => $asset_id_with_label] + $assetDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store asset failed : ' . $e->getMessage());
-
         }
 
-        return Redirect::to('asset');
+        return Redirect::to('asset')->withSuccess('Asset successfully created');;
     }
 
     public function create()
     {
-        return view('form-asset');
+        return view('asset.form');
     }
 
     public function edit(Request $request)
@@ -79,7 +82,7 @@ class AssetController extends Controller
         # put the link to update asset form below
         # example
 
-        return view('form-asset')->with(
+        return view('asset.form')->with(
             [
                 'asset' => $asset,
             ]
@@ -106,15 +109,13 @@ class AssetController extends Controller
 
             $this->assetRepository->updateAsset($assetId, $assetDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update asset failed : ' . $e->getMessage());
+        }
 
-        }   
-        
-        return Redirect::to('asset');
+        return Redirect::to('asset')->withSuccess('Asset successfully updated');;
     }
 
     public function destroy(Request $request)
@@ -126,14 +127,12 @@ class AssetController extends Controller
 
             $this->assetRepository->deleteAsset($assetId);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete asset failed : ' . $e->getMessage());
-
         }
 
-        return Redirect::to('asset');
+        return Redirect::to('asset')->withSuccess('Asset successfully deleted');;
     }
 }

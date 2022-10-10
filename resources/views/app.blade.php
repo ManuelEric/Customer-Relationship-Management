@@ -21,6 +21,8 @@
 
 
     {{-- JS  --}}
+    {{-- <script src="{{ asset('dashboard-template/vendors/js/vendor.bundle.base.js') }}"></script> --}}
+    {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> --}}
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
@@ -52,6 +54,66 @@
 <body>
     @yield('body')
 
+    {{-- Delete Item  --}}
+    <div class="modal modal-sm fade" tabindex="-1" id="deleteItem" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="" method="post" id="formAction">
+                    @csrf
+                    @method('delete')
+                    <div class="modal-body text-center">
+                        <h2>
+                            <i class="bi bi-info-circle text-info"></i>
+                        </h2>
+                        <h4>Are you sure?</h4>
+                        <h6>You want to delete this data?</h6>
+                        <hr>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-trash3 me-1"></i>
+                            Yes, Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function confirmDelete(subject, id) {
+            // show modal 
+            var myModal = new bootstrap.Modal(document.getElementById('deleteItem'))
+            myModal.show()
+
+            // change form action 
+            $('#formAction').attr('action', '{{ url('') }}/' + subject + '/' + id);
+        }
+    </script>
+    {{-- / Delete Item  --}}
+
+    {{-- Alert  --}}
+    @if (session('success') || session('error'))
+        <script>
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'bottom-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+
+            Toast.fire({
+                icon: '{{ session('success') ? 'success' : 'error' }}',
+                title: '{{ session('success') ? session('success') : session('error') }}'
+            })
+        </script>
+    @endif
+    {{-- / Alert  --}}
 
 </body>
 
