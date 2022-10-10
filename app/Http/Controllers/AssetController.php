@@ -31,11 +31,7 @@ class AssetController extends Controller
 
     public function data(): JsonResponse
     {
-        return response()->json(
-            [
-                'data' => $this->assetRepository->getAllAssets()
-            ]
-        );
+        return $this->assetRepository->getAllAssetsDataTables();
     }
 
     public function store(StoreAssetRequest $request)

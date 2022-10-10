@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('phone', 15)->nullable();
-            $table->string('emergency_contact', 15)->nullable();
+            $table->string('emergency_contact', 25)->nullable();
             $table->date('datebirth')->nullable();
 
             $table->unsignedBigInteger('department_id')->nullable();
@@ -32,14 +32,14 @@ return new class extends Migration
 
             $table->string('password');
             $table->date('hiredate')->nullable();
-            $table->integer('nik')->nullable();
+            $table->bigInteger('nik')->nullable();
             $table->text('idcard')->nullable();
             $table->string('cv')->nullable();
             $table->string('bankname', 50)->nullable();
-            $table->integer('bankacc')->nullable();
+            $table->string('bankacc', 25)->nullable();
             $table->string('npwp', 30)->nullable();
             $table->text('tax')->nullable();
-            $table->string('status')->nullable();
+            $table->boolean('active')->nullable();
             $table->string('health_insurance')->nullable();
             $table->string('empl_insurance')->nullable();
             $table->boolean('export')->default(1);

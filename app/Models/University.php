@@ -12,9 +12,6 @@ class University extends Model
     use HasFactory;
 
     protected $table = 'tbl_univ';
-    protected $primaryKey = 'univ_id';
-    
-    public $incrementing = false;
 
     /**
      * The attributes that should be visible in arrays.
@@ -48,5 +45,11 @@ class University extends Model
     public static function trim($string)
     {
         return $string = trim(preg_replace('/\s\s+/', ' ', $string));
+    }
+
+    # relation
+    public function user()
+    {
+        return $this->belongsToMany(User::class, 'tbl_user_educations', 'univ_id', 'user_id');
     }
 }

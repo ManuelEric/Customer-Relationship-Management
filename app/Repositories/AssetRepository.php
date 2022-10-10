@@ -4,9 +4,15 @@ namespace App\Repositories;
 
 use App\Interfaces\AssetRepositoryInterface;
 use App\Models\Asset;
+use DataTables;
 
 class AssetRepository implements AssetRepositoryInterface 
 {
+    public function getAllAssetsDataTables()
+    {
+        return Datatables::eloquent(Asset::query())->make(true);
+    }
+
     public function getAllAssets()
     {
         return Asset::orderBy('asset_dateachieved', 'desc')->get();
