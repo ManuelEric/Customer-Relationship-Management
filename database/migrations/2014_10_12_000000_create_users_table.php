@@ -30,7 +30,7 @@ return new class extends Migration
             $table->unsignedBigInteger('department_id')->nullable();
             $table->foreign('department_id')->references('id')->on('tbl_department')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->date('hiredate')->nullable();
             $table->bigInteger('nik')->nullable();
             $table->text('idcard')->nullable();

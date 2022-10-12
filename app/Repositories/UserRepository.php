@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserRepository implements UserRepositoryInterface 
 {
@@ -22,6 +23,25 @@ class UserRepository implements UserRepositoryInterface
         return User::whereExtendedId($extendedId);
     }
 
+    public function getUserByFullNameOrEmail($userName, $userEmail)
+    {
+        $userName = explode(' ', $userName);
+
+        return User::where(function ($extquery) use ($userName) {
+
+            # search word by word 
+            # and loop based on name length
+            for ($i = 0 ; $i < count($userName) ; $i++) {
+
+                # looping at least two times
+                if ($i == 1)
+                    $extquery = $extquery->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ['%'.$userName[$i].'%']);
+
+            }
+
+        })->orWhere('email', $userEmail)->first();
+    }
+
     public function createUsers(array $userDetails)
     {
         return User::insert($userDetails);
@@ -30,6 +50,45 @@ class UserRepository implements UserRepositoryInterface
     public function createUser(array $userDetails)
     {
         return User::create($userDetails);
+    }
+
+    public function updateExtendedId($newDetails)
+    {
+        
+    }
+
+    public function getUserRoles($userId, $roleName)
+    {
+        return User::where('id', $userId)->whereHas('roles', function (Builder $query) use ($roleName) {
+            $query->where('role_name', '=', $roleName);
+        })->first();
+    }
+
+    public function cleaningUser()
+    {
+        User::where('last_name', '=', '')->update(
+            [
+                'last_name' => null
+            ]
+        );
+
+        User::where('address', '=', '')->update(
+            [
+                'address' => null
+            ]
+        );
+
+        User::where('emergency_contact', '=', '')->orWhere('emergency_contact', '=', '-')->update(
+            [
+                'emergency_contact' => null
+            ]
+        );
+
+        User::where('password', '=', '')->update(
+            [
+                'password' => null
+            ]
+        );
     }
 
 }

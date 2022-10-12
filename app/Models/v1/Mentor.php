@@ -2,6 +2,7 @@
 
 namespace App\Models\v1;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -45,4 +46,22 @@ class Mentor extends Model
         'mt_notes',
         'mt_lastupdate',
     ];
+
+    protected function mtMajor(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => str_contains($value, "/") ? self::changeSeparator("/", $value) : (str_contains($value, ",") ? self::changeSeparator(",", $value) : $value) ,
+        );
+    }
+
+    public static function changeSeparator($separator, $value)
+    {
+        return str_replace($separator, ' ; ', $value);
+    }
+
+    # relation
+    public function university()
+    {
+        return $this->belongsTo(University::class, 'univ_id', 'univ_id');
+    }
 }

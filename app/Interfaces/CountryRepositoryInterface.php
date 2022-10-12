@@ -5,4 +5,5 @@ namespace App\Interfaces;
 interface CountryRepositoryInterface 
 {
     public function getAllCountries();
+    public function getCountryNameByUnivCountry($univCountry);
 }
