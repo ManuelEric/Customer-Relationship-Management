@@ -24,15 +24,18 @@ class VolunteerController extends Controller
         $this->volunteerRepository = $volunteerRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        # put view volunteer here
+        if ($request->ajax()) {
+            return $this->volunteerRepository->getAllVolunteerDataTables();
+        }
+        return view('pages.volunteer.index');
     }
 
-    public function data(): JsonResponse
-    {
-        return $this->volunteerRepository->getAllVolunteerDataTables();
-    }
+    // public function data(): JsonResponse
+    // {
+    //     return $this->volunteerRepository->getAllVolunteerDataTables();
+    // }
 
     public function store(StoreVolunteerRequest $request)
     {
@@ -46,30 +49,28 @@ class VolunteerController extends Controller
             'volunt_major',
             'volunt_position',
         ]);
-        
+
         $last_id = Volunteer::max('volunt_id');
         $volunteer_id_without_label = $this->remove_primarykey_label($last_id, 4);
-        $volunteer_id_with_label = 'VLT-' . $this->add_digit($volunteer_id_without_label+1, 4);
+        $volunteer_id_with_label = 'VLT-' . $this->add_digit($volunteer_id_without_label + 1, 4);
 
         DB::beginTransaction();
         try {
 
             $this->volunteerRepository->createVolunteer(['volunt_id' => $volunteer_id_with_label] + $volunteerDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store volunteer failed : ' . $e->getMessage());
-
         }
 
-        return Redirect::to('volunteer');
+        return Redirect::to('master/volunteer');
     }
 
     public function create()
     {
-        return view('form-volunteer');
+        return view('pages.volunteer.form');
     }
 
     public function edit(Request $request)
@@ -81,7 +82,7 @@ class VolunteerController extends Controller
 
         # put the link to update volunteer form below
         # example
-        return view('form-volunteer')->with(
+        return view('pages.volunteer.form')->with(
             [
                 'volunteer' => $volunteer,
             ]
@@ -109,15 +110,13 @@ class VolunteerController extends Controller
 
             $this->volunteerRepository->updateVolunteer($volunteerId, $volunteerDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update volunteer failed : ' . $e->getMessage());
+        }
 
-        }   
-        
-        return Redirect::to('volunteer');
+        return Redirect::to('master/volunteer');
     }
 
     public function destroy(Request $request)
@@ -129,14 +128,12 @@ class VolunteerController extends Controller
 
             $this->volunteerRepository->deleteVolunteer($volunteerId);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete volunteer failed : ' . $e->getMessage());
-
         }
 
-        return Redirect::to('volunteer');
+        return Redirect::to('master/volunteer');
     }
 }

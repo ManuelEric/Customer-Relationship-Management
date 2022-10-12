@@ -21,10 +21,10 @@
                     </button>
                 </div>
                 <div>
-                    <a class="navbar-brand brand-logo" href="index.html">
+                    <a class="navbar-brand brand-logo" href="{{ url('dashboard') }}">
                         <img src="{{ asset('dashboard-template/images/logo.svg') }}" alt="logo" />
                     </a>
-                    <a class="navbar-brand brand-logo-mini" href="index.html">
+                    <a class="navbar-brand brand-logo-mini" href="{{ url('dashboard') }}">
                         <img src="{{ asset('dashboard-template/images/logo-mini.svg') }}" alt="logo" />
                     </a>
                 </div>
@@ -96,59 +96,82 @@
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.html">
+                        <a class="nav-link" href="{{ url('dashboard') }}">
                             <i class="bi bi-speedometer2 mx-2"></i>
                             <span class="menu-title">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item nav-category">Pages</li>
-                    <li class="nav-item">
+                    <li class="nav-item  {{ Request::is('master*') ? 'active' : '' }}">
                         <a class="nav-link" data-bs-toggle="collapse" href="#master" aria-expanded="false"
                             aria-controls="master">
                             <i class="bi bi-bookmark mx-2"></i>
                             <span class="menu-title">Master</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="collapse" id="master">
+                        <div class="{{ Request::is('master/*') ? 'collapsed' : 'collapse' }}" id="master">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Program</a>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('master/asset*') ? 'active' : '' }}"
+                                        href="{{ url('master/asset') }}">Assets</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/lead') }}">Lead
+                                <li class="nav-item"> <a class="nav-link"
+                                        {{ Request::is('master/department*') ? 'active' : '' }}
+                                        href="{{ url('master/department') }}">Department</a>
+                                </li>
+                                <li class="nav-item"> <a
+                                        class="nav-link  {{ Request::is('master/lead*') ? 'active' : '' }}"
+                                        href="{{ url('master/lead') }}">Lead
                                         Source</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/university') }}">Universities</a>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('master/major*') ? 'active' : '' }}"
+                                        href="{{ url('master/major') }}">Major</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/vendor') }}">Vendors</a>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('master/program*') ? 'active' : '' }}"
+                                        href="{{ url('master/program') }}">Program</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/asset') }}">Assets</a>
-                                </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/department') }}">Department</a>
-                                </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/purchase') }}">Purchase
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('master/purchase*') ? 'active' : '' }}"
+                                        href="{{ url('master/purchase') }}">Purchase
                                         Request</a>
+                                </li>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('master/university*') ? 'active' : '' }}"
+                                        href="{{ url('master/university') }}">Universities</a>
+                                </li>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('master/vendor*') ? 'active' : '' }}"
+                                        href="{{ url('master/vendor') }}">Vendors</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item {{ Request::is('client*') ? 'active' : '' }}">
                         <a class="nav-link" data-bs-toggle="collapse" href="#client" aria-expanded="false"
                             aria-controls="client">
                             <i class="bi bi-people-fill mx-2"></i>
                             <span class="menu-title">Client</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="collapse" id="client">
+                        <div class="{{ Request::is('client*') ? 'collapsed' : 'collapse' }}" id="client">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/client') }}">Mentees</a>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('client/mentee*') ? 'active' : '' }}"
+                                        href="{{ url('client/mentee') }}">Mentees</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/employee') }}">Parents</a>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('client/parent*') ? 'active' : '' }}"
+                                        href="{{ url('client/parent') }}">Parents</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link"
-                                        href="{{ url('/program') }}">Teacher/Counselor</a></li>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('client/teacher*') ? 'active' : '' }}"
+                                        href="{{ url('client/teacher') }}">Teacher/Counselor</a></li>
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item {{ Request::is('instance*') ? 'active' : '' }}">
                         <a class="nav-link" data-bs-toggle="collapse" href="#instance" aria-expanded="false"
                             aria-controls="ui-basic">
                             <i class="bi bi-building mx-2"></i>
@@ -157,13 +180,17 @@
                         </a>
                         <div class="collapse" id="instance">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/client') }}">School</a>
+                                <li class="nav-item"> <a class="{{ Request::is('instance/school*') ? 'active' : '' }}"
+                                        href="{{ url('instance/school') }}">School</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/employee') }}">Corporate</a>
+                                <li class="nav-item"> <a class="{{ Request::is('instance/corporate*') ? 'active' : '' }}"
+                                        href="{{ url('instance/corporate') }}">Corporate</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Referral</a>
+                                <li class="nav-item"> <a class="{{ Request::is('instance/referral*') ? 'active' : '' }}"
+                                        href="{{ url('instance/referral') }}">Referral</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Edufair</a>
+                                <li class="nav-item"> <a class="{{ Request::is('instance/edufair*') ? 'active' : '' }}"
+                                        href="{{ url('instance/edufair') }}">Edufair</a>
                                 </li>
                             </ul>
                         </div>
@@ -177,13 +204,14 @@
                         </a>
                         <div class="collapse" id="program">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/employee') }}">Client
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('client/program') }}">Client
                                         Program</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Corporate
+                                <li class="nav-item"> <a class="nav-link"
+                                        href="{{ url('corporate/program') }}">Corporate
                                         Program</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">School
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('school/program') }}">School
                                         Program</a>
                                 </li>
                             </ul>
@@ -198,14 +226,17 @@
                         </a>
                         <div class="collapse" id="invoice">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/client') }}">Client
+                                <li class="nav-item"> <a class="nav-link"
+                                        href="{{ url('client/program/invoice') }}">Client
                                         Program</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Corporate
+                                <li class="nav-item"> <a class="nav-link"
+                                        href="{{ url('corporate/program/invoice') }}">Corporate
                                         Program
                                     </a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">School
+                                <li class="nav-item"> <a class="nav-link"
+                                        href="{{ url('school/program/invoice') }}">School
                                         Program
                                     </a>
                                 </li>
@@ -221,18 +252,22 @@
                         </a>
                         <div class="collapse" id="receipt">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/client') }}">Client
+                                <li class="nav-item"> <a class="nav-link"
+                                        href="{{ url('client/program/receipt') }}">Client
                                         Program</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Corporate
+                                <li class="nav-item"> <a class="nav-link"
+                                        href="{{ url('corporate/program/receipt') }}">Corporate
                                         Program
                                     </a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">School
+                                <li class="nav-item"> <a class="nav-link"
+                                        href="{{ url('school/program/receipt') }}">School
                                         Program
                                     </a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Referral
+                                <li class="nav-item"> <a class="nav-link"
+                                        href="{{ url('referral/program/receipt') }}">Referral
                                         Program
                                     </a>
                                 </li>
@@ -248,18 +283,18 @@
                         </a>
                         <div class="collapse" id="users">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/client') }}">Employee</a>
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('employee') }}">Employee</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Mentor
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('mentor') }}">Mentor
                                     </a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Tutor
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('tutor') }}">Tutor
                                     </a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Editor
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('editor') }}">Editor
                                     </a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">Volunteer
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('volunteer') }}">Volunteer
                                     </a>
                                 </li>
                             </ul>
@@ -274,10 +309,10 @@
                         </a>
                         <div class="collapse" id="report">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/client') }}">Sales
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('report/sales') }}">Sales
                                         Tracking</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('/program') }}">PPH Final
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('report/pph') }}">PPH Final
                                     </a>
                                 </li>
                             </ul>

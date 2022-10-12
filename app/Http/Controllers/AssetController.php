@@ -24,15 +24,19 @@ class AssetController extends Controller
         $this->assetRepository = $assetRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return view('asset.index');
+        if ($request->ajax()) {
+            return $this->assetRepository->getAllAssetsDataTables();
+        }
+
+        return view('pages.asset.index');
     }
 
-    public function data(): JsonResponse
-    {
-        return $this->assetRepository->getAllAssetsDataTables();
-    }
+    // public function data(): JsonResponse
+    // {
+    //     return $this->assetRepository->getAllAssetsDataTables();
+    // }
 
     public function store(StoreAssetRequest $request)
     {
@@ -61,12 +65,12 @@ class AssetController extends Controller
             Log::error('Store asset failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('asset')->withSuccess('Asset successfully created');;
+        return Redirect::to('master/asset')->withSuccess('Asset successfully created');;
     }
 
     public function create()
     {
-        return view('asset.form');
+        return view('pages.asset.form');
     }
 
     public function edit(Request $request)
@@ -78,7 +82,7 @@ class AssetController extends Controller
         # put the link to update asset form below
         # example
 
-        return view('asset.form')->with(
+        return view('pages.asset.form')->with(
             [
                 'asset' => $asset,
             ]
@@ -111,7 +115,7 @@ class AssetController extends Controller
             Log::error('Update asset failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('asset')->withSuccess('Asset successfully updated');;
+        return Redirect::to('master/asset')->withSuccess('Asset successfully updated');;
     }
 
     public function destroy(Request $request)
@@ -129,6 +133,6 @@ class AssetController extends Controller
             Log::error('Delete asset failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('asset')->withSuccess('Asset successfully deleted');;
+        return Redirect::to('master/asset')->withSuccess('Asset successfully deleted');;
     }
 }

@@ -30,13 +30,25 @@ Route::get('dashboard', function () {
     return view('layout.main');
 });
 
-Route::get('vendor/datatables', [VendorController::class, 'data'])->name('vendor.datatables');
-Route::resource('vendor', VendorController::class);
+Route::get('master/program', function () {
+    return view('pages.program.index');
+});
+Route::get('master/program/create', function () {
+    return view('pages.program.form');
+});
 
-Route::resource('volunteer', VolunteerController::class);
+Route::get('master/lead', function () {
+    return view('pages.lead.index');
+});
+Route::get('master/lead/create', function () {
+    return view('pages.lead.form');
+});
 
-Route::get('asset/datatables', [AssetController::class, 'data'])->name('asset.datatables');
-Route::resource('asset', AssetController::class);
+Route::resource('master/vendor', VendorController::class);
 
-Route::get('university/datatables', [UniversityController::class, 'data'])->name('university.datatables');
-Route::resource('university', UniversityController::class);
+Route::resource('master/asset', AssetController::class);
+
+Route::resource('master/university', UniversityController::class);
+
+// User 
+Route::resource('user/volunteer', VolunteerController::class);
