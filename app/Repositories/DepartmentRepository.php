@@ -17,6 +17,11 @@ class DepartmentRepository implements DepartmentRepositoryInterface
         return Department::where('dept_name', '=', $departmentName)->first();
     }
 
+    public function deleteDepartment($departmentId)
+    {
+        return Department::destroy($departmentId);
+    }
+
     public function createDepartments(array $departmentDetails) 
     {
         return Department::insert($departmentDetails);
@@ -25,5 +30,10 @@ class DepartmentRepository implements DepartmentRepositoryInterface
     public function createDepartment(array $departmentDetails)
     {
         return Department::create($departmentDetails);
+    }
+
+    public function updateDepartment($departmentId, array $newDetails)
+    {
+        return Department::whereId($departmentId)->update($newDetails);
     }
 }
