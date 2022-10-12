@@ -8,7 +8,7 @@ use App\Models\University;
 use Illuminate\Http\JsonResponse;
 use DataTables;
 
-class UniversityRepository implements UniversityRepositoryInterface 
+class UniversityRepository implements UniversityRepositoryInterface
 {
     public function getAllUniversitiesDataTables()
     {
@@ -35,7 +35,7 @@ class UniversityRepository implements UniversityRepositoryInterface
         return University::whereRaw('LOWER(univ_name) = (?)', [strtolower($universityName)])->first();
     }
 
-    public function deleteUniversity($universityId) 
+    public function deleteUniversity($universityId)
     {
         return University::destroy($universityId);
     }
@@ -45,12 +45,12 @@ class UniversityRepository implements UniversityRepositoryInterface
         return University::insert($universityDetails);
     }
 
-    public function createUniversity(array $universityDetails) 
+    public function createUniversity(array $universityDetails)
     {
         return University::create($universityDetails);
     }
 
-    public function updateUniversity($universityId, array $newDetails) 
+    public function updateUniversity($universityId, array $newDetails)
     {
         return University::whereUniversityId($universityId)->update($newDetails);
     }

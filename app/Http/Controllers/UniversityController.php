@@ -27,15 +27,23 @@ class UniversityController extends Controller
         $this->countryRepository = $countryRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return view('univ.index');
+        if ($request->ajax()) {
+            return $this->universityRepository->getAllUniversitiesDataTables();
+        }
+
+        return view('pages.univ.index')->with(
+            [
+                'countries' => $this->countryRepository->getAllCountries()
+            ]
+        );
     }
 
-    public function data(): JsonResponse
-    {
-        return $this->universityRepository->getAllUniversitiesDataTables();
-    }
+    // public function data(): JsonResponse
+    // {
+    //     return $this->universityRepository->getAllUniversitiesDataTables();
+    // }
 
     public function store(StoreUniversityRequest $request)
     {
@@ -60,7 +68,7 @@ class UniversityController extends Controller
             Log::error('Store university failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('university');
+        return Redirect::to('master/university')->withSuccess('University successfully created');
     }
 
     public function create()
@@ -74,6 +82,10 @@ class UniversityController extends Controller
 
     public function edit(Request $request)
     {
+        if ($request->ajax()) {
+            return $this->universityRepository->getAllUniversitiesDataTables();
+        }
+
         $universityId = $request->route('university');
 
         # retrieve country
@@ -84,7 +96,7 @@ class UniversityController extends Controller
         # put the link to update vendor form below
         # example
 
-        return view('form-university')->with(
+        return view('pages.univ.index')->with(
             [
                 'university' => $university,
                 'countries' => $countries
@@ -114,7 +126,7 @@ class UniversityController extends Controller
             Log::error('Update university failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('university');
+        return Redirect::to('master/university')->withSuccess('University successfully updated');
     }
 
     public function destroy(Request $request)
@@ -132,6 +144,6 @@ class UniversityController extends Controller
             Log::error('Delete university failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('university');
+        return Redirect::to('master/university')->withSuccess('University successfully deleted');
     }
 }

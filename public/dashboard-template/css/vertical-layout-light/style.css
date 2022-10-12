@@ -13517,17 +13517,17 @@ table.dataTable tbody td.select-checkbox:after {
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-  color: color(white);
-  border: 0;
+  color: white;
+  /* border: 0;
   border-radius: 3px;
   padding: 6px;
   font-size: .625rem;
   font-family: inherit;
-  line-height: 1;
+  line-height: 1; */
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice .select2-selection__choice__remove {
-  color: color(white);
+  /* color: color(white); */
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice:nth-child(5n+1) {
