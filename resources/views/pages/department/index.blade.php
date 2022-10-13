@@ -1,35 +1,32 @@
 @extends('layout.main')
 
-@section('title', 'Lead - Bigdata Platform')
+@section('title', 'Department - Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Lead Source
+            <i class="bi bi-arrow-left me-2"></i> Department
         </a>
         <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#leadForm"><i
                 class="bi bi-plus-square me-1"></i> Add
-            Lead Source</a>
+            Department</a>
     </div>
 
 
     <div class="card rounded">
         <div class="card-body">
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="departmentTable">
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="text-dark">#</th>
-                        <th class="bg-info text-white">Lead ID</th>
-                        <th class="bg-info text-white">Lead Name</th>
-                        <th>Lead Detail</th>
-                        <th>Score</th>
+                        <th class="bg-info text-white">Department Name</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="6"></td>
+                        <td colspan="3"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -44,34 +41,19 @@
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-between">
                     <span>
-                        Lead Source
+                        Department
                     </span>
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
                     <form action="" method="POST">
                         <div class="row g-2">
-                            <div class="col-md-10">
-                                <div class="mb-0">
-                                    <label for="">
-                                        Lead Name <sup class="text-danger">*</sup>
-                                    </label>
-                                    <input type="text" name="main_lead" class="form-control form-control-sm rounded"
-                                        required value="">
-                                </div>
-                                <div class="mb-2">
-                                    <input class="form-check-input" type="checkbox" value="kol" id="kol">
-                                    <label class="form-check-label ms-1 text-secondary" for="kol">
-                                        Select to KOL
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
+                            <div class="col-md-12">
                                 <div class="mb-2">
                                     <label for="">
-                                        Score <sup class="text-danger">*</sup>
+                                        Department Name <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="number" name="score" class="form-control form-control-sm rounded"
+                                    <input type="text" name="dept_name" class="form-control form-control-sm rounded"
                                         required value="">
                                 </div>
                             </div>

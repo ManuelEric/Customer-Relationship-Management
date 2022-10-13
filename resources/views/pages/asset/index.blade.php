@@ -97,6 +97,10 @@
                     },
                     {
                         data: 'asset_notes',
+                        render: function(data, type, row) {
+                            let notes = row.asset_notes
+                            return notes
+                        }
                     },
                     {
                         data: 'asset_lastupdatedate',

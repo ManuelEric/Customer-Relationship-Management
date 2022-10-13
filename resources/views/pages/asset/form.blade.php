@@ -71,7 +71,6 @@
                                         Unit(s)
                                     </label>
                                     <input type="text" name="asset_unit" class="form-control form-control-sm rounded"
-                                        placeholder="test"
                                         value="{{ isset($asset->asset_unit) ? $asset->asset_unit : old('asset_unit') }}">
                                 </div>
                             </div>
