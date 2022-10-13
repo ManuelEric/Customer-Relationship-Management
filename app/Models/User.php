@@ -71,6 +71,15 @@ class User extends Authenticatable
         return $instance->newQuery()->find($id, 'extended_id');
     }
 
+    public static function whereFullName($name)
+    {
+        if (is_array($name) && empty($name)) return new Collection();
+        
+        $instance = new static;
+
+        return $instance->newQuery()->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ['%'.$name.'%'])->first();
+    }
+
     # relation
     public function roles()
     {

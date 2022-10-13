@@ -22,6 +22,7 @@ return new class extends Migration
             $table->unsignedBigInteger('role_id');
             $table->foreign('role_id')->references('id')->on('tbl_roles')->onUpdate('cascade')->onDelete('cascade');
 
+            $table->string('extended_id', 10)->nullable();
             $table->string('tutor_subject')->nullable();
             $table->bigInteger('feehours')->nullable();
             $table->bigInteger('feesession')->nullable();

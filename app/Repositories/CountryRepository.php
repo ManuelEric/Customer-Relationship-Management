@@ -12,4 +12,9 @@ class CountryRepository implements CountryRepositoryInterface
     {
         return CountryTranslations::where('locale', 'en')->orderBy('name', 'asc')->get();
     }
+
+    public function getCountryNameByUnivCountry($univCountry)
+    {
+        return CountryTranslations::where('name', 'like', '%'.$univCountry.'%')->first();
+    }
 }
