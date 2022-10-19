@@ -74,7 +74,7 @@ class VendorController extends Controller
             Log::error('Store vendor failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('master/vendor')->withSuccess('Vendor successfully created');;
+        return Redirect::to('master/vendor')->withSuccess('Vendor successfully created');
     }
 
     public function create()

@@ -5,7 +5,9 @@ namespace App\Providers;
 use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\CountryRepositoryInterface;
 use App\Interfaces\DepartmentRepositoryInterface;
+use App\Interfaces\EditorRepositoryInterface;
 use App\Interfaces\EmployeeRepositoryInterface;
+use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\MentorRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
@@ -17,7 +19,9 @@ use App\Interfaces\VolunteerRepositoryInterface;
 use App\Repositories\AssetRepository;
 use App\Repositories\CountryRepository;
 use App\Repositories\DepartmentRepository;
+use App\Repositories\EditorRepository;
 use App\Repositories\EmployeeRepository;
+use App\Repositories\LeadRepository;
 use App\Repositories\MajorRepository;
 use App\Repositories\MentorRepository;
 use App\Repositories\RoleRepository;
@@ -46,10 +50,13 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(CountryRepositoryInterface::class, CountryRepository::class);
         $this->app->bind(MajorRepositoryInterface::class, MajorRepository::class);
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
+        $this->app->bind(LeadRepositoryInterface::class, LeadRepository::class);
         $this->app->bind(MentorRepositoryInterface::class, MentorRepository::class);
+        $this->app->bind(EditorRepositoryInterface::class, EditorRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(DepartmentRepositoryInterface::class, DepartmentRepository::class);
+
     }
 
     /**

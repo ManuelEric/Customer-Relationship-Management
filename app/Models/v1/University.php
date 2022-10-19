@@ -33,4 +33,9 @@ class University extends Model
     {
         return $this->hasMany(Mentor::class, 'univ_id', 'univ_id');
     }
+
+    public function editor()
+    {
+        return $this->hasMany(Editor::class, 'univ_id', 'univ_id');
+    }
 }

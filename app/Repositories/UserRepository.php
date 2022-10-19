@@ -34,7 +34,7 @@ class UserRepository implements UserRepositoryInterface
             for ($i = 0 ; $i < count($userName) ; $i++) {
 
                 # looping at least two times
-                if ($i == 1)
+                if ($i <= 1)
                     $extquery = $extquery->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ['%'.$userName[$i].'%']);
 
             }

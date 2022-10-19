@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CountryRepositoryInterface;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\MentorRepositoryInterface;
@@ -14,9 +15,11 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ImportMentor extends Command
 {
+    use CreateCustomPrimaryKeyTrait;
     /**
      * The name and signature of the console command.
      *
@@ -352,6 +355,7 @@ class ImportMentor extends Command
         } catch (Exception $e) {
             
             DB::rollBack();
+            Log::error('Import mentors failed : ' . $e->getMessage());
             echo $e->getMessage();
 
         }
