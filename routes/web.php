@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\VolunteerController;
@@ -40,3 +41,8 @@ Route::resource('asset', AssetController::class);
 
 Route::get('university/datatables', [UniversityController::class, 'data'])->name('university.datatables');
 Route::resource('university', UniversityController::class);
+
+Route::prefix('master')->group(function() {
+
+    Route::resource('lead', LeadController::class);
+});
