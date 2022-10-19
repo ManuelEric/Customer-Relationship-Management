@@ -15,8 +15,22 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
-        $schedule->command('cleaning:vendor')->hourly();
+        # cleaning
+        // $schedule->command('cleaning:asset')->daily();
+        // $schedule->command('cleaning:user')->daily();
+        // $schedule->command('cleaning:vendor')->daily();
+        // $schedule->command('cleaning:volunteer')->daily();
+
+        # import
+        // $schedule->command('import:department')->hourly();
+        // $schedule->command('import:lead')->hourly();
+        // $schedule->command('import:employee_major')->hourly();
+        // $schedule->command('import:employee_major_magister')->hourly();
+        // $schedule->command('import:employee_university')->hourly();
+        // $schedule->command('import:employee')->hourly();
+        // $schedule->command('import:mentor')->hourly();
+        // $schedule->command('import:editor')->hourly();
+        
     }
 
     /**
