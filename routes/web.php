@@ -45,6 +45,21 @@ Route::get('master/lead/create', function () {
     return view('pages.lead.form');
 });
 
+Route::get('master/department', function () {
+    return view('pages.department.index');
+});
+
+Route::get('master/major', function () {
+    return view('pages.major.index');
+});
+
+Route::get('master/purchase', function () {
+    return view('pages.purchase.index');
+});
+Route::get('master/purchase/create', function () {
+    return view('pages.purchase.form');
+});
+
 Route::resource('master/vendor', VendorController::class);
 
 Route::resource('master/asset', AssetController::class);

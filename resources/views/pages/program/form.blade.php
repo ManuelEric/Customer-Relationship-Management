@@ -8,7 +8,7 @@
     $prog['main'] = ['Admissions Mentoring', 'Career Exploration', 'Eduverse', 'Academic & Test Preparation', 'Others'];
     
     $prog['admissions'] = ['Admissions Mentoring', 'Essay Clinic', 'Interview Preparation'];
-    $prog['exploration'] = ['Career Bootcamp', 'JuniorXplorer', 'PassionXplorer', 'Global Immersion Program'];
+    $prog['exploration'] = ['Career Bootcamp','Exploration', 'JuniorXplorer', 'PassionXplorer', 'Global Immersion Program'];
     $prog['eduverse'] = ['Application Bootcamp', 'Group Mentoring'];
     $prog['academic'] = ['Academic Tutoring', 'ACT', 'SAT', 'Subject Tutoring'];
     $prog['other'] = ['Event','Info Session', 'Other'];
@@ -24,7 +24,7 @@
         <div class="card-body">
             <div class="row align-items-center">
                 <div class="col-md-4 text-center">
-                    <img src="{{ asset('img/asset.png') }}" alt="" class="w-75">
+                    <img src="{{ asset('img/program.webp') }}" alt="" class="w-75">
                 </div>
                 <div class="col-md-8">
                     <form action="" method="POST">
