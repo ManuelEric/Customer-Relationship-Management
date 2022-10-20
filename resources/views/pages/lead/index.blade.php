@@ -49,7 +49,7 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="{{ url(isset($lead) ? 'master/lead/' . $lead->univ_id : 'master/lead') }}" method="POST">
+                    <form action="{{ url(isset($lead) ? 'master/lead/' . $lead->lead_id : 'master/lead') }}" method="POST">
                         @csrf
                         @if (isset($lead))
                             @method('put')
@@ -63,7 +63,7 @@
                                     </label>
                                     <input type="text" name="lead_name" class="form-control form-control-sm rounded"
                                         required
-                                        value="{{ (isset($lead->main_lead) && $lead->main_lead == 'KOL' ? $lead->sub_lead : isset($lead->main_lead)) ? $lead->main_lead : old('main_lead') }}"
+                                        value="{{ isset($lead->main_lead) && $lead->main_lead == 'KOL' ? $lead->sub_lead : (isset($lead->main_lead) ? $lead->main_lead : old('main_lead')) }}"
                                         id="lead_name">
                                 </div>
                                 <div class="mb-2">
@@ -178,7 +178,7 @@
 
             $('#leadTable tbody').on('click', '.deleteLead ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('master/lead', data.id)
+                confirmDelete('master/lead', data.lead_id)
             });
         });
     </script>
