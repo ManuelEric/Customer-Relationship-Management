@@ -54,6 +54,7 @@ class LeadController extends Controller
             $leadDetails['sub_lead'] = null;
 
         }
+
         $lead_id_without_label = $this->remove_primarykey_label($last_id, 2);
         $lead_id_with_label = 'LS' . $this->add_digit($lead_id_without_label + 1, 3);
 
@@ -96,8 +97,7 @@ class LeadController extends Controller
     public function update(StoreLeadRequest $request)
     {
         $leadDetails = $request->only([
-            'main_lead',
-            'sub_lead',
+            'lead_name',
             'score',
             'kol',
         ]);
@@ -105,10 +105,16 @@ class LeadController extends Controller
         # retrieve lead id from url
         $leadId = $request->route('lead');
 
-        if ($request->kol == true)
+        if ($request->kol == true) {
+
             $leadDetails['main_lead'] = "KOL";
-        else
+            $leadDetails['sub_lead'] = $request->lead_name;
+
+        } else {
+            $leadDetails['main_lead'] = $request->lead_name;
             $leadDetails['sub_lead'] = null;
+
+        }
 
         DB::beginTransaction();
         try {
