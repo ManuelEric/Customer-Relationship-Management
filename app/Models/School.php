@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,6 +33,16 @@ class School extends Model
         'sch_location',
     ];
 
+    public static function whereSchoolId($id)
+    {
+        if (is_array($id) && empty($id)) return new Collection;
+        
+        $instance = new static;
+
+        return $instance->newQuery()->find($id, 'sch_id');
+    }
+
+    # relation
     public function detail()
     {
         $this->hasMany(SchoolDetail::class, 'sch_id', 'sch_id');

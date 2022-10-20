@@ -33,13 +33,19 @@ class StoreLeadRequest extends FormRequest
      */
     public function rules()
     {
-        $leadId = $this->input('id');
-
-        return [
+        $rules = [
             'kol' => 'sometimes',
-            'main_lead' => 'required_unless:kol,true|exclude_if:kol,true|unique:tbl_lead,main_lead,'.$leadId,
-            'sub_lead' => 'required_if:kol,true|exclude_unless:kol,true|unique:tbl_lead,sub_lead,'.$leadId,
             'score' => 'required|integer',
         ];
+
+        $leadId = $this->input('id');
+        $kol = $this->input('kol');
+
+        if ($kol == true)
+            $rules['lead_name'] = 'required_if:kol,true|exclude_unless:kol,true|unique:tbl_lead,sub_lead,'.$leadId;
+        else
+            $rules['lead_name'] = 'required_if:kol,true|exclude_unless:kol,true|unique:tbl_lead,main_lead,'.$leadId;
+
+        return $rules;
     }
 }

@@ -40,11 +40,6 @@ class VendorController extends Controller
         return view('pages.vendor.index');
     }
 
-    // public function data(): JsonResponse
-    // {
-    //     return $this->vendorRepository->getAllVendorDataTables();
-    // }
-
     public function store(StoreVendorRequest $request)
     {
         $vendorDetails = $request->only([
