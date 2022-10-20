@@ -18,7 +18,7 @@
                 </div>
                 <div class="col-md-8">
                     <form
-                        action="@if (isset($asset)) {{ '/asset/' . $asset->asset_id }}@else{{ '/asset' }} @endif"
+                        action="@if (isset($asset)) {{ '/master/asset/' . $asset->asset_id }}@else{{ '/master/asset' }} @endif"
                         method="POST">
                         @csrf
                         @if (isset($asset))

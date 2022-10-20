@@ -102,14 +102,14 @@
                         </a>
                     </li>
                     <li class="nav-item nav-category">Pages</li>
-                    <li class="nav-item  {{ Request::is('master*') ? 'active' : '' }}">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#master" aria-expanded="false"
-                            aria-controls="master">
+                    <li class="nav-item">
+                        <a class="nav-link  {{ Request::is('master*') ? 'text-primary' : '' }}" data-bs-toggle="collapse"
+                            href="#master" aria-expanded="false" aria-controls="master">
                             <i class="bi bi-bookmark mx-2"></i>
                             <span class="menu-title">Master</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="{{ Request::is('master/*') ? 'collapsed' : 'collapse' }}" id="master">
+                        <div class="collapse {{ Request::is('master*') ? 'show' : 'hide' }}" id="master">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('master/asset*') ? 'active' : '' }}"
@@ -148,18 +148,18 @@
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item {{ Request::is('client*') ? 'active' : '' }}">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#client" aria-expanded="false"
-                            aria-controls="client">
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('client*') ? 'text-primary' : '' }}" data-bs-toggle="collapse"
+                            href="#client" aria-expanded="false" aria-controls="client">
                             <i class="bi bi-people-fill mx-2"></i>
                             <span class="menu-title">Client</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="{{ Request::is('client*') ? 'collapsed' : 'collapse' }}" id="client">
+                        <div class="collapse {{ Request::is('client*') ? 'show' : 'hide' }}" id="client">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('client/mentee*') ? 'active' : '' }}"
-                                        href="{{ url('client/mentee') }}">Mentees</a>
+                                        href="{{ url('client/mentee/potential') }}">Mentees</a>
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('client/parent*') ? 'active' : '' }}"
