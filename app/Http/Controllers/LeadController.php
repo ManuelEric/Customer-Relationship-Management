@@ -23,9 +23,13 @@ class LeadController extends Controller
         $this->leadRepository = $leadRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return $this->leadRepository->getAllLead();
+        if ($request->ajax()) {
+            return $this->leadRepository->getAllLeadDataTables();
+        }
+
+        return view('pages.lead.index');
     }
 
     public function store(StoreLeadRequest $request)
@@ -66,7 +70,7 @@ class LeadController extends Controller
 
     public function create()
     {
-        return view('lead.form');
+        return view('pages.lead.form');
     }
 
     public function edit(Request $request)

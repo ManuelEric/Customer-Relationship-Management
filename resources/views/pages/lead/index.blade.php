@@ -92,7 +92,7 @@
     </div>
 
     {{-- Need Changing --}}
-    {{-- <script>
+    <script>
         $(document).ready(function() {
             var table = $('#programTable').DataTable({
                 dom: 'Bfrtip',
@@ -113,7 +113,7 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '{!! route('asset.datatables') !!}',
+                ajax: '',
                 columns: [{
                         data: '',
                         className: 'text-center',
@@ -122,25 +122,16 @@
                         }
                     },
                     {
-                        data: '',
+                        data: 'lead_id',
                     },
                     {
-                        data: '',
+                        data: 'main_lead',
                     },
                     {
-                        data: '',
+                        data: 'sub_lead',
                     },
                     {
-                        data: '',
-                    },
-                    {
-                        data: '',
-                    },
-                    {
-                        data: '',
-                    },
-                    {
-                        data: '',
+                        data: 'score',
                     },
                     {
                         data: '',
@@ -161,5 +152,5 @@
                 confirmDelete('asset', data.asset_id)
             });
         });
-    </script> --}}
+    </script>
 @endsection

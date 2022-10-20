@@ -72,6 +72,5 @@ Route::resource('user/volunteer', VolunteerController::class);
 
 Route::prefix('master')->group(function() {
 
-    Route::resource('lead', LeadController::class);
     Route::resource('school', SchoolController::class);
 });

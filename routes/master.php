@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\VendorController;
 use Illuminate\Support\Facades\Route;
@@ -24,12 +25,7 @@ Route::get('program/create', function () {
     return view('pages.program.form');
 });
 
-Route::get('lead', function () {
-    return view('pages.lead.index');
-});
-Route::get('lead/create', function () {
-    return view('pages.lead.form');
-});
+Route::resource('lead', LeadController::class);
 
 Route::get('department', function () {
     return view('pages.department.index');
