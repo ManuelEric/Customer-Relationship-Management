@@ -24,7 +24,6 @@ class School extends Model
         'sch_id',
         'sch_name',
         'sch_type',
-        'sch_level',
         'sch_curriculum',
         'sch_mail',
         'sch_phone',
@@ -39,7 +38,7 @@ class School extends Model
         
         $instance = new static;
 
-        return $instance->newQuery()->find($id, 'sch_id');
+        return $instance->newQuery()->where('sch_id', $id)->first();
     }
 
     # relation

@@ -129,7 +129,7 @@ class VendorController extends Controller
             Log::error('Update vendor failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('master/vendor')->withSuccess('Vendor successfully updated');;
+        return Redirect::to('master/vendor')->withSuccess('Vendor successfully updated');
     }
 
     public function destroy(Request $request)

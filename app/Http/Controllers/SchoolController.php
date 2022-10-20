@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSchoolRequest;
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Interfaces\CurriculumRepositoryInterface;
+use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\School;
 use Exception;
@@ -14,11 +17,15 @@ use Illuminate\Support\Facades\Redirect;
 
 class SchoolController extends Controller
 {
-    protected SchoolRepositoryInterface $schoolRepository;
+    use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository)
+    protected SchoolRepositoryInterface $schoolRepository;
+    protected CurriculumRepositoryInterface $curriculumRepository;
+
+    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository)
     {
         $this->schoolRepository = $schoolRepository;
+        $this->curriculumRepository = $curriculumRepository;
     }
 
     public function index(): JsonResponse
@@ -28,6 +35,7 @@ class SchoolController extends Controller
 
     public function store(StoreSchoolRequest $request)
     {
+
         $schoolDetails = $request->only([
             'sch_name',
             'sch_type',
@@ -46,7 +54,9 @@ class SchoolController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails);
+            # insert into school
+            $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails);                
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -59,6 +69,78 @@ class SchoolController extends Controller
 
     public function create()
     {
-        return view('pages.school.index');
+        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        return view('pages.school.form')->with(
+            [
+                'curriculums' => $curriculums
+            ]
+        );
+    }
+
+    public function edit(Request $request)
+    {
+        $schoolId = $request->route('school');
+
+        # retrieve curriculum data
+        $curriculums = $this->curriculumRepository->getAllCurriculum();
+
+        # retrieve school data by id
+        $school = $this->schoolRepository->getSchoolById($schoolId);
+
+        return view('pages.school.form')->with(
+            [
+                'school' => $school,
+                'curriculums' => $curriculums
+            ]
+        );
+    }
+
+    public function update(StoreSchoolRequest $request)
+    {
+        $schoolDetails = $request->only([
+            'sch_name',
+            'sch_type',
+            'sch_curriculum',
+            'sch_insta',
+            'sch_mail',
+            'sch_phone',
+            'sch_city',
+            'sch_location',
+        ]);
+
+        $schoolId = $request->route('school');
+
+        DB::beginTransaction();
+        try {
+
+            # insert into school
+            $this->schoolRepository->updateSchool($schoolId, $schoolDetails);                
+
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Update school failed : ' . $e->getMessage());
+        }
+
+        return Redirect::to('master/school')->withSuccess('School successfully updated');
+    }
+
+    public function destroy(Request $request)
+    {
+        $schoolId = $request->route('school');
+
+        DB::beginTransaction();
+        try {
+
+            $this->schoolRepository->deleteSchool($schoolId);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete school failed : ' . $e->getMessage());
+        }
+
+        return Redirect::to('master/school')->withSuccess('School successfully deleted');
     }
 }

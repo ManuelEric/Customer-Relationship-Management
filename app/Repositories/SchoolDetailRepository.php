@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Interfaces\SchoolDetailRepositoryInterface;
+use App\Models\SchoolDetail;
+use DataTables;
+
+class SchoolDetailRepository implements SchoolDetailRepositoryInterface 
+{
+
+    public function getAllSchoolDetailDataTables($schoolId)
+    {
+        return Datatables::eloquent(SchoolDetail::where('sch_id', $schoolId)->get())->make(true);
+    }
+
+    public function getAllSchoolDetails($schoolId)
+    {
+        return SchoolDetail::orderBy('schdetail_id', 'asc')->get();
+    }
+
+    public function getSchoolDetailById($schoolDetailId)
+    {
+        return SchoolDetail::find($schoolDetailId);
+    }
+
+    public function deleteSchoolDetail($schoolDetailId)
+    {
+        return SchoolDetail::destroy($schoolDetailId);
+    }
+
+    public function createSchoolDetail(array $schoolDetails) 
+    {
+        return SchoolDetail::create($schoolDetails);
+    }
+
+    public function updateSchoolDetail($schoolDetailId, array $newDetails) 
+    {
+        return SchoolDetail::find($schoolDetailId)->update($newDetails);
+    }
+
+}
