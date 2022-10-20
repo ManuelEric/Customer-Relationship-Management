@@ -11,6 +11,7 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\MentorRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\VendorRepositoryInterface;
@@ -25,6 +26,7 @@ use App\Repositories\LeadRepository;
 use App\Repositories\MajorRepository;
 use App\Repositories\MentorRepository;
 use App\Repositories\RoleRepository;
+use App\Repositories\SchoolRepository;
 use App\Repositories\UniversityRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\VendorRepository;
@@ -53,6 +55,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(LeadRepositoryInterface::class, LeadRepository::class);
         $this->app->bind(MentorRepositoryInterface::class, MentorRepository::class);
         $this->app->bind(EditorRepositoryInterface::class, EditorRepository::class);
+        $this->app->bind(SchoolRepositoryInterface::class, SchoolRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(DepartmentRepositoryInterface::class, DepartmentRepository::class);

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\VolunteerController;
@@ -45,4 +46,5 @@ Route::resource('university', UniversityController::class);
 Route::prefix('master')->group(function() {
 
     Route::resource('lead', LeadController::class);
+    Route::resource('school', SchoolController::class);
 });
