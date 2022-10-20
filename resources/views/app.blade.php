@@ -51,6 +51,8 @@
 
         body {
             font-family: 'Poppins', sans-serif !important;
+            font-size: .75rem;
+            color: #494949;
         }
 
         .select2-container {
@@ -74,6 +76,36 @@
 
         .select2-container--default .select2-selection--single .select2-selection__clear {
             color: red;
+        }
+
+        button.dt-button,
+        div.dt-button,
+        a.dt-button,
+        input.dt-button {
+            border-radius: 8px !important;
+            padding: 5px 10px !important;
+            font-size: .7rem !important;
+        }
+
+        /* width */
+        ::-webkit-scrollbar {
+            height: 7px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            border-radius: 8px;
+            background: #888;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
