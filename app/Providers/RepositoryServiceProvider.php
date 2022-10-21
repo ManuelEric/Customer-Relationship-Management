@@ -29,6 +29,7 @@ use App\Repositories\LeadRepository;
 use App\Repositories\MajorRepository;
 use App\Repositories\MentorRepository;
 use App\Repositories\RoleRepository;
+use App\Repositories\SchoolDetailRepository;
 use App\Repositories\SchoolRepository;
 use App\Repositories\UniversityRepository;
 use App\Repositories\UserRepository;
@@ -60,7 +61,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(EditorRepositoryInterface::class, EditorRepository::class);
         $this->app->bind(SchoolRepositoryInterface::class, SchoolRepository::class);
         $this->app->bind(CurriculumRepositoryInterface::class, CurriculumRepository::class);
-        $this->app->bind(SchoolDetailRepositoryInterface::class, SchoolRepository::class);
+        $this->app->bind(SchoolDetailRepositoryInterface::class, SchoolDetailRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(DepartmentRepositoryInterface::class, DepartmentRepository::class);

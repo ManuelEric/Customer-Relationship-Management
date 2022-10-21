@@ -20,12 +20,14 @@ class SchoolController extends Controller
     use CreateCustomPrimaryKeyTrait;
 
     protected SchoolRepositoryInterface $schoolRepository;
+    protected SchoolDetailRepositoryInterface $schoolDetailRepository;
     protected CurriculumRepositoryInterface $curriculumRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, SchoolDetailRepositoryInterface $schoolDetailRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->curriculumRepository = $curriculumRepository;
+        $this->schoolDetailRepository = $schoolDetailRepository;
     }
 
     public function index(): JsonResponse
@@ -73,6 +75,28 @@ class SchoolController extends Controller
         return view('pages.school.form')->with(
             [
                 'curriculums' => $curriculums
+            ]
+        );
+    }
+
+    public function show(Request $request)
+    {
+        $schoolId = $request->route('school');
+
+        # retrieve curriculum data
+        $curriculums = $this->curriculumRepository->getAllCurriculum();
+
+        # retrieve school data by id
+        $school = $this->schoolRepository->getSchoolById($schoolId);
+
+        # retrieve school detail data by school Id
+        $schoolDetails = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
+
+        return view('pages.school.form')->with(
+            [
+                'school' => $school,
+                'curriculums' => $curriculums,
+                'details' => $schoolDetails
             ]
         );
     }

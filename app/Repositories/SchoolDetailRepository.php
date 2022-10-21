@@ -14,9 +14,9 @@ class SchoolDetailRepository implements SchoolDetailRepositoryInterface
         return Datatables::eloquent(SchoolDetail::where('sch_id', $schoolId)->get())->make(true);
     }
 
-    public function getAllSchoolDetails($schoolId)
+    public function getAllSchoolDetailsById($schoolId)
     {
-        return SchoolDetail::orderBy('schdetail_id', 'asc')->get();
+        return SchoolDetail::where('sch_id', $schoolId)->orderBy('schdetail_id', 'asc')->get();
     }
 
     public function getSchoolDetailById($schoolDetailId)
@@ -31,7 +31,7 @@ class SchoolDetailRepository implements SchoolDetailRepositoryInterface
 
     public function createSchoolDetail(array $schoolDetails) 
     {
-        return SchoolDetail::create($schoolDetails);
+        return SchoolDetail::insert($schoolDetails);
     }
 
     public function updateSchoolDetail($schoolDetailId, array $newDetails) 

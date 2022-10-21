@@ -23,13 +23,19 @@ class StoreSchoolDetailRequest extends FormRequest
      */
     public function rules()
     {
+        
         return [
-            'sch_id' => 'required|unique:tbl_schdetail,sch_id',
-            'schdetail_fullname' => 'required',
-            'schdetail_email' => 'required|email',
-            'schdetail_grade' => 'required|in:Middle School,High School,Middle School & High School',
-            'schdetail_position' => 'required|in:Principal,Counselor,Teacher,Marketing',
-            'schdetail_phone' => 'required',
+            'sch_id' => 'required|exists:tbl_sch,sch_id',
+            // 'schdetail_fullname' => 'required',
+            // 'schdetail_email' => 'required|email',
+            // 'schdetail_grade' => 'required|in:Middle School,High School,Middle School & High School',
+            // 'schdetail_position' => 'required|in:Principal,Counselor,Teacher,Marketing',
+            // 'schdetail_phone' => 'required',
+            'schdetail_name.*' => 'required|string',
+            'schdetail_mail.*' => 'required|email',
+            'schdetail_grade.*' => 'required|in:Middle School,High School,Middle School & High School',
+            'schdetail_position.*' => 'required|in:Principal,Counselor,Teacher,Marketing',
+            'schdetail_phone.*' => 'required',
         ];
     }
 }

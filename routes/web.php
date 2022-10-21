@@ -3,6 +3,7 @@
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\SchoolDetailController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\VolunteerController;
@@ -32,45 +33,12 @@ Route::get('dashboard', function () {
     return view('layout.main');
 });
 
-// Route::get('master/program', function () {
-//     return view('pages.program.index');
-// });
-// Route::get('master/program/create', function () {
-//     return view('pages.program.form');
-// });
-
-// Route::get('master/lead', function () {
-//     return view('pages.lead.index');
-// });
-// Route::get('master/lead/create', function () {
-//     return view('pages.lead.form');
-// });
-
-// Route::get('master/department', function () {
-//     return view('pages.department.index');
-// });
-
-// Route::get('master/major', function () {
-//     return view('pages.major.index');
-// });
-
-// Route::get('master/purchase', function () {
-//     return view('pages.purchase.index');
-// });
-// Route::get('master/purchase/create', function () {
-//     return view('pages.purchase.form');
-// });
-
-// Route::resource('master/vendor', VendorController::class);
-
-// Route::resource('master/asset', AssetController::class);
-
-// Route::resource('master/university', UniversityController::class);
-
 // User 
 Route::resource('user/volunteer', VolunteerController::class);
 
 Route::prefix('master')->group(function() {
 
     Route::resource('school', SchoolController::class);
+    Route::resource('school/{school}/detail', SchoolDetailController::class);
+    // Route::get('school/{school}/detail/create', [SchoolDetailController::class, 'create']);
 });
