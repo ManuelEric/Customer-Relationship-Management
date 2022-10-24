@@ -65,7 +65,7 @@ class AssetController extends Controller
             Log::error('Store asset failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('master/asset')->withSuccess('Asset successfully created');;
+        return Redirect::to('master/asset')->withSuccess('Asset successfully created');
     }
 
     public function create()
@@ -133,6 +133,6 @@ class AssetController extends Controller
             Log::error('Delete asset failed : ' . $e->getMessage());
         }
 
-        return Redirect::to('master/asset')->withSuccess('Asset successfully deleted');;
+        return Redirect::to('master/asset')->withSuccess('Asset successfully deleted');
     }
 }

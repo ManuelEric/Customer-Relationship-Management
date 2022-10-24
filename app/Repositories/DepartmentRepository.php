@@ -4,9 +4,15 @@ namespace App\Repositories;
 
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Models\Department;
+use DataTables;
 
 class DepartmentRepository implements DepartmentRepositoryInterface 
 {
+    public function getAllDepartmentDataTables()
+    {
+        return Datatables::eloquent(Department::query())->make(true);
+    }
+
     public function getAllDepartments()
     {
         return Department::all();

@@ -1,11 +1,7 @@
 <?php
 
-use App\Http\Controllers\AssetController;
-use App\Http\Controllers\LeadController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolDetailController;
-use App\Http\Controllers\UniversityController;
-use App\Http\Controllers\VendorController;
 use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,5 +36,4 @@ Route::prefix('master')->group(function() {
 
     Route::resource('school', SchoolController::class);
     Route::resource('school/{school}/detail', SchoolDetailController::class);
-    // Route::get('school/{school}/detail/create', [SchoolDetailController::class, 'create']);
 });
