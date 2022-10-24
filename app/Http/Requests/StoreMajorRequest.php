@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreDepartmentRequest extends FormRequest
+class StoreMajorRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,13 +14,6 @@ class StoreDepartmentRequest extends FormRequest
     public function authorize()
     {
         return true;
-    }
-
-    public function messages()
-    {
-        return [
-            'dept_name.unique' => 'The department name has already been taken.' 
-        ];
     }
 
     /**
@@ -33,7 +26,7 @@ class StoreDepartmentRequest extends FormRequest
         $id = $this->input('id') ?? null;
 
         return [
-            'dept_name' => 'required|unique:tbl_department,dept_name,'.$id,
+            'name' => 'required|unique:tbl_major,name,'.$id,
         ];
     }
 }

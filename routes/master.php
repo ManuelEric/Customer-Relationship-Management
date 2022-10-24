@@ -3,6 +3,7 @@
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\MajorController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\VendorController;
 use Illuminate\Support\Facades\Route;
@@ -30,9 +31,7 @@ Route::resource('lead', LeadController::class);
 
 Route::resource('department', DepartmentController::class);
 
-Route::get('major', function () {
-    return view('pages.major.index');
-});
+Route::resource('major', MajorController::class);
 
 Route::get('purchase', function () {
     return view('pages.purchase.index');

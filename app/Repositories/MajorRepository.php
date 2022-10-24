@@ -4,9 +4,15 @@ namespace App\Repositories;
 
 use App\Interfaces\MajorRepositoryInterface;
 use App\Models\Major;
+use DataTables;
 
 class MajorRepository implements MajorRepositoryInterface 
 {
+
+    public function getAllMajorsDataTables()
+    {
+        return Datatables::eloquent(Major::query())->make(true);
+    }
 
     public function getMajorByName($majorName)
     {

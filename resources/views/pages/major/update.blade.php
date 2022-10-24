@@ -1,12 +1,12 @@
-{{-- Update Form  --}}
+{{-- Create  --}}
 <!-- Modal -->
-<div class="modal fade" id="departmentFormUpdate" data-bs-backdrop="static" data-bs-keyboard="false"
+<div class="modal fade" id="majorFormUpdate" data-bs-backdrop="static" data-bs-keyboard="false"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header d-flex justify-content-between">
                 <span>
-                    Department
+                    Major
                 </span>
                 <i class="bi bi-pencil-square"></i>
             </div>
@@ -19,9 +19,9 @@
                         <div class="col-md-12">
                             <div class="mb-2">
                                 <label for="">
-                                    Department Name <sup class="text-danger">*</sup>
+                                    Major Name <sup class="text-danger">*</sup>
                                 </label>
-                                <input type="text" name="dept_name" class="form-control form-control-sm rounded"
+                                <input type="text" name="name" class="form-control form-control-sm rounded"
                                     required value="">
                             </div>
                         </div>

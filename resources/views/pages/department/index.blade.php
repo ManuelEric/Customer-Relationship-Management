@@ -107,7 +107,8 @@
                 $(element).modal('show');
                 var action = "{{ url('master/department') }}" + "/" + data.id
                 $(element).find('form').attr('action', action)
-                $(element).find('form input[name=dept_name]').val(data.dept_name);
+                $(element).find('form input[name=dept_name]').val(data.dept_name)
+                $(element).find('form input[name=id]').val(data.id)
             });
 
             $('#departmentTable tbody').on('click', '.deleteDepartment ', function() {
