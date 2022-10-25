@@ -50,7 +50,7 @@
                 </div>
                 <div class="modal-body w-100">
                     <form
-                        action="{{ url(isset($university) ? 'master/university/' . $university->univ_id : '/university') }}"
+                        action="{{ url(isset($university) ? 'master/university/' . $university->univ_id : 'master/university') }}"
                         method="POST">
                         @csrf
                         @if (isset($university))

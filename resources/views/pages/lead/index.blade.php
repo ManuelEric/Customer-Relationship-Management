@@ -16,7 +16,7 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="leadTable">
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="text-dark">#</th>
@@ -49,18 +49,28 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="" method="POST">
+                    <form action="{{ url(isset($lead) ? 'master/lead/' . $lead->lead_id : 'master/lead') }}" method="POST">
+                        @csrf
+                        @if (isset($lead))
+                            @method('put')
+                            <input type="hidden" name="id" value="{{ $lead->id }}">
+                        @endif
                         <div class="row g-2">
                             <div class="col-md-10">
                                 <div class="mb-0">
                                     <label for="">
                                         Lead Name <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="main_lead" class="form-control form-control-sm rounded"
-                                        required value="">
+                                    <input type="text" name="lead_name" class="form-control form-control-sm rounded"
+                                        required
+                                        value="{{ isset($lead->main_lead) && $lead->main_lead == 'KOL' ? $lead->sub_lead : (isset($lead->main_lead) ? $lead->main_lead : old('main_lead')) }}"
+                                        id="lead_name">
                                 </div>
                                 <div class="mb-2">
-                                    <input class="form-check-input" type="checkbox" value="kol" id="kol">
+                                    <input class="form-check-input" name="kol" type="checkbox" value="true"
+                                        id="kol"
+                                        {{ isset($lead->main_lead) && $lead->main_lead == 'KOL' ? 'checked' : '' }}
+                                        onchange="changeKOL()">
                                     <label class="form-check-label ms-1 text-secondary" for="kol">
                                         Select to KOL
                                     </label>
@@ -72,13 +82,14 @@
                                         Score <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="number" name="score" class="form-control form-control-sm rounded"
-                                        required value="">
+                                        required value="{{ isset($lead->score) ? $lead->score : old('score') }}">
                                 </div>
                             </div>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between">
-                            <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                            <a href="{{ url('master/lead') }}" class="btn btn-outline-danger btn-sm"
+                                data-bs-dismiss="{{ isset($lead) ? '' : 'modal' }}">
                                 <i class="bi bi-x-square me-1"></i>
                                 Cancel</a>
                             <button type="submit" class="btn btn-primary btn-sm">
@@ -91,10 +102,21 @@
         </div>
     </div>
 
+    @if (isset($lead))
+        <script>
+            $(document).ready(function() {
+                // show modal 
+                var myModal = new bootstrap.Modal(document.getElementById('leadForm'))
+                myModal.show()
+            });
+        </script>
+    @endif
+
     {{-- Need Changing --}}
     <script>
         $(document).ready(function() {
-            var table = $('#programTable').DataTable({
+
+            var table = $('#leadTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -113,7 +135,7 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '',
+                ajax: '{!! url('master/lead') !!}',
                 columns: [{
                         data: 'id',
                         className: 'text-center',
@@ -123,33 +145,44 @@
                     },
                     {
                         data: 'lead_id',
+                        className: 'text-center',
                     },
                     {
                         data: 'main_lead',
+                        className: 'text-center',
                     },
                     {
                         data: 'sub_lead',
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return row.sub_lead ? row.sub_lead : '-'
+                        }
                     },
                     {
                         data: 'score',
+                        className: 'text-center'
                     },
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editAsset"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteAsset"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editLead"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteLead"><i class="bi bi-trash"></i></button>'
                     }
                 ]
             });
 
-            $('#programTable tbody').on('click', '.editAsset ', function() {
+            // App Blade 
+            realtimeData(table)
+
+            $('#leadTable tbody').on('click', '.editLead ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('asset') }}/" + data.asset_id.toLowerCase() + '/edit';
+                window.location.href = "{{ url('master/lead') }}/" + data.lead_id + '/edit';
             });
 
-            $('#programTable tbody').on('click', '.deleteAsset ', function() {
+            $('#leadTable tbody').on('click', '.deleteLead ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('asset', data.asset_id)
+                //App Blade
+                confirmDelete('master/lead', data.lead_id)
             });
         });
     </script>

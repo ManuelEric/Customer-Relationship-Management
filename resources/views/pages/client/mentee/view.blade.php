@@ -12,7 +12,7 @@
 
 
     <div class="row">
-        <div class="col-md-5">
+        <div class="col-md-7">
             <div class="card rounded mb-2">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
@@ -107,15 +107,52 @@
                             Website
                         </div>
                     </div>
-                    <hr>
-                    <div class="text-end">
-                        <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal"
-                            data-bs-target="#menteeDetail"><i class="bi bi-person-badge me-1"></i> View
-                            More</a>
-                    </div>
                 </div>
             </div>
 
+            <div class="card rounded mb-2">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="">
+                            <h5 class="m-0 p-0">Interest Program</h5>
+                        </div>
+                    </div>
+                    <hr>
+                    @for ($i = 0; $i < 4; $i++)
+                        <div class="badge badge-warning me-1">ALL-in Program {{ $i }}</div>
+                    @endfor
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-md-5">
+            <div class="card rounded mb-2">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="">
+                            <h5 class="m-0 p-0">Dream University</h5>
+                        </div>
+                    </div>
+                    <hr>
+                    @for ($i = 0; $i < 5; $i++)
+                        <div class="badge badge-danger me-1">Univ {{ $i }}</div>
+                    @endfor
+                </div>
+            </div>
+            <div class="card rounded mb-2">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="">
+                            <h5 class="m-0 p-0">Interest Major</h5>
+                        </div>
+                    </div>
+                    <hr>
+                    @for ($i = 0; $i < 5; $i++)
+                        <div class="badge badge-primary me-1">Major {{ $i }}</div>
+                    @endfor
+                </div>
+            </div>
             <div class="card rounded mb-2">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
@@ -160,7 +197,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-7">
+        <div class="col-md-12">
             <div class="card rounded">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">

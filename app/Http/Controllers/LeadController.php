@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Redirect;
 class LeadController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
-    
+
     private LeadRepositoryInterface $leadRepository;
 
     public function __construct(LeadRepositoryInterface $leadRepository)
@@ -48,11 +48,9 @@ class LeadController extends Controller
 
             $leadDetails['main_lead'] = "KOL";
             $leadDetails['sub_lead'] = $request->lead_name;
-
         } else {
             $leadDetails['main_lead'] = $request->lead_name;
             $leadDetails['sub_lead'] = null;
-
         }
 
         $lead_id_without_label = $this->remove_primarykey_label($last_id, 2);
@@ -63,7 +61,6 @@ class LeadController extends Controller
 
             $this->leadRepository->createLead(['lead_id' => $lead_id_with_label] + $leadDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -80,6 +77,10 @@ class LeadController extends Controller
 
     public function edit(Request $request)
     {
+        if ($request->ajax()) {
+            return $this->leadRepository->getAllLeadDataTables();
+        }
+
         $leadId = $request->route('lead');
 
         # retrieve lead data by id
@@ -87,7 +88,7 @@ class LeadController extends Controller
         # put the link to update lead form below
         # example
 
-        return view('lead.form')->with(
+        return view('pages.lead.index')->with(
             [
                 'lead' => $lead
             ]
@@ -121,7 +122,6 @@ class LeadController extends Controller
 
             $this->leadRepository->updateLead($leadId, $leadDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
