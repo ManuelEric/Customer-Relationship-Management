@@ -73,6 +73,19 @@ class AssetController extends Controller
         return view('pages.asset.form');
     }
 
+    public function show(Request $request)
+    {
+        $assetId = $request->route('asset');
+        $asset = $this->assetRepository->getAssetById($assetId);
+        
+        # put view detail asset below
+        return view('pages.asset.detail.index')->with(
+            [
+                'asset' => $asset
+            ]
+        );
+    }
+
     public function edit(Request $request)
     {
         $assetId = $request->route('asset');

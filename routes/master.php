@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AssetUsedController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MajorController;
@@ -43,5 +44,6 @@ Route::get('purchase/create', function () {
 Route::resource('vendor', VendorController::class);
 
 Route::resource('asset', AssetController::class);
+Route::resource('asset/{asset}/detail', AssetUsedController::class);
 
 Route::resource('university', UniversityController::class);

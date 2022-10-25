@@ -115,6 +115,7 @@
                         data: '',
                         className: 'text-center',
                         defaultContent: '<button type="button" class="btn btn-sm btn-warning editAsset"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-info ms-1 showDetail"><i class="bi bi-search"></i></button>' +
                             '<button type="button" class="btn btn-sm btn-danger ms-1 deleteAsset"><i class="bi bi-trash"></i></button>'
                     }
                 ]
@@ -125,6 +126,11 @@
             $('#assetTable tbody').on('click', '.editAsset ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('master/asset') }}/" + data.asset_id.toLowerCase() + '/edit';
+            });
+
+            $('#assetTable tbody').on('click', '.showDetail', function() {
+                var data = table.row($(this).parents('tr')).data();
+                window.location.href = "{{ url('master/asset') }}/" + data.asset_id.toLowerCase();
             });
 
             $('#assetTable tbody').on('click', '.deleteAsset ', function() {
