@@ -17,18 +17,13 @@ class AssetUsedRepository implements AssetUsedRepositoryInterface
         }))->make(true);
     }
 
-    public function createAssetUser($asset, $userId, array $assetDetails)
+    public function createAssetUser($asset, $userId, array $usedDetail)
     {
         # save into asset used
-        if ($asset->user()->attach($userId, $assetDetails)) {
+        if ($asset->user()->attach($userId, $usedDetail)) {
 
             # update asset running stock 
-
-            # get asset amount used
-            foreach ($assetDetails as $detail) {
-                
-            }
-
+            $asset->asset_running_stock = $usedDetail['amount_used']; 
         }
 
         
