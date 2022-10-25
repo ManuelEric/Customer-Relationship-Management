@@ -120,6 +120,8 @@
                 ]
             });
 
+            realtimeData(table)
+
             $('#assetTable tbody').on('click', '.editAsset ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('master/asset') }}/" + data.asset_id.toLowerCase() + '/edit';

@@ -115,9 +115,47 @@
                             </div>
                         </div>
                     </form>
-
                 </div>
             </div>
+            @if (isset($asset))
+                <hr>
+                <div class="row mt-3">
+                    <div class="col-12 text-end">
+                        <button class="btn btn-sm btn-info rounded-3">Add User</button>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <table class="table table-bordered">
+                            <thead class="bg-secondary text-center">
+                                <tr>
+                                    <th>No</th>
+                                    <th>User</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Amount</th>
+                                    <th>Condition</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-center">
+                                <tr>
+                                    <td>No</td>
+                                    <td>User</td>
+                                    <td>Start Date</td>
+                                    <td>End Date</td>
+                                    <td>Amount</td>
+                                    <td>Condition</td>
+                                    <td>Status</td>
+                                    <td>
+                                        <button class="btn btn-sm bg-warning mx-1"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-sm bg-danger mx-1"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 

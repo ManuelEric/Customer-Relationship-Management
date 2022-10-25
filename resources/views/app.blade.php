@@ -140,6 +140,14 @@
     </div>
 
     <script>
+        function realtimeData(data) {
+            setInterval(() => {
+                data.ajax.reload(null, false)
+            }, 5000);
+        }
+    </script>
+
+    <script>
         function confirmDelete(subject, id) {
             // show modal 
             var myModal = new bootstrap.Modal(document.getElementById('deleteItem'))

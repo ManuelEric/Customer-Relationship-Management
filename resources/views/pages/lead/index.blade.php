@@ -135,7 +135,7 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '',
+                ajax: '{!! url('master/lead') !!}',
                 columns: [{
                         data: 'id',
                         className: 'text-center',
@@ -171,6 +171,9 @@
                 ]
             });
 
+            // App Blade 
+            realtimeData(table)
+
             $('#leadTable tbody').on('click', '.editLead ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('master/lead') }}/" + data.lead_id + '/edit';
@@ -178,6 +181,7 @@
 
             $('#leadTable tbody').on('click', '.deleteLead ', function() {
                 var data = table.row($(this).parents('tr')).data();
+                //App Blade
                 confirmDelete('master/lead', data.lead_id)
             });
         });
