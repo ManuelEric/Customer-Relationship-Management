@@ -97,4 +97,9 @@ class User extends Authenticatable
                     ->withPivot('major_id')
                     ->join('tbl_major', 'major_id', '=', 'tbl_major.id');
     }
+
+    public function asset()
+    {
+        return $this->belongsToMany(Asset::class, 'tbl_asset_used', 'user_id', 'asset_id');
+    }
 }
