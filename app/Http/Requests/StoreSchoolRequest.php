@@ -23,12 +23,14 @@ class StoreSchoolRequest extends FormRequest
      */
     public function rules()
     {
+        $sch_id = $this->route('school');
+
         return [
             'sch_name' => 'required',
             'sch_type' => 'nullable|in:International,National',
             'sch_curriculum' => 'required|in:American Curriculum,Australian Curriculum,Canadian Curriculum,European Curriculum,French Curriculum,GCE,IB,IGCSE,Korean Curriculum,National Curriculum,Singapore Curiculum',
             'sch_insta' => 'nullable',
-            'sch_mail' => 'nullable|unique:tbl_sch,sch_mail|email',
+            'sch_mail' => 'nullable|unique:tbl_sch,sch_mail,'.$sch_id.',sch_id|email',
             'sch_phone' => 'nullable',
             'sch_city' => 'nullable',
             'sch_location' => 'nullable',

@@ -8,6 +8,10 @@ interface LeadRepositoryInterface
     public function getAllLead();
     public function getLeadById($leadId);
     public function deleteLead($leadId);
+    public function createLeads(array $leadDetails);
     public function createLead(array $leadDetails);
     public function updateLead($leadId, array $newDetails);
+
+    # 
+    public function getAllLeadFromV1();
 }

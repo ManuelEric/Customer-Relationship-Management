@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\LeadRepositoryInterface;
 use App\Models\Lead;
+use App\Models\v1\Lead as V1Lead;
 use DataTables;
 
 class LeadRepository implements LeadRepositoryInterface 
@@ -29,6 +30,11 @@ class LeadRepository implements LeadRepositoryInterface
         return Lead::whereLeadId($leadId)->delete();
     }
 
+    public function createLeads(array $leadDetails)
+    {
+        return Lead::insert($leadDetails);
+    }
+
     public function createLead(array $leadDetails)
     {
         return Lead::create($leadDetails);
@@ -37,5 +43,11 @@ class LeadRepository implements LeadRepositoryInterface
     public function updateLead($leadId, array $newDetails)
     {
         return Lead::whereLeadId($leadId)->update($newDetails);
+    }
+
+    # from lead big data v1 model
+    public function getAllLeadFromV1()
+    {
+        return V1Lead::where('lead_id', '!=', '')->orderBy('lead_id', 'asc')->select(['lead_id', 'lead_name as main_lead'])->get();
     }
 }
