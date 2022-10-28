@@ -13,17 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tbl_asset_used', function (Blueprint $table) {
+        Schema::create('tbl_asset_returned', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('asset_used_id');
+            $table->foreign('asset_used_id')->references('id')->on('tbl_asset_used')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->char('asset_id', 7)->collation('utf8mb4_general_ci');
-            $table->foreign('asset_id')->references('asset_id')->on('tbl_asset')->onUpdate('cascade')->onDelete('cascade');
-
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
-
-            $table->date('used_date');
-            $table->integer('amount_used')->default(1);
+            $table->date('returned_date');
+            $table->integer('amount_returned')->default(1);
             $table->enum('condition', ['Good', 'Not Good'])->default('Good');
             $table->text('notes')->nullable();
             $table->timestamps();
@@ -37,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tbl_asset_used');
+        Schema::dropIfExists('tbl_asset_returned');
     }
 };

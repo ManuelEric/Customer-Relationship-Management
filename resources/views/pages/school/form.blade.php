@@ -72,14 +72,27 @@
                 <td>Location</td>
                 <td><input type="text" name="sch_location" value="{{ isset($school->sch_location) ? $school->sch_location : null }}"></td>
             </tr>
+            <tr>
+                <td>Score</td>
+                <td>
+                    <select name="sch_score">
+                        <option value="7" {{ isset($school->sch_score) && $school->sch_score == 7 ? "selected" : null }}>Up Market</option>
+                        <option value="5" {{ isset($school->sch_score) && $school->sch_score == 5 ? "selected" : null }}>Mid Market</option>
+                        <option value="3" {{ isset($school->sch_score) && $school->sch_score == 3 ? "selected" : null }}>Low Market</option>
+                    </select>
+                </td>
+                {{-- <td><input type="number" name="sch_score" value="{{ isset($school->sch_score) ? $school->sch_score: null }}"></td> --}}
+            </tr>
         </table>
         
         <input type="submit" value="Save">
     </form>
 
+    @if (isset($school))
     <a href="{{ url('master/school/'.$school->sch_id.'/detail/create') }}">
         <button>Add Contact Person</button>
     </a>
+    @endif
 
     @if (isset($details))
     <table>

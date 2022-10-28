@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\AssetRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use App\Models\Asset;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -18,10 +19,12 @@ class AssetController extends Controller
     use CreateCustomPrimaryKeyTrait;
 
     private AssetRepositoryInterface $assetRepository;
+    private UserRepositoryInterface $userRepository;
 
-    public function __construct(AssetRepositoryInterface $assetRepository)
+    public function __construct(AssetRepositoryInterface $assetRepository, UserRepositoryInterface $userRepository)
     {
         $this->assetRepository = $assetRepository;
+        $this->userRepository = $userRepository;
     }
 
     public function index(Request $request)
@@ -76,12 +79,17 @@ class AssetController extends Controller
     public function show(Request $request)
     {
         $assetId = $request->route('asset');
-        $asset = $this->assetRepository->getAssetById($assetId);
 
+        $asset = $this->assetRepository->getAssetById($assetId);
+        
+        $employees = $this->userRepository->getAllUsersByRole('employee');
+        
         # put view detail asset below
         return view('pages.asset.form')->with(
             [
-                'asset' => $asset
+                'asset' => $asset,
+                'employees' => $employees,
+                'request' => $request
             ]
         );
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AssetReturnedController;
 use App\Http\Controllers\AssetUsedController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\LeadController;
@@ -44,6 +45,13 @@ Route::get('purchase/create', function () {
 Route::resource('vendor', VendorController::class);
 
 Route::resource('asset', AssetController::class);
-Route::resource('asset/{asset}/detail', AssetUsedController::class);
+Route::resource('asset/{asset}/used', AssetUsedController::class);
+Route::resource('asset/{asset}/used/{used}/returned', AssetReturnedController::class);
+// Route::delete('asset/{asset}/detail', [AssetUsedController::class, 'destroy']);
+// Route::post('asset/{asset}/detail', [AssetUsedController::class, 'store']);
+// Route::delete('asset/{asset}/{user}', [AssetUsedController::class, 'destroy']);
+
+// Route::get('asset/{asset}/{user}/edit', [AssetUsedController::class, 'edit']);
+// Route::post('asset/{asset}/{user}', [AssetReturnedController::class, 'store']);
 
 Route::resource('university', UniversityController::class);

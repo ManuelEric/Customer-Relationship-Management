@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\pivot\AssetReturned;
+use App\Models\pivot\AssetUsed;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -47,19 +49,19 @@ class Asset extends Model
         
         $instance = new static;
 
-        return $instance->newQuery()->find($id, 'asset_id');
+        return $instance->newQuery()->where('asset_id', $id)->first();
     }
 
-    public function user()
+    public function userUsedAsset()
     {
-        return $this->belongsToMany(User::class, 'tbl_asset_used', 'asset_id', 'user_id')->withPivot(
+        return $this->belongsToMany(User::class, 'tbl_asset_used', 'asset_id', 'user_id')->using(AssetUsed::class)->withPivot(
             [
-                'start_used',
+                'id',
+                'used_date',
                 'amount_used',
-                'end_used',
                 'condition',
-                'status'
             ]
         );
     }
+
 }

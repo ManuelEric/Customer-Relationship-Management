@@ -103,7 +103,7 @@
                         }
                     },
                     {
-                        data: 'asset_lastupdatedate',
+                        data: 'updated_at',
                         render: function(data, type, row) {
                             let lastupdate = row.asset_lastupdatedate !=
                                 '0000-00-00' ? moment(row

@@ -30,6 +30,7 @@ class School extends Model
         'sch_insta',
         'sch_city',
         'sch_location',
+        'sch_score',
     ];
 
     public static function whereSchoolId($id)

@@ -13,6 +13,13 @@ class UserRepository implements UserRepositoryInterface
         return User::all();
     }
 
+    public function getAllUsersByRole($role)
+    {
+        return User::whereHas('roles', function ($query) use ($role) {
+            $query->where('role_name', $role);
+        })->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
+    }
+
     public function getUserById($userId)
     {
         return User::findOrFail($userId);
