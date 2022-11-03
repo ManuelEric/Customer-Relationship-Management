@@ -1,36 +1,28 @@
 @extends('layout.main')
 
-@section('title', 'Mentee - Bigdata Platform')
+@section('title', 'Parent - Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('client/mentee') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Mentee
+        <a href="{{ url('client/parent') }}" class="text-decoration-none text-muted">
+            <i class="bi bi-arrow-left me-2"></i> Parent
         </a>
-        <a href="{{ url('client/mentee/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
-            Mentee</a>
     </div>
 
 
-    <div class="card rounded">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="my-1 p-0">
+                <i class="bi bi-info-circle me-1"></i>
+                Teachers Detail
+            </h5>
+        </div>
         <div class="card-body">
-            <ul class="nav nav-tabs mb-3">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Mentee</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Parent</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Teacher/Counselor</a>
-                </li>
-            </ul>
-
             <form action="" method="post">
                 <div class="row align-items-center">
                     <div class="col-4 text-center">
-                        <img src="{{ asset('img/mentee.jpg') }}" class="w-75">
+                        <img src="{{ asset('img/teacher.jpg') }}" class="w-50">
                     </div>
                     <div class="col-8">
                         <div class="row">
@@ -97,63 +89,19 @@
                                         placeholder="Postal Code">
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div class="mb-2">
-                                    <label>Address</label>
-                                    <textarea name="st_address" class="form-control form-control-sm" placeholder="Address" rows="5"></textarea>
-                                </div>
-                            </div>
                         </div>
                     </div>
-                </div>
-
-                {{-- Parent  --}}
-                <div class="row mt-3">
                     <div class="col-md-12">
-                        <div class="row align-items-end">
-                            <div class="col-md-8">
-                                <div class="mb-2">
-                                    <label>Parent's Name</label>
-                                    <select class="select w-100" name="pr_id" id="prName" onchange="addParent()">
-                                        <option data-placeholder="true"></option>
-                                        <option value="add-new">Add New Parent</option>
-                                    </select>
-                                </div>
-
-                                {{-- New Parent Field  --}}
-                                <div class="row parent d-none">
-                                    <div class="col-md-6 mb-2">
-                                        <small>First Name</small>
-                                        <input id="pFName" name="pr_firstname" type="text"
-                                            placeholder="First Name" class="form-control form-control-sm">
-                                    </div>
-                                    <div class="col-md-6 mb-2">
-                                        <small>Last Name</small>
-                                        <input name="pr_lastname" type="text" placeholder="Last Name"
-                                            class="form-control form-control-sm">
-                                    </div>
-                                    <div class="col-md-6 mb-2">
-                                        <small>E-mail</small>
-                                        <input name="pr_mail" type="text" placeholder="E-mail"
-                                            class="form-control form-control-sm">
-                                    </div>
-                                    <div class="col-md-6 mb-2">
-                                        <small>Phone Number</small>
-                                        <input name="pr_phone" type="text" placeholder="Phone Number"
-                                            class="form-control form-control-sm">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-center parent d-none">
-                                <img src="{{ asset('img/parent.jpeg') }}" alt="" class="w-75">
-                            </div>
+                        <div class="mb-2">
+                            <label>Address</label>
+                            <textarea name="st_address" class="form-control form-control-sm" placeholder="Address" rows="5"></textarea>
                         </div>
                     </div>
                 </div>
-                <hr>
+
                 {{-- School  --}}
-                <div class="row">
-                    <div class="col-md-4">
+                <div class="row my-3">
+                    <div class="col-md-3">
                         <div class="mb-2">
                             <label>School Name</label>
                             <select class="select w-100" id="schoolName" name="sch_id" onChange="addSchool();">
@@ -162,14 +110,14 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4 school d-none">
+                    <div class="col-md-3 school d-none">
                         <div class="mb-2">
                             <label>Other School Name <i class="text-danger font-weight-bold">*</i></label>
                             <input name="sch_name" type="text" class="form-control form-control-sm"
                                 placeholder="Other School Name" autofocus>
                         </div>
                     </div>
-                    <div class="col-md-4 school d-none">
+                    <div class="col-md-3 school d-none">
                         <div class="mb-2">
                             <label>Current Education</label>
                             <select class="select w-100" name="st_currentsch">
@@ -177,7 +125,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4 school d-none">
+                    <div class="col-md-3 school d-none">
                         <div class="mb-2">
                             <label>School Market</label>
                             <select class="select w-100" name="st_currentsch">
@@ -188,27 +136,8 @@
                             </select>
                         </div>
                     </div>
-
-                    <div class="col-md-4" id="studentYear">
-                        <div class="mb-2">
-                            <label>Student Grade</label>
-                            <select class="select w-100" id="grade" name="st_grade">
-                                <option data-placeholder="true"></option>
-                                <option value="13">Not High School</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4" id="studentYear">
-                        <div class="mb-2">
-                            <label>Graduation Year</label>
-                            <select class="select w-100" id="graduation_year" name="st_graduatioan_year">
-                                <option data-placeholder="true"></option>
-                            </select>
-                        </div>
-                    </div>
                 </div>
-                <hr>
+
                 {{-- Lead  --}}
                 <div class="row">
                     <div class="col-md-4">
@@ -275,44 +204,6 @@
                     </div>
                 </div>
 
-                <div class="line" style="margin-top:15px; margin-bottom:0px;"></div>
-                <small class="text-info font-weight-bold">Study Aboard</small>
-
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <div class="mb-2">
-                            <label>Year of Going Study Abroad</label>
-                            <select class="select w-100" id="year" name="st_abryear">
-                                <option data-placeholder="true"></option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-2">
-                            <label>Country</label>
-                            <select class="select w-100" id="countryStudy" name="st_abrcountry[]" multiple>
-                                <option data-placeholder="true"></option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-2">
-                            <label>Univ Destination</label>
-                            <select class="select w-100" id="univDestination" name="st_abruniv[]" multiple>
-                                <option data-placeholder="true"></option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-2">
-                            <label>Major</label>
-                            <select class="select w-100" id="major" name="st_abrmajor[]" multiple>
-                                <option data-placeholder="true"></option>
-                            </select>
-
-                        </div>
-                    </div>
-                </div>
                 <div class="line" style="margin-top:15px; margin-bottom:15px;"></div>
                 <div class="row">
                     <div class="col text-center">
@@ -325,16 +216,6 @@
     </div>
 
     <script>
-        function addParent() {
-            var p = $('#prName').val();
-
-            if (p == 'add-new') {
-                $(".parent").removeClass("d-none");
-            } else {
-                $(".parent").addClass("d-none");
-            }
-        }
-
         function addSchool() {
             var s = $('#schoolName').val();
 

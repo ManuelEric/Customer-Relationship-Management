@@ -1,15 +1,15 @@
 @extends('layout.main')
 
-@section('title', 'Parent - Bigdata Platform')
+@section('title', 'Teacher - Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Parent
+            <i class="bi bi-arrow-left me-2"></i> Teacher
         </a>
-        <a href="{{ url('client/parent/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
-            Parent</a>
+        <a href="{{ url('client/teacher/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
+            Teacher</a>
     </div>
 
 
@@ -19,12 +19,10 @@
                 <thead class="bg-dark text-white">
                     <tr class="text-center" role="row">
                         <th class="text-dark">No</th>
-                        <th class="bg-info text-white">Parents Name</th>
-                        <th>Parents Email</th>
-                        <th>Parents Number</th>
-                        <th>Birthday</th>
-                        <th>Childs Name</th>
-                        <th class="text-dark">Priority</th>
+                        <th class="bg-info text-white">Teacher Name</th>
+                        <th>Teacher Email</th>
+                        <th>Teacher Number</th>
+                        <th class="text-dark">Status</th>
                         <th class="text-dark">#</th>
                     </tr>
                 </thead>
@@ -32,21 +30,19 @@
                     @for ($i = 0; $i < 10; $i++)
                         <tr>
                             <td class="text-center">{{ $i + 1 }}</td>
-                            <td>Parent Name</td>
-                            <td>Parent Mail</td>
-                            <td>Parent Number</td>
-                            <td>Childs</td>
+                            <td>Teacher Name</td>
+                            <td>Teacher Mail</td>
+                            <td>Teacher Number</td>
                             <td>Status</td>
-                            <td>Priority</td>
-                            <td class="text-center"><a href="{{ url('client/parent/1') }}" class="btn btn-sm btn-warning"><i
-                                        class="bi bi-info-circle me-2"></i>More</a>
+                            <td class="text-center"><a href="{{ url('client/teacher/1') }}"
+                                    class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>
                             </td>
                         </tr>
                     @endfor
                 </tbody>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="8"></td>
+                        <td colspan="5"></td>
                     </tr>
                 </tfoot>
             </table>

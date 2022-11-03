@@ -1,18 +1,18 @@
 @extends('layout.main')
 
-@section('title', 'Mentee - Bigdata Platform')
+@section('title', 'Parent - Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('client/mentee/potential') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Mentee
+        <a href="{{ url('client/parent') }}" class="text-decoration-none text-muted">
+            <i class="bi bi-arrow-left me-2"></i> Parent
         </a>
     </div>
 
 
-    <div class="row">
-        <div class="col-md-7">
+    <div class="row align-items-center">
+        <div class="col-md-8">
             <div class="card rounded mb-2">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
@@ -24,7 +24,7 @@
                             </small>
                         </div>
                         <div class="">
-                            <a href="{{ url('client/mentee/1/edit') }}" class="btn btn-warning btn-sm rounded"><i
+                            <a href="{{ url('client/parent/1/edit') }}" class="btn btn-warning btn-sm rounded"><i
                                     class="bi bi-pencil"></i></a>
                         </div>
                     </div>
@@ -67,34 +67,12 @@
                     <div class="row mb-2 g-1">
                         <div class="col-md-3 d-flex justify-content-between">
                             <label>
-                                School Name
+                                Date of Birth
                             </label>
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            ACS Jakarta
-                        </div>
-                    </div>
-                    <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
-                            <label>
-                                Graduation Year
-                            </label>
-                            <label>:</label>
-                        </div>
-                        <div class="col-md-9">
-                            2024
-                        </div>
-                    </div>
-                    <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
-                            <label>
-                                Follow-up Priority
-                            </label>
-                            <label>:</label>
-                        </div>
-                        <div class="col-md-9">
-                            High
+                            12 April 2022
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -110,91 +88,10 @@
                     </div>
                 </div>
             </div>
-
-            <div class="card rounded mb-2">
-                <div class="card-header">
-                    <div class="">
-                        <h5 class="m-0 p-0">Interest Program</h5>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @for ($i = 0; $i < 4; $i++)
-                        <button class="btn btn-sm btn-outline-info me-1 rounded-4" data-bs-toggle="modal"
-                            data-bs-target="#programForm">
-                            ALL-in
-                            Program {{ $i }}</button>
-                    @endfor
-                </div>
-            </div>
-
-
         </div>
-        <div class="col-md-5">
-            <div class="card rounded mb-2">
-                <div class="card-header">
-                    <div class="">
-                        <h5 class="m-0 p-0">Dream University</h5>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @for ($i = 0; $i < 5; $i++)
-                        <div class="badge badge-danger me-1">Univ {{ $i }}</div>
-                    @endfor
-                </div>
-            </div>
-            <div class="card rounded mb-2">
-                <div class="card-header">
-                    <div class="">
-                        <h5 class="m-0 p-0">Interest Major</h5>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @for ($i = 0; $i < 5; $i++)
-                        <div class="badge badge-primary me-1">Major {{ $i }}</div>
-                    @endfor
-                </div>
-            </div>
-            <div class="card rounded mb-2">
-                <div class="card-header">
-                    <div class="">
-                        <h5 class="m-0 p-0">Parents Information</h5>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
-                            <label>
-                                Parents Name
-                            </label>
-                            <label>:</label>
-                        </div>
-                        <div class="col-md-9">
-                            Bambang Wijanarko
-                        </div>
-                    </div>
-                    <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
-                            <label>
-                                Parents Email
-                            </label>
-                            <label>:</label>
-                        </div>
-                        <div class="col-md-9">
-                            parent@gmail.com
-                        </div>
-                    </div>
-                    <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
-                            <label>
-                                Parents Phone
-                            </label>
-                            <label>:</label>
-                        </div>
-                        <div class="col-md-9">
-                            628235230523
-                        </div>
-                    </div>
-                </div>
+        <div class="col-md-4 text-center">
+            <div class="mb-2">
+                <img src="{{ asset('img/teacher.jpg') }}" alt="" class="w-50 rounded-circle">
             </div>
         </div>
         <div class="col-md-12">
@@ -250,8 +147,7 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal modal-md fade" id="programForm" data-bs-backdrop="static" data-bs-keyboard="false"
-        tabindex="-1">
+    <div class="modal modal-md fade" id="programForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">

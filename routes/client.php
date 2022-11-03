@@ -22,16 +22,46 @@ Route::get('mentee/1', function () {
     return view('pages.client.mentee.view');
 });
 
+Route::get('mentee/1/edit', function () {
+    return view('pages.client.mentee.form');
+});
+
 Route::get('mentee/{status}', function ($status) {
     return view('pages.client.mentee.index', ['status' => $status]);
 });
 
 
-
+// Parent 
 Route::get('parent', function () {
     return view('pages.client.parent.index');
 });
 
+Route::get('parent/1', function () {
+    return view('pages.client.parent.view');
+});
+
 Route::get('parent/create', function () {
-    return view('pages.client.parent.create');
+    return view('pages.client.parent.form');
+});
+
+Route::get('parent/1/edit', function () {
+    return view('pages.client.parent.form');
+});
+
+
+// Teacher
+Route::get('teacher', function () {
+    return view('pages.client.teacher.index');
+});
+
+Route::get('teacher/1', function () {
+    return view('pages.client.teacher.view');
+});
+
+Route::get('teacher/create', function () {
+    return view('pages.client.teacher.form');
+});
+
+Route::get('teacher/1/edit', function () {
+    return view('pages.client.teacher.form');
 });
