@@ -67,6 +67,7 @@ class VendorController extends Controller
 
             DB::rollBack();
             Log::error('Store vendor failed : ' . $e->getMessage());
+            return Redirect::to('master/vendor')->withError('Failed to create a new vendor');
         }
 
         return Redirect::to('master/vendor')->withSuccess('Vendor successfully created');
@@ -127,6 +128,7 @@ class VendorController extends Controller
 
             DB::rollBack();
             Log::error('Update vendor failed : ' . $e->getMessage());
+            return Redirect::to('master/vendor')->withError('Failed to update a vendor');
         }
 
         return Redirect::to('master/vendor')->withSuccess('Vendor successfully updated');
@@ -145,9 +147,9 @@ class VendorController extends Controller
 
             DB::rollBack();
             Log::error('Delete vendor failed : ' . $e->getMessage());
-        }
+            return Redirect::to('master/vendor')->withError('Failed to delete a vendor');
 
-        // return Redirect::to('master/vendor')->with('alert', ['status' => 'success', 'message' => 'Item successfully deleted']);
+        }
 
         return Redirect::to('master/vendor')->withSuccess('Vendor successfully deleted');
     }

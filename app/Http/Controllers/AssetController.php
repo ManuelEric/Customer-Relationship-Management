@@ -36,11 +36,6 @@ class AssetController extends Controller
         return view('pages.asset.index');
     }
 
-    // public function data(): JsonResponse
-    // {
-    //     return $this->assetRepository->getAllAssetsDataTables();
-    // }
-
     public function store(StoreAssetRequest $request)
     {
         $assetDetails = $request->only([
@@ -66,6 +61,8 @@ class AssetController extends Controller
 
             DB::rollBack();
             Log::error('Store asset failed : ' . $e->getMessage());
+            return Redirect::to('master/asset')->withError('Failed to create asset');
+
         }
 
         return Redirect::to('master/asset')->withSuccess('Asset successfully created');
@@ -134,6 +131,7 @@ class AssetController extends Controller
 
             DB::rollBack();
             Log::error('Update asset failed : ' . $e->getMessage());
+            return Redirect::to('master/asset')->withError('Failed to update asset');
         }
 
         return Redirect::to('master/asset')->withSuccess('Asset successfully updated');;
@@ -152,6 +150,7 @@ class AssetController extends Controller
 
             DB::rollBack();
             Log::error('Delete asset failed : ' . $e->getMessage());
+            return Redirect::to('master/asset')->withError('Failed to delete asset');
         }
 
         return Redirect::to('master/asset')->withSuccess('Asset successfully deleted');

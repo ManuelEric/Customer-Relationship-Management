@@ -46,6 +46,7 @@ class AssetUsedController extends Controller
 
             DB::rollBack();
             Log::error('Store asset user failed : ' . $e->getMessage());
+            return Redirect::to('master/asset/'.$request->assetId)->withError('Failed to store user asset');
 
         }
 
@@ -75,37 +76,6 @@ class AssetUsedController extends Controller
         );
     }
 
-    // public function update(StoreAssetUsedRequest $request)
-    // {
-    //     $usedDetails = $request->only([
-    //         'assetId',
-    //         'user',
-    //         'oldUser',
-    //         'amount_used',
-    //         'old_amount_used',
-    //         'start_using',
-    //         'end_using',
-    //         'condition'
-    //     ]);
-
-    //     // return $this->assetUsedRepository->updateAssetUsed($usedDetails);
-
-    //     DB::beginTransaction();
-    //     try {
-
-    //         $this->assetUsedRepository->updateAssetUsed($usedDetails);
-    //         DB::commit();
-
-    //     } catch (Exception $e) {
-
-    //         DB::rollBack();
-    //         Log::error('Update asset user failed : ' . $e->getMessage());
-
-    //     }
-
-    //     return Redirect::to('master/asset/'.$request->assetId)->withSuccess('Asset user was successfully updated');
-    // }
-
     public function destroy(Request $request)
     {
         $assetId = $request->route('asset');
@@ -121,6 +91,7 @@ class AssetUsedController extends Controller
 
             DB::rollBack();
             Log::error('Delete asset used failed : ' . $e->getMessage());
+            return Redirect::to('master/asset/'.$request->asset)->withError('Failed to delete asset used');
 
         }
 

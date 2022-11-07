@@ -62,10 +62,13 @@ class UniversityController extends Controller
 
             $this->universityRepository->createUniversity(['univ_id' => $univ_id_with_label] + $universityDetails);
             DB::commit();
+
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store university failed : ' . $e->getMessage());
+            return Redirect::to('master/university')->withError('Failed to create a new university');
+
         }
 
         return Redirect::to('master/university')->withSuccess('University successfully created');
@@ -124,6 +127,8 @@ class UniversityController extends Controller
 
             DB::rollBack();
             Log::error('Update university failed : ' . $e->getMessage());
+            return Redirect::to('master/university')->withError('Failed to update a university');
+
         }
 
         return Redirect::to('master/university')->withSuccess('University successfully updated');
@@ -142,6 +147,8 @@ class UniversityController extends Controller
 
             DB::rollBack();
             Log::error('Delete university failed : ' . $e->getMessage());
+            return Redirect::to('master/university')->withError('Failed to delete a university');
+
         }
 
         return Redirect::to('master/university')->withSuccess('University successfully deleted');

@@ -55,7 +55,7 @@ class AssetReturnedController extends Controller
 
             DB::rollBack();
             Log::error('Store asset returned failed : ' . $e->getMessage());
-            return Redirect::to('master/asset/'.$request->assetId)->withError($e->getMessage());
+            return Redirect::to('master/asset/'.$request->assetId)->withError('Failed to create asset returned');
 
         }
 
@@ -98,6 +98,7 @@ class AssetReturnedController extends Controller
 
             DB::rollBack();
             Log::error('Delete asset returned failed : ' . $e->getMessage());
+            return Redirect::to('master/asset/'.$assetId)->withError('Failed to delete asset returned');
 
         }
 

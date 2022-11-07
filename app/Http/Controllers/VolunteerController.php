@@ -63,9 +63,11 @@ class VolunteerController extends Controller
 
             DB::rollBack();
             Log::error('Store volunteer failed : ' . $e->getMessage());
+            return Redirect::to('master/volunteer')->withError('Failed to create a new volunteer');
+
         }
 
-        return Redirect::to('master/volunteer');
+        return Redirect::to('master/volunteer')->withSuccess('Volunteer successfully created');
     }
 
     public function create()
@@ -114,9 +116,10 @@ class VolunteerController extends Controller
 
             DB::rollBack();
             Log::error('Update volunteer failed : ' . $e->getMessage());
+            return Redirect::to('master/volunteer')->withError('Failed to update a volunteer');
         }
 
-        return Redirect::to('master/volunteer');
+        return Redirect::to('master/volunteer')->withSuccess('Volunteer successfully updated');
     }
 
     public function destroy(Request $request)
@@ -132,8 +135,9 @@ class VolunteerController extends Controller
 
             DB::rollBack();
             Log::error('Delete volunteer failed : ' . $e->getMessage());
+            return Redirect::to('master/volunteer')->withError('Failed to delete a volunteer');
         }
 
-        return Redirect::to('master/volunteer');
+        return Redirect::to('master/volunteer')->withSuccess('Volunteer successfully deleted');
     }
 }
