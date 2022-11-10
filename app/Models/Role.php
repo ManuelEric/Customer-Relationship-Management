@@ -24,4 +24,9 @@ class Role extends Model
     {
         return $this->belongsToMany(User::class, 'tbl_user_roles', 'role_id', 'user_id');
     }
+
+    public function client()
+    {
+        return $this->belongsToMany(UserClient::class, 'tbl_client_roles', 'role_id', 'client_id');
+    }
 }

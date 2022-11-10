@@ -45,6 +45,11 @@ class School extends Model
     # relation
     public function detail()
     {
-        $this->hasMany(SchoolDetail::class, 'sch_id', 'sch_id');
+        return $this->hasMany(SchoolDetail::class, 'sch_id', 'sch_id');
+    }
+
+    public function edufair()
+    {
+        return $this->hasMany(EdufLead::class, 'sch_id', 'sch_id');
     }
 }
