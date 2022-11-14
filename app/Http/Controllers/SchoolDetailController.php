@@ -41,8 +41,7 @@ class SchoolDetailController extends Controller
         try {
 
             $representMaxLength = count($validated['schdetail_name']);
-            for ($i = 0 ; $i < $representMaxLength ; $i++)
-            {
+            for ($i = 0; $i < $representMaxLength; $i++) {
                 $schoolDetails[] = [
                     'sch_id' => $validated['sch_id'],
                     'schdetail_fullname' => $validated['schdetail_name'][$i],
@@ -57,16 +56,14 @@ class SchoolDetailController extends Controller
 
             $this->schoolDetailRepository->createSchoolDetail($schoolDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store school contact person failed : ' . $e->getMessage());
-            return Redirect::to('master/school/'.$request->sch_id)->withError('Failed to create a new contact person');
-
+            return Redirect::to('instance/school/' . $request->sch_id)->withError('Failed to create a new contact person');
         }
 
-        return Redirect::to('master/school/'.$request->sch_id)->withSuccess('School contact person successfully created');
+        return Redirect::to('instance/school/' . $request->sch_id)->withSuccess('School contact person successfully created');
     }
 
     public function create(Request $request)
@@ -112,8 +109,7 @@ class SchoolDetailController extends Controller
         try {
 
             $representMaxLength = count($validated['schdetail_name']);
-            for ($i = 0 ; $i < $representMaxLength ; $i++)
-            {
+            for ($i = 0; $i < $representMaxLength; $i++) {
                 $schoolDetails = [
                     'sch_id' => $validated['sch_id'],
                     'schdetail_fullname' => $validated['schdetail_name'][$i],
@@ -128,16 +124,14 @@ class SchoolDetailController extends Controller
 
             $this->schoolDetailRepository->updateSchoolDetail($schoolDetailId, $schoolDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update contact person failed : ' . $e->getMessage());
-            return Redirect::to('master/school/'.$request->sch_id)->withError('Failed to update a contact person');
-
+            return Redirect::to('instance/school/' . $request->sch_id)->withError('Failed to update a contact person');
         }
 
-        return Redirect::to('master/school/'.$request->sch_id)->withSuccess('Contact person successfully updated');
+        return Redirect::to('instance/school/' . $request->sch_id)->withSuccess('Contact person successfully updated');
     }
 
     public function destroy(Request $request)
@@ -149,15 +143,13 @@ class SchoolDetailController extends Controller
 
             $this->schoolDetailRepository->deleteSchoolDetail($schoolDetailId);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete contact person failed : ' . $e->getMessage());
-            return Redirect::to('master/school')->withError('Failed to delete a contact person');
-
+            return Redirect::to('instance/school')->withError('Failed to delete a contact person');
         }
 
-        return Redirect::to('master/school')->withSuccess('Contact person has successfully deleted');
+        return Redirect::to('instance/school')->withSuccess('Contact person has successfully deleted');
     }
 }

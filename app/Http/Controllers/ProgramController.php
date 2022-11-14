@@ -29,7 +29,7 @@ class ProgramController extends Controller
     }
 
     public function index(Request $request)
-    {   
+    {
         if ($request->ajax()) {
             return $this->programRepository->getAllProgramsDataTables();
         }
@@ -55,13 +55,11 @@ class ProgramController extends Controller
 
             $this->programRepository->createProgram($programDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Create program failed : ' . $e->getMessage());
             return Redirect::to('master/program')->withError('Failed to create a new program');
-
         }
 
         return Redirect::to('master/program')->withSuccess('Program successfully created');
@@ -95,13 +93,11 @@ class ProgramController extends Controller
 
             $this->programRepository->updateProgram($request->old_prog_id, $programDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Create program failed : ' . $e->getMessage());
             return Redirect::to('master/program')->withError('Failed to update a program');
-
         }
 
         return Redirect::to('master/program')->withSuccess('Program successfully updated');
@@ -113,11 +109,11 @@ class ProgramController extends Controller
         $program = $this->programRepository->getProgramById($prog_id);
 
         return view('pages.program.form')->with(
-                [
-                    'main_programs' => $this->mainProgRepository->getAllMainProg(),
-                    'program' => $program
-                ]
-            );
+            [
+                'main_programs' => $this->mainProgRepository->getAllMainProg(),
+                'program' => $program
+            ]
+        );
     }
 
     public function destroy(Request $request)
@@ -129,13 +125,11 @@ class ProgramController extends Controller
 
             $this->programRepository->deleteProgram($id);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete program failed : ' . $e->getMessage());
             return Redirect::to('master/program')->withError('Failed to delete a program');
-
         }
 
         return Redirect::to('master/program')->withSuccess('Program successfully deleted');
@@ -147,5 +141,4 @@ class ProgramController extends Controller
         $mainProg = $request->route('main_program');
         return json_encode($this->subProgRepository->getSubProgByMainProgId($mainProg));
     }
-
 }

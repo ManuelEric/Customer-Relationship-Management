@@ -30,9 +30,14 @@ class SchoolController extends Controller
         $this->schoolDetailRepository = $schoolDetailRepository;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request)
     {
-        return response()->json($this->schoolRepository->getAllSchools());
+        // echo $this->schoolRepository->getAllSchoolDataTables();
+        // exit;
+        if ($request->ajax()) {
+            return $this->schoolRepository->getAllSchoolDataTables();
+        }
+        return view('pages.school.index');
     }
 
     public function store(StoreSchoolRequest $request)
@@ -58,18 +63,17 @@ class SchoolController extends Controller
         try {
 
             # insert into school
-            $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails);                
+            $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store school failed : ' . $e->getMessage());
-            return Redirect::to('master/school')->withError('Failed to create school');
-
+            return Redirect::to('instance/school')->withError('Failed to create school');
         }
 
-        return Redirect::to('master/school')->withSuccess('School successfully created');
+        return Redirect::to('instance/school')->withSuccess('School successfully created');
     }
 
     public function create()
@@ -116,6 +120,7 @@ class SchoolController extends Controller
 
         return view('pages.school.form')->with(
             [
+                'edit' => true,
                 'school' => $school,
                 'curriculums' => $curriculums
             ]
@@ -142,18 +147,17 @@ class SchoolController extends Controller
         try {
 
             # insert into school
-            $this->schoolRepository->updateSchool($schoolId, $schoolDetails);                
+            $this->schoolRepository->updateSchool($schoolId, $schoolDetails);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update school failed : ' . $e->getMessage());
-            return Redirect::to('master/school')->withError('Failed to update school');
-
+            return Redirect::to('instance/school')->withError('Failed to update school');
         }
 
-        return Redirect::to('master/school')->withSuccess('School successfully updated');
+        return Redirect::to('instance/school')->withSuccess('School successfully updated');
     }
 
     public function destroy(Request $request)
@@ -165,15 +169,13 @@ class SchoolController extends Controller
 
             $this->schoolRepository->deleteSchool($schoolId);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete school failed : ' . $e->getMessage());
-            return Redirect::to('master/school')->withError('Failed to delete school');
-
+            return Redirect::to('instance/school')->withError('Failed to delete school');
         }
 
-        return Redirect::to('master/school')->withSuccess('School successfully deleted');
+        return Redirect::to('instance/school')->withSuccess('School successfully deleted');
     }
 }

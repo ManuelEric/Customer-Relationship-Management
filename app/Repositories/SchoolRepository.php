@@ -7,12 +7,12 @@ use App\Models\School;
 use App\Models\SchoolDetail;
 use DataTables;
 
-class SchoolRepository implements SchoolRepositoryInterface 
+class SchoolRepository implements SchoolRepositoryInterface
 {
 
     public function getAllSchoolDataTables()
     {
-        return Datatables::eloquent(School::query())->make(true);
+        return Datatables::eloquent(School::query())->rawColumns(['sch_location'])->make(true);
     }
 
     public function getAllSchools()
@@ -30,12 +30,12 @@ class SchoolRepository implements SchoolRepositoryInterface
         return School::whereSchoolId($schoolId)->delete();
     }
 
-    public function createSchool(array $schoolDetails) 
+    public function createSchool(array $schoolDetails)
     {
         return School::create($schoolDetails);
     }
 
-    public function updateSchool($schoolId, array $newDetails) 
+    public function updateSchool($schoolId, array $newDetails)
     {
         return School::whereSchoolId($schoolId)->update($newDetails);
     }
@@ -47,7 +47,7 @@ class SchoolRepository implements SchoolRepositoryInterface
                 'sch_type' => null
             ]
         );
-        
+
         School::where('sch_curriculum', '=', '')->update(
             [
                 'sch_curriculum' => null

@@ -1,38 +1,35 @@
 @extends('layout.main')
 
-@section('title', 'Program - Bigdata Platform')
+@section('title', 'School - Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Program
+            <i class="bi bi-arrow-left me-2"></i> School
         </a>
-        <a href="{{ url('master/program/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
-            Program</a>
+        <a href="{{ url('instance/school/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
+            School</a>
     </div>
 
 
     <div class="card rounded">
         <div class="card-body">
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="schoolTable">
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="text-dark">#</th>
-                        <th class="bg-info text-white">Program ID</th>
-                        <th class="bg-info text-white">Main Program</th>
-                        <th>Sub Program</th>
-                        <th>Program Name</th>
-                        <th>Type</th>
-                        <th>Payment Category</th>
-                        <th>Need Tutor/Mentor</th>
-                        <th>Scope</th>
+                        <th class="bg-info text-white">School Name</th>
+                        <th class="bg-info text-white">Type</th>
+                        <th>Curriculum</th>
+                        <th>City</th>
+                        <th>Location</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="9"></td>
+                        <td colspan="6"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -42,7 +39,7 @@
     {{-- Need Changing --}}
     <script>
         $(document).ready(function() {
-            var table = $('#programTable').DataTable({
+            var table = $('#schoolTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -63,55 +60,41 @@
                 serverSide: true,
                 ajax: '',
                 columns: [{
-                        data: 'prog_id',
+                        data: 'sch_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
                     {
-                        data: 'prog_id',
+                        data: 'sch_name',
                     },
                     {
-                        data: 'prog_main',
+                        data: 'sch_curriculum',
                     },
                     {
-                        data: 'prog_sub',
+                        data: 'sch_type',
                     },
                     {
-                        data: 'prog_program',
+                        data: 'sch_city',
                     },
                     {
-                        data: 'prog_type',
-                    },
-                    {
-                        data: 'prog_payment',
-                    },
-                    {
-                        data: 'prog_mentor',
-                    },
-                    {
-                        data: 'prog_scope',
+                        data: 'sch_location',
+                        type: 'html'
                     },
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editProgram"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteProgram"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editSchool"><i class="bi bi-eye"></i></button>'
                     }
                 ]
             });
 
             realtimeData(table)
 
-            $('#programTable tbody').on('click', '.editProgram ', function() {
+            $('#schoolTable tbody').on('click', '.editSchool ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('master/program') }}/" + data.prog_id + '/edit';
-            });
-
-            $('#programTable tbody').on('click', '.deleteProgram ', function() {
-                var data = table.row($(this).parents('tr')).data();
-                confirmDelete('master/program', data.prog_id)
+                window.location.href = "{{ url('instance/school') }}/" + data.sch_id;
             });
         });
     </script>

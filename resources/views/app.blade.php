@@ -57,6 +57,26 @@
             color: #494949;
         }
 
+        .table td,
+        .table td p {
+            font-size: 0.75rem !important;
+        }
+
+        .table td p {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .form-control:disabled,
+        .select2-container--default.select2-container--disabled .select2-selection--single {
+            background-color: #f1f1f1 !important;
+            color: rgb(92, 92, 92) !important;
+        }
+
+        .select2-container--default.select2-container--disabled .select2-selection__rendered {
+            color: rgb(92, 92, 92) !important;
+        }
+
 
         .select2-container {
             display: block !important;
@@ -149,7 +169,7 @@
         function realtimeData(data) {
             setInterval(() => {
                 data.ajax.reload(null, false)
-            }, 5000);
+            }, 7000);
         }
     </script>
 

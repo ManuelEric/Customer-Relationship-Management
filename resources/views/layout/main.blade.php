@@ -171,14 +171,14 @@
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item {{ Request::is('instance*') ? 'active' : '' }}">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#instance" aria-expanded="false"
-                            aria-controls="ui-basic">
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('instance*') ? 'text-primary' : '' }}"
+                            data-bs-toggle="collapse" href="#instance" aria-expanded="false" aria-controls="ui-basic">
                             <i class="bi bi-building mx-2"></i>
                             <span class="menu-title">Instance</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="collapse" id="instance">
+                        <div class="collapse {{ Request::is('instance*') ? 'show' : 'hide' }}" id="instance">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('instance/school*') ? 'active' : '' }}"
