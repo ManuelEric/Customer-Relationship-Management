@@ -1,82 +1,409 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layout.main')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <style>
-        fieldset {
-            border: 1px solid #ccc
-        }
-    </style>
-</head>
+@section('title', 'Corporate - Bigdata Platform')
 
-<body>
-    <form
-        action="{{ isset($corporate) ? route('corporate.update', ['corporate' => $corporate->corp_id]) : route('corporate.store') }}"
-        method="POST">
-        @csrf
-        @if (isset($corporate))
-            @method('PUT')
-            <input type="hidden" name="corp_id" value="{{ $corporate->corp_id }}">
-        @endif
-        <fieldset>
-            <legend>Corporate Name</legend>
-            <input type="text" name="corp_name"
-                value="{{ isset($corporate->corp_name) ? $corporate->corp_name : null }}">
-        </fieldset>
+@section('content')
 
-        <fieldset>
-            <legend>Industry</legend>
-            <input type="text" name="corp_industry"
-                value="{{ isset($corporate->corp_industry) ? $corporate->corp_industry : null }}">
-        </fieldset>
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <a href="{{ url('instance/corporate/') }}" class="text-decoration-none text-muted">
+            <i class="bi bi-arrow-left me-2"></i> Corporate
+        </a>
+    </div>
 
-        <fieldset>
-            <legend>Email</legend>
-            <input type="email" name="corp_mail"
-                value="{{ isset($corporate->corp_mail) ? $corporate->corp_mail : null }}">
-        </fieldset>
+    <div class="row">
+        <div class="col-md-4 mb-2">
+            <div class="card mb-3">
+                <div class="card-body text-center">
+                    <img src="{{ asset('img/school.jpg') }}" alt="" class="w-75">
+                    <h5>
+                        {{ isset($corporate) ? $corporate->corp_name : 'Add New Corporate' }}
+                    </h5>
+                    @if (isset($corporate))
+                        <div class="mt-3 d-flex justify-content-center">
+                            @if (isset($edit))
+                                <a href="{{ url('instance/corporate/' . strtolower($corporate->corp_id)) }}"
+                                    class="btn btn-sm btn-outline-info rounded mx-1">
+                                    <i class="bi bi-arrow-left"></i> Back
+                                </a>
+                            @else
+                                <a href="{{ url('instance/corporate/' . strtolower($corporate->corp_id) . '/edit') }}"
+                                    class="btn btn-sm btn-outline-info rounded mx-1">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                            @endif
+                            <button type="button"
+                                onclick="confirmDelete('instance/corporate', '{{ $corporate->corp_id }}')"
+                                class="btn btn-sm btn-outline-danger rounded mx-1">
+                                <i class="bi bi-trash2"></i> Delete
+                            </button>
+                        </div>
+                    @endif
+                </div>
+            </div>
 
-        <fieldset>
-            <legend>Contact Number</legend>
-            <input type="text" name="corp_phone"
-                value="{{ isset($corporate->corp_phone) ? $corporate->corp_phone : null }}">
-        </fieldset>
+            @if (isset($corporate) && empty($edit))
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="">
+                            <h6 class="m-0 p-0">
+                                <i class="bi bi-building me-2"></i>
+                                Programs
+                            </h6>
+                        </div>
+                        <div class="">
+                            <button class="btn btn-sm btn-outline-primary rounded mx-1" data-bs-toggle="modal"
+                                data-bs-target="#programForm">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @for ($i = 0; $i < 3; $i++)
+                            <a href="#" class="list-group-item">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="badge badge-primary w-100 me-2 text-start">
+                                        Program Name
+                                    </div>
+                                    <div class="badge badge-primary">
+                                        Success
+                                    </div>
+                                </div>
+                            </a>
+                        @endfor
+                    </div>
+                </div>
 
-        <fieldset>
-            <legend>Instagram</legend>
-            <input type="text" name="corp_insta"
-                value="{{ isset($corporate->corp_insta) ? $corporate->corp_insta : null }}">
-        </fieldset>
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="">
+                            <h6 class="m-0 p-0">
+                                <i class="bi bi-person me-2"></i>
+                                PIC
+                            </h6>
+                        </div>
+                        <div class="">
+                            <button class="btn btn-sm btn-outline-primary rounded mx-1" data-bs-toggle="modal"
+                                data-bs-target="#picForm">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @for ($i = 0; $i < 3; $i++)
+                            <div class="list-group-item">
+                                <div class="d-flex align-items-center mb-1">
+                                    <strong class="text-muted me-2">
+                                        Full Name
+                                    </strong>
+                                    <div class="">
+                                        <a href="#" class="text-decoration-none" data-bs-toggle="modal"
+                                            data-bs-target="#picForm">
+                                            <i class="bi bi-pencil text-warning"></i>
+                                        </a>
+                                        <a href="#" class="text-decoration-none">
+                                            <i class="bi bi-trash2 text-danger"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="badge badge-success me-2">
+                                        <i class="bi bi-envelope me-1"></i> alamat@email.com
+                                    </div>
+                                    <div class="badge badge-info me-2">
+                                        <i class="bi bi-phone me-1"></i> 0892124298593
+                                    </div>
+                                    <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
+                                        <i class="bi bi-linkedin"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        @endfor
+                    </div>
+                </div>
+            @endif
 
-        <fieldset>
-            <legend>Website</legend>
-            <input type="text" name="corp_site" placeholder="https://xxxxxx.xxxx"
-                value="{{ isset($corporate->corp_site) ? $corporate->corp_site : null }}">
-        </fieldset>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="">
+                        <h6 class="m-0 p-0">
+                            <i class="bi bi-building me-2"></i>
+                            Corporate Detail
+                        </h6>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form
+                        action="{{ isset($corporate) ? route('corporate.update', ['corporate' => $corporate->corp_id]) : route('corporate.store') }}"
+                        method="POST">
+                        @csrf
+                        @if (isset($corporate))
+                            @method('PUT')
+                            <input type="hidden" name="corp_id" value="{{ $corporate->corp_id }}">
+                        @endif
 
-        <fieldset>
-            <legend>Region</legend>
-            <input type="text" name="corp_region"
-                value="{{ isset($corporate->corp_region) ? $corporate->corp_region : null }}">
-        </fieldset>
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label>Corporate Name <sup class="text-danger">*</sup></label>
+                                <input type="text" name="corp_name"
+                                    value="{{ isset($corporate->corp_name) ? $corporate->corp_name : null }}"
+                                    class="form-control form-control-sm rounded"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                @error('corp_name')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
 
-        <fieldset>
-            <legend>Address</legend>
-            <textarea name="corp_address" cols="30" rows="10">{{ isset($corporate->corp_address) ? $corporate->corp_address : null }}</textarea>
-        </fieldset>
+                            <div class="col-md-4 mb-2">
+                                <label>Industry</label>
+                                <input type="text" name="corp_industry"
+                                    value="{{ isset($corporate->corp_industry) ? $corporate->corp_industry : null }}"
+                                    class="form-control form-control-sm rounded"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                @error('corp_industry')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
 
-        <fieldset>
-            <legend>Note</legend>
-            <textarea name="corp_note" cols="30" rows="10">{{ isset($corporate->corp_note) ? $corporate->corp_note : null }}</textarea>
-        </fieldset>
+                            <div class="col-md-4 mb-2">
+                                <label>Email <sup class="text-danger">*</sup></label>
+                                <input type="email" name="corp_mail"
+                                    value="{{ isset($corporate->corp_mail) ? $corporate->corp_mail : null }}"
+                                    class="form-control form-control-sm rounded"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                @error('corp_mail')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
 
-        <br>
-        <button type="submit">Submit</button>
-    </form>
-</body>
+                            <div class="col-md-3 mb-2">
+                                <label>Contact Number <sup class="text-danger">*</sup></label>
+                                <input type="text" name="corp_phone"
+                                    value="{{ isset($corporate->corp_phone) ? $corporate->corp_phone : null }}"
+                                    class="form-control form-control-sm rounded"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                @error('corp_phone')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
 
-</html>
+                            <div class="col-md-3 mb-2">
+                                <label>Instagram</label>
+                                <input type="text" name="corp_insta"
+                                    value="{{ isset($corporate->corp_insta) ? $corporate->corp_insta : null }}"
+                                    class="form-control form-control-sm rounded"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                @error('corp_insta')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-3 mb-2">
+                                <label>Website <sup class="text-danger">*</sup></label>
+                                <input type="text" name="corp_site" placeholder="https://xxxxxx.xxxx"
+                                    value="{{ isset($corporate->corp_site) ? $corporate->corp_site : null }}"
+                                    class="form-control form-control-sm rounded"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                @error('corp_site')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-3 mb-2">
+                                <label>Region</label>
+                                <input type="text" name="corp_region"
+                                    value="{{ isset($corporate->corp_region) ? $corporate->corp_region : null }}"
+                                    class="form-control form-control-sm rounded"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                @error('corp_region')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-12 mb-2">
+                                <label>Address</label>
+                                <textarea name="corp_address" cols="30" rows="10">{{ isset($corporate->corp_address) ? $corporate->corp_address : null }}</textarea>
+                            </div>
+
+                            <div class="col-md-12 mb-2">
+                                <label>Note</label>
+                                <textarea name="corp_note" cols="30" rows="10">{{ isset($corporate->corp_note) ? $corporate->corp_note : null }}</textarea>
+                            </div>
+
+                            @if (empty($corporate) || isset($edit))
+                                <div class="text-end mt-3">
+                                    <button class="btn btn-sm btn-primary rounded" type="submit"><i
+                                            class="bi bi-save2 me-1"></i> Submit</button>
+                                </div>
+                            @endif
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal modal-md fade" id="programForm" data-bs-backdrop="static" data-bs-keyboard="false"
+        tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="m-0 p-0">
+                        <i class="bi bi-plus me-2"></i>
+                        Add Program
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-2">
+                                <label for="">Program Name</label>
+                                <select class="modal-select w-100" name="program_id">
+                                    <option data-placeholder="true"></option>
+                                    @for ($i = 0; $i < 5; $i++)
+                                        <option value="{{ $i }}">Test {{ $i }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <label for="">Lead Source</label>
+                                <select class="modal-select w-100" name="program_id">
+                                    <option data-placeholder="true"></option>
+                                    @for ($i = 0; $i < 5; $i++)
+                                        <option value="{{ $i }}">Test {{ $i }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <label for="">PIC</label>
+                                <select class="modal-select w-100" name="program_id">
+                                    <option data-placeholder="true"></option>
+                                    @for ($i = 0; $i < 5; $i++)
+                                        <option value="{{ $i }}">Test {{ $i }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <label for="">First Discuss</label>
+                                <input type="date" name="" class="form-control form-control-sm rounded"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <label for="">Planned Follow Up</label>
+                                <input type="date" name="" class="form-control form-control-sm rounded"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-2">
+                                <label for="">Notes</label>
+                                <textarea name="" id="" class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
+                                    <i class="bi bi-x me-1"></i>
+                                    Cancel
+                                </button>
+                                <button class="btn btn-sm btn-primary rounded-3">
+                                    <i class="bi bi-save2"></i>
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal modal-md fade" id="picForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="m-0 p-0">
+                        <i class="bi bi-plus me-2"></i>
+                        Contact Person
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <label for="">Full Name</label>
+                                <input type="text" name="name" class="form-control form-control-sm rounded">
+                                @error('name')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <label for="">Email</label>
+                                <input type="email" name="email" class="form-control form-control-sm rounded">
+                                @error('email')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <label for="">Phone Number</label>
+                                <input type="text" name="phone" class="form-control form-control-sm rounded">
+                                @error('phone')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <label for="">Linkedin</label>
+                                <input type="email" name="linkedin" class="form-control form-control-sm rounded">
+                                @error('linkedin')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
+                                    <i class="bi bi-x me-1"></i>
+                                    Cancel
+                                </button>
+                                <button class="btn btn-sm btn-primary rounded-3">
+                                    <i class="bi bi-save2"></i>
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Select2 Modal 
+        $(document).ready(function() {
+            $('.modal-select').select2({
+                dropdownParent: $('#programForm .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+        });
+    </script>
+
+@endsection

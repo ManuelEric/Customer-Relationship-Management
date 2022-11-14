@@ -37,6 +37,7 @@ class SchoolDetailController extends Controller
             'schdetail_phone',
         ]);
 
+
         DB::beginTransaction();
         try {
 
@@ -84,12 +85,10 @@ class SchoolDetailController extends Controller
         # retrieve school detail data by id
         $schoolDetail = $this->schoolDetailRepository->getSchoolDetailById($schoolDetailId);
 
-        return view('pages.school.detail.form')->with(
-            [
-                'school_id' => $schoolDetail->sch_id,
-                'schoolDetail' => $schoolDetail,
-            ]
-        );
+        return response()->json([
+            'school_id' => $schoolDetail->sch_id,
+            'schoolDetail' => $schoolDetail,
+        ]);
     }
 
     public function update(StoreSchoolDetailRequest $request)

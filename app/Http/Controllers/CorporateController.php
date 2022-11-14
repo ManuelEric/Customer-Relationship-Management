@@ -58,13 +58,11 @@ class CorporateController extends Controller
 
             $this->corporateRepository->createCorporate(['corp_id' => $corp_id_with_label] + $corporateDetails);
             DB::commit();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Store corporate failed : ' . $e->getMessage());
             return Redirect::to('instance/corporate')->withError('Failed to create new corporate');
-
         }
 
         return Redirect::to('instance/corporate')->withSuccess('Corporate successfully created');
@@ -99,19 +97,17 @@ class CorporateController extends Controller
 
             $this->corporateRepository->updateCorporate($newDetails['corp_id'], $newDetails);
             DB::commit();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Update corporate failed : ' . $e->getMessage());
             return Redirect::to('instance/corporate')->withError('Failed to update corporate');
-
         }
 
         return Redirect::to('instance/corporate')->withSuccess('Corporate successfully updated');
     }
 
-    public function edit(Request $request)
+    public function show(Request $request)
     {
         $corporateId = $request->route('corporate');
         $corporate = $this->corporateRepository->getCorporateById($corporateId);
@@ -121,7 +117,19 @@ class CorporateController extends Controller
                 'corporate' => $corporate
             ]
         );
+    }
 
+    public function edit(Request $request)
+    {
+        $corporateId = $request->route('corporate');
+        $corporate = $this->corporateRepository->getCorporateById($corporateId);
+
+        return view('pages.corporate.form')->with(
+            [
+                'edit' => true,
+                'corporate' => $corporate
+            ]
+        );
     }
 
     public function destroy(Request $request)
@@ -133,13 +141,11 @@ class CorporateController extends Controller
 
             $this->corporateRepository->deleteCorporate($corporateId);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete corporate failed : ' . $e->getMessage());
             return Redirect::to('instance/corporate')->withError('Failed to delete corporate');
-
         }
 
         return Redirect::to('instance/corporate')->withSuccess('Corporate successfully deleted');

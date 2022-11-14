@@ -41,4 +41,9 @@ class EdufLead extends Model
     {
         return $this->belongsTo(Corporate::class, 'corp_id', 'corp_id');
     }
+
+    public function review()
+    {
+        return $this->hasOne(EdufReview::class, 'eduf_id', 'id');
+    }
 }

@@ -94,7 +94,7 @@
 
             $('#schoolTable tbody').on('click', '.editSchool ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('instance/school') }}/" + data.sch_id;
+                window.location.href = "{{ url('instance/school') }}/" + data.sch_id.toLowerCase();
             });
         });
     </script>

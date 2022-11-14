@@ -6,11 +6,11 @@ use App\Interfaces\CorporateRepositoryInterface;
 use App\Models\Corporate;
 use DataTables;
 
-class CorporateRepository implements CorporateRepositoryInterface 
+class CorporateRepository implements CorporateRepositoryInterface
 {
     public function getAllCorporateDataTables()
     {
-        return Datatables::eloquent(Corporate::query())->make(true);
+        return Datatables::eloquent(Corporate::query())->rawColumns(['corp_address'])->make(true);
     }
 
     public function getAllCorporate()

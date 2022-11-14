@@ -8,7 +8,7 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Corporate
         </a>
-        <a href="{{ url('instance/Corporate/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i>
+        <a href="{{ url('instance/corporate/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i>
             Add
             Corporate</a>
     </div>
@@ -16,21 +16,22 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="schoolTable">
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="corporateTable">
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="text-dark">#</th>
-                        <th class="bg-info text-white">School Name</th>
-                        <th class="bg-info text-white">Type</th>
-                        <th>Curriculum</th>
-                        <th>City</th>
-                        <th>Location</th>
+                        <th class="bg-info text-white">Corporate Name</th>
+                        <th class="bg-info text-white">Industry</th>
+                        <th>Email</th>
+                        <th>Office Number</th>
+                        <th>Region</th>
+                        <th>Address</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="6"></td>
+                        <td colspan="8"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -39,64 +40,66 @@
 
     {{-- Need Changing --}}
     <script>
-        // $(document).ready(function() {
-        //     var table = $('#schoolTable').DataTable({
-        //         dom: 'Bfrtip',
-        //         lengthMenu: [
-        //             [10, 25, 50, 100, -1],
-        //             ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-        //         ],
-        //         buttons: [
-        //             'pageLength', {
-        //                 extend: 'excel',
-        //                 text: 'Export to Excel',
-        //             }
-        //         ],
-        //         scrollX: true,
-        //         fixedColumns: {
-        //             left: 2,
-        //             right: 1
-        //         },
-        //         processing: true,
-        //         serverSide: true,
-        //         ajax: '',
-        //         columns: [{
-        //                 data: 'sch_id',
-        //                 className: 'text-center',
-        //                 render: function(data, type, row, meta) {
-        //                     return meta.row + meta.settings._iDisplayStart + 1;
-        //                 }
-        //             },
-        //             {
-        //                 data: 'sch_name',
-        //             },
-        //             {
-        //                 data: 'sch_curriculum',
-        //             },
-        //             {
-        //                 data: 'sch_type',
-        //             },
-        //             {
-        //                 data: 'sch_city',
-        //             },
-        //             {
-        //                 data: 'sch_location',
-        //                 type: 'html'
-        //             },
-        //             {
-        //                 data: '',
-        //                 className: 'text-center',
-        //                 defaultContent: '<button type="button" class="btn btn-sm btn-warning editSchool"><i class="bi bi-eye"></i></button>'
-        //             }
-        //         ]
-        //     });
+        $(document).ready(function() {
+            var table = $('#corporateTable').DataTable({
+                dom: 'Bfrtip',
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+                ],
+                buttons: [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                    }
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: 2,
+                    right: 1
+                },
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'corp_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'corp_name',
+                    },
+                    {
+                        data: 'corp_industry',
+                    },
+                    {
+                        data: 'corp_mail',
+                    },
+                    {
+                        data: 'corp_phone',
+                    },
+                    {
+                        data: 'corp_region',
+                    },
+                    {
+                        data: 'corp_address',
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editCorporate"><i class="bi bi-eye"></i></button>'
+                    }
+                ]
+            });
 
-        //     realtimeData(table)
+            realtimeData(table)
 
-        //     $('#schoolTable tbody').on('click', '.editSchool ', function() {
-        //         var data = table.row($(this).parents('tr')).data();
-        //         window.location.href = "{{ url('instance/school') }}/" + data.sch_id;
-        //     });
-        // });
+            $('#corporateTable tbody').on('click', '.editCorporate ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                window.location.href = "{{ url('instance/corporate') }}/" + data.corp_id.toLowerCase();
+            });
+        });
     </script>
 @endsection

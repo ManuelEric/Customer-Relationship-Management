@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreEdufairRequest;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
+use App\Interfaces\EdufReviewRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Exception;
@@ -20,13 +21,15 @@ class EdufLeadController extends Controller
     private SchoolRepositoryInterface $schoolRepository;
     private CorporateRepositoryInterface $corporateRepository;
     private UserRepositoryInterface $userRepository;
+    private EdufReviewRepositoryInterface $edufReviewRepository;
 
-    public function __construct(EdufLeadRepositoryInterface $edufLeadRepository, SchoolRepositoryInterface $schoolRepository, CorporateRepositoryInterface $corporateRepository, UserRepositoryInterface $userRepository)
+    public function __construct(EdufLeadRepositoryInterface $edufLeadRepository, SchoolRepositoryInterface $schoolRepository, CorporateRepositoryInterface $corporateRepository, UserRepositoryInterface $userRepository, EdufReviewRepositoryInterface $edufReviewRepository)
     {
         $this->edufLeadRepository = $edufLeadRepository;
         $this->schoolRepository = $schoolRepository;
         $this->corporateRepository = $corporateRepository;
         $this->userRepository = $userRepository;
+        $this->edufReviewRepository = $edufReviewRepository;
     }
 
     public function index(Request $request)
@@ -138,6 +141,10 @@ class EdufLeadController extends Controller
     {
         $edufLeadId = $request->route('edufair');
         $edufLead = $this->edufLeadRepository->getEdufairLeadById($edufLeadId);
+        $reviews = $this->edufReviewRepository->getAllEdufairReviewByEdufairId($edufLeadId);
+        $reviewFormData = [];
+        if ($edufRId = $request->route('review'))
+            $reviewFormData = $this->edufReviewRepository->getEdufairReviewById($edufRId);
 
         $schools = $this->schoolRepository->getAllSchools();
         $corporates = $this->corporateRepository->getAllCorporate();
@@ -147,6 +154,8 @@ class EdufLeadController extends Controller
         return view('pages.edufair.form')->with(
             [
                 'edufair' => $edufLead,
+                'reviews' => $reviews,
+                'reviewFormData' => $reviewFormData,
                 'schools' => $schools,
                 'corporates' => $corporates,
                 'internal_pic' => $userFromClientDepartment->merge($userFromBizDevDepartment)->sortBy('first_name'),

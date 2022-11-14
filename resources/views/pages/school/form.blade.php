@@ -11,7 +11,7 @@
 
     <div class="row">
         <div class="col-md-4">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-body text-center">
                     <img src="{{ asset('img/school.jpg') }}" alt="" class="w-75">
                     <h5>
@@ -20,34 +20,60 @@
                     @if (isset($school))
                         <div class="mt-3 d-flex justify-content-center">
                             @if (isset($edit))
-                                <a href="{{ url('instance/school/' . $school->sch_id) }}"
+                                <a href="{{ url('instance/school/' . strtolower($school->sch_id)) }}"
                                     class="btn btn-sm btn-outline-info rounded mx-1">
                                     <i class="bi bi-arrow-left"></i> Back
                                 </a>
                             @else
-                                <a href="{{ url('instance/school/' . $school->sch_id . '/edit') }}"
+                                <a href="{{ url('instance/school/' . strtolower($school->sch_id) . '/edit') }}"
                                     class="btn btn-sm btn-outline-info rounded mx-1">
                                     <i class="bi bi-pencil"></i> Edit
                                 </a>
                             @endif
-                            <form action="{{ url('instance/school/' . $school->sch_id) }}" method="POST">
-                                @csrf
-                                @method('delete')
-                                <button class="btn btn-sm btn-outline-danger rounded mx-1" type="submit">
-                                    <i class="bi bi-trash2"></i> Delete
-                                </button>
-                            </form>
-                            <button class="btn btn-sm btn-outline-primary rounded mx-1" data-bs-toggle="modal"
-                                data-bs-target="#programForm">
-                                <i class="bi bi-plus"></i> Add Program
+                            <button type="button" onclick="confirmDelete('instance/school', '{{ $school->sch_id }}')"
+                                class="btn btn-sm btn-outline-danger rounded mx-1">
+                                <i class="bi bi-trash2"></i> Delete
                             </button>
                         </div>
                     @endif
                 </div>
             </div>
+
+            @if (isset($school) && empty($edit))
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="">
+                            <h6 class="m-0 p-0">
+                                <i class="bi bi-building me-2"></i>
+                                Programs
+                            </h6>
+                        </div>
+                        <div class="">
+                            <button class="btn btn-sm btn-outline-primary rounded mx-1" data-bs-toggle="modal"
+                                data-bs-target="#programForm">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @for ($i = 0; $i < 3; $i++)
+                            <a href="#" class="list-group-item">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="badge badge-primary w-100 me-2 text-start">
+                                        Program Name
+                                    </div>
+                                    <div class="badge badge-primary">
+                                        Success
+                                    </div>
+                                </div>
+                            </a>
+                        @endfor
+                    </div>
+                </div>
+            @endif
         </div>
         <div class="col-md-8">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="">
                         <h6 class="m-0 p-0">
@@ -187,7 +213,7 @@
                             <div class="col-md-12">
                                 <div class="mb-2">
                                     <label>Location</label>
-                                    <textarea type="text" name="sch_location" {{ empty($school) || isset($edit) ? '' : 'readonly' }}>{{ isset($school->sch_location) ? $school->sch_location : null }}</textarea>
+                                    <textarea type="text" name="sch_location" {{ empty($school) || isset($edit) ? '' : 'disabled' }}>{{ isset($school->sch_location) ? $school->sch_location : null }}</textarea>
                                     @error('sch_location')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -204,74 +230,72 @@
                     </form>
                 </div>
             </div>
+
+            @if (isset($details))
+                <div class="card mt-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="">
+                            <h6 class="m-0 p-0">
+                                <i class="bi bi-building me-2"></i>
+                                Teacher/Counselor
+                            </h6>
+                        </div>
+                        <div class="">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#picForm">
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Fullname</th>
+                                    <th>Email</th>
+                                    <th>Grade</th>
+                                    <th>Position</th>
+                                    <th>Phone</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $no = 1;
+                                @endphp
+                                @foreach ($details as $detail)
+                                    <tr>
+                                        <td>{{ $no++ }}</td>
+                                        <td>{{ $detail->schdetail_fullname }}</td>
+                                        <td>{{ $detail->schdetail_email }}</td>
+                                        <td>{{ $detail->schdetail_grade }}</td>
+                                        <td>{{ $detail->schdetail_position }}</td>
+                                        <td>{{ $detail->schdetail_phone }}</td>
+                                        <td class="d-flex text-center justify-content-end">
+                                            <button type="button" class="btn btn-sm btn-warning mx-1"
+                                                data-bs-toggle="modal" data-bs-target="#picForm"
+                                                onclick="getPIC('{{ url('instance/school/' . $detail->sch_id . '/detail/' . $detail->schdetail_id . '/edit') }}')"><i
+                                                    class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                onclick="confirmDelete('instance/school/{{ $detail->sch_id }}/detail', '{{ $detail->schdetail_id }}')"
+                                                class="btn btn-sm btn-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
-    @if (isset($details))
-        <div class="card mt-3">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <div class="">
-                    <h6 class="m-0 p-0">
-                        <i class="bi bi-building me-2"></i>
-                        Teacher/Counselor
-                    </h6>
-                </div>
-                <div class="">
-                    <a href="{{ url('instance/school/' . $school->sch_id . '/detail/create') }}">
-                        <button class="btn btn-sm btn-info">
-                            <i class="bi bi-plus"></i> Add
-                        </button>
-                    </a>
-                </div>
-            </div>
-            <div class="card-body">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Fullname</th>
-                            <th>Email</th>
-                            <th>Grade</th>
-                            <th>Position</th>
-                            <th>Phone</th>
-                            <th class="text-end">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php
-                            $no = 1;
-                        @endphp
-                        @foreach ($details as $detail)
-                            <tr>
-                                <td>{{ $no++ }}</td>
-                                <td>{{ $detail->schdetail_fullname }}</td>
-                                <td>{{ $detail->schdetail_email }}</td>
-                                <td>{{ $detail->schdetail_grade }}</td>
-                                <td>{{ $detail->schdetail_position }}</td>
-                                <td>{{ $detail->schdetail_phone }}</td>
-                                <td class="d-flex text-center justify-content-end">
-                                    <a class="btn btn-sm btn-warning mx-1"
-                                        href="{{ url('instance/school/' . $detail->sch_id . '/detail/' . $detail->schdetail_id . '/edit') }}"><i
-                                            class="bi bi-pencil"></i>
-                                    </a>
-                                    <form
-                                        action="{{ url('instance/school/' . $detail->sch_id . '/detail/' . $detail->schdetail_id) }}"
-                                        method="POST">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-sm btn-danger" type="submit">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-    @endif
 
     <!-- Modal -->
     <div class="modal modal-md fade" id="programForm" data-bs-backdrop="static" data-bs-keyboard="false"
@@ -355,6 +379,107 @@
         </div>
     </div>
 
+    @if (isset($school))
+        <div class="modal modal-md fade" id="picForm" data-bs-backdrop="static" data-bs-keyboard="false"
+            tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="m-0 p-0">
+                            <i class="bi bi-plus me-2"></i>
+                            Contact Person
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ url('instance/school/' . $school->sch_id . '/detail') }}" method="POST"
+                            id="picAction">
+                            @csrf
+                            <div class="put"></div>
+                            <input type="hidden" readonly name="sch_id" value="{{ $school->sch_id }}">
+                            <div class="row mb-2">
+                                <div class="col-md-6 mb-2">
+                                    <label>Fullname <sup class="text-danger">*</sup></label>
+                                    <input type="text" name="schdetail_name[]"
+                                        class="form-control form-control-sm rounded" id="cp_fullname">
+                                    @error('schdetail_name.0')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>E-mail <sup class="text-danger">*</sup></label>
+                                    <input type="email" name="schdetail_mail[]"
+                                        class="form-control form-control-sm rounded" id="cp_mail">
+                                    @error('schdetail_mail.0')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>Phone Number <sup class="text-danger">*</sup></label>
+                                    <input type="text" name="schdetail_phone[]"
+                                        class="form-control form-control-sm rounded" id="cp_phone">
+                                    @error('schdetail_phone.0')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>Status <sup class="text-danger">*</sup></label>
+                                    <select name="schdetail_position[]" class="modal-select w-100" id="cp_status">
+                                        <option data-placeholder="true"></option>
+                                        <option value="Principal">
+                                            Principal</option>
+                                        <option value="Counselor">
+                                            Counselor</option>
+                                        <option value="Teacher">
+                                            Teacher</option>
+                                        <option value="Marketing">
+                                            Marketing</option>
+                                    </select>
+                                    @error('schdetail_position.0')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-12 mb-2">
+                                    <label>School Grade <sup class="text-danger">*</sup></label>
+                                    <select name="schdetail_grade[]" class="modal-select w-100" id="cp_grade">
+                                        <option data-placeholder="true"></option>
+                                        <option value="Middle School">
+                                            Middle School</option>
+                                        <option value="High School">
+                                            High School</option>
+                                        <option value="Middle School & High School">
+                                            Middle School & High School</option>
+                                    </select>
+                                    @error('schdetail_grade.0')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mt-2">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
+                                        data-bs-dismiss="modal">
+                                        <i class="bi bi-x me-1"></i>
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-sm btn-primary rounded-3">
+                                        <i class="bi bi-save2"></i>
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- @if (isset($schoolDetail))
+            @method('put')
+            <input type="hidden" readonly name="schdetail_id" value="{{ $schoolDetail->schdetail_id }}">
+        @endif --}}
+    @endif
+
     <script>
         // Select2 Modal 
         $(document).ready(function() {
@@ -364,6 +489,47 @@
                 allowClear: true
             });
         });
+
+        $(document).ready(function() {
+            $('.modal-select').select2({
+                dropdownParent: $('#picForm .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+        });
+    </script>
+
+    <script>
+        function getPIC(link) {
+            axios.get(link)
+                .then(function(response) {
+                    // handle success
+                    let id = response.data.school_id
+                    let cp = response.data.schoolDetail
+                    $('#cp_fullname').val(cp.schdetail_fullname)
+                    $('#cp_mail').val(cp.schdetail_email)
+                    $('#cp_grade').val(cp.schdetail_grade).trigger('change')
+                    $('#cp_phone').val(cp.schdetail_phone)
+                    $('#cp_status').val(cp.schdetail_position).trigger('change')
+
+                    let url = "{{ url('instance/school/') }}/" + id + "/detail/" + cp.schdetail_id
+                    $('#picAction').attr('action', url)
+
+                    let html =
+                        '@method('put')' +
+                        '<input type="hidden" readonly name="schdetail_id" value="' + cp.schdetail_id + '">'
+                    $('.put').html(html);
+
+
+                    console.log(url)
+                })
+                .catch(function(error) {
+                    // handle error
+                    console.log(error);
+                })
+        }
+
+        // Make a request for a user with a given ID
     </script>
 
 @endsection
