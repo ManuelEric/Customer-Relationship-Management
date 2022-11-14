@@ -21,106 +21,175 @@
             </ul>
         </div>
     @endif
-    <form action="{{ isset($edufair) ? route('edufair.update', ['edufair' => $edufair->id]) :route('edufair.store') }}" method="POST">
-        @csrf
-        @if (isset($edufair))
-            @method('put')
-            <input type="hidden" name="id" value="{{ $edufair->id }}">
+    <div style="float:left;width:50%;">
+        <form action="{{ isset($edufair) ? route('edufair.update', ['edufair' => $edufair->id]) :route('edufair.store') }}" method="POST">
+            @csrf
+            @if (isset($edufair))
+                @method('put')
+                <input type="hidden" name="id" value="{{ $edufair->id }}">
+            @endif
+            <fieldset>
+                <legend>Organizer</legend>
+                <input type="radio" name="organizer" value="school" {{ isset($edufair) ? (isset($edufair->sch_id) && $edufair->sch_id != NULL ? "checked" : null) : "checked" }}>School
+                <input type="radio" name="organizer" value="corporate" {{ isset($edufair->corp_id) && $edufair->corp_id != NULL ? "checked" : null }}>Corporate
+            </fieldset>
+
+            <fieldset id="schoolList">
+                <legend>School</legend>
+                <select name="sch_id">
+                    <option value="">Select school</option>
+                    @foreach ($schools as $school)
+                        <option value="{{ $school->sch_id }}" {{ isset($edufair->sch_id) && $edufair->sch_id == $school->sch_id ? "selected" : null  }}>{{ $school->sch_name }}</option>
+                    @endforeach
+                </select>
+            </fieldset>
+            
+            <fieldset id="corporateList" style="display:none">
+                <legend>Corporate</legend>
+                <select name="corp_id">
+                    <option value="">Select corporate</option>
+                    @foreach ($corporates as $corporate)
+                        <option value="{{ $corporate->corp_id }}" {{ isset($edufair->corp_id) && $edufair->corp_id == $corporate->corp_id ? "selected" : null  }}>{{ $corporate->corp_name }}</option>
+                    @endforeach
+                </select>
+            </fieldset>
+
+            <fieldset>
+                <legend>Location</legend>
+                <textarea name="location" cols="30" rows="10">{{ isset($edufair->location) ? $edufair->location :null }}</textarea>
+            </fieldset>
+
+            <fieldset>
+                <legend>PIC from ALL-in</legend>
+                <select name="intr_pic">
+                    @foreach ($internal_pic as $pic)
+                        <option value="{{ $pic->id }}" {{ isset($edufair->intr_pic) && $edufair->intr_pic == $pic->id ? "selected" : null }}>{{ $pic->first_name.' '.$pic->last_name }}</option>
+                    @endforeach
+                </select>
+            </fieldset>
+
+            <div>
+                <h4>External PIC Profile</h4>
+                <fieldset>
+                    <legend>Name</legend>
+                    <input type="text" name="ext_pic_name" value="{{ isset($edufair->ext_pic_name) ? $edufair->ext_pic_name : null }}">
+                </fieldset>
+
+                <fieldset>
+                    <legend>Email</legend>
+                    <input type="email" name="ext_pic_mail" value="{{ isset($edufair->ext_pic_mail) ? $edufair->ext_pic_mail : null }}">
+                </fieldset>
+
+                <fieldset>
+                    <legend>Phone</legend>
+                    <input type="text" name="ext_pic_phone" value="{{ isset($edufair->ext_pic_phone) ? $edufair->ext_pic_phone : null }}">
+                </fieldset>
+            </div>
+
+            <fieldset>
+                <legend>First Discussion</legend>
+                <input type="date" name="first_discussion_date" value="{{ isset($edufair->first_discussion_date) ? $edufair->first_discussion_date : null }}">
+            </fieldset>
+
+            <fieldset>
+                <legend>Last Discussion</legend>
+                <input type="date" name="last_discussion_date" value="{{ isset($edufair->last_discussion_date) ? $edufair->last_discussion_date : null }}">
+            </fieldset>
+
+            <fieldset>
+                <legend>Event Start</legend>
+                <input type="date" name="event_start" value="{{ isset($edufair->event_start) ? $edufair->event_start : null }}">
+            </fieldset>
+
+            <fieldset>
+                <legend>Event End</legend>
+                <input type="date" name="event_end" value="{{ isset($edufair->event_end) ? $edufair->event_end : null }}">
+            </fieldset>
+
+            <fieldset>
+                <legend>Status</legend>
+                <select name="status">
+                    <option value="1" {{ isset($edufair->status) && $edufair->status == 1 ? "selected" : null }}>Active</option>
+                    <option value="0" {{ isset($edufair->status) && $edufair->status == 0 ? "selected" : null }}>Inactive</option>
+                </select>
+            </fieldset>
+
+            <fieldset>
+                <legend>Notes</legend>
+                <textarea name="notes" cols="30" rows="10">{{ isset($edufair->notes) ? $edufair->notes : null }}</textarea>
+            </fieldset>
+
+            <br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <div style="float:left; padding-left: 30px;">
+        <h2>Reviews : </h2>
+        @if (isset($reviews))
+        <table>
+            <tr>
+                <td>Reviewer</td>
+                <td>:</td>
+                <td>{{ $reviews->reviewer_name }}</td>
+            </tr>
+            <tr>
+                <td>Reviewed date</td>
+                <td>:</td>
+                <td>{{ $reviews->created_at }}</td>
+            </tr>
+            <tr>
+                <td>Score</td>
+                <td>:</td>
+                <td>{{ $reviews->score }}</td>
+            </tr>
+            <tr>
+                <td>Review</td>
+                <td>:</td>
+                <td>{{ $reviews->review }}</td>
+            </tr>
+            <tr>
+                <td>Action</td>
+                <td>:</td>
+                <td>
+                    <a href="{{ route('edufair.review.edit', ['edufair' => $edufair->id, 'review' => $reviews->id]) }}">
+                        <button>Edit</button>
+                    </a>
+                    <form action="{{ route('edufair.review.destroy', ['edufair' => $edufair->id, 'review' => $reviews->id]) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
         @endif
-        <fieldset>
-            <legend>Organizer</legend>
-            <input type="radio" name="organizer" value="school" {{ isset($edufair) ? (isset($edufair->sch_id) && $edufair->sch_id != NULL ? "checked" : null) : "checked" }}>School
-            <input type="radio" name="organizer" value="corporate" {{ isset($edufair->corp_id) && $edufair->corp_id != NULL ? "checked" : null }}>Corporate
-        </fieldset>
+        <form action="{{ isset($reviewFormData) ? route('edufair.review.update', ['edufair' => $edufair->id, 'review' => $reviews->id]) : route('edufair.review.store', ['edufair' => $edufair->id]) }}" method="POST">
+            @csrf
+            @if (isset($reviewFormData))
+                @method('PUT')
+            @endif
+            <input type="hidden" name="eduf_id" value="{{ $edufair->id }}">
 
-        <fieldset id="schoolList">
-            <legend>School</legend>
-            <select name="sch_id">
-                <option value="">Select school</option>
-                @foreach ($schools as $school)
-                    <option value="{{ $school->sch_id }}" {{ isset($edufair->sch_id) && $edufair->sch_id == $school->sch_id ? "selected" : null  }}>{{ $school->sch_name }}</option>
-                @endforeach
-            </select>
-        </fieldset>
-        
-        <fieldset id="corporateList" style="display:none">
-            <legend>Corporate</legend>
-            <select name="corp_id">
-                <option value="">Select corporate</option>
-                @foreach ($corporates as $corporate)
-                    <option value="{{ $corporate->corp_id }}" {{ isset($edufair->corp_id) && $edufair->corp_id == $corporate->corp_id ? "selected" : null  }}>{{ $corporate->corp_name }}</option>
-                @endforeach
-            </select>
-        </fieldset>
-
-        <fieldset>
-            <legend>Location</legend>
-            <textarea name="location" cols="30" rows="10">{{ isset($edufair->location) ? $edufair->location :null }}</textarea>
-        </fieldset>
-
-        <fieldset>
-            <legend>PIC from ALL-in</legend>
-            <select name="intr_pic">
-                @foreach ($internal_pic as $pic)
-                    <option value="{{ $pic->id }}" {{ isset($edufair->intr_pic) && $edufair->intr_pic == $pic->id ? "selected" : null }}>{{ $pic->first_name.' '.$pic->last_name }}</option>
-                @endforeach
-            </select>
-        </fieldset>
-
-        <div>
-            <h4>External PIC Profile</h4>
             <fieldset>
                 <legend>Name</legend>
-                <input type="text" name="ext_pic_name" value="{{ isset($edufair->ext_pic_name) ? $edufair->ext_pic_name : null }}">
+                <input type="text" name="reviewer_name" value="{{ isset($reviewFormData->reviewer_name) ? $reviewFormData->reviewer_name : null }}">
             </fieldset>
 
             <fieldset>
-                <legend>Email</legend>
-                <input type="email" name="ext_pic_mail" value="{{ isset($edufair->ext_pic_mail) ? $edufair->ext_pic_mail : null }}">
+                <legend>Score</legend>
+                <input type="text" name="score" value="{{ isset($reviewFormData->score) ? $reviewFormData->score : null }}">
             </fieldset>
 
             <fieldset>
-                <legend>Phone</legend>
-                <input type="text" name="ext_pic_phone" value="{{ isset($edufair->ext_pic_phone) ? $edufair->ext_pic_phone : null }}">
+                <legend>Review</legend>
+                <textarea name="review" cols="30" rows="10">{{ isset($reviewFormData->review) ? $reviewFormData->review : null }}</textarea>
             </fieldset>
-        </div>
 
-        <fieldset>
-            <legend>First Discussion</legend>
-            <input type="date" name="first_discussion_date" value="{{ isset($edufair->first_discussion_date) ? $edufair->first_discussion_date : null }}">
-        </fieldset>
-
-        <fieldset>
-            <legend>Last Discussion</legend>
-            <input type="date" name="last_discussion_date" value="{{ isset($edufair->last_discussion_date) ? $edufair->last_discussion_date : null }}">
-        </fieldset>
-
-        <fieldset>
-            <legend>Event Start</legend>
-            <input type="date" name="event_start" value="{{ isset($edufair->event_start) ? $edufair->event_start : null }}">
-        </fieldset>
-
-        <fieldset>
-            <legend>Event End</legend>
-            <input type="date" name="event_end" value="{{ isset($edufair->event_end) ? $edufair->event_end : null }}">
-        </fieldset>
-
-        <fieldset>
-            <legend>Status</legend>
-            <select name="status">
-                <option value="1" {{ isset($edufair->status) && $edufair->status == 1 ? "selected" : null }}>Active</option>
-                <option value="0" {{ isset($edufair->status) && $edufair->status == 0 ? "selected" : null }}>Inactive</option>
-            </select>
-        </fieldset>
-
-        <fieldset>
-            <legend>Notes</legend>
-            <textarea name="notes" cols="30" rows="10">{{ isset($edufair->notes) ? $edufair->notes : null }}</textarea>
-        </fieldset>
-
-        <br>
-        <button type="submit">Submit</button>
-    </form>
+            <br>
+            <button type="submit">Submit Review</button>
+        </form>
+    </div>
+    
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script async defer>

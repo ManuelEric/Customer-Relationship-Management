@@ -12,6 +12,7 @@ use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\EditorRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
+use App\Interfaces\EdufReviewRepositoryInterface;
 use App\Interfaces\EmployeeRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\MainProgRepositoryInterface;
@@ -37,6 +38,7 @@ use App\Repositories\CurriculumRepository;
 use App\Repositories\DepartmentRepository;
 use App\Repositories\EditorRepository;
 use App\Repositories\EdufLeadRepository;
+use App\Repositories\EdufReviewRepository;
 use App\Repositories\EmployeeRepository;
 use App\Repositories\LeadRepository;
 use App\Repositories\MainProgRepository;
@@ -86,6 +88,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ClientRepositoryInterface::class, ClientRepository::class);
         $this->app->bind(CorporateRepositoryInterface::class, CorporateRepository::class);
         $this->app->bind(EdufLeadRepositoryInterface::class, EdufLeadRepository::class);
+        $this->app->bind(EdufReviewRepositoryInterface::class, EdufReviewRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(DepartmentRepositoryInterface::class, DepartmentRepository::class);
