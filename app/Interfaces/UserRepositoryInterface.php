@@ -5,6 +5,7 @@ namespace App\Interfaces;
 interface UserRepositoryInterface 
 {
     public function getAllUsers();
+    public function getAllUsersByRole($role);
     public function getUserById($userId);
     public function getUserByExtendedId($extendedId);
     public function getUserByFullNameOrEmail($userName, $userEmail);

@@ -30,6 +30,7 @@ class School extends Model
         'sch_insta',
         'sch_city',
         'sch_location',
+        'sch_score',
     ];
 
     public static function whereSchoolId($id)
@@ -44,6 +45,11 @@ class School extends Model
     # relation
     public function detail()
     {
-        $this->hasMany(SchoolDetail::class, 'sch_id', 'sch_id');
+        return $this->hasMany(SchoolDetail::class, 'sch_id', 'sch_id');
+    }
+
+    public function edufair()
+    {
+        return $this->hasMany(EdufLead::class, 'sch_id', 'sch_id');
     }
 }

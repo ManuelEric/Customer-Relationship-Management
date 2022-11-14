@@ -3,6 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Models\pivot\AssetReturned;
+use App\Models\pivot\AssetUsed;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -98,8 +101,16 @@ class User extends Authenticatable
                     ->join('tbl_major', 'major_id', '=', 'tbl_major.id');
     }
 
-    public function asset()
+    public function assetUsed()
     {
-        return $this->belongsToMany(Asset::class, 'tbl_asset_used', 'user_id', 'asset_id');
+        return $this->belongsToMany(Asset::class, 'tbl_asset_used', 'user_id', 'asset_id')->using(AssetUsed::class)->withPivot(
+            [
+                'id',
+                'used_date',
+                'amount_used',
+                'condition',
+            ]
+        );
+        // return $this->belongsToMany(Asset::class, 'tbl_asset_used', 'user_id', 'asset_id');
     }
 }

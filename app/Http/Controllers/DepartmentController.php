@@ -44,6 +44,8 @@ class DepartmentController extends Controller
 
             DB::rollBack();
             Log::error('Store department failed : ' . $e->getMessage());
+            return Redirect::to('master/department')->withError('Failed to create a new department');
+
         }
 
         return Redirect::to('master/department')->withSuccess('Department successfully created');
@@ -67,6 +69,8 @@ class DepartmentController extends Controller
 
             DB::rollBack();
             Log::error('Update department failed : ' . $e->getMessage());
+            return Redirect::to('master/department')->withError('Failed to update department');
+
         }
 
         return Redirect::to('master/department')->withSuccess('Department successfully updated');
@@ -86,6 +90,7 @@ class DepartmentController extends Controller
 
             DB::rollBack();
             Log::error('Delete department failed : ' . $e->getMessage());
+            return Redirect::to('master/department')->withError('Failed to delete department');
 
         }
 

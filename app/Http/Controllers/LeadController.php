@@ -65,6 +65,8 @@ class LeadController extends Controller
 
             DB::rollBack();
             Log::error('Store lead failed : ' . $e->getMessage());
+            return Redirect::to('master/lead')->withError('Failed to create a new lead');
+
         }
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully created');
@@ -126,6 +128,8 @@ class LeadController extends Controller
 
             DB::rollBack();
             Log::error('Update lead failed : ' . $e->getMessage());
+            return Redirect::to('master/lead')->withError('Failed to update lead');
+
         }
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully updated');
@@ -144,6 +148,8 @@ class LeadController extends Controller
 
             DB::rollBack();
             Log::error('Delete lead failed : ' . $e->getMessage());
+            return Redirect::to('master/lead')->withError('Failed to delete lead');
+
         }
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully deleted');

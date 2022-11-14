@@ -22,11 +22,10 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->date('start_used');
+            $table->date('used_date');
             $table->integer('amount_used')->default(1);
-            $table->date('end_used')->nullable();
-            $table->text('condition')->nullable();
-            $table->boolean('status')->comment('0: used, 1: finished')->default(0);
+            $table->enum('condition', ['Good', 'Not Good'])->default('Good');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

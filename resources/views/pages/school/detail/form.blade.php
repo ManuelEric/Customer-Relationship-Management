@@ -23,7 +23,7 @@
     @endif
     <div style="clear:both"></div>
 
-    <form id="storeCP" action="{{ url(isset($schoolDetail) ? 'master/school/'.$school_id.'/detail/' . $schoolDetail->schdetail_id : 'master/school/detail') }}"
+    <form id="storeCP" action="{{ url(isset($schoolDetail) ? 'master/school/'.$school_id.'/detail/' . $schoolDetail->schdetail_id : 'master/school/'.$school_id.'/detail') }}"
         method="POST">
         @csrf
         @if (isset($schoolDetail))

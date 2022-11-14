@@ -62,6 +62,8 @@ class SchoolDetailController extends Controller
 
             DB::rollBack();
             Log::error('Store school contact person failed : ' . $e->getMessage());
+            return Redirect::to('master/school/'.$request->sch_id)->withError('Failed to create a new contact person');
+
         }
 
         return Redirect::to('master/school/'.$request->sch_id)->withSuccess('School contact person successfully created');
@@ -131,6 +133,8 @@ class SchoolDetailController extends Controller
 
             DB::rollBack();
             Log::error('Update contact person failed : ' . $e->getMessage());
+            return Redirect::to('master/school/'.$request->sch_id)->withError('Failed to update a contact person');
+
         }
 
         return Redirect::to('master/school/'.$request->sch_id)->withSuccess('Contact person successfully updated');
@@ -145,10 +149,13 @@ class SchoolDetailController extends Controller
 
             $this->schoolDetailRepository->deleteSchoolDetail($schoolDetailId);
             DB::commit();
+
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete contact person failed : ' . $e->getMessage());
+            return Redirect::to('master/school')->withError('Failed to delete a contact person');
+
         }
 
         return Redirect::to('master/school')->withSuccess('Contact person has successfully deleted');

@@ -47,6 +47,7 @@ class SchoolController extends Controller
             'sch_phone',
             'sch_city',
             'sch_location',
+            'sch_score',
         ]);
 
         $last_id = School::max('sch_id');
@@ -64,6 +65,8 @@ class SchoolController extends Controller
 
             DB::rollBack();
             Log::error('Store school failed : ' . $e->getMessage());
+            return Redirect::to('master/school')->withError('Failed to create school');
+
         }
 
         return Redirect::to('master/school')->withSuccess('School successfully created');
@@ -130,6 +133,7 @@ class SchoolController extends Controller
             'sch_phone',
             'sch_city',
             'sch_location',
+            'sch_score',
         ]);
 
         $schoolId = $request->route('school');
@@ -145,6 +149,8 @@ class SchoolController extends Controller
 
             DB::rollBack();
             Log::error('Update school failed : ' . $e->getMessage());
+            return Redirect::to('master/school')->withError('Failed to update school');
+
         }
 
         return Redirect::to('master/school')->withSuccess('School successfully updated');
@@ -159,10 +165,13 @@ class SchoolController extends Controller
 
             $this->schoolRepository->deleteSchool($schoolId);
             DB::commit();
+
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete school failed : ' . $e->getMessage());
+            return Redirect::to('master/school')->withError('Failed to delete school');
+
         }
 
         return Redirect::to('master/school')->withSuccess('School successfully deleted');

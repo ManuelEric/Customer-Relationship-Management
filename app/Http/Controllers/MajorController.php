@@ -44,6 +44,7 @@ class MajorController extends Controller
             
             DB::rollBack();
             Log::error('Store major failed : ' . $e->getMessage());
+            return Redirect::to('master/major')->withError('Failed to create a new major');
 
         }
 
@@ -68,6 +69,7 @@ class MajorController extends Controller
             
             DB::rollBack();
             Log::error('Update major failed : ' . $e->getMessage());
+            return Redirect::to('master/major')->withError('Failed to update a major');
 
         }
 
@@ -88,6 +90,7 @@ class MajorController extends Controller
 
             DB::rollBack();
             Log::error('Delete major failed : ' . $e->getMessage());
+            return Redirect::to('master/major')->withError('Failed to delete a major');
 
         }
 

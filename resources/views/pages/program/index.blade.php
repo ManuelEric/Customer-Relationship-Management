@@ -26,6 +26,7 @@
                         <th>Type</th>
                         <th>Payment Category</th>
                         <th>Need Tutor/Mentor</th>
+                        <th>Scope</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -39,7 +40,7 @@
     </div>
 
     {{-- Need Changing --}}
-    {{-- <script>
+    <script>
         $(document).ready(function() {
             var table = $('#programTable').DataTable({
                 dom: 'Bfrtip',
@@ -60,53 +61,56 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '{!! route('asset.datatables') !!}',
+                ajax: '',
                 columns: [{
-                        data: '',
+                        data: 'prog_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
                     {
-                        data: '',
+                        data: 'prog_id',
                     },
                     {
-                        data: '',
+                        data: 'prog_main',
                     },
                     {
-                        data: '',
+                        data: 'prog_sub',
                     },
                     {
-                        data: '',
+                        data: 'prog_program',
                     },
                     {
-                        data: '',
+                        data: 'prog_type',
                     },
                     {
-                        data: '',
+                        data: 'prog_payment',
                     },
                     {
-                        data: '',
+                        data: 'prog_mentor',
+                    },
+                    {
+                        data: 'prog_scope',
                     },
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editAsset"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteAsset"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editProgram"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteProgram"><i class="bi bi-trash"></i></button>'
                     }
                 ]
             });
 
-            $('#programTable tbody').on('click', '.editAsset ', function() {
+            $('#programTable tbody').on('click', '.editProgram ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('asset') }}/" + data.asset_id.toLowerCase() + '/edit';
+                window.location.href = "{{ url('master/program') }}/" + data.prog_id + '/edit';
             });
 
-            $('#programTable tbody').on('click', '.deleteAsset ', function() {
+            $('#programTable tbody').on('click', '.deleteProgram ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('asset', data.asset_id)
+                confirmDelete('master/program', data.prog_id)
             });
         });
-    </script> --}}
+    </script>
 @endsection
