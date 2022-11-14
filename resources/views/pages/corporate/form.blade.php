@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,8 +12,11 @@
         }
     </style>
 </head>
+
 <body>
-    <form action="{{ isset($corporate) ? route('corporate.update', ['corporate' => $corporate->corp_id]) : route('corporate.store') }}" method="POST">
+    <form
+        action="{{ isset($corporate) ? route('corporate.update', ['corporate' => $corporate->corp_id]) : route('corporate.store') }}"
+        method="POST">
         @csrf
         @if (isset($corporate))
             @method('PUT')
@@ -20,37 +24,44 @@
         @endif
         <fieldset>
             <legend>Corporate Name</legend>
-            <input type="text" name="corp_name" value="{{ isset($corporate->corp_name) ? $corporate->corp_name : null }}">
+            <input type="text" name="corp_name"
+                value="{{ isset($corporate->corp_name) ? $corporate->corp_name : null }}">
         </fieldset>
 
         <fieldset>
             <legend>Industry</legend>
-            <input type="text" name="corp_industry" value="{{ isset($corporate->corp_industry) ? $corporate->corp_industry : null }}">
+            <input type="text" name="corp_industry"
+                value="{{ isset($corporate->corp_industry) ? $corporate->corp_industry : null }}">
         </fieldset>
 
         <fieldset>
             <legend>Email</legend>
-            <input type="email" name="corp_mail" value="{{ isset($corporate->corp_mail) ? $corporate->corp_mail : null }}">
+            <input type="email" name="corp_mail"
+                value="{{ isset($corporate->corp_mail) ? $corporate->corp_mail : null }}">
         </fieldset>
 
         <fieldset>
             <legend>Contact Number</legend>
-            <input type="text" name="corp_phone" value="{{ isset($corporate->corp_phone) ? $corporate->corp_phone : null }}">
+            <input type="text" name="corp_phone"
+                value="{{ isset($corporate->corp_phone) ? $corporate->corp_phone : null }}">
         </fieldset>
 
         <fieldset>
             <legend>Instagram</legend>
-            <input type="text" name="corp_insta" value="{{ isset($corporate->corp_insta) ? $corporate->corp_insta : null }}">
+            <input type="text" name="corp_insta"
+                value="{{ isset($corporate->corp_insta) ? $corporate->corp_insta : null }}">
         </fieldset>
 
         <fieldset>
             <legend>Website</legend>
-            <input type="text" name="corp_site" placeholder="https://xxxxxx.xxxx" value="{{ isset($corporate->corp_site) ? $corporate->corp_site : null }}">
+            <input type="text" name="corp_site" placeholder="https://xxxxxx.xxxx"
+                value="{{ isset($corporate->corp_site) ? $corporate->corp_site : null }}">
         </fieldset>
 
         <fieldset>
             <legend>Region</legend>
-            <input type="text" name="corp_region" value="{{ isset($corporate->corp_region) ? $corporate->corp_region : null }}">
+            <input type="text" name="corp_region"
+                value="{{ isset($corporate->corp_region) ? $corporate->corp_region : null }}">
         </fieldset>
 
         <fieldset>
@@ -67,4 +78,5 @@
         <button type="submit">Submit</button>
     </form>
 </body>
+
 </html>

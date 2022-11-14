@@ -11,4 +11,5 @@ Route::resource('school', SchoolController::class);
 Route::resource('school/{school}/detail', SchoolDetailController::class);
 
 Route::resource('corporate', CorporateController::class);
+
 Route::resource('edufair', EdufLeadController::class);
