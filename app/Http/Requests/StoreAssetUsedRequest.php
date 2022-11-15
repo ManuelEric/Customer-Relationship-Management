@@ -32,11 +32,15 @@ class StoreAssetUsedRequest extends FormRequest
         return [
             'asset_id' => 'exists:tbl_asset,asset_id',
             'user' => 'required|exists:users,id',
-            'amount_used' => ['required', 'min:1', function($attribute, $value, $fail) use ($assetId, $old_amount_used) {
+            'amount_used' => ['required', 'min:1', function ($attribute, $value, $fail) use ($assetId, $old_amount_used) {
 
-                if (!Asset::where('asset_id', $assetId)->where(DB::raw('asset_amount-(asset_running_stock-'.$old_amount_used.')'), '>=', $value)->first()) {
+                if ($old_amount_used < $value) {
                     $fail('The amount used must be less than available stock');
                 }
+
+                // if (!Asset::where('asset_id', $assetId)->where(DB::raw('asset_amount-(asset_running_stock-'.$old_amount_used.')'), '>=', $value)->first()) {
+                //     $fail('The amount used must be less than available stock');
+                // }
             }],
             'used_date' => 'required',
             'condition' => 'nullable|in:null,Good,Not Good',

@@ -473,11 +473,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- @if (isset($schoolDetail))
-            @method('put')
-            <input type="hidden" readonly name="schdetail_id" value="{{ $schoolDetail->schdetail_id }}">
-        @endif --}}
     @endif
 
     <script>

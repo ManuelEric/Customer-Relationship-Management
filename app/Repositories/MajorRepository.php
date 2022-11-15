@@ -6,12 +6,17 @@ use App\Interfaces\MajorRepositoryInterface;
 use App\Models\Major;
 use DataTables;
 
-class MajorRepository implements MajorRepositoryInterface 
+class MajorRepository implements MajorRepositoryInterface
 {
 
     public function getAllMajorsDataTables()
     {
         return Datatables::eloquent(Major::query())->make(true);
+    }
+
+    public function getMajorById($id)
+    {
+        return Major::find($id);
     }
 
     public function getMajorByName($majorName)
@@ -24,7 +29,7 @@ class MajorRepository implements MajorRepositoryInterface
         return Major::destroy($majorId);
     }
 
-    public function createMajors(array $majorDetails) 
+    public function createMajors(array $majorDetails)
     {
         return Major::insert($majorDetails);
     }

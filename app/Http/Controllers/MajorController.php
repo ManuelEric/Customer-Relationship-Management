@@ -39,19 +39,26 @@ class MajorController extends Controller
 
             $this->majorRepository->createMajor($majorDetails);
             DB::commit();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Store major failed : ' . $e->getMessage());
             return Redirect::to('master/major')->withError('Failed to create a new major');
-
         }
 
         return Redirect::to('master/major')->withSuccess('Major successfully created');
     }
 
-    public function update(StoreMajorRequest $request) 
+    public function show(Request $request)
+    {
+        $majorId = $request->route('major');
+
+        $major = $this->majorRepository->getMajorById($majorId);
+
+        return response()->json(['major' => $major]);
+    }
+
+    public function update(StoreMajorRequest $request)
     {
         $majorDetails = $request->only([
             'name'
@@ -64,13 +71,11 @@ class MajorController extends Controller
 
             $this->majorRepository->updateMajor($id, $majorDetails);
             DB::commit();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Update major failed : ' . $e->getMessage());
             return Redirect::to('master/major')->withError('Failed to update a major');
-
         }
 
         return Redirect::to('master/major')->withSuccess('Major successfully updated');
@@ -85,13 +90,11 @@ class MajorController extends Controller
 
             $this->majorRepository->deleteMajor($id);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete major failed : ' . $e->getMessage());
             return Redirect::to('master/major')->withError('Failed to delete a major');
-
         }
 
         return Redirect::to('master/major')->withSuccess('Major successfully deleted');

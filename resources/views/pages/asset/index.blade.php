@@ -114,9 +114,8 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editAsset"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-info ms-1 showDetail"><i class="bi bi-search"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteAsset"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning ms-1 showDetail"><i class="bi bi-eye"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteAsset"><i class="bi bi-trash2"></i></button>'
                     }
                 ]
             });

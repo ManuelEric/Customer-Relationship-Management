@@ -62,7 +62,6 @@ class AssetController extends Controller
             DB::rollBack();
             Log::error('Store asset failed : ' . $e->getMessage());
             return Redirect::to('master/asset')->withError('Failed to create asset');
-
         }
 
         return Redirect::to('master/asset')->withSuccess('Asset successfully created');
@@ -78,9 +77,9 @@ class AssetController extends Controller
         $assetId = $request->route('asset');
 
         $asset = $this->assetRepository->getAssetById($assetId);
-        
+
         $employees = $this->userRepository->getAllUsersByRole('employee');
-        
+
         # put view detail asset below
         return view('pages.asset.form')->with(
             [
@@ -102,6 +101,7 @@ class AssetController extends Controller
 
         return view('pages.asset.form')->with(
             [
+                'edit' => true,
                 'asset' => $asset,
             ]
         );

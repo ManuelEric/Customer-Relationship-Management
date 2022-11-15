@@ -8,14 +8,14 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Major
         </a>
-        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#leadForm"><i
-                class="bi bi-plus-square me-1"></i> Add
+        <a href="#" class="btn btn-sm btn-primary" onclick="resetForm()" data-bs-toggle="modal"
+            data-bs-target="#majorForm"><i class="bi bi-plus-square me-1"></i> Add
             Major</a>
     </div>
 
     @if ($errors->any())
         <div class="alert alert-danger">
-            <ul>
+            <ul class="mb-0 pb-0">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -44,9 +44,45 @@
         </div>
     </div>
 
-    @include('pages.major.create')
-
-    @include('pages.major.update')
+    <div class="modal fade" id="majorForm" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-between">
+                    <span>
+                        Major
+                    </span>
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div class="modal-body w-100">
+                    <form action="{{ route('major.store') }}" method="POST" id="formMajor">
+                        @csrf
+                        <div class="put"></div>
+                        <div class="row g-2">
+                            <div class="col-md-12">
+                                <div class="mb-2">
+                                    <label for="">
+                                        Major Name <sup class="text-danger">*</sup>
+                                    </label>
+                                    <input type="text" name="name" class="form-control form-control-sm rounded"
+                                        required value="" id="major_name">
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                                <i class="bi bi-x-square me-1"></i>
+                                Cancel</a>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-save2 me-1"></i>
+                                Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{-- Need Changing --}}
     <script>
@@ -92,8 +128,8 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editMajor"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteMajor"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button data-bs-toggle="modal" data-bs-target="#majorForm" type="button" class="btn btn-sm btn-outline-warning editMajor"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteMajor"><i class="bi bi-trash2"></i></button>'
                     }
                 ]
             });
@@ -101,13 +137,7 @@
             $('#majorTable tbody').on('click', '.editMajor ', function() {
                 var data = table.row($(this).parents('tr')).data();
 
-                var element = "#majorFormUpdate"
-
-                $(element).modal('show');
-                var action = "{{ url('master/major') }}" + "/" + data.id
-                $(element).find('form').attr('action', action)
-                $(element).find('form input[name=name]').val(data.name)
-                $(element).find('form input[name=id]').val(data.id)
+                editById(data.id)
             });
 
             $('#majorTable tbody').on('click', '.deleteMajor ', function() {
@@ -115,5 +145,36 @@
                 confirmDelete('master/major', data.id)
             });
         });
+
+        function resetForm() {
+            $('#major_name').val(null)
+            $('.put').html('')
+            $('#formMajor').attr('action', '{{ url('master/major') }}')
+        }
+
+        function editById(id) {
+            let link = "{{ url('master/major') }}/" + id
+            axios.get(link)
+                .then(function(response) {
+
+                    // handle success
+                    let data = response.data.major
+                    console.log(data)
+
+                    $('#major_name').val(data.name)
+
+                    let html =
+                        '@method('put')' +
+                        '<input type="hidden" name="id" value="' + data.id + '">'
+
+                    $('.put').html(html)
+
+                    $('#formMajor').attr('action', '{{ url('master/major') }}/' + data.id + '')
+                })
+                .catch(function(error) {
+                    // handle error
+                    console.log(error);
+                })
+        }
     </script>
 @endsection

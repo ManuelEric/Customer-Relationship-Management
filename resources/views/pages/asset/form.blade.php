@@ -10,36 +10,48 @@
         </a>
     </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <div class="card rounded">
-        <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-md-4 text-center">
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <div class="card">
+                <div class="card-body">
                     <img src="{{ asset('img/asset.png') }}" alt="" class="w-75">
+                    @if (isset($asset))
+
+                        <div class="text-center">
+                            <div class="badge badge-primary mb-2">
+                                Unused Amount:
+                                {{ $asset->asset_amount - $asset->asset_running_stock }}
+                            </div> <br>
+                            @if (empty($edit))
+                                <a href="{{ url('master/asset/' . $asset->asset_id . '/edit') }}"
+                                    class="btn btn-sm rounded btn-outline-warning "><i class="bi bi-pencil me-1"></i>
+                                    Edit</a>
+                            @else
+                                <a href="{{ url('master/asset/' . $asset->asset_id) }}"
+                                    class="btn btn-sm rounded btn-outline-primary "><i class="bi bi-arrow-left me-1"></i>
+                                    Back</a>
+                            @endif
+                        </div>
+                    @endif
                 </div>
-                <div class="col-md-8">
-                    <div class="text-end ">
-                        <a href="{{ url('master/asset/' . $asset->asset_id . '/edit') }}"
-                            class="btn btn-sm btn-warning rounded-3 {{ Request::segment(4) == 'edit' ? 'd-none' : '' }}"><i
-                                class="bi bi-pencil me-1"></i> Edit</a>
-                        <a href="{{ url('master/asset/' . $asset->asset_id) }}"
-                            class="btn btn-sm btn-dark rounded-3 {{ Request::segment(4) == 'edit' ? '' : 'd-none' }}"><i
-                                class="bi bi-info-circle me-1"></i> View</a>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="">
+                        <h6 class="m-0 p-0">
+                            <i class="bi bi-tags me-2"></i>
+                            Asset Detail
+                        </h6>
                     </div>
+                </div>
+                <div class="card-body">
                     <form
                         action="@if (isset($asset)) {{ '/master/asset/' . $asset->asset_id }}@else{{ '/master/asset' }} @endif"
                         method="POST">
                         @csrf
-                        @if (isset($asset) && Request::segment(4) == 'edit')
+                        @if (isset($asset) && isset($edit))
                             @method('put')
                         @endif
                         <div class="row">
@@ -49,8 +61,8 @@
                                         Asset Name <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="text" name="asset_name" class="form-control form-control-sm rounded"
-                                        value="{{ isset($asset->asset_name) ? $asset->asset_name : old('asset_name') }}"
-                                        {{ Request::segment(4) == 'edit' ? '' : 'readonly' }}>
+                                        value="{{ isset($asset->asset_name) ? $asset->asset_name : old('asset_name') }}" }}
+                                        {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
                                     @error('asset_name')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -63,7 +75,7 @@
                                     </label>
                                     <input type="text" name="asset_merktype" class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_merktype) ? $asset->asset_merktype : old('asset_merktype') }}"
-                                        {{ Request::segment(4) == 'edit' ? '' : 'readonly' }}>
+                                        }} {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -74,7 +86,7 @@
                                     <input type="date" name="asset_dateachieved"
                                         class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_dateachieved) ? $asset->asset_dateachieved : old('asset_dateachieved') }}"
-                                        {{ Request::segment(4) == 'edit' ? '' : 'readonly' }}>
+                                        }} {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -84,7 +96,7 @@
                                     </label>
                                     <input type="number" name="asset_amount" class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_amount) ? $asset->asset_amount : old('asset_amount') }}"
-                                        {{ Request::segment(4) == 'edit' ? '' : 'readonly' }}>
+                                        }} {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -93,8 +105,8 @@
                                         Unit(s)
                                     </label>
                                     <input type="text" name="asset_unit" class="form-control form-control-sm rounded"
-                                        value="{{ isset($asset->asset_unit) ? $asset->asset_unit : old('asset_unit') }}"
-                                        {{ Request::segment(4) == 'edit' ? '' : 'readonly' }}>
+                                        value="{{ isset($asset->asset_unit) ? $asset->asset_unit : old('asset_unit') }}" }}
+                                        {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -103,7 +115,7 @@
                                         Condition
                                     </label>
                                     <select name="asset_condition" class="select w-100"
-                                        {{ Request::segment(4) == 'edit' ? '' : 'disabled' }}>
+                                        {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
                                         <option value="Good"
                                             {{ isset($asset->asset_condition) && $asset->asset_condition == 'Good' ? 'selected' : '' }}>
@@ -130,228 +142,331 @@
                                     <textarea name="asset_notes" cols="30" rows="2" class="form-control form-control-sm rounded">{{ isset($asset->asset_notes) ? $asset->asset_notes : old('asset_notes') }}</textarea>
                                 </div>
                             </div>
-                            <div class="col-md-12 {{ Request::segment(4) == 'edit' ? '' : 'd-none' }}">
-                                <div class="text-center">
-                                    <hr>
-                                    <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-save2 me-1"></i>
-                                        Submit</button>
+                            @if (isset($asset) && isset($edit))
+                                <div class="col-md-12">
+                                    <div class="text-center">
+                                        <hr>
+                                        <button type="submit" class="btn btn-sm btn-primary"><i
+                                                class="bi bi-save2 me-1"></i>
+                                            Submit</button>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                         </div>
                     </form>
                 </div>
             </div>
-            @if (isset($asset) && Request::segment(4) != 'edit')
-                <hr>
-                <div class="row mt-3">
-                    <div class="col-12 mb-2">
-                        <button class="btn btn-sm btn-info rounded-3">Add User</button>
+
+        </div>
+    </div>
+
+
+    @if (isset($asset) && empty($edit))
+        <div class="row mt-3">
+            <div class="col-12 mb-3">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="">
+                            <h6 class="m-0 p-0">
+                                <i class="bi bi-list me-2"></i>
+                                Last Used
+                            </h6>
+                        </div>
+                        <div class="">
+                            <button class="btn btn-sm btn-outline-primary rounded-3" data-bs-toggle="modal"
+                                data-bs-target="#picForm">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
                     </div>
-                    <form action="{{ isset($user) ? url('master/asset').'/'.$asset->asset_id.'/used/'.$request->route('used').'/returned'  : url('master/asset').'/'.$asset->asset_id.'/used' }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="user" value="{{ isset($user) ? $user->id : null }}">
-                        <input type="hidden" name="usedId" value="{{ isset($usedId) ? $usedId : null }}">
-                        <input type="hidden" name="assetId" value="{{ $asset->asset_id }}">
-                        <h5>
-                            @if (!isset($user))
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered assetUserTable">
+                                <thead class="bg-secondary text-center">
+                                    <tr class="text-white">
+                                        <th>No</th>
+                                        <th>User</th>
+                                        <th>Start Date</th>
+                                        <th>Amount Used</th>
+                                        <th>First Condition</th>
+                                        <th>Status</th>
+                                        <th>Detail</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-center">
+                                    @if (count($asset->userUsedAsset) > 0)
+                                        @php
+                                            $no = 1;
+                                        @endphp
+                                        @foreach ($asset->userUsedAsset as $user)
+                                            <tr>
+                                                <td>{{ $no++ }}</td>
+                                                <td class="text-start">{{ $user->first_name . ' ' . $user->last_name }}
+                                                </td>
+                                                <td>{{ date('F d, Y', strtotime($user->pivot->used_date)) }}</td>
+                                                <td>{{ $user->pivot->amount_used }}</td>
+                                                <td>{{ $user->pivot->condition ?? '-' }}</td>
+                                                <td>
+                                                    {{ $user->pivot->amount_used - $user->pivot->returned_detail()->sum('amount_returned') == 0 ? 'Returned' : 'On Used' }}
+                                                </td>
+                                                <td align="center">
+                                                    @if (count($user->pivot->returned_detail) > 0)
+                                                        <table class="table">
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Returned Date</th>
+                                                                <th>Amount</th>
+                                                                <th>Condition</th>
+                                                                <th></th>
+                                                            </tr>
+                                                            @php
+                                                                $subno = 1;
+                                                            @endphp
+                                                            @foreach ($user->pivot->returned_detail as $returned_data)
+                                                                <tr>
+                                                                    <td>{{ $subno++ }}</td>
+                                                                    <td>{{ date('F d, Y', strtotime($returned_data->returned_date)) }}
+                                                                    </td>
+                                                                    <td align="center">
+                                                                        {{ $returned_data->amount_returned }}
+                                                                    </td>
+                                                                    <td>{{ $returned_data->condition }}</td>
+                                                                    <td>
+                                                                        <button
+                                                                            onclick="confirmDelete('master/asset/{{ $asset->asset_id }}/used/{{ $user->pivot->id }}/returned', '{{ $returned_data->id }}')"
+                                                                            class="btn btn-sm btn-outline-danger p-1 py-0 mx-1"><i
+                                                                                class="bi bi-trash2"></i></button>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </table>
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-info mx-1 returnAsset"
+                                                        data-bs-toggle="modal" data-bs-target="#returnForm"
+                                                        onclick="returnData('{{ $asset->asset_id }}','{{ $user->pivot->id }}')">
+                                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger mx-1"
+                                                        onclick="confirmDelete('master/asset/{{ $asset->asset_id }}/used', '{{ $user->pivot->id }}')"><i
+                                                            class="bi bi-trash2"></i></button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="8">
+                                                <label for="" class="py-2">No Data</label>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal modal-md fade" id="picForm" data-bs-backdrop="static" data-bs-keyboard="false"
+            tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="m-0 p-0">
+                            <i class="bi bi-person me-2"></i>
+                            @if (!isset($user) || !isset($usedId))
                                 Add User Form
                             @else
                                 Returned Form
                             @endif
-                        </h5>
-                        <div class="col-12 mb-3">
-                            <div class="row g-1 border border-1 rounded-2 p-3 ">
-                                @if (!isset($user))
-                                <div class="col-md-3">
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="pb-0 mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        <form action="{{ url('master/asset') . '/' . $asset->asset_id . '/used' }}" method="POST">
+                            @csrf
+                            {{-- <input type="text" name="user" value="{{ isset($user) ? $user->id : null }}">
+                            <input type="hidden" name="usedId" value="{{ isset($usedId) ? $usedId : null }}"> --}}
+                            <input type="hidden" name="assetId" value="{{ $asset->asset_id }}">
+
+                            <div class="row">
+                                <div class="col-md-8 mb-2">
                                     <label for="">
                                         User
                                     </label>
-                                    <select name="user" class="select w-100">
+                                    <select name="user" class="modal-select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($employees as $employee)
-                                            <option value="{{ $employee->id }}"
-                                                @if (isset($user) && $user->id == $employee->id)
-                                                {{ "selected" }}
-                                                @endif
-                                                >{{ $employee->first_name.' '.$employee->last_name }}</option>
+                                            <option value="{{ $employee->id }}">
+                                                {{ $employee->first_name . ' ' . $employee->last_name }}</option>
                                         @endforeach
                                     </select>
 
                                 </div>
-                                @endif
-                                <div class="col-md-1">
+                                <div class="col-md-4 mb-2">
                                     <label for="">
                                         Amount
                                     </label>
-                                    <input type="hidden" name="old_amount_used" value="{{ isset($user->pivot->amount_used) ? $user->pivot->amount_used : 0 }}">
-                                    @if (!isset($user))
-                                        <input type="number" name="amount_used" class="form-control form-control-sm rounded" value="0" min=0>
-                                    @else
-
-                                        <input type="number" name="amount_returned" class="form-control form-control-sm rounded"
-                                            value="{{ isset($user->pivot->amount_used) ? $user->pivot->amount_used : 0 }}" min=0>
-                                    @endif
+                                    <input type="hidden" name="old_amount_used"
+                                        value="{{ $asset->asset_amount - $asset->asset_running_stock }}">
+                                    <input type="number" name="amount_used" class="form-control form-control-sm rounded"
+                                        value="0" min=0>
                                 </div>
-                                @if (!isset($user))
-                                <div class="col-md-2">
+                                <div class="col-md-6 mb-2">
                                     <label for="">
                                         Start Using
                                     </label>
-                                    <input type="date" name="used_date" class="form-control form-control-sm rounded"
-                                        value="{{ isset($user->pivot->used_date) ? $user->pivot->used_date : null }}" >
+                                    <input type="date" name="used_date" class="form-control form-control-sm rounded">
                                 </div>
-                                @endif
-
-                                @if (isset($user))
-                                <div class="col-md-2">
-                                    <label for="">
-                                        End Using
-                                    </label>
-                                    <input type="hidden" name="old_used_date" value="{{ isset($user->pivot->used_date) ? $user->pivot->used_date : null }}">
-                                    <input type="date" name="returned_date" class="form-control form-control-sm rounded"
-                                        value="{{ isset($user->pivot->returned_date) ? $user->pivot->returned_date : null }}">
-                                </div>
-                                @endif
-                                <div class="col-md-2">
+                                <div class="col-md-6 mb-2">
                                     <label for="">
                                         Condition
                                     </label>
-                                    <select name="condition" class="select w-100">
+                                    <select name="condition" class="modal-select w-100">
                                         <option data-placeholder="true"></option>
                                         <option value="Good">Good</option>
                                         <option value="Not Good">Not Good</option>
                                     </select>
                                 </div>
-                                {{-- <div class="col-md-2">
-                                    <label for="">
-                                        Status
-                                    </label>
-                                    <select name="asset_condition" class="select w-100">
-                                        <option data-placeholder="true"></option>
-                                    </select>
-
-                                </div> --}}
-                                <div class="col-12 text-end mt-2">
-                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3"><i class="bi bi-x me-1"></i>
+                                <div class="col-12 d-flex justify-content-between mt-3">
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
+                                        data-bs-dismiss="modal"><i class="bi bi-x me-1"></i>
                                         Cancel</button>
-                                    <button type="submit" class="btn btn-sm btn-primary rounded-3"><i class="bi bi-save me-1"></i>
+                                    <button type="submit" class="btn btn-sm btn-primary rounded-3"><i
+                                            class="bi bi-save me-1"></i>
                                         Save</button>
                                 </div>
                             </div>
-                        </div>
-                    </form>
-
-                    <div class="col-12 mb-3">
-                        <h5>Last Used</h5>
-                        <table class="table table-bordered assetUserTable">
-                            <thead class="bg-secondary text-center">
-                                <tr>
-                                    <th>No</th>
-                                    <th>User</th>
-                                    <th>Start Date</th>
-                                    <th>Stock</th>
-                                    <th>Available Qty</th>
-                                    <th>First Condition</th>
-                                    <th>Status</th>
-                                    <th>Detail</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-center">
-                                @if (count($asset->userUsedAsset) > 0)
-                                @php
-                                    $no = 1;
-                                @endphp
-                                @foreach ($asset->userUsedAsset as $user)
-                                    <tr>
-                                        <td>{{ $no++ }}</td>
-                                        <td>{{ $user->first_name.' '.$user->last_name }}</td>
-                                        <td>{{ date('F d, Y', strtotime($user->pivot->used_date)) }}</td>
-                                        <td>{{ $user->pivot->amount_used }}</td>
-                                        <td>{{ $user->pivot->amount_used - $asset->asset_running_stock }}</td>
-                                        <td>{{ $user->pivot->condition ?? '-' }}</td>
-                                        <td>{{ $asset->asset_running_stock != 0 ? "on used" : "available" }}</td>
-                                        <td align="center">
-                                            @if (count($user->pivot->returned_detail) > 0)
-                                            <table class="returnedTable">
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Returned Date</th>
-                                                    <th>Amount</th>
-                                                    <th>Condition</th>
-                                                    <th></th>
-                                                </tr>
-                                                @php
-                                                    $subno = 1;
-                                                @endphp
-                                                @foreach ($user->pivot->returned_detail as $returned_data)
-                                                    <tr>
-                                                        <td>{{ $subno++ }}</td>
-                                                        <td>{{ date('F d, Y', strtotime($returned_data->returned_date)) }}</td>
-                                                        <td align="center">{{ $returned_data->amount_returned }}</td>
-                                                        <td>{{ $returned_data->condition }}</td>
-                                                        <td>
-                                                            <button class="btn btn-sm bg-danger mx-1 deleteReturned" data-usedid="{{ $user->pivot->id }}" data-returnedid="{{ $returned_data->id }}"><i class="bi bi-trash"></i></button>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </table>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-sm bg-info mx-1 returnAsset" data-usedid="{{ $user->pivot->id }}"><i class="bi bi-search"></i></button>
-                                            <button class="btn btn-sm bg-danger mx-1 deleteUsed" data-usedid="{{ $user->pivot->id }}"><i class="bi bi-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                @else
-                                    <tr>
-                                        <td colspan="8">
-                                            <label for="" class="py-2">No Data</label>
-                                        </td>
-                                    </tr>
-                                @endif
-                            </tbody>
-                        </table>
+                        </form>
                     </div>
                 </div>
-            @endif
+            </div>
         </div>
-    </div>
 
-    <script type="text/javascript">
-    var assetId = "{{ $asset->asset_id }}"
-    var usedId = "{{ $request->route('used') }}"
-    var returnedId = "{{ $request->route('returned') }}"
+        <div class="modal modal-md fade" id="returnForm" data-bs-backdrop="static" data-bs-keyboard="false"
+            tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="m-0 p-0">
+                            <i class="bi bi-person me-2"></i>
+                            Returned Form
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="pb-0 mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        <form action="#" method="POST" id="formReturn">
+                            @csrf
+                            <input type="hidden" name="user" id="userId">
+                            <input type="hidden" name="usedId" id="usedId">
+                            <input type="hidden" name="assetId" id="assetId">
 
-        $(".returnAsset").each(function(index, item) {
-            $(this).click(function() {
+                            <div class="row">
+                                <div class="col-md-2 mb-2">
+                                    <label for="">
+                                        Amount
+                                    </label>
+                                    <input type="hidden" name="old_amount_used" id="oldAmountUsed">
+                                    <input type="number" name="amount_returned"
+                                        class="form-control form-control-sm rounded" id="amountReturned" min=0>
+                                </div>
+                                <div class="col-md-5 mb-2">
+                                    <label for="">
+                                        End Using
+                                    </label>
+                                    <input type="hidden" name="old_used_date" id="oldUsedDate">
+                                    <input type="date" name="returned_date"
+                                        class="form-control form-control-sm rounded" id="returnedDate" value="">
+                                </div>
+                                <div class="col-md-5 mb-2">
+                                    <label for="">
+                                        Condition
+                                    </label>
+                                    <select name="condition" class="modal-select2 w-100">
+                                        <option data-placeholder="true"></option>
+                                        <option value="Good">Good</option>
+                                        <option value="Not Good">Not Good</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 d-flex justify-content-between mt-3">
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
+                                        data-bs-dismiss="modal"><i class="bi bi-x me-1"></i>
+                                        Cancel</button>
+                                    <button type="submit" class="btn btn-sm btn-primary rounded-3"><i
+                                            class="bi bi-save me-1"></i>
+                                        Save</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
-                var usedId = $(item).data('usedid');
+    <script>
+        $(document).ready(function() {
+            $('.modal-select').select2({
+                dropdownParent: $('#picForm .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+        });
 
-                window.location.href = "{{ url('master/asset') }}/" + assetId.toLowerCase() + '/used/' + usedId;
-            })
-        })
+        $(document).ready(function() {
+            $('.modal-select2').select2({
+                dropdownParent: $('#returnForm .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+        });
 
-        $(".deleteUsed").each(function(index, item) {
-            $(this).click(function() {
-                
-                var usedId = $(item).data('usedid')
 
-                confirmDelete('master/asset', assetId + '/used/' + usedId)
-            })
-        })
+        function returnData(asset_id, used_id) {
+            let link = "{{ url('master/asset') }}/" + asset_id.toLowerCase() + '/used/' +
+                used_id
 
-        $(".deleteReturned").each(function(index, item) {
-            $(this).click(function() {
-                var usedId = $(item).data('usedid')
-                var returnedId = $(item).data('returnedid')
+            axios.get(link)
+                .then(function(response) {
 
-                confirmDelete('master/asset', assetId + '/used/' + usedId + '/returned/' + returnedId)
-            })
-        })
+                    // handle success
+                    let data = response.data
+                    $('#userId').val(data.user.id)
+                    $('#usedId').val(data.usedId)
+                    $('#assetId').val(data.asset.asset_id)
+                    $('#oldAmountUsed').val(data.user.pivot.amount_used - data.amount_returned)
+                    $('#amountReturned').val(data.user.pivot.amount_used - data.amount_returned)
+                    $('#oldUsedDate').val(data.user.pivot.used_date)
+
+                    $('#formReturn').attr('action', '{{ url('master/asset') }}/' + data.asset.asset_id + '/used/' +
+                        data.usedId + '/returned')
+                })
+                .catch(function(error) {
+                    // handle error
+                    console.log(error);
+                })
+        }
     </script>
-
 @endsection
