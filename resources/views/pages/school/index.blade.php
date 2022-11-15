@@ -85,7 +85,7 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editSchool"><i class="bi bi-eye"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editSchool"><i class="bi bi-eye"></i></button>'
                     }
                 ]
             });
