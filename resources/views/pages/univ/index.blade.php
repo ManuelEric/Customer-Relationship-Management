@@ -180,7 +180,7 @@
 
                     // handle success
                     let data = response.data.university
-                    console.log(data)
+                    // console.log(data)
 
                     $('#univ_name').val(data.univ_name)
                     $('#univ_country').val(data.univ_country).trigger('change')
