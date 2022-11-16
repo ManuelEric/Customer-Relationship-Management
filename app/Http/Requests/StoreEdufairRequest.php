@@ -70,8 +70,8 @@ class StoreEdufairRequest extends FormRequest
             'ext_pic_phone' => 'required',
             'first_discussion_date' => 'nullable|date',
             'last_discussion_date' => 'nullable|date',
-            'event_start' => 'required|date|after_or_equal:'.date('Y-m-d'),
-            'event_end' => 'required|date|after_or_equal:'.date('Y-m-d'),
+            'event_start' => 'nullable|date',
+            'event_end' => 'nullable|date',
             'status' => 'boolean',
             'notes' => 'nullable'
         ];

@@ -39,16 +39,23 @@ class PositionController extends Controller
 
             $this->positionRepository->createPosition($positionDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store position failed : ' . $e->getMessage());
             return Redirect::to('master/position')->withError('Failed to create a new position');
-
         }
 
         return Redirect::to('master/position')->withSuccess('Position successfully created');
+    }
+
+    public function show(Request $request)
+    {
+        $id = $request->route('position');
+
+        $position = $this->positionRepository->getById($id);
+
+        return response()->json(['position' => $position]);
     }
 
     public function update(StorePositionRequest $request)
@@ -64,13 +71,11 @@ class PositionController extends Controller
 
             $this->positionRepository->updatePosition($id, $positionDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update position failed : ' . $e->getMessage());
             return Redirect::to('master/position')->withError('Failed to update position');
-
         }
 
         return Redirect::to('master/position')->withSuccess('Position successfully updated');
@@ -85,13 +90,11 @@ class PositionController extends Controller
 
             $this->positionRepository->deletePosition($id);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete position failed : ' . $e->getMessage());
             return Redirect::to('master/position')->withError('Failed to delete position');
-
         }
 
         return Redirect::to('master/position')->withSuccess('Position successfully deleted');

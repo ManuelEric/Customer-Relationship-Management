@@ -7,7 +7,7 @@ use App\Models\EdufLead;
 use Illuminate\Support\Facades\DB;
 use DataTables;
 
-class EdufLeadRepository implements EdufLeadRepositoryInterface 
+class EdufLeadRepository implements EdufLeadRepositoryInterface
 {
     public function getAllEdufairLeadDataTables()
     {
