@@ -8,8 +8,8 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Position
         </a>
-        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#positionForm"><i
-                class="bi bi-plus-square me-1"></i> Add
+        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#positionForm"
+            onclick="resetForm()"><i class="bi bi-plus-square me-1"></i> Add
             Position</a>
     </div>
 
@@ -44,7 +44,45 @@
         </div>
     </div>
 
-    @include('pages.position.create')
+    <div class="modal fade" id="positionForm" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-between">
+                    <span>
+                        Position
+                    </span>
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div class="modal-body w-100">
+                    <form action="{{ route('position.store') }}" method="POST" id="formPosition">
+                        @csrf
+                        <div class="put"></div>
+                        <div class="row g-2">
+                            <div class="col-md-12">
+                                <div class="mb-2">
+                                    <label for="">
+                                        Position Name <sup class="text-danger">*</sup>
+                                    </label>
+                                    <input type="text" name="position_name" id="position_name"
+                                        class="form-control form-control-sm rounded" required value="">
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                                <i class="bi bi-x-square me-1"></i>
+                                Cancel</a>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-save2 me-1"></i>
+                                Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @include('pages.position.update')
 
@@ -92,7 +130,7 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editPosition"><i class="bi bi-pencil"></i></button>' +
+                        defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#positionForm" class="btn btn-sm btn-warning editPosition"><i class="bi bi-pencil"></i></button>' +
                             '<button type="button" class="btn btn-sm btn-danger ms-1 deletePosition"><i class="bi bi-trash"></i></button>'
                     }
                 ]
@@ -100,14 +138,7 @@
 
             $('#positionTable tbody').on('click', '.editPosition ', function() {
                 var data = table.row($(this).parents('tr')).data();
-
-                var element = "#positionFormUpdate"
-
-                $(element).modal('show');
-                var action = "{{ url('master/position') }}" + "/" + data.id
-                $(element).find('form').attr('action', action)
-                $(element).find('form input[name=position_name]').val(data.position_name)
-                $(element).find('form input[name=id]').val(data.id)
+                editById(data.id)
             });
 
             $('#positionTable tbody').on('click', '.deletePosition ', function() {
@@ -115,5 +146,36 @@
                 confirmDelete('master/position', data.id)
             });
         });
+
+        function resetForm() {
+            $('#position_name').val(null)
+            $('.put').html('')
+            $('#formPosition').attr('action', '{{ url('master/position') }}')
+        }
+
+        function editById(id) {
+            let link = "{{ url('master/position') }}/" + id
+
+            axios.get(link)
+                .then(function(response) {
+
+                    // handle success
+                    let data = response.data.position
+                    // console.log(data)
+
+                    $('#position_name').val(data.position_name)
+                    let html =
+                        '@method('put')' +
+                        '<input type="hidden" name="id" value="' + data.id + '">'
+
+                    $('.put').html(html)
+
+                    $('#formPosition').attr('action', '{{ url('master/position') }}/' + data.id + '')
+                })
+                .catch(function(error) {
+                    // handle error
+                    console.log(error);
+                })
+        }
     </script>
 @endsection

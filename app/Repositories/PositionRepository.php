@@ -6,7 +6,7 @@ use App\Interfaces\PositionRepositoryInterface;
 use App\Models\Position;
 use DataTables;
 
-class PositionRepository implements PositionRepositoryInterface 
+class PositionRepository implements PositionRepositoryInterface
 {
     public function getAllPositionDataTables()
     {
@@ -16,6 +16,11 @@ class PositionRepository implements PositionRepositoryInterface
     public function getAllPositions()
     {
         return Position::all();
+    }
+
+    public function getById($id)
+    {
+        return Position::find($id);
     }
 
     public function getPositionByName($positionName)
@@ -28,7 +33,7 @@ class PositionRepository implements PositionRepositoryInterface
         return Position::destroy($positionId);
     }
 
-    public function createPositions(array $positionDetails) 
+    public function createPositions(array $positionDetails)
     {
         return Position::insert($positionDetails);
     }
