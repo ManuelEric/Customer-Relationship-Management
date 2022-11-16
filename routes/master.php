@@ -7,6 +7,7 @@ use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProgramController;
+use App\Http\Controllers\PurchaseDetailController;
 use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\VendorController;
@@ -33,6 +34,9 @@ Route::resource('position', PositionController::class);
 Route::resource('major', MajorController::class);
 
 Route::resource('purchase', PurchaseRequestController::class);
+Route::prefix('purchase')->name('purchase.')->group(function() {
+    Route::resource('{purchase}/detail', PurchaseDetailController::class);
+});
 
 Route::resource('vendor', VendorController::class);
 

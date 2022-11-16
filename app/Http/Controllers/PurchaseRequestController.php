@@ -13,8 +13,10 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 
 class PurchaseRequestController extends Controller
 {
@@ -61,20 +63,6 @@ class PurchaseRequestController extends Controller
         ]);
         $requestDetails['purchase_id'] = $purchase_id_with_label;
 
-        for($i = 0 ; $i < count($request->item) ; $i++) {
-
-            $itemDetails[] = [
-                'purchase_id' => $purchase_id_with_label,
-                'item' => $request->item[$i],
-                'amount' => $request->amount[$i],
-                'price_per_unit' => $request->price_per_unit[$i],
-                'total' => $request->total[$i],
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
-            ];
-
-        }
-
         DB::beginTransaction();
         try {
 
@@ -84,14 +72,11 @@ class PurchaseRequestController extends Controller
                 $file_format = $request->file('purchase_attachment')->getClientOriginalExtension();
                 $file_path = $request->file('purchase_attachment')->storeAs('public/uploaded_file/finance', $file_name.'.'.$file_format);
                 unset($requestDetails['purchase_attachment']);
-                $requestDetails['purchase_attachment'] = $file_path;
+                $requestDetails['purchase_attachment'] = $file_name.'.'.$file_format;
             }
 
             # insert into purchase request
             $this->purchaseRequestRepository->createPurchaseRequest($requestDetails);
-
-            # insert into purchase request detail
-            $this->purchaseDetailRepository->createManyPurchaseDetail($itemDetails);
             DB::commit();
 
         } catch (Exception $e) {
@@ -102,7 +87,7 @@ class PurchaseRequestController extends Controller
 
         }
 
-        return Redirect::to('master/purchase')->withSuccess('Purchase request successfully created');
+        return Redirect::to('master/purchase/'.$purchase_id_with_label)->withSuccess('Purchase request successfully created');
     }
 
     public function create()
@@ -113,6 +98,7 @@ class PurchaseRequestController extends Controller
 
         return view('pages.purchase.form')->with(
             [
+                'edit' => true,
                 'departments' => $departments,
                 'employees' => $employees,
                 'requestStatus' => $requestStatus
@@ -142,6 +128,46 @@ class PurchaseRequestController extends Controller
         );
     }
 
+    public function update(StorePurchaseReqRequest $request)
+    {
+        $newDetails = $request->only([
+            'purchase_department',
+            'purchase_statusrequest',
+            'purchase_requestdate',
+            'purchase_notes',
+            'purchase_attachment',
+            'requested_by',
+        ]);
+        $purchaseId = strtoupper($request->route('purchase'));
+
+        DB::beginTransaction();
+        try {
+
+            if ($request->hasFile('purchase_attachment')) {
+
+                $file_name = $purchaseId;
+                $file_format = $request->file('purchase_attachment')->getClientOriginalExtension();
+                $file_path = $request->file('purchase_attachment')->storeAs('public/uploaded_file/finance', $file_name.'.'.$file_format);
+                unset($newDetails['purchase_attachment']);
+                $newDetails['purchase_attachment'] = $file_name.'.'.$file_format;
+            }
+
+            # insert into purchase request
+            $this->purchaseRequestRepository->updatePurchaseRequest($purchaseId, $newDetails);
+            
+            DB::commit();
+
+        } catch (Exception $e) {
+            
+            DB::rollBack();
+            Log::error('Update purchase request failed : ' . $e->getMessage());
+            return Redirect::to('master/purchase/'.$purchaseId)->withError('Failed to update a purchase request');
+
+        }
+
+        return Redirect::to('master/purchase/'.$purchaseId)->withSuccess('Purchase request successfully updated');
+    }
+
     public function edit(Request $request)
     {
         $purchaseId = $request->route('purchase');
@@ -162,6 +188,31 @@ class PurchaseRequestController extends Controller
                 'requestStatus' => $requestStatus
             ]
         );
+    }
+
+    public function destroy(Request $request)
+    {
+        $purchaseId = $request->route('purchase');
+
+        DB::beginTransaction();
+        try {
+
+            $purchase = $this->purchaseRequestRepository->getPurchaseRequestById($purchaseId);
+            if ($this->purchaseRequestRepository->deletePurchaseRequest($purchaseId)) {
+                
+                unlink(public_path('storage/uploaded_file/finance/'.$purchase->purchase_attachment));
+
+            }
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete purchase request failed : ' . $e->getMessage());
+            return Redirect::to('master/purchase')->withError('Failed to delete purchase request');
+        }
+
+        return Redirect::to('master/purchase')->withSuccess('Purchase Request successfully deleted');
     }
 
 }

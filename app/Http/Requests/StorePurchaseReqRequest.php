@@ -32,8 +32,12 @@ class StorePurchaseReqRequest extends FormRequest
      */
     public function rules()
     {
+        return $this->isMethod('POST') ? $this->store() : $this->update();
+    }
+
+    protected function store()
+    {
         return [
-            # validation for purchase request
             'purchase_department' => 'required|exists:tbl_department,id',
             'purchase_statusrequest' => 'required|in:Urgent,Immediately,Can Wait,Done',
             'purchase_requestdate' => 'required|date',
@@ -54,12 +58,32 @@ class StorePurchaseReqRequest extends FormRequest
                 //     });
                 // }),
             ],
-            
-            # validation for purchase detail
-            'item.*' => 'required',
-            'amount.*' => 'required|min:1|integer',
-            'price_per_unit.*' => 'required|integer',
-            'total' => 'required', 
+        ];
+    }
+
+    protected function update()
+    {
+        return [
+            'purchase_department' => 'required|exists:tbl_department,id',
+            'purchase_statusrequest' => 'required|in:Urgent,Immediately,Can Wait,Done',
+            'purchase_requestdate' => 'required|date',
+            'purchase_notes' => 'nullable',
+            'purchase_attachment' => 'nullable|file|mimes:docx,doc,pdf,xls,xlsx,csv',
+            'requested_by' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!User::whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Employee');
+                    })->whereId($value)) {
+                        $fail('The requested by is invalid');
+                    }
+                },
+                // Rule::exists('users', 'id')->where(function($query){
+                //     $query->whereHas('roles', function($q) {
+                //         $q->where('role_name', 'Employee');
+                //     });
+                // }),
+            ],
         ];
     }
 }

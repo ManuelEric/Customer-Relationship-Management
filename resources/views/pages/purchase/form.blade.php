@@ -5,8 +5,139 @@
 @section('content')
 
 @php
-    $disabled = isset($purchaseRequest) && isset($edit) ? null : "disabled";
+    $disabled = isset($purchaseRequest) && isset($edit) ? null : (isset($edit) ? null : "disabled");
 @endphp
+
+    <div class="modal modal-md fade" id="detailModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="m-0 p-0">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Requested Item
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="pb-0 mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    <form action="#" method="POST" id="detailForm">
+                        @csrf
+                        @method('PUT')
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label for="">Item</label>
+                                    <input type="text" name="item" id="item" class="form-control form-control-sm rounded">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label for="">Amount</label>
+                                    <input type="number" name="amount" id="amount" class="form-control form-control-sm rounded">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label for="">Price per Unit</label>
+                                    <input type="number" name="price_per_unit" id="price" class="form-control form-control-sm rounded">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label for="">Total</label>
+                                    <input type="number" name="total" id="total" class="form-control form-control-sm rounded" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mt-2">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
+                                        <i class="bi bi-x me-1"></i>
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-sm btn-primary rounded-3">
+                                        <i class="bi bi-save2"></i>
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- <div class="modal modal-md fade" id="createForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="m-0 p-0">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Add a new Item
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="pb-0 mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    <form action="{{ route('purchase.detail.store', ['purchase' => $purchaseRequest->purchase_id]) }}" method="POST">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label for="">Item</label>
+                                    <input type="text" name="item" class="form-control form-control-sm rounded item">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label for="">Amount</label>
+                                    <input type="number" name="amount" class="form-control form-control-sm rounded amount">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label for="">Price per Unit</label>
+                                    <input type="text" name="price_per_unit" class="form-control form-control-sm rounded price">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label for="">Total</label>
+                                    <input type="number" name="total" class="form-control form-control-sm rounded total" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mt-2">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
+                                        <i class="bi bi-x me-1"></i>
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-sm btn-primary rounded-3">
+                                        <i class="bi bi-save2"></i>
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> --}}
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('master/purchase') }}" class="text-decoration-none text-muted">
@@ -24,6 +155,28 @@
                 <div class="row align-items-center">
                     <div class="col-md-4 text-center">
                         <img src="{{ asset('img/purchase.webp') }}" alt="" class="w-75">
+                        <h5>
+                            {{ isset($purchaseRequest->purchase_id) ? "Purchase Request No. ".$purchaseRequest->purchase_id : 'Add New Purchase Request' }}
+                        </h5>
+                        @if (isset($purchaseRequest))
+                            <div class="mt-3 d-flex justify-content-center">
+                                @if (isset($edit))
+                                    <a href="{{ url('master/purchase/' . strtolower($purchaseRequest->purchase_id)) }}"
+                                        class="btn btn-sm btn-outline-info rounded mx-1">
+                                        <i class="bi bi-arrow-left"></i> Back
+                                    </a>
+                                @else
+                                    <a href="{{ url('master/purchase/' . strtolower($purchaseRequest->purchase_id) . '/edit') }}"
+                                        class="btn btn-sm btn-outline-info rounded mx-1">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                @endif
+                                <button type="button" onclick="confirmDelete('master/purchase', '{{ $purchaseRequest->purchase_id }}')"
+                                    class="btn btn-sm btn-outline-danger rounded mx-1">
+                                    <i class="bi bi-trash2"></i> Delete
+                                </button>
+                            </div>
+                        @endif
                     </div>
                     <div class="col-md-8">
                         <div class="row g-2">
@@ -90,13 +243,14 @@
                                         Attachment <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="file" name="purchase_attachment"
-                                        class="form-control form-control-sm rounded" value="" {{ $disabled }}>
+                                        class="form-control form-control-sm rounded" value="{{ isset($purchaseRequest->purchase_attachment) ? $purchaseRequest->purchase_attachment : null }}" {{ $disabled }}>
                                     @error('purchase_attachment')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                     @if (isset($purchaseRequest->purchase_attachment))
                                         <small class="text-info fw-light">
-                                            <a href="{{ $purchaseRequest->purchase_attachment }}">Download file</a>
+                                            <a href="{{ public_path('storage/uploaded_file/finance/').$purchaseRequest->purchase_attachment }}">Download file</a>
+                                            {{-- <a href="{{ route('purchase.download', ['file_name' => $purchaseRequest->purchase_attachment]) }}">Download</a> --}}
                                         </small>
                                     @endif
                                 </div>
@@ -122,10 +276,13 @@
                         </div>
                     </div>
                 </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-save2 me-1"></i>
+                        Save</button>
+                </div>
 
-                @if (isset($edit) && (isset($detailRequest)))
-
-                <div class="row">
+                {{-- <div class="row">
                     <div class="col-12 mt-5">
                         <div class="d-flex justify-content-between align-items-end">
                             <h5 class="m-0 p-0"><i class="bi bi-list me-1"></i> Items</h5>
@@ -182,25 +339,34 @@
                                 Save</button>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
-                @else
+                @if (!isset($edit) && isset($purchaseRequest))
 
                     @include('pages.purchase.detail.list')
 
                 @endif
+
             </form>
         </div>
     </div>
 
 
     <script>
-        $('#amount').keyup(function() {
-            var val1 = $('#amount').val();
-            var val2 = $('#price').val();
+        function calculate() {
+            var val1 = $('#amount, .amount').val();
+            var val2 = $('#price, .amount').val();
             var val3 = val1 * val2;
 
-            $('#total').val(val3);
+            $('#total, .amount').val(val3);
+        }
+        
+        $('#amount').change(function() {
+            calculate()
+        })
+
+        $("#price").change(function() {
+            calculate()
         })
 
         $(document).ready(function() {
@@ -283,7 +449,6 @@
                 x = $('#item .row').length
             })
 
-
             function notif(status, title) {
                 const Toast = Swal.mixin({
                     toast: true,
@@ -303,6 +468,40 @@
                 })
             }
         });
+    </script>
+    <script type="text/javascript">
+        function returnData(purchase_id, detail_id) {
+            $("#detailForm").append('<input type="hidden" name="_method" value="PUT">');
+            Swal.showLoading()
+            let link = "{{ url('master/purchase') }}/" + purchase_id.toLowerCase() + '/detail/' + detail_id
+
+            axios.get(link)
+                .then(function(response) {
+                    // handle success
+                    let data = response.data.data
+                    $('#item').val(data.item)
+                    $('#amount').val(data.amount)
+                    $('#price').val(data.price_per_unit)
+                    $('#total').val(data.total)
+
+                    $('#detailForm').attr('action', '{{ url('master/purchase') }}/' + data.purchase_id + '/detail/' +
+                        data.id)
+                    Swal.close()
+                    $("#detailModal").modal('show')
+                })
+                .catch(function(error) {
+                    // handle error
+                    notification(response.data.success, response.data.message)
+                })
+        }
+
+        @if (isset($purchaseRequest))
+        function resetForm() {
+            $("#detailForm").trigger('reset');
+            $("#detailForm").attr('action', "{{ route('purchase.detail.store', ['purchase' => $purchaseRequest->purchase_id]) }}")
+            $("#detailForm").find('input[name=_method]').remove()
+        }
+        @endif
     </script>
 
 @endsection

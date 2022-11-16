@@ -84,8 +84,8 @@
                     {   
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editRequest"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteRequest"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning mx-1 editRequest"><i class="bi bi-eye"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteRequest"><i class="bi bi-trash"></i></button>'
                     }
                 ]
             });
@@ -95,10 +95,10 @@
                 window.location.href = "{{ url('master/purchase') }}/" + data.purchase_id;
             });
 
-            // $('#vendor-table tbody').on('click', '.deleteRequest ', function() {
-            //     var data = table.row($(this).parents('tr')).data();
-            //     confirmDelete('master/purchase', data.purchase_id)
-            // });
+            $('#purchasereqTable tbody').on('click', '.deleteRequest ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                confirmDelete('master/purchase', data.purchase_id)
+            });
         });
     </script>
     <script type="text/javascript" async defer>
