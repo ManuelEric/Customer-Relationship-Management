@@ -62,7 +62,7 @@
                                     </label>
                                     <input type="text" name="asset_name" class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_name) ? $asset->asset_name : old('asset_name') }}" }}
-                                        {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
+                                        {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                     @error('asset_name')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -75,7 +75,7 @@
                                     </label>
                                     <input type="text" name="asset_merktype" class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_merktype) ? $asset->asset_merktype : old('asset_merktype') }}"
-                                        }} {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
+                                        }} {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -86,7 +86,7 @@
                                     <input type="date" name="asset_dateachieved"
                                         class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_dateachieved) ? $asset->asset_dateachieved : old('asset_dateachieved') }}"
-                                        }} {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
+                                        }} {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -96,7 +96,7 @@
                                     </label>
                                     <input type="number" name="asset_amount" class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_amount) ? $asset->asset_amount : old('asset_amount') }}"
-                                        }} {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
+                                        }} {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -106,7 +106,7 @@
                                     </label>
                                     <input type="text" name="asset_unit" class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_unit) ? $asset->asset_unit : old('asset_unit') }}" }}
-                                        {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
+                                        {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -115,7 +115,7 @@
                                         Condition
                                     </label>
                                     <select name="asset_condition" class="select w-100"
-                                        {{ isset($asset) && isset($edit) ? '' : 'disabled' }}>
+                                        {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
                                         <option value="Good"
                                             {{ isset($asset->asset_condition) && $asset->asset_condition == 'Good' ? 'selected' : '' }}>
