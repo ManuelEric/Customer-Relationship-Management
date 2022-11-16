@@ -332,6 +332,7 @@
         </div>
     </div>
 
+    @if (isset($corporate))
     <div class="modal modal-md fade" id="picForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -399,6 +400,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <script>
         // Select2 Modal 

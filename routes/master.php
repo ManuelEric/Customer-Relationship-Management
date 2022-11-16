@@ -35,6 +35,7 @@ Route::resource('major', MajorController::class);
 
 Route::resource('purchase', PurchaseRequestController::class);
 Route::prefix('purchase')->name('purchase.')->group(function() {
+    Route::get('download/{file_name}', [PurchaseRequestController::class, 'download'])->name('download');
     Route::get('{purchase}/print', [PurchaseRequestController::class, 'print'])->name('print');
     Route::resource('{purchase}/detail', PurchaseDetailController::class);
 });

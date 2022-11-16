@@ -254,8 +254,8 @@
                                     @enderror
                                     @if (isset($purchaseRequest->purchase_attachment))
                                         <small class="text-info fw-light">
-                                            <a href="{{ public_path('storage/uploaded_file/finance/').$purchaseRequest->purchase_attachment }}">Download file</a>
-                                            {{-- <a href="{{ route('purchase.download', ['file_name' => $purchaseRequest->purchase_attachment]) }}">Download</a> --}}
+                                            {{-- <a href="{{ public_path('storage/uploaded_file/finance/').$purchaseRequest->purchase_attachment }}">Download file</a> --}}
+                                            <a href="{{ route('purchase.download', ['file_name' => $purchaseRequest->purchase_attachment]) }}">Download</a>
                                         </small>
                                     @endif
                                 </div>

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Response;
 
 class PurchaseRequestController extends Controller
 {
@@ -226,6 +227,25 @@ class PurchaseRequestController extends Controller
 
         $pdf = Pdf::loadView('pages.purchase.print', $data);
         return $pdf->download($purchaseId.'.pdf');
+    }
+
+    public function download($filename)
+    {
+        // Check if file exists in public/uploaded_file/finance folder
+        $file_path = public_path() . '/storage/uploaded_file/finance/' . $filename;
+        // echo $file_path;exit;
+        if (file_exists($file_path))
+        {
+            // Send Download
+            return Response::download($file_path, $filename, [
+                'Content-Length: '. filesize($file_path)
+            ]);
+        }
+        else
+        {
+            // Error
+            return Redirect::back()->withError('Requested file does not exist on the server');
+        }
     }
 
 }
