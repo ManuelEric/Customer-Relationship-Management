@@ -106,8 +106,8 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editVendor"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteVendor"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editVendor"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteVendor"><i class="bi bi-trash"></i></button>'
                     }
                 ]
             });

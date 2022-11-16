@@ -107,8 +107,7 @@
                                     <label>Type <sup class="text-danger">*</sup></label>
                                     <select name="sch_type" class="select w-100"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
-                                        <option {{ !isset($school->sch_type) ? 'selected' : null }}>Please select one
-                                        </option>
+                                        <option data-placeholder="true"></option>
                                         <option value="National"
                                             {{ isset($school->sch_type) && $school->sch_type == 'National' ? 'selected' : null }}>
                                             National
@@ -127,9 +126,7 @@
                                     <label>Curriculum <sup class="text-danger">*</sup></label>
                                     <select name="sch_curriculum" class="select w-100"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
-                                        <option {{ !isset($school->sch_curriculum) ? 'selected' : null }}>Please select
-                                            one
-                                        </option>
+                                        <option data-placeholder="true"></option>
                                         @foreach ($curriculums as $curriculum)
                                             <option value="{{ $curriculum->name }}"
                                                 {{ isset($school->sch_curriculum) && $school->sch_curriculum == $curriculum->name ? 'selected' : null }}>
@@ -146,6 +143,7 @@
                                     <label>Target</label>
                                     <select name="sch_score" class="select w-100"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
+                                        <option data-placeholder="true"></option>
                                         <option value="7"
                                             {{ isset($school->sch_score) && $school->sch_score == 7 ? 'selected' : null }}>
                                             Up
@@ -503,7 +501,9 @@
             $('#cp_phone').val(null)
             $('#cp_status').val(null).trigger('change')
             $('.put').html('');
-            $('#picAction').attr('action', '{{ url('instance/school/' . $school->sch_id . '/detail') }}')
+            $('#picAction').attr('action',
+                '{{ isset($school) ? url('instance/school/' . $school->sch_id . '/detail') : url('instance/school/') }}'
+            )
         }
 
         function getPIC(link) {

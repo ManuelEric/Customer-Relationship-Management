@@ -70,10 +70,10 @@
                         data: 'sch_name',
                     },
                     {
-                        data: 'sch_curriculum',
+                        data: 'sch_type',
                     },
                     {
-                        data: 'sch_type',
+                        data: 'sch_curriculum',
                     },
                     {
                         data: 'sch_city',
