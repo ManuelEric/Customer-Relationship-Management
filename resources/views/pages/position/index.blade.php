@@ -1,16 +1,16 @@
 @extends('layout.main')
 
-@section('title', 'Department - Bigdata Platform')
+@section('title', 'Position - Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Department
+            <i class="bi bi-arrow-left me-2"></i> Position
         </a>
-        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#departmentForm"><i
+        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#positionForm"><i
                 class="bi bi-plus-square me-1"></i> Add
-            Department</a>
+            Position</a>
     </div>
 
     @if ($errors->any())
@@ -25,11 +25,11 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="departmentTable">
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="positionTable">
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="text-dark">#</th>
-                        <th class="bg-info text-white">Department Name</th>
+                        <th class="bg-info text-white">Position Name</th>
                         <th class="bg-info text-white">Created At</th>
                         <th class="bg-info text-white">Updated At</th>
                         <th class="bg-info text-white">Action</th>
@@ -44,14 +44,14 @@
         </div>
     </div>
 
-    @include('pages.department.create')
+    @include('pages.position.create')
 
-    @include('pages.department.update')
+    @include('pages.position.update')
 
     {{-- Need Changing --}}
     <script>
         $(document).ready(function() {
-            var table = $('#departmentTable').DataTable({
+            var table = $('#positionTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -80,7 +80,7 @@
                         }
                     },
                     {
-                        data: 'dept_name',
+                        data: 'position_name',
                     },
                     {
                         data: 'created_at',
@@ -93,27 +93,27 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editDepartment"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteDepartment"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editPosition"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-danger ms-1 deletePosition"><i class="bi bi-trash"></i></button>'
                     }
                 ]
             });
 
-            $('#departmentTable tbody').on('click', '.editDepartment ', function() {
+            $('#positionTable tbody').on('click', '.editPosition ', function() {
                 var data = table.row($(this).parents('tr')).data();
 
-                var element = "#departmentFormUpdate"
+                var element = "#positionFormUpdate"
 
                 $(element).modal('show');
-                var action = "{{ url('master/department') }}" + "/" + data.id
+                var action = "{{ url('master/position') }}" + "/" + data.id
                 $(element).find('form').attr('action', action)
-                $(element).find('form input[name=dept_name]').val(data.dept_name)
+                $(element).find('form input[name=position_name]').val(data.position_name)
                 $(element).find('form input[name=id]').val(data.id)
             });
 
-            $('#departmentTable tbody').on('click', '.deleteDepartment ', function() {
+            $('#positionTable tbody').on('click', '.deletePosition ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('master/department', data.id)
+                confirmDelete('master/position', data.id)
             });
         });
     </script>

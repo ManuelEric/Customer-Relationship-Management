@@ -1,27 +1,25 @@
-{{-- Update Form  --}}
+{{-- Create Form  --}}
 <!-- Modal -->
-<div class="modal fade" id="departmentFormUpdate" data-bs-backdrop="static" data-bs-keyboard="false"
+<div class="modal fade" id="positionForm" data-bs-backdrop="static" data-bs-keyboard="false"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header d-flex justify-content-between">
                 <span>
-                    Department
+                    Position
                 </span>
                 <i class="bi bi-pencil-square"></i>
             </div>
             <div class="modal-body w-100">
-                <form action="" method="POST">
+                <form action="{{ route('position.store') }}" method="POST">
                     @csrf
-                    @method('PUT')
-                    <input type="hidden" name="id">
                     <div class="row g-2">
                         <div class="col-md-12">
                             <div class="mb-2">
                                 <label for="">
-                                    Department Name <sup class="text-danger">*</sup>
+                                    Position Name <sup class="text-danger">*</sup>
                                 </label>
-                                <input type="text" name="dept_name" class="form-control form-control-sm rounded"
+                                <input type="text" name="position_name" class="form-control form-control-sm rounded"
                                     required value="">
                             </div>
                         </div>

@@ -30,6 +30,7 @@ class User extends Authenticatable
         'phone',
         'emergency_contact',
         'datebirth',
+        'position_id',
         'password',
         'hiredate',
         'nik',
@@ -71,7 +72,7 @@ class User extends Authenticatable
         
         $instance = new static;
 
-        return $instance->newQuery()->find($id, 'extended_id');
+        return $instance->newQuery()->where('extended_id', $id)->first();
     }
 
     public static function whereFullName($name)
@@ -89,9 +90,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id');
     }
 
-    public function department()
+    public function position()
     {
-        return $this->belongsTo(Department::class, 'department_id', 'id');
+        return $this->belongsTo(Position::class, 'position_id', 'id');
     }
 
     public function educations()

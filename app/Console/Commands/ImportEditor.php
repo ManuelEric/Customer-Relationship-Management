@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CountryRepositoryInterface;
-use App\Interfaces\DepartmentRepositoryInterface;
+use App\Interfaces\PositionRepositoryInterface;
 use App\Interfaces\EditorRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
@@ -34,7 +34,7 @@ class ImportEditor extends Command
      */
     protected $description = 'Import editor from big data v1 and merge into employee in big data v2';
 
-    protected DepartmentRepositoryInterface $departmentRepository;
+    protected PositionRepositoryInterface $positionRepository;
     protected UserRepositoryInterface $userRepository;
     protected RoleRepositoryInterface $roleRepository;
     protected UniversityRepositoryInterface $universityRepository;
@@ -42,12 +42,12 @@ class ImportEditor extends Command
     protected CountryRepositoryInterface $countryRepository;
     protected EditorRepositoryInterface $editorRepository;
 
-    public function __construct(EditorRepositoryInterface $editorRepository, DepartmentRepositoryInterface $departmentRepository, UserRepositoryInterface $userRepository, RoleRepositoryInterface $roleRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CountryRepositoryInterface $countryRepository)
+    public function __construct(EditorRepositoryInterface $editorRepository, PositionRepositoryInterface $positionRepository, UserRepositoryInterface $userRepository, RoleRepositoryInterface $roleRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CountryRepositoryInterface $countryRepository)
     {
         parent::__construct();
 
         $this->editorRepository = $editorRepository;
-        $this->departmentRepository = $departmentRepository;
+        $this->positionRepository = $positionRepository;
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;
         $this->universityRepository = $universityRepository;
@@ -93,7 +93,7 @@ class ImportEditor extends Command
                         'phone' => $editor->editor_phone == '' || $editor->editor_phone == '-' ? null : $editor->editor_phone,
                         'emergency_contact' => null,
                         'datebirth' => null,
-                        'department_id' => null,
+                        'position_id' => null,
                         'password' => $editor->editor_passw == '' ? null : $editor->editor_passw,
                         'hiredate' => null,
                         'nik' => null,

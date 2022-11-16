@@ -3,6 +3,11 @@
 @section('title', 'Purchase Request - Bigdata Platform')
 
 @section('content')
+
+@php
+    $disabled = isset($purchaseRequest) && isset($edit) ? null : "disabled";
+@endphp
+
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('master/purchase') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Purchase Request
@@ -11,7 +16,11 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <form action="" method="POST">
+            <form action="{{ isset($purchaseRequest) ? route('purchase.update', ['purchase' => $purchaseRequest->purchase_id]) : route('purchase.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @if (isset($purchaseRequest))
+                    @method('PUT')
+                @endif
                 <div class="row align-items-center">
                     <div class="col-md-4 text-center">
                         <img src="{{ asset('img/purchase.webp') }}" alt="" class="w-75">
@@ -23,10 +32,13 @@
                                     <label for="">
                                         Department <sup class="text-danger">*</sup>
                                     </label>
-                                    <select name="dept_id" class="select w-100">
+                                    <select name="purchase_department" class="select w-100" {{ $disabled }}>
                                         <option data-placeholder="true"></option>
+                                        @foreach ($departments as $department)
+                                            <option value="{{ $department->id }}" {{ isset($purchaseRequest->purchase_department) && $purchaseRequest->purchase_department == $department->id ? "selected" : null  }}>{{ $department->dept_name }}</option>
+                                        @endforeach
                                     </select>
-                                    @error('dept_id')
+                                    @error('purchase_department')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -36,8 +48,11 @@
                                     <label for="">
                                         Request Status <sup class="text-danger">*</sup>
                                     </label>
-                                    <select name="purchase_statusrequest" class="select w-100">
+                                    <select name="purchase_statusrequest" class="select w-100" {{ $disabled }}>
                                         <option data-placeholder="true"></option>
+                                        @for ($i = 0; $i < count($requestStatus) ; $i++)
+                                            <option value="{{ $requestStatus[$i] }}" {{ isset($purchaseRequest->purchase_statusrequest) && $purchaseRequest->purchase_statusrequest == $requestStatus[$i] ? "selected" : null }}>{{ $requestStatus[$i] }}</option>
+                                        @endfor
                                     </select>
                                     @error('purchase_statusrequest')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -49,9 +64,9 @@
                                     <label for="">
                                         Request Date <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="date" name="purchase_date" class="form-control form-control-sm rounded"
-                                        value="">
-                                    @error('purchase_date')
+                                    <input type="date" name="purchase_requestdate" class="form-control form-control-sm rounded" {{ $disabled }}
+                                        value="{{ isset($purchaseRequest->purchase_requestdate) ? $purchaseRequest->purchase_requestdate : null }}">
+                                    @error('purchase_requestdate')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -61,7 +76,9 @@
                                     <label for="">
                                         Notes <sup class="text-danger">*</sup>
                                     </label>
-                                    <textarea name="purchase_notes"></textarea>
+                                    <textarea name="purchase_notes" {{ $disabled }}>
+                                        {{ isset($purchaseRequest->purchase_notes) ? $purchaseRequest->purchase_notes : null }}
+                                    </textarea>
                                     @error('purchase_notes')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -73,10 +90,15 @@
                                         Attachment <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="file" name="purchase_attachment"
-                                        class="form-control form-control-sm rounded" value="">
+                                        class="form-control form-control-sm rounded" value="" {{ $disabled }}>
                                     @error('purchase_attachment')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
+                                    @if (isset($purchaseRequest->purchase_attachment))
+                                        <small class="text-info fw-light">
+                                            <a href="{{ $purchaseRequest->purchase_attachment }}">Download file</a>
+                                        </small>
+                                    @endif
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -84,8 +106,14 @@
                                     <label for="">
                                         Created By <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="user_id" class="form-control form-control-sm rounded"
-                                        value="">
+                                    <select name="requested_by" class="select w-100" {{ $disabled }}>
+                                        <option data-placeholder="true"></option>
+                                        @foreach ($employees as $employee)
+                                            <option value="{{ $employee->id }}"
+                                                {{ isset($purchaseRequest->requested_by) && $purchaseRequest->requested_by == $employee->id ? "selected" : null }}
+                                                >{{ $employee->first_name.' '.$employee->last_name }}</option>
+                                        @endforeach
+                                    </select>
                                     @error('user_id')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -94,6 +122,9 @@
                         </div>
                     </div>
                 </div>
+
+                @if (isset($edit) && (isset($detailRequest)))
+
                 <div class="row">
                     <div class="col-12 mt-5">
                         <div class="d-flex justify-content-between align-items-end">
@@ -110,7 +141,7 @@
                                         <label for="">
                                             Item Name <sup class="text-danger">*</sup>
                                         </label>
-                                        <input type="text" name="purchasedtl_good[]"
+                                        <input type="text" name="item[]"
                                             class="form-control form-control-sm rounded" value="">
                                     </div>
                                 </div>
@@ -119,7 +150,7 @@
                                         <label for="">
                                             Price <sup class="text-danger">*</sup>
                                         </label>
-                                        <input type="number" name="purchasedtl_price[]" id="price"
+                                        <input type="number" name="price_per_unit[]" id="price"
                                             class="form-control form-control-sm rounded" value="">
                                     </div>
                                 </div>
@@ -128,7 +159,7 @@
                                         <label for="">
                                             Amount <sup class="text-danger">*</sup>
                                         </label>
-                                        <input type="number" name="purchasedtl_amount[]" id="amount"
+                                        <input type="number" name="amount[]" id="amount"
                                             class="form-control form-control-sm rounded" value="">
                                     </div>
                                 </div>
@@ -137,7 +168,7 @@
                                         <label for="">
                                             Total <sup class="text-danger">*</sup>
                                         </label>
-                                        <input type="text" name="purchasedtl_total[]" id="total" readonly
+                                        <input type="text" name="total[]" id="total" readonly
                                             class="form-control form-control-sm rounded" value="">
                                     </div>
                                 </div>
@@ -152,6 +183,12 @@
                         </div>
                     </div>
                 </div>
+
+                @else
+
+                    @include('pages.purchase.detail.list')
+
+                @endif
             </form>
         </div>
     </div>
@@ -186,14 +223,14 @@
                             '<div class="col-md-3">' +
                             '<div class="mb-2">' +
                             '<label for=""> Item Name <sup class="text-danger">*</sup></label>' +
-                            '<input type="text" name="purchasedtl_good[]" class="form-control form-control-sm rounded" value="">' +
+                            '<input type="text" name="item[]" class="form-control form-control-sm rounded" value="">' +
                             '</div>' +
                             '</div>' +
 
                             '<div class="col-md-3">' +
                             '<div class="mb-2">' +
                             '<label for=""> Price <sup class="text-danger">*</sup></label>' +
-                            '<input type="number" name="purchasedtl_priceperunit[]" class="form-control form-control-sm rounded"  id="price' +
+                            '<input type="number" name="price_per_unit[]" class="form-control form-control-sm rounded"  id="price' +
                             x + '">' +
                             '</div>' +
                             '</div>' +
@@ -201,7 +238,7 @@
                             '<div class="col-md-3">' +
                             '<div class="mb-2">' +
                             '<label for=""> Amount <sup class="text-danger">*</sup></label>' +
-                            '<input type="number" name="purchasedtl_amount[]" class="form-control form-control-sm rounded" id="amount' +
+                            '<input type="number" name="amount[]" class="form-control form-control-sm rounded" id="amount' +
                             x + '">' +
                             '</div>' +
                             '</div>' +
@@ -210,7 +247,7 @@
                             '<div class="d-flex justify-content-between align-items-end">' +
                             '<div class="mb-2">' +
                             '<label for=""> Total <sup class="text-danger">*</sup></label>' +
-                            '<input readonly type="text" name="purchasedtl_total[]" class="form-control form-control-sm rounded" id="total' +
+                            '<input readonly type="text" name="total[]" class="form-control form-control-sm rounded" id="total' +
                             x + '">' +
                             '</div>' +
                             '<div class="mb-2">' +

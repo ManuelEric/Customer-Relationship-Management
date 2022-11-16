@@ -31,9 +31,3 @@ Route::get('dashboard', function () {
 
 // User 
 Route::resource('user/volunteer', VolunteerController::class);
-
-Route::prefix('master')->group(function() {
-
-    Route::resource('school', SchoolController::class);
-    Route::resource('school/{school}/detail', SchoolDetailController::class);
-});

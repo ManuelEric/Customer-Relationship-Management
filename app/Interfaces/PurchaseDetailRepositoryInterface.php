@@ -4,7 +4,7 @@ namespace App\Interfaces;
 
 interface PurchaseDetailRepositoryInterface 
 {
-    public function getAllPurchaseDetailByPurchaseIdDataTables($purchaseRequestId);
+    // public function getAllPurchaseDetailByPurchaseIdDataTables($purchaseRequestId);
     public function getAllPurchaseDetailByPurchaseId($purchaseRequestId);
     public function getPurchaseDetailById($purchaseDetailId);
     public function deletePurchaseDetail($purchaseDetailId);

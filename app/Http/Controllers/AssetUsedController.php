@@ -70,6 +70,7 @@ class AssetUsedController extends Controller
                 'asset' => $asset,
                 'employees' => $employees,
                 'user' => $user,
+                'amount_returned' => $user->pivot->returned_detail()->sum('amount_returned'),
                 'usedId' => $usedId,
                 'request' => $request
             ]

@@ -18,7 +18,10 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\MentorRepositoryInterface;
+use App\Interfaces\PositionRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\PurchaseDetailRepositoryInterface;
+use App\Interfaces\PurchaseRequestRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
@@ -44,7 +47,10 @@ use App\Repositories\LeadRepository;
 use App\Repositories\MainProgRepository;
 use App\Repositories\MajorRepository;
 use App\Repositories\MentorRepository;
+use App\Repositories\PositionRepository;
 use App\Repositories\ProgramRepository;
+use App\Repositories\PurchaseDetailRepository;
+use App\Repositories\PurchaseRequestRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SchoolDetailRepository;
 use App\Repositories\SchoolRepository;
@@ -89,8 +95,11 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(CorporateRepositoryInterface::class, CorporateRepository::class);
         $this->app->bind(EdufLeadRepositoryInterface::class, EdufLeadRepository::class);
         $this->app->bind(EdufReviewRepositoryInterface::class, EdufReviewRepository::class);
+        $this->app->bind(PurchaseRequestRepositoryInterface::class, PurchaseRequestRepository::class);
+        $this->app->bind(PurchaseDetailRepositoryInterface::class, PurchaseDetailRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
+        $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
         $this->app->bind(DepartmentRepositoryInterface::class, DepartmentRepository::class);
 
     }
