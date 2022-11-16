@@ -6,6 +6,7 @@ use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetReturnedRepositoryInterface;
 use App\Interfaces\AssetUsedRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\CountryRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
@@ -35,6 +36,7 @@ use App\Repositories\AssetRepository;
 use App\Repositories\AssetReturnedRepository;
 use App\Repositories\AssetUsedRepository;
 use App\Repositories\ClientRepository;
+use App\Repositories\CorporatePicRepository;
 use App\Repositories\CorporateRepository;
 use App\Repositories\CountryRepository;
 use App\Repositories\CurriculumRepository;
@@ -97,10 +99,11 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(EdufReviewRepositoryInterface::class, EdufReviewRepository::class);
         $this->app->bind(PurchaseRequestRepositoryInterface::class, PurchaseRequestRepository::class);
         $this->app->bind(PurchaseDetailRepositoryInterface::class, PurchaseDetailRepository::class);
+        $this->app->bind(CorporatePicRepositoryInterface::class, CorporatePicRepository::class);
+        $this->app->bind(DepartmentRepositoryInterface::class, DepartmentRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
-        $this->app->bind(DepartmentRepositoryInterface::class, DepartmentRepository::class);
 
     }
 

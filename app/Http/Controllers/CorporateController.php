@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCorporateRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Models\Corporate;
 use Exception;
@@ -18,10 +19,12 @@ class CorporateController extends Controller
     use CreateCustomPrimaryKeyTrait;
 
     private CorporateRepositoryInterface $corporateRepository;
+    private CorporatePicRepositoryInterface $corporatePicRepository;
 
-    public function __construct(CorporateRepositoryInterface $corporateRepository)
+    public function __construct(CorporateRepositoryInterface $corporateRepository, CorporatePicRepositoryInterface $corporatePicRepository)
     {
         $this->corporateRepository = $corporateRepository;
+        $this->corporatePicRepository = $corporatePicRepository;
     }
 
     public function index(Request $request)
@@ -62,10 +65,10 @@ class CorporateController extends Controller
 
             DB::rollBack();
             Log::error('Store corporate failed : ' . $e->getMessage());
-            return Redirect::to('instance/corporate')->withError('Failed to create new corporate');
+            return Redirect::to('instance/corporate/'.$corp_id_with_label)->withError('Failed to create new corporate');
         }
 
-        return Redirect::to('instance/corporate')->withSuccess('Corporate successfully created');
+        return Redirect::to('instance/corporate/'.$corp_id_with_label)->withSuccess('Corporate successfully created');
     }
 
     public function create()
@@ -91,6 +94,7 @@ class CorporateController extends Controller
 
         // if ($corp_password = $newDetails['corp_password']) 
         //     $newDetails['corp_password'] = Hash::make($corp_password);
+        $corporateId = $request->route('corporate');
 
         DB::beginTransaction();
         try {
@@ -101,10 +105,10 @@ class CorporateController extends Controller
 
             DB::rollBack();
             Log::error('Update corporate failed : ' . $e->getMessage());
-            return Redirect::to('instance/corporate')->withError('Failed to update corporate');
+            return Redirect::to('instance/corporate/'.$corporateId)->withError('Failed to update corporate');
         }
 
-        return Redirect::to('instance/corporate')->withSuccess('Corporate successfully updated');
+        return Redirect::to('instance/corporate/'.$corporateId)->withSuccess('Corporate successfully updated');
     }
 
     public function show(Request $request)
@@ -112,9 +116,12 @@ class CorporateController extends Controller
         $corporateId = $request->route('corporate');
         $corporate = $this->corporateRepository->getCorporateById($corporateId);
 
+        $pics = $this->corporatePicRepository->getAllCorporatePicByCorporateId($corporateId);
+
         return view('pages.corporate.form')->with(
             [
-                'corporate' => $corporate
+                'corporate' => $corporate,
+                'pics' => $pics
             ]
         );
     }

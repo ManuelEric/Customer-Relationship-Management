@@ -47,4 +47,9 @@ class Corporate extends Model
     {
         return $this->hasMany(EdufLead::class, 'corp_id', 'corp_id');
     }
+
+    public function pic()
+    {
+        return $this->hasMany(CorporatePic::class, 'corp_id', 'corp_id');
+    }
 }
