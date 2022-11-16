@@ -84,8 +84,6 @@
         </div>
     </div>
 
-    @include('pages.position.update')
-
     {{-- Need Changing --}}
     <script>
         $(document).ready(function() {
