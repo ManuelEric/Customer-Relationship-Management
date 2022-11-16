@@ -7,6 +7,7 @@ use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetUsedRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -51,7 +52,7 @@ class AssetUsedController extends Controller
         return Redirect::to('master/asset/' . $request->assetId)->withSuccess('Asset user was successfully noted');
     }
 
-    public function show(Request $request)
+    public function show(Request $request): JsonResponse
     {
         $assetId = $request->route('asset');
         $usedId = $request->route('used');
@@ -70,17 +71,6 @@ class AssetUsedController extends Controller
             'amount_returned' => $user->pivot->returned_detail()->sum('amount_returned'),
             'request' => $request
         ]);
-
-        # put view detail asset below
-        // return view('pages.asset.form')->with(
-        //     [
-        //         'asset' => $asset,
-        //         'employees' => $employees,
-        //         'user' => $user,
-        //         'usedId' => $usedId,
-        //         'request' => $request
-        //     ]
-        // );
     }
 
     public function destroy(Request $request)

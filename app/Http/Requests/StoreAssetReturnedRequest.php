@@ -32,7 +32,7 @@ class StoreAssetReturnedRequest extends FormRequest
             'usedId' => 'exists:tbl_asset_used,id',
             'asset_id' => 'exists:tbl_asset,asset_id',
             'user' => 'required|exists:users,id',
-            'amount_returned' => ['required', 'min:1', function ($attribute, $value, $fail) use ($old_amount_used) {
+            'amount_returned' => ['required', 'min:1', function($attribute, $value, $fail) use ($old_amount_used) {
 
                 if ($old_amount_used < $value) {
                     $fail('The returned amount must less than used amount');

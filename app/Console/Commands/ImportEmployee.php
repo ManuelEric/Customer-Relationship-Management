@@ -3,13 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-use App\Interfaces\DepartmentRepositoryInterface;
+use App\Interfaces\PositionRepositoryInterface;
 use App\Interfaces\EmployeeRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\University;
+use App\Models\User;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -34,18 +35,18 @@ class ImportEmployee extends Command
     protected $description = 'Import employee from big data v1 to big data v2';
 
     protected EmployeeRepositoryInterface $employeeRepository;
-    protected DepartmentRepositoryInterface $departmentRepository;
+    protected PositionRepositoryInterface $positionRepository;
     protected UserRepositoryInterface $userRepository;
     protected RoleRepositoryInterface $roleRepository;
     protected UniversityRepositoryInterface $universityRepository;
     protected MajorRepositoryInterface $majorRepository;
 
-    public function __construct(EmployeeRepositoryInterface $employeeRepository, DepartmentRepositoryInterface $departmentRepository, UserRepositoryInterface $userRepository, RoleRepositoryInterface $roleRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository)
+    public function __construct(EmployeeRepositoryInterface $employeeRepository, PositionRepositoryInterface $positionRepository, UserRepositoryInterface $userRepository, RoleRepositoryInterface $roleRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository)
     {
         parent::__construct();
 
         $this->employeeRepository = $employeeRepository;
-        $this->departmentRepository = $departmentRepository;
+        $this->positionRepository = $positionRepository;
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;
         $this->universityRepository = $universityRepository;
@@ -95,21 +96,22 @@ class ImportEmployee extends Command
             foreach ($employees as $employee) {
 
                 # validate if the data that about to inserted is not exist in the table
-                if (!$this->userRepository->getUserByExtendedId($employee->empl_id)) {
-
+                if (!$updatedUser = $this->userRepository->getUserByExtendedId($employee->empl_id)) {
+                //     echo json_encode($test);exit;
                     # validate
                     # if $employee->empl_department doesn't exist in database
                     # then create a new one
 
-                    if (!$department = $this->departmentRepository->getDepartmentByName($employee->empl_department)) 
+                    if (!$position = $this->positionRepository->getPositionByName($employee->empl_department)) 
                     {
-                        $departmentDetails = [
-                            'dept_name' => $employee->empl_department,
+                        $positionDetails = [
+                            'position_name' => $employee->empl_department,
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now(),
                         ];
 
-                        $department = $this->departmentRepository->createDepartment($departmentDetails);
+                        $position = $this->positionRepository->createPosition($positionDetails);
+                        
                     }
 
                     $userDetails = [
@@ -122,7 +124,7 @@ class ImportEmployee extends Command
                         'phone' => $employee->empl_phone == '' ? null : $employee->empl_phone,
                         'emergency_contact' => $employee->empl_emergency_contact == '' || $employee->empl_emergency_contact == "-" ? null : $employee->empl_emergency_contact,
                         'datebirth' => $employee->empl_datebirth == '0000-00-00' ? null : $employee->empl_datebirth,
-                        'department_id' => $department->id,
+                        'position_id' => $position->id,
                         'password' => $employee->empl_password == '' ? null : $employee->empl_password,
                         'hiredate' => $employee->empl_hiredate,
                         'nik' => $employee->empl_nik == '' ? null : $employee->empl_nik,
@@ -353,6 +355,35 @@ class ImportEmployee extends Command
                     # insert into tbl_user_educations
                     if (isset($userMajorDetails))
                         $createdUser->educations()->attach($userMajorDetails);
+                } else {
+
+                    if (!$position = $this->positionRepository->getPositionByName($employee->empl_department)) 
+                    {
+                        $positionDetails = [
+                            'position_name' => $employee->empl_department,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now(),
+                        ];
+
+                        $position = $this->positionRepository->createPosition($positionDetails);
+                        
+                    }
+
+
+                    # checking position
+                    # if its NULL 
+                    # then insert a position
+                    $createdUser = User::where('extended_id', $employee->empl_id)->where('position_id', NULL)->first();
+                    
+                    $userDetails = [
+                        'position_id' => $position->id
+                    ];
+
+                    # update position
+                    $this->userRepository->updateUser($createdUser->id, $userDetails);
+                        
+                    
+
                 }
             }
             

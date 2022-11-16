@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Interfaces\PurchaseDetailRepositoryInterface;
 use App\Models\PurchaseDetail;
-use App\Models\PurchaseRequest;
 use DataTables;
 
 class PurchaseDetailRepository implements PurchaseDetailRepositoryInterface 

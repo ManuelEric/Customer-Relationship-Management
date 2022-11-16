@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Department extends Model
+class Position extends Model
 {
     use HasFactory;
 
-    protected $table = 'tbl_department';
+    protected $table = 'tbl_position';
 
     /**
      * The attributes that should be visible in arrays.
@@ -18,7 +18,7 @@ class Department extends Model
      * @var array
      */
     protected $fillable = [
-        'dept_name',
+        'position_name',
     ];
 
     public function createdAt(): Attribute
@@ -38,11 +38,6 @@ class Department extends Model
     # relation
     public function user()
     {
-        return $this->hasOne(User::class, 'department_id', 'id');
-    }
-
-    public function purchase_request()
-    {
-        return $this->hasMany(PurchaseRequest::class, 'purchase_department', 'id');
+        return $this->hasOne(User::class, 'position_id', 'id');
     }
 }

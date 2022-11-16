@@ -3,10 +3,11 @@
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetReturnedController;
 use App\Http\Controllers\AssetUsedController;
-use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MajorController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProgramController;
+use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\VendorController;
 use Illuminate\Support\Facades\Route;
@@ -27,16 +28,11 @@ Route::resource('program', ProgramController::class);
 
 Route::resource('lead', LeadController::class);
 
-Route::resource('department', DepartmentController::class);
+Route::resource('position', PositionController::class);
 
 Route::resource('major', MajorController::class);
 
-Route::get('purchase', function () {
-    return view('pages.purchase.index');
-});
-Route::get('purchase/create', function () {
-    return view('pages.purchase.form');
-});
+Route::resource('purchase', PurchaseRequestController::class);
 
 Route::resource('vendor', VendorController::class);
 

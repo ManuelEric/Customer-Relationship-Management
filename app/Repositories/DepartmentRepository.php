@@ -8,38 +8,8 @@ use DataTables;
 
 class DepartmentRepository implements DepartmentRepositoryInterface 
 {
-    public function getAllDepartmentDataTables()
+    public function getAllDepartment()
     {
-        return Datatables::eloquent(Department::query())->make(true);
-    }
-
-    public function getAllDepartments()
-    {
-        return Department::all();
-    }
-
-    public function getDepartmentByName($departmentName)
-    {
-        return Department::where('dept_name', '=', $departmentName)->first();
-    }
-
-    public function deleteDepartment($departmentId)
-    {
-        return Department::destroy($departmentId);
-    }
-
-    public function createDepartments(array $departmentDetails) 
-    {
-        return Department::insert($departmentDetails);
-    }
-
-    public function createDepartment(array $departmentDetails)
-    {
-        return Department::create($departmentDetails);
-    }
-
-    public function updateDepartment($departmentId, array $newDetails)
-    {
-        return Department::whereId($departmentId)->update($newDetails);
+        return Department::orderBy('dept_name', 'asc')->get();
     }
 }

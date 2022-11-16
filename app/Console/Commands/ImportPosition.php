@@ -2,19 +2,18 @@
 
 namespace App\Console\Commands;
 
-use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\EmployeeRepositoryInterface;
-use App\Models\Department;
+use App\Interfaces\PositionRepositoryInterface;
 use Illuminate\Console\Command;
 
-class ImportDepartment extends Command
+class ImportPosition extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'import:department';
+    protected $signature = 'import:position';
 
     /**
      * The console command description.
@@ -24,14 +23,14 @@ class ImportDepartment extends Command
     protected $description = 'Import employee department from big data v1 to big data v2';
 
     protected EmployeeRepositoryInterface $employeeRepository;
-    protected DepartmentRepositoryInterface $departmentRepository;
+    protected PositionRepositoryInterface $positionRepository;
 
-    public function __construct(EmployeeRepositoryInterface $employeeRepository, DepartmentRepositoryInterface $departmentRepository)
+    public function __construct(EmployeeRepositoryInterface $employeeRepository, PositionRepositoryInterface $positionRepository)
     {
         parent::__construct();
 
         $this->employeeRepository = $employeeRepository;
-        $this->departmentRepository = $departmentRepository;
+        $this->positionRepository = $positionRepository;
     }
 
     /**
@@ -42,8 +41,7 @@ class ImportDepartment extends Command
     public function handle()
     {
         $departments = $this->employeeRepository->getDistinctDepartment();
-        $this->departmentRepository->createDepartments($departments->toArray());
-
+        $this->positionRepository->createPositions($departments->toArray());
         return Command::SUCCESS;
     }
 }

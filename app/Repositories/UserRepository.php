@@ -17,7 +17,7 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::whereHas('roles', function ($query) use ($role) {
             $query->where('role_name', $role);
-        })->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
+        })->where('active', 1)->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
 
     public function getUserById($userId)
@@ -57,6 +57,11 @@ class UserRepository implements UserRepositoryInterface
     public function createUser(array $userDetails)
     {
         return User::create($userDetails);
+    }
+
+    public function updateUser($userId, array $newDetails)
+    {
+        return User::find($userId)->update($newDetails);
     }
 
     public function updateExtendedId($newDetails)

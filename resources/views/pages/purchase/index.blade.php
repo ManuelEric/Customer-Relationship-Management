@@ -15,14 +15,13 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="vendor-table">
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="purchasereqTable">
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="text-dark">#</th>
-                        <th>Purchase ID</th>
-                        <th class="bg-info text-white">Created By</th>
+                        <th class="bg-info text-white">Purchase ID</th>
+                        <th class="bg-info text-white">Requested By</th>
                         <th class="bg-info text-white">Department</th>
-                        <th>Request Date</th>
                         <th>Request Status</th>
                         <th>Last Update</th>
                         <th class="bg-info text-white">Action</th>
@@ -30,7 +29,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="8"></td>
+                        <td colspan="7"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -38,9 +37,9 @@
     </div>
 
     {{-- Need Changing --}}
-    {{-- <script>
+    <script>
         $(document).ready(function() {
-            var table = $('#vendor-table').DataTable({
+            var table = $('#purchasereqTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -61,65 +60,48 @@
                 serverSide: true,
                 ajax: '',
                 columns: [{
-                        data: 'vendor_id',
+                        data: 'purchase_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
                     {
-                        data: 'vendor_id',
+                        data: 'purchase_id',
                     },
                     {
-                        data: 'vendor_name',
+                        data: 'fullname',
                     },
                     {
-                        data: 'vendor_address',
+                        data: 'dept_name',
                     },
                     {
-                        data: 'vendor_phone',
+                        data: 'purchase_statusrequest',
                     },
                     {
-                        data: 'vendor_type',
+                        data: 'updated_at',
                     },
-                    {
-                        data: 'vendor_material',
-                    },
-                    {
-                        data: 'vendor_size',
-                    },
-                    {
-                        data: 'vendor_processingtime',
-                    },
-                    {
-                        data: 'vendor_unitprice',
-                        render: function(data, type) {
-                            var number = $.fn.dataTable.render
-                                .number(',', '.', 2, 'Rp. ')
-                                .display(data);
-
-                            return number;
-                        },
-                    },
-                    {
+                    {   
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editVendor"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteVendor"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editRequest"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteRequest"><i class="bi bi-trash"></i></button>'
                     }
                 ]
             });
 
-            $('#vendor-table tbody').on('click', '.editVendor ', function() {
+            $('#purchasereqTable tbody').on('click', '.editRequest ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('master/vendor') }}/" + data.vendor_id.toLowerCase() +
-                    '/edit';
+                window.location.href = "{{ url('master/purchase') }}/" + data.purchase_id;
             });
 
-            $('#vendor-table tbody').on('click', '.deleteVendor ', function() {
-                var data = table.row($(this).parents('tr')).data();
-                confirmDelete('master/vendor', data.vendor_id)
-            });
+            // $('#vendor-table tbody').on('click', '.deleteRequest ', function() {
+            //     var data = table.row($(this).parents('tr')).data();
+            //     confirmDelete('master/purchase', data.purchase_id)
+            // });
         });
-    </script> --}}
+    </script>
+    <script type="text/javascript" async defer>
+        
+    </script>
 @endsection

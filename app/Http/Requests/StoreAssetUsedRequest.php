@@ -37,7 +37,6 @@ class StoreAssetUsedRequest extends FormRequest
                 if ($old_amount_used < $value) {
                     $fail('The amount used must be less than available stock');
                 }
-
                 // if (!Asset::where('asset_id', $assetId)->where(DB::raw('asset_amount-(asset_running_stock-'.$old_amount_used.')'), '>=', $value)->first()) {
                 //     $fail('The amount used must be less than available stock');
                 // }

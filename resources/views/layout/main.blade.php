@@ -116,8 +116,8 @@
                                         href="{{ url('master/asset') }}">Assets</a>
                                 </li>
                                 <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/department*') ? 'active' : '' }}"
-                                        href="{{ url('master/department') }}">Department</a>
+                                        class="nav-link {{ Request::is('master/position*') ? 'active' : '' }}"
+                                        href="{{ url('master/position') }}">Position</a>
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link  {{ Request::is('master/lead*') ? 'active' : '' }}"
