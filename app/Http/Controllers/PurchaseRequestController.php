@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PurchaseRequestController extends Controller
 {
@@ -213,6 +214,18 @@ class PurchaseRequestController extends Controller
         }
 
         return Redirect::to('master/purchase')->withSuccess('Purchase Request successfully deleted');
+    }
+
+    public function print(Request $request)
+    {
+        $purchaseId = $request->route('purchase');
+        $data = [
+            'purchase' => $this->purchaseRequestRepository->getPurchaseRequestById($purchaseId),
+            'details' => $this->purchaseDetailRepository->getAllPurchaseDetailByPurchaseId($purchaseId)
+        ];
+
+        $pdf = Pdf::loadView('pages.purchase.print', $data);
+        return $pdf->download($purchaseId.'.pdf');
     }
 
 }

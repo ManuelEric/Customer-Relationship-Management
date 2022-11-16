@@ -175,6 +175,11 @@
                                     class="btn btn-sm btn-outline-danger rounded mx-1">
                                     <i class="bi bi-trash2"></i> Delete
                                 </button>
+                                <a href="{{ route('purchase.print', ['purchase' => $purchaseRequest->purchase_id]) }}">
+                                    <button type="button" class="btn btn-sm btn-outline-info rounded mx-1">
+                                        <i class="bi bi-printer"></i> Print
+                                    </button>
+                                </a>
                             </div>
                         @endif
                     </div>
