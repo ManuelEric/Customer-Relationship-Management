@@ -20,5 +20,6 @@ Route::prefix('corporate')->name('corporate.')->group(function() {
 Route::resource('edufair', EdufLeadController::class);
 Route::post('edufair/{edufair}/review', [EdufReviewController::class, 'store'])->name('edufair.review.store');
 Route::get('edufair/{edufair}/review/{review}/edit', [EdufLeadController::class, 'edit'])->name('edufair.review.edit');
+Route::get('edufair/{edufair}/review/{review}', [EdufReviewController::class, 'show'])->name('edufair.review.show');
 Route::put('edufair/{edufair}/review/{review}', [EdufReviewController::class, 'update'])->name('edufair.review.update');
 Route::delete('edufair/{edufair}/review/{review}', [EdufReviewController::class, 'destroy'])->name('edufair.review.destroy');

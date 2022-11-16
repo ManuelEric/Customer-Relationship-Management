@@ -38,8 +38,8 @@
                             <td>Childs</td>
                             <td>Status</td>
                             <td>Priority</td>
-                            <td class="text-center"><a href="{{ url('client/parent/1') }}" class="btn btn-sm btn-warning"><i
-                                        class="bi bi-info-circle me-2"></i>More</a>
+                            <td class="text-center"><a href="{{ url('client/parent/1') }}"
+                                    class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>
                             </td>
                         </tr>
                     @endfor

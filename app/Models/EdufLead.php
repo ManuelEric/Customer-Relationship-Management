@@ -44,6 +44,6 @@ class EdufLead extends Model
 
     public function review()
     {
-        return $this->hasOne(EdufReview::class, 'eduf_id', 'id');
+        return $this->hasMany(EdufReview::class, 'eduf_id', 'id');
     }
 }
