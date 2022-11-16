@@ -73,7 +73,7 @@ class SchoolController extends Controller
             return Redirect::to('instance/school')->withError('Failed to create school');
         }
 
-        return Redirect::to('instance/school')->withSuccess('School successfully created');
+        return Redirect::to('instance/school/'.$school_id_with_label)->withSuccess('School successfully created');
     }
 
     public function create()

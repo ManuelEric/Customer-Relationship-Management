@@ -496,6 +496,7 @@
     </script>
 
     <script>
+        @if (isset($school))
         function resetForm() {
             $('#cp_fullname').val(null)
             $('#cp_mail').val(null)
@@ -505,6 +506,7 @@
             $('.put').html('');
             $('#picAction').attr('action', '{{ url('instance/school/' . $school->sch_id . '/detail') }}')
         }
+        @endif
 
         function getPIC(link) {
             axios.get(link)
