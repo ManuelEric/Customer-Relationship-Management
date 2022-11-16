@@ -128,8 +128,8 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#positionForm" class="btn btn-sm btn-warning editPosition"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deletePosition"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#positionForm" class="btn btn-sm btn-outline-warning editPosition"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deletePosition"><i class="bi bi-trash2"></i></button>'
                     }
                 ]
             });

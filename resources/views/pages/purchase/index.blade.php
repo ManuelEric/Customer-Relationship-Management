@@ -81,11 +81,11 @@
                     {
                         data: 'updated_at',
                     },
-                    {   
+                    {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editRequest"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteRequest"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editRequest"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteRequest"><i class="bi bi-trash2"></i></button>'
                     }
                 ]
             });
@@ -101,7 +101,5 @@
             // });
         });
     </script>
-    <script type="text/javascript" async defer>
-        
-    </script>
+    <script type="text/javascript" async defer></script>
 @endsection
