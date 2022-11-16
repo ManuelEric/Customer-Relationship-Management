@@ -8,11 +8,20 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Lead Source
         </a>
-        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#leadForm"><i
-                class="bi bi-plus-square me-1"></i> Add
-            Lead Source</a>
+        <button type="button" href="#" class="btn btn-sm btn-primary" onclick="resetForm()" data-bs-toggle="modal"
+            data-bs-target="#leadForm"><i class="bi bi-plus-square me-1"></i> Add
+            Lead Source</button>
     </div>
 
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0 pb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <div class="card rounded">
         <div class="card-body">
@@ -49,28 +58,23 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="{{ url(isset($lead) ? 'master/lead/' . $lead->lead_id : 'master/lead') }}" method="POST">
+                    <form action="{{ url('master/lead') }}" method="POST" id="formLead">
                         @csrf
-                        @if (isset($lead))
-                            @method('put')
-                            <input type="hidden" name="id" value="{{ $lead->id }}">
-                        @endif
+                        <div class="put"></div>
+
                         <div class="row g-2">
                             <div class="col-md-10">
                                 <div class="mb-0">
                                     <label for="">
                                         Lead Name <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="lead_name" class="form-control form-control-sm rounded"
-                                        required
-                                        value="{{ isset($lead->main_lead) && $lead->main_lead == 'KOL' ? $lead->sub_lead : (isset($lead->main_lead) ? $lead->main_lead : old('main_lead')) }}"
+                                    <input type="text" name="lead_name" id="lead_name"
+                                        class="form-control form-control-sm rounded" required value="{{ old('main_lead') }}"
                                         id="lead_name">
                                 </div>
                                 <div class="mb-2">
-                                    <input class="form-check-input" name="kol" type="checkbox" value="true"
-                                        id="kol"
-                                        {{ isset($lead->main_lead) && $lead->main_lead == 'KOL' ? 'checked' : '' }}
-                                        onchange="changeKOL()">
+                                    <input class="form-check-input" name="kol" id="kol" type="checkbox"
+                                        value="true">
                                     <label class="form-check-label ms-1 text-secondary" for="kol">
                                         Select to KOL
                                     </label>
@@ -81,8 +85,9 @@
                                     <label for="">
                                         Score <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="number" name="score" class="form-control form-control-sm rounded"
-                                        required value="{{ isset($lead->score) ? $lead->score : old('score') }}">
+                                    <input type="number" name="score" id="score"
+                                        class="form-control form-control-sm rounded" required
+                                        value="{{ isset($lead->score) ? $lead->score : old('score') }}">
                                 </div>
                             </div>
                         </div>
@@ -101,16 +106,6 @@
             </div>
         </div>
     </div>
-
-    @if (isset($lead))
-        <script>
-            $(document).ready(function() {
-                // show modal 
-                var myModal = new bootstrap.Modal(document.getElementById('leadForm'))
-                myModal.show()
-            });
-        </script>
-    @endif
 
     {{-- Need Changing --}}
     <script>
@@ -165,8 +160,8 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-warning editLead"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-danger ms-1 deleteLead"><i class="bi bi-trash"></i></button>'
+                        defaultContent: '<button data-bs-toggle="modal" data-bs-target="#leadForm" type="button" class="btn btn-sm btn-outline-warning editLead"><i class="bi bi-pencil"></i></button>' +
+                            '<button  type="button" class="btn btn-sm btn-outline-danger ms-1 deleteLead"><i class="bi bi-trash2"></i></button>'
                     }
                 ]
             });
@@ -176,7 +171,7 @@
 
             $('#leadTable tbody').on('click', '.editLead ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('master/lead') }}/" + data.lead_id + '/edit';
+                editById(data.lead_id)
             });
 
             $('#leadTable tbody').on('click', '.deleteLead ', function() {
@@ -185,5 +180,49 @@
                 confirmDelete('master/lead', data.lead_id)
             });
         });
+
+
+        function resetForm() {
+            $('#lead_name').val(null)
+            $('#kol').prop('checked', false)
+            $('#score').val(null)
+            $('.put').html('')
+            $('#formLead').attr('action', '{{ url('master/lead') }}')
+        }
+
+        function editById(lead_id) {
+            let link = "{{ url('master/lead') }}/" + lead_id.toLowerCase()
+
+            axios.get(link)
+                .then(function(response) {
+
+                    // handle success
+                    let data = response.data.lead
+                    // console.log(data)
+
+                    if (data.main_lead == "KOL") {
+                        $('#lead_name').val(data.sub_lead)
+                        $('#kol').prop('checked', true);
+                    } else {
+                        $('#lead_name').val(data.main_lead)
+                        $('#kol').prop('checked', false);
+                    }
+                    $('#score').val(data.score)
+
+
+                    let html =
+                        '@method('put')' +
+                        '<input type="hidden" name="id" value="' + data.lead_id + '">'
+
+                    $('.put').html(html)
+
+
+                    $('#formLead').attr('action', '{{ url('master/lead') }}/' + data.lead_id.toLowerCase() + '')
+                })
+                .catch(function(error) {
+                    // handle error
+                    console.log(error);
+                })
+        }
     </script>
 @endsection

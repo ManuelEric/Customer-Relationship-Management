@@ -241,54 +241,55 @@
                             </h6>
                         </div>
                         <div class="">
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#picForm">
-                                <button class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-plus"></i>
-                                </button>
-                            </a>
+                            <button class="btn btn-sm btn-outline-primary" onclick="resetForm()" data-bs-toggle="modal"
+                                data-bs-target="#picForm">
+                                <i class="bi bi-plus"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Fullname</th>
-                                    <th>Email</th>
-                                    <th>Grade</th>
-                                    <th>Position</th>
-                                    <th>Phone</th>
-                                    <th class="text-end">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                    $no = 1;
-                                @endphp
-                                @foreach ($details as $detail)
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
                                     <tr>
-                                        <td>{{ $no++ }}</td>
-                                        <td>{{ $detail->schdetail_fullname }}</td>
-                                        <td>{{ $detail->schdetail_email }}</td>
-                                        <td>{{ $detail->schdetail_grade }}</td>
-                                        <td>{{ $detail->schdetail_position }}</td>
-                                        <td>{{ $detail->schdetail_phone }}</td>
-                                        <td class="d-flex text-center justify-content-end">
-                                            <button type="button" class="btn btn-sm btn-warning mx-1"
-                                                data-bs-toggle="modal" data-bs-target="#picForm"
-                                                onclick="getPIC('{{ url('instance/school/' . $detail->sch_id . '/detail/' . $detail->schdetail_id . '/edit') }}')"><i
-                                                    class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button"
-                                                onclick="confirmDelete('instance/school/{{ $detail->sch_id }}/detail', '{{ $detail->schdetail_id }}')"
-                                                class="btn btn-sm btn-danger">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
+                                        <th>#</th>
+                                        <th>Fullname</th>
+                                        <th>Email</th>
+                                        <th>Grade</th>
+                                        <th>Position</th>
+                                        <th>Phone</th>
+                                        <th class="text-end">Action</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $no = 1;
+                                    @endphp
+                                    @foreach ($details as $detail)
+                                        <tr>
+                                            <td>{{ $no++ }}</td>
+                                            <td>{{ $detail->schdetail_fullname }}</td>
+                                            <td>{{ $detail->schdetail_email }}</td>
+                                            <td>{{ $detail->schdetail_grade }}</td>
+                                            <td>{{ $detail->schdetail_position }}</td>
+                                            <td>{{ $detail->schdetail_phone }}</td>
+                                            <td class="d-flex text-center justify-content-end">
+                                                <button type="button" class="btn btn-sm btn-outline-warning mx-1"
+                                                    data-bs-toggle="modal" data-bs-target="#picForm"
+                                                    onclick="getPIC('{{ url('instance/school/' . $detail->sch_id . '/detail/' . $detail->schdetail_id . '/edit') }}')"><i
+                                                        class="bi bi-pencil"></i>
+                                                </button>
+                                                <button type="button"
+                                                    onclick="confirmDelete('instance/school/{{ $detail->sch_id }}/detail', '{{ $detail->schdetail_id }}')"
+                                                    class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -473,11 +474,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- @if (isset($schoolDetail))
-            @method('put')
-            <input type="hidden" readonly name="schdetail_id" value="{{ $schoolDetail->schdetail_id }}">
-        @endif --}}
     @endif
 
     <script>
@@ -500,6 +496,16 @@
     </script>
 
     <script>
+        function resetForm() {
+            $('#cp_fullname').val(null)
+            $('#cp_mail').val(null)
+            $('#cp_grade').val(null).trigger('change')
+            $('#cp_phone').val(null)
+            $('#cp_status').val(null).trigger('change')
+            $('.put').html('');
+            $('#picAction').attr('action', '{{ url('instance/school/' . $school->sch_id . '/detail') }}')
+        }
+
         function getPIC(link) {
             axios.get(link)
                 .then(function(response) {
@@ -521,7 +527,7 @@
                     $('.put').html(html);
 
 
-                    console.log(url)
+                    // console.log(url)
                 })
                 .catch(function(error) {
                     // handle error

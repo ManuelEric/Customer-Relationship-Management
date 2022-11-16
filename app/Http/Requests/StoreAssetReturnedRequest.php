@@ -45,15 +45,13 @@ class StoreAssetReturnedRequest extends FormRequest
                 //     $fail("The returned amount must less than used amount");
                 // }
             }],
-            'returned_date' => ['required', function($attribute, $value, $fail) use ($assetId) {
+            'returned_date' => ['required', function ($attribute, $value, $fail) use ($assetId) {
 
                 if (Asset::where('asset_id', $assetId)->whereHas('userUsedAsset', function ($query) use ($value) {
-                        $query->where('tbl_asset_used.used_date', '>', $value);
-                    })->first())
-                {
+                    $query->where('tbl_asset_used.used_date', '>', $value);
+                })->first()) {
                     $fail("The returned date must less than used date");
                 }
-
             }],
             'condition' => 'nullable|in:null,Good,Not Good',
         ];

@@ -9,14 +9,18 @@
         </a>
     </div>
 
-    <div class="card rounded">
-        <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-md-4 text-center">
+
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <div class="card rounded">
+                <div class="card-body">
                     <img src="{{ asset('img/vendor.png') }}" alt="" class="w-75">
                 </div>
-                <div class="col-md-8">
-
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card rounded">
+                <div class="card-body">
                     <form action="{{ url(isset($vendor) ? 'master/vendor/' . $vendor->vendor_id : '/vendor') }}"
                         method="POST">
                         @csrf
@@ -36,7 +40,7 @@
                         </div>
                         <div class="mb-2">
                             <label for="">
-                                Alamat
+                                Address
                             </label>
                             <textarea name="vendor_address" class="form-control form-control-sm rounded" rows="3">{{ isset($vendor->vendor_address) ? $vendor->vendor_address : old('vendor_address') }}</textarea>
                         </div>

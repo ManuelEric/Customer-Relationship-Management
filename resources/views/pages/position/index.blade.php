@@ -71,8 +71,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: '',
-                columns: [
-                    {
+                columns: [{
                         data: 'id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {

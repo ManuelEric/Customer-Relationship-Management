@@ -66,7 +66,6 @@ class LeadController extends Controller
             DB::rollBack();
             Log::error('Store lead failed : ' . $e->getMessage());
             return Redirect::to('master/lead')->withError('Failed to create a new lead');
-
         }
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully created');
@@ -75,6 +74,16 @@ class LeadController extends Controller
     public function create()
     {
         return view('pages.lead.form');
+    }
+
+    public function show(Request $request)
+    {
+        $leadId = $request->route('lead');
+
+        # retrieve lead data by id
+        $lead = $this->leadRepository->getLeadById($leadId);
+
+        return response()->json(['lead' => $lead]);
     }
 
     public function edit(Request $request)
@@ -112,11 +121,9 @@ class LeadController extends Controller
 
             $leadDetails['main_lead'] = "KOL";
             $leadDetails['sub_lead'] = $request->lead_name;
-
         } else {
             $leadDetails['main_lead'] = $request->lead_name;
             $leadDetails['sub_lead'] = null;
-
         }
 
         DB::beginTransaction();
@@ -129,7 +136,6 @@ class LeadController extends Controller
             DB::rollBack();
             Log::error('Update lead failed : ' . $e->getMessage());
             return Redirect::to('master/lead')->withError('Failed to update lead');
-
         }
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully updated');
@@ -149,7 +155,6 @@ class LeadController extends Controller
             DB::rollBack();
             Log::error('Delete lead failed : ' . $e->getMessage());
             return Redirect::to('master/lead')->withError('Failed to delete lead');
-
         }
 
         return Redirect::to('master/lead')->withSuccess('Lead successfully deleted');
