@@ -10,7 +10,8 @@ class EdufReviewRepository implements EdufReviewRepositoryInterface
 {
     public function getAllEdufairReviewByEdufairId($edufLId)
     {
-        return EdufLead::find($edufLId)->review->get();
+        $eduf_lead = EdufLead::find($edufLId);
+        return $eduf_lead->review;
     }
 
     public function getEdufairReviewById($edufRId)
