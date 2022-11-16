@@ -33,16 +33,23 @@ class EdufReviewController extends Controller
 
             $this->edufReviewRepository->createEdufairReview($edufLId, $reviewDetails);
             DB::commit();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Store edufair review failed : ' . $e->getMessage());
-            return Redirect::to('instance/edufair/'.$edufLId.'/edit')->withError('Failed to create new review');
-
+            return Redirect::to('instance/edufair/' . $edufLId . '')->withError('Failed to create new review');
         }
 
-        return Redirect::to('instance/edufair/'.$edufLId.'/edit')->withSuccess('New review successfully created');
+        return Redirect::to('instance/edufair/' . $edufLId . '')->withSuccess('New review successfully created');
+    }
+
+    public function show(Request $request)
+    {
+        $id = $request->route('review');
+
+        $review = $this->edufReviewRepository->getEdufairReviewById($id);
+
+        return response()->json(['review' => $review]);
     }
 
     public function update(StoreEdufairReviewRequest $request)
@@ -60,16 +67,14 @@ class EdufReviewController extends Controller
 
             $this->edufReviewRepository->updateEdufairReview($edufLId, $edufRId, $newDetails);
             DB::commit();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Update edufair review failed : ' . $e->getMessage());
-            return Redirect::to('instance/edufair/'.$edufLId.'/edit')->withError('Failed to update review');
-
+            return Redirect::to('instance/edufair/' . $edufLId . '')->withError('Failed to update review');
         }
 
-        return Redirect::to('instance/edufair/'.$edufLId.'/edit')->withSuccess('Review successfully updated');
+        return Redirect::to('instance/edufair/' . $edufLId . '')->withSuccess('Review successfully updated');
     }
 
     public function destroy(Request $request)
@@ -82,15 +87,13 @@ class EdufReviewController extends Controller
 
             $this->edufReviewRepository->deleteEdufairReview($edufRId);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete edufair review failed : ' . $e->getMessage());
-            return Redirect::to('instance/edufair/'.$edufLId.'/edit')->withError('Failed to delete reivew');
-
+            return Redirect::to('instance/edufair/' . $edufLId . '')->withError('Failed to delete reivew');
         }
 
-        return Redirect::to('instance/edufair/'.$edufLId.'/edit')->withSuccess('Review successfully deleted');
+        return Redirect::to('instance/edufair/' . $edufLId . '')->withSuccess('Review successfully deleted');
     }
 }

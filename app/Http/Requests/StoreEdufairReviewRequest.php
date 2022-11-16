@@ -24,14 +24,14 @@ class StoreEdufairReviewRequest extends FormRequest
      * @return array<string, mixed>
      */
     public function rules()
-    {   
+    {
         return $this->isMethod('POST') ? $this->store() : $this->update();
     }
 
     protected function store()
     {
         return [
-            'eduf_id' => 'required|unique:tbl_eduf_review,eduf_id',
+            'eduf_id' => 'required',
             'reviewer_name' => 'required',
             'score' => 'required',
             'review' => 'required'
@@ -41,7 +41,7 @@ class StoreEdufairReviewRequest extends FormRequest
     protected function update()
     {
         return [
-            'eduf_id' => 'required|unique:tbl_eduf_review,eduf_id,'.$this->input('eduf_id').',eduf_id',
+            'eduf_id' => 'required',
             'reviewer_name' => 'required',
             'score' => 'required',
             'review' => 'required'

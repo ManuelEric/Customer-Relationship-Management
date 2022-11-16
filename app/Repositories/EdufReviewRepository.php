@@ -6,11 +6,11 @@ use App\Interfaces\EdufReviewRepositoryInterface;
 use App\Models\EdufLead;
 use App\Models\EdufReview;
 
-class EdufReviewRepository implements EdufReviewRepositoryInterface 
+class EdufReviewRepository implements EdufReviewRepositoryInterface
 {
     public function getAllEdufairReviewByEdufairId($edufLId)
     {
-        return EdufLead::find($edufLId)->review;
+        return EdufLead::find($edufLId)->review->get();
     }
 
     public function getEdufairReviewById($edufRId)
@@ -19,7 +19,7 @@ class EdufReviewRepository implements EdufReviewRepositoryInterface
     }
 
     public function deleteEdufairReview($edufRId)
-    {   
+    {
         return EdufReview::whereId($edufRId)->delete();
     }
 

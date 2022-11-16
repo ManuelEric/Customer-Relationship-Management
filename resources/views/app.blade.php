@@ -58,6 +58,10 @@
             color: #494949;
         }
 
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
         .table td,
         .table td p {
             font-size: 0.75rem !important;
