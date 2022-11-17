@@ -34,7 +34,7 @@ class ProgramController extends Controller
             return $this->programRepository->getAllProgramsDataTables();
         }
 
-        return view('pages.program.index');
+        return view('pages.master.program.index');
     }
 
     public function store(StoreProgramRequest $request)
@@ -67,7 +67,7 @@ class ProgramController extends Controller
 
     public function create()
     {
-        return view('pages.program.form')->with(
+        return view('pages.master.program.form')->with(
             [
                 'main_programs' => $this->mainProgRepository->getAllMainProg()
             ]
@@ -108,7 +108,7 @@ class ProgramController extends Controller
         $prog_id = $request->route('program');
         $program = $this->programRepository->getProgramById($prog_id);
 
-        return view('pages.program.form')->with(
+        return view('pages.master.program.form')->with(
             [
                 'main_programs' => $this->mainProgRepository->getAllMainProg(),
                 'program' => $program

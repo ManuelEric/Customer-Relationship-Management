@@ -33,7 +33,7 @@ class AssetController extends Controller
             return $this->assetRepository->getAllAssetsDataTables();
         }
 
-        return view('pages.asset.index');
+        return view('pages.master.asset.index');
     }
 
     public function store(StoreAssetRequest $request)
@@ -69,7 +69,7 @@ class AssetController extends Controller
 
     public function create()
     {
-        return view('pages.asset.form');
+        return view('pages.master.asset.form');
     }
 
     public function show(Request $request)
@@ -81,7 +81,7 @@ class AssetController extends Controller
         $employees = $this->userRepository->getAllUsersByRole('employee');
 
         # put view detail asset below
-        return view('pages.asset.form')->with(
+        return view('pages.master.asset.form')->with(
             [
                 'asset' => $asset,
                 'employees' => $employees,
@@ -99,7 +99,7 @@ class AssetController extends Controller
         # put the link to update asset form below
         # example
 
-        return view('pages.asset.form')->with(
+        return view('pages.master.asset.form')->with(
             [
                 'edit' => true,
                 'asset' => $asset,

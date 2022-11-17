@@ -33,7 +33,7 @@ class UniversityController extends Controller
             return $this->universityRepository->getAllUniversitiesDataTables();
         }
 
-        return view('pages.univ.index')->with(
+        return view('pages.master.univ.index')->with(
             [
                 'countries' => $this->countryRepository->getAllCountries()
             ]
@@ -114,7 +114,7 @@ class UniversityController extends Controller
         # put the link to update vendor form below
         # example
 
-        return view('pages.univ.index')->with(
+        return view('pages.master.univ.index')->with(
             [
                 'university' => $university,
                 'countries' => $countries

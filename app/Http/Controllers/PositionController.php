@@ -25,7 +25,7 @@ class PositionController extends Controller
             return $this->positionRepository->getAllPositionDataTables();
         }
 
-        return view('pages.position.index');
+        return view('pages.master.position.index');
     }
 
     public function store(StorePositionRequest $request)
