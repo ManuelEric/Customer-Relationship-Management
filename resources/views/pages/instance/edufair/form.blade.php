@@ -64,7 +64,7 @@
                                 <div class="item mb-3">
                                     <div class="d-flex justify-content-between">
                                         <div class="">
-                                            <h6 class="mb-0">{{ $reviews->reviewer_name }}</h6>
+                                            <h6 class="mb-0">{{ $reviews->reviewer->first_name.' '.$reviews->reviewer->last_name }}</h6>
                                             <small>
                                                 {{ date('M, d Y', strtotime($reviews->created_at)) }} |
                                                 {{ $reviews->score }}
@@ -327,7 +327,7 @@
                                 <select name="reviewer_name" id="reviewer_name" class="modal-select w-100">
                                     <option data-placeholder="true"></option>
                                     @foreach ($internal_pic as $pic)
-                                        <option value="{{ $pic->first_name . ' ' . $pic->last_name }}">
+                                        <option value="{{ $pic->id }}">
                                             {{ $pic->first_name . ' ' . $pic->last_name }}
                                         </option>
                                     @endforeach
