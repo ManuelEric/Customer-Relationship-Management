@@ -114,4 +114,9 @@ class User extends Authenticatable
         );
         // return $this->belongsToMany(Asset::class, 'tbl_asset_used', 'user_id', 'asset_id');
     }
+
+    public function edufairReview()
+    {
+        return $this->hasMany(EdufReview::class, 'reviewer_name', 'id');
+    }
 }

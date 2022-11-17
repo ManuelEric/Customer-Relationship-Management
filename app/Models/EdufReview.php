@@ -27,4 +27,9 @@ class EdufReview extends Model
     {
         return $this->belongsTo(EdufLead::class, 'eduf_id', 'id');
     }
+
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewer_name', 'id');
+    }
 }

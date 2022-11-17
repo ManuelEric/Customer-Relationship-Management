@@ -25,9 +25,9 @@ class StoreCorporatePicRequest extends FormRequest
     {
         return [
             'pic_name' => 'required',
-            'pic_mail' => 'required|email',
+            'pic_mail' => 'nullable|email',
             'pic_phone' => 'required',
-            'pic_linkedin' => 'required|url'
+            'pic_linkedin' => 'nullable|url'
         ];
     }
 }
