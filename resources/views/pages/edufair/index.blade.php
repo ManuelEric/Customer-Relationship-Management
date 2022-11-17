@@ -147,7 +147,7 @@
 
             $('#edufairTable tbody').on('click', '.viewEdufair ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('instance/edufair') }}/" + data.id + '/edit';
+                window.location.href = "{{ url('instance/edufair') }}/" + data.id;
             });
 
             $('#edufairTable tbody').on('click', '.deleteEdufair ', function() {
