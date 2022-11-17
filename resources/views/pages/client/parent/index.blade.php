@@ -18,14 +18,14 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-dark text-white">
                     <tr class="text-center" role="row">
-                        <th class="text-dark">No</th>
+                        <th class="bg-info text-white">No</th>
                         <th class="bg-info text-white">Parents Name</th>
                         <th>Parents Email</th>
                         <th>Parents Number</th>
                         <th>Birthday</th>
                         <th>Childs Name</th>
-                        <th class="text-dark">Priority</th>
-                        <th class="text-dark">#</th>
+                        <th class="bg-info text-white">Priority</th>
+                        <th class="bg-info text-white">#</th>
                     </tr>
                 </thead>
                 <tbody>

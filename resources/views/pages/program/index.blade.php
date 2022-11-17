@@ -18,9 +18,9 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
                 <thead class="bg-dark text-white">
                     <tr>
-                        <th class="text-dark">#</th>
+                        <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Program ID</th>
-                        <th class="bg-info text-white">Main Program</th>
+                        <th>Main Program</th>
                         <th>Sub Program</th>
                         <th>Program Name</th>
                         <th>Type</th>

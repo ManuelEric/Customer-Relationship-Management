@@ -71,7 +71,7 @@ class SchoolDetailController extends Controller
     {
         $school_id = $request->route('school');
 
-        return view('pages.school.detail.form')->with(
+        return view('pages.instance.school.detail.form')->with(
             [
                 'school_id' => $school_id
             ]
@@ -147,9 +147,9 @@ class SchoolDetailController extends Controller
 
             DB::rollBack();
             Log::error('Delete contact person failed : ' . $e->getMessage());
-            return Redirect::to('instance/school/'.$schoolId)->withError('Failed to delete a contact person');
+            return Redirect::to('instance/school/' . $schoolId)->withError('Failed to delete a contact person');
         }
 
-        return Redirect::to('instance/school/'.$schoolId)->withSuccess('Contact person has successfully deleted');
+        return Redirect::to('instance/school/' . $schoolId)->withSuccess('Contact person has successfully deleted');
     }
 }

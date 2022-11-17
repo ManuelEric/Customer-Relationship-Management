@@ -19,7 +19,7 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="edufairTable">
                 <thead class="bg-dark text-white">
                     <tr>
-                        <th class="text-dark">#</th>
+                        <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Organizer Name</th>
                         <th>PIC Name</th>
                         <th>PIC Contact</th>
@@ -147,7 +147,7 @@
 
             $('#edufairTable tbody').on('click', '.viewEdufair ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('instance/edufair') }}/" + data.id + '/edit';
+                window.location.href = "{{ url('instance/edufair') }}/" + data.id + ''
             });
 
             $('#edufairTable tbody').on('click', '.deleteEdufair ', function() {
