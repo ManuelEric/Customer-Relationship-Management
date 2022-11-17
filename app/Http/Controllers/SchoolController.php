@@ -37,7 +37,7 @@ class SchoolController extends Controller
         if ($request->ajax()) {
             return $this->schoolRepository->getAllSchoolDataTables();
         }
-        return view('pages.school.index');
+        return view('pages.instance.school.index');
     }
 
     public function store(StoreSchoolRequest $request)
@@ -73,13 +73,13 @@ class SchoolController extends Controller
             return Redirect::to('instance/school')->withError('Failed to create school');
         }
 
-        return Redirect::to('instance/school/'.$school_id_with_label)->withSuccess('School successfully created');
+        return Redirect::to('instance/school/' . $school_id_with_label)->withSuccess('School successfully created');
     }
 
     public function create()
     {
         $curriculums = $this->curriculumRepository->getAllCurriculum();
-        return view('pages.school.form')->with(
+        return view('pages.instance.school.form')->with(
             [
                 'curriculums' => $curriculums
             ]
@@ -99,7 +99,7 @@ class SchoolController extends Controller
         # retrieve school detail data by school Id
         $schoolDetails = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
 
-        return view('pages.school.form')->with(
+        return view('pages.instance.school.form')->with(
             [
                 'school' => $school,
                 'curriculums' => $curriculums,
@@ -118,7 +118,7 @@ class SchoolController extends Controller
         # retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($schoolId);
 
-        return view('pages.school.form')->with(
+        return view('pages.instance.school.form')->with(
             [
                 'edit' => true,
                 'school' => $school,

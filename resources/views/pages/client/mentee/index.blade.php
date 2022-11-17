@@ -35,7 +35,7 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-dark text-white">
                     <tr class="text-center" role="row">
-                        <th class="text-dark">No</th>
+                        <th class="bg-info text-white">No</th>
                         <th class="bg-info text-white">Mentee Name</th>
                         <th>Mentee Mail</th>
                         <th>Mentee Number</th>
@@ -57,8 +57,8 @@
                         <th>Interest Major</th>
                         <th>Last Update</th>
                         <th>Status</th>
-                        <th class="text-dark">Priority</th>
-                        <th class="text-dark"># Action</th>
+                        <th class="bg-info text-white">Priority</th>
+                        <th class="bg-info text-white"># Action</th>
                     </tr>
                 </thead>
                 <tbody>

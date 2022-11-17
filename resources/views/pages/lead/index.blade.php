@@ -28,9 +28,9 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="leadTable">
                 <thead class="bg-dark text-white">
                     <tr>
-                        <th class="text-dark">#</th>
+                        <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Lead ID</th>
-                        <th class="bg-info text-white">Lead Name</th>
+                        <th>Lead Name</th>
                         <th>Lead Detail</th>
                         <th>Score</th>
                         <th class="bg-info text-white">Action</th>

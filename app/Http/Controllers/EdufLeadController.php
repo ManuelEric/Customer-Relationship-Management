@@ -38,7 +38,7 @@ class EdufLeadController extends Controller
             return $this->edufLeadRepository->getAllEdufairLeadDataTables();
         }
 
-        return view('pages.edufair.index');
+        return view('pages.instance.edufair.index');
     }
 
     public function create()
@@ -48,7 +48,7 @@ class EdufLeadController extends Controller
         $userFromClientDepartment = $this->userRepository->getAllUsersByRole('Client');
         $userFromBizDevDepartment = $this->userRepository->getAllUsersByRole('BizDev');
 
-        return view('pages.edufair.form')->with(
+        return view('pages.instance.edufair.form')->with(
             [
                 'schools' => $schools,
                 'corporates' => $corporates,
@@ -147,7 +147,7 @@ class EdufLeadController extends Controller
         $userFromClientDepartment = $this->userRepository->getAllUsersByRole('Client');
         $userFromBizDevDepartment = $this->userRepository->getAllUsersByRole('BizDev');
 
-        return view('pages.edufair.form')->with(
+        return view('pages.instance.edufair.form')->with(
             [
                 'edufair' => $edufLead,
                 'reviews' => $reviews,
@@ -173,7 +173,7 @@ class EdufLeadController extends Controller
         $userFromClientDepartment = $this->userRepository->getAllUsersByRole('Client');
         $userFromBizDevDepartment = $this->userRepository->getAllUsersByRole('BizDev');
 
-        return view('pages.edufair.form')->with(
+        return view('pages.instance.edufair.form')->with(
             [
                 'edit' => true,
                 'edufair' => $edufLead,

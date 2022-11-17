@@ -18,9 +18,9 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="assetTable">
                 <thead class="bg-dark text-white">
                     <tr>
-                        <th class="text-dark">#</th>
+                        <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Asset ID</th>
-                        <th class="bg-info text-white">Asset Name</th>
+                        <th>Asset Name</th>
                         <th>Merk/Type</th>
                         <th>Achieved Date</th>
                         <th>Amont</th>

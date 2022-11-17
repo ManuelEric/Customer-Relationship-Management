@@ -28,10 +28,10 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="majorTable">
                 <thead class="bg-dark text-white">
                     <tr>
-                        <th class="text-dark">#</th>
+                        <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Major Name</th>
-                        <th class="bg-info text-white">Created At</th>
-                        <th class="bg-info text-white">Updated At</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>

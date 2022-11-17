@@ -33,7 +33,7 @@ class CorporateController extends Controller
             return $this->corporateRepository->getAllCorporateDataTables();
         }
 
-        return view('pages.corporate.index');
+        return view('pages.instance.corporate.index');
     }
 
     public function store(StoreCorporateRequest $request)
@@ -65,15 +65,15 @@ class CorporateController extends Controller
 
             DB::rollBack();
             Log::error('Store corporate failed : ' . $e->getMessage());
-            return Redirect::to('instance/corporate/'.$corp_id_with_label)->withError('Failed to create new corporate');
+            return Redirect::to('instance/corporate/' . $corp_id_with_label)->withError('Failed to create new corporate');
         }
 
-        return Redirect::to('instance/corporate/'.$corp_id_with_label)->withSuccess('Corporate successfully created');
+        return Redirect::to('instance/corporate/' . $corp_id_with_label)->withSuccess('Corporate successfully created');
     }
 
     public function create()
     {
-        return view('pages.corporate.form');
+        return view('pages.instance.corporate.form');
     }
 
     public function update(StoreCorporateRequest $request)
@@ -105,10 +105,10 @@ class CorporateController extends Controller
 
             DB::rollBack();
             Log::error('Update corporate failed : ' . $e->getMessage());
-            return Redirect::to('instance/corporate/'.$corporateId)->withError('Failed to update corporate');
+            return Redirect::to('instance/corporate/' . $corporateId)->withError('Failed to update corporate');
         }
 
-        return Redirect::to('instance/corporate/'.$corporateId)->withSuccess('Corporate successfully updated');
+        return Redirect::to('instance/corporate/' . $corporateId)->withSuccess('Corporate successfully updated');
     }
 
     public function show(Request $request)
@@ -118,7 +118,7 @@ class CorporateController extends Controller
 
         $pics = $this->corporatePicRepository->getAllCorporatePicByCorporateId($corporateId);
 
-        return view('pages.corporate.form')->with(
+        return view('pages.instance.corporate.form')->with(
             [
                 'corporate' => $corporate,
                 'pics' => $pics
@@ -131,7 +131,7 @@ class CorporateController extends Controller
         $corporateId = $request->route('corporate');
         $corporate = $this->corporateRepository->getCorporateById($corporateId);
 
-        return view('pages.corporate.form')->with(
+        return view('pages.instance.corporate.form')->with(
             [
                 'edit' => true,
                 'corporate' => $corporate

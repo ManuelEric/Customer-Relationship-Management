@@ -18,10 +18,10 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="purchasereqTable">
                 <thead class="bg-dark text-white">
                     <tr>
-                        <th class="text-dark">#</th>
+                        <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Purchase ID</th>
-                        <th class="bg-info text-white">Requested By</th>
-                        <th class="bg-info text-white">Department</th>
+                        <th>Requested By</th>
+                        <th>Department</th>
                         <th>Request Status</th>
                         <th>Last Update</th>
                         <th class="bg-info text-white">Action</th>

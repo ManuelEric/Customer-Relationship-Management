@@ -19,9 +19,9 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="univTable">
                 <thead class="bg-dark text-white">
                     <tr>
-                        <th class="text-dark">#</th>
+                        <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">University ID</th>
-                        <th class="bg-info text-white">University Name</th>
+                        <th>University Name</th>
                         <th>Address</th>
                         <th>Country</th>
                         <th class="bg-info text-white">Action</th>

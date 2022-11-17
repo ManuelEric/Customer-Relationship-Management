@@ -18,9 +18,9 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="vendor-table">
                 <thead class="bg-dark text-white">
                     <tr>
-                        <th class="text-dark">#</th>
+                        <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Vendor ID</th>
-                        <th class="bg-info text-white">Vendor Name</th>
+                        <th>Vendor Name</th>
                         <th>Address</th>
                         <th>Phone</th>
                         <th>Type</th>
