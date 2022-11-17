@@ -37,7 +37,7 @@ class VendorController extends Controller
             return $this->vendorRepository->getAllVendorDataTables();
         }
 
-        return view('pages.vendor.index');
+        return view('pages.master.vendor.index');
     }
 
     public function store(StoreVendorRequest $request)
@@ -75,7 +75,7 @@ class VendorController extends Controller
 
     public function create()
     {
-        return view('pages.vendor.form')->with(
+        return view('pages.master.vendor.form')->with(
             [
                 'type' => $this->vendorTypeRepository->getAllVendorType()
             ]
@@ -94,7 +94,7 @@ class VendorController extends Controller
         # put the link to update vendor form below
         # example
 
-        return view('pages.vendor.form')->with(
+        return view('pages.master.vendor.form')->with(
             [
                 'vendor' => $vendor,
                 'type' => $vendorType
@@ -148,7 +148,6 @@ class VendorController extends Controller
             DB::rollBack();
             Log::error('Delete vendor failed : ' . $e->getMessage());
             return Redirect::to('master/vendor')->withError('Failed to delete a vendor');
-
         }
 
         return Redirect::to('master/vendor')->withSuccess('Vendor successfully deleted');

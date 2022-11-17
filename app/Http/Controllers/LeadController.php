@@ -29,7 +29,7 @@ class LeadController extends Controller
             return $this->leadRepository->getAllLeadDataTables();
         }
 
-        return view('pages.lead.index');
+        return view('pages.master.lead.index');
     }
 
     public function store(StoreLeadRequest $request)
@@ -73,7 +73,7 @@ class LeadController extends Controller
 
     public function create()
     {
-        return view('pages.lead.form');
+        return view('pages.master.lead.form');
     }
 
     public function show(Request $request)
@@ -99,7 +99,7 @@ class LeadController extends Controller
         # put the link to update lead form below
         # example
 
-        return view('pages.lead.index')->with(
+        return view('pages.master.lead.index')->with(
             [
                 'lead' => $lead
             ]

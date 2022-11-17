@@ -44,7 +44,7 @@ class PurchaseRequestController extends Controller
             return $this->purchaseRequestRepository->getAllPurchaseRequestDataTables();
         }
 
-        return view('pages.purchase.index');
+        return view('pages.master.purchase.index');
     }
 
     public function store(StorePurchaseReqRequest $request)
@@ -72,24 +72,22 @@ class PurchaseRequestController extends Controller
 
                 $file_name = $purchase_id_with_label;
                 $file_format = $request->file('purchase_attachment')->getClientOriginalExtension();
-                $file_path = $request->file('purchase_attachment')->storeAs('public/uploaded_file/finance', $file_name.'.'.$file_format);
+                $file_path = $request->file('purchase_attachment')->storeAs('public/uploaded_file/finance', $file_name . '.' . $file_format);
                 unset($requestDetails['purchase_attachment']);
-                $requestDetails['purchase_attachment'] = $file_name.'.'.$file_format;
+                $requestDetails['purchase_attachment'] = $file_name . '.' . $file_format;
             }
 
             # insert into purchase request
             $this->purchaseRequestRepository->createPurchaseRequest($requestDetails);
             DB::commit();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Store purchase request failed : ' . $e->getMessage());
             return Redirect::to('master/purchase/create')->withError('Failed to create a purchase request');
-
         }
 
-        return Redirect::to('master/purchase/'.$purchase_id_with_label)->withSuccess('Purchase request successfully created');
+        return Redirect::to('master/purchase/' . $purchase_id_with_label)->withSuccess('Purchase request successfully created');
     }
 
     public function create()
@@ -98,7 +96,7 @@ class PurchaseRequestController extends Controller
         $employees = $this->userRepository->getAllUsersByRole('employee');
         $requestStatus = ['Urgent', 'Immediately', 'Can Wait', 'Done'];
 
-        return view('pages.purchase.form')->with(
+        return view('pages.master.purchase.form')->with(
             [
                 'edit' => true,
                 'departments' => $departments,
@@ -120,7 +118,7 @@ class PurchaseRequestController extends Controller
         $requestStatus = ['Urgent', 'Immediately', 'Can Wait', 'Done'];
 
 
-        return view('pages.purchase.form')->with(
+        return view('pages.master.purchase.form')->with(
             [
                 'purchaseRequest' => $purchaseRequest,
                 'departments' => $departments,
@@ -149,25 +147,23 @@ class PurchaseRequestController extends Controller
 
                 $file_name = $purchaseId;
                 $file_format = $request->file('purchase_attachment')->getClientOriginalExtension();
-                $file_path = $request->file('purchase_attachment')->storeAs('public/uploaded_file/finance', $file_name.'.'.$file_format);
+                $file_path = $request->file('purchase_attachment')->storeAs('public/uploaded_file/finance', $file_name . '.' . $file_format);
                 unset($newDetails['purchase_attachment']);
-                $newDetails['purchase_attachment'] = $file_name.'.'.$file_format;
+                $newDetails['purchase_attachment'] = $file_name . '.' . $file_format;
             }
 
             # insert into purchase request
             $this->purchaseRequestRepository->updatePurchaseRequest($purchaseId, $newDetails);
-            
-            DB::commit();
 
+            DB::commit();
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Update purchase request failed : ' . $e->getMessage());
-            return Redirect::to('master/purchase/'.$purchaseId)->withError('Failed to update a purchase request');
-
+            return Redirect::to('master/purchase/' . $purchaseId)->withError('Failed to update a purchase request');
         }
 
-        return Redirect::to('master/purchase/'.$purchaseId)->withSuccess('Purchase request successfully updated');
+        return Redirect::to('master/purchase/' . $purchaseId)->withSuccess('Purchase request successfully updated');
     }
 
     public function edit(Request $request)
@@ -181,7 +177,7 @@ class PurchaseRequestController extends Controller
         $employees = $this->userRepository->getAllUsersByRole('employee');
         $requestStatus = ['Urgent', 'Immediately', 'Can Wait', 'Done'];
 
-        return view('pages.purchase.form')->with(
+        return view('pages.master.purchase.form')->with(
             [
                 'edit' => true,
                 'purchaseRequest' => $purchaseRequest,
@@ -201,12 +197,10 @@ class PurchaseRequestController extends Controller
 
             $purchase = $this->purchaseRequestRepository->getPurchaseRequestById($purchaseId);
             if ($this->purchaseRequestRepository->deletePurchaseRequest($purchaseId)) {
-                
-                unlink(public_path('storage/uploaded_file/finance/'.$purchase->purchase_attachment));
 
+                unlink(public_path('storage/uploaded_file/finance/' . $purchase->purchase_attachment));
             }
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -226,7 +220,7 @@ class PurchaseRequestController extends Controller
         ];
 
         $pdf = Pdf::loadView('pages.purchase.print', $data);
-        return $pdf->download($purchaseId.'.pdf');
+        return $pdf->download($purchaseId . '.pdf');
     }
 
     public function download($filename)
@@ -234,18 +228,14 @@ class PurchaseRequestController extends Controller
         // Check if file exists in public/uploaded_file/finance folder
         $file_path = public_path() . '/storage/uploaded_file/finance/' . $filename;
         // echo $file_path;exit;
-        if (file_exists($file_path))
-        {
+        if (file_exists($file_path)) {
             // Send Download
             return Response::download($file_path, $filename, [
-                'Content-Length: '. filesize($file_path)
+                'Content-Length: ' . filesize($file_path)
             ]);
-        }
-        else
-        {
+        } else {
             // Error
             return Redirect::back()->withError('Requested file does not exist on the server');
         }
     }
-
 }

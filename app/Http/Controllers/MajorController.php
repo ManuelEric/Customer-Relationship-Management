@@ -25,7 +25,7 @@ class MajorController extends Controller
             return $this->majorRepository->getAllMajorsDataTables();
         }
 
-        return view('pages.major.index');
+        return view('pages.master.major.index');
     }
 
     public function store(StoreMajorRequest $request)
