@@ -348,7 +348,7 @@
 
                 @if (!isset($edit) && isset($purchaseRequest))
 
-                    @include('pages.purchase.detail.list')
+                    @include('pages.master.purchase.detail.list')
 
                 @endif
 

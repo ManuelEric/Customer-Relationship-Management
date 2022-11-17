@@ -219,7 +219,7 @@ class PurchaseRequestController extends Controller
             'details' => $this->purchaseDetailRepository->getAllPurchaseDetailByPurchaseId($purchaseId)
         ];
 
-        $pdf = Pdf::loadView('pages.purchase.print', $data);
+        $pdf = Pdf::loadView('pages.master.purchase.print', $data);
         return $pdf->download($purchaseId . '.pdf');
     }
 

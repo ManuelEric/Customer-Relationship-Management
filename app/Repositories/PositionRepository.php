@@ -18,7 +18,7 @@ class PositionRepository implements PositionRepositoryInterface
         return Position::all();
     }
 
-    public function getById($id)
+    public function getPositionById($id)
     {
         return Position::find($id);
     }
