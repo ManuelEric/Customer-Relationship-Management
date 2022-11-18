@@ -138,10 +138,6 @@
                                         Request</a>
                                 </li>
                                 <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/university*') ? 'active' : '' }}"
-                                        href="{{ url('master/university') }}">Universities</a>
-                                </li>
-                                <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('master/vendor*') ? 'active' : '' }}"
                                         href="{{ url('master/vendor') }}">Vendors</a>
                                 </li>
@@ -181,21 +177,26 @@
                         <div class="collapse {{ Request::is('instance*') ? 'show' : 'hide' }}" id="instance">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('instance/school*') ? 'active' : '' }}"
-                                        href="{{ url('instance/school') }}">School</a>
-                                </li>
-                                <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('instance/corporate*') ? 'active' : '' }}"
                                         href="{{ url('instance/corporate') }}">Corporate</a>
+                                </li>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('instance/edufair*') ? 'active' : '' }}"
+                                        href="{{ url('instance/edufair') }}">Edufair</a>
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('instance/referral*') ? 'active' : '' }}"
                                         href="{{ url('instance/referral') }}">Referral</a>
                                 </li>
                                 <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('instance/edufair*') ? 'active' : '' }}"
-                                        href="{{ url('instance/edufair') }}">Edufair</a>
+                                        class="nav-link {{ Request::is('instance/school*') ? 'active' : '' }}"
+                                        href="{{ url('instance/school') }}">School</a>
                                 </li>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('instance/university*') ? 'active' : '' }}"
+                                        href="{{ url('instance/university') }}">Universities</a>
+                                </li>
+
                             </ul>
                         </div>
                     </li>

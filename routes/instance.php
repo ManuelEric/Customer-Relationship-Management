@@ -6,14 +6,16 @@ use App\Http\Controllers\CorporateController;
 use App\Http\Controllers\CorporatePicController;
 use App\Http\Controllers\EdufLeadController;
 use App\Http\Controllers\EdufReviewController;
+use App\Http\Controllers\UniversityController;
 use Illuminate\Support\Facades\Route;
 
+Route::resource('university', UniversityController::class);
 
 Route::resource('school', SchoolController::class);
 Route::resource('school/{school}/detail', SchoolDetailController::class);
 
 Route::resource('corporate', CorporateController::class);
-Route::prefix('corporate')->name('corporate.')->group(function() {
+Route::prefix('corporate')->name('corporate.')->group(function () {
     Route::resource('{corporate}/detail', CorporatePicController::class);
 });
 

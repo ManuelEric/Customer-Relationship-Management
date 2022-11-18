@@ -33,7 +33,7 @@ class UniversityController extends Controller
             return $this->universityRepository->getAllUniversitiesDataTables();
         }
 
-        return view('pages.master.univ.index')->with(
+        return view('pages.instance.univ.index')->with(
             [
                 'countries' => $this->countryRepository->getAllCountries()
             ]
@@ -66,15 +66,15 @@ class UniversityController extends Controller
 
             DB::rollBack();
             Log::error('Store university failed : ' . $e->getMessage());
-            return Redirect::to('master/university')->withError('Failed to create a new university');
+            return Redirect::to('instance/university')->withError('Failed to create a new university');
         }
 
-        return Redirect::to('master/university')->withSuccess('University successfully created');
+        return Redirect::to('instance/university')->withSuccess('University successfully created');
     }
 
     public function create()
     {
-        return view('form-university')->with(
+        return view('pages.instance.univ.form')->with(
             [
                 'countries' => $this->countryRepository->getAllCountries()
             ]
@@ -83,7 +83,6 @@ class UniversityController extends Controller
 
     public function show(Request $request)
     {
-
         $universityId = $request->route('university');
 
         # retrieve country
@@ -92,10 +91,12 @@ class UniversityController extends Controller
         # retrieve university data by id
         $university = $this->universityRepository->getUniversityByUnivId($universityId);
 
-        return response()->json([
-            'university' => $university,
-            'countries' => $countries
-        ]);
+        return view('pages.instance.univ.form')->with(
+            [
+                'university' => $university,
+                'countries' => $countries
+            ]
+        );
     }
 
     public function edit(Request $request)
@@ -114,8 +115,9 @@ class UniversityController extends Controller
         # put the link to update vendor form below
         # example
 
-        return view('pages.master.univ.index')->with(
+        return view('pages.instance.univ.form')->with(
             [
+                'edit' => true,
                 'university' => $university,
                 'countries' => $countries
             ]
@@ -142,10 +144,10 @@ class UniversityController extends Controller
 
             DB::rollBack();
             Log::error('Update university failed : ' . $e->getMessage());
-            return Redirect::to('master/university')->withError('Failed to update a university');
+            return Redirect::to('instance/university')->withError('Failed to update a university');
         }
 
-        return Redirect::to('master/university')->withSuccess('University successfully updated');
+        return Redirect::to('instance/university')->withSuccess('University successfully updated');
     }
 
     public function destroy(Request $request)
@@ -161,9 +163,9 @@ class UniversityController extends Controller
 
             DB::rollBack();
             Log::error('Delete university failed : ' . $e->getMessage());
-            return Redirect::to('master/university')->withError('Failed to delete a university');
+            return Redirect::to('instance/university')->withError('Failed to delete a university');
         }
 
-        return Redirect::to('master/university')->withSuccess('University successfully deleted');
+        return Redirect::to('instance/university')->withSuccess('University successfully deleted');
     }
 }
