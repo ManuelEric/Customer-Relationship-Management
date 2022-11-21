@@ -13,7 +13,16 @@
         </div>
     </div>
     <div class="card-body">
-        No data
+        <div class="list-group">
+            <div class="d-flex list-group-item justify-content-between">
+                <div class="">
+                    School Name
+                </div>
+                <div class="">
+                    <i class="bi bi-trash2"></i>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

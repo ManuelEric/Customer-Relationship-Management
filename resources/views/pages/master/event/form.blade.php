@@ -16,6 +16,14 @@
             <div class="card rounded mb-3">
                 <div class="card-body">
                     <img src="{{ asset('img/program.webp') }}" alt="" class="w-75">
+                    <div class="mt-3 d-flex justify-content-center">
+                        <a href="#" class="btn btn-sm btn-outline-info rounded mx-1">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded mx-1">
+                            <i class="bi bi-trash2"></i> Delete
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -93,6 +101,8 @@
                     </form>
                 </div>
             </div>
+
+            @include('pages.master.event.detail.speaker')
         </div>
     </div>
 @endsection
