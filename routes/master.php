@@ -50,3 +50,11 @@ Route::resource('asset/{asset}/used/{used}/returned', AssetReturnedController::c
 
 // Route::get('asset/{asset}/{user}/edit', [AssetUsedController::class, 'edit']);
 // Route::post('asset/{asset}/{user}', [AssetReturnedController::class, 'store']);
+
+Route::get('event', function () {
+    return view('pages.master.event.index');
+});
+
+Route::get('event/create', function () {
+    return view('pages.master.event.form');
+});

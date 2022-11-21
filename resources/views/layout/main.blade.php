@@ -133,6 +133,10 @@
                                         href="{{ url('master/program') }}">Program</a>
                                 </li>
                                 <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('master/event*') ? 'active' : '' }}"
+                                        href="{{ url('master/event') }}">Event</a>
+                                </li>
+                                <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('master/purchase*') ? 'active' : '' }}"
                                         href="{{ url('master/purchase') }}">Purchase
                                         Request</a>
