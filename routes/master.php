@@ -9,8 +9,6 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\PurchaseDetailController;
 use App\Http\Controllers\PurchaseRequestController;
-use App\Http\Controllers\UniversityController;
-use App\Http\Controllers\UniversityPicController;
 use App\Http\Controllers\VendorController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,7 +33,7 @@ Route::resource('position', PositionController::class);
 Route::resource('major', MajorController::class);
 
 Route::resource('purchase', PurchaseRequestController::class);
-Route::prefix('purchase')->name('purchase.')->group(function() {
+Route::prefix('purchase')->name('purchase.')->group(function () {
     Route::get('download/{file_name}', [PurchaseRequestController::class, 'download'])->name('download');
     Route::get('{purchase}/print', [PurchaseRequestController::class, 'print'])->name('print');
     Route::resource('{purchase}/detail', PurchaseDetailController::class);
@@ -53,7 +51,10 @@ Route::resource('asset/{asset}/used/{used}/returned', AssetReturnedController::c
 // Route::get('asset/{asset}/{user}/edit', [AssetUsedController::class, 'edit']);
 // Route::post('asset/{asset}/{user}', [AssetReturnedController::class, 'store']);
 
-Route::resource('university', UniversityController::class);
-Route::prefix('university')->name('university.')->group(function() {
-    Route::resource('{university}/detail', UniversityPicController::class);
+
+Route::get('event', function () {
+    return view('pages.master.event.index');
+});
+Route::get('event/create', function () {
+    return view('pages.master.event.form');
 });
