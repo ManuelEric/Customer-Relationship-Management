@@ -54,7 +54,6 @@ Route::resource('asset/{asset}/used/{used}/returned', AssetReturnedController::c
 Route::get('event', function () {
     return view('pages.master.event.index');
 });
-
 Route::get('event/create', function () {
     return view('pages.master.event.form');
 });

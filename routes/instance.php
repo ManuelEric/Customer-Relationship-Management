@@ -25,3 +25,10 @@ Route::get('edufair/{edufair}/review/{review}/edit', [EdufLeadController::class,
 Route::get('edufair/{edufair}/review/{review}', [EdufReviewController::class, 'show'])->name('edufair.review.show');
 Route::put('edufair/{edufair}/review/{review}', [EdufReviewController::class, 'update'])->name('edufair.review.update');
 Route::delete('edufair/{edufair}/review/{review}', [EdufReviewController::class, 'destroy'])->name('edufair.review.destroy');
+
+Route::get('referral', function () {
+    return view('pages.instance.referral.index');
+});
+Route::get('referral/create', function () {
+    return view('pages.instance.referral.form');
+});
