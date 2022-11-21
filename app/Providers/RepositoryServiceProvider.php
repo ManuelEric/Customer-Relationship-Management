@@ -28,6 +28,7 @@ use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
+use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\VendorRepositoryInterface;
@@ -59,6 +60,7 @@ use App\Repositories\RoleRepository;
 use App\Repositories\SchoolDetailRepository;
 use App\Repositories\SchoolRepository;
 use App\Repositories\SubProgRepository;
+use App\Repositories\UniversityPicRepository;
 use App\Repositories\UniversityRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\VendorRepository;
@@ -104,6 +106,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(CorporatePicRepositoryInterface::class, CorporatePicRepository::class);
         $this->app->bind(DepartmentRepositoryInterface::class, DepartmentRepository::class);
         $this->app->bind(PartnerRepositoryInterface::class, PartnerRepository::class);
+        $this->app->bind(UniversityPicRepositoryInterface::class, UniversityPicRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);

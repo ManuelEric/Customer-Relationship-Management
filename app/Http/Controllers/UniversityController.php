@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUniversityRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CountryRepositoryInterface;
+use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\University;
 use Exception;
@@ -19,12 +20,14 @@ class UniversityController extends Controller
     use CreateCustomPrimaryKeyTrait;
 
     private UniversityRepositoryInterface $universityRepository;
+    private UniversityPicRepositoryInterface $universityPicRepository;
     private CountryRepositoryInterface $countryRepository;
 
-    public function __construct(UniversityRepositoryInterface $universityRepository, CountryRepositoryInterface $countryRepository)
+    public function __construct(UniversityRepositoryInterface $universityRepository, CountryRepositoryInterface $countryRepository, UniversityPicRepositoryInterface $universityPicRepository)
     {
         $this->universityRepository = $universityRepository;
         $this->countryRepository = $countryRepository;
+        $this->universityPicRepository = $universityPicRepository;
     }
 
     public function index(Request $request)
@@ -92,8 +95,13 @@ class UniversityController extends Controller
         # retrieve university data by id
         $university = $this->universityRepository->getUniversityByUnivId($universityId);
 
+        # retrieve university pic by university id
+        $pics = $this->universityPicRepository->getAllUniversityPicByUniversityId($universityId);
+        
+
         return response()->json([
             'university' => $university,
+            'pics' => $pics,
             'countries' => $countries
         ]);
     }
@@ -161,7 +169,7 @@ class UniversityController extends Controller
 
             DB::rollBack();
             Log::error('Delete university failed : ' . $e->getMessage());
-            return Redirect::to('master/university')->withError('Failed to delete a university');
+            return Redirect::to('master/university')->withError('Failed to delete university');
         }
 
         return Redirect::to('master/university')->withSuccess('University successfully deleted');

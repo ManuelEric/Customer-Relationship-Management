@@ -10,6 +10,7 @@ use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\PurchaseDetailController;
 use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\UniversityController;
+use App\Http\Controllers\UniversityPicController;
 use App\Http\Controllers\VendorController;
 use Illuminate\Support\Facades\Route;
 
@@ -53,3 +54,6 @@ Route::resource('asset/{asset}/used/{used}/returned', AssetReturnedController::c
 // Route::post('asset/{asset}/{user}', [AssetReturnedController::class, 'store']);
 
 Route::resource('university', UniversityController::class);
+Route::prefix('university')->name('university.')->group(function() {
+    Route::resource('{university}/detail', UniversityPicController::class);
+});
