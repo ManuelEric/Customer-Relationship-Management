@@ -45,6 +45,11 @@ class UniversityPicController extends Controller
             'email',
         ]);
 
+        # when the other title has filled 
+        # then put it in title 
+        if ($request->other_title != null)
+            $picDetails['title'] = $request->other_title;
+
         $picDetails['univ_id'] = $universityId = $request->route('university');
 
         DB::beginTransaction();
@@ -57,11 +62,24 @@ class UniversityPicController extends Controller
 
             DB::rollBack();
             Log::error('Store university pic failed : ' . $e->getMessage());
-            return Redirect::to('master/university/'.$universityId)->withError('Failed to create a university pic');
+            return Redirect::to('instance/university/'.$universityId)->withError('Failed to create a university pic');
 
         }
 
-        return Redirect::to('master/university/'.$universityId)->withError('University pic successfully created');
+        return Redirect::to('instance/university/'.$universityId)->withSuccess('University pic successfully created');
+    }
+
+    public function edit(Request $request): JsonResponse
+    {
+        $picId = $request->route('detail');
+
+        # retrieve school detail data by id
+        $picDetail = $this->universityPicRepository->getUniversityPicById($picId);
+
+        return response()->json([
+            'univ_id' => $picDetail->univ_id,
+            'picDetail' => $picDetail,
+        ]);
     }
 
     public function update(StoreUniversityPicRequest $request)
@@ -72,6 +90,11 @@ class UniversityPicController extends Controller
             'phone',
             'email',
         ]);
+
+        # when the other title has filled 
+        # then put it in title 
+        if ($request->other_title != null)
+            $newDetails['title'] = $request->other_title;
 
         $newDetails['univ_id'] = $universityId = $request->route('university');
         $picId = $request->route('detail');
@@ -86,11 +109,11 @@ class UniversityPicController extends Controller
 
             DB::rollBack();
             Log::error('Update university pic failed : ' . $e->getMessage());
-            return Redirect::to('master/university/'.$universityId)->withError('Failed to update university pic');
+            return Redirect::to('instance/university/'.$universityId)->withError('Failed to update university pic');
 
         }
 
-        return Redirect::to('master/university/'.$universityId)->withError('University pic successfully updated');
+        return Redirect::to('instance/university/'.$universityId)->withSuccess('University pic successfully updated');
     }
 
     public function destroy(Request $request)
@@ -108,9 +131,9 @@ class UniversityPicController extends Controller
 
             DB::rollBack();
             Log::error('Delete university pic failed : ' . $e->getMessage());
-            return Redirect::to('master/university/'.$universityId)->withError('Failed to delete university pic');
+            return Redirect::to('instance/university/'.$universityId)->withError('Failed to delete university pic');
         }
 
-        return Redirect::to('master/university/'.$universityId)->withSuccess('University pic successfully deleted');
+        return Redirect::to('instance/university/'.$universityId)->withSuccess('University pic successfully deleted');
     }
 }

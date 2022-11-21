@@ -30,6 +30,6 @@ class UniversityPicRepository implements UniversityPicRepositoryInterface
 
     public function updateUniversityPic($picId, array $newDetails)
     {
-        return UniversityPic::whereId($picId, $newDetails);
+        return UniversityPic::whereId($picId, $newDetails)->update($newDetails);
     }
 }
