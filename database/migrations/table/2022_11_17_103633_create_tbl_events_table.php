@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('tbl_events', function (Blueprint $table) {
-            $table->char('event_id', 11)->collation('utf8mb4_general_ci')->primary();
+            $table->char('event_id', 8)->collation('utf8mb4_general_ci')->primary();
             $table->string('event_title');
             $table->text('event_description')->nullable();
             $table->string('event_location')->nullable();

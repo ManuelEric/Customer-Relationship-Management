@@ -119,4 +119,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(EdufReview::class, 'reviewer_name', 'id');
     }
+
+    public function handledEvent()
+    {
+        return $this->belongsToMany(Event::class, 'tbl_event_pic', 'empl_id', 'event_id');
+    }
 }

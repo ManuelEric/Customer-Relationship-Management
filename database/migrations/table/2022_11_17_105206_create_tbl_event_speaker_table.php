@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('tbl_event_speaker', function (Blueprint $table) {
             $table->id();
 
-            $table->char('event_id', 11)->collation('utf8mb4_general_ci');
+            $table->char('event_id', 8)->collation('utf8mb4_general_ci');
             $table->foreign('event_id')->references('event_id')->on('tbl_events')->onUpdate('cascade')->onDelete('restrict');
 
             $table->unsignedBigInteger('sch_pic_id')->nullable();

@@ -13,16 +13,20 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="list-group">
-            <div class="d-flex list-group-item justify-content-between">
-                <div class="">
-                    School Name
+        @if (isset($schoolEvent))
+            @foreach ($schoolEvent as $school)
+                <div class="list-group">
+                    <div class="d-flex list-group-item justify-content-between">
+                        <div class="">
+                            {{ $school->sch_name }}
+                        </div>
+                        <div class="" style="cursor:pointer" onclick="confirmDelete('master/event/{{ $event->event_id }}/school', '{{ $school->sch_id }}')">
+                            <i class="bi bi-trash2"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="">
-                    <i class="bi bi-trash2"></i>
-                </div>
-            </div>
-        </div>
+            @endforeach
+        @endif
     </div>
 </div>
 
@@ -37,7 +41,7 @@
                 <i class="bi bi-pencil-square"></i>
             </div>
             <div class="modal-body w-100 text-start">
-                <form action="" method="POST" id="formPosition">
+                <form action="{{ route('event.school.store', ['event' => $event->event_id]) }}" method="POST" id="formPosition">
                     @csrf
                     <div class="put"></div>
                     <div class="row g-2">
@@ -46,8 +50,13 @@
                                 <label for="">
                                     School Name <sup class="text-danger">*</sup>
                                 </label>
-                                <select name="" class="modal-select w-100">
+                                <select name="sch_id" class="modal-select-school w-100">
                                     <option data-placeholder="true"></option>
+                                    @if (isset($schools))
+                                        @foreach ($schools as $school)
+                                            <option value="{{ $school->sch_id }}">{{ $school->sch_name }}</option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -66,13 +75,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function() {
-        $('.modal-select').select2({
-            dropdownParent: $('#school .modal-content'),
-            placeholder: "Select value",
-            allowClear: true
-        });
-    });
-</script>
