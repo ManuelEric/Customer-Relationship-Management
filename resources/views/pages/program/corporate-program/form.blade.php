@@ -24,7 +24,7 @@
                     </div>
                 </div>
             </div>
-
+            @include('pages.program.corporate-program.detail.corporate')
             @include('pages.program.corporate-program.detail.speaker')
         </div>
 

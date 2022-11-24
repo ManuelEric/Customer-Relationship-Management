@@ -1,12 +1,12 @@
 @extends('layout.main')
 
-@section('title', 'Client Program - Bigdata Platform')
+@section('title', 'School Program - Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('program/client') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Client Program
+        <a href="{{ url('program/School') }}" class="text-decoration-none text-muted">
+            <i class="bi bi-arrow-left me-2"></i> School Program
         </a>
     </div>
 
@@ -24,8 +24,8 @@
                     </div>
                 </div>
             </div>
-
-            @include('pages.program.client-program.detail.client')
+            @include('pages.program.school-program.detail.school')
+            @include('pages.program.school-program.detail.speaker')
         </div>
 
         <div class="col-md-8">
@@ -34,32 +34,11 @@
                     <div class="">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-tags me-2"></i>
-                            Client Program Detail
+                            School Program Detail
                         </h6>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row mb-2">
-                        <div class="col-md-3">
-                            <label for="">
-                                Conversion Lead
-                            </label>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <select name="" id="" class="select w-100">
-                                        <option data-placeholder="true"></option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <select name="" id="" class="select w-100">
-                                        <option data-placeholder="true"></option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="row mb-3">
                         <div class="col-md-3">
                             <label for="">
@@ -70,6 +49,11 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <small>First Discuss</small>
+                                    <input type="date" name="" id=""
+                                        class="form-control form-control-sm rounded">
+                                </div>
+                                <div class="col-md-6">
+                                    <small>Last Discuss</small>
                                     <input type="date" name="" id=""
                                         class="form-control form-control-sm rounded">
                                 </div>
@@ -117,158 +101,54 @@
                             {{-- Admissions Program  --}}
                             <div class="card">
                                 <div class="card-header">
-                                    Admissions Program
+                                    Detail
                                 </div>
                                 <div class="card-body">
-                                    {{-- if pending  --}}
+                                    {{-- if success  --}}
                                     <div class="row mb-2">
                                         <div class="col-md-6">
-                                            <small>Initial Consult Date</small>
+                                            <small>Start Program Date</small>
                                             <input type="date" name="" id=""
                                                 class="form-control form-control-sm rounded">
                                         </div>
                                         <div class="col-md-6">
-                                            <small>Initial Assessment Sent</small>
+                                            <small>End Program Date</small>
                                             <input type="date" name="" id=""
                                                 class="form-control form-control-sm rounded">
                                         </div>
                                     </div>
-
-                                    {{-- if success  --}}
                                     <div class="row mb-2">
                                         <div class="col-md-12 mb-2">
-                                            <small>End Date</small>
-                                            <input type="date" name="" id=""
+                                            <small>Place</small>
+                                            <input type="text" name="" id=""
                                                 class="form-control form-control-sm rounded">
                                         </div>
                                         <div class="col-md-6 mb-2">
-                                            <small>Total Universities</small>
+                                            <small>Participants</small>
                                             <input type="number" name="" id=""
                                                 class="form-control form-control-sm rounded">
                                         </div>
                                         <div class="col-md-6 mb-2">
-                                            <small>Total Dollar</small>
+                                            <small>Total Fee</small>
                                             <input type="number" name="" id=""
                                                 class="form-control form-control-sm rounded">
                                         </div>
                                         <div class="col-md-6 mb-2">
-                                            <small>Kurs Dollar-Rupiah</small>
+                                            <small>Total Hours</small>
                                             <input type="number" name="" id=""
                                                 class="form-control form-control-sm rounded">
                                         </div>
                                         <div class="col-md-6 mb-2">
-                                            <small>Total Rupiah</small>
-                                            <input type="number" name="" id=""
-                                                class="form-control form-control-sm rounded">
-                                        </div>
-                                        <div class="col-md-6 mb-2">
-                                            <small>Main Mentor</small>
-                                            <select name="" id="" class="select w-100">
-                                                <option data-placeholder="true"></option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6 mb-2">
-                                            <small>Backup Mentor</small>
+                                            <small>Running Status</small>
                                             <select name="" id="" class="select w-100">
                                                 <option data-placeholder="true"></option>
                                             </select>
                                         </div>
                                         <div class="col-md-12 mb-2">
-                                            <small>Installment Plan</small>
+                                            <small>Notes</small>
                                             <textarea name="" id=""></textarea>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            {{-- Academic Tutoring Program  --}}
-                            <div class="card">
-                                <div class="card-header">
-                                    Academic Tutoring Program
-                                </div>
-                                <div class="card-body">
-                                    {{-- if success  --}}
-                                    <div class="row mb-2">
-                                        <div class="col-md-6 mb-2">
-                                            <small>Start Date</small>
-                                            <input type="date" name="" id=""
-                                                class="form-control form-control-sm rounded">
-                                        </div>
-                                        <div class="col-md-6 mb-2">
-                                            <small>End Date</small>
-                                            <input type="date" name="" id=""
-                                                class="form-control form-control-sm rounded">
-                                        </div>
-                                        <div class="col-md-12 mb-2">
-                                            <small>Schedule Link</small>
-                                            <input type="url" name="" id=""
-                                                class="form-control form-control-sm rounded">
-                                        </div>
-                                        <div class="col-md-6 mb-2">
-                                            <small>Tutor Name</small>
-                                            <select name="" id="" class="select w-100">
-                                                <option data-placeholder="true"></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- SAT program  --}}
-                            <div class="card">
-                                <div class="card-header">
-                                    SAT/ACT Program
-                                </div>
-                                <div class="card-body">
-                                    {{-- if success  --}}
-                                    {{-- SAT Only  --}}
-                                    <div class="row">
-                                        <div class="col-md-6 mb-2">
-                                            <small>Test Date</small>
-                                            <input type="date" name="" id=""
-                                                class="form-control form-control-sm rounded">
-                                        </div>
-                                        <div class="col-md-6 mb-2">
-                                            <small>Last Class Date</small>
-                                            <input type="date" name="" id=""
-                                                class="form-control form-control-sm rounded">
-                                        </div>
-                                        <div class="col-md-6 mb-2">
-                                            <small>Diagnostic Score</small>
-                                            <input type="number" name="" id=""
-                                                class="form-control form-control-sm rounded">
-                                        </div>
-                                        <div class="col-md-6 mb-2">
-                                            <small>Test Score</small>
-                                            <input type="number" name="" id=""
-                                                class="form-control form-control-sm rounded">
-                                        </div>
-                                    </div>
-                                    {{-- SAT/ACT  --}}
-                                    <div class="row mb-2">
-                                        <div class="col-md-6 mb-2">
-                                            <small>Tutor Name</small>
-                                            <select name="" id="" class="select w-100">
-                                                <option data-placeholder="true"></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-md-3">
-                            <label for="">
-                                Running Status
-                            </label>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <select name="" id="" class="select w-100">
-                                        <option data-placeholder="true"></option>
-                                    </select>
                                 </div>
                             </div>
                         </div>

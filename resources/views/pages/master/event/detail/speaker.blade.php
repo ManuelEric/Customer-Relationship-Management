@@ -71,9 +71,10 @@
                             </label>
                             <select name="" class="modal-select w-100">
                                 <option data-placeholder="true"></option>
-                                <option value="Partner">School</option>
-                                <option value="Partner">Partner</option>
                                 <option value="ALL-in">ALL-in</option>
+                                <option value="Partner">Partner</option>
+                                <option value="School">School</option>
+                                <option value="University">University</option>
                             </select>
                         </div>
                         <div class="col-md-6 mb-2">

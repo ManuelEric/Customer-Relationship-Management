@@ -52,7 +52,7 @@
                             <td>Initial Consult</td>
                             <td>Initial Assessment Sent</td>
                             <td>Success Program Date</td>
-                            <td>
+                            <td class="text-center">
                                 <a href="{{ url('program/client/1') }}" class="btn btn-sm btn-outline-warning">
                                     <i class="bi bi-eye"></i>
                                 </a>

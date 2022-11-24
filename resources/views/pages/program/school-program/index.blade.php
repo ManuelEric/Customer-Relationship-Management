@@ -1,12 +1,12 @@
 @extends('layout.main')
 
-@section('title', 'Client Program - Bigdata Platform')
+@section('title', 'School Program - Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Client Program
+            <i class="bi bi-arrow-left me-2"></i> School Program
         </a>
     </div>
 
@@ -17,20 +17,12 @@
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
-                        <th class="bg-info text-white">Client Name</th>
-                        <th>Grade</th>
+                        <th class="bg-info text-white">School Name</th>
                         <th>Program Name</th>
-                        <th>Mentor/Tutor Name</th>
-                        <th>End Program Date</th>
-                        <th>Lead Source</th>
-                        <th>Conversion Lead</th>
-                        <th>Program Status</th>
-                        <th>Running Status</th>
-                        <th>Reason</th>
-                        <th>PIC</th>
-                        <th>Initial Consult</th>
-                        <th>Initial Assessment Sent</th>
-                        <th>Success Program Date</th>
+                        <th>First Discuss</th>
+                        <th>Participants</th>
+                        <th>Total</th>
+                        <th>Approach Status</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -38,22 +30,14 @@
                     @for ($i = 0; $i < 5; $i++)
                         <tr>
                             <td>#</td>
-                            <td>Client Name</td>
-                            <td>Grade</td>
+                            <td>School Name</td>
                             <td>Program Name</td>
-                            <td>Mentor/Tutor Name</td>
-                            <td>End Program Date</td>
-                            <td>Lead Source</td>
-                            <td>Conversion Lead</td>
-                            <td>Program Status</td>
-                            <td>Running Status</td>
-                            <td>Reason</td>
-                            <td>PIC</td>
-                            <td>Initial Consult</td>
-                            <td>Initial Assessment Sent</td>
-                            <td>Success Program Date</td>
-                            <td>
-                                <a href="{{ url('program/client/1') }}" class="btn btn-sm btn-outline-warning">
+                            <td>First Discuss</td>
+                            <td>Participants</td>
+                            <td>Total</td>
+                            <td>Approach Status</td>
+                            <td class="text-center">
+                                <a href="{{ url('program/school/1') }}" class="btn btn-sm btn-outline-warning">
                                     <i class="bi bi-eye"></i>
                                 </a>
                             </td>
