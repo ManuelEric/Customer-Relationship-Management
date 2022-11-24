@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+Route::get('referral', function () {
+    return view('pages.program.referral.index');
+});
+Route::get('referral/create', function () {
+    return view('pages.program.referral.form');
+});
+
 //  
 Route::get('client', function () {
     return view('pages.program.client-program.index');

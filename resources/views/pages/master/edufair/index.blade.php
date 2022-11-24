@@ -8,7 +8,7 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Edufair
         </a>
-        <a href="{{ url('instance/edufair/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i>
+        <a href="{{ url('master/edufair/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i>
             Add
             Edufair</a>
     </div>
@@ -147,12 +147,12 @@
 
             $('#edufairTable tbody').on('click', '.viewEdufair ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('instance/edufair') }}/" + data.id;
+                window.location.href = "{{ url('master/edufair') }}/" + data.id;
             });
 
             $('#edufairTable tbody').on('click', '.deleteEdufair ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('instance/edufair', data.id)
+                confirmDelete('master/edufair', data.id)
             });
         });
     </script>

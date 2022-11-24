@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('instance/edufair') }}" class="text-decoration-none text-muted">
+        <a href="{{ url('master/edufair') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Edufair
         </a>
     </div>
@@ -28,7 +28,7 @@
                         </div>
                         <div class="mt-2">
                             <div class="d-flex justify-content-center">
-                                <a href="{{ url(isset($edit) ? 'instance/edufair/' . $edufair->id : 'instance/edufair/' . $edufair->id . '/edit') }}"
+                                <a href="{{ url(isset($edit) ? 'master/edufair/' . $edufair->id : 'master/edufair/' . $edufair->id . '/edit') }}"
                                     class="btn btn-sm btn-outline-primary">
                                     @if (isset($edit))
                                         <i class="bi bi-arrow-left me-1"></i> Back
@@ -78,7 +78,7 @@
                                                 onclick="getReview('{{ $edufair->id }}','{{ $reviews->id }}')"></i>
 
                                             <i class="bi bi-trash2 text-danger cursor-pointer"
-                                                onclick="confirmDelete('instance/edufair/{{ $edufair->id }}/review', '{{ $reviews->id }}')"></i>
+                                                onclick="confirmDelete('master/edufair/{{ $edufair->id }}/review', '{{ $reviews->id }}')"></i>
                                         </div>
                                     </div>
                                     <div class="ps-1 my-1" style="border-left: 1px solid #dedede">
@@ -319,7 +319,7 @@
                                 </ul>
                             </div>
                         @endif
-                        <form action="{{ url('instance/edufair/' . $edufair->id . '/review') }}" method="POST"
+                        <form action="{{ url('master/edufair/' . $edufair->id . '/review') }}" method="POST"
                             id="formReview">
                             @csrf
                             <div class="put"></div>
@@ -337,7 +337,7 @@
                                         @endforeach
                                         </ul>
                                 </div>
-                                <form action="{{ url('instance/edufair/' . $edufair->id . '/review') }}" method="POST"
+                                <form action="{{ url('master/edufair/' . $edufair->id . '/review') }}" method="POST"
                                     id="formReview">
                                     @csrf
                                     <div class="put"></div>
@@ -427,13 +427,13 @@
                 $('#score').val(null).trigger('change')
                 tinyMCE.get('review').setContent('');
                 $('.put').html('');
-                let url = "{{ url('instance/edufair/' . $edufair->id . '/review') }}"
+                let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
                 $('#formReview').attr('action', url)
             }
         @endif
 
         function getReview(eduf_id, reviews_id) {
-            let link = '{{ url('instance/edufair') }}/' + eduf_id + '/review/' + reviews_id
+            let link = '{{ url('master/edufair') }}/' + eduf_id + '/review/' + reviews_id
 
             axios.get(link)
                 .then(function(response) {
@@ -444,7 +444,7 @@
                     $('#score').val(data.score).trigger('change')
                     tinyMCE.get('review').setContent(data.review);
 
-                    let url = "{{ url('instance/edufair/') }}/" + data.eduf_id + "/review/" + data.id
+                    let url = "{{ url('master/edufair/') }}/" + data.eduf_id + "/review/" + data.id
                     $('#formReview').attr('action', url)
 
                     let html = '@method('put')'
@@ -493,12 +493,12 @@
                 $('#score').val(null).trigger('change')
                 tinyMCE.get('review').setContent('');
                 $('.put').html('');
-                let url = "{{ url('instance/edufair/' . $edufair->id . '/review') }}"
+                let url = "{{ url('master/edufair/' . $edufair->id . '/review') }}"
                 $('#formReview').attr('action', url)
             }
 
             function getReview(eduf_id, reviews_id) {
-                let link = '{{ url('instance/edufair') }}/' + eduf_id + '/review/' + reviews_id
+                let link = '{{ url('master/edufair') }}/' + eduf_id + '/review/' + reviews_id
 
                 axios.get(link)
                     .then(function(response) {
@@ -509,7 +509,7 @@
                         $('#score').val(data.score).trigger('change')
                         tinyMCE.get('review').setContent(data.review);
 
-                        let url = "{{ url('instance/edufair/') }}/" + data.eduf_id + "/review/" + data.id
+                        let url = "{{ url('master/edufair/') }}/" + data.eduf_id + "/review/" + data.id
                         $('#formReview').attr('action', url)
 
                         let html = '@method('put')'
