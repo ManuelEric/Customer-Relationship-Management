@@ -38,7 +38,7 @@ class EdufLeadController extends Controller
             return $this->edufLeadRepository->getAllEdufairLeadDataTables();
         }
 
-        return view('pages.instance.edufair.index');
+        return view('pages.master.edufair.index');
     }
 
     public function create()
@@ -48,7 +48,7 @@ class EdufLeadController extends Controller
         $userFromClientDepartment = $this->userRepository->getAllUsersByRole('Client');
         $userFromBizDevDepartment = $this->userRepository->getAllUsersByRole('BizDev');
 
-        return view('pages.instance.edufair.form')->with(
+        return view('pages.master.edufair.form')->with(
             [
                 'schools' => $schools,
                 'corporates' => $corporates,
@@ -85,10 +85,10 @@ class EdufLeadController extends Controller
 
             DB::rollBack();
             Log::error('Store edufair failed : ' . $e->getMessage());
-            return Redirect::to('instance/edufair')->withError('Failed to create new edufair');
+            return Redirect::to('master/edufair')->withError('Failed to create new edufair');
         }
 
-        return Redirect::to('instance/edufair')->withSuccess('New Edufair successfully created');
+        return Redirect::to('master/edufair')->withSuccess('New Edufair successfully created');
     }
 
     public function update(StoreEdufairRequest $request)
@@ -127,10 +127,10 @@ class EdufLeadController extends Controller
 
             DB::rollBack();
             Log::error('Update edufair failed : ' . $e->getMessage());
-            return Redirect::to('instance/edufair/create')->withError('Failed to update edufair');
+            return Redirect::to('master/edufair/create')->withError('Failed to update edufair');
         }
 
-        return Redirect::to('instance/edufair')->withSuccess('Edufair successfully created');
+        return Redirect::to('master/edufair')->withSuccess('Edufair successfully created');
     }
 
     public function show(Request $request)
@@ -147,7 +147,7 @@ class EdufLeadController extends Controller
         $userFromClientDepartment = $this->userRepository->getAllUsersByRole('Client');
         $userFromBizDevDepartment = $this->userRepository->getAllUsersByRole('BizDev');
 
-        return view('pages.instance.edufair.form')->with(
+        return view('pages.master.edufair.form')->with(
             [
                 'edufair' => $edufLead,
                 'reviews' => $reviews,
@@ -173,7 +173,7 @@ class EdufLeadController extends Controller
         $userFromClientDepartment = $this->userRepository->getAllUsersByRole('Client');
         $userFromBizDevDepartment = $this->userRepository->getAllUsersByRole('BizDev');
 
-        return view('pages.instance.edufair.form')->with(
+        return view('pages.master.edufair.form')->with(
             [
                 'edit' => true,
                 'edufair' => $edufLead,
@@ -199,9 +199,9 @@ class EdufLeadController extends Controller
 
             DB::rollBack();
             Log::error('Delete edufair lead failed : ' . $e->getMessage());
-            return Redirect::to('instance/edufair')->withError('Failed to delete edufair');
+            return Redirect::to('master/edufair')->withError('Failed to delete edufair');
         }
 
-        return Redirect::to('instance/edufair')->withSuccess('Edufair successfully deleted');
+        return Redirect::to('master/edufair')->withSuccess('Edufair successfully deleted');
     }
 }

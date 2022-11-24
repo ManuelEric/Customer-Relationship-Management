@@ -136,6 +136,11 @@
                                         class="nav-link {{ Request::is('master/event*') ? 'active' : '' }}"
                                         href="{{ url('master/event') }}">Event</a>
                                 </li>
+
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('master/edufair*') ? 'active' : '' }}"
+                                        href="{{ url('master/edufair') }}">Edufair</a>
+                                </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('master/purchase*') ? 'active' : '' }}"
                                         href="{{ url('master/purchase') }}">Purchase
@@ -182,15 +187,7 @@
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('instance/corporate*') ? 'active' : '' }}"
-                                        href="{{ url('instance/corporate') }}">Corporate/Partner</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('instance/edufair*') ? 'active' : '' }}"
-                                        href="{{ url('instance/edufair') }}">Edufair</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('instance/referral*') ? 'active' : '' }}"
-                                        href="{{ url('instance/referral') }}">Referral</a>
+                                        href="{{ url('instance/corporate') }}">Partner</a>
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('instance/school*') ? 'active' : '' }}"
@@ -213,6 +210,10 @@
                         </a>
                         <div class="collapse {{ Request::is('program*') ? 'show' : 'hide' }}" id="program">
                             <ul class="nav flex-column sub-menu">
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('program/referral*') ? 'active' : '' }}"
+                                        href="{{ url('program/referral') }}">Referral</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link  {{ Request::is('program/event/client*') ? 'active' : '' }}"
                                         href="{{ url('program/event/client') }}">Client

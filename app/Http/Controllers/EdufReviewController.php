@@ -37,10 +37,10 @@ class EdufReviewController extends Controller
 
             DB::rollBack();
             Log::error('Store edufair review failed : ' . $e->getMessage());
-            return Redirect::to('instance/edufair/' . $edufLId . '')->withError('Failed to create new review');
+            return Redirect::to('master/edufair/' . $edufLId . '')->withError('Failed to create new review');
         }
 
-        return Redirect::to('instance/edufair/' . $edufLId . '')->withSuccess('New review successfully created');
+        return Redirect::to('master/edufair/' . $edufLId . '')->withSuccess('New review successfully created');
     }
 
     public function show(Request $request)
@@ -71,10 +71,10 @@ class EdufReviewController extends Controller
 
             DB::rollBack();
             Log::error('Update edufair review failed : ' . $e->getMessage());
-            return Redirect::to('instance/edufair/' . $edufLId . '')->withError('Failed to update review');
+            return Redirect::to('master/edufair/' . $edufLId . '')->withError('Failed to update review');
         }
 
-        return Redirect::to('instance/edufair/' . $edufLId . '')->withSuccess('Review successfully updated');
+        return Redirect::to('master/edufair/' . $edufLId . '')->withSuccess('Review successfully updated');
     }
 
     public function destroy(Request $request)
@@ -91,9 +91,9 @@ class EdufReviewController extends Controller
 
             DB::rollBack();
             Log::error('Delete edufair review failed : ' . $e->getMessage());
-            return Redirect::to('instance/edufair/' . $edufLId . '')->withError('Failed to delete reivew');
+            return Redirect::to('master/edufair/' . $edufLId . '')->withError('Failed to delete reivew');
         }
 
-        return Redirect::to('instance/edufair/' . $edufLId . '')->withSuccess('Review successfully deleted');
+        return Redirect::to('master/edufair/' . $edufLId . '')->withSuccess('Review successfully deleted');
     }
 }

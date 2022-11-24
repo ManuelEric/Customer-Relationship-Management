@@ -14,6 +14,8 @@ use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\SchoolEventController;
 use App\Http\Controllers\UniversityEventController;
 use App\Http\Controllers\VendorController;
+use App\Http\Controllers\EdufLeadController;
+use App\Http\Controllers\EdufReviewController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -55,8 +57,18 @@ Route::resource('asset/{asset}/used/{used}/returned', AssetReturnedController::c
 // Route::get('asset/{asset}/{user}/edit', [AssetUsedController::class, 'edit']);
 // Route::post('asset/{asset}/{user}', [AssetReturnedController::class, 'store']);
 Route::resource('event', EventController::class);
-Route::prefix('event')->name('event.')->group(function() {
+Route::prefix('event')->name('event.')->group(function () {
     Route::resource('{event}/university', UniversityEventController::class);
     Route::resource('{event}/school', SchoolEventController::class);
     Route::resource('{event}/partner', CorporatePartnerEventController::class);
+});
+
+Route::resource('edufair', EdufLeadController::class);
+Route::prefix('edufair')->name('edufair.')->group(function () {
+
+    Route::post('{edufair}/review', [EdufReviewController::class, 'store'])->name('review.store');
+    Route::get('{edufair}/review/{review}/edit', [EdufLeadController::class, 'edit'])->name('review.edit');
+    Route::get('{edufair}/review/{review}', [EdufReviewController::class, 'show'])->name('review.show');
+    Route::put('{edufair}/review/{review}', [EdufReviewController::class, 'update'])->name('review.update');
+    Route::delete('{edufair}/review/{review}', [EdufReviewController::class, 'destroy'])->name('review.destroy');
 });

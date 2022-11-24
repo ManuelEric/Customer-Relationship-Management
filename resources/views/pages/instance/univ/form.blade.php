@@ -200,31 +200,32 @@
                             </thead>
                             <tbody>
                                 @if (isset($pics) && count($pics) > 0)
-                                @php
-                                    $no = 1;
-                                @endphp
-                                @foreach ($pics as $pic)
-                                <tr>
-                                    <td>{{ $no++ }}</td>
-                                    <td>{{ $pic->name }}</td>
-                                    <td>{{ $pic->email }}</td>
-                                    <td>{{ $pic->phone }}</td>
-                                    <td>{{ $pic->title }}</td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-warning"
-                                            data-bs-target="#picForm" onclick="getPIC('{{ url('instance/university/' . $pic->univ_id . '/detail/' . $pic->id . '/edit') }}')">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete('instance/university/{{ $pic->univ_id }}/detail', '{{ $pic->id }}')">
-                                            <i class="bi bi-trash2"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                @endforeach
+                                    @php
+                                        $no = 1;
+                                    @endphp
+                                    @foreach ($pics as $pic)
+                                        <tr>
+                                            <td>{{ $no++ }}</td>
+                                            <td>{{ $pic->name }}</td>
+                                            <td>{{ $pic->email }}</td>
+                                            <td>{{ $pic->phone }}</td>
+                                            <td>{{ $pic->title }}</td>
+                                            <td class="text-end">
+                                                <button class="btn btn-sm btn-outline-warning" data-bs-target="#picForm"
+                                                    onclick="getPIC('{{ url('instance/university/' . $pic->univ_id . '/detail/' . $pic->id . '/edit') }}')">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger"
+                                                    onclick="confirmDelete('instance/university/{{ $pic->univ_id }}/detail', '{{ $pic->id }}')">
+                                                    <i class="bi bi-trash2"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 @else
-                                <tr align="center">
-                                    <td colspan="6">No Data</td>
-                                </tr>
+                                    <tr align="center">
+                                        <td colspan="6">No Data</td>
+                                    </tr>
                                 @endif
                             </tbody>
                         </table>
@@ -244,7 +245,9 @@
                                 </h4>
                             </div>
                             <div class="modal-body">
-                                <form action="{{ route('university.detail.store', ['university' => $university->univ_id]) }}" method="POST" id="picAction">
+                                <form
+                                    action="{{ route('university.detail.store', ['university' => $university->univ_id]) }}"
+                                    method="POST" id="picAction">
                                     @csrf
                                     <div class="put"></div>
                                     <div class="row mb-2">
@@ -336,7 +339,7 @@
         }
 
         function changePosition(value) {
-            
+
             if (value == 'new') {
                 $('.classPosition').addClass('d-none')
                 $('#inputPosition').removeClass('d-none')
@@ -372,7 +375,7 @@
         @endif
 
         function getPIC(link) {
-            
+
             Swal.showLoading()
             axios.get(link)
                 .then(function(response) {
