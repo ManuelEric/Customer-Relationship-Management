@@ -3,7 +3,13 @@
 @section('title', 'Corporate - Bigdata Platform')
 
 @section('content')
+@php
+$type = ['Corporate', 'Individual Professional', 'Tutoring Center', 'Course Center', 'Agent', 'Community', 'NGO'];
+sort($type);
 
+$partnership_type = ['Market Sharing', 'Program Collaborator', 'Internship', 'External Mentor'];
+sort($partnership_type);
+@endphp
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('instance/corporate/') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Corporate
@@ -16,7 +22,7 @@
                 <div class="card-body text-center">
                     <img src="{{ asset('img/school.jpg') }}" alt="" class="w-75">
                     <h5>
-                        {{ isset($corporate) ? $corporate->corp_name : 'Add New Corporate' }}
+                        {{ isset($corporate) ? $corporate->corp_name : 'Add New Partner' }}
                     </h5>
                     @if (isset($corporate))
                         <div class="mt-3 d-flex justify-content-center">
@@ -165,7 +171,7 @@
                     <div class="">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-building me-2"></i>
-                            Corporate Detail
+                            Partner Detail
                         </h6>
                     </div>
                 </div>
@@ -181,9 +187,9 @@
 
                         <div class="row">
                             <div class="col-md-4 mb-2">
-                                <label>Corporate Name <sup class="text-danger">*</sup></label>
+                                <label>Corporate / Partner Name <sup class="text-danger">*</sup></label>
                                 <input type="text" name="corp_name"
-                                    value="{{ isset($corporate->corp_name) ? $corporate->corp_name : null }}"
+                                    value="{{ isset($corporate->corp_name) ? $corporate->corp_name : old('corp_name') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                 @error('corp_name')
@@ -194,7 +200,7 @@
                             <div class="col-md-4 mb-2">
                                 <label>Industry</label>
                                 <input type="text" name="corp_industry"
-                                    value="{{ isset($corporate->corp_industry) ? $corporate->corp_industry : null }}"
+                                    value="{{ isset($corporate->corp_industry) ? $corporate->corp_industry : old('corp_industry') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                 @error('corp_industry')
@@ -205,7 +211,7 @@
                             <div class="col-md-4 mb-2">
                                 <label>Email <sup class="text-danger">*</sup></label>
                                 <input type="email" name="corp_mail"
-                                    value="{{ isset($corporate->corp_mail) ? $corporate->corp_mail : null }}"
+                                    value="{{ isset($corporate->corp_mail) ? $corporate->corp_mail : old('corp_mail') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                 @error('corp_mail')
@@ -214,9 +220,9 @@
                             </div>
 
                             <div class="col-md-3 mb-2">
-                                <label>Contact Number <sup class="text-danger">*</sup></label>
+                                <label>Phone <sup class="text-danger">*</sup></label>
                                 <input type="text" name="corp_phone"
-                                    value="{{ isset($corporate->corp_phone) ? $corporate->corp_phone : null }}"
+                                    value="{{ isset($corporate->corp_phone) ? $corporate->corp_phone : old('corp_phone') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                 @error('corp_phone')
@@ -227,7 +233,7 @@
                             <div class="col-md-3 mb-2">
                                 <label>Instagram</label>
                                 <input type="text" name="corp_insta"
-                                    value="{{ isset($corporate->corp_insta) ? $corporate->corp_insta : null }}"
+                                    value="{{ isset($corporate->corp_insta) ? $corporate->corp_insta : old('corp_insta') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                 @error('corp_insta')
@@ -238,7 +244,7 @@
                             <div class="col-md-3 mb-2">
                                 <label>Website <sup class="text-danger">*</sup></label>
                                 <input type="text" name="corp_site" placeholder="https://xxxxxx.xxxx"
-                                    value="{{ isset($corporate->corp_site) ? $corporate->corp_site : null }}"
+                                    value="{{ isset($corporate->corp_site) ? $corporate->corp_site : old('corp_site') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                 @error('corp_site')
@@ -249,7 +255,7 @@
                             <div class="col-md-3 mb-2">
                                 <label>Region</label>
                                 <input type="text" name="corp_region"
-                                    value="{{ isset($corporate->corp_region) ? $corporate->corp_region : null }}"
+                                    value="{{ isset($corporate->corp_region) ? $corporate->corp_region : old('corp_region') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                 @error('corp_region')
@@ -259,12 +265,57 @@
 
                             <div class="col-md-12 mb-2">
                                 <label>Address</label>
-                                <textarea name="corp_address" cols="30" rows="10">{{ isset($corporate->corp_address) ? $corporate->corp_address : null }}</textarea>
+                                <textarea name="corp_address" cols="30" rows="10">{{ isset($corporate->corp_address) ? $corporate->corp_address : old('corp_address') }}</textarea>
+                            </div>
+
+                            <div class="col-md-4 mb-2">
+                                <label for="">Country Type <sup class="text-danger">*</sup></label>
+                                <select name="country_type" class="select w-100">
+                                    <option data-placeholder="true"></option>
+                                    <option value="Indonesia" {{ (isset($corporate->country_type) && $corporate->country_type == "Indonesia") || old('country_type') == "Indonesia" ? "selected" : null }}>Indonesia</option>
+                                    <option value="Overseas" {{ (isset($corporate->country_type) && $corporate->country_type == "Overseas") || old('country_type') == "Overseas" ? "selected" : null }}>Overseas</option>
+                                </select>
+                                @error('country_type')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-4 mb-2">
+                                <label for="">Type <sup class="text-danger">*</sup></label>
+                                <select name="type" class="select w-100">
+                                    <option data-placeholder="true"></option>
+                                    @for ($i = 0; $i < count($type) ; $i++)
+                                        <option value="{{ $type[$i] }}" 
+                                            {{ (isset($corporate->type) && $corporate->type == $type[$i]) || old('type') == $type[$i] ? "selected" : null }}
+                                        >{{ $type[$i] }}</option>
+                                    @endfor
+                                </select>
+                                @error('type')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-4 mb-2">
+                                <label for="">Partnership Type </label>
+                                <select name="partnership_type" class="select w-100">
+                                    <option data-placeholder="true"></option>
+                                    @for ($i = 0 ; $i < count($partnership_type) ; $i++)
+                                        <option value="{{ $partnership_type[$i] }}" 
+                                            {{ (isset($corporate->partnership_type) && $corporate->partnership_type == $partnership_type[$i]) || old('partnership_type') == $partnership_type[$i] ? "selected" : null }}
+                                        >{{ $partnership_type[$i] }}</option>
+                                    @endfor
+                                </select>
+                                @error('partnership_type')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <div class="col-md-12 mb-2">
                                 <label>Note</label>
-                                <textarea name="corp_note" cols="30" rows="10">{{ isset($corporate->corp_note) ? $corporate->corp_note : null }}</textarea>
+                                <textarea name="corp_note" cols="30" rows="10">{{ isset($corporate->corp_note) ? $corporate->corp_note : old('corp_note') }}</textarea>
+                                @error('corp_note')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             @if (empty($corporate) || isset($edit))

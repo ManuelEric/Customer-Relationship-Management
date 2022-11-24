@@ -49,6 +49,9 @@ class CorporateController extends Controller
             'corp_address',
             'corp_note',
             'corp_password',
+            'country_type',
+            'type',
+            'partnership_type',
         ]);
 
         $last_id = Corporate::max('corp_id');
@@ -89,6 +92,9 @@ class CorporateController extends Controller
             'corp_region',
             'corp_address',
             'corp_note',
+            'country_type',
+            'type',
+            'partnership_type',
             // 'corp_password',
         ]);
 

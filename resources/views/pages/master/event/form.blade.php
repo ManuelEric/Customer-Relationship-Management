@@ -73,7 +73,7 @@
                             <div class="col-md-12 mb-2">
                                 <label>Event Name</label>
                                 <input type="text" name="event_title"
-                                    value="{{ isset($event->event_title) ? $event->event_title : null }}"
+                                    value="{{ isset($event->event_title) ? $event->event_title : old('event_title') }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
                                 @error('event_title')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -81,14 +81,14 @@
                             </div>
                             <div class="col-md-12 mb-2">
                                 <label>Description</label>
-                                <textarea name="event_description" {{ $disabled }}>{{ isset($event->event_description) ? $event->event_description : null }}</textarea>
+                                <textarea name="event_description" {{ $disabled }}>{{ isset($event->event_description) ? $event->event_description : old('event_description') }}</textarea>
                                 @error('event_description')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                             <div class="col-md-12 mb-2">
                                 <label>Location</label>
-                                <textarea name="event_location" {{ $disabled }}>{{ isset($event->event_location) ? $event->event_location : null }}</textarea>
+                                <textarea name="event_location" {{ $disabled }}>{{ isset($event->event_location) ? $event->event_location : old('event_location') }}</textarea>
                                 @error('event_location')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -96,7 +96,7 @@
                             <div class="col-md-6 mb-2">
                                 <label>Start Date </label>
                                 <input type="datetime-local" name="event_startdate"
-                                    value="{{ isset($event->event_startdate) ? $event->event_startdate : null }}"
+                                    value="{{ isset($event->event_startdate) ? $event->event_startdate : old('event_startdate') }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
                                 @error('event_startdate')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -105,7 +105,7 @@
                             <div class="col-md-6 mb-2">
                                 <label>End Date </label>
                                 <input type="datetime-local" name="event_enddate"
-                                    value="{{ isset($event->event_enddate) ? $event->event_enddate : null }}"
+                                    value="{{ isset($event->event_enddate) ? $event->event_enddate : old('event_enddate') }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
                                 @error('event_enddate')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -117,11 +117,13 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($employees as $employee)
                                         <option value="{{ $employee->id }}"
-                                            {{ isset($eventPic) ? (in_array($employee->id, $eventPic) ? 'selected' : null) : null }}>
+                                            @if (isset($eventPic)) {{ in_array($employee->id, $eventPic) ? 'selected' : null }}
+                                            @elseif (old('user_id'))
+                                                {{ in_array($employee->id, old('user_id')) ? 'selected' : null }} @endif>
                                             {{ $employee->first_name . ' ' . $employee->last_name }}</option>
                                     @endforeach
                                 </select>
-                                @error('event_enddate')
+                                @error('user_id')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>

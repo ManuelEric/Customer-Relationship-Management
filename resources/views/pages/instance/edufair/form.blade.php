@@ -227,7 +227,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-3 mb-2 mt-4">
                                 <label>First Discussion</label>
                                 <input class="form-control form-control-sm rounded" type="date"
                                     name="first_discussion_date"
@@ -236,7 +236,7 @@
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-3 mb-2 mt-4">
                                 <label>Last Discussion</label>
                                 <input class="form-control form-control-sm rounded" type="date"
                                     name="last_discussion_date"
@@ -244,14 +244,14 @@
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-3 mb-2 mt-4">
                                 <label>Event Start</label>
                                 <input class="form-control form-control-sm rounded" type="date" name="event_start"
                                     value="{{ isset($edufair->event_start) ? $edufair->event_start : null }}"
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-3 mb-2 mt-4">
                                 <label>Event End</label>
                                 <input class="form-control form-control-sm rounded" type="date" name="event_end"
                                     value="{{ isset($edufair->event_end) ? $edufair->event_end : null }}"
@@ -298,102 +298,164 @@
     </div>
 
     {{-- Modal  --}}
-    <div class="modal modal-md fade" id="reviewForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="m-0 p-0">
-                        <i class="bi bi-plus me-2"></i>
-                        Review
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="pb-0 mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-                    <form action="{{ url('instance/edufair/' . $edufair->id . '/review') }}" method="POST"
-                        id="formReview">
-                        @csrf
-                        <div class="put"></div>
-                        <input class="form-control form-control-sm rounded" type="hidden" name="eduf_id"
-                            value="{{ $edufair->id }}">
-                        <div class="row">
-                            <div class="col-md-7 mb-2">
-                                <label>Name</label>
-                                <select name="reviewer_name" id="reviewer_name" class="modal-select w-100">
-                                    <option data-placeholder="true"></option>
-                                    @foreach ($internal_pic as $pic)
-                                        <option value="{{ $pic->id }}">
-                                            {{ $pic->first_name . ' ' . $pic->last_name }}
-                                        </option>
+    @if (isset($edufair))
+        <div class="modal modal-md fade" id="reviewForm" data-bs-backdrop="static" data-bs-keyboard="false"
+            tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="m-0 p-0">
+                            <i class="bi bi-plus me-2"></i>
+                            Review
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="pb-0 mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
                                     @endforeach
-                                    </ul>
+                                </ul>
                             </div>
-                            @endif
-                            <form action="{{ url('instance/edufair/' . $edufair->id . '/review') }}" method="POST"
-                                id="formReview">
-                                @csrf
-                                <div class="put"></div>
-                                <input class="form-control form-control-sm rounded" type="hidden" name="eduf_id"
-                                    value="{{ $edufair->id }}">
-                                <div class="row">
-                                    <div class="col-md-7 mb-2">
-                                        <label>Name</label>
-                                        <select name="reviewer_name" id="reviewer_name" class="modal-select w-100">
-                                            <option data-placeholder="true"></option>
-                                            @foreach ($internal_pic as $pic)
-                                                <option value="{{ $pic->first_name . ' ' . $pic->last_name }}">
-                                                    {{ $pic->first_name . ' ' . $pic->last_name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-5 mb-2">
-                                        <label>Score</label>
-                                        <select name="score" id="score" class="modal-select w-100">
-                                            <option data-placeholder="true"></option>
-                                            <option value="Excellent">Excellent</option>
-                                            <option value="Good">Good</option>
-                                            <option value="Fair">Fair</option>
-                                            <option value="Poor">Poor</option>
-                                            <option value="Bad">Bad</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-12 mb-2">
-                                        <label>Review</label>
-                                        <textarea name="review" cols="30" rows="10" id="review"></textarea>
-                                    </div>
-
-                                    <div class="col-md-12 mt-2">
-                                        <div class="d-flex justify-content-between">
-                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
-                                                data-bs-dismiss="modal">
-                                                <i class="bi bi-x me-1"></i>
-                                                Cancel
-                                            </button>
-                                            <button class="btn btn-sm btn-primary rounded-3">
-                                                <i class="bi bi-save2"></i>
-                                                Save
-                                            </button>
-                                        </div>
-                                    </div>
+                        @endif
+                        <form action="{{ url('instance/edufair/' . $edufair->id . '/review') }}" method="POST"
+                            id="formReview">
+                            @csrf
+                            <div class="put"></div>
+                            <input class="form-control form-control-sm rounded" type="hidden" name="eduf_id"
+                                value="{{ $edufair->id }}">
+                            <div class="row">
+                                <div class="col-md-7 mb-2">
+                                    <label>Name</label>
+                                    <select name="reviewer_name" id="reviewer_name" class="modal-select w-100">
+                                        <option data-placeholder="true"></option>
+                                        @foreach ($internal_pic as $pic)
+                                            <option value="{{ $pic->id }}">
+                                                {{ $pic->first_name . ' ' . $pic->last_name }}
+                                            </option>
+                                        @endforeach
+                                        </ul>
                                 </div>
-                            </form>
-                        </div>
+    @endif
+    <form action="{{ url('instance/edufair/' . $edufair->id . '/review') }}" method="POST" id="formReview">
+        @csrf
+        <div class="put"></div>
+        <input class="form-control form-control-sm rounded" type="hidden" name="eduf_id" value="{{ $edufair->id }}">
+        <div class="row">
+            <div class="col-md-7 mb-2">
+                <label>Name</label>
+                <select name="reviewer_name" id="reviewer_name" class="modal-select w-100">
+                    <option data-placeholder="true"></option>
+                    @foreach ($internal_pic as $pic)
+                        <option value="{{ $pic->first_name . ' ' . $pic->last_name }}">
+                            {{ $pic->first_name . ' ' . $pic->last_name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-5 mb-2">
+                <label>Score</label>
+                <select name="score" id="score" class="modal-select w-100">
+                    <option data-placeholder="true"></option>
+                    <option value="Excellent">Excellent</option>
+                    <option value="Good">Good</option>
+                    <option value="Fair">Fair</option>
+                    <option value="Poor">Poor</option>
+                    <option value="Bad">Bad</option>
+                </select>
+            </div>
+
+            <div class="col-md-12 mb-2">
+                <label>Review</label>
+                <textarea name="review" cols="30" rows="10" id="review"></textarea>
+            </div>
+
+            <div class="col-md-12 mt-2">
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
+                        <i class="bi bi-x me-1"></i>
+                        Cancel
+                    </button>
+                    <button class="btn btn-sm btn-primary rounded-3">
+                        <i class="bi bi-save2"></i>
+                        Save
+                    </button>
                 </div>
             </div>
         </div>
+    </form>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    @endif
+
+
+    <script>
+        $(document).ready(function() {
+            $('.modal-select').select2({
+                dropdownParent: $('#reviewForm .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+
+            $('input[name=organizer]').on('change', function() {
+                change_organizer($(this).val())
+            })
+        })
+
+        function change_organizer(val) {
+            if (val == 'school') {
+                $("#schoolList").show()
+                $("#corporateList").hide()
+                $('#corporateList select').val(null).trigger('change')
+            } else {
+                $("#corporateList").show()
+                $("#schoolList").hide()
+                $('#schoolList select').val(null).trigger('change')
+            }
+        }
+
+        @if (isset($edufair))
+            function resetForm() {
+                $('#reviewer_name').val(null).trigger('change')
+                $('#score').val(null).trigger('change')
+                tinyMCE.get('review').setContent('');
+                $('.put').html('');
+                let url = "{{ url('instance/edufair/' . $edufair->id . '/review') }}"
+                $('#formReview').attr('action', url)
+            }
         @endif
 
+        function getReview(eduf_id, reviews_id) {
+            let link = '{{ url('instance/edufair') }}/' + eduf_id + '/review/' + reviews_id
 
+            axios.get(link)
+                .then(function(response) {
+                    let data = response.data.review
+                    // console.log(data)
+                    // handle success
+                    $('#reviewer_name').val(data.reviewer_name).trigger('change')
+                    $('#score').val(data.score).trigger('change')
+                    tinyMCE.get('review').setContent(data.review);
+
+                    let url = "{{ url('instance/edufair/') }}/" + data.eduf_id + "/review/" + data.id
+                    $('#formReview').attr('action', url)
+
+                    let html = '@method('put')'
+                    $('.put').html(html);
+                })
+                .catch(function(error) {
+                    // handle error
+                    console.log(error);
+                })
+        }
+    </script>
+
+    @if (isset($edufair))
         <script>
             $(document).ready(function() {
                 $('.modal-select').select2({

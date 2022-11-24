@@ -16,6 +16,15 @@ class StoreUniversityRequest extends FormRequest
         return true;
     }
 
+    public function messages()
+    {
+        return [
+            'univ_name.required' => 'The University Name field is required',
+            'univ_country.required' => 'The Country field is required',
+            'univ_country.exists' => 'The Country is invalid',
+        ];
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *

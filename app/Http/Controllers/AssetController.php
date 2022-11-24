@@ -69,7 +69,11 @@ class AssetController extends Controller
 
     public function create()
     {
-        return view('pages.master.asset.form');
+        return view('pages.master.asset.form')->with(
+            [
+                'edit' => true,
+            ]
+        );
     }
 
     public function show(Request $request)

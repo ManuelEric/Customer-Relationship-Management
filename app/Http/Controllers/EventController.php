@@ -172,6 +172,15 @@ class EventController extends Controller
         $event = $this->eventRepository->getEventById($eventId);
         $eventPic = $event->eventPic->pluck('id')->toArray();
         $employees = $this->userRepository->getAllUsersByRole('employee');
+        # universities
+        $universities = $this->universityRepository->getAllUniversities();
+        $universityEvent = $this->universityEventRepository->getUniversityByEventId($eventId);
+        # schools
+        $schools = $this->schoolRepository->getAllSchools();
+        $schoolEvent = $this->schoolEventRepository->getSchoolByEventId($eventId);
+        # corporate / partner
+        $partners = $this->corporateRepository->getAllCorporate();
+        $partnerEvent = $this->corporatePartnerRepository->getPartnerByEventId($eventId);
 
         return view('pages.master.event.form')->with(
             [
@@ -179,6 +188,12 @@ class EventController extends Controller
                 'event' => $event,
                 'eventPic' => $eventPic,
                 'employees' => $employees,
+                'universities' => $universities,
+                'universityEvent' => $universityEvent,
+                'schools' => $schools,
+                'schoolEvent' => $schoolEvent,
+                'partners' => $partners,
+                'partnerEvent' => $partnerEvent,
             ]
         );
     }

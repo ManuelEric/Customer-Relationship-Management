@@ -193,7 +193,9 @@
                                     <select name="purchase_department" class="select w-100" {{ $disabled }}>
                                         <option data-placeholder="true"></option>
                                         @foreach ($departments as $department)
-                                            <option value="{{ $department->id }}" {{ isset($purchaseRequest->purchase_department) && $purchaseRequest->purchase_department == $department->id ? "selected" : null  }}>{{ $department->dept_name }}</option>
+                                            <option value="{{ $department->id }}" 
+                                                {{ (isset($purchaseRequest->purchase_department) && $purchaseRequest->purchase_department == $department->id) || (old('purchase_department') == $department->id) ? "selected" : null  }}
+                                            >{{ $department->dept_name }}</option>
                                         @endforeach
                                     </select>
                                     @error('purchase_department')
@@ -209,7 +211,9 @@
                                     <select name="purchase_statusrequest" class="select w-100" {{ $disabled }}>
                                         <option data-placeholder="true"></option>
                                         @for ($i = 0; $i < count($requestStatus) ; $i++)
-                                            <option value="{{ $requestStatus[$i] }}" {{ isset($purchaseRequest->purchase_statusrequest) && $purchaseRequest->purchase_statusrequest == $requestStatus[$i] ? "selected" : null }}>{{ $requestStatus[$i] }}</option>
+                                            <option value="{{ $requestStatus[$i] }}" 
+                                                {{ (isset($purchaseRequest->purchase_statusrequest) && $purchaseRequest->purchase_statusrequest == $requestStatus[$i]) || (old('purchase_statusrequest') == $requestStatus[$i]) ? "selected" : null }}
+                                            >{{ $requestStatus[$i] }}</option>
                                         @endfor
                                     </select>
                                     @error('purchase_statusrequest')
@@ -223,7 +227,7 @@
                                         Request Date <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="date" name="purchase_requestdate" class="form-control form-control-sm rounded" {{ $disabled }}
-                                        value="{{ isset($purchaseRequest->purchase_requestdate) ? $purchaseRequest->purchase_requestdate : null }}">
+                                        value="{{ isset($purchaseRequest->purchase_requestdate) ? $purchaseRequest->purchase_requestdate : old('purchase_requestdate') }}">
                                     @error('purchase_requestdate')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -235,7 +239,7 @@
                                         Notes <sup class="text-danger">*</sup>
                                     </label>
                                     <textarea name="purchase_notes" {{ $disabled }}>
-                                        {{ isset($purchaseRequest->purchase_notes) ? $purchaseRequest->purchase_notes : null }}
+                                        {{ isset($purchaseRequest->purchase_notes) ? $purchaseRequest->purchase_notes : old('purchase_notes') }}
                                     </textarea>
                                     @error('purchase_notes')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -269,8 +273,8 @@
                                         <option data-placeholder="true"></option>
                                         @foreach ($employees as $employee)
                                             <option value="{{ $employee->id }}"
-                                                {{ isset($purchaseRequest->requested_by) && $purchaseRequest->requested_by == $employee->id ? "selected" : null }}
-                                                >{{ $employee->first_name.' '.$employee->last_name }}</option>
+                                                {{ (isset($purchaseRequest->requested_by) && $purchaseRequest->requested_by == $employee->id) || (old('requested_by') == $employee->id) ? "selected" : null }}
+                                            >{{ $employee->first_name.' '.$employee->last_name }}</option>
                                         @endforeach
                                     </select>
                                     @error('user_id')

@@ -20,8 +20,8 @@ class StoreUniversityEventRequest extends FormRequest
     public function messages()
     {
         return [
-            'univ_id.required' => 'The university field is required',
-            'univ_id.exists' => 'The university field is invalid',
+            'univ_id.required' => 'The University field is required',
+            'univ_id.exists' => 'The University is invalid',
         ];
     }
 

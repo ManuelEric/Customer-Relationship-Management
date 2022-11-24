@@ -10,7 +10,7 @@
         </a>
         <a href="{{ url('instance/corporate/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i>
             Add
-            Corporate</a>
+            Partner</a>
     </div>
 
 

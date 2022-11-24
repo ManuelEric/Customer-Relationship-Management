@@ -95,7 +95,7 @@
                                 <div class="mb-2">
                                     <label>School Name <sup class="text-danger">*</sup> </label>
                                     <input type="text" name="sch_name" class="form-control form-control-sm rounded"
-                                        value="{{ isset($school->sch_name) ? $school->sch_name : null }}"
+                                        value="{{ isset($school->sch_name) ? $school->sch_name : old('sch_name') }}"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                     @error('sch_name')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -109,11 +109,11 @@
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
                                         <option value="National"
-                                            {{ isset($school->sch_type) && $school->sch_type == 'National' ? 'selected' : null }}>
+                                            {{ (isset($school->sch_type) && $school->sch_type == 'National') || (old('sch_type') == "National") ? 'selected' : null }}>
                                             National
                                         </option>
                                         <option value="International"
-                                            {{ isset($school->sch_type) && $school->sch_type == 'International' ? 'selected' : null }}>
+                                            {{ (isset($school->sch_type) && $school->sch_type == 'International') || (old('sch_type') == "International") ? 'selected' : null }}>
                                             International</option>
                                     </select>
                                     @error('sch_type')
@@ -129,7 +129,7 @@
                                         <option data-placeholder="true"></option>
                                         @foreach ($curriculums as $curriculum)
                                             <option value="{{ $curriculum->name }}"
-                                                {{ isset($school->sch_curriculum) && $school->sch_curriculum == $curriculum->name ? 'selected' : null }}>
+                                                {{ (isset($school->sch_curriculum) && $school->sch_curriculum == $curriculum->name) || (old('sch_curriculum') == $curriculum->name) ? 'selected' : null }}>
                                                 {{ $curriculum->name }}</option>
                                         @endforeach
                                     </select>
@@ -145,17 +145,17 @@
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
                                         <option value="7"
-                                            {{ isset($school->sch_score) && $school->sch_score == 7 ? 'selected' : null }}>
+                                            {{ (isset($school->sch_score) && $school->sch_score == 7) || (old('sch_score') == 7) ? 'selected' : null }}>
                                             Up
                                             Market
                                         </option>
                                         <option value="5"
-                                            {{ isset($school->sch_score) && $school->sch_score == 5 ? 'selected' : null }}>
+                                            {{ (isset($school->sch_score) && $school->sch_score == 5) || (old('sch_score') == 5) ? 'selected' : null }}>
                                             Mid
                                             Market
                                         </option>
                                         <option value="3"
-                                            {{ isset($school->sch_score) && $school->sch_score == 3 ? 'selected' : null }}>
+                                            {{ (isset($school->sch_score) && $school->sch_score == 3) || (old('sch_score') == 3) ? 'selected' : null }}>
                                             Low
                                             Market
                                         </option>
@@ -169,7 +169,7 @@
                                 <div class="mb-2">
                                     <label>Instagram</label>
                                     <input type="text" name="sch_insta" class="form-control form-control-sm rounded"
-                                        value="{{ isset($school->sch_insta) ? $school->sch_insta : null }}"
+                                        value="{{ isset($school->sch_insta) ? $school->sch_insta : old('sch_insta') }}"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                     @error('sch_insta')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -180,7 +180,7 @@
                                 <div class="mb-2">
                                     <label>School Mail</label>
                                     <input type="email" name="sch_mail" class="form-control form-control-sm rounded"
-                                        value="{{ isset($school->sch_mail) ? $school->sch_mail : null }}"
+                                        value="{{ isset($school->sch_mail) ? $school->sch_mail : old('sch_mail') }}"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                     @error('sch_mail')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -191,7 +191,7 @@
                                 <div class="mb-2">
                                     <label>Telephone</label>
                                     <input type="text" name="sch_phone" class="form-control form-control-sm rounded"
-                                        value="{{ isset($school->sch_phone) ? $school->sch_phone : null }}"
+                                        value="{{ isset($school->sch_phone) ? $school->sch_phone : old('sch_phone') }}"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                     @error('sch_phone')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -203,7 +203,7 @@
                                 <div class="mb-2">
                                     <label>City</label>
                                     <input type="text" name="sch_city" class="form-control form-control-sm rounded"
-                                        value="{{ isset($school->sch_city) ? $school->sch_city : null }}"
+                                        value="{{ isset($school->sch_city) ? $school->sch_city : old('sch_city') }}"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
