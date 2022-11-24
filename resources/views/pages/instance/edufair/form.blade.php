@@ -337,60 +337,62 @@
                                         @endforeach
                                         </ul>
                                 </div>
-    @endif
-    <form action="{{ url('instance/edufair/' . $edufair->id . '/review') }}" method="POST" id="formReview">
-        @csrf
-        <div class="put"></div>
-        <input class="form-control form-control-sm rounded" type="hidden" name="eduf_id" value="{{ $edufair->id }}">
-        <div class="row">
-            <div class="col-md-7 mb-2">
-                <label>Name</label>
-                <select name="reviewer_name" id="reviewer_name" class="modal-select w-100">
-                    <option data-placeholder="true"></option>
-                    @foreach ($internal_pic as $pic)
-                        <option value="{{ $pic->first_name . ' ' . $pic->last_name }}">
-                            {{ $pic->first_name . ' ' . $pic->last_name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+                                <form action="{{ url('instance/edufair/' . $edufair->id . '/review') }}" method="POST"
+                                    id="formReview">
+                                    @csrf
+                                    <div class="put"></div>
+                                    <input class="form-control form-control-sm rounded" type="hidden" name="eduf_id"
+                                        value="{{ $edufair->id }}">
+                                    <div class="row">
+                                        <div class="col-md-7 mb-2">
+                                            <label>Name</label>
+                                            <select name="reviewer_name" id="reviewer_name" class="modal-select w-100">
+                                                <option data-placeholder="true"></option>
+                                                @foreach ($internal_pic as $pic)
+                                                    <option value="{{ $pic->first_name . ' ' . $pic->last_name }}">
+                                                        {{ $pic->first_name . ' ' . $pic->last_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
 
-            <div class="col-md-5 mb-2">
-                <label>Score</label>
-                <select name="score" id="score" class="modal-select w-100">
-                    <option data-placeholder="true"></option>
-                    <option value="Excellent">Excellent</option>
-                    <option value="Good">Good</option>
-                    <option value="Fair">Fair</option>
-                    <option value="Poor">Poor</option>
-                    <option value="Bad">Bad</option>
-                </select>
-            </div>
+                                        <div class="col-md-5 mb-2">
+                                            <label>Score</label>
+                                            <select name="score" id="score" class="modal-select w-100">
+                                                <option data-placeholder="true"></option>
+                                                <option value="Excellent">Excellent</option>
+                                                <option value="Good">Good</option>
+                                                <option value="Fair">Fair</option>
+                                                <option value="Poor">Poor</option>
+                                                <option value="Bad">Bad</option>
+                                            </select>
+                                        </div>
 
-            <div class="col-md-12 mb-2">
-                <label>Review</label>
-                <textarea name="review" cols="30" rows="10" id="review"></textarea>
-            </div>
+                                        <div class="col-md-12 mb-2">
+                                            <label>Review</label>
+                                            <textarea name="review" cols="30" rows="10" id="review"></textarea>
+                                        </div>
 
-            <div class="col-md-12 mt-2">
-                <div class="d-flex justify-content-between">
-                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
-                        <i class="bi bi-x me-1"></i>
-                        Cancel
-                    </button>
-                    <button class="btn btn-sm btn-primary rounded-3">
-                        <i class="bi bi-save2"></i>
-                        Save
-                    </button>
+                                        <div class="col-md-12 mt-2">
+                                            <div class="d-flex justify-content-between">
+                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
+                                                    data-bs-dismiss="modal">
+                                                    <i class="bi bi-x me-1"></i>
+                                                    Cancel
+                                                </button>
+                                                <button class="btn btn-sm btn-primary rounded-3">
+                                                    <i class="bi bi-save2"></i>
+                                                    Save
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </form>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
     @endif
 
 
@@ -482,44 +484,43 @@
             }
         </script>
 
-        @if (isset($edufair))
-            <script>
-                var organizer = "{{ isset($edufair->sch_id) && $edufair->sch_id != null ? 'school' : 'corporate' }}"
-                change_organizer(organizer)
+        <script>
+            var organizer = "{{ isset($edufair->sch_id) && $edufair->sch_id != null ? 'school' : 'corporate' }}"
+            change_organizer(organizer)
 
-                function resetForm() {
-                    $('#reviewer_name').val(null).trigger('change')
-                    $('#score').val(null).trigger('change')
-                    tinyMCE.get('review').setContent('');
-                    $('.put').html('');
-                    let url = "{{ url('instance/edufair/' . $edufair->id . '/review') }}"
-                    $('#formReview').attr('action', url)
-                }
+            function resetForm() {
+                $('#reviewer_name').val(null).trigger('change')
+                $('#score').val(null).trigger('change')
+                tinyMCE.get('review').setContent('');
+                $('.put').html('');
+                let url = "{{ url('instance/edufair/' . $edufair->id . '/review') }}"
+                $('#formReview').attr('action', url)
+            }
 
-                function getReview(eduf_id, reviews_id) {
-                    let link = '{{ url('instance/edufair') }}/' + eduf_id + '/review/' + reviews_id
+            function getReview(eduf_id, reviews_id) {
+                let link = '{{ url('instance/edufair') }}/' + eduf_id + '/review/' + reviews_id
 
-                    axios.get(link)
-                        .then(function(response) {
-                            let data = response.data.review
-                            // console.log(data)
-                            // handle success
-                            $('#reviewer_name').val(data.reviewer_name).trigger('change')
-                            $('#score').val(data.score).trigger('change')
-                            tinyMCE.get('review').setContent(data.review);
+                axios.get(link)
+                    .then(function(response) {
+                        let data = response.data.review
+                        // console.log(data)
+                        // handle success
+                        $('#reviewer_name').val(data.reviewer_name).trigger('change')
+                        $('#score').val(data.score).trigger('change')
+                        tinyMCE.get('review').setContent(data.review);
 
-                            let url = "{{ url('instance/edufair/') }}/" + data.eduf_id + "/review/" + data.id
-                            $('#formReview').attr('action', url)
+                        let url = "{{ url('instance/edufair/') }}/" + data.eduf_id + "/review/" + data.id
+                        $('#formReview').attr('action', url)
 
-                            let html = '@method('put')'
-                            $('.put').html(html);
-                        })
-                        .catch(function(error) {
-                            // handle error
-                            console.log(error);
-                        })
-                }
-            </script>
-        @endif
+                        let html = '@method('put')'
+                        $('.put').html(html);
+                    })
+                    .catch(function(error) {
+                        // handle error
+                        console.log(error);
+                    })
+            }
+        </script>
+    @endif
 
-    @endsection
+@endsection
