@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUniversityRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CountryRepositoryInterface;
+use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\University;
 use Exception;
@@ -19,12 +20,14 @@ class UniversityController extends Controller
     use CreateCustomPrimaryKeyTrait;
 
     private UniversityRepositoryInterface $universityRepository;
+    private UniversityPicRepositoryInterface $universityPicRepository;
     private CountryRepositoryInterface $countryRepository;
 
-    public function __construct(UniversityRepositoryInterface $universityRepository, CountryRepositoryInterface $countryRepository)
+    public function __construct(UniversityRepositoryInterface $universityRepository, CountryRepositoryInterface $countryRepository, UniversityPicRepositoryInterface $universityPicRepository)
     {
         $this->universityRepository = $universityRepository;
         $this->countryRepository = $countryRepository;
+        $this->universityPicRepository = $universityPicRepository;
     }
 
     public function index(Request $request)
@@ -66,10 +69,10 @@ class UniversityController extends Controller
 
             DB::rollBack();
             Log::error('Store university failed : ' . $e->getMessage());
-            return Redirect::to('instance/university')->withError('Failed to create a new university');
+            return Redirect::to('instance/university/'.$univ_id_with_label)->withError('Failed to create a new university');
         }
 
-        return Redirect::to('instance/university')->withSuccess('University successfully created');
+        return Redirect::to('instance/university/'.$univ_id_with_label)->withSuccess('University successfully created');
     }
 
     public function create()
@@ -91,10 +94,14 @@ class UniversityController extends Controller
         # retrieve university data by id
         $university = $this->universityRepository->getUniversityByUnivId($universityId);
 
+        # retrieve university pic by university id
+        $pics = $this->universityPicRepository->getAllUniversityPicByUniversityId($universityId);
+
         return view('pages.instance.univ.form')->with(
             [
                 'university' => $university,
-                'countries' => $countries
+                'countries' => $countries,
+                'pics' => $pics,
             ]
         );
     }

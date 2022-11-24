@@ -182,7 +182,7 @@
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('instance/corporate*') ? 'active' : '' }}"
-                                        href="{{ url('instance/corporate') }}">Corporate</a>
+                                        href="{{ url('instance/corporate') }}">Corporate/Partner</a>
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('instance/edufair*') ? 'active' : '' }}"
@@ -205,22 +205,32 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#program" aria-expanded="false"
-                            aria-controls="program">
+                        <a class="nav-link {{ Request::is('program*') ? 'text-primary' : '' }}" data-bs-toggle="collapse"
+                            href="#program" aria-expanded="false" aria-controls="program">
                             <i class="bi bi-calendar2-event mx-2"></i>
                             <span class="menu-title">Program</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="collapse" id="program">
+                        <div class="collapse {{ Request::is('program*') ? 'show' : 'hide' }}" id="program">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('client/program') }}">Client
+                                <li class="nav-item">
+                                    <a class="nav-link  {{ Request::is('program/event/client*') ? 'active' : '' }}"
+                                        href="{{ url('program/event/client') }}">Client
+                                        Event</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ Request::is('program/client*') ? 'active' : '' }}"
+                                        href="{{ url('program/client') }}">Client
                                         Program</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link"
-                                        href="{{ url('corporate/program') }}">Corporate
+                                <li class="nav-item">
+                                    <a class="nav-link {{ Request::is('program/corporate*') ? 'active' : '' }}"
+                                        href="{{ url('program/corporate') }}">Partner
                                         Program</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('school/program') }}">School
+                                <li class="nav-item">
+                                    <a class="nav-link {{ Request::is('program/school*') ? 'active' : '' }}"
+                                        href="{{ url('program/school') }}">School
                                         Program</a>
                                 </li>
                             </ul>
@@ -240,7 +250,7 @@
                                         Program</a>
                                 </li>
                                 <li class="nav-item"> <a class="nav-link"
-                                        href="{{ url('corporate/program/invoice') }}">Corporate
+                                        href="{{ url('corporate/program/invoice') }}">Partner
                                         Program
                                     </a>
                                 </li>
@@ -266,7 +276,7 @@
                                         Program</a>
                                 </li>
                                 <li class="nav-item"> <a class="nav-link"
-                                        href="{{ url('corporate/program/receipt') }}">Corporate
+                                        href="{{ url('corporate/program/receipt') }}">Partner
                                         Program
                                     </a>
                                 </li>

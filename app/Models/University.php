@@ -13,6 +13,10 @@ class University extends Model
 
     protected $table = 'tbl_univ';
 
+    protected $primaryKey = 'univ_id';
+
+    public $incrementing = false;
+
     /**
      * The attributes that should be visible in arrays.
      *
@@ -23,6 +27,8 @@ class University extends Model
         'univ_name', 
         'univ_address', 
         'univ_country',
+        'univ_email',
+        'univ_phone',
     ];
 
     public static function whereUniversityId($id)
@@ -51,5 +57,15 @@ class University extends Model
     public function user()
     {
         return $this->belongsToMany(User::class, 'tbl_user_educations', 'univ_id', 'user_id');
+    }
+
+    public function pic()
+    {
+        return $this->hasMany(UniversityPic::class, 'univ_id', 'univ_id');
+    }
+
+    public function events()
+    {
+        return $this->belongsToMany(Event::class, 'tbl_univ_event', 'univ_id', 'event_id');
     }
 }

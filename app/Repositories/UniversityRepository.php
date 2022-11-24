@@ -17,7 +17,7 @@ class UniversityRepository implements UniversityRepositoryInterface
 
     public function getAllUniversities()
     {
-        return University::all();
+        return University::orderBy('univ_name', 'asc')->get();
     }
 
     public function getUniversityById($universityId)

@@ -65,7 +65,18 @@
                     @csrf
                     <div class="put"></div>
                     <div class="row g-2">
-                        <div class="col-md-12 mb-2">
+                        <div class="col-md-6 mb-2">
+                            <label for="">
+                                From <sup class="text-danger">*</sup>
+                            </label>
+                            <select name="" class="modal-select w-100">
+                                <option data-placeholder="true"></option>
+                                <option value="Partner">School</option>
+                                <option value="Partner">Partner</option>
+                                <option value="ALL-in">ALL-in</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-2">
                             <label for="">
                                 Partner Name <sup class="text-danger">*</sup>
                             </label>

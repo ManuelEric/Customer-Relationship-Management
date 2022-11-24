@@ -7,6 +7,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -78,7 +79,7 @@ class SchoolDetailController extends Controller
         );
     }
 
-    public function edit(Request $request)
+    public function edit(Request $request): JsonResponse
     {
         $schoolDetailId = $request->route('detail');
 

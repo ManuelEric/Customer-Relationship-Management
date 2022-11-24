@@ -13,16 +13,20 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="list-group">
-            <div class="d-flex list-group-item justify-content-between">
-                <div class="">
-                    University Name
+        @if (isset($universityEvent))
+            @foreach ($universityEvent as $university)
+                <div class="list-group">
+                    <div class="d-flex list-group-item justify-content-between">
+                        <div class="">
+                            {{ $university->univ_name }}
+                        </div>
+                        <div class="" style="cursor:pointer" onclick="confirmDelete('master/event/{{ $event->event_id }}/university', '{{ $university->univ_id }}')">
+                            <i class="bi bi-trash2"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="">
-                    <i class="bi bi-trash2"></i>
-                </div>
-            </div>
-        </div>
+            @endforeach
+        @endif
     </div>
 </div>
 
@@ -37,7 +41,7 @@
                 <i class="bi bi-pencil-square"></i>
             </div>
             <div class="modal-body w-100 text-start">
-                <form action="" method="POST" id="formPosition">
+                <form action="{{ route('event.university.store', ['event' => $event->event_id]) }}" method="POST" id="formPosition">
                     @csrf
                     <div class="put"></div>
                     <div class="row g-2">
@@ -46,8 +50,13 @@
                                 <label for="">
                                     University Name <sup class="text-danger">*</sup>
                                 </label>
-                                <select name="" class="modal-select w-100">
+                                <select name="univ_id" class="modal-select-univ w-100">
                                     <option data-placeholder="true"></option>
+                                    @if (isset($universities))
+                                        @foreach ($universities as $university)
+                                            <option value="{{ $university->univ_id }}">{{ $university->univ_name }}</option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -66,13 +75,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function() {
-        $('.modal-select').select2({
-            dropdownParent: $('#univ .modal-content'),
-            placeholder: "Select value",
-            allowClear: true
-        });
-    });
-</script>

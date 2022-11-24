@@ -52,4 +52,9 @@ class Corporate extends Model
     {
         return $this->hasMany(CorporatePic::class, 'corp_id', 'corp_id');
     }
+
+    public function events()
+    {
+        return $this->belongsToMany(Event::class, 'tbl_corp_partner_event', 'corp_id', 'event_id');
+    }
 }

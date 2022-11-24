@@ -19,8 +19,8 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('univ_id');
-            $table->foreign('univ_id')->references('id')->on('tbl_univ')->onUpdate('cascade')->onDelete('cascade');
+            $table->char('univ_id', 8)->collation('utf8mb4_general_ci');
+            $table->foreign('univ_id')->references('univ_id')->on('tbl_univ')->onUpdate('cascade')->onDelete('cascade');
 
             $table->unsignedBigInteger('major_id');
             $table->foreign('major_id')->references('id')->on('tbl_major')->onUpdate('cascade')->onDelete('cascade');

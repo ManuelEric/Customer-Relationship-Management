@@ -52,4 +52,9 @@ class School extends Model
     {
         return $this->hasMany(EdufLead::class, 'sch_id', 'sch_id');
     }
+
+    public function events()
+    {
+        return $this->belongsToMany(Event::class, 'tbl_sch_event', 'sch_id', 'event_id');
+    }
 }

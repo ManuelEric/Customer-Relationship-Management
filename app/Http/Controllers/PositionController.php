@@ -53,7 +53,7 @@ class PositionController extends Controller
     {
         $id = $request->route('position');
 
-        $position = $this->positionRepository->getById($id);
+        $position = $this->positionRepository->getPositionById($id);
 
         return response()->json(['position' => $position]);
     }

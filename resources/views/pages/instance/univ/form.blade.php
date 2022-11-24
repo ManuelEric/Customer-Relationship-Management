@@ -181,7 +181,7 @@
                         </div>
                         <div class="">
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
-                                data-bs-target="#picForm">
+                                data-bs-target="#picForm" onclick="resetForm()">
                                 <i class="bi bi-plus"></i>
                             </button>
                         </div>
@@ -199,22 +199,33 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @if (isset($pics) && count($pics) > 0)
+                                @php
+                                    $no = 1;
+                                @endphp
+                                @foreach ($pics as $pic)
                                 <tr>
-                                    <td>No</td>
-                                    <td>Full Name</td>
-                                    <td>Email</td>
-                                    <td>Phone Number</td>
-                                    <td>Position</td>
+                                    <td>{{ $no++ }}</td>
+                                    <td>{{ $pic->name }}</td>
+                                    <td>{{ $pic->email }}</td>
+                                    <td>{{ $pic->phone }}</td>
+                                    <td>{{ $pic->title }}</td>
                                     <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal"
-                                            data-bs-target="#picForm">
+                                        <button class="btn btn-sm btn-outline-warning"
+                                            data-bs-target="#picForm" onclick="getPIC('{{ url('instance/university/' . $pic->univ_id . '/detail/' . $pic->id . '/edit') }}')">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger">
+                                        <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete('instance/university/{{ $pic->univ_id }}/detail', '{{ $pic->id }}')">
                                             <i class="bi bi-trash2"></i>
                                         </button>
                                     </td>
                                 </tr>
+                                @endforeach
+                                @else
+                                <tr align="center">
+                                    <td colspan="6">No Data</td>
+                                </tr>
+                                @endif
                             </tbody>
                         </table>
                     </div>
@@ -233,13 +244,13 @@
                                 </h4>
                             </div>
                             <div class="modal-body">
-                                <form action="#" method="POST" id="picAction">
+                                <form action="{{ route('university.detail.store', ['university' => $university->univ_id]) }}" method="POST" id="picAction">
                                     @csrf
                                     <div class="put"></div>
                                     <div class="row mb-2">
                                         <div class="col-md-6 mb-2">
                                             <label>Fullname <sup class="text-danger">*</sup></label>
-                                            <input type="text" name="pic_name"
+                                            <input type="text" name="name"
                                                 class="form-control form-control-sm rounded" id="cp_fullname">
                                             @error('pic_name')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -247,7 +258,7 @@
                                         </div>
                                         <div class="col-md-6 mb-2">
                                             <label>E-mail <sup class="text-danger">*</sup></label>
-                                            <input type="email" name="pic_email"
+                                            <input type="email" name="email"
                                                 class="form-control form-control-sm rounded" id="cp_mail">
                                             @error('pic_email')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -255,7 +266,7 @@
                                         </div>
                                         <div class="col-md-6 mb-2">
                                             <label>Phone Number <sup class="text-danger">*</sup></label>
-                                            <input type="text" name="pic_phone"
+                                            <input type="text" name="phone"
                                                 class="form-control form-control-sm rounded" id="cp_phone">
                                             @error('pic_phone')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -264,9 +275,9 @@
                                         <div class="col-md-6 mb-2">
                                             <label>Position <sup class="text-danger">*</sup></label>
                                             <div class="classPosition">
-                                                <select name="pic_position" class="modal-select w-100"
+                                                <select name="title" class="modal-select w-100"
                                                     style="display: none !important" id="selectPosition"
-                                                    onchange="changePosition()">
+                                                    onchange="changePosition($(this).val())">
                                                     <option data-placeholder="true"></option>
                                                     <option value="Admissions Advisor">
                                                         Admissions Advisor</option>
@@ -278,7 +289,7 @@
                                             </div>
 
                                             <div class="d-flex align-items-center d-none" id="inputPosition">
-                                                <input type="text" name="pic_position"
+                                                <input type="text" name="other_title"
                                                     class="form-control form-control-sm rounded">
                                                 <div class="float-end cursor-pointer" onclick="resetPosition()">
                                                     <b>
@@ -314,7 +325,6 @@
             @endif
         </div>
     </div>
-
     <script>
         function selectModal() {
             $('.modal-select').select2({
@@ -325,9 +335,9 @@
             });
         }
 
-        function changePosition() {
-            let position = $('#selectPosition').val()
-            if (position == 'new') {
+        function changePosition(value) {
+            
+            if (value == 'new') {
                 $('.classPosition').addClass('d-none')
                 $('#inputPosition').removeClass('d-none')
                 $('#inputPosition input').focus()
@@ -347,5 +357,56 @@
         $(document).ready(function() {
             selectModal()
         });
+    </script>
+    <script>
+        @if (isset($university))
+        function resetForm() {
+            $("#picAction").trigger('reset');
+            $("#selectPosition").val('').trigger('change')
+            $('.put').html('');
+            $('#picAction').attr('action',
+                '{{ isset($school) ? url('instance/university/' . $university->univ_id . '/detail') : url('instance/university/') }}'
+            )
+        }
+        @endif
+
+        function getPIC(link) {
+            
+            Swal.showLoading()
+            axios.get(link)
+                .then(function(response) {
+                    // handle success
+                    let id = response.data.univ_id
+                    let cp = response.data.picDetail
+                    $('#cp_fullname').val(cp.name)
+                    $('#cp_mail').val(cp.email)
+                    $('#cp_phone').val(cp.phone)
+                    $('#selectPosition').val(cp.title).trigger('change')
+
+                    let array = ["Admissions Advisor", "Former Admission Officer"]
+                    if ($.inArray(cp.title, array)) {
+                        changePosition('new')
+                        $("input[name=other_title]").val(cp.title)
+                    }
+
+                    let url = "{{ url('instance/university/') }}/" + id + "/detail/" + cp.id
+                    $('#picAction').attr('action', url)
+
+                    let html =
+                        '@method('put')' +
+                        '<input type="hidden" readonly name="schdetail_id" value="' + cp.id + '">'
+                    $('.put').html(html);
+
+                    Swal.close()
+                    $("#picForm").modal('show')
+
+                    // console.log(url)
+                })
+                .catch(function(error) {
+                    // handle error
+                    Swal.close()
+                    notification(error.response.data.success, error.response.data.message)
+                })
+        }
     </script>
 @endsection

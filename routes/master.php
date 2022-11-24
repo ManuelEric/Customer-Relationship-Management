@@ -3,12 +3,16 @@
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetReturnedController;
 use App\Http\Controllers\AssetUsedController;
+use App\Http\Controllers\CorporatePartnerEventController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\PurchaseDetailController;
 use App\Http\Controllers\PurchaseRequestController;
+use App\Http\Controllers\SchoolEventController;
+use App\Http\Controllers\UniversityEventController;
 use App\Http\Controllers\VendorController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,10 +54,9 @@ Route::resource('asset/{asset}/used/{used}/returned', AssetReturnedController::c
 
 // Route::get('asset/{asset}/{user}/edit', [AssetUsedController::class, 'edit']);
 // Route::post('asset/{asset}/{user}', [AssetReturnedController::class, 'store']);
-
-Route::get('event', function () {
-    return view('pages.master.event.index');
-});
-Route::get('event/create', function () {
-    return view('pages.master.event.form');
+Route::resource('event', EventController::class);
+Route::prefix('event')->name('event.')->group(function() {
+    Route::resource('{event}/university', UniversityEventController::class);
+    Route::resource('{event}/school', SchoolEventController::class);
+    Route::resource('{event}/partner', CorporatePartnerEventController::class);
 });

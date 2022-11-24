@@ -22,7 +22,7 @@
                         <th class="bg-info text-white">Event Title</th>
                         <th>Event Location</th>
                         <th>Start Date</th>
-                        <th>Event Date</th>
+                        <th>End Date</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -36,7 +36,7 @@
     </div>
 
     {{-- Need Changing --}}
-    {{-- <script>
+    <script>
         $(document).ready(function() {
             var table = $('#eventTable').DataTable({
                 dom: 'Bfrtip',
@@ -59,56 +59,55 @@
                 serverSide: true,
                 ajax: '',
                 columns: [{
-                        data: 'prog_id',
+                        data: 'event_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
                     {
-                        data: 'prog_id',
+                        data: 'event_title',
                     },
                     {
-                        data: 'prog_main',
+                        data: 'event_location',
                     },
                     {
-                        data: 'prog_sub',
+                        data: 'event_startdate',
+                        render: function(data, type, row) {
+                            let event_startdate = row.event_startdate ? moment(row
+                                .event_startdate).format("MMMM Do YYYY HH:mm:ss") : '-'
+                            return event_startdate
+                        }
                     },
                     {
-                        data: 'prog_program',
-                    },
-                    {
-                        data: 'prog_type',
-                    },
-                    {
-                        data: 'prog_payment',
-                    },
-                    {
-                        data: 'prog_mentor',
-                    },
-                    {
-                        data: 'prog_scope',
+                        data: 'event_enddate',
+                        render: function(data, type, row) {
+                            let event_enddate = row.event_enddate ? moment(row
+                                .event_enddate).format("MMMM Do YYYY HH:mm:ss") : '-'
+                            return event_enddate
+                        }
                     },
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editProgram"><i class="bi bi-pencil"></i></button>' +
-                            '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteProgram"><i class="bi bi-trash2"></i></button>'
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning showEvent"><i class="bi bi-eye"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteEvent"><i class="bi bi-trash2"></i></button>'
                     }
                 ]
             });
 
             realtimeData(table)
 
-            $('#eventTable tbody').on('click', '.editProgram ', function() {
+            $('#eventTable tbody').on('click', '.showEvent ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('master/program') }}/" + data.prog_id + '/edit';
+                window.location.href = "{{ url('master/event') }}/" + data.event_id;
             });
 
-            $('#eventTable tbody').on('click', '.deleteProgram ', function() {
+            $('#eventTable tbody').on('click', '.deleteEvent ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('master/program', data.prog_id)
+                confirmDelete('master/event', data.event_id)
             });
+
         });
-    </script> --}}
+    </script>
 @endsection

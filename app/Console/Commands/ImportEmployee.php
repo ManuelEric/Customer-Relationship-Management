@@ -190,15 +190,32 @@ class ImportEmployee extends Command
                     $createdUser->roles()->attach($userRoleDetails);
                     
                     # initialize new details by education 'bachelor'
-                    $graduatedFrom = $employee->empl_graduatefr;
-                    $graduatedMajor = $employee->empl_major;
+                    $graduatedFrom = ltrim($employee->empl_graduatefr);
+                    $graduatedMajor = ltrim($employee->empl_major);
 
                     $userMajorDetails = array();
 
                     if ( ($graduatedFrom != '') && ($graduatedFrom != null) )
                     {
                         
-                        $univDetail = $this->universityRepository->getUniversityByName($graduatedFrom);
+                        if (!$univDetail = $this->universityRepository->getUniversityByName($graduatedFrom)) {
+
+                            $last_id = University::max('univ_id');
+                            $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
+                            $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label+1, 3);
+
+                            $univDetails = [
+                                'univ_id' => $univ_id_with_label,
+                                'univ_name' => $graduatedFrom,
+                                'univ_address' => null,
+                                'univ_country' => null,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+
+                            $univDetail = $this->universityRepository->createUniversity($univDetails);
+
+                        }
 
                         # if she/he (employee) has more than one major on table employee v1
                         # then do this
@@ -295,8 +312,8 @@ class ImportEmployee extends Command
                     }
 
                     # initialize new details by education 'magister'
-                    $graduatedMagisterFrom = $employee->empl_graduatefr_magister;
-                    $graduatedMagisterMajor = $employee->empl_major_magister;
+                    $graduatedMagisterFrom = ltrim($employee->empl_graduatefr_magister);
+                    $graduatedMagisterMajor = ltrim($employee->empl_major_magister);
                     
                     if ( ($graduatedMagisterMajor != "") && ($graduatedMagisterMajor != null) )
                     {
@@ -309,7 +326,7 @@ class ImportEmployee extends Command
 
                             $last_id = University::max('univ_id');
                             $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
-                            $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label + 1, 3);
+                            $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label+1, 3);
 
                             $univDetails = [
                                 'univ_id' => $univ_id_with_label,
@@ -356,7 +373,7 @@ class ImportEmployee extends Command
                     if (isset($userMajorDetails))
                         $createdUser->educations()->attach($userMajorDetails);
                 } else {
-
+                    
                     if (!$position = $this->positionRepository->getPositionByName($employee->empl_department)) 
                     {
                         $positionDetails = [
@@ -368,21 +385,215 @@ class ImportEmployee extends Command
                         $position = $this->positionRepository->createPosition($positionDetails);
                         
                     }
-
+                    
 
                     # checking position
                     # if its NULL 
                     # then insert a position
-                    $createdUser = User::where('extended_id', $employee->empl_id)->where('position_id', NULL)->first();
-                    
-                    $userDetails = [
-                        'position_id' => $position->id
-                    ];
-
-                    # update position
-                    $this->userRepository->updateUser($createdUser->id, $userDetails);
+                    if ($createdUser = User::where('extended_id', $employee->empl_id)->where('position_id', NULL)->first()) {
                         
+                        $userDetails = [
+                            'position_id' => $position->id
+                        ];
+    
+                        # update position
+                        $this->userRepository->updateUser($createdUser->id, $userDetails);
+
+                    } else {
+
+                        # if there are user on the database
+                        # then put it into variable createdUser
+                        $createdUser = User::where('extended_id', $employee->empl_id)->first();
+
+                    }
+
+                    # initialize new details by education 'bachelor'
+                    $graduatedFrom = ltrim($employee->empl_graduatefr);
+                    $graduatedMajor = ltrim($employee->empl_major);
+
+                    $userMajorDetails = array();
+
+                    if ( ($graduatedFrom != '') && ($graduatedFrom != null) )
+                    {
+                        
+                        if (!$univDetail = $this->universityRepository->getUniversityByName($graduatedFrom)) {
+
+                            $last_id = University::max('univ_id');
+                            $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
+                            $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label+1, 3);
+
+                            $univDetails = [
+                                'univ_id' => $univ_id_with_label,
+                                'univ_name' => $graduatedFrom,
+                                'univ_address' => null,
+                                'univ_country' => null,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+
+                            $univDetail = $this->universityRepository->createUniversity($univDetails);
+
+                        }
+    
+
+                        # if she/he (employee) has more than one major on table employee v1
+                        # then do this
+                        if ( count($multiMajor = explode(' ; ', $graduatedMajor)) > 0 ) {
+                            
+                            for ($i = 0 ; $i < count($multiMajor) ; $i++) {
+                                
+                                if ($majorDetail = $this->majorRepository->getMajorByName($multiMajor[$i])) {
+                                    
+                                    $userMajorDetails[] = [
+                                        'user_id' => $createdUser->id,
+                                        'univ_id' => $univDetail->univ_id,
+                                        'major_id' => $majorDetail->id,
+                                        'degree' => 'Bachelor',
+                                        'graduation_date' => null,
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now()
+                                    ];
+
+                                } 
+
+                                # if multiMajor[$i] doesn't exist in database
+                                # then create a new one
+                                
+                                else {
+                                    
+                                    $majorDetail = [
+                                        'name' => $multiMajor[$i],
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now(),
+                                    ];
+
+                                    $createdMajor = $this->majorRepository->createMajors($majorDetail);
+
+                                    $userMajorDetails[] = [
+                                        'user_id' => $createdUser->id,
+                                        'univ_id' => $univDetail->univ_id,
+                                        'major_id' => $createdMajor->id,
+                                        'degree' => 'Bachelor',
+                                        'graduation_date' => null,
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now()
+                                    ];
+
+                                }
+
+                            }
+                        }
+
+                        # if she/he has only one major on table employee v1
+
+                        else {
+                            
+                            if ($majorDetail = $this->majorRepository->getMajorByName($graduatedMajor)) {
+
+                                $userMajorDetails[] = [
+                                    'user_id' => $createdUser->id,
+                                    'univ_id' => $univDetail->univ_id,
+                                    'major_id' => $majorDetail->id,
+                                    'degree' => 'Bachelor',
+                                    'graduation_date' => null,
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now()
+                                ];
+                            }
+
+                            # if multiMajor[$i] doesn't exist in database
+                            # then create a new one
+                            
+                            else {
+                                
+                                $majorDetail = [
+                                    'name' => $graduatedMajor,
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now(),
+                                ];
+
+                                $createdMajor = $this->majorRepository->createMajors($majorDetail);
+
+                                $userMajorDetails[] = [
+                                    'user_id' => $createdUser->id,
+                                    'univ_id' => $univDetail->univ_id,
+                                    'major_id' => $createdMajor->id,
+                                    'degree' => 'Bachelor',
+                                    'graduation_date' => null,
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now()
+                                ];
+
+                            }
+                            
+
+                        }
+                    }
+                        
+                    # initialize new details by education 'magister'
+                    $graduatedMagisterFrom = ltrim($employee->empl_graduatefr_magister);
+                    $graduatedMagisterMajor = ltrim($employee->empl_major_magister);
                     
+                    if ( ($graduatedMagisterMajor != "") && ($graduatedMagisterMajor != null) )
+                    {
+                        # validate university
+                        # if $graduatedMagisterFrom doesn't exist in database
+                        # then create a new one
+
+                        if (!$univMagisterDetail = $this->universityRepository->getUniversityByName($graduatedMagisterFrom)) 
+                        {
+
+                            $last_id = University::max('univ_id');
+                            $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
+                            $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label+1, 3);
+
+                            $univDetails = [
+                                'univ_id' => $univ_id_with_label,
+                                'univ_name' => $graduatedMagisterFrom,
+                                'univ_address' => null,
+                                'univ_country' => null,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+
+                            $univMagisterDetail = $this->universityRepository->createUniversity($univDetails);
+                    
+                        }
+
+                        # validate major magister
+                        # if $graduatedMagisterMajor doesn't exist in database
+                        # then create a new one
+                        
+                        if (!$majorMagisterDetail = $this->majorRepository->getMajorByName($graduatedMagisterMajor))
+                        {
+                            $majorDetails = [
+                                'name' => $graduatedMagisterMajor,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now(),
+                            ];
+
+                            $majorMagisterDetail = $this->majorRepository->createMajor($majorDetails);
+                            
+                        }
+
+                        $userMajorDetails[] = [
+                            'user_id' => $createdUser->id,
+                            'univ_id' => $univMagisterDetail->univ_id,
+                            'major_id' => $majorMagisterDetail->id,
+                            'degree' => 'Magister',
+                            'graduation_date' => null,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
+                        ];
+
+                    }
+                    
+                    # insert into tbl_user_educations
+                    if (isset($userMajorDetails)) {
+
+                        // if (!$createdUser->educations()->where('tbl_user_educations.univ_id', $univMagisterDetail->univ_id)->where('tbl_user_educations.major_id', $majorMagisterDetail->id)->first())
+                            $createdUser->educations()->attach($userMajorDetails);
+                    }
 
                 }
             }

@@ -348,7 +348,7 @@
 
                 @if (!isset($edit) && isset($purchaseRequest))
 
-                    @include('pages.purchase.detail.list')
+                    @include('pages.master.purchase.detail.list')
 
                 @endif
 
@@ -478,7 +478,7 @@
         function returnData(purchase_id, detail_id) {
             $("#detailForm").append('<input type="hidden" name="_method" value="PUT">');
             Swal.showLoading()
-            let link = "{{ url('master/purchase') }}/" + purchase_id.toLowerCase() + '/detail/' + detail_id
+            let link = "{{ url('master/purchase') }}/" + purchase_id.toLowerCase() + '/detail/1' + detail_id
 
             axios.get(link)
                 .then(function(response) {
@@ -495,8 +495,10 @@
                     $("#detailModal").modal('show')
                 })
                 .catch(function(error) {
+                    console.log(error)
                     // handle error
-                    notification(response.data.success, response.data.message)
+                    Swal.close()
+                    notification(error.response.data.success, error.response.data.message)
                 })
         }
 

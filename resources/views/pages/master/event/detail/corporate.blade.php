@@ -13,16 +13,20 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="list-group">
-            <div class="d-flex list-group-item justify-content-between">
-                <div class="">
-                    Partner Name
+        @if (isset($partnerEvent))
+            @foreach ($partnerEvent as $partner)
+                <div class="list-group">
+                    <div class="d-flex list-group-item justify-content-between">
+                        <div class="">
+                            {{ $partner->corp_name }}
+                        </div>
+                        <div class="" style="cursor:pointer" onclick="confirmDelete('master/event/{{ $event->event_id }}/partner', '{{ $partner->corp_id }}')">
+                            <i class="bi bi-trash2"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="">
-                    <i class="bi bi-trash2"></i>
-                </div>
-            </div>
-        </div>
+            @endforeach
+        @endif
     </div>
 </div>
 
@@ -37,7 +41,7 @@
                 <i class="bi bi-pencil-square"></i>
             </div>
             <div class="modal-body w-100 text-start">
-                <form action="" method="POST" id="formPosition">
+                <form action="{{ route('event.partner.store', ['event' => $event->event_id]) }}" method="POST" id="formPosition">
                     @csrf
                     <div class="put"></div>
                     <div class="row g-2">
@@ -46,8 +50,13 @@
                                 <label for="">
                                     Partner Name <sup class="text-danger">*</sup>
                                 </label>
-                                <select name="" class="modal-select w-100">
+                                <select name="corp_id" class="modal-select-partner w-100">
                                     <option data-placeholder="true"></option>
+                                    @if (isset($partners))
+                                        @foreach ($partners as $partner)
+                                            <option value="{{ $partner->corp_id }}">{{ $partner->corp_name }}</option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -66,13 +75,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function() {
-        $('.modal-select').select2({
-            dropdownParent: $('#partner .modal-content'),
-            placeholder: "Select value",
-            allowClear: true
-        });
-    });
-</script>

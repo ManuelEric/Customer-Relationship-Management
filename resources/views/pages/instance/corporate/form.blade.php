@@ -476,7 +476,8 @@
                 })
                 .catch(function(error) {
                     // handle error
-                    notification(response.data.success, response.data.message)
+                    Swal.close()
+                    notification(error.response.data.success, error.response.data.message)
                 })
         }
 
