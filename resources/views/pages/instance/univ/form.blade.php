@@ -364,8 +364,9 @@
             $("#picAction").trigger('reset');
             $("#selectPosition").val('').trigger('change')
             $('.put').html('');
+            
             $('#picAction').attr('action',
-                '{{ isset($school) ? url('instance/university/' . $university->univ_id . '/detail') : url('instance/university/') }}'
+                "{{ isset($university) ? url('instance/university/' . $university->univ_id . '/detail') : url('instance/university/') }}"
             )
         }
         @endif
