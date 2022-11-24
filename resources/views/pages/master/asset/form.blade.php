@@ -42,7 +42,7 @@
                     <div class="">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-tags me-2"></i>
-                            Asset Detail
+                            Asset Detail Information
                         </h6>
                     </div>
                 </div>
@@ -61,7 +61,7 @@
                                         Asset Name <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="text" name="asset_name" class="form-control form-control-sm rounded"
-                                        value="{{ isset($asset->asset_name) ? $asset->asset_name : old('asset_name') }}" }}
+                                        value="{{ isset($asset->asset_name) ? $asset->asset_name : old('asset_name') }}" 
                                         {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                     @error('asset_name')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -75,7 +75,7 @@
                                     </label>
                                     <input type="text" name="asset_merktype" class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_merktype) ? $asset->asset_merktype : old('asset_merktype') }}"
-                                        }} {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
+                                         {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -86,7 +86,7 @@
                                     <input type="date" name="asset_dateachieved"
                                         class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_dateachieved) ? $asset->asset_dateachieved : old('asset_dateachieved') }}"
-                                        }} {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
+                                         {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -96,7 +96,7 @@
                                     </label>
                                     <input type="number" name="asset_amount" class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_amount) ? $asset->asset_amount : old('asset_amount') }}"
-                                        }} {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
+                                         {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -105,7 +105,7 @@
                                         Unit(s)
                                     </label>
                                     <input type="text" name="asset_unit" class="form-control form-control-sm rounded"
-                                        value="{{ isset($asset->asset_unit) ? $asset->asset_unit : old('asset_unit') }}" }}
+                                        value="{{ isset($asset->asset_unit) ? $asset->asset_unit : old('asset_unit') }}" 
                                         {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
@@ -142,7 +142,7 @@
                                     <textarea name="asset_notes" cols="30" rows="2" class="form-control form-control-sm rounded">{{ isset($asset->asset_notes) ? $asset->asset_notes : old('asset_notes') }}</textarea>
                                 </div>
                             </div>
-                            @if (isset($asset) && isset($edit))
+                            @if (empty($asset) || isset($edit))
                                 <div class="col-md-12">
                                     <div class="text-center">
                                         <hr>

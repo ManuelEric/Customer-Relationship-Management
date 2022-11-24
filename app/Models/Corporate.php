@@ -32,6 +32,9 @@ class Corporate extends Model
         'corp_address',
         'corp_note',
         'corp_password',
+        'country_type',
+        'type',
+        'partnership_type',
     ];
 
     public static function whereCorpId($id)

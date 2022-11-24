@@ -225,7 +225,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-3 mb-2 mt-4">
                                 <label>First Discussion</label>
                                 <input class="form-control form-control-sm rounded" type="date"
                                     name="first_discussion_date"
@@ -234,7 +234,7 @@
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-3 mb-2 mt-4">
                                 <label>Last Discussion</label>
                                 <input class="form-control form-control-sm rounded" type="date"
                                     name="last_discussion_date"
@@ -242,14 +242,14 @@
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-3 mb-2 mt-4">
                                 <label>Event Start</label>
                                 <input class="form-control form-control-sm rounded" type="date" name="event_start"
                                     value="{{ isset($edufair->event_start) ? $edufair->event_start : null }}"
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                             </div>
 
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-3 mb-2 mt-4">
                                 <label>Event End</label>
                                 <input class="form-control form-control-sm rounded" type="date" name="event_end"
                                     value="{{ isset($edufair->event_end) ? $edufair->event_end : null }}"
@@ -296,6 +296,7 @@
     </div>
 
     {{-- Modal  --}}
+    @if (isset($edufair))
     <div class="modal modal-md fade" id="reviewForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -370,6 +371,7 @@
             </div>
         </div>
     </div>
+    @endif
 
 
     <script>
@@ -396,7 +398,8 @@
                 $('#schoolList select').val(null).trigger('change')
             }
         }
-
+        
+        @if (isset($edufair))
         function resetForm() {
             $('#reviewer_name').val(null).trigger('change')
             $('#score').val(null).trigger('change')
@@ -405,6 +408,7 @@
             let url = "{{ url('instance/edufair/' . $edufair->id . '/review') }}"
             $('#formReview').attr('action', url)
         }
+        @endif
 
         function getReview(eduf_id, reviews_id) {
             let link = '{{ url('instance/edufair') }}/' + eduf_id + '/review/' + reviews_id

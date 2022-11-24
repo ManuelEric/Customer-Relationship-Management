@@ -16,6 +16,17 @@ class StoreSchoolRequest extends FormRequest
         return true;
     }
 
+    public function messages()
+    {
+        return [
+            'sch_name.required' => 'The School Name field is required',
+            'sch_type.in' => 'The Type field is invalid',
+            'sch_curriculum.required' => 'The Curriculum field is required',
+            'sch_curriculum.in' => 'The Curriculum field is invalid',
+            'sch_mail.unique' => 'The School Mail already been taken', 
+        ];
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
