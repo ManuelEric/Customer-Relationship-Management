@@ -88,7 +88,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(VendorRepositoryInterface::class, VendorRepository::class);
         $this->app->bind(VendorTypeRepositoryInterface::class, VendorTypeRepository::class);
         $this->app->bind(VolunteerRepositoryInterface::class, VolunteerRepository::class);
-        $this->app->bind(AssetRepositoryInterface::class, AssetRepository::class);   
+        $this->app->bind(AssetRepositoryInterface::class, AssetRepository::class);
         $this->app->bind(AssetUsedRepositoryInterface::class, AssetUsedRepository::class);
         $this->app->bind(AssetReturnedRepositoryInterface::class, AssetReturnedRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
@@ -119,10 +119,10 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(UniversityEventRepositoryInterface::class, UniversityEventRepository::class);
         $this->app->bind(SchoolEventRepositoryInterface::class, SchoolEventRepository::class);
         $this->app->bind(CorporatePartnerEventRepositoryInterface::class, CorporatePartnerEventRepository::class);
+        $this->app->bind(SchoolProgramRepositoryInterface::class, SchoolProgramRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
-
     }
 
     /**

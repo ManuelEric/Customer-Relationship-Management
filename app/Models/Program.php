@@ -13,7 +13,7 @@ class Program extends Model
 
     protected $table = 'tbl_prog';
     protected $primaryKey = 'prog_id';
-    
+
     public $incrementing = false;
 
     /**
@@ -38,7 +38,7 @@ class Program extends Model
     public static function whereProgId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
-        
+
         $instance = new static;
 
         return $instance->newQuery()->where('prog_id', $id)->first();
@@ -56,5 +56,12 @@ class Program extends Model
         return Attribute::make(
             get: fn ($value) => $value == NULL ? "-" : $value,
         );
+    }
+
+
+    # relation
+    public function schoolProgram()
+    {
+        return $this->hasMany(SchoolProgram::class, 'prog_id', 'prog_id');
     }
 }

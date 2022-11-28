@@ -15,7 +15,10 @@ Route::prefix('university')->name('university.')->group(function () {
 });
 
 Route::resource('school', SchoolController::class);
-Route::resource('school/{school}/detail', SchoolDetailController::class);
+Route::prefix('school')->name('school.')->group(function () {
+    Route::resource('{school}/detail', SchoolDetailController::class);
+    Route::resource('{school}/program', SchoolProgramController::class);
+});
 
 Route::resource('corporate', CorporateController::class);
 Route::prefix('corporate')->name('corporate.')->group(function () {

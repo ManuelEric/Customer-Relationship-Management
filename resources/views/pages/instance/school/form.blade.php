@@ -312,7 +312,7 @@
                         <div class="col-md-12">
                             <div class="mb-2">
                                 <label for="">Program Name</label>
-                                <select class="modal-select w-100" name="program_id">
+                                <select class="modal-select w-100" name="program_name">
                                     <option data-placeholder="true"></option>
                                     @for ($i = 0; $i < 5; $i++)
                                         <option value="{{ $i }}">Test {{ $i }}</option>
@@ -323,7 +323,7 @@
                         <div class="col-6">
                             <div class="mb-2">
                                 <label for="">Lead Source</label>
-                                <select class="modal-select w-100" name="program_id">
+                                <select class="modal-select w-100" name="lead_source">
                                     <option data-placeholder="true"></option>
                                     @for ($i = 0; $i < 5; $i++)
                                         <option value="{{ $i }}">Test {{ $i }}</option>
@@ -334,7 +334,7 @@
                         <div class="col-6">
                             <div class="mb-2">
                                 <label for="">PIC</label>
-                                <select class="modal-select w-100" name="program_id">
+                                <select class="modal-select w-100" name="pic">
                                     <option data-placeholder="true"></option>
                                     @for ($i = 0; $i < 5; $i++)
                                         <option value="{{ $i }}">Test {{ $i }}</option>
@@ -345,19 +345,19 @@
                         <div class="col-6">
                             <div class="mb-2">
                                 <label for="">First Discuss</label>
-                                <input type="date" name="" class="form-control form-control-sm rounded">
+                                <input type="date" name="first_discuss" class="form-control form-control-sm rounded">
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="mb-2">
                                 <label for="">Planned Follow Up</label>
-                                <input type="date" name="" class="form-control form-control-sm rounded">
+                                <input type="date" name="last_discuss" class="form-control form-control-sm rounded">
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="mb-2">
                                 <label for="">Notes</label>
-                                <textarea name="" id="" class="form-control"></textarea>
+                                <textarea name="notes" id="" class="form-control"></textarea>
                             </div>
                         </div>
                         <div class="col-md-12 mt-2">

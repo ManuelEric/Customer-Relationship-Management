@@ -12,7 +12,7 @@ class School extends Model
 
     protected $table = 'tbl_sch';
     protected $primaryKey = 'sch_id';
-    
+
     public $incrementing = false;
 
     /**
@@ -36,7 +36,7 @@ class School extends Model
     public static function whereSchoolId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
-        
+
         $instance = new static;
 
         return $instance->newQuery()->where('sch_id', $id)->first();
@@ -56,5 +56,10 @@ class School extends Model
     public function events()
     {
         return $this->belongsToMany(Event::class, 'tbl_sch_event', 'sch_id', 'event_id');
+    }
+
+    public function schoolProgram()
+    {
+        return $this->hasMany(SchoolProgram::class, 'sch_id', 'sch_id');
     }
 }
