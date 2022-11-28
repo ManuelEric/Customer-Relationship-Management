@@ -25,7 +25,13 @@ Route::get('referral/create', function () {
 Route::get('client', function () {
     return view('pages.program.client-program.index');
 });
+Route::get('client/create', function () {
+    return view('pages.program.client-program.form');
+});
 Route::get('client/1', function () {
+    return view('pages.program.client-program.form');
+});
+Route::get('client/1/edit', function () {
     return view('pages.program.client-program.form');
 });
 

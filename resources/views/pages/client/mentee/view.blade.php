@@ -119,10 +119,11 @@
                 </div>
                 <div class="card-body">
                     @for ($i = 0; $i < 4; $i++)
-                        <button class="btn btn-sm btn-outline-info me-1 rounded-4" data-bs-toggle="modal"
-                            data-bs-target="#programForm">
+                        <a href="{{ url('program/client/create?client_id=1&prog_id=1') }}"
+                            class="btn btn-sm btn-outline-info
+                            me-1 rounded-4">
                             ALL-in
-                            Program {{ $i }}</button>
+                            Program {{ $i }}</a>
                     @endfor
                 </div>
             </div>
@@ -204,8 +205,8 @@
                         <h5 class="m-0 p-0">Programs</h5>
                     </div>
                     <div class="">
-                        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#programForm">Add Program</a>
+                        <a href="{{ url('program/client/create?client_id=1') }}" class="btn btn-sm btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#programForm">Add Program</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -249,98 +250,6 @@
         </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal modal-md fade" id="programForm" data-bs-backdrop="static" data-bs-keyboard="false"
-        tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="m-0 p-0">
-                        <i class="bi bi-plus me-2"></i>
-                        Add Program
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-2">
-                                <label for="">Program Name</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">Lead Source</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">PIC</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">First Discuss</label>
-                                <input type="date" name="" class="form-control form-control-sm rounded">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">Planned Follow Up</label>
-                                <input type="date" name="" class="form-control form-control-sm rounded">
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-2">
-                                <label for="">Notes</label>
-                                <textarea name="" id="" class="form-control"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-12 mt-2">
-                            <div class="d-flex justify-content-between">
-                                <button class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
-                                    <i class="bi bi-x me-1"></i>
-                                    Cancel
-                                </button>
-                                <button class="btn btn-sm btn-primary rounded-3">
-                                    <i class="bi bi-save2"></i>
-                                    Save
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Select2 Modal 
-        $(document).ready(function() {
-            $('.modal-select').select2({
-                dropdownParent: $('#programForm .modal-content'),
-                placeholder: "Select value",
-                allowClear: true
-            });
-        });
-    </script>
 
     {{-- Need Changing --}}
     {{-- <script>
