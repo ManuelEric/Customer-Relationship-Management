@@ -215,8 +215,8 @@
                                         href="{{ url('program/referral') }}">Referral</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link  {{ Request::is('program/event/client*') ? 'active' : '' }}"
-                                        href="{{ url('program/event/client') }}">Client
+                                    <a class="nav-link  {{ Request::is('program/event*') ? 'active' : '' }}"
+                                        href="{{ url('program/event') }}">Client
                                         Event</a>
                                 </li>
                                 <li class="nav-item">
