@@ -50,7 +50,7 @@
                         </div>
                         <div class="">
                             <button class="btn btn-sm btn-outline-primary rounded mx-1" data-bs-toggle="modal"
-                                data-bs-target="#programForm">
+                                data-bs-target="#programForm" >
                                 <i class="bi bi-plus"></i>
                             </button>
                         </div>
@@ -297,6 +297,7 @@
 
 
     <!-- Modal -->
+    @if (isset($school))
     <div class="modal modal-md fade" id="programForm" data-bs-backdrop="static" data-bs-keyboard="false"
         tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -308,37 +309,39 @@
                     </h4>
                 </div>
                 <div class="modal-body">
+
+                    <input type="hidden" readonly name="sch_id" value="{{ $school->sch_id }}">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="mb-2">
                                 <label for="">Program Name</label>
-                                <select class="modal-select w-100" name="program_name">
+                                <select class="modal-program w-100" name="program_name">
                                     <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
+                                    @foreach ($programs as $program)
+                                    <option value="{{ $program->prog_id }}">{{ $program->prog_program }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="mb-2">
                                 <label for="">Lead Source</label>
-                                <select class="modal-select w-100" name="lead_source">
+                                <select class="modal-program w-100" name="lead_source">
                                     <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
+                                    @foreach ($leads as $lead)
+                                    <option value="{{ $lead->lead_id }}">{{ $lead->main_lead }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="mb-2">
                                 <label for="">PIC</label>
-                                <select class="modal-select w-100" name="pic">
+                                <select class="modal-program w-100" name="pic">
                                     <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
+                                    @foreach ($employees as $employee)
+                                    <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -378,7 +381,6 @@
         </div>
     </div>
 
-    @if (isset($school))
         <div class="modal modal-md fade" id="picForm" data-bs-backdrop="static" data-bs-keyboard="false"
             tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
@@ -477,7 +479,7 @@
     <script>
         // Select2 Modal 
         $(document).ready(function() {
-            $('.modal-select').select2({
+            $('.modal-program').select2({
                 dropdownParent: $('#programForm .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
@@ -507,6 +509,7 @@
             )
         }
         @endif
+
 
         function getPIC(link) {
             axios.get(link)

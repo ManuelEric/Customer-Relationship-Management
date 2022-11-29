@@ -25,13 +25,15 @@ class StoreSchoolProgramRequest extends FormRequest
      */
     public function rules()
     {
-        $eventId = $this->route('event');
-
+      
         return [
             'sch_id' => 'required|exists:tbl_sch,sch_id',
             'prog_id' => 'required|exists:tbl_prog,prog_id',
             'first_discuss' => 'required|date',
             'last_discuss' => 'required|date',
+            'status' => 'required',
+            'empl_id' => 'required|exists:users,id',
+            'notes' => 'nullable'
         ];
     }
 }

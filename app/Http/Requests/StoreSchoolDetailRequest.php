@@ -26,8 +26,16 @@ class StoreSchoolDetailRequest extends FormRequest
 
         return [
             'sch_id' => 'required|exists:tbl_sch,sch_id',
-            'prog_id' => 'required|exists:tbl_prog,prog_id',
-            'first_discuss' => 'required|date',
+            // 'schdetail_fullname' => 'required',
+            // 'schdetail_email' => 'required|email',
+            // 'schdetail_grade' => 'required|in:Middle School,High School,Middle School & High School',
+            // 'schdetail_position' => 'required|in:Principal,Counselor,Teacher,Marketing',
+            // 'schdetail_phone' => 'required',
+            'schdetail_name.*' => 'required|string',
+            'schdetail_mail.*' => 'required|email',
+            'schdetail_grade.*' => 'required|in:Middle School,High School,Middle School & High School',
+            'schdetail_position.*' => 'required|in:Principal,Counselor,Teacher,Marketing',
+            'schdetail_phone.*' => 'required',
             'last_discuss' => 'required|date',
         ];
     }
