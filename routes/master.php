@@ -16,6 +16,7 @@ use App\Http\Controllers\UniversityEventController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\EdufLeadController;
 use App\Http\Controllers\EdufReviewController;
+use App\Http\Controllers\EventSpeakerController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -61,6 +62,9 @@ Route::prefix('event')->name('event.')->group(function () {
     Route::resource('{event}/university', UniversityEventController::class);
     Route::resource('{event}/school', SchoolEventController::class);
     Route::resource('{event}/partner', CorporatePartnerEventController::class);
+    Route::post('{event}/speaker', [EventSpeakerController::class, 'store'])->name('speaker.store');
+    Route::put('{event}/speaker/{speaker}', [EventSpeakerController::class, 'update'])->name('speaker.update');
+    Route::delete('{event}/speaker/{speaker}', [EventSpeakerController::class, 'destroy'])->name('speaker.destroy');
 });
 
 Route::resource('edufair', EdufLeadController::class);

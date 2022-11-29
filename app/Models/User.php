@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\pivot\AgendaSpeaker;
 use App\Models\pivot\AssetReturned;
 use App\Models\pivot\AssetUsed;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -123,5 +124,15 @@ class User extends Authenticatable
     public function handledEvent()
     {
         return $this->belongsToMany(Event::class, 'tbl_event_pic', 'empl_id', 'event_id');
+    }
+
+    public function as_event_speaker()
+    {
+        return $this->belongsToMany(Event::class, 'tbl_agenda_speaker', 'empl_id', 'event_id')->using(AgendaSpeaker::class);
+    }
+
+    public function as_schoolprog_speaker()
+    {
+        return $this->belongsToMany(SchoolProg::class, 'tbl_agenda_speaker', 'empl_id', 'sch_prog_id')->using(AgendaSpeaker::class);
     }
 }

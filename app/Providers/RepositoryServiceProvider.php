@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetReturnedRepositoryInterface;
 use App\Interfaces\AssetUsedRepositoryInterface;
@@ -38,6 +39,7 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\VendorRepositoryInterface;
 use App\Interfaces\VendorTypeRepositoryInterface;
 use App\Interfaces\VolunteerRepositoryInterface;
+use App\Repositories\AgendaSpeakerRepository;
 use App\Repositories\AssetRepository;
 use App\Repositories\AssetReturnedRepository;
 use App\Repositories\AssetUsedRepository;
@@ -119,6 +121,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(UniversityEventRepositoryInterface::class, UniversityEventRepository::class);
         $this->app->bind(SchoolEventRepositoryInterface::class, SchoolEventRepository::class);
         $this->app->bind(CorporatePartnerEventRepositoryInterface::class, CorporatePartnerEventRepository::class);
+        $this->app->bind(AgendaSpeakerRepositoryInterface::class, AgendaSpeakerRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);

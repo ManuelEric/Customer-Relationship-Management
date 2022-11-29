@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\pivot\AgendaSpeaker;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,5 +29,15 @@ class SchoolDetail extends Model
     public function school()
     {
         return $this->belongsTo(School::class, 'sch_id', 'sch_id');
+    }
+
+    public function as_event_speaker()
+    {
+        return $this->belongsToMany(Event::class, 'tbl_agenda_speaker', 'sch_pic_id', 'event_id')->using(AgendaSpeaker::class);
+    }
+
+    public function as_schoolprog_speaker()
+    {
+        return $this->belongsToMany(SchoolProg::class, 'tbl_agenda_speaker', 'sch_pic_id', 'sch_prog_id')->using(AgendaSpeaker::class);
     }
 }
