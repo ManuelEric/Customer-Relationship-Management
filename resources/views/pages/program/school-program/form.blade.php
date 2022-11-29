@@ -29,7 +29,7 @@
         </div>
 
         <div class="col-md-8">
-            <div class="card rounded">
+            <div class="card rounded mb-3">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="">
                         <h6 class="m-0 p-0">
@@ -42,7 +42,19 @@
                     <div class="row mb-3">
                         <div class="col-md-3">
                             <label for="">
-                                Date
+                                Program Name <sup class="text-danger">*</sup>
+                            </label>
+                        </div>
+                        <div class="col-md-9">
+                            <select name="" id="" class="select w-100">
+                                <option data-placeholder="true"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label for="">
+                                Date <sup class="text-danger">*</sup>
                             </label>
                         </div>
                         <div class="col-md-9">
@@ -73,17 +85,33 @@
                     <div class="row mb-2">
                         <div class="col-md-3">
                             <label for="">
-                                Program Status
+                                Approach Status
                             </label>
                         </div>
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-6">
                                     <small>Status</small>
-                                    <select name="" id="" class="select w-100"></select>
+                                    <select name="" id="approach_status" class="select w-100"
+                                        onchange="checkStatus()">
+                                        <option data-placeholder="true"></option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Success">Success</option>
+                                        <option value="Denied">Denied</option>
+                                    </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <small>Date</small>
+                                <div class="col-md-6 success_status d-none">
+                                    <small>Success Date</small>
+                                    <input type="date" name="" id=""
+                                        class="form-control form-control-sm rounded">
+                                </div>
+                                <div class="col-md-6 denied_status d-none">
+                                    <small>Denied Date</small>
+                                    <input type="date" name="" id=""
+                                        class="form-control form-control-sm rounded">
+                                </div>
+                                <div class="col-md-6 denied_status d-none my-2">
+                                    <small>Reason</small>
                                     <input type="date" name="" id=""
                                         class="form-control form-control-sm rounded">
                                 </div>
@@ -91,7 +119,7 @@
                         </div>
                     </div>
                     {{-- Program Detail  --}}
-                    <div class="row mb-3">
+                    <div class="row mb-3 success_status d-none">
                         <div class="col-md-3">
                             <label for="">
                                 Program Detail
@@ -101,7 +129,7 @@
                             {{-- Admissions Program  --}}
                             <div class="card">
                                 <div class="card-header">
-                                    Detail
+                                    School Program
                                 </div>
                                 <div class="card-body">
                                     {{-- if success  --}}
@@ -177,13 +205,25 @@
                     </div>
                 </div>
             </div>
+
+            @include('pages.program.school-program.detail.attachment')
         </div>
     </div>
 
 
     <script>
-        $(document).ready(function() {
-
-        })
+        function checkStatus() {
+            let status = $('#approach_status').val();
+            if (status == 'Pending') {
+                $('.denied_status').addClass('d-none')
+                $('.success_status').addClass('d-none')
+            } else if (status == 'Success') {
+                $('.denied_status').addClass('d-none')
+                $('.success_status').removeClass('d-none')
+            } else if (status == 'Denied') {
+                $('.denied_status').removeClass('d-none')
+                $('.success_status').addClass('d-none')
+            }
+        }
     </script>
 @endsection

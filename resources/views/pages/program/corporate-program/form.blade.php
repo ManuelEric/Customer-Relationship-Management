@@ -29,7 +29,7 @@
         </div>
 
         <div class="col-md-8">
-            <div class="card rounded">
+            <div class="card rounded mb-3">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="">
                         <h6 class="m-0 p-0">
@@ -42,7 +42,19 @@
                     <div class="row mb-2">
                         <div class="col-md-3">
                             <label for="">
-                                Is Corporate Scheme?
+                                Program Name <sup class="text-danger">*</sup>
+                            </label>
+                        </div>
+                        <div class="col-md-9">
+                            <select name="" id="" class="select w-100">
+                                <option data-placeholder="true"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3">
+                            <label for="">
+                                Is Corporate Scheme? <sup class="text-danger">*</sup>
                             </label>
                         </div>
                         <div class="col-md-9">
@@ -58,56 +70,88 @@
                     <div class="row mb-2">
                         <div class="col-md-3">
                             <label for="">
-                                Date
+                                Date <sup class="text-danger">*</sup>
                             </label>
                         </div>
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <small>First Discuss</small>
+                                    <small>First Discuss <sup class="text-danger">*</sup></small>
                                     <input type="date" name="" id=""
                                         class="form-control form-control-sm rounded">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row mb-2">
+                    <div class="row mb-2 ">
                         <div class="col-md-3">
                             <label for="">
-                                Participants
+                                Approach Status
                             </label>
                         </div>
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <small>Amount</small>
-                                    <input type="number" name="" id=""
+                                    <small>Status <sup class="text-danger">*</sup></small>
+                                    <select name="" id="approach_status" class="select w-100"
+                                        onchange="checkStatus()">
+                                        <option data-placeholder="true"></option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Success">Success</option>
+                                        <option value="Denied">Denied</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 success_status d-none">
+                                    <small>Success Date <sup class="text-danger">*</sup></small>
+                                    <input type="date" name="" id=""
                                         class="form-control form-control-sm rounded">
                                 </div>
-                                <div class="col-md-6">
-                                    <small>Total Price</small>
-                                    <input type="number" name="" id=""
+                                <div class="col-md-6 denied_status d-none">
+                                    <small>Denied Date <sup class="text-danger">*</sup></small>
+                                    <input type="date" name="" id=""
+                                        class="form-control form-control-sm rounded">
+                                </div>
+                                <div class="col-md-12 my-2 denied_status d-none">
+                                    <small>Reason <sup class="text-danger">*</sup></small>
+                                    <input type="text" name="" id=""
                                         class="form-control form-control-sm rounded">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    <div class="row mb-3 success_status d-none">
                         <div class="col-md-3">
                             <label for="">
-                                Program Status
+                                Program Detail <sup class="text-danger">*</sup></small>
                             </label>
                         </div>
                         <div class="col-md-9">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <small>Status</small>
-                                    <select name="" id="" class="select w-100"></select>
+                            <div class="card">
+                                <div class="card-header">
+                                    Partner Program
                                 </div>
-                                <div class="col-md-6">
-                                    <small>Date</small>
-                                    <input type="date" name="" id=""
-                                        class="form-control form-control-sm rounded">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <small>Participants <sup class="text-danger">*</sup></small></small>
+                                            <input type="number" name="" id=""
+                                                class="form-control form-control-sm rounded">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <small>Total Fee <sup class="text-danger">*</sup></small></small>
+                                            <input type="number" name="" id=""
+                                                class="form-control form-control-sm rounded">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <small>Start Date <sup class="text-danger">*</sup></small>
+                                            <select name="" id="" class="select w-100"></select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <small>End Date <sup class="text-danger">*</sup></small>
+                                            <input type="date" name="" id=""
+                                                class="form-control form-control-sm rounded">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -120,59 +164,6 @@
                         </div>
                         <div class="col-md-9">
                             <textarea name="" id="" class="w-100"></textarea>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-3">
-                            <label for="">Attachments</label>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="card">
-                                <div class="card-header">
-                                    Files
-                                </div>
-                                <div class="card-body">
-                                    <div class="row mb-3">
-                                        <div class="col-md-4">
-                                            <label for="">
-                                                Attachment 1
-                                            </label>
-                                        </div>
-                                        <div class="col-md-8">
-                                            <input type="text" name="" id=""
-                                                class="form-control form-control-sm mb-2">
-                                            <input type="file" name="" id=""
-                                                class="form-control form-control-sm">
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-4">
-                                            <label for="">
-                                                Attachment 2
-                                            </label>
-                                        </div>
-                                        <div class="col-md-8">
-                                            <input type="text" name="" id=""
-                                                class="form-control form-control-sm mb-2">
-                                            <input type="file" name="" id=""
-                                                class="form-control form-control-sm">
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-4">
-                                            <label for="">
-                                                Attachment 3
-                                            </label>
-                                        </div>
-                                        <div class="col-md-8">
-                                            <input type="text" name="" id=""
-                                                class="form-control form-control-sm mb-2">
-                                            <input type="file" name="" id=""
-                                                class="form-control form-control-sm">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -199,13 +190,26 @@
                     </div>
                 </div>
             </div>
+
+            @include('pages.program.corporate-program.detail.attachment')
         </div>
     </div>
 
 
     <script>
-        $(document).ready(function() {
-
-        })
+        function checkStatus() {
+            let status = $('#approach_status').val();
+            if (status == 'Pending') {
+                $('.denied_status').addClass('d-none')
+                $('.success_status').addClass('d-none')
+            } else if (status == 'Success') {
+                $('.denied_status').addClass('d-none')
+                $('.success_status').removeClass('d-none')
+            } else if (status == 'Denied') {
+                $('.denied_status').removeClass('d-none')
+                $('.success_status').addClass('d-none')
+            }
+        }
+        $(document).ready(function() {})
     </script>
 @endsection

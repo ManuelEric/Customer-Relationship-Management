@@ -21,11 +21,24 @@ Route::get('referral/create', function () {
     return view('pages.program.referral.form');
 });
 
+Route::get('event', function () {
+    return view('pages.program.client-event.index');
+});
+Route::get('event/create', function () {
+    return view('pages.program.client-event.form');
+});
+
 //  
 Route::get('client', function () {
     return view('pages.program.client-program.index');
 });
+Route::get('client/create', function () {
+    return view('pages.program.client-program.form');
+});
 Route::get('client/1', function () {
+    return view('pages.program.client-program.form');
+});
+Route::get('client/1/edit', function () {
     return view('pages.program.client-program.form');
 });
 
@@ -38,6 +51,10 @@ Route::get('corporate/1', function () {
 
 Route::get('school', function () {
     return view('pages.program.school-program.index');
+});
+
+Route::get('school/create', function () {
+    return view('pages.program.school-program.form');
 });
 
 Route::get('school/1', function () {

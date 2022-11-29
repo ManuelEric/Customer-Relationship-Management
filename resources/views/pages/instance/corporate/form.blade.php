@@ -3,13 +3,13 @@
 @section('title', 'Corporate - Bigdata Platform')
 
 @section('content')
-@php
-$type = ['Corporate', 'Individual Professional', 'Tutoring Center', 'Course Center', 'Agent', 'Community', 'NGO'];
-sort($type);
-
-$partnership_type = ['Market Sharing', 'Program Collaborator', 'Internship', 'External Mentor'];
-sort($partnership_type);
-@endphp
+    @php
+        $type = ['Corporate', 'Individual Professional', 'Tutoring Center', 'Course Center', 'Agent', 'Community', 'NGO'];
+        sort($type);
+        
+        $partnership_type = ['Market Sharing', 'Program Collaborator', 'Internship', 'External Mentor'];
+        sort($partnership_type);
+    @endphp
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('instance/corporate/') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Corporate
@@ -57,10 +57,10 @@ sort($partnership_type);
                             </h6>
                         </div>
                         <div class="">
-                            <button class="btn btn-sm btn-outline-primary rounded mx-1" data-bs-toggle="modal"
-                                data-bs-target="#programForm">
+                            <a href="{{ url('program/corporate/create?corp_id=' . strtolower($corporate->corp_id)) }}"
+                                class="btn btn-sm btn-outline-primary rounded mx-1">
                                 <i class="bi bi-plus"></i>
-                            </button>
+                            </a>
                         </div>
                     </div>
                     <div class="list-group list-group-flush">
@@ -272,8 +272,12 @@ sort($partnership_type);
                                 <label for="">Country Type <sup class="text-danger">*</sup></label>
                                 <select name="country_type" class="select w-100">
                                     <option data-placeholder="true"></option>
-                                    <option value="Indonesia" {{ (isset($corporate->country_type) && $corporate->country_type == "Indonesia") || old('country_type') == "Indonesia" ? "selected" : null }}>Indonesia</option>
-                                    <option value="Overseas" {{ (isset($corporate->country_type) && $corporate->country_type == "Overseas") || old('country_type') == "Overseas" ? "selected" : null }}>Overseas</option>
+                                    <option value="Indonesia"
+                                        {{ (isset($corporate->country_type) && $corporate->country_type == 'Indonesia') || old('country_type') == 'Indonesia' ? 'selected' : null }}>
+                                        Indonesia</option>
+                                    <option value="Overseas"
+                                        {{ (isset($corporate->country_type) && $corporate->country_type == 'Overseas') || old('country_type') == 'Overseas' ? 'selected' : null }}>
+                                        Overseas</option>
                                 </select>
                                 @error('country_type')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -284,10 +288,10 @@ sort($partnership_type);
                                 <label for="">Type <sup class="text-danger">*</sup></label>
                                 <select name="type" class="select w-100">
                                     <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < count($type) ; $i++)
-                                        <option value="{{ $type[$i] }}" 
-                                            {{ (isset($corporate->type) && $corporate->type == $type[$i]) || old('type') == $type[$i] ? "selected" : null }}
-                                        >{{ $type[$i] }}</option>
+                                    @for ($i = 0; $i < count($type); $i++)
+                                        <option value="{{ $type[$i] }}"
+                                            {{ (isset($corporate->type) && $corporate->type == $type[$i]) || old('type') == $type[$i] ? 'selected' : null }}>
+                                            {{ $type[$i] }}</option>
                                     @endfor
                                 </select>
                                 @error('type')
@@ -299,10 +303,10 @@ sort($partnership_type);
                                 <label for="">Partnership Type </label>
                                 <select name="partnership_type" class="select w-100">
                                     <option data-placeholder="true"></option>
-                                    @for ($i = 0 ; $i < count($partnership_type) ; $i++)
-                                        <option value="{{ $partnership_type[$i] }}" 
-                                            {{ (isset($corporate->partnership_type) && $corporate->partnership_type == $partnership_type[$i]) || old('partnership_type') == $partnership_type[$i] ? "selected" : null }}
-                                        >{{ $partnership_type[$i] }}</option>
+                                    @for ($i = 0; $i < count($partnership_type); $i++)
+                                        <option value="{{ $partnership_type[$i] }}"
+                                            {{ (isset($corporate->partnership_type) && $corporate->partnership_type == $partnership_type[$i]) || old('partnership_type') == $partnership_type[$i] ? 'selected' : null }}>
+                                            {{ $partnership_type[$i] }}</option>
                                     @endfor
                                 </select>
                                 @error('partnership_type')
@@ -327,91 +331,6 @@ sort($partnership_type);
                         </div>
 
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Modal -->
-    <div class="modal modal-md fade" id="programForm" data-bs-backdrop="static" data-bs-keyboard="false"
-        tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="m-0 p-0">
-                        <i class="bi bi-plus me-2"></i>
-                        Add Program
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-2">
-                                <label for="">Program Name</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">Lead Source</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">PIC</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">First Discuss</label>
-                                <input type="date" name="" class="form-control form-control-sm rounded"
-                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">Planned Follow Up</label>
-                                <input type="date" name="" class="form-control form-control-sm rounded"
-                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-2">
-                                <label for="">Notes</label>
-                                <textarea name="" id="" class="form-control"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-12 mt-2">
-                            <div class="d-flex justify-content-between">
-                                <button class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
-                                    <i class="bi bi-x me-1"></i>
-                                    Cancel
-                                </button>
-                                <button class="btn btn-sm btn-primary rounded-3">
-                                    <i class="bi bi-save2"></i>
-                                    Save
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
