@@ -8,7 +8,7 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Referral
         </a>
-        <a href="{{ url('instance/referral/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i>
+        <a href="{{ url('program/referral/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i>
             Add
             Referral</a>
     </div>

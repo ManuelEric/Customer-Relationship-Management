@@ -49,10 +49,10 @@
                             </h6>
                         </div>
                         <div class="">
-                            <button class="btn btn-sm btn-outline-primary rounded mx-1" data-bs-toggle="modal"
-                                data-bs-target="#programForm">
+                            <a href="{{ url('program/school/create?sch_id=' . strtolower($school->sch_id)) }}"
+                                class="btn btn-sm btn-outline-primary rounded mx-1">
                                 <i class="bi bi-plus"></i>
-                            </button>
+                            </a>
                         </div>
                     </div>
                     <div class="list-group list-group-flush">
@@ -109,11 +109,11 @@
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
                                         <option value="National"
-                                            {{ (isset($school->sch_type) && $school->sch_type == 'National') || (old('sch_type') == "National") ? 'selected' : null }}>
+                                            {{ (isset($school->sch_type) && $school->sch_type == 'National') || old('sch_type') == 'National' ? 'selected' : null }}>
                                             National
                                         </option>
                                         <option value="International"
-                                            {{ (isset($school->sch_type) && $school->sch_type == 'International') || (old('sch_type') == "International") ? 'selected' : null }}>
+                                            {{ (isset($school->sch_type) && $school->sch_type == 'International') || old('sch_type') == 'International' ? 'selected' : null }}>
                                             International</option>
                                     </select>
                                     @error('sch_type')
@@ -129,7 +129,7 @@
                                         <option data-placeholder="true"></option>
                                         @foreach ($curriculums as $curriculum)
                                             <option value="{{ $curriculum->name }}"
-                                                {{ (isset($school->sch_curriculum) && $school->sch_curriculum == $curriculum->name) || (old('sch_curriculum') == $curriculum->name) ? 'selected' : null }}>
+                                                {{ (isset($school->sch_curriculum) && $school->sch_curriculum == $curriculum->name) || old('sch_curriculum') == $curriculum->name ? 'selected' : null }}>
                                                 {{ $curriculum->name }}</option>
                                         @endforeach
                                     </select>
@@ -145,17 +145,17 @@
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
                                         <option value="7"
-                                            {{ (isset($school->sch_score) && $school->sch_score == 7) || (old('sch_score') == 7) ? 'selected' : null }}>
+                                            {{ (isset($school->sch_score) && $school->sch_score == 7) || old('sch_score') == 7 ? 'selected' : null }}>
                                             Up
                                             Market
                                         </option>
                                         <option value="5"
-                                            {{ (isset($school->sch_score) && $school->sch_score == 5) || (old('sch_score') == 5) ? 'selected' : null }}>
+                                            {{ (isset($school->sch_score) && $school->sch_score == 5) || old('sch_score') == 5 ? 'selected' : null }}>
                                             Mid
                                             Market
                                         </option>
                                         <option value="3"
-                                            {{ (isset($school->sch_score) && $school->sch_score == 3) || (old('sch_score') == 3) ? 'selected' : null }}>
+                                            {{ (isset($school->sch_score) && $school->sch_score == 3) || old('sch_score') == 3 ? 'selected' : null }}>
                                             Low
                                             Market
                                         </option>
@@ -495,17 +495,17 @@
 
     <script>
         @if (isset($school))
-        function resetForm() {
-            $('#cp_fullname').val(null)
-            $('#cp_mail').val(null)
-            $('#cp_grade').val(null).trigger('change')
-            $('#cp_phone').val(null)
-            $('#cp_status').val(null).trigger('change')
-            $('.put').html('');
-            $('#picAction').attr('action',
-                '{{ isset($school) ? url('instance/school/' . $school->sch_id . '/detail') : url('instance/school/') }}'
-            )
-        }
+            function resetForm() {
+                $('#cp_fullname').val(null)
+                $('#cp_mail').val(null)
+                $('#cp_grade').val(null).trigger('change')
+                $('#cp_phone').val(null)
+                $('#cp_status').val(null).trigger('change')
+                $('.put').html('');
+                $('#picAction').attr('action',
+                    '{{ isset($school) ? url('instance/school/' . $school->sch_id . '/detail') : url('instance/school/') }}'
+                )
+            }
         @endif
 
         function getPIC(link) {

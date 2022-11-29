@@ -24,6 +24,9 @@
                         <th>Industry</th>
                         <th>Email</th>
                         <th>Office Number</th>
+                        <th>Type</th>
+                        <th>Country Type</th>
+                        <th>Partnership Type</th>
                         <th>Region</th>
                         <th>Address</th>
                         <th class="bg-info text-white">Action</th>
@@ -79,6 +82,15 @@
                     },
                     {
                         data: 'corp_phone',
+                    },
+                    {
+                        data: 'type',
+                    },
+                    {
+                        data: 'country_type',
+                    },
+                    {
+                        data: 'partnership_type',
                     },
                     {
                         data: 'corp_region',
