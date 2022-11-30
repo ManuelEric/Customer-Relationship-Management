@@ -6,6 +6,7 @@ use App\Http\Controllers\CorporateController;
 use App\Http\Controllers\CorporatePicController;
 // use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\UniversityController;
+use App\Http\Controllers\SchoolProgramController;
 use App\Http\Controllers\UniversityPicController;
 use Illuminate\Support\Facades\Route;
 

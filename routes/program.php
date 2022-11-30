@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SchoolProgramController;
+use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\SchoolDetailController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +59,11 @@ Route::get('school', function () {
 
 Route::get('school/create', function () {
     return view('pages.program.school-program.form');
+});
+
+Route::resource('school', SchoolController::class);
+Route::prefix('school')->name('school.')->group(function () {
+    Route::resource('{school}/detail', SchoolProgramController::class);
 });
 
 Route::get('school/1', function () {

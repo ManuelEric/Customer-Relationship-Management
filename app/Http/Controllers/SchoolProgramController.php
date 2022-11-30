@@ -6,6 +6,8 @@ use App\Http\Requests\StoreSchoolProgramRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,48 +23,64 @@ class SchoolProgramController extends Controller
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
     protected ProgramRepositoryInterface $programRepository;
+    protected UserRepositoryInterface $userRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, UserRepositoryInterface $userRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
         $this->programRepository = $programRepository;
+        $this->userRepository = $userRepository;
     }
+
 
     public function store(StoreSchoolProgramRequest $request)
     {
+    
+        $schoolId = $request->route('school');
 
-        $schoolDetails = $request->only([
-            'sch_id',
-            'prog_id',
-            'first_discuss',
-            'last_discuss',
-            'status',
-            'notes',
-            'empl_id',
-        ]);
-
-        $last_id = School::max('sch_id');
-        $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-        $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-
+        $schoolPrograms = $request->all();
+        
         DB::beginTransaction();
+        $schoolPrograms['created_at'] = Carbon::now();
+        $schoolPrograms['updated_at'] = Carbon::now();
+       
         try {
 
-            # insert into school
-            $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails);
+            # insert into school program
+            $this->schoolProgramRepository->createSchoolProgram($schoolPrograms);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store school failed : ' . $e->getMessage());
-            return Redirect::to('instance/school')->withError('Failed to create school');
+            return Redirect::to('program/school/'. $schoolId .'/detail/create')->withError('Failed to create school program' . $e->getMessage());
         }
 
-        return Redirect::to('instance/school/' . $school_id_with_label)->withSuccess('School successfully created');
+        return Redirect::to('program/school/'. $schoolId .'/detail/create')->withSuccess('School program successfully created');
     }
 
+    public function create(Request $request)
+    {
+        $schoolId = $request->route('school');
 
+         # retrieve school data by id
+         $school = $this->schoolRepository->getSchoolById($schoolId);
+
+         # retrieve program data
+         $programs = $this->programRepository->getAllPrograms();
+
+         # retrieve employee data
+         $employees = $this->userRepository->getAllUsersByRole('Employee');
+ 
+        return view('pages.program.school-program.form')->with(
+            [
+                'employees' => $employees,
+                'programs' => $programs,
+                'school' => $school
+            ]
+        );
+    }
     
 }

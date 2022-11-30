@@ -27,7 +27,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
 
     public function createSchoolProgram(array $schoolPrograms)
     {
-        return SchoolProgram::insert($schoolPrograms);
+        return SchoolProgram::create($schoolPrograms);
     }
 
     public function updateSchoolProgram($schoolProgramId, array $newPrograms)

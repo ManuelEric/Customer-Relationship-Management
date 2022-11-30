@@ -20,10 +20,21 @@ class SchoolProgram extends Model
     protected $fillable = [
         'sch_id',
         'prog_id',
-        'firts_discuss',
-        'last_discuss',
+        'first_discuss',
+        'planned_followup',
         'status',
         'notes',
+        'notes_detail',
+        'running_status',
+        'total_hours',
+        'total_fee',
+        'participants',
+        'place',
+        'end_program_date',
+        'start_program_date',
+        'success_date',
+        'reason',
+        'denied_date',
         'empl_id',
     ];
 

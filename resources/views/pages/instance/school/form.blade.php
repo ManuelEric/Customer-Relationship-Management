@@ -49,7 +49,7 @@
                             </h6>
                         </div>
                         <div class="">
-                            <a href="{{ url('program/school/create?sch_id=' . strtolower($school->sch_id)) }}"
+                            <a href="{{ url('program/school/'. strtolower($school->sch_id)) .'/detail/create' }}"
                                 class="btn btn-sm btn-outline-primary rounded mx-1">
                                 <i class="bi bi-plus"></i>
                             </a>
