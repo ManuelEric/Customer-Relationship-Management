@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('participants')->nullable()->after('notes');
             $table->double('total_fee')->nullable()->after('notes');
             $table->integer('total_hours')->nullable()->after('notes');
-            $table->enum('running_status', ['Pending', 'Success', 'Denied'])->nullable()->after('notes');
+            $table->enum('running_status', ['Not yet', 'On going', 'Done'])->nullable()->after('notes');
             $table->text('notes_detail')->nullable()->after('notes');
         });
     }

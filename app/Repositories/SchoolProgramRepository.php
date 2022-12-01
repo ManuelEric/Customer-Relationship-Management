@@ -10,7 +10,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
 {
 
 
-    public function getAllSchoolProgramsById($schoolId)
+    public function getAllSchoolProgramsBySchoolId($schoolId)
     {
         return SchoolProgram::where('sch_id', $schoolId)->orderBy('id', 'asc')->get();
     }

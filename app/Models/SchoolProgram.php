@@ -47,4 +47,9 @@ class SchoolProgram extends Model
     {
         return $this->belongsTo(Program::class, 'prog_id', 'prog_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'empl_id', 'id');
+    }
 }

@@ -56,18 +56,25 @@
                         </div>
                     </div>
                     <div class="list-group list-group-flush">
-                        @for ($i = 0; $i < 3; $i++)
-                            <a href="#" class="list-group-item">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="badge badge-primary w-100 me-2 text-start">
-                                        Program Name
-                                    </div>
-                                    <div class="badge badge-primary">
-                                        Success
-                                    </div>
+
+                        @foreach ($schoolPrograms as $schoolProgram)
+                        <a href=" {{ url('program/school/'. strtolower($school->sch_id) .'/detail/'. $schoolProgram->id) }} " class="list-group-item">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="badge badge-primary w-100 me-2 text-start">
+                                    {{ $schoolProgram->program->prog_program }}
                                 </div>
-                            </a>
-                        @endfor
+                                <div class="badge badge-primary">
+                                    @if ($schoolProgram->status == 0)
+                                        Pending
+                                    @elseif ($schoolProgram->status == 1)
+                                        Success
+                                    @elseif ($schoolProgram->status == 2)
+                                        Denied
+                                    @endif
+                                </div>
+                            </div>
+                        </a>
+                        @endforeach 
                     </div>
                 </div>
             @endif

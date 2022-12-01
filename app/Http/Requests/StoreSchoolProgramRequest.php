@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\School;
 use App\Models\SchoolProgram;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
@@ -37,9 +38,10 @@ class StoreSchoolProgramRequest extends FormRequest
     public function rules()
     {
         $sch_id = $this->route('school');
-        
+       
+      
+
         return [
-            'sch_id' => 'required|exists:tbl_sch,sch_id',
             'prog_id' => 'required|exists:tbl_prog,prog_id',
             'first_discuss' => 'required|date',
             'planned_followup' => 'required|date|after_or_equal:first_discuss',
@@ -56,7 +58,7 @@ class StoreSchoolProgramRequest extends FormRequest
             ],
             'notes' => 'nullable',
             'notes_detail' => 'nullable',
-            'running_status' => 'nullable|in:Pending,Success,Denied',
+            'running_status' => 'nullable|in:Not yet,On going,Done',
             'total_hours' => 'nullable|integer',
             'total_fee' => 'nullable|numeric',
             'participants' => 'nullable|integer',
@@ -67,5 +69,18 @@ class StoreSchoolProgramRequest extends FormRequest
             'reason' => 'nullable',
             'denied_date' => 'nullable|date',
         ];
+
+        if($sch_id){
+            $rules = ['sch_id' => [
+                    'required',
+                    function ($attribute, $value, $fail) use ($sch_id) {
+                        if (!School::find($sch_id))
+                            $fail('The school is required');
+                    },
+                ]
+            ];
+                return $rules;
+        }   
+        
     }
 }
