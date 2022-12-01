@@ -57,6 +57,7 @@ class StoreReferralRequest extends FormRequest
                 }
             ],
             'additional_prog_name' => 'required_if:referral_type,Out',
+            'currency' => 'required|in:IDR,USD,SGD',
             'number_of_student' => 'required',
             'revenue' => 'required',
             'ref_date' => 'required|date',

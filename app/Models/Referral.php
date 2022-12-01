@@ -22,6 +22,7 @@ class Referral extends Model
         'empl_id',
         'referral_type',
         'additional_prog_name',
+        'currency',
         'number_of_student',
         'revenue',
         'ref_date',
