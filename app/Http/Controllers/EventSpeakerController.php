@@ -61,6 +61,7 @@ class EventSpeakerController extends Controller
     # get request from event controller
     public function update(StoreSpeakerRequest $request)
     {
+        $eventId = $request->route('event');
         $agendaId = $request->speaker;
         $status = $request->status;
         $notes = $request->notes;
@@ -76,11 +77,12 @@ class EventSpeakerController extends Controller
 
             DB::rollBack();
             Log::error('update status speaker failed : ' . $e->getMessage());
-            $responseMessage = ['status' => false, 'message' => 'Unable to change status'];
+            return Redirect::to('master/event/' . $eventId . '')->withError('Failed to update speaker');
 
         }
 
-        return response()->json($responseMessage);
+        // return response()->json($responseMessage);
+        return Redirect::to('master/event/'.$eventId)->withSuccess('Event speaker successfully updated');
     }
 
     public function destroy(Request $request)
