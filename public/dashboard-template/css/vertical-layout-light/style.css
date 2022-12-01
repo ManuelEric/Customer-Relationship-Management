@@ -8360,11 +8360,11 @@ code {
 }
 
 .form-check .form-check-label {
-  min-height: 18px;
+  /* min-height: 18px;
   display: block;
   margin-left: 1.75rem;
   font-size: 0.812rem;
-  line-height: 1.5;
+  line-height: 1.5; */
 }
 
 .rtl .form-check .form-check-label {
@@ -8825,7 +8825,7 @@ code {
 
 /* Dropdowns */
 .dropdown .dropdown-toggle:after {
-  border-top: 0;
+  /* border-top: 0;
   border-right: 0;
   border-left: 0;
   border-bottom: 0;
@@ -8837,7 +8837,7 @@ code {
   line-height: .625rem;
   font-size: .5rem;
   margin-left: .3rem;
-  font-weight: bold;
+  font-weight: bold; */
 }
 
 .dropdown .dropdown-menu {

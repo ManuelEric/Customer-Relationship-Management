@@ -57,16 +57,21 @@
                     </div>
                     <div class="list-group list-group-flush">
                         @for ($i = 0; $i < 3; $i++)
-                            <a href="#" class="list-group-item">
+                            <div class="list-group-item">
                                 <div class="d-flex align-items-center justify-content-between">
-                                    <div class="badge badge-primary w-100 me-2 text-start">
-                                        Program Name
+                                    <div class="text-start">
+                                        <div class="">
+                                            Program Name
+                                        </div>
+                                        <small>
+                                            Success
+                                        </small>
                                     </div>
-                                    <div class="badge badge-primary">
-                                        Success
-                                    </div>
+                                    <a href="#" class="fs-6 text-warning">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                 </div>
-                            </a>
+                            </div>
                         @endfor
                     </div>
                 </div>
@@ -294,89 +299,6 @@
         </div>
     </div>
 
-
-
-    <!-- Modal -->
-    <div class="modal modal-md fade" id="programForm" data-bs-backdrop="static" data-bs-keyboard="false"
-        tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="m-0 p-0">
-                        <i class="bi bi-plus me-2"></i>
-                        Add Program
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-2">
-                                <label for="">Program Name</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">Lead Source</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">PIC</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">First Discuss</label>
-                                <input type="date" name="" class="form-control form-control-sm rounded">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">Planned Follow Up</label>
-                                <input type="date" name="" class="form-control form-control-sm rounded">
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-2">
-                                <label for="">Notes</label>
-                                <textarea name="" id="" class="form-control"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-12 mt-2">
-                            <div class="d-flex justify-content-between">
-                                <button class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
-                                    <i class="bi bi-x me-1"></i>
-                                    Cancel
-                                </button>
-                                <button class="btn btn-sm btn-primary rounded-3">
-                                    <i class="bi bi-save2"></i>
-                                    Save
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     @if (isset($school))
         <div class="modal modal-md fade" id="picForm" data-bs-backdrop="static" data-bs-keyboard="false"
