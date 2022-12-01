@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientStudentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,6 +35,7 @@ Route::get('mentee/{status}', function ($status) {
     return view('pages.client.student.index-mentee', ['status' => $status]);
 });
 
+Route::resource('students', ClientStudentController::class);
 
 // Parent 
 Route::get('parent', function () {

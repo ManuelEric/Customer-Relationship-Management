@@ -36,12 +36,12 @@
                 <thead class="bg-dark text-white">
                     <tr class="text-center" role="row">
                         <th class="bg-info text-white">No</th>
-                        <th class="bg-info text-white">Mentee Name</th>
-                        <th>Mentee Mail</th>
-                        <th>Mentee Number</th>
+                        <th class="bg-info text-white">Name</th>
+                        <th>Mail</th>
+                        <th>Phone</th>
                         <th>Parents Name</th>
-                        <th>Parents Number</th>
-                        <th>School Name</th>
+                        <th>Parents Phone</th>
+                        <th>School</th>
                         <th>Graduation Year</th>
                         <th>Grade</th>
                         <th>Instagram</th>

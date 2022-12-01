@@ -85,7 +85,19 @@
                     {
                         data: 'revenue',
                         render: function(data, type, row, meta) {
-                            return formatRupiah(row.revenue)
+                            switch (row.currency) {
+                                case "USD":
+                                    return formatUsd(row.revenue)
+                                    break;
+
+                                case "IDR":
+                                    return formatRupiah(row.revenue)
+                                    break;
+                                
+                                case "SGD":
+                                    return 'S' + formatSingUsd(row.revenue)
+                                    break;
+                            }
                         }
                     },
                     {
@@ -108,6 +120,18 @@
                 return new Intl.NumberFormat('id-ID',
                     { style: 'currency', currency: 'IDR' }
                 ).format(money);
+            }
+
+            const formatUsd = (money) => {
+                return new Intl.NumberFormat('en-US',
+                    { style: 'currency', currency: 'USD' }
+                ).format(money)
+            }
+
+            const formatSingUsd = (money) => {
+                return new Intl.NumberFormat('en-SG',
+                    { style: 'currency', currency: 'SGD' }
+                ).format(money)
             }
         });
     </script>

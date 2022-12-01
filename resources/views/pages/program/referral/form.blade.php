@@ -140,10 +140,10 @@
                                 <label>Amount</label>
                                 <div class="row g-0">
                                     <div class="col-3">
-                                        <select name="" id="" class="select w-100">
-                                            <option value="IDR">IDR</option>
-                                            <option value="USD">USD</option>
-                                            <option value="SGD">SGD</option>
+                                        <select name="currency" class="select w-100" {{ $disabled }}>
+                                            <option value="IDR" {{ isset($referral->currency) && $referral->currency == "IDR" ? "selected" : null }}>IDR</option>
+                                            <option value="USD" {{ isset($referral->currency) && $referral->currency == "USD" ? "selected" : null }}>USD</option>
+                                            <option value="SGD" {{ isset($referral->currency) && $referral->currency == "SGD" ? "selected" : null }}>SGD</option>
                                         </select>
                                     </div>
                                     <div class="col-9">
