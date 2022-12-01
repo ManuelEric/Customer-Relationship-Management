@@ -14,17 +14,6 @@
         </a>
     </div>
 
-    {{-- @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="pb-0 mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif --}}
-
-
     <div class="row">
         <div class="col-md-4 text-center">
             <div class="card rounded mb-3">
@@ -145,7 +134,7 @@
             @endif
         </div>
     </div>
-    @if ($disabled)
+    {{-- @if ($disabled)
         <script async defer>
             tinymce.init({
                 selector: 'textarea',
@@ -156,7 +145,7 @@
                 toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
             });
         </script>
-    @endif
+    @endif --}}
     <script>
         $(document).ready(function() {
             $('.modal-select-univ').select2({

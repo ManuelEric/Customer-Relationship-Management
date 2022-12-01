@@ -1,12 +1,12 @@
 @extends('layout.main')
 
-@section('title', 'Mentee - Bigdata Platform')
+@section('title', 'Student - Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('client/mentee/potential') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Mentee
+            <i class="bi bi-arrow-left me-2"></i> Student
         </a>
     </div>
 
@@ -15,7 +15,7 @@
         <div class="card-header">
             <h5 class="my-1 p-0">
                 <i class="bi bi-info-circle me-1"></i>
-                Mentee Detail
+                Student Detail
             </h5>
         </div>
         <div class="card-body">

@@ -22,59 +22,62 @@
                         <th>From</th>
                         <th>Start Time</th>
                         <th>End Time</th>
-                        <th>Status</th>
+                        <th width="130px">Status</th>
                         <th class="text-end">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (isset($eventSpeakers))
-                    @php
-                        $no = 1
-                    @endphp
+                        @php
+                            $no = 1;
+                        @endphp
                         @foreach ($eventSpeakers as $eventSpeaker)
-                        <tr>
-                            <td>{{ $no++ }}</td>
-                            @switch($eventSpeaker->speaker_type)
-                                @case("partner")
-                                    <td>{{ $eventSpeaker->partner_pic_name }}</td>
-                                    <td>{{ $eventSpeaker->corp_name }}</td>
+                            <tr>
+                                <td>{{ $no++ }}</td>
+                                @switch($eventSpeaker->speaker_type)
+                                    @case('partner')
+                                        <td>{{ $eventSpeaker->partner_pic_name }}</td>
+                                        <td>{{ $eventSpeaker->corp_name }}</td>
                                     @break
 
-                                @case("school")
-                                    <td>{{ $eventSpeaker->school_pic_name }}</td>
-                                    <td>{{ $eventSpeaker->school_name }}</td>
+                                    @case('school')
+                                        <td>{{ $eventSpeaker->school_pic_name }}</td>
+                                        <td>{{ $eventSpeaker->school_name }}</td>
                                     @break
 
-                                @case("university")
-                                    <td>{{ $eventSpeaker->university_pic_name }}</td>
-                                    <td>{{ $eventSpeaker->university_name }}</td>
+                                    @case('university')
+                                        <td>{{ $eventSpeaker->university_pic_name }}</td>
+                                        <td>{{ $eventSpeaker->university_name }}</td>
                                     @break
 
-                                @case("internal")
-                                    <td>{{ $eventSpeaker->internal_pic }}</td>
-                                    <td>ALL-In Eduspace</td>
+                                    @case('internal')
+                                        <td>{{ $eventSpeaker->internal_pic }}</td>
+                                        <td>ALL-In Eduspace</td>
                                     @break
-                            
-                                @default
-                                    
-                            @endswitch
-                            <td>{{ $eventSpeaker->start_time }}</td>
-                            <td>{{ $eventSpeaker->end_time }}</td>
-                            <td nowrap>
-                                <select name="status" class="select w-100 status-form" data-row-id="{{ $eventSpeaker->agenda_id }}">
-                                    <option data-placeholder="true"></option>
-                                    <option value="1" {{ $eventSpeaker->status == 1 ? "selected" : null }}>Active</option>
-                                    <option value="2" {{ $eventSpeaker->status == 2 ? "selected" : null }}>Cancel</option>
-                                </select>
-                            </td>
-                            <td class="text-center">
-                                <a href="javascript:void(0)">
-                                    <div onclick="confirmDelete('master/event/{{ $event->event_id }}/speaker', '{{ $eventSpeaker->agenda_id }}')">
-                                        <i class="bi bi-trash2 text-danger"></i>
-                                    </div>
-                                </a>
-                            </td>
-                        </tr>
+
+                                    @default
+                                @endswitch
+                                <td>{{ $eventSpeaker->start_time }}</td>
+                                <td>{{ $eventSpeaker->end_time }}</td>
+                                <td nowrap>
+                                    <select name="status" class="select w-100 status-form"
+                                        data-row-id="{{ $eventSpeaker->agenda_id }}">
+                                        <option data-placeholder="true"></option>
+                                        <option value="1" {{ $eventSpeaker->status == 1 ? 'selected' : null }}>
+                                            Active</option>
+                                        <option value="2" {{ $eventSpeaker->status == 2 ? 'selected' : null }}>
+                                            Cancel</option>
+                                    </select>
+                                </td>
+                                <td class="text-center">
+                                    <a href="javascript:void(0)">
+                                        <div
+                                            onclick="confirmDelete('master/event/{{ $event->event_id }}/speaker', '{{ $eventSpeaker->agenda_id }}')">
+                                            <i class="bi bi-trash2 text-danger"></i>
+                                        </div>
+                                    </a>
+                                </td>
+                            </tr>
                         @endforeach
                     @endif
                 </tbody>
@@ -94,7 +97,8 @@
                 <i class="bi bi-pencil-square"></i>
             </div>
             <div class="modal-body w-100 text-start">
-                <form action="{{ route('event.speaker.store', ['event' => $event->event_id]) }}" method="POST" id="formPosition">
+                <form action="{{ route('event.speaker.store', ['event' => $event->event_id]) }}" method="POST"
+                    id="formPosition">
                     @csrf
                     <div class="put"></div>
                     <div class="row g-2">
@@ -102,7 +106,8 @@
                             <label for="">
                                 From <sup class="text-danger">*</sup>
                             </label>
-                            <select name="speaker_type" class="modal-select w-100">
+                            <select name="speaker_type" class="modal-select w-100" id="speaker_type"
+                                onchange="changeSpeaker()">
                                 <option data-placeholder="true"></option>
                                 <option value="internal">ALL-in</option>
                                 <option value="partner">Partner</option>
@@ -113,73 +118,98 @@
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
-                        <div class="col-md-12 mb-2">
-                            <label for="">
-                                Partner Name <sup class="text-danger">*</sup>
-                            </label>
+                        <div class="col-md-12">
+                            <div class="speaker d-none mb-2" id="internalPIC">
+                                <label for="">
+                                    Employee Speaker <sup class="text-danger">*</sup>
+                                </label>
 
-                            <select name="allin_speaker" class="d-none partner-name w-100">
-                                
-                                @if (isset($employees))
-                                    <option data-placeholder="true"></option>
-                                    @foreach ($employees as $employee) 
-                                        <option value="{{ $employee->id }}">{{ $employee->first_name.' '.$employee->last_name }}</option>
-                                    @endforeach
-                                @else
-                                    <option data-placeholder="true">There's no speaker</option>
-                                @endif
-                            </select>
-                            @error('allin_speaker')
-                                <small class="text-danger fw-light">{{ $message }}</small>
-                            @enderror
+                                <select name="allin_speaker" class="modal-select w-100">
 
-                            <select name="partner_speaker" class="d-none partner-name w-100">
-                                @if (isset($partnerEvent))
-                                    @foreach ($partnerEvent as $partnerJoined)
-                                        @if (isset($partnerJoined->pic) && (count($partnerJoined->pic) > 0))
+                                    @if (isset($employees))
                                         <option data-placeholder="true"></option>
-                                            @foreach ($partnerJoined->pic as $pic)
-                                                <option value="{{ $pic->id }}">{{ $pic->pic_name }} from {{ $partnerJoined->corp_name }}</option>
-                                            @endforeach
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </select>
-                            @error('partner_speaker')
-                                <small class="text-danger fw-light">{{ $message }}</small>
-                            @enderror
+                                        @foreach ($employees as $employee)
+                                            <option value="{{ $employee->id }}">
+                                                {{ $employee->first_name . ' ' . $employee->last_name }}</option>
+                                        @endforeach
+                                    @else
+                                        <option data-placeholder="true">There's no speaker</option>
+                                    @endif
+                                </select>
+                                @error('allin_speaker')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
 
-                            <select name="school_speaker" class="d-none partner-name w-100">
-                                @if (isset($schoolEvent))
-                                    @foreach ($schoolEvent as $schoolJoined)
-                                        @if (isset($schoolJoined->detail) && (count($schoolJoined->detail) > 0))
-                                        <option data-placeholder="true"></option>
-                                            @foreach ($schoolJoined->detail as $pic)
-                                                <option value="{{ $pic->schdetail_id }}">{{ $pic->schdetail_fullname }} as {{ $pic->schdetail_position }} from {{ $schoolJoined->sch_name }}</option>
-                                            @endforeach
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </select>
-                            @error('school_speaker')
-                                <small class="text-danger fw-light">{{ $message }}</small>
-                            @enderror
+                            <div class="speaker d-none mb-2" id="partnerPIC">
+                                <label for="">
+                                    Partner Speaker <sup class="text-danger">*</sup>
+                                </label>
 
-                            <select name="university_speaker" class="d-none partner-name w-100">
-                                @if (isset($universityEvent))
-                                    @foreach ($universityEvent as $universityJoined)
-                                        @if (isset($universityJoined->pic) && (count($universityJoined->pic) > 0))
-                                            <option data-placeholder="true"></option>
-                                            @foreach ($universityJoined->pic as $pic)
-                                                <option value="{{ $pic->id }}">{{ $pic->name }} as {{ $pic->title }} from {{ $universityJoined->univ_name }}</option>
-                                            @endforeach
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </select>
-                            @error('university_speaker')
-                                <small class="text-danger fw-light">{{ $message }}</small>
-                            @enderror
+                                <select name="partner_speaker" class="modal-select w-100">
+                                    @if (isset($partnerEvent))
+                                        @foreach ($partnerEvent as $partnerJoined)
+                                            @if (isset($partnerJoined->pic) && count($partnerJoined->pic) > 0)
+                                                <option data-placeholder="true"></option>
+                                                @foreach ($partnerJoined->pic as $pic)
+                                                    <option value="{{ $pic->id }}">{{ $pic->pic_name }} from
+                                                        {{ $partnerJoined->corp_name }}</option>
+                                                @endforeach
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                </select>
+                                @error('partner_speaker')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <div class="speaker d-none mb-2" id="schoolPIC">
+                                <label for="">
+                                    School Speaker <sup class="text-danger">*</sup>
+                                </label>
+                                <select name="school_speaker" class="modal-select w-100">
+                                    @if (isset($schoolEvent))
+                                        @foreach ($schoolEvent as $schoolJoined)
+                                            @if (isset($schoolJoined->detail) && count($schoolJoined->detail) > 0)
+                                                <option data-placeholder="true"></option>
+                                                @foreach ($schoolJoined->detail as $pic)
+                                                    <option value="{{ $pic->schdetail_id }}">
+                                                        {{ $pic->schdetail_fullname }} as
+                                                        {{ $pic->schdetail_position }}
+                                                        from {{ $schoolJoined->sch_name }}</option>
+                                                @endforeach
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                </select>
+                                @error('school_speaker')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <div class="speaker d-none mb-2" id="universityPIC">
+                                <label for="">
+                                    University Speaker <sup class="text-danger">*</sup>
+                                </label>
+                                <select name="university_speaker" class="modal-select w-100">
+                                    @if (isset($universityEvent))
+                                        @foreach ($universityEvent as $universityJoined)
+                                            @if (isset($universityJoined->pic) && count($universityJoined->pic) > 0)
+                                                <option data-placeholder="true"></option>
+                                                @foreach ($universityJoined->pic as $pic)
+                                                    <option value="{{ $pic->id }}">{{ $pic->name }} as
+                                                        {{ $pic->title }} from {{ $universityJoined->univ_name }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                </select>
+                                @error('university_speaker')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="col-md-6 mb-2">
@@ -187,7 +217,8 @@
                                 Start Time <sup class="text-danger">*</sup>
                             </label>
                             <input type="datetime-local" name="start_time" id=""
-                                class="form-control form-control-sm" value="{{ $event->event_startdate }}" min="{{ $event->event_startdate }}" max="{{ $event->event_enddate }}">
+                                class="form-control form-control-sm" value="{{ $event->event_startdate }}"
+                                min="{{ $event->event_startdate }}" max="{{ $event->event_enddate }}">
                             @error('start_time')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
@@ -197,12 +228,46 @@
                                 End Time <sup class="text-danger">*</sup>
                             </label>
                             <input type="datetime-local" name="end_time" id=""
-                                class="form-control form-control-sm" value="{{ $event->event_enddate }}" min="{{ $event->event_startdate }}" max="{{ $event->event_enddate }}">
+                                class="form-control form-control-sm" value="{{ $event->event_enddate }}"
+                                min="{{ $event->event_startdate }}" max="{{ $event->event_enddate }}">
                             @error('end_time')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
                     </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</a>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-save2 me-1"></i>
+                            Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reasonModal" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>
+                    Reason
+                </span>
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div class="modal-body w-100 text-start">
+                <form action="#" method="POST" id="reasonForm">
+                    @csrf
+                    @method('put')
+                    <input type="text" name="agendaId" id="agenda_id">
+                    <input type="text" name="status" id="status_id">
+                    <label for="">Notes</label>
+                    <textarea name="notes" id="notes"></textarea>
                     <hr>
                     <div class="d-flex justify-content-between">
                         <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
@@ -225,100 +290,40 @@
             placeholder: "Select value",
             allowClear: true
         });
+    })
 
-        function init() {
-            $('.modal-select').select2({
-                dropdownParent: $('#speaker .modal-body'),
-                placeholder: "Select value",
-                allowClear: true
-            });
-        }
+    function changeSpeaker() {
+        let type = $('#speaker_type').val()
+        let id = '#' + type + 'PIC'
+        $('.speaker').addClass('d-none')
+        $(id).removeClass('d-none')
+    }
 
-        $("select[name=speaker_type]").change(function () {
-            var speaker_type = $(this).val()
 
-            switch (speaker_type) {
-                case "internal":
-                    var element_name = 'allin_speaker'
-                    break;
+    $(".status-form").each(function() {
+        var _this = $(this)
+        _this.change(async function() {
 
-                case "partner":
-                    var element_name = 'partner_speaker'
-                    break;
+            var status = _this.val()
+            var agendaId = _this.data('row-id')
 
-                case "school":
-                    var element_name = 'school_speaker'
-                    break;
+            var link =
+                '{{ url('') }}/master/event/{{ $event->event_id }}/speaker/' +
+                agendaId
+            var data = new Array()
 
-                case "university":
-                    var element_name = 'university_speaker'
-                    break;
+            $('#reasonForm').attr('action', link)
+
+            if (status == 2) {
+                $('#reasonModal').modal('show')
+                $('#agenda_id').val(agendaId)
+                $('#status_id').val(status)
+            } else {
+                $('#agenda_id').val(agendaId)
+                $('#status_id').val(status)
+                $('#notes').val('')
+                $('#reasonForm').submit()
             }
-
-            $('select[name='+element_name+']').removeClass('d-none')
-            // $('select[name='+element_name+']').removeClass('d-none').addClass('modal-select')
-            $('.partner-name').each(function (e, index) {
-                        
-                if (!index.classList.contains('d-none') && ($(index).attr('name') != element_name))
-                    $(index).addClass('d-none').removeClass('modal-select w-100')
-                    $(index).next('select2').remove()
-
-            })
         })
-
-        $(".status-form").each(function() {
-            var _this = $(this)
-            _this.change(async function() {
-                
-                var status = _this.val()
-                var agendaId = _this.data('row-id')
-
-                var link = '{{ url('') }}/master/event/{{ $event->event_id }}/speaker/' + agendaId
-                var data = new Array()
-
-                // 2 = cancel
-                if (status == 2) {
-
-                    var { value: notes } = await Swal.fire({
-                        title: 'Why cancel the speaker?',
-                        input: 'textarea',
-                        inputLabel: 'Notes',
-                    })
-
-                    if (notes) {
-                        // Swal.fire(`Entered email: ${notes}`)
-                        data = {
-                            'agendaId' : agendaId,
-                            'status' : status,
-                            'notes' : notes
-                        }
-                    }
-
-                } else {
-
-                    data = {
-                            'agendaId' : agendaId,
-                            'status' : status,
-                        }
-
-                }
-                
-                updateStatusSpeaker(link, data)
-            })
-        })
-
-        function updateStatusSpeaker(link, data)
-        {
-            axios.put(link, data)
-                .then(function(response) {
-                    console.log(response)
-                    notification(response.data.status, response.data.message)
-                    
-                })
-                .catch(function(error) {
-                    
-                    notification(false, error.response.statusText)
-                })
-        }
-    });
+    })
 </script>
