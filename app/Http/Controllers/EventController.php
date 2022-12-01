@@ -195,6 +195,7 @@ class EventController extends Controller
         
         return view('pages.master.event.form')->with(
             [
+                'edit' => true,
                 'event' => $event,
                 'eventPic' => $eventPic,
                 'employees' => $employees,

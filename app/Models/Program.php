@@ -57,4 +57,14 @@ class Program extends Model
             get: fn ($value) => $value == NULL ? "-" : $value,
         );
     }
+
+    public function main_prog()
+    {
+        return $this->belongsTo(MainProg::class, 'main_prog_id', 'id');
+    }
+
+    public function sub_prog()
+    {
+        return $this->belongsTo(SubProg::class, 'sub_prog_id', 'id');
+    }
 }

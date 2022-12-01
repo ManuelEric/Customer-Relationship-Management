@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Partner extends Model
+class Referral extends Model
 {
     use HasFactory;
 
-    protected $table = 'tbl_partner';
+    protected $table = 'tbl_referral';
 
     /**
      * The attributes that should be visible in arrays.
@@ -17,11 +17,14 @@ class Partner extends Model
      * @var array
      */
     protected $fillable = [
-        'pt_name',
-        'pt_email',
-        'pt_phone',
-        'pt_institution',
-        'pt_address',
-        'status',
+        'partner_id',
+        'prog_id',
+        'empl_id',
+        'referral_type',
+        'additional_prog_name',
+        'number_of_student',
+        'revenue',
+        'ref_date',
+        'notes',
     ];
 }

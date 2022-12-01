@@ -41,8 +41,8 @@ class StoreEventRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     if (!User::whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
-                    })->whereId($value)) {
-                        $fail('The submitted pic was not employee is invalid');
+                    })->find($value)) {
+                        $fail('The submitted pic was invalid employee');
                     }
                 },
             ]
@@ -52,6 +52,7 @@ class StoreEventRequest extends FormRequest
     protected function update()
     {
         $eventId = $this->route('event');
+        
         return [
             'event_title' => 'required|unique:tbl_events,event_title,'.$eventId.',event_id',
             'event_description' => 'required',
@@ -63,7 +64,7 @@ class StoreEventRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     if (!User::whereHas('roles', function ($q) {
                         $q->where('role_name', 'Employee');
-                    })->whereId($value)) {
+                    })->find($value)) {
                         $fail('The submitted pic was not employee is invalid');
                     }
                 },

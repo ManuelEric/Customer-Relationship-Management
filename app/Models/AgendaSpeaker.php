@@ -29,6 +29,7 @@ class AgendaSpeaker extends Model
         'priority',
         'status',
         'speaker_type',
+        'notes',
     ];
 
     

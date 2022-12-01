@@ -42,7 +42,7 @@ class StoreSpeakerRequest extends FormRequest
                 function ($attribute, $value, $fail) use ($eventId) {
                     if (!User::whereHas('roles', function($query) {
                             $query->where('role_name', 'employee');
-                        })->whereId($value)) {
+                        })->find($value)) {
 
                             $fail('The partner name is invalid');
 

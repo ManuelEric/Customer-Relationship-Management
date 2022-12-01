@@ -98,7 +98,7 @@
                     @csrf
                     <div class="put"></div>
                     <div class="row g-2">
-                        <div class="col-md-6 mb-2">
+                        <div class="col-md-12 mb-2">
                             <label for="">
                                 From <sup class="text-danger">*</sup>
                             </label>
@@ -113,28 +113,31 @@
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
-                        <div class="col-md-6 mb-2">
+                        <div class="col-md-12 mb-2">
                             <label for="">
                                 Partner Name <sup class="text-danger">*</sup>
                             </label>
 
-                            <select name="allin_speaker" class="d-none partner-name">
-                                <option data-placeholder="true"></option>
+                            <select name="allin_speaker" class="d-none partner-name w-100">
+                                
                                 @if (isset($employees))
+                                    <option data-placeholder="true"></option>
                                     @foreach ($employees as $employee) 
                                         <option value="{{ $employee->id }}">{{ $employee->first_name.' '.$employee->last_name }}</option>
                                     @endforeach
+                                @else
+                                    <option data-placeholder="true">There's no speaker</option>
                                 @endif
                             </select>
                             @error('allin_speaker')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
 
-                            <select name="partner_speaker" class="d-none partner-name">
-                                <option data-placeholder="true"></option>
+                            <select name="partner_speaker" class="d-none partner-name w-100">
                                 @if (isset($partnerEvent))
                                     @foreach ($partnerEvent as $partnerJoined)
-                                        @if (isset($partnerJoined->pic))
+                                        @if (isset($partnerJoined->pic) && (count($partnerJoined->pic) > 0))
+                                        <option data-placeholder="true"></option>
                                             @foreach ($partnerJoined->pic as $pic)
                                                 <option value="{{ $pic->id }}">{{ $pic->pic_name }} from {{ $partnerJoined->corp_name }}</option>
                                             @endforeach
@@ -146,11 +149,11 @@
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
 
-                            <select name="school_speaker" class="d-none partner-name">
-                                <option data-placeholder="true"></option>
+                            <select name="school_speaker" class="d-none partner-name w-100">
                                 @if (isset($schoolEvent))
                                     @foreach ($schoolEvent as $schoolJoined)
-                                        @if (isset($schoolJoined->detail))
+                                        @if (isset($schoolJoined->detail) && (count($schoolJoined->detail) > 0))
+                                        <option data-placeholder="true"></option>
                                             @foreach ($schoolJoined->detail as $pic)
                                                 <option value="{{ $pic->schdetail_id }}">{{ $pic->schdetail_fullname }} as {{ $pic->schdetail_position }} from {{ $schoolJoined->sch_name }}</option>
                                             @endforeach
@@ -162,11 +165,11 @@
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
 
-                            <select name="university_speaker" class="d-none partner-name">
-                                <option data-placeholder="true"></option>
+                            <select name="university_speaker" class="d-none partner-name w-100">
                                 @if (isset($universityEvent))
                                     @foreach ($universityEvent as $universityJoined)
-                                        @if (isset($universityJoined->pic))
+                                        @if (isset($universityJoined->pic) && (count($universityJoined->pic) > 0))
+                                            <option data-placeholder="true"></option>
                                             @foreach ($universityJoined->pic as $pic)
                                                 <option value="{{ $pic->id }}">{{ $pic->name }} as {{ $pic->title }} from {{ $universityJoined->univ_name }}</option>
                                             @endforeach
@@ -253,38 +256,69 @@
             }
 
             $('select[name='+element_name+']').removeClass('d-none')
+            // $('select[name='+element_name+']').removeClass('d-none').addClass('modal-select')
             $('.partner-name').each(function (e, index) {
                         
                 if (!index.classList.contains('d-none') && ($(index).attr('name') != element_name))
-                    $(index).addClass('d-none')
+                    $(index).addClass('d-none').removeClass('modal-select w-100')
+                    $(index).next('select2').remove()
 
             })
         })
 
         $(".status-form").each(function() {
             var _this = $(this)
-            _this.change(function() {
+            _this.change(async function() {
+                
                 var status = _this.val()
                 var agendaId = _this.data('row-id')
 
                 var link = '{{ url('') }}/master/event/{{ $event->event_id }}/speaker/' + agendaId
-                // var link = "?status=" + status + "&xsrf=" + "{{ csrf_token() }}" + "&id=" + agendaId
-                const data = {
-                    'agendaId' : agendaId,
-                    'status' : status
-                }
+                var data = new Array()
 
-                axios.put(link, data)
-                    .then(function(response) {
-                        console.log(response)
-                        notification(response.data.status, response.data.message)
-                        
+                // 2 = cancel
+                if (status == 2) {
+
+                    var { value: notes } = await Swal.fire({
+                        title: 'Why cancel the speaker?',
+                        input: 'textarea',
+                        inputLabel: 'Notes',
                     })
-                    .catch(function(error) {
-                        
-                        notification(false, error.response.statusText)
-                    })
+
+                    if (notes) {
+                        // Swal.fire(`Entered email: ${notes}`)
+                        data = {
+                            'agendaId' : agendaId,
+                            'status' : status,
+                            'notes' : notes
+                        }
+                    }
+
+                } else {
+
+                    data = {
+                            'agendaId' : agendaId,
+                            'status' : status,
+                        }
+
+                }
+                
+                updateStatusSpeaker(link, data)
             })
         })
+
+        function updateStatusSpeaker(link, data)
+        {
+            axios.put(link, data)
+                .then(function(response) {
+                    console.log(response)
+                    notification(response.data.status, response.data.message)
+                    
+                })
+                .catch(function(error) {
+                    
+                    notification(false, error.response.statusText)
+                })
+        }
     });
 </script>

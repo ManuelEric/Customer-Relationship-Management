@@ -63,11 +63,12 @@ class EventSpeakerController extends Controller
     {
         $agendaId = $request->speaker;
         $status = $request->status;
+        $notes = $request->notes;
 
         DB::beginTransaction();
         try {
 
-            $this->agendaSpeakerRepository->updateAgendaSpeaker($agendaId, ['status' => $status]);
+            $this->agendaSpeakerRepository->updateAgendaSpeaker($agendaId, ['status' => $status, 'notes' => $notes]);
             $responseMessage = ['status' => true, 'message' => 'Speaker status has successfully changed'];
             DB::commit();
 

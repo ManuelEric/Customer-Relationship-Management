@@ -26,5 +26,6 @@ class AgendaSpeaker extends Pivot
         'priority',
         'status',
         'speaker_type',
+        'notes'
     ];
 }

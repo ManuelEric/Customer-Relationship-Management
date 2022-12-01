@@ -30,7 +30,7 @@
             <div class="card rounded mb-3">
                 <div class="card-body">
                     <img src="{{ asset('img/program.webp') }}" alt="" class="w-75">
-                    @if (isset($event) && !isset($true))
+                    @if (isset($event) && !isset($edit))
                         <div class="mt-3 d-flex justify-content-center">
                             <a href="{{ route('event.edit', ['event' => $event->event_id]) }}"
                                 class="btn btn-sm btn-outline-info rounded mx-1">

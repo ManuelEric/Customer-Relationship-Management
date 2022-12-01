@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ReferralController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,14 +13,7 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-
-Route::get('referral', function () {
-    return view('pages.program.referral.index');
-});
-Route::get('referral/create', function () {
-    return view('pages.program.referral.form');
-});
+Route::resource('referral', ReferralController::class);
 
 Route::get('event', function () {
     return view('pages.program.client-event.index');
