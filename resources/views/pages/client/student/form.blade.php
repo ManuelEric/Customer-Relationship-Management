@@ -166,19 +166,31 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4 school d-none">
-                        <div class="mb-2">
-                            <label>Other School Name <i class="text-danger font-weight-bold">*</i></label>
-                            <input name="sch_name" type="text" class="form-control form-control-sm"
-                                placeholder="Other School Name" autofocus>
-                        </div>
-                    </div>
-                    <div class="col-md-4 school d-none">
-                        <div class="mb-2">
-                            <label>Current Education</label>
-                            <select class="select w-100" name="st_currentsch">
-                                <option data-placeholder="true"></option>
-                            </select>
+                    <div class="col-md-8 school d-none">
+                        <div class="row row-cols-md-3 row-cols-1">
+                            <div class="col">
+                                <div class="mb-2">
+                                    <label>Other School Name <i class="text-danger font-weight-bold">*</i></label>
+                                    <input name="sch_name" type="text" class="form-control form-control-sm"
+                                        placeholder="Other School Name" autofocus>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-2">
+                                    <label>School Type</label>
+                                    <select class="select w-100" name="st_currentsch">
+                                        <option data-placeholder="true"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-2">
+                                    <label>Curriculum</label>
+                                    <select class="select w-100" name="st_currentsch">
+                                        <option data-placeholder="true"></option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-4 school d-none">
