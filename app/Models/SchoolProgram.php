@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -33,7 +34,7 @@ class SchoolProgram extends Model
         'end_program_date',
         'start_program_date',
         'success_date',
-        'reason',
+        'reason_id',
         'denied_date',
         'empl_id',
     ];
@@ -51,5 +52,10 @@ class SchoolProgram extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'empl_id', 'id');
+    }
+
+    public function reason()
+    {
+        return $this->belongsTo(Reason::class, 'reason_id', 'reason_id');
     }
 }

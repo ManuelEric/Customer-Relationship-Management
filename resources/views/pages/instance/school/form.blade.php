@@ -56,23 +56,29 @@
                         </div>
                     </div>
                     <div class="list-group list-group-flush">
-                        @for ($i = 0; $i < 3; $i++)
+                        @foreach ($schoolPrograms as $schoolProgram)
                             <div class="list-group-item">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div class="text-start">
                                         <div class="">
-                                            Program Name
+                                            {{ $schoolProgram->program->prog_program }}
                                         </div>
                                         <small>
-                                            Success
+                                            @if ($schoolProgram->status == 0)
+                                                Pending
+                                            @elseif ($schoolProgram->status == 1)
+                                                Success
+                                            @elseif ($schoolProgram->status == 2)
+                                                Denied
+                                            @endif
                                         </small>
                                     </div>
-                                    <a href="#" class="fs-6 text-warning">
+                                    <a href="{{ url('program/school/'. strtolower($school->sch_id) .'/detail/'. $schoolProgram->id) }}" class="fs-6 text-warning">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                 </div>
                             </div>
-                        @endfor
+                        @endforeach
                     </div>
                 </div>
             @endif

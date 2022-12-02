@@ -70,7 +70,7 @@
                             
                         </div>
                         <div class="col-md-9">
-                            <select name="prog_id" id="" class="select w-100">
+                            <select name="prog_id" id="" class="select w-100" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                 <option data-placeholder="true"></option>
                                 @if(isset($schoolProgram->prog_id))
                                     @if(isset($edit))
@@ -80,7 +80,7 @@
                                             </option>
                                         @endforeach
                                     @else        
-                                        <option value="{{ $schoolProgram->prog_id }}" selected {{ isset($edit) ? '' : 'disabled' }}>
+                                        <option value="{{ $schoolProgram->prog_id }}" selected>
                                             {{ $schoolProgram->program->prog_program }}
                                         </option>
                                     @endif
@@ -153,17 +153,11 @@
                                 <div class="col-md-6">
                                     <small>Status</small>
                                     <select name="status" id="approach_status" class="select w-100"
-                                        onchange="checkStatus()">
+                                        onchange="checkStatus()" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
-                                        {{-- @if(isset($schoolProgram->status)) --}}
-                                            {{-- <option value="0" {{ $schoolProgram->status == 0 ? 'selected' : ''}} {{ isset($edit) ? '' : 'disabled' }}>Pending</option>
-                                            <option value="1" {{ $schoolProgram->status == 1 ? 'selected' : ''}} {{ isset($edit) ? '' : 'disabled' }}>Success</option>
-                                            <option value="2" {{ $schoolProgram->status == 2 ? 'selected' : ''}} {{ isset($edit) ? '' : 'disabled' }}>Denied</option> --}}
-                                        {{-- @elseif(empty($schoolProgram)) --}}
                                             <option value="0">Pending</option>
                                             <option value="1">Success</option>
                                             <option value="2">Denied</option>
-                                        {{-- @endif --}}
                                     </select>
                                     @error('status')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -184,11 +178,53 @@
                                         {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                                 <div class="col-md-6 denied_status d-none my-2">
-                                    <small>Reason</small>
-                                    <input type="text" name="reason" id=""
-                                        class="form-control form-control-sm rounded"
-                                        value="{{ isset($schoolProgram->reason) ? $schoolProgram->reason :  old('reason') }}"
-                                        {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                
+                                        <label>Reason</label>
+                                        <div class="classReason">
+                                            <select name="reason_id" class="select w-100"
+                                                style="display: none !important" id="selectReason"
+                                                onchange="otherOption($(this).val())"
+                                                {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                                <option data-placeholder="true"></option>
+                                                    @if(isset($schoolProgram->reason_id))
+                                                        @if(isset($edit))    
+                                                            @foreach ($reasons as $reason)
+                                                                <option value="{{ $reason->reason_id }}" {{ $schoolProgram->reason_id == $reason->reason_id ? 'selected' : ''}}>
+                                                                    {{ $reason->reason_name }}
+                                                                </option>
+                                                            @endforeach
+                                                            <option value="other">
+                                                                Other option
+                                                            </option>
+                                                        @else
+                                                                <option value="{{ $schoolProgram->reason_id }}" selected>
+                                                                    {{ $schoolProgram->reason->reason_name }}
+                                                                </option>        
+                                                        @endif
+                                                    @elseif(empty($schoolProgram))
+                                                        @foreach ($reasons as $reason)
+                                                            <option value="{{ $reason->reason_id }}">
+                                                                {{ $reason->reason_name }}
+                                                            </option>
+                                                        @endforeach
+                                                        <option value="other">
+                                                            Other option
+                                                        </option>
+                                                    @endif
+                                            </select>
+                                        </div>
+                                            
+                                        <div class="d-flex align-items-center d-none" id="inputReason">
+                                            <input type="text" name="other_reason"
+                                                class="form-control form-control-sm rounded">
+                                            <div class="float-end cursor-pointer" onclick="resetOption()">
+                                                <b>
+                                                    <i class="bi bi-x text-danger"></i>
+                                                </b>
+                                            </div>
+                                        </div>
+
+                                    
                                 </div>
                             </div>
                         </div>
@@ -294,7 +330,7 @@
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <select name="empl_id" id="" class="select w-100">
+                                    <select name="empl_id" id="" class="select w-100" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
                                         @if(isset($schoolProgram->empl_id))
                                             @if(isset($edit))
@@ -304,7 +340,7 @@
                                                         {{ $employee->first_name }} {{ $employee->last_name }}</option>
                                                 @endforeach    
                                             @else
-                                                <option value="{{ $schoolProgram->empl_id }}" selected {{ isset($edit) ? '' : 'disabled' }}>
+                                                <option value="{{ $schoolProgram->empl_id }}" selected>
                                                     {{ $schoolProgram->user->first_name }} {{ $schoolProgram->user->last_name }}
                                                 </option>
                                             @endif
@@ -333,8 +369,10 @@
                     </form>
                 </div>
             </div>
-
-            @include('pages.program.school-program.detail.attachment')
+          
+            @if(isset($success))
+                @include('pages.program.school-program.detail.attachment')
+            @endif
         </div>
     </div>
     <script>
@@ -351,6 +389,26 @@
                 $('.success_status').addClass('d-none')
             }
         }
+
+        function otherOption(value) {
+
+            if (value == 'other') {
+                $('.classReason').addClass('d-none')
+                $('#inputReason').removeClass('d-none')
+                $('#inputReason input').focus()
+            } else {
+                $('#inputReason').addClass('d-none')
+                $('.classReason').removeClass('d-none')
+            }
+        }
+
+        function resetOption() {
+            $('.classReason').removeClass('d-none')
+            $('#selectReason').val(null).trigger('change')
+            $('#inputReason').addClass('d-none')
+            $('#inputReason input').val(null)
+        }
+
     </script>
     @if(isset($schoolProgram))
         <script>

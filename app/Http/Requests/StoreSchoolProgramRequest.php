@@ -66,7 +66,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'end_program_date' => 'nullable|date|after_or_equal:start_program_date',
             'start_program_date' => 'nullable|date|before_or_equal:end_program_date',
             'success_date' => 'nullable|date',
-            'reason' => 'nullable',
+            'reason_id' => 'nullable',
             'denied_date' => 'nullable|date',
         ];
 

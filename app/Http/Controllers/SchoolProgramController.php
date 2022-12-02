@@ -8,6 +8,9 @@ use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\ReasonRepositoryInterface;
+use App\Models\Reason;
+use App\Models\SchoolProgram;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,13 +27,21 @@ class SchoolProgramController extends Controller
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
     protected ProgramRepositoryInterface $programRepository;
     protected UserRepositoryInterface $userRepository;
+    protected ReasonRepositoryInterface $rasonRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, UserRepositoryInterface $userRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository)
+    public function __construct(
+        SchoolRepositoryInterface $schoolRepository, 
+        UserRepositoryInterface $userRepository, 
+        SchoolProgramRepositoryInterface $schoolProgramRepository, 
+        ProgramRepositoryInterface $programRepository,
+        ReasonRepositoryInterface $reasonRepository
+        )
     {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
         $this->programRepository = $programRepository;
         $this->userRepository = $userRepository;
+        $this->reasonRepository = $reasonRepository;
     }
 
 
@@ -40,14 +51,20 @@ class SchoolProgramController extends Controller
         $schoolId = $request->route('school');
 
         $schoolPrograms = $request->all();
-        
+        if ($request->input('reason_id') == 'other'){
+            $reason['reason_name'] = $request->input('other_reason');
+        }
+
         DB::beginTransaction();
         $schoolPrograms['sch_id'] = $schoolId;
-        $schoolPrograms['created_at'] = Carbon::now();
-        $schoolPrograms['updated_at'] = Carbon::now();
        
         try {
-
+            # insert into reason
+            if ($request->input('reason_id') == 'other'){
+                $this->reasonRepository->createReason($reason);
+                $reason_id = Reason::max('reason_id');
+                $schoolPrograms['reason_id'] = $reason_id;
+            }
             # insert into school program
             $this->schoolProgramRepository->createSchoolProgram($schoolPrograms);
 
@@ -56,10 +73,20 @@ class SchoolProgramController extends Controller
 
             DB::rollBack();
             Log::error('Store school failed : ' . $e->getMessage());
-            return Redirect::to('program/school/'. $schoolId .'/detail/create')->withError('Failed to create school program' . $e->getMessage());
+            return Redirect::to('program/school/'. $schoolId .'/detail/create')->withError('Failed to create school program');
         }
-
-        return Redirect::to('instance/school/'. $schoolId)->withSuccess('School program successfully created');
+        
+        # status == success
+        if($schoolPrograms['status'] == 1) 
+        {
+            return Redirect::to('program/school/'. $schoolId .'/detail/create')
+            ->with(
+                [
+                    'success' => true
+                ]
+            )->withSuccess('School program successfully created');
+        }
+        return Redirect::to('program/school/'. $schoolId .'/detail/create')->withSuccess('School program successfully created');
     }
 
     public function create(Request $request)
@@ -71,6 +98,9 @@ class SchoolProgramController extends Controller
 
          # retrieve program data
          $programs = $this->programRepository->getAllPrograms();
+
+         # retrieve reason data
+         $reasons = $this->reasonRepository->getAllReasons();
          
          # retrieve employee data
          $employees = $this->userRepository->getAllUsersByRole('Employee');
@@ -79,6 +109,7 @@ class SchoolProgramController extends Controller
             [
                 'employees' => $employees,
                 'programs' => $programs,
+                'reasons' => $reasons,
                 'school' => $school
             ]
         );
@@ -89,22 +120,26 @@ class SchoolProgramController extends Controller
         $schoolId = $request->route('school');
         $sch_progId = $request->route('detail');
 
-         # retrieve school data by id
-         $school = $this->schoolRepository->getSchoolById($schoolId);
+        # retrieve school data by id
+        $school = $this->schoolRepository->getSchoolById($schoolId);
 
-         # retrieve program data
-         $programs = $this->programRepository->getAllPrograms();
+        # retrieve program data
+        $programs = $this->programRepository->getAllPrograms();
+
+        # retrieve reason data
+        $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve School Program data by schoolId
         $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
         
-         # retrieve employee data
-         $employees = $this->userRepository->getAllUsersByRole('Employee');
+        # retrieve employee data
+        $employees = $this->userRepository->getAllUsersByRole('Employee');
  
         return view('pages.program.school-program.form')->with(
             [
                 'employees' => $employees,
                 'programs' => $programs,
+                'reasons' => $reasons,
                 'schoolProgram' => $schoolProgram,
                 'school' => $school
             ]
@@ -123,6 +158,9 @@ class SchoolProgramController extends Controller
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
 
+        # retrieve reason data
+        $reasons = $this->reasonRepository->getAllReasons();
+
         # retrieve School Program data by id
         $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
         
@@ -134,6 +172,7 @@ class SchoolProgramController extends Controller
                 'edit' => true,
                 'employees' => $employees,
                 'programs' => $programs,
+                'reasons' => $reasons,
                 'schoolProgram' => $schoolProgram,
                 'school' => $school
             ]
@@ -146,12 +185,29 @@ class SchoolProgramController extends Controller
         $schoolId = $request->route('school');
         $sch_progId = $request->route('detail');
         $schoolPrograms = $request->all();
+
+        // $getSchoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
+        // $reasonId_SchoolProgram = $getSchoolProgram->reason_id;
         
         DB::beginTransaction();
         $schoolPrograms['sch_id'] = $schoolId;
         $schoolPrograms['updated_at'] = Carbon::now();
         try {
-
+            
+            # update reason school program
+            if($schoolPrograms['status'] == 2){
+                if($request->input('reason_id') == 'other'){
+                    $reason['reason_name'] = $request->input('other_reason');
+                    // if ($reasonId_SchoolProgram != null){ 
+                    //     $this->reasonRepository->updateReason($reasonId_SchoolProgram, $reason);
+                    // }else{
+                        $this->reasonRepository->createReason($reason);
+                        $reason_id = Reason::max('reason_id');
+                        $schoolPrograms['reason_id'] = $reason_id;
+                    // }
+                }
+            }
+                
             # update school program
             $this->schoolProgramRepository->updateSchoolProgram($sch_progId, $schoolPrograms);
 
@@ -160,7 +216,7 @@ class SchoolProgramController extends Controller
 
             DB::rollBack();
             Log::error('Update school program failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId . '/edit')->withError('Failed to update school program');
+            return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId . '/edit')->withError('Failed to update school program'. $e->getMessage());
         }
 
         return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId)->withSuccess('School program successfully updated');
