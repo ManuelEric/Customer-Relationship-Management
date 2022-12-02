@@ -125,12 +125,9 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(UniversityEventRepositoryInterface::class, UniversityEventRepository::class);
         $this->app->bind(SchoolEventRepositoryInterface::class, SchoolEventRepository::class);
         $this->app->bind(CorporatePartnerEventRepositoryInterface::class, CorporatePartnerEventRepository::class);
-<<<<<<< HEAD
         $this->app->bind(SchoolProgramRepositoryInterface::class, SchoolProgramRepository::class);
-=======
         $this->app->bind(AgendaSpeakerRepositoryInterface::class, AgendaSpeakerRepository::class);
         $this->app->bind(ReferralRepositoryInterface::class, ReferralRepository::class);
->>>>>>> 90076580a2188f79ecb715981225c781e65e6d74
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
