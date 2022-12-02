@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\pivot\AgendaSpeaker;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -58,5 +59,25 @@ class Event extends Model
     public function partner()
     {
         return $this->belongsToMany(Corporate::class, 'tbl_corp_partner_event', 'event_id', 'corp_id');
+    }
+
+    public function school_speaker()
+    {
+        return $this->belongsToMany(SchoolDetail::class, 'tbl_agenda_speaker', 'event_id', 'sch_pic_id')->using(AgendaSpeaker::class);
+    }
+
+    public function university_speaker()
+    {
+        return $this->belongsToMany(UniversityPic::class, 'tbl_agenda_speaker', 'event_id', 'univ_pic_id')->using(AgendaSpeaker::class);
+    }
+
+    public function partner_speaker()
+    {
+        return $this->belongsToMany(CorporatePic::class, 'tbl_agenda_speaker', 'event_id', 'partner_pic_id')->using(AgendaSpeaker::class);
+    }
+
+    public function internal_speaker()
+    {
+        return $this->belongsToMany(User::class, 'tbl_agenda_speaker', 'event_id', 'empl_id')->using(AgendaSpeaker::class);
     }
 }

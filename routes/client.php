@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientStudentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,22 +15,27 @@ use Illuminate\Support\Facades\Route;
 */
 
 // User 
-Route::get('mentee/create', function () {
-    return view('pages.client.mentee.form');
+Route::get('student/create', function () {
+    return view('pages.client.student.form');
 });
 
-Route::get('mentee/1', function () {
-    return view('pages.client.mentee.view');
+Route::get('student/1', function () {
+    return view('pages.client.student.view');
 });
 
-Route::get('mentee/1/edit', function () {
-    return view('pages.client.mentee.form');
+Route::get('student/1/edit', function () {
+    return view('pages.client.student.form');
+});
+
+Route::get('student/{status}', function ($status) {
+    return view('pages.client.student.index', ['status' => $status]);
 });
 
 Route::get('mentee/{status}', function ($status) {
-    return view('pages.client.mentee.index', ['status' => $status]);
+    return view('pages.client.student.index-mentee', ['status' => $status]);
 });
 
+Route::resource('students', ClientStudentController::class);
 
 // Parent 
 Route::get('parent', function () {

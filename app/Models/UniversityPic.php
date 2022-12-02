@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\pivot\AgendaSpeaker;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,5 +28,10 @@ class UniversityPic extends Model
     public function university()
     {
         return $this->belongsTo(University::class, 'univ_id', 'univ_id');
+    }
+
+    public function asSpeaker()
+    {
+        return $this->belongsToMany(Event::class, 'tbl_agenda_speaker', 'univ_pic_id', 'event_id')->using(AgendaSpeaker::class);
     }
 }

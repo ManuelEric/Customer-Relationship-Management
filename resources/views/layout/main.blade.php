@@ -163,8 +163,12 @@
                         <div class="collapse {{ Request::is('client*') ? 'show' : 'hide' }}" id="client">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('client/student*') ? 'active' : '' }}"
+                                        href="{{ url('client/student/potential') }}">Students</a>
+                                </li>
+                                <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('client/mentee*') ? 'active' : '' }}"
-                                        href="{{ url('client/mentee/potential') }}">Mentees</a>
+                                        href="{{ url('client/mentee/active') }}">Mentees</a>
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('client/parent*') ? 'active' : '' }}"

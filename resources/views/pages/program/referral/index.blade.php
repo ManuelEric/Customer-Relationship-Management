@@ -16,7 +16,7 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="univTable">
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="refTable">
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
@@ -25,6 +25,7 @@
                         <th>Program Name</th>
                         <th>Participants</th>
                         <th>Amount</th>
+                        <th>PIC</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -39,7 +40,7 @@
 
     <script>
         $(document).ready(function() {
-            var table = $('#univTable').DataTable({
+            var table = $('#refTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -62,31 +63,76 @@
                 columns: [{
                         data: 'id',
                         className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
                     },
                     {
-                        data: 'univ_id',
+                        data: 'partner_name',
                     },
                     {
-                        data: 'univ_name',
+                        data: 'referral_type',
                     },
                     {
-                        data: 'univ_address',
+                        data: 'program_name',
+                        render: function(data, type, row, meta) {
+                            return row.referral_type == "Out" ? row.additional_prog_name : row.program_name
+                        }
                     },
                     {
-                        data: 'univ_country',
+                        data: 'number_of_student',
+                    },
+                    {
+                        data: 'revenue',
+                        render: function(data, type, row, meta) {
+                            switch (row.currency) {
+                                case "USD":
+                                    return formatUsd(row.revenue)
+                                    break;
+
+                                case "IDR":
+                                    return formatRupiah(row.revenue)
+                                    break;
+                                
+                                case "SGD":
+                                    return 'S' + formatSingUsd(row.revenue)
+                                    break;
+                            }
+                        }
+                    },
+                    {
+                        data: 'pic_name',
                     },
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning editUniv"><i class="bi bi-eye"></i></button>'
+                        defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning editRef"><i class="bi bi-eye"></i></button>'
                     }
                 ]
             });
 
-            $('#univTable tbody').on('click', '.editUniv ', function() {
+            $('#refTable tbody').on('click', '.editRef ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('instance/university') }}/" + data.univ_id.toLowerCase();
+                window.location.href = "{{ url('program/referral') }}/" + data.id;
             });
+
+            const formatRupiah = (money) => {
+                return new Intl.NumberFormat('id-ID',
+                    { style: 'currency', currency: 'IDR' }
+                ).format(money);
+            }
+
+            const formatUsd = (money) => {
+                return new Intl.NumberFormat('en-US',
+                    { style: 'currency', currency: 'USD' }
+                ).format(money)
+            }
+
+            const formatSingUsd = (money) => {
+                return new Intl.NumberFormat('en-SG',
+                    { style: 'currency', currency: 'SGD' }
+                ).format(money)
+            }
         });
     </script>
 

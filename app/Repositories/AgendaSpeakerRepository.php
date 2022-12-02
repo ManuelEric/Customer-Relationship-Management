@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Interfaces\AgendaSpeakerRepositoryInterface;
+use App\Models\Agenda;
+use App\Models\AgendaSpeaker;
+use App\Models\Event;
+use DataTables;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Carbon;
+
+class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface 
+{
+    public function getAllSpeakerByMonthAndYear($month, $year): JsonResponse
+    {
+        # month should be an integer (ex: 01, 02, 03, etc)
+        # year (ex: 2016, 2017, etc)
+        $agenda = AgendaSpeaker::whereMonth('event_startdate', $month)->whereYear('event_startdate', $year)->whereMonth('event_enddate', $month)->whereYear('event_enddate', $year)->get();
+        return response()->json($agenda);
+    }
+
+    public function getAllSpeakerByEvent($eventId)
+    {
+        return Agenda::where('event_id', $eventId)->get();
+        
+    }
+
+    public function getAllSpeakerByEventAndMonthAndYear($eventId, $month, $year): JsonResponse
+    {
+        return response()->json();
+    }
+
+    public function getAgendaSpeakerById($agendaId)
+    {
+
+    }
+
+    public function deleteAgendaSpeaker($agendaId)
+    {
+        return AgendaSpeaker::destroy($agendaId);
+    }
+
+    public function createAgendaSpeaker($class, $identifier, $agendaDetails)
+    {
+        switch ($class) {
+            case "Event":
+                return $this->createEventSpeaker($identifier, $agendaDetails);
+                break;
+        }
+    }
+
+    public function updateAgendaSpeaker($agendaId, array $newDetails)
+    {
+        return AgendaSpeaker::find($agendaId)->update($newDetails);
+    }
+
+    # event speaker below
+    public function createEventSpeaker($identifier, $agendaDetails)
+    {
+        # initialize 
+        $agendaDetails['created_at'] = Carbon::now();
+        $agendaDetails['updated_at'] = Carbon::now();
+        $event = Event::whereEventId($identifier);
+        
+        switch($agendaDetails['speaker_type']) {
+            
+            case "school":
+                return $event->school_speaker()->attach($agendaDetails['school_speaker'], $agendaDetails);
+                break;
+
+            case "university":
+
+                $event->university_speaker()->attach($agendaDetails['university_speaker'], $agendaDetails);
+                break;
+
+            case "partner":
+
+                $event->partner_speaker()->attach($agendaDetails['partner_speaker'], $agendaDetails);
+                break;
+
+            case "internal":
+
+                $event->internal_speaker()->attach($agendaDetails['allin_speaker'], $agendaDetails);
+                break;
+        }
+    }
+}   

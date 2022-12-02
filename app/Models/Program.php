@@ -58,10 +58,21 @@ class Program extends Model
         );
     }
 
+<<<<<<< HEAD
 
     # relation
     public function schoolProgram()
     {
         return $this->hasMany(SchoolProgram::class, 'prog_id', 'prog_id');
+=======
+    public function main_prog()
+    {
+        return $this->belongsTo(MainProg::class, 'main_prog_id', 'id');
+    }
+
+    public function sub_prog()
+    {
+        return $this->belongsTo(SubProg::class, 'sub_prog_id', 'id');
+>>>>>>> 90076580a2188f79ecb715981225c781e65e6d74
     }
 }

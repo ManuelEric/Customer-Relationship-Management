@@ -7,8 +7,6 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Mentee
         </a>
-        <a href="{{ url('client/mentee/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
-            Mentee</a>
     </div>
 
 
@@ -16,20 +14,12 @@
         <div class="card-body">
             <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::is('client/mentee/prospective') ? 'active' : '' }}" aria-current="page"
-                        href="{{ url('client/mentee/prospective') }}">Prospective</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::is('client/mentee/potential') ? 'active' : '' }}"
-                        href="{{ url('client/mentee/potential') }}">Potential</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link {{ Request::is('client/mentee/current') ? 'active' : '' }}"
-                        href="{{ url('client/mentee/current') }}">Current</a>
+                        href="{{ url('client/mentee/current') }}">Active</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ Request::is('client/mentee/completed') ? 'active' : '' }}"
-                        href="{{ url('client/mentee/completed') }}">Completed</a>
+                        href="{{ url('client/mentee/completed') }}">Alumni</a>
                 </li>
             </ul>
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">

@@ -30,6 +30,11 @@ class ProgramRepository implements ProgramRepositoryInterface
         return Program::all();
     }
 
+    public function getAllProgramByType($type)
+    {
+        return Program::where('prog_type', $type)->get();
+    }
+
     public function getProgramById($programId)
     {
         return Program::whereProgId($programId);

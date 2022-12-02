@@ -56,25 +56,23 @@
                         </div>
                     </div>
                     <div class="list-group list-group-flush">
-
-                        @foreach ($schoolPrograms as $schoolProgram)
-                        <a href=" {{ url('program/school/'. strtolower($school->sch_id) .'/detail/'. $schoolProgram->id) }} " class="list-group-item">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="badge badge-primary w-100 me-2 text-start">
-                                    {{ $schoolProgram->program->prog_program }}
-                                </div>
-                                <div class="badge badge-primary">
-                                    @if ($schoolProgram->status == 0)
-                                        Pending
-                                    @elseif ($schoolProgram->status == 1)
-                                        Success
-                                    @elseif ($schoolProgram->status == 2)
-                                        Denied
-                                    @endif
+                        @for ($i = 0; $i < 3; $i++)
+                            <div class="list-group-item">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="text-start">
+                                        <div class="">
+                                            Program Name
+                                        </div>
+                                        <small>
+                                            Success
+                                        </small>
+                                    </div>
+                                    <a href="#" class="fs-6 text-warning">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                 </div>
                             </div>
-                        </a>
-                        @endforeach 
+                        @endfor
                     </div>
                 </div>
             @endif
@@ -302,92 +300,7 @@
     </div>
 
 
-
-    <!-- Modal -->
     @if (isset($school))
-    <div class="modal modal-md fade" id="programForm" data-bs-backdrop="static" data-bs-keyboard="false"
-        tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="m-0 p-0">
-                        <i class="bi bi-plus me-2"></i>
-                        Add Program
-                    </h4>
-                </div>
-                <div class="modal-body">
-
-                    <input type="hidden" readonly name="sch_id" value="{{ $school->sch_id }}">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-2">
-                                <label for="">Program Name</label>
-                                <select class="modal-program w-100" name="program_name">
-                                    <option data-placeholder="true"></option>
-                                    @foreach ($programs as $program)
-                                    <option value="{{ $program->prog_id }}">{{ $program->prog_program }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">Lead Source</label>
-                                <select class="modal-program w-100" name="lead_source">
-                                    <option data-placeholder="true"></option>
-                                    @foreach ($leads as $lead)
-                                    <option value="{{ $lead->lead_id }}">{{ $lead->main_lead }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">PIC</label>
-                                <select class="modal-program w-100" name="pic">
-                                    <option data-placeholder="true"></option>
-                                    @foreach ($employees as $employee)
-                                    <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">First Discuss</label>
-                                <input type="date" name="first_discuss" class="form-control form-control-sm rounded">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">Planned Follow Up</label>
-                                <input type="date" name="last_discuss" class="form-control form-control-sm rounded">
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-2">
-                                <label for="">Notes</label>
-                                <textarea name="notes" id="" class="form-control"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-12 mt-2">
-                            <div class="d-flex justify-content-between">
-                                <button class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
-                                    <i class="bi bi-x me-1"></i>
-                                    Cancel
-                                </button>
-                                <button class="btn btn-sm btn-primary rounded-3">
-                                    <i class="bi bi-save2"></i>
-                                    Save
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
         <div class="modal modal-md fade" id="picForm" data-bs-backdrop="static" data-bs-keyboard="false"
             tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">

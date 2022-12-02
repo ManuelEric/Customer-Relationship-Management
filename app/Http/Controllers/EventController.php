@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\CorporatePartnerEventRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
@@ -12,8 +13,11 @@ use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\UniversityEventRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\Agenda;
 use App\Models\Event;
+use App\Models\pivot\AgendaSpeaker;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -31,8 +35,9 @@ class EventController extends Controller
     private SchoolEventRepositoryInterface $schoolEventRepository;
     private CorporateRepositoryInterface $corporateRepository;
     private CorporatePartnerEventRepositoryInterface $corporatePartnerRepository;
+    private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
 
-    public function __construct(EventRepositoryInterface $eventRepository, UserRepositoryInterface $userRepository, UniversityRepositoryInterface $universityRepository, UniversityEventRepositoryInterface $universityEventRepository, SchoolRepositoryInterface $schoolRepository, SchoolEventRepositoryInterface $schoolEventRepository, CorporateRepositoryInterface $corporateRepository, CorporatePartnerEventRepositoryInterface $corporatePartnerRepository)
+    public function __construct(EventRepositoryInterface $eventRepository, UserRepositoryInterface $userRepository, UniversityRepositoryInterface $universityRepository, UniversityEventRepositoryInterface $universityEventRepository, SchoolRepositoryInterface $schoolRepository, SchoolEventRepositoryInterface $schoolEventRepository, CorporateRepositoryInterface $corporateRepository, CorporatePartnerEventRepositoryInterface $corporatePartnerRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository)
     {
         $this->eventRepository = $eventRepository;
         $this->userRepository = $userRepository;
@@ -42,12 +47,13 @@ class EventController extends Controller
         $this->schoolEventRepository = $schoolEventRepository;
         $this->corporateRepository = $corporateRepository;
         $this->corporatePartnerRepository = $corporatePartnerRepository;
+        $this->agendaSpeakerRepository = $agendaSpeakerRepository;
     }
     
     public function index(Request $request)
     {
         if ($request->ajax())
-        return $this->eventRepository->getAllEventDataTables();
+            return $this->eventRepository->getAllEventDataTables();
 
         return view('pages.master.event.index');
     }
@@ -67,8 +73,9 @@ class EventController extends Controller
         # corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
         $partnerEvent = $this->corporatePartnerRepository->getPartnerByEventId($eventId);
-        
 
+        $eventSpeakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($eventId);
+        
         return view('pages.master.event.form')->with(
             [
                 'event' => $event,
@@ -80,6 +87,7 @@ class EventController extends Controller
                 'schoolEvent' => $schoolEvent,
                 'partners' => $partners,
                 'partnerEvent' => $partnerEvent,
+                'eventSpeakers' => $eventSpeakers
             ]
         );
     }
@@ -168,6 +176,7 @@ class EventController extends Controller
 
     public function edit(Request $request)
     {
+
         $eventId = $request->route('event');
         $event = $this->eventRepository->getEventById($eventId);
         $eventPic = $event->eventPic->pluck('id')->toArray();
@@ -182,6 +191,8 @@ class EventController extends Controller
         $partners = $this->corporateRepository->getAllCorporate();
         $partnerEvent = $this->corporatePartnerRepository->getPartnerByEventId($eventId);
 
+        $eventSpeakers = $this->agendaSpeakerRepository->getAllSpeakerByEvent($eventId);
+        
         return view('pages.master.event.form')->with(
             [
                 'edit' => true,
@@ -194,6 +205,7 @@ class EventController extends Controller
                 'schoolEvent' => $schoolEvent,
                 'partners' => $partners,
                 'partnerEvent' => $partnerEvent,
+                'eventSpeakers' => $eventSpeakers
             ]
         );
     }

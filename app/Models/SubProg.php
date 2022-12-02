@@ -27,4 +27,9 @@ class SubProg extends Model
     {
         return $this->belongsTo(MainProg::class, 'main_prog_id', 'id');
     }
+
+    public function program()
+    {
+        return $this->hasMany(SubProg::class, 'sub_prog_id', 'id');
+    }
 }

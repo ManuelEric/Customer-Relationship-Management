@@ -16,9 +16,16 @@ Route::prefix('university')->name('university.')->group(function () {
 });
 
 Route::resource('school', SchoolController::class);
+<<<<<<< HEAD
 Route::prefix('school')->name('school.')->group(function () {
     Route::resource('{school}/detail', SchoolDetailController::class);
     Route::resource('{school}/program', SchoolProgramController::class);
+=======
+Route::prefix('school')->name('school.')->group(function() {
+    Route::resource('{school}/detail', SchoolDetailController::class);
+    Route::resource('{school}/program', SchoolDetailController::class);
+    
+>>>>>>> 90076580a2188f79ecb715981225c781e65e6d74
 });
 
 Route::resource('corporate', CorporateController::class);

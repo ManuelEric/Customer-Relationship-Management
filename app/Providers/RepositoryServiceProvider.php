@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetReturnedRepositoryInterface;
 use App\Interfaces\AssetUsedRepositoryInterface;
@@ -26,6 +27,7 @@ use App\Interfaces\PositionRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\PurchaseDetailRepositoryInterface;
 use App\Interfaces\PurchaseRequestRepositoryInterface;
+use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\SchoolEventRepositoryInterface;
@@ -39,6 +41,7 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\VendorRepositoryInterface;
 use App\Interfaces\VendorTypeRepositoryInterface;
 use App\Interfaces\VolunteerRepositoryInterface;
+use App\Repositories\AgendaSpeakerRepository;
 use App\Repositories\AssetRepository;
 use App\Repositories\AssetReturnedRepository;
 use App\Repositories\AssetUsedRepository;
@@ -63,6 +66,7 @@ use App\Repositories\PositionRepository;
 use App\Repositories\ProgramRepository;
 use App\Repositories\PurchaseDetailRepository;
 use App\Repositories\PurchaseRequestRepository;
+use App\Repositories\ReferralRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SchoolDetailRepository;
 use App\Repositories\SchoolEventRepository;
@@ -121,7 +125,12 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(UniversityEventRepositoryInterface::class, UniversityEventRepository::class);
         $this->app->bind(SchoolEventRepositoryInterface::class, SchoolEventRepository::class);
         $this->app->bind(CorporatePartnerEventRepositoryInterface::class, CorporatePartnerEventRepository::class);
+<<<<<<< HEAD
         $this->app->bind(SchoolProgramRepositoryInterface::class, SchoolProgramRepository::class);
+=======
+        $this->app->bind(AgendaSpeakerRepositoryInterface::class, AgendaSpeakerRepository::class);
+        $this->app->bind(ReferralRepositoryInterface::class, ReferralRepository::class);
+>>>>>>> 90076580a2188f79ecb715981225c781e65e6d74
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
