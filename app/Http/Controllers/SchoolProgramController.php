@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSchoolProgramRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\SchoolProgramRepositoryInterface;
+use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
@@ -25,6 +26,7 @@ class SchoolProgramController extends Controller
 
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
+    protected SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository;
     protected ProgramRepositoryInterface $programRepository;
     protected UserRepositoryInterface $userRepository;
     protected ReasonRepositoryInterface $rasonRepository;
@@ -33,12 +35,14 @@ class SchoolProgramController extends Controller
         SchoolRepositoryInterface $schoolRepository, 
         UserRepositoryInterface $userRepository, 
         SchoolProgramRepositoryInterface $schoolProgramRepository, 
+        SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository, 
         ProgramRepositoryInterface $programRepository,
         ReasonRepositoryInterface $reasonRepository
         )
     {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
+        $this->schoolProgramAttachRepository = $schoolProgramAttachRepository;
         $this->programRepository = $programRepository;
         $this->userRepository = $userRepository;
         $this->reasonRepository = $reasonRepository;
@@ -79,12 +83,13 @@ class SchoolProgramController extends Controller
         # status == success
         if($schoolPrograms['status'] == 1) 
         {
+            $sch_progId = SchoolProgram::max('id');
             return Redirect::to('program/school/'. $schoolId .'/detail/create')
-            ->with(
-                [
-                    'success' => true
-                ]
-            )->withSuccess('School program successfully created');
+            ->withSuccess('School program successfully created')
+            ->with([
+                'attach' => true,
+                'sch_progId' => $sch_progId,
+            ]);
         }
         return Redirect::to('program/school/'. $schoolId .'/detail/create')->withSuccess('School program successfully created');
     }
@@ -132,6 +137,9 @@ class SchoolProgramController extends Controller
         # retrieve School Program data by schoolId
         $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
         
+        # retrieve School Program Attach data by schoolId
+        $schoolProgramAttachs = $this->schoolProgramAttachRepository->getAllSchoolProgramAttachsBySchprogId($sch_progId);
+        
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByRole('Employee');
  
@@ -141,7 +149,9 @@ class SchoolProgramController extends Controller
                 'programs' => $programs,
                 'reasons' => $reasons,
                 'schoolProgram' => $schoolProgram,
-                'school' => $school
+                'schoolProgramAttachs' => $schoolProgramAttachs,
+                'school' => $school,
+                'attach' => true
             ]
         );
     }

@@ -55,8 +55,9 @@
                     </div>
                 </div>
                 
+
                 <div class="card-body">
-                    
+
                     <form action="{{ url(isset($edit) ? 'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id : 'program/school/' . $school->sch_id . '/detail') }}" method="POST">
                         @csrf
                        @if(isset($edit))
@@ -145,7 +146,7 @@
                     <div class="row mb-2">
                         <div class="col-md-3">
                             <label for="">
-                                Approach Status
+                                Approach Status <sup class="text-danger">*</sup>
                             </label>
                         </div>
                         <div class="col-md-9">
@@ -182,7 +183,7 @@
                                         <label>Reason</label>
                                         <div class="classReason">
                                             <select name="reason_id" class="select w-100"
-                                                style="display: none !important" id="selectReason"
+                                                style="display: none !important; width:100% !important" id="selectReason"
                                                 onchange="otherOption($(this).val())"
                                                 {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                                 <option data-placeholder="true"></option>
@@ -297,12 +298,12 @@
                                         </div>
                                         <div class="col-md-6 mb-2">
                                             <small>Running Status</small>
-                                            <select name="running_status" id="" class="select w-100">
+                                            <select name="running_status" id="" class="select w-100" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                                 <option data-placeholder="true"></option>
-                                                @if(isset($schoolProgram->running_status))
-                                                    <option value="Not yet" {{ $schoolProgram->running_status == 'Not yet' ? 'selected' : ''}} {{ isset($edit) ? '' : 'disabled' }}>Pending</option>
-                                                    <option value="On going" {{ $schoolProgram->running_status == 'On going' ? 'selected' : ''}} {{ isset($edit) ? '' : 'disabled' }}>Success</option>
-                                                    <option value="Done" {{ $schoolProgram->running_status == 'Done' ? 'selected' : ''}} {{ isset($edit) ? '' : 'disabled' }}>Denied</option>
+                                                @if(isset($schoolProgram))
+                                                    <option value="Not yet" {{ $schoolProgram->running_status == 'Not yet' ? 'selected' : ''}}>Not yet</option>
+                                                    <option value="On going" {{ $schoolProgram->running_status == 'On going' ? 'selected' : ''}}>On going</option>
+                                                    <option value="Done" {{ $schoolProgram->running_status == 'Done' ? 'selected' : ''}}>Done</option>
                                                 @elseif(empty($schoolProgram))
                                                     <option value="Not yet">Not yet</option>
                                                     <option value="On going">On going</option>
@@ -324,7 +325,7 @@
                     <div class="row mb-2">
                         <div class="col-md-3">
                             <label for="">
-                                PIC
+                                PIC <sup class="text-danger">*</sup>
                             </label>
                         </div>
                         <div class="col-md-9">
@@ -369,13 +370,15 @@
                     </form>
                 </div>
             </div>
-          
-            @if(isset($success))
+            {{-- @if(session('attach')) --}}
+            @if(!empty($attach) && $schoolProgram->status == 1 || session('attach'))
                 @include('pages.program.school-program.detail.attachment')
             @endif
         </div>
     </div>
     <script>
+
+
         function checkStatus() {
             let status = $('#approach_status').val();
             if (status == '0') {
@@ -415,9 +418,9 @@
             $(document).ready(function(){
                 // checkStatus()
                 $('#approach_status').val('{{$schoolProgram->status}}').trigger('change')
+                $('#selectReason').select2()
             })
 
-            // $("#approach_status").val(1).trigger('change')
         </script>
     @endif
 
