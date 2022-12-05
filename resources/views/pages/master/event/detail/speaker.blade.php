@@ -61,7 +61,9 @@
                                 <td>{{ $eventSpeaker->end_time }}</td>
                                 <td nowrap>
                                     <select name="status" class="select w-100 status-form"
-                                        data-row-id="{{ $eventSpeaker->agenda_id }}">
+                                        data-row-id="{{ $eventSpeaker->agenda_id }}"
+                                        onchange="checkStatusSpeaker('{{ $eventSpeaker->agenda_id }}')"
+                                        id="{{ 'speaker' . $eventSpeaker->agenda_id }}">
                                         <option data-placeholder="true"></option>
                                         <option value="1" {{ $eventSpeaker->status == 1 ? 'selected' : null }}>
                                             Active</option>
@@ -264,15 +266,16 @@
                 <form action="#" method="POST" id="reasonForm">
                     @csrf
                     @method('put')
-                    <input type="text" name="agendaId" id="agenda_id">
-                    <input type="text" name="status" id="status_id">
+                    <input type="hidden" name="agendaId" id="agenda_id">
+                    <input type="hidden" name="status" id="status_id">
                     <label for="">Notes</label>
                     <textarea name="notes" id="notes"></textarea>
                     <hr>
                     <div class="d-flex justify-content-between">
-                        <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                            onclick="cancelModal()">
                             <i class="bi bi-x-square me-1"></i>
-                            Cancel</a>
+                            Cancel</button>
                         <button type="submit" class="btn btn-primary btn-sm">
                             <i class="bi bi-save2 me-1"></i>
                             Save</button>
@@ -299,31 +302,35 @@
         $(id).removeClass('d-none')
     }
 
+    function cancelModal() {
+        let id = $('#agenda_id').val();
+        let status = $('#speaker' + id)
+        $('#element').select2('destroy');
+        $(status).val(1).select2({
+            allowClear: true
+        });
+        $('#reasonModal').modal('hide')
+    }
 
-    $(".status-form").each(function() {
-        var _this = $(this)
-        _this.change(async function() {
+    function checkStatusSpeaker(agendaId) {
+        let status = $('#speaker' + agendaId).val()
 
-            var status = _this.val()
-            var agendaId = _this.data('row-id')
+        let link =
+            '{{ url('') }}/master/event/{{ $event->event_id }}/speaker/' +
+            agendaId
+        let data = new Array()
 
-            var link =
-                '{{ url('') }}/master/event/{{ $event->event_id }}/speaker/' +
-                agendaId
-            var data = new Array()
+        $('#reasonForm').attr('action', link)
 
-            $('#reasonForm').attr('action', link)
-
-            if (status == 2) {
-                $('#reasonModal').modal('show')
-                $('#agenda_id').val(agendaId)
-                $('#status_id').val(status)
-            } else {
-                $('#agenda_id').val(agendaId)
-                $('#status_id').val(status)
-                $('#notes').val('')
-                $('#reasonForm').submit()
-            }
-        })
-    })
+        if (status == 2) {
+            $('#reasonModal').modal('show')
+            $('#agenda_id').val(agendaId)
+            $('#status_id').val(status)
+        } else {
+            $('#agenda_id').val(agendaId)
+            $('#status_id').val(status)
+            $('#notes').val('')
+            $('#reasonForm').submit()
+        }
+    }
 </script>

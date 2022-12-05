@@ -60,6 +60,11 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('program')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/program.php'));
+
+            Route::middleware('web')
+                ->prefix('invoice')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/invoice.php'));
         });
     }
 
