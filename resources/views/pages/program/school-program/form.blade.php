@@ -112,7 +112,7 @@
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <small>First Discuss</small>
+                                    <small>First Discuss <sup class="text-danger">*</sup> </small>
                                     <input type="date" name="first_discuss" id="" 
                                     value="{{ isset($schoolProgram->first_discuss) ? $schoolProgram->first_discuss :  old('first_discuss') }}"
                                         class="form-control form-control-sm rounded" 
@@ -123,7 +123,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                                 <div class="col-md-6">
-                                    <small>Planned Follow Up</small>
+                                    <small>Planned Follow Up <sup class="text-danger">*</sup> </small>
                                     <input type="date" name="planned_followup" id=""
                                     value="{{ isset($schoolProgram->planned_followup) ? $schoolProgram->planned_followup :  old('planned_followup') }}"
                                         class="form-control form-control-sm rounded"
@@ -156,7 +156,7 @@
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <small>Status</small>
+                                    <small>Status <sup class="text-danger">*</sup> </small>
                                     <select name="status" id="approach_status" class="select w-100"
                                         onchange="checkStatus()" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
@@ -169,14 +169,17 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 success_status d-none">
-                                    <small>Success Date</small>
+                                    <small>Success Date <sup class="text-danger">*</sup> </small>
                                     <input type="date" name="success_date" id=""
                                         class="form-control form-control-sm rounded"
                                         value="{{ isset($schoolProgram->success_date) ? $schoolProgram->success_date :  old('success_date') }}"
                                         {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                    @error('success_date')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-md-6 denied_status d-none">
-                                    <small>Denied Date</small>
+                                    <small>Denied Date <sup class="text-danger">*</sup> </small>
                                     <input type="date" name="denied_date" id=""
                                         class="form-control form-control-sm rounded"
                                         value="{{ isset($schoolProgram->denied_date) ? $schoolProgram->denied_date :  old('denied_date') }}"
@@ -187,7 +190,7 @@
                                 </div>
                                 <div class="col-md-6 denied_status d-none my-2">
                                 
-                                        <label>Reason</label>
+                                        <label>Reason <sup class="text-danger">*</sup> </label>
                                         <div class="classReason">
                                             <select name="reason_id" class="select w-100"
                                                 style="display: none !important; width:100% !important" id="selectReason"
@@ -211,7 +214,7 @@
                                                         @endif
                                                     @elseif(empty($schoolProgram))
                                                         @foreach ($reasons as $reason)
-                                                            <option value="{{ $reason->reason_id }}">
+                                                            <option value="{{ $reason->reason_id }}" {{ old('reason_id') == $reason->reason_id ? "selected" : "" }}>
                                                                 {{ $reason->reason_name }}
                                                             </option>
                                                         @endforeach
@@ -257,7 +260,7 @@
                                     {{-- if success  --}}
                                     <div class="row mb-2">
                                         <div class="col-md-6">
-                                            <small>Start Program Date</small>
+                                            <small>Start Program Date <sup class="text-danger">*</sup> </small>
                                             <input type="date" name="start_program_date" id=""
                                                 class="form-control form-control-sm rounded"
                                                 value="{{ isset($schoolProgram->start_program_date) ? $schoolProgram->start_program_date :  old('start_program_date') }}"
@@ -267,7 +270,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
-                                            <small>End Program Date</small>
+                                            <small>End Program Date <sup class="text-danger">*</sup> </small>
                                             <input type="date" name="end_program_date" id=""
                                                 class="form-control form-control-sm rounded"
                                                 value="{{ isset($schoolProgram->end_program_date) ? $schoolProgram->end_program_date :  old('end_program_date') }}"
@@ -279,7 +282,7 @@
                                     </div>
                                     <div class="row mb-2">
                                         <div class="col-md-12 mb-2">
-                                            <small>Place</small>
+                                            <small>Place <sup class="text-danger">*</sup> </small>
                                             <input type="text" name="place" id=""
                                                 class="form-control form-control-sm rounded"
                                                 value="{{ isset($schoolProgram->place) ? $schoolProgram->place :  old('place') }}"
@@ -289,7 +292,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-6 mb-2">
-                                            <small>Participants</small>
+                                            <small>Participants <sup class="text-danger">*</sup> </small>
                                             <input type="number" name="participants" id=""
                                                 class="form-control form-control-sm rounded"
                                                 value="{{ isset($schoolProgram->participants) ? $schoolProgram->participants :  old('participants') }}"
@@ -299,7 +302,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-6 mb-2">
-                                            <small>Total Fee</small>
+                                            <small>Total Fee <sup class="text-danger">*</sup> </small>
                                             <input type="number" name="total_fee" id=""
                                                 class="form-control form-control-sm rounded"
                                                 value="{{ isset($schoolProgram->total_fee) ? $schoolProgram->total_fee :  old('total_fee') }}"
@@ -309,7 +312,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-6 mb-2">
-                                            <small>Total Hours</small>
+                                            <small>Total Hours <sup class="text-danger">*</sup> </small>
                                             <input type="number" name="total_hours" id=""
                                                 class="form-control form-control-sm rounded"
                                                 value="{{ isset($schoolProgram->total_hours) ? $schoolProgram->total_hours :  old('total_hours') }}"
@@ -319,7 +322,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-6 mb-2">
-                                            <small>Running Status</small>
+                                            <small>Running Status <sup class="text-danger">*</sup> </small>
                                             <select name="running_status" id="" class="select w-100" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                                 <option data-placeholder="true"></option>
                                                 @if(isset($schoolProgram))

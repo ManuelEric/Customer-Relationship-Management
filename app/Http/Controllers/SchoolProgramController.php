@@ -191,13 +191,15 @@ class SchoolProgramController extends Controller
     public function edit(Request $request)
    {
      
-        if ($request->ajax()) {
-            $id = $request->get('id');
-            $type = $request->get('type');
+        // if ($request->ajax()) {
+            $id = 'CORP-0001';
+
+            $type = 'partner';
             if($type == 'partner'){
                 return $this->corporatePicRepository->getAllCorporatePicByCorporateId($id);
             }
-        }
+            return;
+        // }
 
         $schoolId = $request->route('school');
         $sch_progId = $request->route('detail');
