@@ -60,6 +60,7 @@
 
         // value 
         $('#installment_' + id).find('input').val('')
+        
 
         $('#installment_' + id).find('.installment-name').val('Installment ' + parseInt(id+1))
         $('#installment_' + id).find('.percentage').attr('id', 'percentage_' + id)
