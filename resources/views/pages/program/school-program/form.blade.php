@@ -15,8 +15,10 @@
         <div class="col-md-4">
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
-                    <h4>Michael Nathan</h4>
-                    <h6>Program Name</h6>
+                    <h4>{{ $school->sch_name }}</h4>
+                    @if(isset($schoolProgram))
+                        <h6>{{ $schoolProgram->program->prog_program }}</h6>
+                    @endif
                     @if (isset($schoolProgram))
                         <div class="mt-3 d-flex justify-content-center">
                             @if (isset($edit))
@@ -41,7 +43,9 @@
                 </div>
             </div>
             @include('pages.program.school-program.detail.school')
-            @include('pages.program.school-program.detail.speaker')
+            @if(isset($schoolProgram))
+                @include('pages.program.school-program.detail.speaker')
+            @endif
         </div>
 
         <div class="col-md-8">
@@ -177,6 +181,9 @@
                                         class="form-control form-control-sm rounded"
                                         value="{{ isset($schoolProgram->denied_date) ? $schoolProgram->denied_date :  old('denied_date') }}"
                                         {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                    @error('denied_date')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-md-6 denied_status d-none my-2">
                                 
@@ -213,6 +220,9 @@
                                                         </option>
                                                     @endif
                                             </select>
+                                                @error('reason_id')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
                                         </div>
                                             
                                         <div class="d-flex align-items-center d-none" id="inputReason">
@@ -274,6 +284,9 @@
                                                 class="form-control form-control-sm rounded"
                                                 value="{{ isset($schoolProgram->place) ? $schoolProgram->place :  old('place') }}"
                                                 {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                            @error('place')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
                                         </div>
                                         <div class="col-md-6 mb-2">
                                             <small>Participants</small>
@@ -281,6 +294,9 @@
                                                 class="form-control form-control-sm rounded"
                                                 value="{{ isset($schoolProgram->participants) ? $schoolProgram->participants :  old('participants') }}"
                                                 {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                            @error('participants')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
                                         </div>
                                         <div class="col-md-6 mb-2">
                                             <small>Total Fee</small>
@@ -288,6 +304,9 @@
                                                 class="form-control form-control-sm rounded"
                                                 value="{{ isset($schoolProgram->total_fee) ? $schoolProgram->total_fee :  old('total_fee') }}"
                                                 {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                            @error('total_fee')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
                                         </div>
                                         <div class="col-md-6 mb-2">
                                             <small>Total Hours</small>
@@ -295,6 +314,9 @@
                                                 class="form-control form-control-sm rounded"
                                                 value="{{ isset($schoolProgram->total_hours) ? $schoolProgram->total_hours :  old('total_hours') }}"
                                                 {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                            @error('total_hours')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
                                         </div>
                                         <div class="col-md-6 mb-2">
                                             <small>Running Status</small>
@@ -310,6 +332,9 @@
                                                     <option value="Done">Done</option>
                                                 @endif
                                             </select>
+                                            @error('running_status')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
                                         </div>
                                         <div class="col-md-12 mb-2">
                                             <small>Notes</small>
@@ -331,6 +356,7 @@
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-6">
+                                    
                                     <select name="empl_id" id="" class="select w-100" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
                                         @if(isset($schoolProgram->empl_id))
@@ -370,7 +396,7 @@
                     </form>
                 </div>
             </div>
-            {{-- @if(session('attach')) --}}
+          
             @if(!empty($attach) && $schoolProgram->status == 1 || session('attach'))
                 @include('pages.program.school-program.detail.attachment')
             @endif
@@ -416,12 +442,47 @@
     @if(isset($schoolProgram))
         <script>
             $(document).ready(function(){
-                // checkStatus()
                 $('#approach_status').val('{{$schoolProgram->status}}').trigger('change')
                 $('#selectReason').select2()
             })
 
         </script>
+    @endif
+    
+    @if(
+        $errors->has('success_date') || 
+        $errors->has('start_program_date') || 
+        $errors->has('end_program_date') ||
+        $errors->has('place') ||
+        $errors->has('participants') ||
+        $errors->has('total_fee') ||
+        $errors->has('total_hours') ||
+        $errors->has('running_status')
+        )
+        
+        <script>
+            $(document).ready(function(){
+                $('#approach_status').val('1').trigger('change')
+                $('#selectReason').select2()
+            })
+
+        </script>
+
+    @endif
+  
+    @if(
+        $errors->has('denied_date') || 
+        $errors->has('reason_id') 
+        )
+        
+        <script>
+            $(document).ready(function(){
+                $('#approach_status').val('2').trigger('change')
+                $('#selectReason').select2()
+            })
+
+        </script>
+
     @endif
 
 @endsection

@@ -59,6 +59,7 @@ Route::get('school/create', function () {
 Route::resource('school', SchoolController::class);
 Route::prefix('school')->name('school.')->group(function () {
     Route::resource('{school}/detail', SchoolProgramController::class);
+    Route::resource('{school}/detail/{sch_prog}/speaker', SchoolProgramController::class);
     Route::resource('{school}/detail/{sch_prog}/attach', SchoolProgramAttachController::class);
 });
 

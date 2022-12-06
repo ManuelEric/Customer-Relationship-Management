@@ -5,6 +5,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
+
 
 class SchoolProgram extends Model
 {
@@ -39,6 +41,15 @@ class SchoolProgram extends Model
         'empl_id',
     ];
 
+    // public static function whereSchoolProgramId($id)
+    // {
+    //     if (is_array($id) && empty($id)) return new Collection;
+        
+    //     $instance = new static;
+
+    //     return $instance->newQuery()->where('id', $id)->first();
+    // }
+
     public function school()
     {
         return $this->belongsTo(School::class, 'sch_id', 'sch_id');
@@ -58,4 +69,5 @@ class SchoolProgram extends Model
     {
         return $this->belongsTo(Reason::class, 'reason_id', 'reason_id');
     }
+
 }

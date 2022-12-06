@@ -12,6 +12,11 @@ class CorporatePicRepository implements CorporatePicRepositoryInterface
         return CorporatePic::where('corp_id', $corporateId)->get();
     }
 
+    public function getAllCorporatePic()
+    {
+        return CorporatePic::orderBy('pic_name', 'asc')->get();
+    }
+
     public function getCorporatePicById($picId)
     {
         return CorporatePic::find($picId);

@@ -6,6 +6,7 @@ use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Models\Agenda;
 use App\Models\AgendaSpeaker;
 use App\Models\Event;
+use App\Models\SchoolProgram;
 use DataTables;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
@@ -47,6 +48,10 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
             case "Event":
                 return $this->createEventSpeaker($identifier, $agendaDetails);
                 break;
+                
+            case "School-Program":
+                return $this->createSchoolProgramSpeaker($identifier, $agendaDetails);
+                break;
         }
     }
 
@@ -84,5 +89,18 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
                 $event->internal_speaker()->attach($agendaDetails['allin_speaker'], $agendaDetails);
                 break;
         }
+    }
+
+    # school program speaker below
+    public function createSchoolProgramSpeaker($identifier, $agendaDetails)
+    {
+        # initialize 
+        // $agendaDetails['created_at'] = Carbon::now();
+        // $agendaDetails['updated_at'] = Carbon::now();
+        // $schoolProgram = SchoolProgram::find($identifier);
+        
+        return AgendaSpeaker::create($agendaDetails);
+        
+
     }
 }   

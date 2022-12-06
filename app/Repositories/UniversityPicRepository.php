@@ -13,6 +13,11 @@ class UniversityPicRepository implements UniversityPicRepositoryInterface
         return UniversityPic::where('univ_id', $universityId)->get();
     }
 
+    public function getAllUniversityPic()
+    {
+        return UniversityPic::orderBy('name', 'asc')->get();
+    }
+
     public function getUniversityPicById($picId)
     {
         return UniversityPic::find($picId);

@@ -7,13 +7,8 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
-use App\Interfaces\ProgramRepositoryInterface;
-use App\Interfaces\UserRepositoryInterface;
-use App\Interfaces\ReasonRepositoryInterface;
-use App\Models\Reason;
-use App\Models\SchoolProgram;
+
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -28,25 +23,18 @@ class SchoolProgramAttachController extends Controller
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
     protected SchoolProgramAttachRepositoryInterface $schoolAttachProgramRepository;
-    // protected ProgramRepositoryInterface $programRepository;
-    // protected UserRepositoryInterface $userRepository;
-    // protected ReasonRepositoryInterface $rasonRepository;
 
     public function __construct(
         SchoolRepositoryInterface $schoolRepository, 
-        UserRepositoryInterface $userRepository, 
         SchoolProgramRepositoryInterface $schoolProgramRepository, 
         SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository, 
-        // ProgramRepositoryInterface $programRepository,
-        // ReasonRepositoryInterface $reasonRepository
+  
         )
     {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
         $this->schoolProgramAttachRepository = $schoolProgramAttachRepository;
-        // $this->programRepository = $programRepository;
-        $this->userRepository = $userRepository;
-        // $this->reasonRepository = $reasonRepository;
+
     }
 
     public function store(StoreSchoolProgramAttachRequest $request)
@@ -74,7 +62,7 @@ class SchoolProgramAttachController extends Controller
        
         try {
            
-            # insert into school program
+            # insert into school program attachment
             $this->schoolProgramAttachRepository->createSchoolProgramAttach($schProgAttachs);
 
             DB::commit();
@@ -101,6 +89,7 @@ class SchoolProgramAttachController extends Controller
         try {
 
             $schoolProgAttachs = $this->schoolProgramAttachRepository->getSchoolProgramAttachById($attachId);
+
             if($this->schoolProgramAttachRepository->deleteSchoolProgramAttach($attachId)){
                 Unlink(public_path($schoolProgAttachs->schprog_attach));
             }

@@ -58,16 +58,113 @@ class StoreSchoolProgramRequest extends FormRequest
             ],
             'notes' => 'nullable',
             'notes_detail' => 'nullable',
-            'running_status' => 'nullable|in:Not yet,On going,Done',
-            'total_hours' => 'nullable|integer',
-            'total_fee' => 'nullable|numeric',
-            'participants' => 'nullable|integer',
-            'place' => 'nullable',
-            'end_program_date' => 'nullable|date|after_or_equal:start_program_date',
-            'start_program_date' => 'nullable|date|before_or_equal:end_program_date',
-            'success_date' => 'nullable|date',
-            'reason_id' => 'nullable',
-            'denied_date' => 'nullable|date',
+            'running_status' => 
+                [
+                    'required_if:status,1|in:Not yet,On going,Done',
+                    function ($attribute, $value, $fail) {
+
+                        if ($this->input('status') == 1 )
+                            $fail('The Running Status is required');
+    
+                    }
+                ]
+            ,
+            'total_hours' => 
+                [
+                    'required_if:status,1|integer',
+                    function ($attribute, $value, $fail) {
+
+                        if ($this->input('status') == 1 )
+                            $fail('The Total hours is required');
+    
+                    }  
+                ],
+            'total_fee' => 
+                [
+                    'required_if:status,1|numeric',
+                    function ($attribute, $value, $fail) {
+
+                        if ($this->input('status') == 1 )
+                            $fail('The Total fee is required');
+
+                    }  
+                ],
+            'participants' => 
+                [
+                    'required_if:status,1|integer',
+                    function ($attribute, $value, $fail) {
+
+                        if ($this->input('status') == 1 )
+                            $fail('The Participants is required');
+
+                    }  
+                ],
+            'place' => 
+                [
+                    'required_if:status,1|integer',
+                    function ($attribute, $value, $fail) {
+
+                        if ($this->input('status') == 1 )
+                            $fail('The Place is required');
+
+                    }  
+                ],
+            'end_program_date' => 
+                [
+                    'required_if:status,1|date|after_or_equal:start_program_date',
+                    function ($attribute, $value, $fail) {
+
+                        if ($this->input('status') == 1 )
+                            $fail('The End program date is required');
+
+                    }  
+                ],
+            
+            'start_program_date' => 
+                [
+                    'required_if:status,1|date|before_or_equal:end_program_date',
+                    function ($attribute, $value, $fail) {
+
+                        if ($this->input('status') == 1 )
+                            $fail('The Start program date is required');
+
+                    }  
+                ],
+            
+            'success_date' => 
+                [
+                    'required_if:status,1|date',
+                    function ($attribute, $value, $fail) {
+
+                        if ($this->input('status') == 1 )
+                            $fail('The Success date is required');
+
+                    }  
+                ],
+            
+            'reason_id' => 
+                [
+                    'required_if:status,2',
+                    function ($attribute, $value, $fail) {
+
+                        if ($this->input('status') == 2 )
+                            $fail('The Reason is required');
+
+                    }  
+                ],
+
+            'denied_date' => 
+                [
+                    'required_if:status,2|date',
+                    function ($attribute, $value, $fail) {
+
+                        if ($this->input('status') == 2 )
+                            $fail('The Denied date is required');
+
+                    }  
+                ],
+
+            
         ];
 
         if($sch_id){

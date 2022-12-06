@@ -7,12 +7,18 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
+use App\Interfaces\CorporateRepositoryInterface;
+use App\Interfaces\CorporatePicRepositoryInterface;
+use App\Interfaces\UniversityRepositoryInterface;
+use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Models\Reason;
 use App\Models\SchoolProgram;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -30,6 +36,11 @@ class SchoolProgramController extends Controller
     protected ProgramRepositoryInterface $programRepository;
     protected UserRepositoryInterface $userRepository;
     protected ReasonRepositoryInterface $rasonRepository;
+    protected CorporateRepositoryInterface $corporateRepository;
+    protected CorporatePicRepositoryInterface $corporatePicRepository;
+    protected UniversityRepositoryInterface $universityRepository;
+    protected UniversityPicRepositoryInterface $universityPicRepository;
+    protected SchoolDetailRepositoryInterface $schoolDetailRepository;
 
     public function __construct(
         SchoolRepositoryInterface $schoolRepository, 
@@ -37,7 +48,12 @@ class SchoolProgramController extends Controller
         SchoolProgramRepositoryInterface $schoolProgramRepository, 
         SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository, 
         ProgramRepositoryInterface $programRepository,
-        ReasonRepositoryInterface $reasonRepository
+        ReasonRepositoryInterface $reasonRepository,
+        CorporateRepositoryInterface $corporateRepository,
+        CorporatePicRepositoryInterface $corporatePicRepository,
+        UniversityRepositoryInterface $universityRepository,
+        UniversityPicRepositoryInterface $universityPicRepository,
+        SchoolDetailRepositoryInterface $schoolDetailRepository,
         )
     {
         $this->schoolRepository = $schoolRepository;
@@ -46,6 +62,11 @@ class SchoolProgramController extends Controller
         $this->programRepository = $programRepository;
         $this->userRepository = $userRepository;
         $this->reasonRepository = $reasonRepository;
+        $this->corporateRepository = $corporateRepository;
+        $this->corporatePicRepository = $corporatePicRepository;
+        $this->universityRepository = $universityRepository;
+        $this->universityPicRepository = $universityPicRepository;
+        $this->schoolDetailRepository = $schoolDetailRepository;
     }
 
 
@@ -127,9 +148,17 @@ class SchoolProgramController extends Controller
 
         # retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($schoolId);
+        
+        # retrieve all school data
+        $schools = $this->schoolRepository->getAllSchools();
 
+        # retrieve all school detail by school id
+        $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
+        
         # retrieve program data
-        $programs = $this->programRepository->getAllPrograms();
+        $programsB2B = $this->programRepository->getAllProgramByType('B2B');
+        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
+        $programs = $programsB2B->merge($programsB2BB2C);
 
         # retrieve reason data
         $reasons = $this->reasonRepository->getAllReasons();
@@ -151,6 +180,8 @@ class SchoolProgramController extends Controller
                 'schoolProgram' => $schoolProgram,
                 'schoolProgramAttachs' => $schoolProgramAttachs,
                 'school' => $school,
+                'schoolDetail' => $schoolDetail,
+                'schools' => $schools,
                 'attach' => true
             ]
         );
@@ -159,14 +190,30 @@ class SchoolProgramController extends Controller
 
     public function edit(Request $request)
    {
+     
+        if ($request->ajax()) {
+            $id = $request->get('id');
+            $type = $request->get('type');
+            if($type == 'partner'){
+                return $this->corporatePicRepository->getAllCorporatePicByCorporateId($id);
+            }
+        }
+
         $schoolId = $request->route('school');
         $sch_progId = $request->route('detail');
 
         # retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($schoolId);
 
+        # retrieve all school detail by school id
+        $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
+
         # retrieve program data
-        $programs = $this->programRepository->getAllPrograms();
+        $programsB2B = $this->programRepository->getAllProgramByType('B2B');
+        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
+        $programs = $programsB2B->merge($programsB2BB2C);
+
+        
 
         # retrieve reason data
         $reasons = $this->reasonRepository->getAllReasons();
@@ -177,6 +224,12 @@ class SchoolProgramController extends Controller
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByRole('Employee');
 
+        # retrieve corporate / partner
+        $partners = $this->corporateRepository->getAllCorporate();
+        
+        # retrieve university data
+        $universities = $this->universityRepository->getAllUniversities();
+
         return view('pages.program.school-program.form')->with(
             [
                 'edit' => true,
@@ -184,7 +237,10 @@ class SchoolProgramController extends Controller
                 'programs' => $programs,
                 'reasons' => $reasons,
                 'schoolProgram' => $schoolProgram,
-                'school' => $school
+                'school' => $school,
+                'schoolDetail' => $schoolDetail,
+                'partners' => $partners,
+                'universities' => $universities,
             ]
         );
 
@@ -196,8 +252,6 @@ class SchoolProgramController extends Controller
         $sch_progId = $request->route('detail');
         $schoolPrograms = $request->all();
 
-        // $getSchoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
-        // $reasonId_SchoolProgram = $getSchoolProgram->reason_id;
         
         DB::beginTransaction();
         $schoolPrograms['sch_id'] = $schoolId;
@@ -208,13 +262,11 @@ class SchoolProgramController extends Controller
             if($schoolPrograms['status'] == 2){
                 if($request->input('reason_id') == 'other'){
                     $reason['reason_name'] = $request->input('other_reason');
-                    // if ($reasonId_SchoolProgram != null){ 
-                    //     $this->reasonRepository->updateReason($reasonId_SchoolProgram, $reason);
-                    // }else{
+               
                         $this->reasonRepository->createReason($reason);
                         $reason_id = Reason::max('reason_id');
                         $schoolPrograms['reason_id'] = $reason_id;
-                    // }
+                  
                 }
             }
                 

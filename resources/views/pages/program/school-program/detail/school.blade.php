@@ -16,7 +16,7 @@
                 <label>:</label>
             </div>
             <div class="col-md-8">
-                nathan@gmail.com
+                {{ $school->sch_mail }}
             </div>
         </div>
         <div class="row mb-2 g-1">
@@ -27,7 +27,7 @@
                 <label>:</label>
             </div>
             <div class="col-md-8">
-                628921412424
+                {{ $school->sch_phone }}
             </div>
         </div>
         <div class="row mb-2 g-1">
@@ -38,9 +38,10 @@
                 <label>:</label>
             </div>
             <div class="col-md-8">
-                Jl. Kayu Putih Tengah No.1C, RT.9/RW.7, Pulo Gadung <br>
-                13260 <br>
-                Jakarta Timur DKI Jakarta
+                {!! $school->sch_location !!}
+                <br>
+                {{ $school->sch_city }}
+                
             </div>
         </div>
     </div>
