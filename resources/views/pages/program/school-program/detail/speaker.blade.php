@@ -46,7 +46,9 @@
                  <i class="bi bi-pencil-square"></i>
              </div>
              <div class="modal-body w-100 text-start">
-                 <form action="{{ url('program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/speaker') }}" method="POST">
+                 <form
+                     action="{{ url('program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/speaker') }}"
+                     method="POST">
                      @csrf
                      <div class="put"></div>
                      <div class="row g-2">
@@ -198,6 +200,7 @@
          let new_link = link + '?type=' + type + '&id=' + id;
 
          $('.speaker-pic').removeClass('d-none')
+         $('#speaker_pic').attr('name', type + '_speaker')
          Swal.showLoading()
          axios.get(new_link)
              .then((res) => {
@@ -227,6 +230,6 @@
      }
 
      function checkStatusSpeaker(agendaId) {
-         
+
      }
  </script>
