@@ -164,7 +164,7 @@
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('client/student*') ? 'active' : '' }}"
-                                        href="{{ url('client/student?=potential') }}">Students</a>
+                                        href="{{ url('client/student?st=potential') }}">Students</a>
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('client/mentee*') ? 'active' : '' }}"
