@@ -5,6 +5,7 @@ namespace App\Interfaces;
 interface EventRepositoryInterface 
 {
     public function getAllEventDataTables();
+    public function getAllEvents();
     public function getEventById($eventId);
     public function deleteEvent($eventId);
     public function createEvent(array $eventDetails);

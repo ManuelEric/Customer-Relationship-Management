@@ -19,6 +19,16 @@ class LeadRepository implements LeadRepositoryInterface
         return Lead::orderBy('main_lead', 'asc')->orderBy('sub_lead', 'asc')->get();
     }
 
+    public function getAllMainLead()
+    {
+        return Lead::where('sub_lead', NULL)->orderBy('main_lead', 'asc')->get();
+    }
+
+    public function getAllKOLlead()
+    {
+        return Lead::where('main_lead', 'KOL')->orderBy('sub_lead', 'asc')->get();
+    }
+
     public function getLeadById($leadId)
     {
         return Lead::whereLeadId($leadId);

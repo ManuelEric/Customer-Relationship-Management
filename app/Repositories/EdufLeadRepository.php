@@ -25,7 +25,11 @@ class EdufLeadRepository implements EdufLeadRepositoryInterface
 
     public function getAllEdufairLead()
     {
-        return EdufLead::orderBy('eduf_organizer', 'asc')->get();
+        return EdufLead::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_eduf_lead.corp_id')->
+                        leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_eduf_lead.sch_id')->
+                        leftJoin('users', 'users.id', '=', 'tbl_eduf_lead.intr_pic')->
+                        select(['tbl_eduf_lead.*', DB::raw("IF (tbl_eduf_lead.sch_id != NULL, tbl_sch.sch_name, tbl_corp.corp_name) as organizer_name")])->
+                        orderBy('organizer_name', 'asc')->get();
     }
 
     public function getEdufairLeadById($edufLId)

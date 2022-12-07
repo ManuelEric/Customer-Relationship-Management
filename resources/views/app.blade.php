@@ -258,6 +258,13 @@
                 allowClear: true
             });
         });
+
+        function initSelect2(element) {
+            $(element+'.select').select2({
+                placeholder: "Select value",
+                allowClear: true
+            });
+        }
     </script>
 
 </body>

@@ -67,4 +67,9 @@ class Program extends Model
     {
         return $this->belongsTo(SubProg::class, 'sub_prog_id', 'id');
     }
+
+    public function client()
+    {
+        return $this->belongsToMany(UserClient::class, 'tbl_interest_prog', 'prog_id', 'client_id');
+    }
 }

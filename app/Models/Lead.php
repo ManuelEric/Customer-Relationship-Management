@@ -33,4 +33,8 @@ class Lead extends Model
         return $instance->newQuery()->where('lead_id', $id)->first();
     }
 
+    public function client()
+    {
+        return $this->hasMany(UserClient::class, 'lead_id', 'lead_id');
+    }
 }

@@ -34,4 +34,9 @@ class Major extends Model
             get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
         );
     }
+
+    public function client()
+    {
+        return $this->belongsToMany(UserClient::class, 'tbl_dreams_major', 'major_id', 'client_id');
+    }
 }

@@ -57,6 +57,11 @@ class CurriculumSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
+            // [
+            //     'name' => 'A Level',
+            //     'created_at' => Carbon::now(),
+            //     'updated_at' => Carbon::now(),
+            // ],
             [
                 'name' => 'Korean Curriculum',
                 'created_at' => Carbon::now(),

@@ -68,4 +68,9 @@ class University extends Model
     {
         return $this->belongsToMany(Event::class, 'tbl_univ_event', 'univ_id', 'event_id');
     }
+
+    public function client()
+    {
+        return $this->belongsToMany(UserClient::class, 'tbl_dreams_uni', 'univ_id', 'client_id');
+    }
 }

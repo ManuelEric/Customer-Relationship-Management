@@ -19,6 +19,7 @@ class EdufLead extends Model
     protected $fillable = [
         'sch_id',
         'corp_id',
+        'title',
         'location',
         'intr_pic',
         'ext_pic_name',

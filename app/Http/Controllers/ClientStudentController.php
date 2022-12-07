@@ -2,24 +2,312 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\StoreNewSchoolException;
 use App\Http\Requests\StoreClientStudentRequest;
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\FindStatusClientTrait;
+use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\CurriculumRepositoryInterface;
+use App\Interfaces\EdufLeadRepositoryInterface;
+use App\Interfaces\EventRepositoryInterface;
+use App\Interfaces\LeadRepositoryInterface;
+use App\Interfaces\MajorRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\UniversityRepositoryInterface;
+use App\Models\Lead;
+use App\Models\School;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class ClientStudentController extends Controller
 {
-    
-    public function index()
+    use CreateCustomPrimaryKeyTrait;
+    use FindStatusClientTrait;
+
+    private ClientRepositoryInterface $clientRepository;
+    private SchoolRepositoryInterface $schoolRepository;
+    private LeadRepositoryInterface $leadRepository;
+    private EventRepositoryInterface $eventRepository;
+    private EdufLeadRepositoryInterface $edufLeadRepository;
+    private ProgramRepositoryInterface $programRepository;
+    private UniversityRepositoryInterface $universityRepository;
+    private MajorRepositoryInterface $majorRepository;
+    private CurriculumRepositoryInterface $curriculumRepository;
+
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository)
     {
-        return view('pages.client.student.index');
+        $this->clientRepository = $clientRepository;
+        $this->schoolRepository = $schoolRepository;
+        $this->leadRepository = $leadRepository;
+        $this->eventRepository = $eventRepository;
+        $this->edufLeadRepository = $edufLeadRepository;
+        $this->programRepository = $programRepository;
+        $this->universityRepository = $universityRepository;
+        $this->majorRepository = $majorRepository;
+        $this->curriculumRepository = $curriculumRepository;
+    }
+    
+    public function index(Request $request)
+    {
+        $statusClient = $request->get('st');
+        $statusClientCode = $this->getStatusClientCode($statusClient);
+        $students = $this->clientRepository->getAllClientByRoleAndStatus('Student', $statusClientCode);
+
+        return view('pages.client.student.index')->with(
+            [
+                'students' => $students
+            ]
+        );
     }
 
-    public function store(StoreClientStudentRequest $request)
+    public function show(Request $request)
     {
         
     }
 
-    public function create()
+    public function store(StoreClientStudentRequest $request)
     {
-        return view('pages.client.student.form');
+
+        $studentDetails = $request->only([
+            'first_name',
+            'last_name',
+            'mail',
+            'phone',
+            'dob',
+            'insta',
+            'state',
+            'city',
+            'postal_code',
+            'address',
+            'sch_id',
+            'st_grade',
+            'lead_id',
+            'eduf_id',
+            'kol_lead_id',
+            'event_id',
+            'st_levelinterest',
+            'graduation_year',
+            'st_abryear',
+            'st_abrcountry', # should be array
+            'st_note',
+        ]);
+
+        $studentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
+        $parentId = $request->pr_id;
+
+        # set lead_id based on lead_id & kol_lead_id
+        # when lead_id is kol
+        # then put kol_lead_id to lead_id
+        # otherwise
+        # when lead_id is not kol 
+        # then lead_id is lead_id
+        if ($request->lead_id == "kol") {
+
+            unset($studentDetails['lead_id']);
+            $studentDetails['lead_id'] = $request->kol_lead_id;
+        }
+
+        DB::beginTransaction();
+        try {
+
+            # case 1
+            # create new school
+            # when sch_id is "add-new" 
+            if ($request->sch_id == "add-new") {
+
+                $schoolDetails = $request->only([
+                    'sch_name',
+                    // 'sch_location',
+                    'sch_type',
+                    'sch_curriculum',
+                    'sch_score',
+                ]);
+    
+                $last_id = School::max('sch_id');
+                $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
+                $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+
+                if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
+                    throw new Exception('Failed to store new school', 1);
+                
+
+                # remove field sch_id from student detail if exist
+                unset($studentDetails['sch_id']);
+
+                # create index sch_id to student details
+                # filled with a new school id that was inserted before
+                $studentDetails['sch_id'] = $school->sch_id;
+
+            }
+
+
+            # case 2
+            # create new user client as parents
+            # when pr_id is "add-new" 
+            if ($request->pr_id == "add-new") {
+
+                $parentDetails = [
+                    'first_name' => $request->pr_firstname,
+                    'last_name' => $request->pr_lastname,
+                    'mail' => $request->pr_mail,
+                    'phone' => $request->pr_phone,
+                    'state' => $studentDetails['state'],
+                    'city' => $studentDetails['city'],
+                    'postal_code' => $studentDetails['postal_code'],
+                    'address' => $studentDetails['address'],
+                    'lead_id' => $studentDetails['lead_id'],
+                    'eduf_id' => $studentDetails['eduf_id'],
+                    'event_id' => $studentDetails['event_id'],
+                    'st_levelinterest' => $studentDetails['st_levelinterest'],
+                    'st_note' => $studentDetails['st_note'],
+                ];
+
+                if (!$parent = $this->clientRepository->createClient('Parent', $parentDetails))
+                    throw new Exception('Failed to store new parent', 2);
+
+                $parentId = $parent->id;
+            }
+
+
+            # case 3
+            # create new user client as student
+            if (!$newStudent = $this->clientRepository->createClient('Student', $studentDetails))
+                throw new Exception('Failed to store new student', 3);
+
+            $newStudentId = $newStudent->id;
+
+            # case 4
+            # add relation between parent and student
+            if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
+                throw new Exception('Failed to store relation between student and parent', 4);
+            
+
+            # case 5
+            # create interested program
+            for ($i = 0 ; $i < count($request->prog_id) ; $i++) {
+                $interestProgramDetails[] = [
+                    'prog_id' => $request->prog_id[$i],
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ];
+            }
+
+            if (!$this->clientRepository->createInterestProgram($newStudentId, $interestProgramDetails))
+                throw new Exception('Failed to store interest program', 5);
+
+            # case 6
+            # create interested universities
+            for ($i = 0 ; $i < count($request->st_abruniv) ; $i++) {
+                $interestUnivDetails[] = [
+                    'univ_id' => $request->st_abruniv[$i],
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ];
+            }
+
+            if (!$this->clientRepository->createInterestUniversities($newStudentId, $interestUnivDetails))
+                throw new Exception('Failed to store interest universities', 6);
+
+
+            # case 7
+            # create interested major
+            for ($i = 0 ; $i < count($request->st_abrmajor) ; $i++) {
+                $interestMajorDetails[] = [
+                    'major_id' => $request->st_abrmajor[$i],
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ];
+            }
+
+            if (!$this->clientRepository->createInterestMajor($newStudentId, $interestMajorDetails))
+                throw new Exception('Failed to store interest major', 7);
+
+
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+
+            switch ($e->getCode()) {
+                case 1:
+                    Log::error('Store school failed from student : ' . $e->getMessage());
+                    break;
+
+                case 2:
+                    Log::error('Store parent failed from student : ' . $e->getMessage());
+                    break;
+
+                case 3:
+                    Log::error('Store student failed : ' . $e->getMessage());
+                    break;
+
+                case 4:
+                    Log::error('Store relation between student and parent failed : ' . $e->getMessage());
+                    break;
+
+                case 5:
+                    Log::error('Store interest programs failed : ' . $e->getMessage());
+                    break;
+
+                case 6:
+                    Log::error('Store interest universities failed : ' . $e->getMessage());
+                    break;
+
+                case 7:
+                    Log::error('Store interest major failed : ' . $e->getMessage());
+                    break;
+                }
+                
+            Log::error('Store a new student failed : ' . $e->getMessage());
+            return Redirect::to('client/student/create')->withError($e->getMessage());
+
+        }
+
+        return Redirect::to('client/student/create')->withSuccess('A new student has been registered.');
+    }
+
+    public function create(Request $request)
+    {
+        # ajax
+        # to get university by selected country
+        if ($request->ajax()) {
+            
+            $universities = $this->universityRepository->getAllUniversitiesByCountries($request->country);
+            return response()->json($universities);
+        }
+
+        $schools = $this->schoolRepository->getAllSchools();
+        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $parents = $this->clientRepository->getAllClientByRole('Parent');
+        $leads = $this->leadRepository->getAllMainLead();
+        $events = $this->eventRepository->getAllEvents();
+        $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
+        $kols = $this->leadRepository->getAllKOLlead();
+        $programs = $this->programRepository->getAllPrograms();
+        $countries = $this->universityRepository->getCountryNameFromUniversity();
+        $majors = $this->majorRepository->getAllMajors();
+
+        return view('pages.client.student.form')->with(
+            [
+                'schools' => $schools,
+                'curriculums' => $curriculums,
+                'parents' => $parents,
+                'leads' => $leads,
+                'events' => $events,
+                'ext_edufair' => $ext_edufair,
+                'kols' => $kols,
+                'programs' => $programs,
+                'countries' => $countries,
+                'majors' => $majors,
+            ]
+        );
     }
 }

@@ -264,8 +264,8 @@
                 <form action="#" method="POST" id="reasonForm">
                     @csrf
                     @method('put')
-                    <input type="text" name="agendaId" id="agenda_id">
-                    <input type="text" name="status" id="status_id">
+                    <input type="hidden" name="agendaId" id="agenda_id">
+                    <input type="hidden" name="status" id="status_id">
                     <label for="">Notes</label>
                     <textarea name="notes" id="notes"></textarea>
                     <hr>

@@ -11,4 +11,9 @@ class CurriculumRepository implements CurriculumRepositoryInterface
     {
         return Curriculum::orderBy('name', 'asc')->get();
     }
+
+    public function createCurriculums(array $curriculumDetails)
+    {
+        return Curriculum::insert($curriculumDetails);
+    }
 }

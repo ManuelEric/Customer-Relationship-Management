@@ -51,6 +51,7 @@ class StoreEdufairRequest extends FormRequest
                     }
                 },
             ],
+            'title' => 'required',
             'location' => 'required',
             'intr_pic' => [
                 'required',

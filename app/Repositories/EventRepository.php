@@ -15,6 +15,11 @@ class EventRepository implements EventRepositoryInterface
         return Datatables::eloquent(Event::query())->rawColumns(['event_description', 'event_location'])->make(true);
     }
 
+    public function getAllEvents()
+    {
+        return Event::orderBy('created_at', 'desc')->get();
+    }
+
     public function getEventById($eventId)
     {   
         return Event::whereEventId($eventId);

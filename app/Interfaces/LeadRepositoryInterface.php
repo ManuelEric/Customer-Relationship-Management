@@ -6,6 +6,8 @@ interface LeadRepositoryInterface
 {
     public function getAllLeadDataTables();
     public function getAllLead();
+    public function getAllMainLead();
+    public function getAllKOLlead();
     public function getLeadById($leadId);
     public function deleteLead($leadId);
     public function createLeads(array $leadDetails);

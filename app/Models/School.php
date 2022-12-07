@@ -57,4 +57,9 @@ class School extends Model
     {
         return $this->belongsToMany(Event::class, 'tbl_sch_event', 'sch_id', 'event_id');
     }
+
+    public function client()
+    {
+        return $this->hasMany(UserClient::class, 'sch_id', 'sch_id');
+    }
 }

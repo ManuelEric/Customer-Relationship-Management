@@ -2,7 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Lead;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+use function PHPSTORM_META\map;
 
 class StoreClientStudentRequest extends FormRequest
 {
@@ -31,23 +35,64 @@ class StoreClientStudentRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'st_firstname' => 'required',
-            'st_lastname' => 'nullable',
-            'st_mail' => 'required|email',
-            'st_phone' => 'required|min:10|max:12',
-            'st_dob' => 'required',
-            'st_insta' => 'nullable',
-            'st_state' => 'required',
-            'st_city' => 'nullable',
-            'st_pc' => 'nullable',
-            'st_address' => 'nullable',
-            'sch_id' => ['sometimes'],
-            'sch_name' => 'required_if:sch_id,add-new',
-            // 'st_currentsch'
+            'first_name' => 'required',
+            'last_name' => 'nullable',
+            'mail' => 'required|email|unique:tbl_client,mail',
+            'phone' => 'required|min:10|max:12',
+            'dob' => 'required',
+            'insta' => 'nullable',
+            'state' => 'required',
+            'city' => 'nullable',
+            'postal_code' => 'nullable',
+            'address' => 'nullable',
+            'st_grade' => 'required',
+            'st_graduation_year' => 'nullable',
+            'sch_id' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if ($this->input('sch_id') != "add-new") {
+                        Rule::exists('tbl_sch', 'sch_id');
+                    }
+                }
+            ],
+            'sch_name' => 'sometimes|required_if:sch_id,add-new|unique:tbl_sch,sch_name',
+            // 'sch_location' => 'sometimes|required_if:sch_id,add-new',
+            'sch_type' => 'required_if:sch_id,add-new',
+            'sch_curriculum' => 'required_if:sch_id,add-new',
+            'sch_score' => 'required_if:sch_id,add-new',
+            'event_id' => 'required_if:lead_id,LS004',
+            'eduf_id' => 'required_if:lead_id,LS018',
+            'kol_lead_id' => [
+                function ($attribute, $value, $fail) {
+                    if ($this->input('lead_id') == 'kol' && empty($value))
+                        $fail('The KOL name field is required');
+
+                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                        $fail('The KOL name is invalid');
+                }
+            ],
+            'st_levelinterest' => 'required|in:High,Medium,Low',
+            'prog_id.*' => 'sometimes|required|exists:tbl_prog,prog_id',
+            'st_abryear' => [
+                'sometimes',
+                function($attribute, $value, $fail) {
+                    if ( ($value <= date('Y')) && ($value >= date('Y', strtotime("+5 years"))) ) {
+                        $fail('The abroad year is invalid');
+                    }
+                }
+            ],
+            'st_abrcountry.*' => 'nullable',
+            'st_abruniv.*' => 'sometimes|nullable|exists:tbl_univ,univ_id',
+            'st_abrmajor.*' => 'sometimes|nullable|exists:tbl_major,id',
+            'pr_id' => 'nullable',
+            'pr_firstname' => 'required_if:pr_id,add-new',
+            'pr_lastname' => 'nullable',
+            'pr_mail' => 'nullable|email',
+            'pr_phone' => 'required_if:pr_id,add-new',
         ];
 
-        if ($this->input('sch_id') != "add-new") {
-            $rules['sch_id'][] = 'exists:tbl_sch,sch_id';
+        if ($this->input('lead_id') != "kol") {
+            $rules['lead_id'] = 'required|exists:tbl_lead,lead_id';
         }
 
         return $rules;

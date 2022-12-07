@@ -14,6 +14,11 @@ class MajorRepository implements MajorRepositoryInterface
         return Datatables::eloquent(Major::query())->make(true);
     }
 
+    public function getAllMajors()
+    {
+        return Major::all();
+    }
+
     public function getMajorById($id)
     {
         return Major::find($id);

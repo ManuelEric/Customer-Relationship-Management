@@ -178,6 +178,14 @@
                             </div>
 
                             <div class="col-md-12 my-2">
+                                <label>Title <sup class="text-danger">*</sup></label>
+                                <input type="text" class="form-control form-control-sm rounded" name="title" value="{{ isset($edufair->title) ? $edufair->title : null }}" {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
+                                @error('title')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-12 my-2">
                                 <label>Location <sup class="text-danger">*</sup></label>
                                 <textarea name="location" cols="30" rows="10">{{ isset($edufair->location) ? $edufair->location : null }}</textarea>
                                 @error('location')
@@ -319,6 +327,7 @@
                                 </ul>
                             </div>
                         @endif
+                        
                         <form action="{{ url('master/edufair/' . $edufair->id . '/review') }}" method="POST"
                             id="formReview">
                             @csrf
@@ -331,64 +340,46 @@
                                     <select name="reviewer_name" id="reviewer_name" class="modal-select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($internal_pic as $pic)
-                                            <option value="{{ $pic->id }}">
+                                            <option value="{{ $pic->first_name . ' ' . $pic->last_name }}">
                                                 {{ $pic->first_name . ' ' . $pic->last_name }}
                                             </option>
                                         @endforeach
-                                        </ul>
+                                    </select>
                                 </div>
-                                <form action="{{ url('master/edufair/' . $edufair->id . '/review') }}" method="POST"
-                                    id="formReview">
-                                    @csrf
-                                    <div class="put"></div>
-                                    <input class="form-control form-control-sm rounded" type="hidden" name="eduf_id"
-                                        value="{{ $edufair->id }}">
-                                    <div class="row">
-                                        <div class="col-md-7 mb-2">
-                                            <label>Name</label>
-                                            <select name="reviewer_name" id="reviewer_name" class="modal-select w-100">
-                                                <option data-placeholder="true"></option>
-                                                @foreach ($internal_pic as $pic)
-                                                    <option value="{{ $pic->first_name . ' ' . $pic->last_name }}">
-                                                        {{ $pic->first_name . ' ' . $pic->last_name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
 
-                                        <div class="col-md-5 mb-2">
-                                            <label>Score</label>
-                                            <select name="score" id="score" class="modal-select w-100">
-                                                <option data-placeholder="true"></option>
-                                                <option value="Excellent">Excellent</option>
-                                                <option value="Good">Good</option>
-                                                <option value="Fair">Fair</option>
-                                                <option value="Poor">Poor</option>
-                                                <option value="Bad">Bad</option>
-                                            </select>
-                                        </div>
+                                <div class="col-md-5 mb-2">
+                                    <label>Score</label>
+                                    <select name="score" id="score" class="modal-select w-100">
+                                        <option data-placeholder="true"></option>
+                                        <option value="Excellent">Excellent</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Fair">Fair</option>
+                                        <option value="Poor">Poor</option>
+                                        <option value="Bad">Bad</option>
+                                    </select>
+                                </div>
 
-                                        <div class="col-md-12 mb-2">
-                                            <label>Review</label>
-                                            <textarea name="review" cols="30" rows="10" id="review"></textarea>
-                                        </div>
+                                <div class="col-md-12 mb-2">
+                                    <label>Review</label>
+                                    <textarea name="review" cols="30" rows="10" id="review"></textarea>
+                                </div>
 
-                                        <div class="col-md-12 mt-2">
-                                            <div class="d-flex justify-content-between">
-                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
-                                                    data-bs-dismiss="modal">
-                                                    <i class="bi bi-x me-1"></i>
-                                                    Cancel
-                                                </button>
-                                                <button class="btn btn-sm btn-primary rounded-3">
-                                                    <i class="bi bi-save2"></i>
-                                                    Save
-                                                </button>
-                                            </div>
-                                        </div>
+                                <div class="col-md-12 mt-2">
+                                    <div class="d-flex justify-content-between">
+                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
+                                            data-bs-dismiss="modal">
+                                            <i class="bi bi-x me-1"></i>
+                                            Cancel
+                                        </button>
+                                        <button class="btn btn-sm btn-primary rounded-3">
+                                            <i class="bi bi-save2"></i>
+                                            Save
+                                        </button>
                                     </div>
-                                </form>
+                                </div>
                             </div>
+                        </form>
+                        
                     </div>
                 </div>
             </div>

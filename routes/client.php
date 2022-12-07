@@ -15,27 +15,30 @@ use Illuminate\Support\Facades\Route;
 */
 
 // User 
-Route::get('student/create', function () {
-    return view('pages.client.student.form');
-});
+// Route::get('student/create', function () {
+//     return view('pages.client.student.form');
+// });
 
-Route::get('student/1', function () {
-    return view('pages.client.student.view');
-});
+// Route::get('student/1', function () {
+//     return view('pages.client.student.view');
+// });
 
-Route::get('student/1/edit', function () {
-    return view('pages.client.student.form');
-});
+// Route::get('student/1/edit', function () {
+//     return view('pages.client.student.form');
+// });
 
-Route::get('student/{status}', function ($status) {
-    return view('pages.client.student.index', ['status' => $status]);
-});
+// Route::get('student/{status}', function ($status) {
+//     return view('pages.client.student.index', ['status' => $status]);
+// });
 
 Route::get('mentee/{status}', function ($status) {
     return view('pages.client.student.index-mentee', ['status' => $status]);
 });
 
-Route::resource('students', ClientStudentController::class);
+Route::resource('student', ClientStudentController::class);
+Route::prefix('student')->name('student.')->group(function () {
+    
+});
 
 // Parent 
 Route::get('parent', function () {
