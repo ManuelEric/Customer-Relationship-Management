@@ -46,7 +46,7 @@
                  <i class="bi bi-pencil-square"></i>
              </div>
              <div class="modal-body w-100 text-start">
-                 <form action="program/school/{school}/detail/{sch_prog}/speaker/create" method="POST">
+                 <form action="{{ url('program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/speaker') }}" method="POST">
                      @csrf
                      <div class="put"></div>
                      <div class="row g-2">
