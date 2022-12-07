@@ -1,3 +1,10 @@
+<style>
+    p {
+       line-height: 1.2rem;
+       margin: 0;
+       padding:0;
+    }
+</style>
 <div class="card rounded mb-3">
     <div class="card-header d-flex align-items-center justify-content-between">
         <div class="">
@@ -16,7 +23,7 @@
                 <label>:</label>
             </div>
             <div class="col-md-8">
-                {{ $school->sch_mail }}
+                {{ $school->sch_mail ? $school->sch_mail : 'Not Available' }}
             </div>
         </div>
         <div class="row mb-2 g-1">
@@ -27,7 +34,7 @@
                 <label>:</label>
             </div>
             <div class="col-md-8">
-                {{ $school->sch_phone }}
+                {{ $school->sch_phone ?   $school->sch_phone:'Not Available'}}
             </div>
         </div>
         <div class="row mb-2 g-1">
@@ -39,9 +46,7 @@
             </div>
             <div class="col-md-8">
                 {!! $school->sch_location !!}
-                <br>
                 {{ $school->sch_city }}
-                
             </div>
         </div>
     </div>

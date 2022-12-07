@@ -43,7 +43,7 @@
                 </div>
             </div>
             @include('pages.program.school-program.detail.school')
-            @if(isset($schoolProgram))
+            @if(isset($schoolProgram) &&  $schoolProgram->status == 1 && empty($edit))
                 @include('pages.program.school-program.detail.speaker')
             @endif
         </div>
@@ -400,14 +400,12 @@
                 </div>
             </div>
           
-            @if(!empty($attach) && $schoolProgram->status == 1 || session('attach'))
+            @if(empty($edit) && $schoolProgram->status == 1 || session('attach'))
                 @include('pages.program.school-program.detail.attachment')
             @endif
         </div>
     </div>
     <script>
-
-
         function checkStatus() {
             let status = $('#approach_status').val();
             if (status == '0') {
