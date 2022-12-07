@@ -191,21 +191,32 @@ class SchoolProgramController extends Controller
     public function edit(Request $request)
    {
      
-        // if ($request->ajax()) {
-            $id = 'CORP-0001';
+        if ($request->ajax()) {
+            $id = $request->get('id');
+            $type = $request->get('type');
 
-            $type = 'partner';
-            if($type == 'partner'){
-                return $this->corporatePicRepository->getAllCorporatePicByCorporateId($id);
+            switch($type) {
+            
+                case "partner":
+                    return $this->corporatePicRepository->getAllCorporatePicByCorporateId($id);
+                    break;
+    
+                case "school":
+                    return $this->schoolDetailRepository->getAllSchoolDetailsById($id);
+                    break;
+    
             }
-            return;
-        // }
+            
+        }
 
         $schoolId = $request->route('school');
         $sch_progId = $request->route('detail');
 
         # retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($schoolId);
+       
+        # retrieve all school data
+        $schools = $this->schoolRepository->getAllSchools();
 
         # retrieve all school detail by school id
         $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
@@ -214,7 +225,6 @@ class SchoolProgramController extends Controller
         $programsB2B = $this->programRepository->getAllProgramByType('B2B');
         $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
         $programs = $programsB2B->merge($programsB2BB2C);
-
         
 
         # retrieve reason data
@@ -228,9 +238,6 @@ class SchoolProgramController extends Controller
 
         # retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
-        
-        # retrieve university data
-        $universities = $this->universityRepository->getAllUniversities();
 
         return view('pages.program.school-program.form')->with(
             [
@@ -240,9 +247,9 @@ class SchoolProgramController extends Controller
                 'reasons' => $reasons,
                 'schoolProgram' => $schoolProgram,
                 'school' => $school,
+                'schools' => $schools,
                 'schoolDetail' => $schoolDetail,
                 'partners' => $partners,
-                'universities' => $universities,
             ]
         );
 

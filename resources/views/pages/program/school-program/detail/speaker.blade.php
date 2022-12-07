@@ -52,7 +52,6 @@
                                 <option value="internal">ALL-in</option>
                                 <option value="partner">Partner</option>
                                 <option value="school">School</option>
-                                <option value="university">University</option>
                             </select>
                             @error('speaker_type')
                                 <small class="text-danger fw-light">{{ $message }}</small>
