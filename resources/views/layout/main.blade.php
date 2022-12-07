@@ -251,17 +251,22 @@
                         <div class="collapse" id="invoice">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a class="nav-link"
-                                        href="{{ url('client/program/invoice') }}">Client
+                                        href="{{ url('invoice/client-program/status/needed') }}">Client
                                         Program</a>
                                 </li>
                                 <li class="nav-item"> <a class="nav-link"
-                                        href="{{ url('corporate/program/invoice') }}">Partner
+                                        href="{{ url('invoice/corporate-program/status/needed') }}">Partner
                                         Program
                                     </a>
                                 </li>
                                 <li class="nav-item"> <a class="nav-link"
-                                        href="{{ url('school/program/invoice') }}">School
+                                        href="{{ url('invoice/school-program/status/needed') }}">School
                                         Program
+                                    </a>
+                                </li>
+                                <li class="nav-item"> <a class="nav-link"
+                                        href="{{ url('invoice/referral/status/needed') }}">
+                                        Referral
                                     </a>
                                 </li>
                             </ul>

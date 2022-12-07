@@ -1,5 +1,5 @@
-<div class="accordion accordion-flush shadow-sm mb-3">
-    <div class="accordion-item">
+<div class="accordion accordion-flush shadow-sm">
+    <div class="accordion-item rounded">
         <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#clientInfo">
                 <h6 class="m-0 p-0">
