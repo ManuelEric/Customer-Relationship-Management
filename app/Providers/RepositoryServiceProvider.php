@@ -27,11 +27,14 @@ use App\Interfaces\PositionRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\PurchaseDetailRepositoryInterface;
 use App\Interfaces\PurchaseRequestRepositoryInterface;
+use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\SchoolEventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\SchoolProgramRepositoryInterface;
+use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
 use App\Interfaces\UniversityEventRepositoryInterface;
 use App\Interfaces\UniversityPicRepositoryInterface;
@@ -65,11 +68,14 @@ use App\Repositories\PositionRepository;
 use App\Repositories\ProgramRepository;
 use App\Repositories\PurchaseDetailRepository;
 use App\Repositories\PurchaseRequestRepository;
+use App\Repositories\ReasonRepository;
 use App\Repositories\ReferralRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SchoolDetailRepository;
 use App\Repositories\SchoolEventRepository;
 use App\Repositories\SchoolRepository;
+use App\Repositories\SchoolProgramRepository;
+use App\Repositories\SchoolProgramAttachRepository;
 use App\Repositories\SubProgRepository;
 use App\Repositories\UniversityEventRepository;
 use App\Repositories\UniversityPicRepository;
@@ -92,7 +98,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(VendorRepositoryInterface::class, VendorRepository::class);
         $this->app->bind(VendorTypeRepositoryInterface::class, VendorTypeRepository::class);
         $this->app->bind(VolunteerRepositoryInterface::class, VolunteerRepository::class);
-        $this->app->bind(AssetRepositoryInterface::class, AssetRepository::class);   
+        $this->app->bind(AssetRepositoryInterface::class, AssetRepository::class);
         $this->app->bind(AssetUsedRepositoryInterface::class, AssetUsedRepository::class);
         $this->app->bind(AssetReturnedRepositoryInterface::class, AssetReturnedRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
@@ -123,12 +129,14 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(UniversityEventRepositoryInterface::class, UniversityEventRepository::class);
         $this->app->bind(SchoolEventRepositoryInterface::class, SchoolEventRepository::class);
         $this->app->bind(CorporatePartnerEventRepositoryInterface::class, CorporatePartnerEventRepository::class);
+        $this->app->bind(SchoolProgramRepositoryInterface::class, SchoolProgramRepository::class);
+        $this->app->bind(SchoolProgramAttachRepositoryInterface::class, SchoolProgramAttachRepository::class);
         $this->app->bind(AgendaSpeakerRepositoryInterface::class, AgendaSpeakerRepository::class);
         $this->app->bind(ReferralRepositoryInterface::class, ReferralRepository::class);
+        $this->app->bind(ReasonRepositoryInterface::class, ReasonRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
-
     }
 
     /**

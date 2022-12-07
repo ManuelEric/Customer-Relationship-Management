@@ -23,7 +23,7 @@ class StoreSchoolDetailRequest extends FormRequest
      */
     public function rules()
     {
-        
+
         return [
             'sch_id' => 'required|exists:tbl_sch,sch_id',
             // 'schdetail_fullname' => 'required',
@@ -36,6 +36,7 @@ class StoreSchoolDetailRequest extends FormRequest
             'schdetail_grade.*' => 'required|in:Middle School,High School,Middle School & High School',
             'schdetail_position.*' => 'required|in:Principal,Counselor,Teacher,Marketing',
             'schdetail_phone.*' => 'required',
+            'last_discuss' => 'required|date',
         ];
     }
 }

@@ -6,7 +6,11 @@ use App\Http\Requests\StoreSchoolRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\SchoolDetailRepositoryInterface;
+use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\LeadRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use App\Models\School;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -21,13 +25,21 @@ class SchoolController extends Controller
 
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
+    protected ProgramRepositoryInterface $programRepository;
+    protected SchoolProgramRepositoryInterface $schoolProgramRepository;
+    protected LeadRepositoryInterface $leadRepository;
+    protected UserRepositoryInterface $userRepository;
     protected CurriculumRepositoryInterface $curriculumRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, SchoolDetailRepositoryInterface $schoolDetailRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, UserRepositoryInterface $userRepository, SchoolDetailRepositoryInterface $schoolDetailRepository, SchoolProgramRepositoryInterface $schoolProgramRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->curriculumRepository = $curriculumRepository;
+        $this->programRepository = $programRepository;
+        $this->leadRepository = $leadRepository;
+        $this->userRepository = $userRepository;
         $this->schoolDetailRepository = $schoolDetailRepository;
+        $this->schoolProgramRepository = $schoolProgramRepository;
     }
 
     public function index(Request $request)
@@ -89,6 +101,7 @@ class SchoolController extends Controller
     public function show(Request $request)
     {
         $schoolId = $request->route('school');
+        $sch_progId = $request->route('detail');
 
         # retrieve curriculum data
         $curriculums = $this->curriculumRepository->getAllCurriculum();
@@ -96,13 +109,29 @@ class SchoolController extends Controller
         # retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($schoolId);
 
+        # retrieve program data
+        $programs = $this->programRepository->getAllPrograms();
+        
+        # retrieve lead data
+        $leads = $this->leadRepository->getAllLead();
+
+        # retrieve employee data
+        $employees = $this->userRepository->getAllUsersByRole('Employee');
+
         # retrieve school detail data by school Id
         $schoolDetails = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
+        
+        # retrieve School Program data by schoolId
+        $schoolPrograms = $this->schoolProgramRepository->getAllSchoolProgramsBySchoolId($schoolId);
 
         return view('pages.instance.school.form')->with(
             [
                 'school' => $school,
                 'curriculums' => $curriculums,
+                'programs' => $programs,
+                'schoolPrograms' => $schoolPrograms,
+                'leads' => $leads,
+                'employees' => $employees,
                 'details' => $schoolDetails
             ]
         );
@@ -115,6 +144,15 @@ class SchoolController extends Controller
         # retrieve curriculum data
         $curriculums = $this->curriculumRepository->getAllCurriculum();
 
+        # retrieve program data
+        $programs = $this->programRepository->getAllPrograms();
+
+        # retrieve lead data
+        $leads = $this->leadRepository->getAllLead();
+
+        # retrieve employee data
+        $employees = $this->userRepository->getAllUsersByRole('Employee');
+
         # retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($schoolId);
 
@@ -122,6 +160,9 @@ class SchoolController extends Controller
             [
                 'edit' => true,
                 'school' => $school,
+                'programs' => $programs,
+                'leads' => $leads,
+                'employees' => $employees,
                 'curriculums' => $curriculums
             ]
         );

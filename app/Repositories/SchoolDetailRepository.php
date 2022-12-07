@@ -11,7 +11,12 @@ class SchoolDetailRepository implements SchoolDetailRepositoryInterface
 
     public function getAllSchoolDetailDataTables($schoolId)
     {
-        return Datatables::eloquent(SchoolDetail::where('sch_id', $schoolId)->get())->make(true);
+        return datatables::eloquent(SchoolDetail::where('sch_id', $schoolId)->get())->make(true);
+    }
+
+    public function getAllSchoolDetails()
+    {
+        return SchoolDetail::orderBy('schdetail_id', 'asc')->get();
     }
 
     public function getAllSchoolDetailsById($schoolId)

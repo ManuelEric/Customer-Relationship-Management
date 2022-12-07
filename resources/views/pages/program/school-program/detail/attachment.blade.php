@@ -6,25 +6,35 @@
                  Attachment
              </h6>
          </div>
+           
          <div class="">
              <button class="btn btn-sm btn-outline-primary rounded" data-bs-toggle="modal" data-bs-target="#attachment">
                  <i class="bi bi-plus"></i>
              </button>
          </div>
+        
      </div>
      <div class="card-body">
          <div class="list-group">
              <div class="list-group-item d-flex flex-wrap gap-2 align-items-center">
-                 @for ($i = 0; $i < 10; $i++)
-                     <div class="d-flex me-2 border px-2 py-1 rounded">
-                         <a href="#" class="text-muted text-decoration-none">
-                             <i class="bi bi-download me-1"></i> File Name
-                         </a>
-                         <div class="text-end cursor-pointer ms-4">
-                             <i class="bi bi-x text-danger"></i>
-                         </div>
-                     </div>
-                 @endfor
+                @forelse ($schoolProgramAttachs as $schoolProgramAttach)
+                     
+                    <div class="d-flex me-2 border px-2 py-1 rounded">
+                        <a href="{{ url($schoolProgramAttach->schprog_attach) }}" class="text-muted text-decoration-none">
+                            <i class="bi bi-download me-1"></i> {{ $schoolProgramAttach->schprog_file }}
+                        </a>
+                        <div class="text-end cursor-pointer ms-4">
+                            <button type="button"
+                            onclick="confirmDelete('{{isset($schoolProgram) ? 'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach' : 'program/school/' . $school->sch_id . '/detail/' . session('schprog_id') . '/attach' }}', {{$schoolProgramAttach->id}})"
+                            class="btn btn-sm btn-outline-danger rounded mx-1">
+                            <i class="bi bi-x text-danger"></i>
+                        </button>
+                        </div>
+                   </div>
+
+                @empty
+                    No Have Data  
+                @endforelse
              </div>
          </div>
      </div>
@@ -41,23 +51,38 @@
                  <i class="bi bi-pencil-square"></i>
              </div>
              <div class="modal-body w-100 text-start">
-                 <form action="" method="POST" id="formPosition">
+                @error('schprog_id')
+                    <small class="text-danger fw-light">{{ $message }}</small>
+                @enderror
+                 <form action="{{ url(
+                        isset($schoolProgram) ? 
+                        'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach' :
+                        'program/school/' . $school->sch_id . '/detail/' . session('sch_progId') . '/attach' 
+                        )}}" method="POST" id="formPosition" enctype="multipart/form-data">
                      @csrf
                      <div class="put"></div>
                      <div class="row g-2">
-                         <div class="col-md-12 mb-2">
+                        <div class="col-md-12 mb-2">
                              <label for="">
                                  File Name <sup class="text-danger">*</sup>
                              </label>
-                             <input type="text" name="" id=""
+                             <input type="text" name="schprog_file" id=""
                                  class="form-control form-control-sm rounded">
-                         </div>
+
+                            @error('schprog_file')
+                                 <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror 
+                        </div>
                          <div class="col-md-12 mb-2">
                              <label for="">
                                  Attachment <sup class="text-danger">*</sup>
                              </label>
-                             <input type="file" name="" id=""
+                             <input type="file" name="schprog_attach" id=""
                                  class="form-control form-control-sm rounded">
+
+                            @error('schprog_attach')
+                                 <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror 
                          </div>
                      </div>
                      <hr>
@@ -83,4 +108,16 @@
              allowClear: true
          });
      });
- </script>
+
+    </script>
+     
+     @if($errors->has('schprog_file') || $errors->has('schprog_attach') || $errors->has('schprog_id'))
+        
+            <script>
+                $(document).ready(function(){
+                    $('#attachment').modal('show'); 
+                })
+            
+            </script>
+        
+    @endif

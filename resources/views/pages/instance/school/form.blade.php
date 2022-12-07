@@ -49,30 +49,36 @@
                             </h6>
                         </div>
                         <div class="">
-                            <a href="{{ url('program/school/create?sch_id=' . strtolower($school->sch_id)) }}"
+                            <a href="{{ url('program/school/'. strtolower($school->sch_id)) .'/detail/create' }}"
                                 class="btn btn-sm btn-outline-primary rounded mx-1">
                                 <i class="bi bi-plus"></i>
                             </a>
                         </div>
                     </div>
                     <div class="list-group list-group-flush">
-                        @for ($i = 0; $i < 3; $i++)
+                        @foreach ($schoolPrograms as $schoolProgram)
                             <div class="list-group-item">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div class="text-start">
                                         <div class="">
-                                            Program Name
+                                            {{ $schoolProgram->program->prog_program }}
                                         </div>
                                         <small>
-                                            Success
+                                            @if ($schoolProgram->status == 0)
+                                                Pending
+                                            @elseif ($schoolProgram->status == 1)
+                                                Success
+                                            @elseif ($schoolProgram->status == 2)
+                                                Denied
+                                            @endif
                                         </small>
                                     </div>
-                                    <a href="#" class="fs-6 text-warning">
+                                    <a href="{{ url('program/school/'. strtolower($school->sch_id) .'/detail/'. $schoolProgram->id) }}" class="fs-6 text-warning">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                 </div>
                             </div>
-                        @endfor
+                        @endforeach
                     </div>
                 </div>
             @endif
@@ -399,7 +405,7 @@
     <script>
         // Select2 Modal 
         $(document).ready(function() {
-            $('.modal-select').select2({
+            $('.modal-program').select2({
                 dropdownParent: $('#programForm .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
@@ -429,6 +435,7 @@
                 )
             }
         @endif
+
 
         function getPIC(link) {
             axios.get(link)
