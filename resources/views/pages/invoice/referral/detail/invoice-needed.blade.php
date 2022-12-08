@@ -4,11 +4,10 @@
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Partner Name</th>
                         <th>Program Name</th>
-                        <th>Invoice ID</th>
-                        <th>Payment Method</th>
-                        <th>Created At</th>
-                        <th>Due Date</th>
-                        <th>Total Price</th>
+                        <th>Participant</th>
+                        <th>Referral Date</th>
+                        <th>Conversion Lead</th>
+                        <th>PIC</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -18,14 +17,14 @@
                             <td>#</td>
                             <td>Partner Name</td>
                             <td>Program Name</td>
-                            <td>Invoice ID</td>
-                            <td>Payment Method</td>
-                            <td>Created At</td>
-                            <td>Due Date</td>
-                            <td>Total Price</td>
+                            <td>Participant</td>
+                            <td>Referral Date</td>
+                            <td>Conversion Lead</td>
+                            <td>PIC</td>
                             <td class="text-center">
-                                <a href="{{ url('invoice/corporate-program/1') }}" class="btn btn-sm btn-outline-warning">
-                                    <i class="bi bi-eye"></i>
+                                <a href="{{ url('invoice/referral/create') }}"
+                                    class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-plus"></i> Invoice
                                 </a>
                             </td>
                         </tr>

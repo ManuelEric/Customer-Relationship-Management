@@ -2,7 +2,7 @@
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
-                        <th class="bg-info text-white">Partner Name</th>
+                        <th class="bg-info text-white">School Name</th>
                         <th>Program Name</th>
                         <th>Invoice ID</th>
                         <th>Payment Method</th>
@@ -16,7 +16,7 @@
                     @for ($i = 0; $i < 5; $i++)
                         <tr>
                             <td>#</td>
-                            <td>Partner Name</td>
+                            <td>School Name</td>
                             <td>Program Name</td>
                             <td>Invoice ID</td>
                             <td>Payment Method</td>
@@ -24,7 +24,7 @@
                             <td>Due Date</td>
                             <td>Total Price</td>
                             <td class="text-center">
-                                <a href="{{ url('invoice/corporate-program/1') }}" class="btn btn-sm btn-outline-warning">
+                                <a href="{{ url('invoice/school-program/1') }}" class="btn btn-sm btn-outline-warning">
                                     <i class="bi bi-eye"></i>
                                 </a>
                             </td>

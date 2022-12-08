@@ -24,7 +24,7 @@
                             <td>Due Date</td>
                             <td>Total Price</td>
                             <td class="text-center">
-                                <a href="{{ url('invoice/corporate-program/1') }}" class="btn btn-sm btn-outline-warning">
+                                <a href="{{ url('invoice/referral/1') }}" class="btn btn-sm btn-outline-warning">
                                     <i class="bi bi-eye"></i>
                                 </a>
                             </td>

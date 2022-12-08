@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Invoice - Partner Program - Bigdata Platform')
+@section('title', 'Invoice - School Program - Bigdata Platform')
 
 @section('content')
 
@@ -15,17 +15,17 @@
         <div class="card-body">
             <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="{{ url('invoice/corporate-program/status/needed') }}">Invoice
+                    <a class="nav-link" aria-current="page" href="{{ url('invoice/school-program/status/needed') }}">Invoice
                         Needed</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url('invoice/corporate-program/status/list') }}">Invoice List</a>
+                    <a class="nav-link" href="{{ url('invoice/school-program/status/list') }}">Invoice List</a>
                 </li>
             </ul>
             @if ($status == 'needed')
-                @include('pages.invoice.corporate-program.detail.invoice-needed')
+                @include('pages.invoice.school-program.detail.invoice-needed')
             @else
-                @include('pages.invoice.corporate-program.detail.invoice-list')
+                @include('pages.invoice.school-program.detail.invoice-list')
             @endif
 
         </div>

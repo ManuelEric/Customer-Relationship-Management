@@ -76,3 +76,7 @@ Route::prefix('edufair')->name('edufair.')->group(function () {
     Route::put('{edufair}/review/{review}', [EdufReviewController::class, 'update'])->name('review.update');
     Route::delete('{edufair}/review/{review}', [EdufReviewController::class, 'destroy'])->name('review.destroy');
 });
+
+Route::get('curriculum', function() {
+    return view('pages.master.curriculum.index');
+});
