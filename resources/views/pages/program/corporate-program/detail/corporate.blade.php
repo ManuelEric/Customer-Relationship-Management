@@ -16,7 +16,7 @@
                 <label>:</label>
             </div>
             <div class="col-md-8">
-                nathan@gmail.com
+                {{ $partner->corp_mail }}
             </div>
         </div>
         <div class="row mb-2 g-1">
@@ -27,7 +27,7 @@
                 <label>:</label>
             </div>
             <div class="col-md-8">
-                628921412424
+               {{ $partner->corp_phone }}
             </div>
         </div>
         <div class="row mb-2 g-1">

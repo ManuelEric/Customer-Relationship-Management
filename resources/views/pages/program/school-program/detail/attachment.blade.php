@@ -26,11 +26,8 @@
                                     <i class="bi bi-download me-1"></i> {{ $schoolProgramAttach->schprog_file }}
                                 </a>
                                 <div class="text-end cursor-pointer ms-4">
-                                    <button type="button"
-                                    onclick="confirmDelete('{{isset($schoolProgram) ? 'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach' : 'program/school/' . $school->sch_id . '/detail/' . session('schprog_id') . '/attach' }}', {{$schoolProgramAttach->id}})"
-                                    class="btn btn-sm btn-outline-danger rounded mx-1">
-                                    <i class="bi bi-x text-danger"></i>
-                                </button>
+                                   
+                                    <i class="bi bi-x text-danger" onclick="confirmDelete('{{ 'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach' }}', {{$schoolProgramAttach->id}})"></i>
                             </div>
                         </div>
                         

@@ -259,7 +259,7 @@ class SchoolProgramController extends Controller
 
    }
    
-   public function update(Request $request){
+   public function update(StoreSchoolProgramRequest $request){
         
         $schoolId = $request->route('school');
         $sch_progId = $request->route('detail');
@@ -304,12 +304,7 @@ class SchoolProgramController extends Controller
 
         DB::beginTransaction();
         try {
-            // if(File::exists(public_path('images/85214563.jpg'))){
-
-            //     dd('File is exists.');
-            // }else{
-            //     dd('File is not exists.');
-            // }
+           
             $this->schoolProgramRepository->deleteSchoolProgram($sch_progId);
             DB::commit();
         } catch (Exception $e) {
@@ -319,6 +314,6 @@ class SchoolProgramController extends Controller
             return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId)->withError('Failed to delete school program');
         }
 
-        return Redirect::to('instance/school/' . $schoolId)->withSuccess('School program successfully deleted');
+        return Redirect::to('program/school/')->withSuccess('School program successfully deleted');
     }
 }

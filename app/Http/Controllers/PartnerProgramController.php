@@ -73,6 +73,12 @@ class PartnerProgramController extends Controller
         $this->schoolDetailRepository = $schoolDetailRepository;
     }
 
+    // TODO: 1. Add Column ['reason_id', 'is_corporate_scheme', 'total_fee', 'success_date', 'denied_date']
+  
+
+    public function index(Request $request){
+        return view('pages.program.corporate-program.index');
+    }
 
     public function store(StorePartnerProgramRequest $request)
     {
@@ -118,11 +124,15 @@ class PartnerProgramController extends Controller
 
     public function create(Request $request)
     {
+        $corp_id = $request->route('corp');
 
          # retrieve program data
-         $programs = $this->programRepository->getAllPrograms();
+        $programsB2B = $this->programRepository->getAllProgramByType('B2B');
+        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
+        $programs = $programsB2B->merge($programsB2BB2C);
         
          # retrieve partner data
+         $partner = $this->corporateRepository->getCorporateById($corp_id);
          $partners = $this->corporateRepository->getAllCorporate();
 
          # retrieve reason data
@@ -136,6 +146,7 @@ class PartnerProgramController extends Controller
                 'employees' => $employees,
                 'programs' => $programs,
                 'reasons' => $reasons,
+                'partner' => $partner,
                 'partners' => $partners
             ]
         );

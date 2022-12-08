@@ -49,7 +49,12 @@ Route::get('corporate/1', function () {
     return view('pages.program.corporate-program.form');
 });
 
-Route::resource('partner', PartnerProgramController::class);
+Route::resource('corporate', PartnerProgramController::class);
+Route::prefix('corporate')->name('corporate_prog.')->group(function () {
+    Route::resource('{corp}/detail', PartnerProgramController::class);
+    Route::resource('{corp}/detail/{corp_prog}/speaker', PartnerProgramController::class);
+    Route::resource('{corp}/detail/{corp_prog}/attach', SchoolProgramAttachController::class);
+});
 
 
 Route::get('school', function () {

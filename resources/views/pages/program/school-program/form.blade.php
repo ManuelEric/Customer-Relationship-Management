@@ -187,7 +187,7 @@
                                                 onchange="otherOption($(this).val())"
                                                 {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                                 <option data-placeholder="true"></option>
-                                                    @if(isset($schoolProgram->reason_id))
+                                                    @if(isset($schoolProgram->reason_id) || isset($edit))
                                                         @if(isset($edit))    
                                                             @foreach ($reasons as $reason)
                                                                 <option value="{{ $reason->reason_id }}" {{ $schoolProgram->reason_id == $reason->reason_id ? 'selected' : ''}}>
@@ -438,7 +438,7 @@
         <script>
             $(document).ready(function(){
                 $('#approach_status').val('{{$schoolProgram->status}}').trigger('change')
-                $('#selectReason').select2()
+                // $('#selectReason').select2()
             })
 
         </script>
@@ -458,7 +458,7 @@
         <script>
             $(document).ready(function(){
                 $('#approach_status').val('1').trigger('change')
-                $('#selectReason').select2()
+                // $('#selectReason').select2()
             })
 
         </script>
@@ -473,21 +473,21 @@
         <script>
             $(document).ready(function(){
                 $('#approach_status').val('2').trigger('change')
-                $('#selectReason').select2()
+                // $('#selectReason').select2()
             })
 
         </script>
 
-        @if($errors->has('other_reason'))
-            <script>
-                $(document).ready(function(){
-                    $('#selectReason').val('other').trigger('change')
-                    $('#selectReason').select2()
-                })
 
-            </script>
-        @endif
+@endif
+    @if($errors->has('other_reason'))
+        <script>
+            $(document).ready(function(){
+                $('#selectReason').val('other').trigger('change')
+                // $('#selectReason').select2()
+            })
 
+        </script>
     @endif
 
 @endsection

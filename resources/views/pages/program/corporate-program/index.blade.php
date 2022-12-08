@@ -103,7 +103,7 @@
                             <td>Status</td>
                             <td>PIC</td>
                             <td class="text-center">
-                                <a href="{{ url('program/partner/create') }}" class="btn btn-sm btn-outline-warning">
+                                <a href="{{ url('program/corporate/create') }}" class="btn btn-sm btn-outline-warning">
                                     <i class="bi bi-eye"></i>
                                 </a>
                             </td>

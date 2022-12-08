@@ -147,9 +147,39 @@
                     },
                     {
                         data: 'participants',
+                        render: function(data, type, row, meta) {
+                            switch (row.status) {
+                                case 0:
+                                    return "-"
+                                    break;
+
+                                case 1:
+                                    return data
+                                    break;
+                                
+                                case 2:
+                                    return "-"
+                                    break;
+                            }
+                        }
                     },
                     {
                         data: 'total_fee',
+                        render: function(data, type, row, meta) {
+                            switch (row.status) {
+                                case 0:
+                                    return "-"
+                                    break;
+
+                                case 1:
+                                    return data
+                                    break;
+                                
+                                case 2:
+                                    return "-"
+                                    break;
+                            }
+                        }
                     },
                     {
                         data: 'status',

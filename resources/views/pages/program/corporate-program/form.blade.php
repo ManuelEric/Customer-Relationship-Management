@@ -15,8 +15,10 @@
         <div class="col-md-4">
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
-                    <h4>Partner Name</h4>
-                    <h6>Program Name</h6>
+                    <h4>{{ $partner->corp_name }}</h4>
+                    @if(isset($edit))
+                        <h6>Program Name</h6>
+                    @endif
                     <div class="mt-3 d-flex justify-content-center">
                         <button type="button" class="btn btn-sm btn-outline-danger rounded mx-1">
                             <i class="bi bi-trash2"></i> Delete
@@ -25,7 +27,9 @@
                 </div>
             </div>
             @include('pages.program.corporate-program.detail.corporate')
-            @include('pages.program.corporate-program.detail.speaker')
+            @if(!empty($edit))
+                @include('pages.program.corporate-program.detail.speaker')
+            @endif
         </div>
 
         <div class="col-md-8">
@@ -82,6 +86,8 @@
                                 <div class="col-md-3">
                                     <select name="" id="" class="select w-100">
                                         <option data-placeholder="true"></option>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
                                     </select>
                                 </div>
                             </div>
@@ -131,10 +137,60 @@
                                     <input type="date" name="" id=""
                                         class="form-control form-control-sm rounded">
                                 </div>
-                                <div class="col-md-12 my-2 denied_status d-none">
-                                    <small>Reason <sup class="text-danger">*</sup></small>
-                                    <input type="text" name="" id=""
-                                        class="form-control form-control-sm rounded">
+                                <div class="col-md-6 denied_status d-none my-2">
+                                
+                                        <label>Reason <sup class="text-danger">*</sup> </label>
+                                        <div class="classReason">
+                                            <select name="reason_id" class="select w-100"
+                                                style="display: none !important; width:100% !important" id="selectReason"
+                                                onchange="otherOption($(this).val())"
+                                                {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                                <option data-placeholder="true"></option>
+                                                    @if(isset($schoolProgram->reason_id) || isset($edit))
+                                                        @if(isset($edit))    
+                                                            @foreach ($reasons as $reason)
+                                                                <option value="{{ $reason->reason_id }}" {{ $schoolProgram->reason_id == $reason->reason_id ? 'selected' : ''}}>
+                                                                    {{ $reason->reason_name }}
+                                                                </option>
+                                                            @endforeach
+                                                            <option value="other">
+                                                                Other option
+                                                            </option>
+                                                        @else
+                                                                <option value="{{ $schoolProgram->reason_id }}" selected>
+                                                                    {{ $schoolProgram->reason->reason_name }}
+                                                                </option>        
+                                                        @endif
+                                                    @elseif(empty($schoolProgram))
+                                                        @foreach ($reasons as $reason)
+                                                            <option value="{{ $reason->reason_id }}" {{ old('reason_id') == $reason->reason_id ? "selected" : "" }}>
+                                                                {{ $reason->reason_name }}
+                                                            </option>
+                                                        @endforeach
+                                                        <option value="other">
+                                                            Other option
+                                                        </option>
+                                                    @endif
+                                            </select>
+                                                @error('reason_id')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                        </div>
+                                            
+                                        <div class="d-flex align-items-center d-none" id="inputReason">
+                                            <input type="text" name="other_reason"
+                                                class="form-control form-control-sm rounded">
+                                            <div class="float-end cursor-pointer" onclick="resetOption()">
+                                                <b>
+                                                    <i class="bi bi-x text-danger"></i>
+                                                </b>
+                                            </div>
+                                        </div>
+                                        @error('other_reason')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
+
+                                    
                                 </div>
                             </div>
                         </div>
@@ -196,9 +252,30 @@
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <select name="" id="" class="select w-100">
+                                    <select name="empl_id" id="" class="select w-100" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
+                                        @if(isset($schoolProgram->empl_id))
+                                            @if(isset($edit))
+                                                @foreach ($employees as $employee)
+                                                    <option value="{{ $employee->id }}" 
+                                                        {{ $schoolProgram->empl_id ==  $employee->id ? 'selected' : ''}}>
+                                                        {{ $employee->first_name }} {{ $employee->last_name }}</option>
+                                                @endforeach    
+                                            @else
+                                                <option value="{{ $schoolProgram->empl_id }}" selected>
+                                                    {{ $schoolProgram->user->first_name }} {{ $schoolProgram->user->last_name }}
+                                                </option>
+                                            @endif
+                                        @elseif(empty($schoolProgram))
+                                            @foreach ($employees as $employee)
+                                                <option value="{{ $employee->id }}" {{ old('empl_id') == $employee->id ? "selected" : "" }}>{{ $employee->first_name }} {{ $employee->last_name }}</option>
+                                            @endforeach
+                                        @endif
+                                        
                                     </select>
+                                    @error('empl_id')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -211,8 +288,9 @@
                     </div>
                 </div>
             </div>
-
-            @include('pages.program.corporate-program.detail.attachment')
+            @if(!empty($edit))
+                @include('pages.program.corporate-program.detail.attachment')
+            @endif
         </div>
     </div>
 
@@ -230,6 +308,25 @@
                 $('.denied_status').removeClass('d-none')
                 $('.success_status').addClass('d-none')
             }
+        }
+
+        function otherOption(value) {
+
+            if (value == 'other') {
+                $('.classReason').addClass('d-none')
+                $('#inputReason').removeClass('d-none')
+                $('#inputReason input').focus()
+            } else {
+                $('#inputReason').addClass('d-none')
+                $('.classReason').removeClass('d-none')
+            }
+        }
+
+        function resetOption() {
+            $('.classReason').removeClass('d-none')
+            $('#selectReason').val(null).trigger('change')
+            $('#inputReason').addClass('d-none')
+            $('#inputReason input').val(null)
         }
         $(document).ready(function() {})
     </script>
