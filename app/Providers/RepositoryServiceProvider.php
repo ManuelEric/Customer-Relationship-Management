@@ -23,6 +23,7 @@ use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\MentorRepositoryInterface;
 use App\Interfaces\PartnerRepositoryInterface;
+use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\PositionRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\PurchaseDetailRepositoryInterface;
@@ -64,6 +65,7 @@ use App\Repositories\MainProgRepository;
 use App\Repositories\MajorRepository;
 use App\Repositories\MentorRepository;
 use App\Repositories\PartnerRepository;
+use App\Repositories\PartnerProgramRepository;
 use App\Repositories\PositionRepository;
 use App\Repositories\ProgramRepository;
 use App\Repositories\PurchaseDetailRepository;
@@ -134,6 +136,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AgendaSpeakerRepositoryInterface::class, AgendaSpeakerRepository::class);
         $this->app->bind(ReferralRepositoryInterface::class, ReferralRepository::class);
         $this->app->bind(ReasonRepositoryInterface::class, ReasonRepository::class);
+        $this->app->bind(PartnerProgramRepositoryInterface::class, PartnerProgramRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);

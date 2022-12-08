@@ -56,7 +56,7 @@
                         </div>
                     </div>
                     <div class="list-group list-group-flush">
-                        @foreach ($schoolPrograms as $schoolProgram)
+                        @forelse ($schoolPrograms as $schoolProgram)
                             <div class="list-group-item">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div class="text-start">
@@ -78,7 +78,17 @@
                                     </a>
                                 </div>
                             </div>
-                        @endforeach
+                        @empty
+                        <div class="list-group-item">
+                                <div class="text-center">
+                                   
+                                <small>
+
+                                    No have data
+                                </small>
+                                </div>
+                        </div>
+                        @endforelse
                     </div>
                 </div>
             @endif

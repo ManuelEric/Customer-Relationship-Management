@@ -46,8 +46,28 @@
                             </label>
                         </div>
                         <div class="col-md-9">
-                            <select name="" id="" class="select w-100">
+                            <select name="prog_id" id="" class="select w-100"  {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
                                 <option data-placeholder="true"></option>
+                                @if(isset($partnerProgram->prog_id))
+                                    @if(isset($edit))
+                                        @foreach ($programs as $program)
+                                            <option value="{{ $program->prog_id }}" {{ $partnerProgram->prog_id == $program->prog_id ? 'selected' : ''}}>
+                                                {{ $program->prog_program }}
+                                            </option>
+                                        @endforeach
+                                    @else        
+                                        <option value="{{ $partnerProgram->prog_id }}" selected>
+                                            {{ $partnerProgram->program->prog_program }}
+                                        </option>
+                                    @endif
+                                @elseif(empty($partnerProgram))
+                                    @foreach ($programs as $program)
+                                        <option value="{{ $program->prog_id }}" {{ old('prog_id') == $program->prog_id ? "selected" : "" }}>
+                                            {{ $program->prog_program }}
+                                        </option>
+                                    @endforeach
+                            
+                                @endif
                             </select>
                         </div>
                     </div>
@@ -144,7 +164,8 @@
                                         </div>
                                         <div class="col-md-6">
                                             <small>Start Date <sup class="text-danger">*</sup></small>
-                                            <select name="" id="" class="select w-100"></select>
+                                            <input type="date" name="" id=""
+                                                class="form-control form-control-sm rounded">
                                         </div>
                                         <div class="col-md-6">
                                             <small>End Date <sup class="text-danger">*</sup></small>

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SchoolProgramController;
 use App\Http\Controllers\SchoolProgramAttachController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\PartnerProgramController;
 use App\Http\Controllers\SchoolDetailController;
 
 
@@ -48,6 +49,9 @@ Route::get('corporate/1', function () {
     return view('pages.program.corporate-program.form');
 });
 
+Route::resource('partner', PartnerProgramController::class);
+
+
 Route::get('school', function () {
     return view('pages.program.school-program.index');
 });
@@ -56,7 +60,7 @@ Route::get('school/create', function () {
     return view('pages.program.school-program.form');
 });
 
-Route::resource('school', SchoolController::class);
+Route::resource('school', SchoolProgramController::class);
 Route::prefix('school')->name('school.')->group(function () {
     Route::resource('{school}/detail', SchoolProgramController::class);
     Route::resource('{school}/detail/{sch_prog}/speaker', SchoolProgramController::class);

@@ -4,7 +4,7 @@ namespace App\Interfaces;
 
 interface SchoolProgramRepositoryInterface
 {
-
+    public function getAllSchoolProgramsDataTables();
     public function getAllSchoolProgramsBySchoolId($schoolId);
     public function getSchoolProgramById($schoolProgramId);
     public function deleteSchoolProgram($schoolProgramId);

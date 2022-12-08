@@ -2,13 +2,12 @@
 
 namespace App\Http\Requests;
 
-use App\Models\School;
-use App\Models\SchoolProgram;
+use App\Models\Corporate;
+use App\Models\PartnerProg;
 use App\Models\User;
-use Arcanedev\Support\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreSchoolProgramRequest extends FormRequest
+class StorePartnerProgramRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -38,7 +37,6 @@ class StoreSchoolProgramRequest extends FormRequest
     {
         return [
             'reason_id' => 'reason',
-            'sch_id' => 'school',
             'prog_id' => 'program name',
             'empl_id' => 'PIC',
         ];
@@ -46,10 +44,10 @@ class StoreSchoolProgramRequest extends FormRequest
 
     public function rules()
     {
-        $sch_id = $this->route('school');
-       
+
         return [
             'prog_id' => 'required|exists:tbl_prog,prog_id',
+            'type' => 'required',
             'first_discuss' => 'required|date',
             'status' => 'required|in:0,1,2',
             'empl_id' => [
@@ -63,33 +61,17 @@ class StoreSchoolProgramRequest extends FormRequest
                 },
             ],
             'notes' => 'nullable',
-            'notes_detail' => 'nullable',
-            'running_status' => 'required_if:status,1|nullable|in:Not yet,On going,Done',
-            'total_hours' => 'required_if:status,1|nullable|integer',
+            'number_of_student' => 'required_if:status,1|nullable|integer',
             'total_fee' => 'required_if:status,1|nullable|numeric',
-            'participants' => 'required_if:status,1|nullable|integer',
-            'place' => 'required_if:status,1|nullable|string',
-            'end_program_date' => 'required_if:status,1|nullable|date|after_or_equal:start_program_date',
-            'start_program_date' => 'required_if:status,1|nullable|date|before_or_equal:end_program_date',
+            'end_date' => 'required_if:status,1|nullable|date|after_or_equal:start_program_date',
+            'start_date' => 'required_if:status,1|nullable|date|before_or_equal:end_program_date',
             'success_date' => 'required_if:status,1|nullable|date',
             'reason_id' => 'required_if:status,2|nullable',
             'denied_date' => 'required_if:status,2|nullable|date',
-            'other_reason' => 'required_if:reason_id,other|nullable',
-            
+
             
         ];
-
-        if($sch_id){
-            $rules = ['sch_id' => [
-                    'required',
-                    function ($attribute, $value, $fail) use ($sch_id) {
-                        if (!School::find($sch_id))
-                            $fail('The school is required');
-                    },
-                ]
-            ];
-                return $rules;
-        }   
+  
         
     }
 }

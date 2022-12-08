@@ -37,6 +37,7 @@ class ReferralController extends Controller
             return $this->referralRepository->getAllReferralDataTables();
 
         return view('pages.program.referral.index');
+
     }
 
     public function store(StoreReferralRequest $request)
