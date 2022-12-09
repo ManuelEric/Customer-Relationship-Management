@@ -70,4 +70,19 @@ class SchoolProgram extends Model
         return $this->belongsTo(Reason::class, 'reason_id', 'reason_id');
     }
 
+    public function school_speaker()
+    {
+        return $this->belongsToMany(SchoolDetail::class, 'tbl_agenda_speaker', 'sch_prog_id', 'sch_pic_id')->using(AgendaSpeaker::class);
+    }
+
+    public function partner_speaker()
+    {
+        return $this->belongsToMany(CorporatePic::class, 'tbl_agenda_speaker', 'sch_prog_id', 'partner_pic_id')->using(AgendaSpeaker::class);
+    }
+
+    public function internal_speaker()
+    {
+        return $this->belongsToMany(User::class, 'tbl_agenda_speaker', 'sch_prog_id', 'empl_id')->using(AgendaSpeaker::class);
+    }
+
 }

@@ -27,6 +27,12 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
         
     }
 
+    public function getAllSpeakerBySchoolProgram($schProgId)
+    {
+        return Agenda::where('sch_prog_id', $schProgId)->get();
+        
+    }
+
     public function getAllSpeakerByEventAndMonthAndYear($eventId, $month, $year): JsonResponse
     {
         return response()->json();
@@ -93,12 +99,25 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
 
     # school program speaker below
     public function createSchoolProgramSpeaker($identifier, $agendaDetails)
-    {
-        # initialize 
-        // $agendaDetails['created_at'] = Carbon::now();
-        // $agendaDetails['updated_at'] = Carbon::now();
-        // $schoolProgram = SchoolProgram::find($identifier);
+    {   
+
+       
+        switch($agendaDetails['speaker_type']) {
+
+            case "school":
+                $agendaDetails['sch_pic_id'] = $agendaDetails['school_speaker'];
+                break;
+            
+            case "partner":
+                $agendaDetails['partner_pic_id'] = $agendaDetails['partner_speaker'];
+                break;
+            
+            case "internal":
+                $agendaDetails['empl_id'] = $agendaDetails['allin_speaker'];
+                break;
+        }
         
+  
         return AgendaSpeaker::create($agendaDetails);
         
 

@@ -12,7 +12,7 @@
                  <i class="bi bi-plus"></i>
              </button>
          </div>
-        
+
      </div>
      <div class="card-body">
          <div class="list-group">
@@ -28,14 +28,13 @@
                                 <div class="text-end cursor-pointer ms-4">
                                    
                                     <i class="bi bi-x text-danger" onclick="confirmDelete('{{ 'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach' }}', {{$schoolProgramAttach->id}})"></i>
-                            </div>
+                                </div>
                         </div>
-                        
-                     @empty
-                        No Have Data  
-                     @endforelse
-                @else
-                No Have Data
+                    
+
+                    @empty
+                        No Attachment Yet  
+                    @endforelse
                 @endif
              </div>
          </div>
@@ -100,7 +99,7 @@
      </div>
  </div>
 
- <script>
+    <script>
      $(document).ready(function() {
          $('.modal-select').select2({
              dropdownParent: $('#attachment .modal-content'),
@@ -111,7 +110,7 @@
 
     </script>
      
-     @if($errors->has('schprog_file') || $errors->has('schprog_attach') || $errors->has('schprog_id'))
+    @if($errors->has('schprog_file') || $errors->has('schprog_attach') || $errors->has('schprog_id'))
         
             <script>
                 $(document).ready(function(){

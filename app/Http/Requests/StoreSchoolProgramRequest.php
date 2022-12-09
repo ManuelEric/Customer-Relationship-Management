@@ -74,7 +74,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'success_date' => 'required_if:status,1|nullable|date',
             'denied_date' => 'required_if:status,2|nullable|date',
             'reason_id' => 'required_if:status,2|nullable',
-            'other_reason' => 'required_if:reason_id,other|nullable',
+            'other_reason' => 'required_if:reason_id,other|nullable|unique:tbl_reason,reason_name',
             
             
         ];

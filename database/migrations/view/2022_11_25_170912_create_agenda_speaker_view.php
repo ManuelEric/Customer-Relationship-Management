@@ -19,6 +19,7 @@ return new class extends Migration
         SELECT 
             asp.id as agenda_id,
             e.event_id,
+            asp.sch_prog_id,
             e.event_title,
             e.event_description,
             e.event_startdate,

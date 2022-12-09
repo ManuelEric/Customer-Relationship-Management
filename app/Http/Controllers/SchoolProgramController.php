@@ -13,8 +13,9 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
-use App\Interfaces\UniversityRepositoryInterface;
-use App\Interfaces\UniversityPicRepositoryInterface;
+use App\Interfaces\AgendaSpeakerRepositoryInterface;
+// use App\Interfaces\UniversityRepositoryInterface;
+// use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Models\Reason;
 use App\Models\SchoolProgram;
 use Exception;
@@ -39,8 +40,9 @@ class SchoolProgramController extends Controller
     protected ReasonRepositoryInterface $rasonRepository;
     protected CorporateRepositoryInterface $corporateRepository;
     protected CorporatePicRepositoryInterface $corporatePicRepository;
-    protected UniversityRepositoryInterface $universityRepository;
-    protected UniversityPicRepositoryInterface $universityPicRepository;
+    protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
+    // protected UniversityRepositoryInterface $universityRepository;
+    // protected UniversityPicRepositoryInterface $universityPicRepository;
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
 
     public function __construct(
@@ -52,8 +54,9 @@ class SchoolProgramController extends Controller
         ReasonRepositoryInterface $reasonRepository,
         CorporateRepositoryInterface $corporateRepository,
         CorporatePicRepositoryInterface $corporatePicRepository,
-        UniversityRepositoryInterface $universityRepository,
-        UniversityPicRepositoryInterface $universityPicRepository,
+        AgendaSpeakerRepositoryInterface $agendaSpeakerRepository,
+        // UniversityRepositoryInterface $universityRepository,
+        // UniversityPicRepositoryInterface $universityPicRepository,
         SchoolDetailRepositoryInterface $schoolDetailRepository,
         )
     {
@@ -65,8 +68,9 @@ class SchoolProgramController extends Controller
         $this->reasonRepository = $reasonRepository;
         $this->corporateRepository = $corporateRepository;
         $this->corporatePicRepository = $corporatePicRepository;
-        $this->universityRepository = $universityRepository;
-        $this->universityPicRepository = $universityPicRepository;
+        $this->agendaSpeakerRepository = $agendaSpeakerRepository;
+        // $this->universityRepository = $universityRepository;
+        // $this->universityPicRepository = $universityPicRepository;
         $this->schoolDetailRepository = $schoolDetailRepository;
     }
 
@@ -175,7 +179,15 @@ class SchoolProgramController extends Controller
         
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByRole('Employee');
- 
+
+        # retrieve corporate / partner
+        $partners = $this->corporateRepository->getAllCorporate();
+        
+        # retrieve speaker data
+        $speakers = $this->agendaSpeakerRepository->getAllSpeakerBySchoolProgram($sch_progId);
+        
+        // dd($speakers);
+
         return view('pages.program.school-program.form')->with(
             [
                 'employees' => $employees,
@@ -186,7 +198,9 @@ class SchoolProgramController extends Controller
                 'school' => $school,
                 'schoolDetail' => $schoolDetail,
                 'schools' => $schools,
-                'attach' => true
+                'partners' => $partners,
+                'speakers' => $speakers,
+                'attach' => true,
             ]
         );
     }

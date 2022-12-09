@@ -61,7 +61,6 @@
                                 <td>{{ $eventSpeaker->end_time }}</td>
                                 <td nowrap>
                                     <select name="status" class="select w-100 status-form"
-                                        data-row-id="{{ $eventSpeaker->agenda_id }}"
                                         onchange="checkStatusSpeaker('{{ $eventSpeaker->agenda_id }}')"
                                         id="{{ 'speaker' . $eventSpeaker->agenda_id }}">
                                         <option data-placeholder="true"></option>

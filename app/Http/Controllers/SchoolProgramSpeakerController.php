@@ -33,7 +33,6 @@ class SchoolProgramSpeakerController extends Controller
             'allin_speaker',
             'partner_speaker',
             'school_speaker',
-            'university_speaker',
             'start_time',
             'end_time',
         ]);
@@ -51,11 +50,11 @@ class SchoolProgramSpeakerController extends Controller
 
             DB::rollBack();
             Log::error('Store event speaker failed : ' . $e->getMessage());
-            return Redirect::to('instance/school/' . $schoolId . '/detail/' . $schProgId)->withError('Failed to add speaker');
+            return Redirect::to('program/school/' . $schoolId . '/detail/' . $schProgId)->withError('Failed to add speaker'. $e->getMessage());
 
         }
 
-        return Redirect::to('master/event/' . $schoolId . '/detail/' . $schProgId)->withSuccess('School program speaker successfully added');
+        return Redirect::to('program/school/' . $schoolId . '/detail/' . $schProgId)->withSuccess('School program speaker successfully added');
     }
 
     # get request from event controller
@@ -78,12 +77,12 @@ class SchoolProgramSpeakerController extends Controller
 
             DB::rollBack();
             Log::error('update status speaker failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $schoolId . '')->withError('Failed to update speaker');
+            return Redirect::to('program/school/' . $schoolId . '')->withError('Failed to update speaker');
 
         }
 
         // return response()->json($responseMessage);
-        return Redirect::to('master/event/'.$schoolId)->withSuccess('Event speaker successfully updated');
+        return Redirect::to('program/school/'.$schoolId)->withSuccess('Event speaker successfully updated');
     }
 
     public function destroy(Request $request)
@@ -101,11 +100,11 @@ class SchoolProgramSpeakerController extends Controller
 
             DB::rollBack();
             Log::error('Delete event speaker failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $eventId . '')->withError('Failed to remove speaker');
+            return Redirect::to('program/school/' . $eventId . '')->withError('Failed to remove speaker');
 
         }
 
-        return Redirect::to('master/event/'.$eventId)->withSuccess('Event speaker successfully removed');
+        return Redirect::to('program/school/'.$eventId)->withSuccess('Event speaker successfully removed');
     }
 }
 

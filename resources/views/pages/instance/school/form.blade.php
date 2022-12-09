@@ -56,6 +56,11 @@
                         </div>
                     </div>
                     <div class="list-group list-group-flush">
+                        @if (count($schoolPrograms)==0)
+                        <div class="list-group-item text-center py-3">
+                            No Program Yet
+                        </div>
+                        @endif
                         @forelse ($schoolPrograms as $schoolProgram)
                             <div class="list-group-item">
                                 <div class="d-flex align-items-center justify-content-between">

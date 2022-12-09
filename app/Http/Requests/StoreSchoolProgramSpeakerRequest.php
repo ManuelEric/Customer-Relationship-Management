@@ -36,38 +36,12 @@ class StoreSchoolProgramSpeakerRequest extends FormRequest
         $endTime = $this->input('end_time');
 
         $rules = [
-            'speaker_type' => 'required|in:internal,partner,school,university',
+            'speaker_type' => 'required|in:internal,partner,school',
             'allin_speaker' => [
                 'required_if:speaker_type,internal',
             ],
-            'partner_speaker' => [
-                'required_if:speaker_type,partner',
-                function ($attribute, $value, $fail) use ($schProgId) {
-
-                    if ($this->input('speaker_type') == 'partner' && AgendaSpeaker::where('partner_pic_id', $value)->where('sch_prog_id', $schProgId)->first())
-                        $fail('The partner speaker has already added before, cannot add same speaker');
-                    
-                }
-            ],
-            'school_speaker' => [
-                'required_if:speaker_type,school',
-                function ($attribute, $value, $fail) use ($schProgId) {
-
-                    if ($this->input('speaker_type') == 'school' && AgendaSpeaker::where('sch_pic_id', $value)->where('sch_prog_id', $schProgId)->where('start_time', '=', $this->input('start_time'))->where('end_time', '=', $this->input('end_time'))->first())
-                        $fail('The school speaker has already added before, cannot add same speaker');
-
-                }
-            ],
-            'university_speaker' => [
-                'required_if:speaker_type,university',
-                function ($attribute, $value, $fail) use ($schProgId) {
-
-                    if ($this->input('speaker_type') == 'university' && AgendaSpeaker::where('univ_pic_id', $value)->where('sch_prog_id', $schProgId)->where('start_time', '=', $this->input('start_time'))->where('end_time', '=', $this->input('end_time'))->first())
-                        $fail('The university speaker has already added before, cannot add same speaker');
-
-                    
-                }
-            ],
+            'partner_speaker' => 'required_if:speaker_type,partner|nullable',
+            'school_speaker' => 'required_if:speaker_type,school|nullable',
             'start_time' => [
                 'required',
                 // function ($attribute, $value, $fail) use ($schProgId, $endTime) {
@@ -116,16 +90,13 @@ class StoreSchoolProgramSpeakerRequest extends FormRequest
                 break;
 
             case "partner":
-                $rules['partner_speaker'][] = 'exists:tbl_corp_pic,id';
+                $rules['partner_speaker'] = 'exists:tbl_corp_pic,id';
                 break; 
                 
             case "school":
-                $rules['school_speaker'][] = 'exists:tbl_schdetail,schdetail_id';
+                $rules['school_speaker'] = 'exists:tbl_schdetail,schdetail_id';
                 break;
                 
-            case "university":
-                $rules['university_speaker'][] = 'exists:tbl_univ_pic,id';
-                break;
         }
 
         return $rules;

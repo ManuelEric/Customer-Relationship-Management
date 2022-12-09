@@ -2,13 +2,11 @@
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
-                        <th class="bg-info text-white">Partner Name</th>
+                        <th class="bg-info text-white">School Name</th>
                         <th>Program Name</th>
-                        <th>Invoice ID</th>
-                        <th>Payment Method</th>
-                        <th>Created At</th>
-                        <th>Due Date</th>
-                        <th>Total Price</th>
+                        <th>Program Success Date</th>
+                        <th>Conversion Lead</th>
+                        <th>PIC</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -16,16 +14,15 @@
                     @for ($i = 0; $i < 5; $i++)
                         <tr>
                             <td>#</td>
-                            <td>Partner Name</td>
+                            <td>School Name</td>
                             <td>Program Name</td>
-                            <td>Invoice ID</td>
-                            <td>Payment Method</td>
-                            <td>Created At</td>
-                            <td>Due Date</td>
-                            <td>Total Price</td>
+                            <td>Program Success Date</td>
+                            <td>Conversion Lead</td>
+                            <td>PIC</td>
                             <td class="text-center">
-                                <a href="{{ url('invoice/corporate-program/1') }}" class="btn btn-sm btn-outline-warning">
-                                    <i class="bi bi-eye"></i>
+                                <a href="{{ url('invoice/school-program/create') }}"
+                                    class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-plus"></i> Invoice
                                 </a>
                             </td>
                         </tr>

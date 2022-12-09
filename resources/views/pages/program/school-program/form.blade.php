@@ -43,7 +43,7 @@
                 </div>
             </div>
             @include('pages.program.school-program.detail.school')
-            @if(isset($schoolProgram) && empty($edit))
+            @if(isset($schoolProgram) &&  $schoolProgram->status == 1 && empty($edit))
                 @include('pages.program.school-program.detail.speaker')
             @endif
         </div>
@@ -383,23 +383,21 @@
                     </div>
                     <hr>
                     @if (empty($schoolProgram) || isset($edit))
-                    <div class="mt-3 text-end">
-                        <button type="submit" class="btn btn-sm btn-primary rounded">
-                            <i class="bi bi-save2 me-2"></i> Submit
-                        </button>
-                    </div>
+                        <div class="mt-3 text-end">
+                            <button type="submit" class="btn btn-sm btn-primary rounded">
+                                <i class="bi bi-save2 me-2"></i> Submit
+                            </button>
+                        </div>
                     @endif
                     </form>
-                </div>
-            </div>
+            
             @if(!empty($attach) && $schoolProgram->status == 1 )
                 @include('pages.program.school-program.detail.attachment')
             @endif
         </div>
     </div>
+
     <script>
-
-
         function checkStatus() {
             let status = $('#approach_status').val();
             if (status == '0') {
@@ -479,7 +477,7 @@
         </script>
 
 
-@endif
+    @endif
     @if($errors->has('other_reason'))
         <script>
             $(document).ready(function(){

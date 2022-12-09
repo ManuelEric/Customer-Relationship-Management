@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('invoice/corporate-program/status/needed') }}" class="text-decoration-none text-muted">
+        <a href="{{ url('invoice/referral/status/needed') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Invoice
         </a>
     </div>
@@ -19,12 +19,12 @@
                     <h4>Partner Name</h4>
                     <h6>Program Name</h6>
                     <div class="d-flex justify-content-center mt-3">
-                        <a href="{{ url('program/corporate/1') }}" class="btn btn-sm btn-outline-info rounded mx-1"
+                        <a href="{{ url('program/referral/1') }}" class="btn btn-sm btn-outline-info rounded mx-1"
                             target="_blank">
                             <i class="bi bi-eye me-1"></i> More
                         </a>
 
-                        <a href="{{ $status == 'edit' ? url('invoice/corporate-program/1') : url('invoice/corporate-program/1/edit') }}"
+                        <a href="{{ $status == 'edit' ? url('invoice/referral/1') : url('invoice/referral/1/edit') }}"
                             class="btn btn-sm btn-outline-warning rounded mx-1">
                             <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
                             {{ $status == 'edit' ? 'Back' : 'Edit' }}
@@ -37,9 +37,7 @@
                 </div>
             </div>
 
-            @include('pages.invoice.corporate-program.form-detail.client')
-
-            @include('pages.invoice.corporate-program.form-detail.installment-list')
+            @include('pages.invoice.referral.form-detail.client')
         </div>
 
         <div class="col-md-8">
@@ -89,12 +87,12 @@
                         <div class="col-md-12 mb-3">
                             {{-- IDR  --}}
                             <div class="invoice-currency invoice-idr">
-                                @include('pages.invoice.corporate-program.form-detail.invoice-idr')
+                                @include('pages.invoice.referral.form-detail.invoice-idr')
                             </div>
 
                             {{-- OTHER  --}}
                             <div class="invoice-currency d-none  invoice-other">
-                                @include('pages.invoice.corporate-program.form-detail.invoice-other')
+                                @include('pages.invoice.referral.form-detail.invoice-other')
                             </div>
                         </div>
 
@@ -105,10 +103,8 @@
 
                         <div class="col-md-5 mb-3">
                             <label for="">Payment Method</label>
-                            <select name="" id="payment_method" class="select w-100" onchange="checkPayment()">
-                                <option data-placeholder="true"></option>
+                            <select name="" id="payment_method" class="select w-100">
                                 <option value="full">Full Payment</option>
-                                <option value="installment">Installment</option>
                             </select>
                         </div>
                         <div class="col-md-7">
@@ -124,17 +120,6 @@
                                         class='form-control form-control-sm rounded'>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            {{-- IDR  --}}
-                            <div class="installment-card d-none installment-idr">
-                                @include('pages.invoice.corporate-program.form-detail.installment-idr')
-                            </div>
-
-                            <div class="installment-card d-none installment-other">
-                                @include('pages.invoice.corporate-program.form-detail.installment-other')
-                            </div>
-
                         </div>
                         <div class="col-md-12 mb-3">
                             <label for="">Notes</label>
@@ -169,20 +154,6 @@
             $('#current_rate').removeAttr('disabled')
             if (detail) {
                 $('.currency-icon').html(detail.toUpperCase())
-            }
-        }
-
-        function checkPayment() {
-            let cur = $('#currency').val()
-            let method = $('#payment_method').val()
-
-            $('.installment-card').addClass('d-none')
-            if (method == 'installment') {
-                if (cur == 'idr') {
-                    $('.installment-idr').removeClass('d-none')
-                } else {
-                    $('.installment-other').removeClass('d-none')
-                }
             }
         }
     </script>

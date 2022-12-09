@@ -3,6 +3,7 @@
 use App\Http\Controllers\ReferralController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SchoolProgramController;
+use App\Http\Controllers\SchoolProgramSpeakerController;
 use App\Http\Controllers\SchoolProgramAttachController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\PartnerProgramController;
@@ -68,7 +69,7 @@ Route::get('school/create', function () {
 Route::resource('school', SchoolProgramController::class);
 Route::prefix('school')->name('school.')->group(function () {
     Route::resource('{school}/detail', SchoolProgramController::class);
-    Route::resource('{school}/detail/{sch_prog}/speaker', SchoolProgramController::class);
+    Route::resource('{school}/detail/{sch_prog}/speaker', SchoolProgramSpeakerController::class);
     Route::resource('{school}/detail/{sch_prog}/attach', SchoolProgramAttachController::class);
 });
 
