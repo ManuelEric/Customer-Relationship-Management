@@ -14,8 +14,6 @@ use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
-// use App\Interfaces\UniversityRepositoryInterface;
-// use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Models\Reason;
 use App\Models\SchoolProgram;
 use Exception;
@@ -41,8 +39,6 @@ class SchoolProgramController extends Controller
     protected CorporateRepositoryInterface $corporateRepository;
     protected CorporatePicRepositoryInterface $corporatePicRepository;
     protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
-    // protected UniversityRepositoryInterface $universityRepository;
-    // protected UniversityPicRepositoryInterface $universityPicRepository;
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
 
     public function __construct(
@@ -55,8 +51,6 @@ class SchoolProgramController extends Controller
         CorporateRepositoryInterface $corporateRepository,
         CorporatePicRepositoryInterface $corporatePicRepository,
         AgendaSpeakerRepositoryInterface $agendaSpeakerRepository,
-        // UniversityRepositoryInterface $universityRepository,
-        // UniversityPicRepositoryInterface $universityPicRepository,
         SchoolDetailRepositoryInterface $schoolDetailRepository,
         )
     {
@@ -69,19 +63,15 @@ class SchoolProgramController extends Controller
         $this->corporateRepository = $corporateRepository;
         $this->corporatePicRepository = $corporatePicRepository;
         $this->agendaSpeakerRepository = $agendaSpeakerRepository;
-        // $this->universityRepository = $universityRepository;
-        // $this->universityPicRepository = $universityPicRepository;
         $this->schoolDetailRepository = $schoolDetailRepository;
     }
 
     public function index(Request $request){
-        // echo $this->schoolProgramRepository->getAllSchoolProgramsDataTables();
-        // exit;
+        
         if ($request->ajax()) {
-            return $this->schoolProgramRepository->getAllSchoolProgramsDataTables();
-
+               return $this->schoolProgramRepository->getAllSchoolProgramsDataTables();
         }
-        // return;
+        
         return view('pages.program.school-program.index');
     }
 
@@ -186,7 +176,6 @@ class SchoolProgramController extends Controller
         # retrieve speaker data
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerBySchoolProgram($sch_progId);
         
-        // dd($speakers);
 
         return view('pages.program.school-program.form')->with(
             [

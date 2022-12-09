@@ -18,30 +18,38 @@
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                         <div class="">
                             @switch($speaker->speaker_type)
-                            @case('partner')
-                            {{-- <td>{{ $eventSpeaker->partner_pic_name }}</td>
-                            <td>{{ $eventSpeaker->corp_name }}</td> --}}
-                            <div class="">{{ $speaker->partner_pic_name }}</div>
-                            @break
+                                @case('partner')
+                                    <div class="">{{ $speaker->partner_pic_name }}</div>
+                                @break
+                                @case('internal')
+                                    <div class="">{{ $speaker->internal_pic }}</div>
+                                @break
+                                @case('school')
+                                    <div class="">{{ $speaker->school_pic_name }}</div>
+                                @break
                             @endswitch
-                            <div class="">Speaker Name</div>
-                            <small>20-12-2022 15.00-17.00</small>
+                                <small>{{ $speaker->start_time }}</small>
                         </div>
                         <div class="text-end d-flex align-items-center">
-                            <select name="status" class="select w-100 status-form" onchange="checkStatusSpeaker('agenda_id')"
-                                id="agenda_1" style="width: 120px">
+                            <select name="status" class="select w-100 status-form" onchange="checkStatusSpeaker('{{ $speaker->agenda_id }}')"
+                                id="{{ 'speaker' . $speaker->agenda_id }}" style="width: 120px">
                                 <option data-placeholder="true"></option>
-                                <option value="1">
-                                    Active</option>
-                                <option value="2">
-                                    Cancel
-                                </option>
+                                @if(isset($speaker->status))
+                                    <option value="1" {{ $speaker->status == 1 ? 'selected' : '' }}>
+                                        Active</option>
+                                    <option value="2" {{ $speaker->status == 2 ? 'selected' : '' }}>
+                                        Cancel
+                                    </option>
+                                @endif
                             </select>
-                            <i class="bi bi-trash2 text-danger cursor-pointer ms-2"></i>
+                            <i class="bi bi-trash2 text-danger cursor-pointer ms-2"
+                                onclick="confirmDelete('program/school/{{ $school->sch_id }}/detail/{{ $schoolProgram->id }}/speaker', '{{ $speaker->agenda_id }}')">
+
+                            </i>
                         </div>
                     </div>
                 @empty
-                    
+                    No speaker yet
                 @endforelse
          </div>
      </div>
@@ -159,7 +167,7 @@
                                  Start Time <sup class="text-danger">*</sup>
                              </label>
                              <input type="datetime-local" name="start_time" id=""
-                                 class="form-control form-control-sm" value="" min="{{ $schoolProgram->start_program_date }}" max="{{ $schoolProgram->end_program_date }}">
+                                 class="form-control form-control-sm" value="" min="{{ $schoolProgram->start_program_date . 'T00:00' }}" max="{{ $schoolProgram->end_program_date . 'T00:00' }}">
                              @error('start_time')
                                  <small class="text-danger fw-light">{{ $message }}</small>
                              @enderror
@@ -169,7 +177,7 @@
                                  End Time <sup class="text-danger">*</sup>
                              </label>
                              <input type="datetime-local" name="end_time" id=""
-                                 class="form-control form-control-sm" value="" min="" max="">
+                                 class="form-control form-control-sm" value="" min="{{ $schoolProgram->start_program_date . 'T00:00' }}" max="{{ $schoolProgram->end_program_date . 'T23:59' }}">
                              @error('end_time')
                                  <small class="text-danger fw-light">{{ $message }}</small>
                              @enderror
@@ -188,6 +196,40 @@
              </div>
          </div>
      </div>
+ </div>
+
+ <div class="modal fade" id="reasonModal" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>
+                    Reason
+                </span>
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div class="modal-body w-100 text-start">
+                <form action="#" method="POST" id="reasonForm">
+                    @csrf
+                    @method('put')
+                    <input type="hidden" name="agendaId" id="agenda_id">
+                    <input type="hidden" name="status" id="status_id">
+                    <label for="">Notes</label>
+                    <textarea name="notes" id="notes"></textarea>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                            onclick="cancelModal()">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-save2 me-1"></i>
+                            Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
  </div>
 
  <script>
@@ -241,7 +283,52 @@
 
      }
 
-     function checkStatusSpeaker(agendaId) {
+     function cancelModal() {
+        let id = $('#agenda_id').val();
+        let status = $('#speaker' + id)
+        $('#element').select2('destroy');
+        $(status).val(1).select2({
+            allowClear: true
+        });
+        $('#reasonModal').modal('hide')
+    }
 
-     }
+    function checkStatusSpeaker(agendaId) {
+        let status = $('#speaker' + agendaId).val()
+
+        let link =
+            '{{ url('') }}/program/school/{{ $school->sch_id }}/detail/{{$schoolProgram->id}}/speaker/' +
+            agendaId
+        let data = new Array()
+
+        $('#reasonForm').attr('action', link)
+
+        if (status == 2) {
+            $('#reasonModal').modal('show')
+            $('#agenda_id').val(agendaId)
+            $('#status_id').val(status)
+        } else {
+            $('#agenda_id').val(agendaId)
+            $('#status_id').val(status)
+            $('#notes').val('')
+            $('#reasonForm').submit()
+        }
+    }
  </script>
+
+    @if($errors->has('speaker_type') || 
+        $errors->has('allin_speaker') || 
+        $errors->has('partner_speaker') ||
+        $errors->has('start_time') ||
+        $errors->has('end_time')
+        )
+            
+        <script>
+            $(document).ready(function(){
+                $('#speaker').modal('show'); 
+            })
+
+        </script>
+
+    @endif
+

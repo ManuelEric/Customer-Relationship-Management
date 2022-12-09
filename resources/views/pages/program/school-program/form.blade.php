@@ -216,6 +216,10 @@
                                                 @error('reason_id')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
+                                                @error('other_reason')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+    
                                         </div>
                                             
                                         <div class="d-flex align-items-center d-none" id="inputReason">
@@ -226,11 +230,7 @@
                                                     <i class="bi bi-x text-danger"></i>
                                                 </b>
                                             </div>
-                                        </div>
-                                        @error('other_reason')
-                                            <small class="text-danger fw-light">{{ $message }}</small>
-                                        @enderror
-
+                                        </div>              
                                     
                                 </div>
                             </div>
@@ -465,27 +465,18 @@
   
     @if(
         $errors->has('denied_date') || 
-        $errors->has('reason_id') 
+        $errors->has('reason_id') ||
+        $errors->has('other_reason')
         )
         
         <script>
             $(document).ready(function(){
                 $('#approach_status').val('2').trigger('change')
-                // $('#selectReason').select2()
             })
 
         </script>
 
 
-    @endif
-    @if($errors->has('other_reason'))
-        <script>
-            $(document).ready(function(){
-                $('#selectReason').val('other').trigger('change')
-                // $('#selectReason').select2()
-            })
-
-        </script>
     @endif
 
 @endsection

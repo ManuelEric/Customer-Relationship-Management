@@ -60,6 +60,7 @@ class SchoolProgramSpeakerController extends Controller
     # get request from event controller
     public function update(StoreSchoolProgramSpeakerRequest $request)
     {
+
         $schProgId = $request->route('sch_prog');
         $schoolId = $request->route('school');
         $agendaId = $request->speaker;
@@ -77,17 +78,18 @@ class SchoolProgramSpeakerController extends Controller
 
             DB::rollBack();
             Log::error('update status speaker failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . $schoolId . '')->withError('Failed to update speaker');
+            return Redirect::to('program/school/' . $schoolId . '/detail/' . $schProgId)->withError('Failed to update speaker');
 
         }
 
         // return response()->json($responseMessage);
-        return Redirect::to('program/school/'.$schoolId)->withSuccess('Event speaker successfully updated');
+        return Redirect::to('program/school/'.$schoolId . '/detail/' . $schProgId)->withSuccess('School program speaker successfully updated');
     }
 
     public function destroy(Request $request)
     {
-        $eventId = $request->route('event');
+        $schoolId = $request->route('school');
+        $schProgId = $request->route('sch_prog');
         $agendaId = $request->route('speaker');
 
         DB::beginTransaction();
@@ -99,12 +101,12 @@ class SchoolProgramSpeakerController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete event speaker failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . $eventId . '')->withError('Failed to remove speaker');
+            Log::error('Delete school program speaker failed : ' . $e->getMessage());
+            return Redirect::to('program/school/'.$schoolId.'/detail/'.$schProgId)->withError('Failed to remove speaker');
 
         }
 
-        return Redirect::to('program/school/'.$eventId)->withSuccess('Event speaker successfully removed');
+        return Redirect::to('program/school/'.$schoolId.'/detail/'.$schProgId)->withSuccess('School program speaker successfully removed');
     }
 }
 

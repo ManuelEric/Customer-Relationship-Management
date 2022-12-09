@@ -38,6 +38,7 @@ class StoreSchoolProgramRequest extends FormRequest
     {
         return [
             'reason_id' => 'reason',
+            'other_reason' => 'reason',
             'sch_id' => 'school',
             'prog_id' => 'program name',
             'empl_id' => 'PIC',

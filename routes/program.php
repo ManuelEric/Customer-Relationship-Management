@@ -50,11 +50,11 @@ Route::get('corporate/1', function () {
     return view('pages.program.corporate-program.form');
 });
 
-Route::resource('corporate', PartnerProgramController::class);
+Route::get('corporate', [PartnerProgramController::class, 'index']);
 Route::prefix('corporate')->name('corporate_prog.')->group(function () {
     Route::resource('{corp}/detail', PartnerProgramController::class);
-    Route::resource('{corp}/detail/{corp_prog}/speaker', PartnerProgramController::class);
-    Route::resource('{corp}/detail/{corp_prog}/attach', SchoolProgramAttachController::class);
+    // Route::resource('{corp}/detail/{corp_prog}/speaker', PartnerProgramController::class);
+    // Route::resource('{corp}/detail/{corp_prog}/attach', SchoolProgramAttachController::class);
 });
 
 
@@ -66,7 +66,7 @@ Route::get('school/create', function () {
     return view('pages.program.school-program.form');
 });
 
-Route::resource('school', SchoolProgramController::class);
+Route::get('school', [SchoolProgramController::class, 'index']);
 Route::prefix('school')->name('school.')->group(function () {
     Route::resource('{school}/detail', SchoolProgramController::class);
     Route::resource('{school}/detail/{sch_prog}/speaker', SchoolProgramSpeakerController::class);

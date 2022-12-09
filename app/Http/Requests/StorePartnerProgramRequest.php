@@ -36,7 +36,7 @@ class StorePartnerProgramRequest extends FormRequest
     public function attributes()
     {
         return [
-            // 'reason_id' => 'reason',
+            'reason_id' => 'reason',
             'prog_id' => 'program name',
             'empl_id' => 'PIC',
         ];
@@ -62,12 +62,13 @@ class StorePartnerProgramRequest extends FormRequest
             ],
             'notes' => 'nullable',
             'number_of_student' => 'required_if:status,1|nullable|integer',
-            // 'total_fee' => 'required_if:status,1|nullable|numeric',
-            'end_date' => 'required_if:status,1|nullable|date|after_or_equal:start_program_date',
-            'start_date' => 'required_if:status,1|nullable|date|before_or_equal:end_program_date',
-            // 'success_date' => 'required_if:status,1|nullable|date',
-            // 'reason_id' => 'required_if:status,2|nullable',
-            // 'denied_date' => 'required_if:status,2|nullable|date',
+            'total_fee' => 'required_if:status,1|nullable|numeric',
+            'end_date' => 'required_if:status,1|nullable|date|after_or_equal:start_date',
+            'start_date' => 'required_if:status,1|nullable|date|before_or_equal:end_date',
+            'success_date' => 'required_if:status,1|nullable|date',
+            'reason_id' => 'required_if:status,2|nullable',
+            'denied_date' => 'required_if:status,2|nullable|date',
+            'is_corporate_scheme' => 'required|in:1,2',
 
             
         ];

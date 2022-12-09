@@ -73,7 +73,6 @@ class PartnerProgramController extends Controller
         $this->schoolDetailRepository = $schoolDetailRepository;
     }
 
-    // TODO: 1. Add Column ['reason_id', 'is_corporate_scheme', 'total_fee', 'success_date', 'denied_date']
   
 
     public function index(Request $request){
@@ -83,43 +82,38 @@ class PartnerProgramController extends Controller
     public function store(StorePartnerProgramRequest $request)
     {
 
+        $corpId = $request->route('corp');
+
         $partnerPrograms = $request->all();
         if ($request->input('reason_id') == 'other'){
             $reason['reason_name'] = $request->input('other_reason');
         }
 
         DB::beginTransaction();
-       
+        $partnerPrograms['corp_id'] = $corpId;
+
         try {
             # insert into reason
             if ($request->input('reason_id') == 'other'){
-                $this->reasonRepository->createReason($reason);
-                $reason_id = Reason::max('reason_id');
+                $reason_created = $this->reasonRepository->createReason($reason);
+                $reason_id = $reason_created->id;
                 $partnerPrograms['reason_id'] = $reason_id;
             }
+
+              
             # insert into partner program
-            $this->partnerProgramRepository->createPartnerProgram($partnerPrograms);
+            $partner_prog_created = $this->partnerProgramRepository->createPartnerProgram($partnerPrograms);
+            $partner_progId = $partner_prog_created->id;
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store partner program failed : ' . $e->getMessage());
-            return Redirect::to('program/partner/create')->withError('Failed to create partner program');
+            return Redirect::to('program/corporate/'.$corpId.'/detail/create')->withError('Failed to create partner program'.$e->getMessage());
         }
         
-        # status == success
-        if($partnerPrograms['status'] == 1) 
-        {
-            $partner_progId = PartnerProg::max('id');
-            return Redirect::to('program/partner/create')
-            ->withSuccess('Partner program successfully created')
-            ->with([
-                'attach' => true,
-                'partner_progId' => $partner_progId,
-            ]);
-        }
-        return Redirect::to('program/partner/create')->withSuccess('Partner program successfully created');
+        return Redirect::to('program/corporate/'.$corpId.'/detail/'.$partner_progId)->withSuccess('Partner program successfully created');
     }
 
     public function create(Request $request)
@@ -154,17 +148,17 @@ class PartnerProgramController extends Controller
 
     public function show(Request $request)
     {
-        $schoolId = $request->route('school');
-        $sch_progId = $request->route('detail');
+        $corpId = $request->route('corp');
+        $corp_ProgId = $request->route('detail');
 
-        # retrieve school data by id
-        $school = $this->schoolRepository->getSchoolById($schoolId);
+        // # retrieve school data by id
+        // $school = $this->schoolRepository->getSchoolById($schoolId);
         
         # retrieve all school data
         $schools = $this->schoolRepository->getAllSchools();
 
-        # retrieve all school detail by school id
-        $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
+        // # retrieve all school detail by school id
+        // $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
         
         # retrieve program data
         $programsB2B = $this->programRepository->getAllProgramByType('B2B');
@@ -174,24 +168,24 @@ class PartnerProgramController extends Controller
         # retrieve reason data
         $reasons = $this->reasonRepository->getAllReasons();
 
-        # retrieve School Program data by schoolId
-        $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
+        # retrieve partner data
+        $partner = $this->corporateRepository->getCorporateById($corpId);
+        $partners = $this->corporateRepository->getAllCorporate();
         
-        # retrieve School Program Attach data by schoolId
-        $schoolProgramAttachs = $this->schoolProgramAttachRepository->getAllSchoolProgramAttachsBySchprogId($sch_progId);
-        
+        # retrieve partner program data
+        $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($corp_ProgId);
+
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByRole('Employee');
  
-        return view('pages.program.school-program.form')->with(
+        return view('pages.program.corporate-program.form')->with(
             [
                 'employees' => $employees,
                 'programs' => $programs,
                 'reasons' => $reasons,
-                'schoolProgram' => $schoolProgram,
-                'schoolProgramAttachs' => $schoolProgramAttachs,
-                'school' => $school,
-                'schoolDetail' => $schoolDetail,
+                'partner' => $partner,
+                'partnerProgram' => $partnerProgram,
+                'partners' => $partners,
                 'schools' => $schools,
                 'attach' => true
             ]

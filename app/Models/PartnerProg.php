@@ -22,12 +22,16 @@ class PartnerProg extends Model
         'prog_id',
         'type',
         'first_discuss',
-        'last_discuss',
         'notes',
         'status',
         'number_of_student',
         'start_date',
         'end_date',
+        'is_corporate_scheme',
+        'reason_id',
+        'total_fee',
+        'success_date',
+        'denied_date',
         'empl_id',
     ];
 
@@ -45,4 +49,20 @@ class PartnerProg extends Model
     {
         return $this->belongsToMany(User::class, 'tbl_agenda_speaker', 'empl_id', 'sch_prog_id')->using(AgendaSpeaker::class);
     }
+
+    public function program()
+    {
+        return $this->belongsTo(Program::class, 'prog_id', 'prog_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'empl_id', 'id');
+    }
+
+    public function reason()
+    {
+        return $this->belongsTo(Reason::class, 'reason_id', 'reason_id');
+    }
+
 }

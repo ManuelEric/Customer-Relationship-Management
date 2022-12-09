@@ -13,8 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('tbl_sch_prog', function (Blueprint $table) {
-            //
+        Schema::table('tbl_partner_prog', function (Blueprint $table) {
+            $table->bigInteger('number_of_student')->nullable()->change();
+            $table->date('start_date')->nullable()->change();
+            $table->date('end_date')->nullable()->change();
         });
     }
 
@@ -25,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('tbl_sch_prog', function (Blueprint $table) {
+        Schema::table('tbl_partner_prog', function (Blueprint $table) {
             //
         });
     }
