@@ -61,7 +61,7 @@ class StorePartnerProgramRequest extends FormRequest
                 },
             ],
             'notes' => 'nullable',
-            'number_of_student' => 'required_if:status,1|nullable|integer',
+            'participants' => 'required_if:status,1|nullable|integer',
             'total_fee' => 'required_if:status,1|nullable|numeric',
             'end_date' => 'required_if:status,1|nullable|date|after_or_equal:start_date',
             'start_date' => 'required_if:status,1|nullable|date|before_or_equal:end_date',
@@ -69,6 +69,7 @@ class StorePartnerProgramRequest extends FormRequest
             'reason_id' => 'required_if:status,2|nullable',
             'denied_date' => 'required_if:status,2|nullable|date',
             'is_corporate_scheme' => 'required|in:1,2',
+            'other_reason' => 'required_if:reason_id,other|nullable|unique:tbl_reason,reason_name',
 
             
         ];

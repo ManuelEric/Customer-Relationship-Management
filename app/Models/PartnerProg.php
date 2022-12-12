@@ -24,7 +24,7 @@ class PartnerProg extends Model
         'first_discuss',
         'notes',
         'status',
-        'number_of_student',
+        'participants',
         'start_date',
         'end_date',
         'is_corporate_scheme',

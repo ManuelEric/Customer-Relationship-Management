@@ -7,7 +7,7 @@
              </h6>
          </div>
          <div class="">
-             <button class="btn btn-sm btn-outline-primary rounded" data-bs-toggle="modal" data-bs-target="#attachment">
+             <button class="btn btn-sm btn-outline-primary rounded" data-bs-toggle="modal" data-bs-target="#attachmentPartnerProg">
                  <i class="bi bi-plus"></i>
              </button>
          </div>
@@ -15,22 +15,30 @@
      <div class="card-body">
          <div class="list-group">
              <div class="list-group-item d-flex flex-wrap gap-2 align-items-center">
-                 @for ($i = 0; $i < 10; $i++)
-                     <div class="d-flex me-2 border px-2 py-1 rounded">
-                         <a href="#" class="text-muted text-decoration-none">
-                             <i class="bi bi-download me-1"></i> File Name
-                         </a>
-                         <div class="text-end cursor-pointer ms-4">
-                             <i class="bi bi-x text-danger"></i>
-                         </div>
-                     </div>
-                 @endfor
+                @if( isset($partnerProgram))
+                    @forelse ($partnerProgramAttachs as $partnerProgramAttach)
+                    
+                        <div class="d-flex me-2 border px-2 py-1 rounded">
+                            <a href="{{ url($partnerProgramAttach->corprog_attach) }}" class="text-muted text-decoration-none">
+                                    <i class="bi bi-download me-1"></i> {{ $partnerProgramAttach->corprog_file }}
+                                </a>
+                                <div class="text-end cursor-pointer ms-4">
+                                
+                                    <i class="bi bi-x text-danger" onclick="confirmDelete('{{ 'program/corporate/' . $partner->corp_id . '/detail/' . $partnerProgram->id . '/attach' }}', {{$partnerProgramAttach->id}})"></i>
+                                </div>
+                        </div>
+                    
+
+                    @empty
+                        No Attachment Yet  
+                    @endforelse
+                @endif
              </div>
          </div>
      </div>
  </div>
 
- <div class="modal fade" id="attachment" data-bs-backdrop="static" data-bs-keyboard="false"
+ <div class="modal fade" id="attachmentPartnerProg" data-bs-backdrop="static" data-bs-keyboard="false"
      aria-labelledby="staticBackdropLabel" aria-hidden="true">
      <div class="modal-dialog modal-dialog-centered">
          <div class="modal-content">
@@ -41,7 +49,12 @@
                  <i class="bi bi-pencil-square"></i>
              </div>
              <div class="modal-body w-100 text-start">
-                 <form action="" method="POST" id="formPosition">
+                @error('partner_prog_id')
+                    <small class="text-danger fw-light">{{ $message }}</small>
+                @enderror
+                 <form action="{{ url(
+                    'program/corporate/' . $partner->corp_id . '/detail/' . $partnerProgram->id . '/attach' 
+                        )}}" method="POST" id="formPosition" enctype="multipart/form-data">
                      @csrf
                      <div class="put"></div>
                      <div class="row g-2">
@@ -49,15 +62,21 @@
                              <label for="">
                                  File Name <sup class="text-danger">*</sup>
                              </label>
-                             <input type="text" name="" id=""
-                                 class="form-control form-control-sm rounded">
+                             <input type="text" name="corprog_file" id=""
+                                 class="form-control form-control-sm rounded" value="{{ $errors->has('corprog_file') || $errors->has('corprog_attach')  ? old('corprog_file') : '' }}">
+                            @error('corprog_file')
+                                 <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror 
                          </div>
                          <div class="col-md-12 mb-2">
                              <label for="">
                                  Attachment <sup class="text-danger">*</sup>
                              </label>
-                             <input type="file" name="" id=""
-                                 class="form-control form-control-sm rounded">
+                             <input type="file" name="corprog_attach" id=""
+                                 class="form-control form-control-sm rounded" value="{{ $errors->has('corprog_file') || $errors->has('corprog_attach') ? old('corprog_attach') : '' }}">
+                            @error('corprog_attach')
+                                 <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror 
                          </div>
                      </div>
                      <hr>
@@ -78,9 +97,20 @@
  <script>
      $(document).ready(function() {
          $('.modal-select').select2({
-             dropdownParent: $('#attachment .modal-content'),
+             dropdownParent: $('#attachmentPartnerProg .modal-content'),
              placeholder: "Select value",
              allowClear: true
          });
      });
  </script>
+
+    @if($errors->has('corprog_file') || $errors->has('corprog_attach') || $errors->has('partner_prog_id'))
+            
+    <script>
+        $(document).ready(function(){
+            $('#attachmentPartnerProg').modal('show'); 
+        })
+    
+    </script>
+
+    @endif

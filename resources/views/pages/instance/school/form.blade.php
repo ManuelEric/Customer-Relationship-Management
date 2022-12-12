@@ -61,7 +61,7 @@
                             No Program Yet
                         </div>
                         @endif
-                        @forelse ($schoolPrograms as $schoolProgram)
+                        @foreach ($schoolPrograms as $schoolProgram)
                             <div class="list-group-item">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div class="text-start">
@@ -83,17 +83,7 @@
                                     </a>
                                 </div>
                             </div>
-                        @empty
-                        <div class="list-group-item">
-                                <div class="text-center">
-                                   
-                                <small>
-
-                                    No have data
-                                </small>
-                                </div>
-                        </div>
-                        @endforelse
+                        @endforeach
                     </div>
                 </div>
             @endif

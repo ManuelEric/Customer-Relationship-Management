@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePartnerProgramRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\PartnerProgramRepositoryInterface;
+use App\Interfaces\PartnerProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
@@ -16,9 +17,6 @@ use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UniversityPicRepositoryInterface;
-use App\Models\PartnerProg;
-use App\Models\Reason;
-use App\Models\SchoolProgram;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,6 +32,7 @@ class PartnerProgramController extends Controller
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
     protected PartnerProgramRepositoryInterface $partnerProgramRepository;
+    protected PartnerProgramAttachRepositoryInterface $partnerProgramAttachRepository;
     protected SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository;
     protected ProgramRepositoryInterface $programRepository;
     protected UserRepositoryInterface $userRepository;
@@ -49,6 +48,7 @@ class PartnerProgramController extends Controller
         UserRepositoryInterface $userRepository, 
         SchoolProgramRepositoryInterface $schoolProgramRepository, 
         PartnerProgramRepositoryInterface $partnerProgramRepository, 
+        PartnerProgramAttachRepositoryInterface $partnerProgramAttachRepository, 
         SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository, 
         ProgramRepositoryInterface $programRepository,
         ReasonRepositoryInterface $reasonRepository,
@@ -62,6 +62,7 @@ class PartnerProgramController extends Controller
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
         $this->partnerProgramRepository = $partnerProgramRepository;
+        $this->partnerProgramAttachRepository = $partnerProgramAttachRepository;
         $this->schoolProgramAttachRepository = $schoolProgramAttachRepository;
         $this->programRepository = $programRepository;
         $this->userRepository = $userRepository;
@@ -76,7 +77,11 @@ class PartnerProgramController extends Controller
   
 
     public function index(Request $request){
-        return view('pages.program.corporate-program.index');
+
+        if ($request->ajax()) {
+            return $this->partnerProgramRepository->getAllPartnerProgramsDataTables();
+        }
+            return view('pages.program.corporate-program.index');
     }
 
     public function store(StorePartnerProgramRequest $request)
@@ -96,7 +101,7 @@ class PartnerProgramController extends Controller
             # insert into reason
             if ($request->input('reason_id') == 'other'){
                 $reason_created = $this->reasonRepository->createReason($reason);
-                $reason_id = $reason_created->id;
+                $reason_id = $reason_created->reason_id;
                 $partnerPrograms['reason_id'] = $reason_id;
             }
 
@@ -175,6 +180,10 @@ class PartnerProgramController extends Controller
         # retrieve partner program data
         $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($corp_ProgId);
 
+        # retrieve partner Program Attach data by corpProgId
+        $partnerProgramAttachs = $this->partnerProgramAttachRepository->getAllPartnerProgramAttachsByPartnerProgId($corp_ProgId);
+        
+
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByRole('Employee');
  
@@ -185,6 +194,7 @@ class PartnerProgramController extends Controller
                 'reasons' => $reasons,
                 'partner' => $partner,
                 'partnerProgram' => $partnerProgram,
+                'partnerProgramAttachs' => $partnerProgramAttachs,
                 'partners' => $partners,
                 'schools' => $schools,
                 'attach' => true
@@ -214,17 +224,17 @@ class PartnerProgramController extends Controller
             
         }
 
-        $schoolId = $request->route('school');
-        $sch_progId = $request->route('detail');
+        $corpId = $request->route('corp');
+        $partner_progId = $request->route('detail');
 
         # retrieve school data by id
-        $school = $this->schoolRepository->getSchoolById($schoolId);
+        // $school = $this->schoolRepository->getSchoolById($schoolId);
        
         # retrieve all school data
         $schools = $this->schoolRepository->getAllSchools();
 
         # retrieve all school detail by school id
-        $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
+        // $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
 
         # retrieve program data
         $programsB2B = $this->programRepository->getAllProgramByType('B2B');
@@ -235,26 +245,30 @@ class PartnerProgramController extends Controller
         # retrieve reason data
         $reasons = $this->reasonRepository->getAllReasons();
 
-        # retrieve School Program data by id
-        $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
+        # retrieve Partner Program data by id
+        // $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
+        $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partner_progId);
         
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByRole('Employee');
 
         # retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();
+        $partner = $this->corporateRepository->getCorporateById($corpId);
 
-        return view('pages.program.school-program.form')->with(
+        return view('pages.program.corporate-program.form')->with(
             [
                 'edit' => true,
                 'employees' => $employees,
                 'programs' => $programs,
                 'reasons' => $reasons,
-                'schoolProgram' => $schoolProgram,
-                'school' => $school,
+                // 'schoolProgram' => $schoolProgram,
+                // 'school' => $school,
                 'schools' => $schools,
-                'schoolDetail' => $schoolDetail,
+                // 'schoolDetail' => $schoolDetail,
                 'partners' => $partners,
+                'partner' => $partner,
+                'partnerProgram' => $partnerProgram,
             ]
         );
 
@@ -262,59 +276,60 @@ class PartnerProgramController extends Controller
    
    public function update(Request $request){
         
-        $schoolId = $request->route('school');
-        $sch_progId = $request->route('detail');
-        $schoolPrograms = $request->all();
-
+        $corpId = $request->route('corp');
+        $partner_progId = $request->route('detail');
+        $partnerPrograms = $request->all();
+        if ($request->input('reason_id') == 'other'){
+            $reason['reason_name'] = $request->input('other_reason');
+        }
         
         DB::beginTransaction();
-        $schoolPrograms['sch_id'] = $schoolId;
-        $schoolPrograms['updated_at'] = Carbon::now();
+        $partnerPrograms['corp_id'] = $corpId;
+        $partnerPrograms['updated_at'] = Carbon::now();
         try {
             
-            # update reason school program
-            if($schoolPrograms['status'] == 2){
+             # update reason school program
+             if($partnerPrograms['status'] == 2){
                 if($request->input('reason_id') == 'other'){
-                    $reason['reason_name'] = $request->input('other_reason');
-               
-                        $this->reasonRepository->createReason($reason);
-                        $reason_id = Reason::max('reason_id');
-                        $schoolPrograms['reason_id'] = $reason_id;
+         
+                        $reason_created = $this->reasonRepository->createReason($reason);
+                        $reason_id = $reason_created->reason_id;
+                        $partnerPrograms['reason_id'] = $reason_id;
                   
                 }
             }
-                
+            
             # update school program
-            $this->schoolProgramRepository->updateSchoolProgram($sch_progId, $schoolPrograms);
+            $this->partnerProgramRepository->updatePartnerProgram($partner_progId, $partnerPrograms);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update school program failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId . '/edit')->withError('Failed to update school program'. $e->getMessage());
+            Log::error('Update partner program failed : ' . $e->getMessage());
+            return Redirect::to('program/corporate/' . $corpId . '/detail/' . $partner_progId . '/edit')->withError('Failed to update partner program'. $e->getMessage());
         }
 
-        return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId)->withSuccess('School program successfully updated');
+        return Redirect::to('program/corporate/' . $corpId . '/detail/' . $partner_progId)->withSuccess('Partner program successfully updated');
    }
 
    public function destroy(Request $request)
     {
-        $schoolId = $request->route('school');
-        $sch_progId = $request->route('detail');
+        $corpId = $request->route('corp');
+        $corp_progId = $request->route('detail');
 
         DB::beginTransaction();
         try {
 
-            $this->schoolProgramRepository->deleteSchoolProgram($sch_progId);
+            $this->partnerProgramRepository->deletePartnerProgram($corp_progId);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete school program failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId)->withError('Failed to delete school program');
+            Log::error('Delete partner program failed : ' . $e->getMessage());
+            return Redirect::to('program/corporate/' . $corpId . '/detail/' . $corp_progId)->withError('Failed to delete partner program');
         }
 
-        return Redirect::to('instance/school/' . $schoolId)->withSuccess('School program successfully deleted');
+        return Redirect::to('program/corporate/')->withSuccess('Partner program successfully deleted');
     }
 }

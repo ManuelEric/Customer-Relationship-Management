@@ -5,6 +5,8 @@ namespace App\Interfaces;
 interface PartnerProgramRepositoryInterface
 {
 
+    
+    public function getAllPartnerProgramsDataTables();
     public function getAllPartnerProgramsByPartnerId($corpId);
     public function getPartnerProgramById($partnerProgId);
     public function deletePartnerProgram($partnerProgId);

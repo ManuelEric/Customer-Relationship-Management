@@ -16,18 +16,34 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h4>{{ $partner->corp_name }}</h4>
-                    @if(isset($edit))
-                        <h6>Program Name</h6>
+                    @if(isset($partnerProgram))
+                        <h6>{{ $partnerProgram->program->prog_program }}</h6>
                     @endif
-                    <div class="mt-3 d-flex justify-content-center">
-                        <button type="button" class="btn btn-sm btn-outline-danger rounded mx-1">
-                            <i class="bi bi-trash2"></i> Delete
-                        </button>
-                    </div>
+                    @if (isset($partnerProgram))
+                        <div class="mt-3 d-flex justify-content-center">
+                            @if (isset($edit))
+                                <a href="{{ url('program/corporate/' . strtolower($partner->corp_id) .'/detail/'. $partnerProgram->id ) }}"
+                                    class="btn btn-sm btn-outline-info rounded mx-1">
+                                    <i class="bi bi-arrow-left"></i> Back
+                                </a>
+                            @else
+                                <a href="{{ url('program/corporate/' . $partner->corp_id . '/detail/'. $partnerProgram->id .'/edit') }}"
+                                    class="btn btn-sm btn-outline-info rounded mx-1">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                            @endif
+                            <button type="button"
+                                onclick="confirmDelete('{{'program/corporate/' . $partner->corp_id . '/detail'}}', {{$partnerProgram->id}})"
+                                class="btn btn-sm btn-outline-danger rounded mx-1">
+                                <i class="bi bi-trash2"></i> Delete
+                            </button>
+                        </div>
+                    @endif
+                   
                 </div>
             </div>
             @include('pages.program.corporate-program.detail.corporate')
-            @if(!empty($edit))
+            @if(isset($partnerProgram) &&  $partnerProgram->status == 1 && empty($edit))
                 @include('pages.program.corporate-program.detail.speaker')
             @endif
         </div>
@@ -43,8 +59,12 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url('program/corporate/' . $partner->corp_id . '/detail') }}" method="POST">
+                    
+                    <form action="{{ url(isset($edit) ? 'program/corporate/' . $partner->corp_id . '/detail/' . $partnerProgram->id : 'program/corporate/' . $partner->corp_id . '/detail')  }}" method="POST">
                         @csrf
+                        @if(isset($edit))
+                             @method('put')
+                        @endif
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label for="">
@@ -236,14 +256,15 @@
                                         Partner Program
                                     </div>
                                     <div class="card-body">
+                                        
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <small>Participants <sup class="text-danger">*</sup></small></small>
-                                                <input type="number" name="number_of_student" id=""
+                                                <input type="number" name="participants" id=""
                                                     class="form-control form-control-sm rounded"
-                                                    value="{{ isset($partnerProgram->number_of_student) ? $partnerProgram->number_of_student :  old('number_of_student') }}"
+                                                    value="{{ isset($partnerProgram->participants) ? $partnerProgram->participants :  old('participants') }}"
                                                     {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
-                                                @error('number_of_student')
+                                                @error('participants')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
                                             </div>
@@ -329,15 +350,17 @@
                             </div>
                         </div>
                         <hr>
-                        <div class="mt-3 text-end">
-                            <button class="btn btn-sm btn-primary rounded">
-                                <i class="bi bi-save2 me-2"></i> Submit
-                            </button>
-                        </div>
+                        @if (empty($partnerProgram) || isset($edit))
+                            <div class="mt-3 text-end">
+                                <button class="btn btn-sm btn-primary rounded">
+                                    <i class="bi bi-save2 me-2"></i> Submit
+                                </button>
+                            </div>
+                        @endif
                     </form>
                 </div>
             </div>
-            @if(!empty($edit))
+            @if(!empty($attach) && $partnerProgram->status == 1 )
                 @include('pages.program.corporate-program.detail.attachment')
             @endif
         </div>
@@ -392,7 +415,7 @@
 
     @if(
         $errors->has('success_date') || 
-        $errors->has('number_of_student') || 
+        $errors->has('participants') || 
         $errors->has('total_fee') ||
         $errors->has('start_date') ||
         $errors->has('end_date')

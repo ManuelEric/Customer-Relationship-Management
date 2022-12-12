@@ -85,14 +85,16 @@ class SchoolProgramController extends Controller
             $reason['reason_name'] = $request->input('other_reason');
         }
 
+
         DB::beginTransaction();
         $schoolPrograms['sch_id'] = $schoolId;
        
         try {
             # insert into reason
             if ($request->input('reason_id') == 'other'){
+             $this->reasonRepository->createReason($reason);
                 $reason_created = $this->reasonRepository->createReason($reason);
-                $reason_id = $reason_created->id;
+                $reason_id = $reason_created->reason_id;
                 $schoolPrograms['reason_id'] = $reason_id;
             }
             
@@ -105,7 +107,7 @@ class SchoolProgramController extends Controller
 
             DB::rollBack();
             Log::error('Store school failed : ' . $e->getMessage());
-            return Redirect::to('program/school/'. $schoolId .'/detail/create')->withError('Failed to create school program');
+            return Redirect::to('program/school/'. $schoolId .'/detail/create')->withError('Failed to create school program' . $e->getMessage());
         }
         
         return Redirect::to('program/school/'. $schoolId .'/detail/'.$sch_progId)->withSuccess('School program successfully created');
@@ -267,6 +269,9 @@ class SchoolProgramController extends Controller
         $schoolId = $request->route('school');
         $sch_progId = $request->route('detail');
         $schoolPrograms = $request->all();
+        if ($request->input('reason_id') == 'other'){
+            $reason['reason_name'] = $request->input('other_reason');
+        }
 
         
         DB::beginTransaction();
@@ -277,15 +282,14 @@ class SchoolProgramController extends Controller
             # update reason school program
             if($schoolPrograms['status'] == 2){
                 if($request->input('reason_id') == 'other'){
-                    $reason['reason_name'] = $request->input('other_reason');
-               
-                        $this->reasonRepository->createReason($reason);
-                        $reason_id = Reason::max('reason_id');
+         
+                        $reason_created = $this->reasonRepository->createReason($reason);
+                        $reason_id = $reason_created->reason_id;
                         $schoolPrograms['reason_id'] = $reason_id;
                   
                 }
             }
-                
+            
             # update school program
             $this->schoolProgramRepository->updateSchoolProgram($sch_progId, $schoolPrograms);
 

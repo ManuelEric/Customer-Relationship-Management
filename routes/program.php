@@ -7,6 +7,7 @@ use App\Http\Controllers\SchoolProgramSpeakerController;
 use App\Http\Controllers\SchoolProgramAttachController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\PartnerProgramController;
+use App\Http\Controllers\PartnerProgramAttachController;
 use App\Http\Controllers\SchoolDetailController;
 
 
@@ -54,7 +55,7 @@ Route::get('corporate', [PartnerProgramController::class, 'index']);
 Route::prefix('corporate')->name('corporate_prog.')->group(function () {
     Route::resource('{corp}/detail', PartnerProgramController::class);
     // Route::resource('{corp}/detail/{corp_prog}/speaker', PartnerProgramController::class);
-    // Route::resource('{corp}/detail/{corp_prog}/attach', SchoolProgramAttachController::class);
+    Route::resource('{corp}/detail/{corp_prog}/attach', PartnerProgramAttachController::class);
 });
 
 

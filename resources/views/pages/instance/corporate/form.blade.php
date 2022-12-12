@@ -64,18 +64,34 @@
                         </div>
                     </div>
                     <div class="list-group list-group-flush">
-                        @for ($i = 0; $i < 3; $i++)
-                            <a href="#" class="list-group-item">
+                        @if (count($partnerPrograms)==0)
+                        <div class="list-group-item text-center py-3">
+                            No Program Yet
+                        </div>
+                        @endif
+                        @foreach ($partnerPrograms as $partnerProgram)
+                            <div class="list-group-item">
                                 <div class="d-flex align-items-center justify-content-between">
-                                    <div class="badge badge-primary w-100 me-2 text-start">
-                                        Program Name
+                                    <div class="text-start">
+                                        <div class="">
+                                            {{ $partnerProgram->program->prog_program }}
+                                        </div>
+                                        <small>
+                                            @if ($partnerProgram->status == 0)
+                                                Pending
+                                            @elseif ($partnerProgram->status == 1)
+                                                Success
+                                            @elseif ($partnerProgram->status == 2)
+                                                Denied
+                                            @endif
+                                        </small>
                                     </div>
-                                    <div class="badge badge-primary">
-                                        Success
-                                    </div>
+                                    <a href="{{ url('program/corporate/'. strtolower($corporate->corp_id) .'/detail/'. $partnerProgram->id) }}" class="fs-6 text-warning">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                 </div>
-                            </a>
-                        @endfor
+                            </div>
+                        @endforeach
                     </div>
                 </div>
 

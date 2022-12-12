@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSchoolProgramAttachRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-use App\Interfaces\SchoolProgramRepositoryInterface;
+// use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramAttachRepositoryInterface;
-use App\Interfaces\SchoolRepositoryInterface;
+// use App\Interfaces\SchoolRepositoryInterface;
 
 use Exception;
 use Illuminate\Http\Request;
@@ -21,19 +21,19 @@ class SchoolProgramAttachController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
 
-    protected SchoolRepositoryInterface $schoolRepository;
-    protected SchoolProgramRepositoryInterface $schoolProgramRepository;
+    // protected SchoolRepositoryInterface $schoolRepository;
+    // protected SchoolProgramRepositoryInterface $schoolProgramRepository;
     protected SchoolProgramAttachRepositoryInterface $schoolAttachProgramRepository;
 
     public function __construct(
-        SchoolRepositoryInterface $schoolRepository, 
-        SchoolProgramRepositoryInterface $schoolProgramRepository, 
+        // SchoolRepositoryInterface $schoolRepository, 
+        // SchoolProgramRepositoryInterface $schoolProgramRepository, 
         SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository, 
   
         )
     {
-        $this->schoolRepository = $schoolRepository;
-        $this->schoolProgramRepository = $schoolProgramRepository;
+        // $this->schoolRepository = $schoolRepository;
+        // $this->schoolProgramRepository = $schoolProgramRepository;
         $this->schoolProgramAttachRepository = $schoolProgramAttachRepository;
 
     }
