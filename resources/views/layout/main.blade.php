@@ -158,6 +158,10 @@
                                         class="nav-link {{ Request::is('master/university-tags*') ? 'active' : '' }}"
                                         href="{{ url('master/university-tags') }}">University Tag Score</a>
                                 </li>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('master/sales-target*') ? 'active' : '' }}"
+                                        href="{{ url('master/sales-target') }}">Sales Target</a>
+                                </li>
                             </ul>
                         </div>
                     </li>
