@@ -10,11 +10,13 @@ use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
+use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\School;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -30,8 +32,9 @@ class SchoolController extends Controller
     protected LeadRepositoryInterface $leadRepository;
     protected UserRepositoryInterface $userRepository;
     protected CurriculumRepositoryInterface $curriculumRepository;
+    protected SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, UserRepositoryInterface $userRepository, SchoolDetailRepositoryInterface $schoolDetailRepository, SchoolProgramRepositoryInterface $schoolProgramRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, UserRepositoryInterface $userRepository, SchoolDetailRepositoryInterface $schoolDetailRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->curriculumRepository = $curriculumRepository;
@@ -40,6 +43,7 @@ class SchoolController extends Controller
         $this->userRepository = $userRepository;
         $this->schoolDetailRepository = $schoolDetailRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
+        $this->schoolCurriculumRepository = $schoolCurriculumRepository;
     }
 
     public function index(Request $request)
@@ -58,7 +62,6 @@ class SchoolController extends Controller
         $schoolDetails = $request->only([
             'sch_name',
             'sch_type',
-            'sch_curriculum',
             'sch_insta',
             'sch_mail',
             'sch_phone',
@@ -76,6 +79,21 @@ class SchoolController extends Controller
 
             # insert into school
             $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails);
+
+            # insert into sch curriculum
+            if (count($request->sch_curriculum) > 0) {
+
+                foreach ($request->sch_curriculum as $key => $value) {
+
+                    $schoolCurriculumDetails[] = [
+                        'curriculum_id' => $value,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ];
+                }
+            }
+
+            $this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $schoolCurriculumDetails);
 
             DB::commit();
         } catch (Exception $e) {
@@ -173,7 +191,6 @@ class SchoolController extends Controller
         $schoolDetails = $request->only([
             'sch_name',
             'sch_type',
-            'sch_curriculum',
             'sch_insta',
             'sch_mail',
             'sch_phone',
@@ -189,6 +206,21 @@ class SchoolController extends Controller
 
             # insert into school
             $this->schoolRepository->updateSchool($schoolId, $schoolDetails);
+
+            # insert into sch curriculum
+            if (count($request->sch_curriculum) > 0) {
+
+                foreach ($request->sch_curriculum as $key => $value) {
+
+                    $newSchoolCurriculumDetails[] = [
+                        'curriculum_id' => $value,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ];
+                }
+            }
+
+            $this->schoolCurriculumRepository->updateSchoolCurriculum($schoolId, $newSchoolCurriculumDetails);
 
             DB::commit();
         } catch (Exception $e) {

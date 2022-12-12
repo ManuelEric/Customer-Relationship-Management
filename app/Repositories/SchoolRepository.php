@@ -12,7 +12,26 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getAllSchoolDataTables()
     {
-        return Datatables::eloquent(School::query())->rawColumns(['sch_location'])->make(true);
+        return Datatables::eloquent(School::query())->rawColumns(['sch_location'])
+            ->addColumn('curriculum', function ($data) {
+                $no = 1;
+                $curriculums = '';
+                foreach ($data->curriculum as $curriculum) {
+                    if ($no == 1) 
+                        $curriculums = $curriculum->name;
+                    else 
+                        $curriculums .= ', '.$curriculum->name;
+                    
+                    $no++;
+                }
+                return $curriculums;
+            })
+            ->filterColumn('curriculum', function ($query, $keyword) {
+                $query->whereHas('curriculum', function ($q) use ($keyword) {
+                    $q->where('name', $keyword);
+                });
+            })
+            ->make(true);
     }
 
     public function getAllSchools()

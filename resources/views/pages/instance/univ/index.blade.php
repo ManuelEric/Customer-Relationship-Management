@@ -23,7 +23,10 @@
                         <th class="bg-info text-white">University ID</th>
                         <th>University Name</th>
                         <th>Address</th>
+                        <th>Email</th>
+                        <th>Phone</th>
                         <th>Country</th>
+                        <th>Tag</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -76,7 +79,17 @@
                         data: 'univ_address',
                     },
                     {
+                        data: 'univ_email',
+                    },
+                    {
+                        data: 'univ_phone',
+                    },
+                    {
                         data: 'univ_country',
+                    },
+                    {
+                        data: 'tag_name',
+                        name: 'tbl_tag.name'
                     },
                     {
                         data: '',

@@ -14,6 +14,7 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\Lead;
 use App\Models\School;
@@ -40,8 +41,9 @@ class ClientStudentController extends Controller
     private UniversityRepositoryInterface $universityRepository;
     private MajorRepositoryInterface $majorRepository;
     private CurriculumRepositoryInterface $curriculumRepository;
+    private TagRepositoryInterface $tagRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
@@ -52,24 +54,29 @@ class ClientStudentController extends Controller
         $this->universityRepository = $universityRepository;
         $this->majorRepository = $majorRepository;
         $this->curriculumRepository = $curriculumRepository;
+        $this->tagRepository = $tagRepository;
     }
     
     public function index(Request $request)
     {
-        $statusClient = $request->get('st');
-        $statusClientCode = $this->getStatusClientCode($statusClient);
-        $students = $this->clientRepository->getAllClientByRoleAndStatus('Student', $statusClientCode);
+        // $statusClient = $request->get('st');
+        // $statusClientCode = $this->getStatusClientCode($statusClient);
+        // return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
+        if ($request->ajax()) {
 
-        return view('pages.client.student.index')->with(
-            [
-                'students' => $students
-            ]
-        );
+            $statusClient = $request->get('st');
+            $statusClientCode = $this->getStatusClientCode($statusClient);
+            return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
+
+        }
+
+        return view('pages.client.student.index');
     }
 
     public function show(Request $request)
     {
-        
+        $studentId = $request->route('student');
+        return view('pages.client.student.view');
     }
 
     public function store(StoreClientStudentRequest $request)
@@ -95,7 +102,7 @@ class ClientStudentController extends Controller
             'st_levelinterest',
             'graduation_year',
             'st_abryear',
-            'st_abrcountry', # should be array
+            'st_abrcountry',
             'st_note',
         ]);
 
@@ -151,7 +158,7 @@ class ClientStudentController extends Controller
             # case 2
             # create new user client as parents
             # when pr_id is "add-new" 
-            if ($request->pr_id == "add-new") {
+            if (isset($request->pr_id) && $request->pr_id == "add-new") {
 
                 $parentDetails = [
                     'first_name' => $request->pr_firstname,
@@ -185,49 +192,90 @@ class ClientStudentController extends Controller
 
             # case 4
             # add relation between parent and student
-            if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
-                throw new Exception('Failed to store relation between student and parent', 4);
+            # if they didn't insert parents which parentId = NULL
+            # then assumed that register for student only
+            # so no need to create parent children relation
+            if ($parentId !== NULL) {
+
+                if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
+                    throw new Exception('Failed to store relation between student and parent', 4);
+            }
             
 
             # case 5
             # create interested program
-            for ($i = 0 ; $i < count($request->prog_id) ; $i++) {
-                $interestProgramDetails[] = [
-                    'prog_id' => $request->prog_id[$i],
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
+            # if they didn't insert interested program 
+            # then skip this case
+            if (isset($request->prog_id) && count($request->prog_id) > 0) {
+
+                for ($i = 0 ; $i < count($request->prog_id) ; $i++) {
+                    $interestProgramDetails[] = [
+                        'prog_id' => $request->prog_id[$i],
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ];
+                }
+    
+                if (!$this->clientRepository->createInterestProgram($newStudentId, $interestProgramDetails))
+                    throw new Exception('Failed to store interest program', 5);
             }
 
-            if (!$this->clientRepository->createInterestProgram($newStudentId, $interestProgramDetails))
-                throw new Exception('Failed to store interest program', 5);
+            # case 6.1
+            # create destination countries
+            # if they didn't insert destination countries
+            # then skip this case
+            if (isset($request->st_abrcountry) && count($request->st_abrcountry) > 0) {
 
-            # case 6
+                # hari senin lanjutin utk insert destination countries
+                # dan hubungin score nya melalui client view
+                for ($i = 0 ; $i < count($request->st_abrcountry) ; $i++) {
+                    $destinationCountryDetails[] = [
+                        'tag_id' => $this->tagRepository->getTagById($request->st_abrcountry[$i])->id,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ];
+                }
+
+                if (!$this->clientRepository->createDestinationCountry($newStudentId, $destinationCountryDetails))
+                    throw new Exception('Failed to store destination country', 6);
+            }
+
+            # case 6.2
             # create interested universities
-            for ($i = 0 ; $i < count($request->st_abruniv) ; $i++) {
-                $interestUnivDetails[] = [
-                    'univ_id' => $request->st_abruniv[$i],
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
-            }
+            # if they didn't insert universities
+            # then skip this case
+            if (isset($request->st_abruniv) && count($request->st_abruniv) > 0) {
 
-            if (!$this->clientRepository->createInterestUniversities($newStudentId, $interestUnivDetails))
-                throw new Exception('Failed to store interest universities', 6);
+                for ($i = 0 ; $i < count($request->st_abruniv) ; $i++) {
+                    $interestUnivDetails[] = [
+                        'univ_id' => $request->st_abruniv[$i],
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ];
+                }
+    
+                if (!$this->clientRepository->createInterestUniversities($newStudentId, $interestUnivDetails))
+                    throw new Exception('Failed to store interest universities', 6);
+            }
 
 
             # case 7
             # create interested major
-            for ($i = 0 ; $i < count($request->st_abrmajor) ; $i++) {
-                $interestMajorDetails[] = [
-                    'major_id' => $request->st_abrmajor[$i],
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
-            }
+            # if they didn't insert major
+            # then skip this case
+            if (isset($request->st_abrmajor) && count($request->st_abrmajor) > 0) {
 
-            if (!$this->clientRepository->createInterestMajor($newStudentId, $interestMajorDetails))
-                throw new Exception('Failed to store interest major', 7);
+                for ($i = 0 ; $i < count($request->st_abrmajor) ; $i++) {
+                    $interestMajorDetails[] = [
+                        'major_id' => $request->st_abrmajor[$i],
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ];
+                }
+    
+                if (!$this->clientRepository->createInterestMajor($newStudentId, $interestMajorDetails))
+                    throw new Exception('Failed to store interest major', 7);
+            }
 
 
             DB::commit();
@@ -271,7 +319,7 @@ class ClientStudentController extends Controller
 
         }
 
-        return Redirect::to('client/student/create')->withSuccess('A new student has been registered.');
+        return Redirect::to('client/student?st=prospective')->withSuccess('A new student has been registered.');
     }
 
     public function create(Request $request)
@@ -279,8 +327,7 @@ class ClientStudentController extends Controller
         # ajax
         # to get university by selected country
         if ($request->ajax()) {
-            
-            $universities = $this->universityRepository->getAllUniversitiesByCountries($request->country);
+            $universities = $this->universityRepository->getAllUniversitiesByTag($request->country);
             return response()->json($universities);
         }
 
@@ -291,8 +338,10 @@ class ClientStudentController extends Controller
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
-        $programs = $this->programRepository->getAllPrograms();
-        $countries = $this->universityRepository->getCountryNameFromUniversity();
+        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
+        $programsB2C = $this->programRepository->getAllProgramByType('B2C');
+        $programs = $programsB2BB2C->merge($programsB2C);
+        $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
 
         return view('pages.client.student.form')->with(

@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tbl_curriculum', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('tbl_univ', function (Blueprint $table) {
+            $table->unsignedBigInteger('tag')->after('univ_name')->nullable();
+            $table->foreign('tag')->references('id')->on('tbl_tag')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
@@ -26,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tbl_curriculum');
+        Schema::table('tbl_univ', function (Blueprint $table) {
+            //
+        });
     }
 };

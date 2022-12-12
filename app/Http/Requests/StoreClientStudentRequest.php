@@ -40,7 +40,7 @@ class StoreClientStudentRequest extends FormRequest
             'mail' => 'required|email|unique:tbl_client,mail',
             'phone' => 'required|min:10|max:12',
             'dob' => 'required',
-            'insta' => 'nullable',
+            'insta' => 'sometimes|unique:tbl_client,insta',
             'state' => 'required',
             'city' => 'nullable',
             'postal_code' => 'nullable',

@@ -33,6 +33,11 @@ class EdufLead extends Model
         'notes'
     ];
 
+    public function client()
+    {
+        return $this->hasMany(UserClient::class, 'eduf_id', 'id');
+    }
+
     public function schools()
     {
         return $this->belongsTo(School::class, 'sch_id', 'sch_id');

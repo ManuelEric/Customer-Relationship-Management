@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('client/mentee/potential') }}" class="text-decoration-none text-muted">
+        <a href="{{ url('client/student?st=potential') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Student
         </a>
     </div>
@@ -316,7 +316,7 @@
                             <label>Graduation Year</label>
                             <select class="select w-100" id="graduation_year" name="graduation_year">
                                 <option data-placeholder="true"></option>
-                                @for ($year = date('Y') ; $year >= 1998 ; $year--)
+                                @for ($year = date('Y')+1 ; $year >= 1998 ; $year--)
                                     <option value="{{ $year }}"
                                         {{ old('graduation_year') == $year ? "selected" : null }}
                                     >{{ $year }}</option>
@@ -474,7 +474,7 @@
                                 <option data-placeholder="true"></option>
                                 @if (isset($countries))
                                     @foreach ($countries as $country)
-                                        <option value="{{ $country->univ_country }}">{{ $country->univ_country }}</option>
+                                        <option value="{{ $country->id }}">{{ $country->name }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -580,6 +580,35 @@
             }
         })
 
+        $("#grade").on('change', async function() {
+
+            var grade = $(this).val()
+            var html = ''
+            $("#graduation_year").html('')
+            var current_year = new Date().getFullYear()
+
+            if (grade == 13) {
+                
+                for (var i = current_year ; i > 2009 ; i--) {
+                    
+                    html += "<option value='"+i+"'>"+i+"</option>"
+                }
+
+            } else {
+                
+                var max = 13
+                var min = 1
+                for (var i = current_year ; i <= current_year+(max-grade) ; i++) {
+    
+                    html += "<option value='"+i+"'>"+i+"</option>"
+                }
+    
+            }
+            
+            $("#graduation_year").append(html)
+
+        })
+
         $("#countryStudy").on('change', async function() {
             var countries = $(this).val()
             if (countries.length == 0) {
@@ -607,7 +636,7 @@
                     // handle success
                     let data = response.data
                     data.forEach(function(currentValue, index, arr) {
-                        html += "<option value='"+arr[index].univ_id+"'>"+arr[index].univ_name+"</option>"
+                        html += "<option value='"+arr[index].univ_id+"'>"+arr[index].univ_name+" - "+arr[index].univ_country+"</option>"
                     })
                     
                     $("#univDestination").append(html)
@@ -624,6 +653,8 @@
         $(document).ready(function() {
 
             @if (old('pr_id') !== NULL && old('pr_id') == "add-new")
+                $("#prName").select2().val("{{ old('pr_id') }}").trigger('change')
+            @elseif (old('pr_id') !== NULL )
                 $("#prName").select2().val("{{ old('pr_id') }}").trigger('change')
             @endif
 

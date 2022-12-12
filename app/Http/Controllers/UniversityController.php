@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUniversityRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CountryRepositoryInterface;
+use App\Interfaces\CurriculumRepositoryInterface;
+use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\University;
@@ -22,12 +24,14 @@ class UniversityController extends Controller
     private UniversityRepositoryInterface $universityRepository;
     private UniversityPicRepositoryInterface $universityPicRepository;
     private CountryRepositoryInterface $countryRepository;
+    private TagRepositoryInterface $tagRepository;
 
-    public function __construct(UniversityRepositoryInterface $universityRepository, CountryRepositoryInterface $countryRepository, UniversityPicRepositoryInterface $universityPicRepository)
+    public function __construct(UniversityRepositoryInterface $universityRepository, CountryRepositoryInterface $countryRepository, UniversityPicRepositoryInterface $universityPicRepository, TagRepositoryInterface $tagRepository)
     {
         $this->universityRepository = $universityRepository;
         $this->countryRepository = $countryRepository;
         $this->universityPicRepository = $universityPicRepository;
+        $this->tagRepository = $tagRepository;
     }
 
     public function index(Request $request)
@@ -52,7 +56,10 @@ class UniversityController extends Controller
     {
         $universityDetails = $request->only([
             'univ_name',
+            'univ_email',
+            'univ_phone',
             'univ_country',
+            'tag',
             'univ_address',
         ]);
 
@@ -77,9 +84,11 @@ class UniversityController extends Controller
 
     public function create()
     {
+        $tags = $this->tagRepository->getAllTags();
         return view('pages.instance.univ.form')->with(
             [
-                'countries' => $this->countryRepository->getAllCountries()
+                'countries' => $this->countryRepository->getAllCountries(),
+                'tags' => $tags,
             ]
         );
     }
@@ -97,11 +106,14 @@ class UniversityController extends Controller
         # retrieve university pic by university id
         $pics = $this->universityPicRepository->getAllUniversityPicByUniversityId($universityId);
 
+        $tags = $this->tagRepository->getAllTags();
+
         return view('pages.instance.univ.form')->with(
             [
                 'university' => $university,
                 'countries' => $countries,
                 'pics' => $pics,
+                'tags' => $tags,
             ]
         );
     }
@@ -122,11 +134,14 @@ class UniversityController extends Controller
         # put the link to update vendor form below
         # example
 
+        $tags = $this->tagRepository->getAllTags();
+
         return view('pages.instance.univ.form')->with(
             [
                 'edit' => true,
                 'university' => $university,
-                'countries' => $countries
+                'countries' => $countries,
+                'tags' => $tags
             ]
         );
     }
@@ -135,7 +150,10 @@ class UniversityController extends Controller
     {
         $universityDetails = $request->only([
             'univ_name',
+            'univ_email',
+            'univ_phone',
             'univ_country',
+            'tag',
             'univ_address',
         ]);
 

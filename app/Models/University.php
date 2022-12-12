@@ -25,6 +25,7 @@ class University extends Model
     protected $fillable = [
         'univ_id',
         'univ_name', 
+        'tag',
         'univ_address', 
         'univ_country',
         'univ_email',
@@ -72,5 +73,10 @@ class University extends Model
     public function client()
     {
         return $this->belongsToMany(UserClient::class, 'tbl_dreams_uni', 'univ_id', 'client_id');
+    }
+
+    public function tags()
+    {
+        return $this->belongsTo(Tag::class, 'tag', 'id');
     }
 }

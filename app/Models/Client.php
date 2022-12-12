@@ -4,58 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
-class UserClient extends Authenticatable
+class Client extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory;
 
-    protected $table = 'tbl_client';
-
-    /**
-     * The attributes that should be visible in arrays.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'st_id',
-        'first_name',
-        'last_name',
-        'mail',
-        'phone',
-        'dob',
-        'insta',
-        'state',
-        'city',
-        'postal_code',
-        'address',
-        'sch_id',
-        'st_grade',
-        'lead_id',
-        'eduf_id',
-        'event_id',
-        'st_levelinterest',
-        'graduation_year',
-        'st_abroad_year',
-        'st_abrcountry',
-        'st_statusact',
-        'st_note',
-        'st_prospect_status',
-        'password',
-    ];
+    protected $table = 'client';
 
     # attributes
-    protected function fullName(): Attribute
+    protected function updatedAt(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->first_name.' '.$this->last_name,
+            get: fn ($value) => date('d M Y H:i:s', strtotime($value)),
         );
     }
 
-    # relation
     public function parents()
     {
         return $this->belongsToMany(UserClient::class, 'tbl_client_relation', 'child_id', 'parent_id');

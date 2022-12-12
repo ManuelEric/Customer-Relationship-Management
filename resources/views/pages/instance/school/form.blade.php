@@ -102,7 +102,7 @@
                         @endif
 
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-6">
                                 <div class="mb-2">
                                     <label>School Name <sup class="text-danger">*</sup> </label>
                                     <input type="text" name="sch_name" class="form-control form-control-sm rounded"
@@ -128,23 +128,6 @@
                                             International</option>
                                     </select>
                                     @error('sch_type')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="mb-2">
-                                    <label>Curriculum <sup class="text-danger">*</sup></label>
-                                    <select name="sch_curriculum" class="select w-100"
-                                        {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
-                                        <option data-placeholder="true"></option>
-                                        @foreach ($curriculums as $curriculum)
-                                            <option value="{{ $curriculum->name }}"
-                                                {{ (isset($school->sch_curriculum) && $school->sch_curriculum == $curriculum->name) || old('sch_curriculum') == $curriculum->name ? 'selected' : null }}>
-                                                {{ $curriculum->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('sch_curriculum')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -216,6 +199,24 @@
                                     <input type="text" name="sch_city" class="form-control form-control-sm rounded"
                                         value="{{ isset($school->sch_city) ? $school->sch_city : old('sch_city') }}"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="mb-2">
+                                    <label>Curriculum <sup class="text-danger">*</sup></label>
+                                    <select name="sch_curriculum[]" class="select w-100" multiple
+                                        {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
+                                        <option data-placeholder="true"></option>
+                                        @foreach ($curriculums as $curriculum)
+                                            <option value="{{ $curriculum->id }}"
+                                                {{ (isset($school->curriculum) && in_array($curriculum->id, $school->curriculum->pluck('id')->toArray())) || (old('sch_curriculum') !== NULL) && in_array($curriculum->name, old('sch_curriculum')) ? 'selected' : null }}>
+                                                {{ $curriculum->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('sch_curriculum.*')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
 
