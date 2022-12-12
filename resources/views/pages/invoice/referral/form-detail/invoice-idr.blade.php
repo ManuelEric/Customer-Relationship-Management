@@ -26,6 +26,6 @@
      function checkInvoiceIDR() {
          let total = $('#invoice_idr_total').val()
          $('#invoice_idr_total').val(total)
-         $('#invoice_idr_word').val(wordConverter(total))
+         $('#invoice_idr_word').val(wordConverter(total) +' Rupiah')
      }
  </script>

@@ -5,7 +5,6 @@
                         <th class="bg-info text-white">School Name</th>
                         <th>Program Name</th>
                         <th>Program Success Date</th>
-                        <th>Conversion Lead</th>
                         <th>PIC</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
@@ -17,7 +16,6 @@
                             <td>School Name</td>
                             <td>Program Name</td>
                             <td>Program Success Date</td>
-                            <td>Conversion Lead</td>
                             <td>PIC</td>
                             <td class="text-center">
                                 <a href="{{ url('invoice/school-program/create') }}"

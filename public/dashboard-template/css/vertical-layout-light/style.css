@@ -10783,7 +10783,7 @@ dl li {
 .table th,
 .table td {
   vertical-align: middle;
-  line-height: 1;
+  line-height: 1.4 !important;
   white-space: nowrap;
   padding: 5px;
 }

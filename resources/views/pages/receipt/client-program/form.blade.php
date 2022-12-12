@@ -1,12 +1,12 @@
 @extends('layout.main')
 
-@section('title', 'Invoice Bigdata Platform')
+@section('title', 'Receipt Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('invoice/client-program/status/needed') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Invoice
+        <a href="{{ url('receipt/client-program') }}" class="text-decoration-none text-muted">
+            <i class="bi bi-arrow-left me-2"></i> Receipt
         </a>
     </div>
 
@@ -18,30 +18,29 @@
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>Michael Nathan</h4>
                     <h6>Program Name</h6>
-                    <div class="d-flex justify-content-center mt-3">
-                        <a href="{{ url('program/client/1') }}" class="btn btn-sm btn-outline-info rounded mx-1"
-                            target="_blank">
-                            <i class="bi bi-eye me-1"></i> More
+                    <div class="d-flex flex-wrap justify-content-center mt-3">
+                        <a href="#" class="btn btn-sm btn-outline-warning rounded mx-1 my-1">
+                            <i class="bi bi-x me-1"></i>
+                            Refund
                         </a>
-
-                        <a href="{{ $status == 'edit' ? url('invoice/client-program/1') : url('invoice/client-program/1/edit') }}"
-                            class="btn btn-sm btn-outline-warning rounded mx-1">
-                            <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
-                            {{ $status == 'edit' ? 'Back' : 'Edit' }}
-                        </a>
-
-                        <button class="btn btn-sm btn-outline-danger rounded mx-1">
+                        <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1">
                             <i class="bi bi-trash2 me-1"></i> Delete
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1">
+                            <i class="bi bi-envelope me-1"></i> Send an Email
+                        </button>
+                        <button class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                            <i class="bi bi-printer me-1"></i> Print Others
+                        </button>
+                        <button class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                            <i class="bi bi-printer me-1"></i> Print IDR
                         </button>
                     </div>
                 </div>
             </div>
 
-            @include('pages.invoice.client-program.form-detail.client')
+            @include('pages.receipt.client-program.form-detail.client')
 
-            @if ($status == 'view')
-                @include('pages.invoice.client-program.form-detail.installment-list')
-            @endif
         </div>
 
         <div class="col-md-8">
@@ -50,129 +49,40 @@
                     <div class="">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-person me-2"></i>
-                            Invoice
+                            Receipt
                         </h6>
-                    </div>
-                    <div class="">
-                        <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
-                            <i class="bi bi-plus"></i> Receipt
-                        </button>
-                        <button class="btn btn-sm btn-outline-warning py-1">
-                            <i class="bi bi-eye"></i> View Receipt
-                        </button>
                     </div>
                 </div>
 
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <label for="">Currency</label>
-                            <select id="currency" class="select w-100" onchange="checkCurrency()">
-                                <option value="idr">IDR</option>
-                                <option value="other">Other Currency</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 mb-3 currency-detail d-none">
-                            <label for="">Currency Detail</label>
-                            <select class="select w-100" id="currency_detail" onchange="checkCurrencyDetail()">
-                                <option data-placeholder="true"></option>
-                                <option value="usd">USD</option>
-                                <option value="sgd">SGD</option>
-                                <option value="gbp">GBP</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-3  mb-3 currency-detail d-none">
-                            <label for="">Current Rate to IDR</label>
-                            <input type="number" name="" id="current_rate"
-                                class="form-control form-control-sm rounded" disabled>
-                        </div>
-
-                        <div class="col-md-3 mb-3">
-                            <label for="">Is Session?</label>
-                            <select name="" id="session" class="select w-100" onchange="checkSession()">
-                                <option data-placeholder="true"></option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-
-                        {{-- SESSION  --}}
-                        <div class="col-md-12 session-detail d-none session mb-3">
-                            {{-- IDR  --}}
-                            <div class="session-currency d-none session-idr">
-                                @include('pages.invoice.client-program.form-detail.session-idr')
-                            </div>
-
-                            {{-- OTHER  --}}
-                            <div class="session-currency d-none session-other">
-                                @include('pages.invoice.client-program.form-detail.session-other')
-                            </div>
-
-                        </div>
-
-                        {{-- NOT SESSION  --}}
-                        <div class="col-md-12 session-detail d-none not-session mb-3">
-                            {{-- IDR  --}}
-                            <div class="not-session-currency d-none not-session-idr">
-                                @include('pages.invoice.client-program.form-detail.not-session-idr')
-                            </div>
-
-                            {{-- OTHER  --}}
-                            <div class="not-session-currency d-none not-session-other">
-                                @include('pages.invoice.client-program.form-detail.not-session-other')
-                            </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <input type="hidden" name="" id="total_idr">
-                            <input type="hidden" name="" id="total_other">
-                        </div>
-
-                        <div class="col-md-5 mb-3 invoice d-none">
-                            <label for="">Payment Method</label>
-                            <select name="" id="payment_method" class="select w-100" onchange="checkPayment()">
-                                <option data-placeholder="true"></option>
-                                <option value="full">Full Payment</option>
-                                <option value="installment">Installment</option>
-                            </select>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="row">
-                                <div class="col-md-6 mb-3 invoice d-none">
-                                    <label for="">Invoice Date</label>
-                                    <input type="date" name="" id=""
-                                        class='form-control form-control-sm rounded'>
-                                </div>
-                                <div class="col-md-6 mb-3 invoice d-none">
-                                    <label for="">Invoice Due Date</label>
-                                    <input type="date" name="" id=""
-                                        class='form-control form-control-sm rounded'>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            {{-- IDR  --}}
-                            <div class="installment-card d-none installment-idr">
-                                @include('pages.invoice.client-program.form-detail.installment-idr')
-                            </div>
-
-                            <div class="installment-card d-none installment-other">
-                                @include('pages.invoice.client-program.form-detail.installment-other')
-                            </div>
-
-                        </div>
-                        <div class="col-md-12 mb-3 invoice d-none">
-                            <label for="">Notes</label>
-                            <textarea name="" id=""></textarea>
-                        </div>
-                        <div class="col-md-12 mb-3 invoice d-none">
-                            <label for="">Terms & Condition</label>
-                            <textarea name="" id=""></textarea>
-                        </div>
-                    </div>
+                    <table class="table table-hover">
+                        <tr>
+                            <td width="20%">Receipt ID :</td>
+                            <td>REC-12312/24124/12412</td>
+                        </tr>
+                        <tr>
+                            <td>Receipt Date :</td>
+                            <td>12 December 2022</td>
+                        </tr>
+                        <tr>
+                            <td>Payment Method :</td>
+                            <td>Wire Transfer</td>
+                        </tr>
+                        <tr>
+                            <td>Amount :</td>
+                            <td>
+                                $20 (Rp. 300.000)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Receipt ID :</td>
+                            <td>REC-12312/24124/12412</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
+
+            @include('pages.receipt.client-program.form-detail.invoice')
         </div>
     </div>
 
@@ -201,8 +111,8 @@
                                         <span class="input-group-text currency-icon" id="basic-addon1">
                                             $
                                         </span>
-                                        <input type="text" name="receipt" id="receipt_amount_other"
-                                            class="form-control" required value="">
+                                        <input type="text" name="receipt" id="receipt_amount_other" class="form-control"
+                                            required value="">
                                     </div>
                                 </div>
                             </div>
@@ -215,8 +125,8 @@
                                         <span class="input-group-text" id="basic-addon1">
                                             Rp
                                         </span>
-                                        <input type="text" name="receipt" id="receipt_amount"
-                                            class="form-control" required value="">
+                                        <input type="text" name="receipt" id="receipt_amount" class="form-control"
+                                            required value="">
                                     </div>
                                 </div>
                             </div>

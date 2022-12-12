@@ -64,6 +64,6 @@
          $('#total_idr').val(total)
          $('#total_other').val(0)
 
-         $('#not_session_idr_word').val(wordConverter(total))
+         $('#not_session_idr_word').val(wordConverter(total) +' Rupiah')
      }
  </script>

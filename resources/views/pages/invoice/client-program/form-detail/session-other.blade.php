@@ -75,6 +75,7 @@
 
 <script>
     function checkSessionOther() {
+        let detail = $('#currency_detail').val()
         let kurs = $('#current_rate').val()
         let price = $('#session_other_price').val()
         let session = $('#session_other_session').val()
@@ -90,7 +91,7 @@
         $('#total_idr').val(total * kurs)
         $('#total_other').val(total)
 
-        $('#session_other_word').val(wordConverter(total))
-        $('#session_other_word_idr').val(wordConverter(total * kurs))
+        $('#session_other_word').val(wordConverter(total) +' Rupiah')
+        $('#session_other_word_idr').val(wordConverter(total * kurs) + ' ' + currencyText(detail))
     }
 </script>

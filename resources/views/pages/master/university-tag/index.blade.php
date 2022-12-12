@@ -1,16 +1,16 @@
 @extends('layout.main')
 
-@section('title', 'Curriculum - Bigdata Platform')
+@section('title', 'University Tags - Bigdata Platform')
 
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Curriculum
+            <i class="bi bi-arrow-left me-2"></i> University Tags
         </a>
-        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#curriculumForm"
+        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#universityTagsForm"
             onclick="resetForm()"><i class="bi bi-plus-square me-1"></i> Add
-            Curriculum</a>
+            University Tags</a>
     </div>
 
     @if ($errors->any())
@@ -29,7 +29,8 @@
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
-                        <th class="bg-info text-white">Curriculum Name</th>
+                        <th class="bg-info text-white">Tags</th>
+                        <th>Score</th>
                         <th>Created At</th>
                         <th>Updated At</th>
                         <th class="bg-info text-white">Action</th>
@@ -37,20 +38,20 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="3"></td>
+                        <td colspan="6"></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
 
-    <div class="modal fade" id="curriculumForm" data-bs-backdrop="static" data-bs-keyboard="false"
+    <div class="modal fade" id="universityTagsForm" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-between">
                     <span>
-                        Curriculum
+                        University Tags
                     </span>
                     <i class="bi bi-pencil-square"></i>
                 </div>
@@ -59,10 +60,19 @@
                         @csrf
                         <div class="put"></div>
                         <div class="row g-2">
-                            <div class="col-md-12">
+                            <div class="col-md-8">
                                 <div class="mb-2">
                                     <label for="">
-                                        Curriculum Name <sup class="text-danger">*</sup>
+                                        Tags Name <sup class="text-danger">*</sup>
+                                    </label>
+                                    <input type="text" name="curriculum_name" id="curriculum_name"
+                                        class="form-control form-control-sm rounded" required value="">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-2">
+                                    <label for="">
+                                        Score <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="text" name="curriculum_name" id="curriculum_name"
                                         class="form-control form-control-sm rounded" required value="">
@@ -128,7 +138,7 @@
                 //     {
                 //         data: '',
                 //         className: 'text-center',
-                //         defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#curriculumForm" class="btn btn-sm btn-outline-warning editcurriculum"><i class="bi bi-pencil"></i></button>' +
+                //         defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#universityTagsForm" class="btn btn-sm btn-outline-warning editcurriculum"><i class="bi bi-pencil"></i></button>' +
                 //             '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deletecurriculum"><i class="bi bi-trash2"></i></button>'
                 //     }
                 // ]
