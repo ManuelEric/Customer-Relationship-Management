@@ -65,7 +65,7 @@ class SchoolProgramSpeakerController extends Controller
         $schoolId = $request->route('school');
         $agendaId = $request->speaker;
         $status = $request->status;
-        $notes = $request->notes;
+        $notes = $request->notes_reason;
 
         DB::beginTransaction();
         try {

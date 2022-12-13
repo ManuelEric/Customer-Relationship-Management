@@ -74,7 +74,7 @@
                      <div class="row g-2">
                          <div class="col-md-12 mb-2">
                              <label for="">
-                                 From <sup class="text-danger">*</sup>
+                                 From  <sup class="text-danger">*</sup>
                              </label>
                              <select name="speaker_type" class="speaker-select w-100" id="speaker_type"
                                  onchange="changeType()">
@@ -215,7 +215,10 @@
                     <input type="hidden" name="agendaId" id="agenda_id">
                     <input type="hidden" name="status" id="status_id">
                     <label for="">Notes</label>
-                    <textarea name="notes" id="notes"></textarea>
+                    <textarea name="notes_reason" id="notes"></textarea>
+                        @error('notes_reason')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     <hr>
                     <div class="d-flex justify-content-between">
                         <button type="button" href="#" class="btn btn-outline-danger btn-sm"
@@ -293,27 +296,7 @@
         $('#reasonModal').modal('hide')
     }
 
-    function checkStatusSpeaker(agendaId) {
-        let status = $('#speaker' + agendaId).val()
-
-        let link =
-            '{{ url('') }}/program/school/{{ $school->sch_id }}/detail/{{$schoolProgram->id}}/speaker/' +
-            agendaId
-        let data = new Array()
-
-        $('#reasonForm').attr('action', link)
-
-        if (status == 2) {
-            $('#reasonModal').modal('show')
-            $('#agenda_id').val(agendaId)
-            $('#status_id').val(status)
-        } else {
-            $('#agenda_id').val(agendaId)
-            $('#status_id').val(status)
-            $('#notes').val('')
-            $('#reasonForm').submit()
-        }
-    }
+   
  </script>
 
     @if($errors->has('speaker_type') || 

@@ -431,6 +431,29 @@
             $('#inputReason input').val(null)
         }
 
+        function checkStatusSpeaker(agendaId) {
+        let status = $('#speaker' + agendaId).val()
+
+        let link =
+            '{{ url('') }}/program/school/{{ $school->sch_id }}/detail/{{$schoolProgram->id}}/speaker/' +
+            agendaId
+       
+        let data = new Array()
+
+        $('#reasonForm').attr('action', link)
+
+        if (status == 2) {
+            $('#reasonModal').modal('show')
+            $('#agenda_id').val(agendaId)
+            $('#status_id').val(status)
+        } else {
+            $('#agenda_id').val(agendaId)
+            $('#status_id').val(status)
+            $('#notes').val('')
+            $('#reasonForm').submit()
+        }
+    }
+
     </script>
     @if(isset($schoolProgram))
         <script>
