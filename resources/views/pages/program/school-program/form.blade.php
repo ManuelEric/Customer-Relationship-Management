@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('instance/school/'. strtolower($school->sch_id)) }}" class="text-decoration-none text-muted">
+        <a href="{{ url('program/school')}}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> School Program
         </a>
     </div>
@@ -91,7 +91,7 @@
                                     @endif
                                 @elseif(empty($schoolProgram))
                                     @foreach ($programs as $program)
-                                        <option value="{{ $program->prog_id }}" >
+                                        <option value="{{ $program->prog_id }}" {{ old('prog_id') == $program->prog_id ? "selected" : "" }}>
                                             {{ $program->prog_program }}
                                         </option>
                                     @endforeach
@@ -120,16 +120,6 @@
 
                                 </div>
                                 @error('first_discuss')
-                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
-                                <div class="col-md-6">
-                                    <small>Planned Follow Up <sup class="text-danger">*</sup> </small>
-                                    <input type="date" name="planned_followup" id=""
-                                    value="{{ isset($schoolProgram->planned_followup) ? $schoolProgram->planned_followup :  old('planned_followup') }}"
-                                        class="form-control form-control-sm rounded"
-                                        {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
-                                </div>
-                                @error('planned_followup')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
@@ -197,7 +187,7 @@
                                                 onchange="otherOption($(this).val())"
                                                 {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                                 <option data-placeholder="true"></option>
-                                                    @if(isset($schoolProgram->reason_id))
+                                                    @if(isset($schoolProgram->reason_id) || isset($edit))
                                                         @if(isset($edit))    
                                                             @foreach ($reasons as $reason)
                                                                 <option value="{{ $reason->reason_id }}" {{ $schoolProgram->reason_id == $reason->reason_id ? 'selected' : ''}}>
@@ -237,6 +227,9 @@
                                                 </b>
                                             </div>
                                         </div>
+                                        @error('other_reason')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
 
                                     
                                 </div>
@@ -330,9 +323,9 @@
                                                     <option value="On going" {{ $schoolProgram->running_status == 'On going' ? 'selected' : ''}}>On going</option>
                                                     <option value="Done" {{ $schoolProgram->running_status == 'Done' ? 'selected' : ''}}>Done</option>
                                                 @elseif(empty($schoolProgram))
-                                                    <option value="Not yet">Not yet</option>
-                                                    <option value="On going">On going</option>
-                                                    <option value="Done">Done</option>
+                                                    <option value="Not yet" {{ old('running_status') == 'Not yet' ? "selected" : "" }}>Not yet</option>
+                                                    <option value="On going" {{ old('running_status') == 'On going' ? "selected" : "" }}>On going</option>
+                                                    <option value="Done" {{ old('running_status') == 'Done' ? "selected" : "" }}>Done</option>
                                                 @endif
                                             </select>
                                             @error('running_status')
@@ -376,7 +369,7 @@
                                             @endif
                                         @elseif(empty($schoolProgram))
                                             @foreach ($employees as $employee)
-                                                <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }}</option>
+                                                <option value="{{ $employee->id }}" {{ old('empl_id') == $employee->id ? "selected" : "" }}>{{ $employee->first_name }} {{ $employee->last_name }}</option>
                                             @endforeach
                                         @endif
                                         
@@ -399,8 +392,7 @@
                     </form>
                 </div>
             </div>
-          
-            @if(empty($edit) && $schoolProgram->status == 1 || session('attach'))
+            @if(!empty($attach) && $schoolProgram->status == 1 )
                 @include('pages.program.school-program.detail.attachment')
             @endif
         </div>
@@ -444,7 +436,7 @@
         <script>
             $(document).ready(function(){
                 $('#approach_status').val('{{$schoolProgram->status}}').trigger('change')
-                $('#selectReason').select2()
+                // $('#selectReason').select2()
             })
 
         </script>
@@ -464,7 +456,7 @@
         <script>
             $(document).ready(function(){
                 $('#approach_status').val('1').trigger('change')
-                $('#selectReason').select2()
+                // $('#selectReason').select2()
             })
 
         </script>
@@ -479,11 +471,21 @@
         <script>
             $(document).ready(function(){
                 $('#approach_status').val('2').trigger('change')
-                $('#selectReason').select2()
+                // $('#selectReason').select2()
             })
 
         </script>
 
+
+@endif
+    @if($errors->has('other_reason'))
+        <script>
+            $(document).ready(function(){
+                $('#selectReason').val('other').trigger('change')
+                // $('#selectReason').select2()
+            })
+
+        </script>
     @endif
 
 @endsection

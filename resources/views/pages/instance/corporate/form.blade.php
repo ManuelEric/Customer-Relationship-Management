@@ -57,7 +57,7 @@
                             </h6>
                         </div>
                         <div class="">
-                            <a href="{{ url('program/corporate/create?corp_id=' . strtolower($corporate->corp_id)) }}"
+                            <a href="{{ url('program/corporate/'. strtolower($corporate->corp_id) . '/detail/create') }}"
                                 class="btn btn-sm btn-outline-primary rounded mx-1">
                                 <i class="bi bi-plus"></i>
                             </a>

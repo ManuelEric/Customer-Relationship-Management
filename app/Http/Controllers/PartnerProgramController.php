@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreSchoolProgramRequest;
+use App\Http\Requests\StorePartnerProgramRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
@@ -15,24 +16,24 @@ use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UniversityPicRepositoryInterface;
+use App\Models\PartnerProg;
 use App\Models\Reason;
 use App\Models\SchoolProgram;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
-class SchoolProgramController extends Controller
+class PartnerProgramController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
 
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
+    protected PartnerProgramRepositoryInterface $partnerProgramRepository;
     protected SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository;
     protected ProgramRepositoryInterface $programRepository;
     protected UserRepositoryInterface $userRepository;
@@ -47,6 +48,7 @@ class SchoolProgramController extends Controller
         SchoolRepositoryInterface $schoolRepository, 
         UserRepositoryInterface $userRepository, 
         SchoolProgramRepositoryInterface $schoolProgramRepository, 
+        PartnerProgramRepositoryInterface $partnerProgramRepository, 
         SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository, 
         ProgramRepositoryInterface $programRepository,
         ReasonRepositoryInterface $reasonRepository,
@@ -59,6 +61,7 @@ class SchoolProgramController extends Controller
     {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
+        $this->partnerProgramRepository = $partnerProgramRepository;
         $this->schoolProgramAttachRepository = $schoolProgramAttachRepository;
         $this->programRepository = $programRepository;
         $this->userRepository = $userRepository;
@@ -70,64 +73,67 @@ class SchoolProgramController extends Controller
         $this->schoolDetailRepository = $schoolDetailRepository;
     }
 
-    public function index(Request $request){
-        // echo $this->schoolProgramRepository->getAllSchoolProgramsDataTables();
-        // exit;
-        if ($request->ajax()) {
-            return $this->schoolProgramRepository->getAllSchoolProgramsDataTables();
+    // TODO: 1. Add Column ['reason_id', 'is_corporate_scheme', 'total_fee', 'success_date', 'denied_date']
+  
 
-        }
-        // return;
-        return view('pages.program.school-program.index');
+    public function index(Request $request){
+        return view('pages.program.corporate-program.index');
     }
 
-    public function store(StoreSchoolProgramRequest $request)
+    public function store(StorePartnerProgramRequest $request)
     {
-    
-        $schoolId = $request->route('school');
 
-        $schoolPrograms = $request->all();
+        $partnerPrograms = $request->all();
         if ($request->input('reason_id') == 'other'){
             $reason['reason_name'] = $request->input('other_reason');
         }
 
         DB::beginTransaction();
-        $schoolPrograms['sch_id'] = $schoolId;
        
         try {
             # insert into reason
             if ($request->input('reason_id') == 'other'){
-                $reason_created = $this->reasonRepository->createReason($reason);
-                $reason_id = $reason_created->id;
-                $schoolPrograms['reason_id'] = $reason_id;
+                $this->reasonRepository->createReason($reason);
+                $reason_id = Reason::max('reason_id');
+                $partnerPrograms['reason_id'] = $reason_id;
             }
-            
-            # insert into school program
-            $sch_prog_created = $this->schoolProgramRepository->createSchoolProgram($schoolPrograms);
-            $sch_progId = $sch_prog_created->id;
+            # insert into partner program
+            $this->partnerProgramRepository->createPartnerProgram($partnerPrograms);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store school failed : ' . $e->getMessage());
-            return Redirect::to('program/school/'. $schoolId .'/detail/create')->withError('Failed to create school program');
+            Log::error('Store partner program failed : ' . $e->getMessage());
+            return Redirect::to('program/partner/create')->withError('Failed to create partner program');
         }
         
-        return Redirect::to('program/school/'. $schoolId .'/detail/'.$sch_progId)->withSuccess('School program successfully created');
+        # status == success
+        if($partnerPrograms['status'] == 1) 
+        {
+            $partner_progId = PartnerProg::max('id');
+            return Redirect::to('program/partner/create')
+            ->withSuccess('Partner program successfully created')
+            ->with([
+                'attach' => true,
+                'partner_progId' => $partner_progId,
+            ]);
+        }
+        return Redirect::to('program/partner/create')->withSuccess('Partner program successfully created');
     }
 
     public function create(Request $request)
     {
-         $schoolId = $request->route('school');
-
-         # retrieve school data by id
-         $school = $this->schoolRepository->getSchoolById($schoolId);
+        $corp_id = $request->route('corp');
 
          # retrieve program data
-         $programsB2B = $this->programRepository->getAllProgramByType('B2B');
-         $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
-         $programs = $programsB2B->merge($programsB2BB2C);
+        $programsB2B = $this->programRepository->getAllProgramByType('B2B');
+        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
+        $programs = $programsB2B->merge($programsB2BB2C);
+        
+         # retrieve partner data
+         $partner = $this->corporateRepository->getCorporateById($corp_id);
+         $partners = $this->corporateRepository->getAllCorporate();
 
          # retrieve reason data
          $reasons = $this->reasonRepository->getAllReasons();
@@ -135,12 +141,13 @@ class SchoolProgramController extends Controller
          # retrieve employee data
          $employees = $this->userRepository->getAllUsersByRole('Employee');
  
-        return view('pages.program.school-program.form')->with(
+        return view('pages.program.corporate-program.form')->with(
             [
                 'employees' => $employees,
                 'programs' => $programs,
                 'reasons' => $reasons,
-                'school' => $school
+                'partner' => $partner,
+                'partners' => $partners
             ]
         );
     }
@@ -175,9 +182,6 @@ class SchoolProgramController extends Controller
         
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByRole('Employee');
-
-        # retrieve corporate / partner
-        $partners = $this->corporateRepository->getAllCorporate();
  
         return view('pages.program.school-program.form')->with(
             [
@@ -189,8 +193,7 @@ class SchoolProgramController extends Controller
                 'school' => $school,
                 'schoolDetail' => $schoolDetail,
                 'schools' => $schools,
-                'attach' => true,
-                'partners' => $partners,
+                'attach' => true
             ]
         );
     }
@@ -263,7 +266,7 @@ class SchoolProgramController extends Controller
 
    }
    
-   public function update(StoreSchoolProgramRequest $request){
+   public function update(Request $request){
         
         $schoolId = $request->route('school');
         $sch_progId = $request->route('detail');
@@ -308,7 +311,7 @@ class SchoolProgramController extends Controller
 
         DB::beginTransaction();
         try {
-           
+
             $this->schoolProgramRepository->deleteSchoolProgram($sch_progId);
             DB::commit();
         } catch (Exception $e) {
@@ -318,6 +321,6 @@ class SchoolProgramController extends Controller
             return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId)->withError('Failed to delete school program');
         }
 
-        return Redirect::to('program/school/')->withSuccess('School program successfully deleted');
+        return Redirect::to('instance/school/' . $schoolId)->withSuccess('School program successfully deleted');
     }
 }

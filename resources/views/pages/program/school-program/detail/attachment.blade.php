@@ -17,24 +17,23 @@
      <div class="card-body">
          <div class="list-group">
              <div class="list-group-item d-flex flex-wrap gap-2 align-items-center">
-                @forelse ($schoolProgramAttachs as $schoolProgramAttach)
-                     
-                    <div class="d-flex me-2 border px-2 py-1 rounded">
-                        <a href="{{ url($schoolProgramAttach->schprog_attach) }}" class="text-muted text-decoration-none">
-                            <i class="bi bi-download me-1"></i> {{ $schoolProgramAttach->schprog_file }}
-                        </a>
-                        <div class="text-end cursor-pointer ms-4">
-                            <button type="button"
-                            onclick="confirmDelete('{{isset($schoolProgram) ? 'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach' : 'program/school/' . $school->sch_id . '/detail/' . session('schprog_id') . '/attach' }}', {{$schoolProgramAttach->id}})"
-                            class="btn btn-sm btn-outline-danger rounded mx-1">
-                            <i class="bi bi-x text-danger"></i>
-                        </button>
+                @if( isset($schoolProgram))
+                    
+                    @foreach ($schoolProgramAttachs as $schoolProgramAttach)
+                    
+                        <div class="d-flex me-2 border px-2 py-1 rounded">
+                            <a href="{{ url($schoolProgramAttach->schprog_attach) }}" class="text-muted text-decoration-none">
+                                    <i class="bi bi-download me-1"></i> {{ $schoolProgramAttach->schprog_file }}
+                                </a>
+                                <div class="text-end cursor-pointer ms-4">
+                                   
+                                    <i class="bi bi-x text-danger" onclick="confirmDelete('{{ 'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach' }}', {{$schoolProgramAttach->id}})"></i>
+                            </div>
                         </div>
-                   </div>
-
-                @empty
-                    No Attachment Yet  
-                @endforelse
+                     @endforeach
+                @else
+                No Have Data
+                @endif
              </div>
          </div>
      </div>
@@ -55,9 +54,7 @@
                     <small class="text-danger fw-light">{{ $message }}</small>
                 @enderror
                  <form action="{{ url(
-                        isset($schoolProgram) ? 
-                        'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach' :
-                        'program/school/' . $school->sch_id . '/detail/' . session('sch_progId') . '/attach' 
+                    'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/attach' 
                         )}}" method="POST" id="formPosition" enctype="multipart/form-data">
                      @csrf
                      <div class="put"></div>
@@ -67,7 +64,7 @@
                                  File Name <sup class="text-danger">*</sup>
                              </label>
                              <input type="text" name="schprog_file" id=""
-                                 class="form-control form-control-sm rounded">
+                                 class="form-control form-control-sm rounded" value="{{ $errors->has('schprog_file') || $errors->has('schprog_attach')  ? old('schprog_file') : '' }}">
 
                             @error('schprog_file')
                                  <small class="text-danger fw-light">{{ $message }}</small>
@@ -78,7 +75,7 @@
                                  Attachment <sup class="text-danger">*</sup>
                              </label>
                              <input type="file" name="schprog_attach" id=""
-                                 class="form-control form-control-sm rounded">
+                                 class="form-control form-control-sm rounded" value="{{ $errors->has('schprog_file') || $errors->has('schprog_attach') ? old('schprog_attach') : '' }}">
 
                             @error('schprog_attach')
                                  <small class="text-danger fw-light">{{ $message }}</small>

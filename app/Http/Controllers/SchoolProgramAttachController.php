@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
@@ -88,16 +89,22 @@ class SchoolProgramAttachController extends Controller
         DB::beginTransaction();
         try {
 
-            $schoolProgAttachs = $this->schoolProgramAttachRepository->getSchoolProgramAttachById($attachId);
+            $schoolProgAttach = $this->schoolProgramAttachRepository->getSchoolProgramAttachById($attachId);
+            if(File::exists(public_path($schoolProgAttach->schprog_attach))){
 
-            if($this->schoolProgramAttachRepository->deleteSchoolProgramAttach($attachId)){
-                Unlink(public_path($schoolProgAttachs->schprog_attach));
+                if($this->schoolProgramAttachRepository->deleteSchoolProgramAttach($attachId)){
+                    Unlink(public_path($schoolProgAttach->schprog_attach));
+                }
+            }else{
+                $this->schoolProgramAttachRepository->deleteSchoolProgramAttach($attachId);
             }
+
+            
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete school program failed : ' . $e->getMessage());
+            Log::error('Delete school program attach failed : ' . $e->getMessage());
             return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId)->withError('Failed to delete school program attachments'. $e->getMessage());
         }
 
