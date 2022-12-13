@@ -390,8 +390,8 @@
                         </div>
                     @endif
                     </form>
-                {{-- </div>
-            </div> --}}
+                </div>
+            </div>
             @if(!empty($attach) && $schoolProgram->status == 1 )
                 @include('pages.program.school-program.detail.attachment')
             @endif

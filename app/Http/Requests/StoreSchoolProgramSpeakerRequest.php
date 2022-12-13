@@ -24,6 +24,14 @@ class StoreSchoolProgramSpeakerRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
+
+    public function messages()
+    {
+         return [
+             'required_if' => 'The :attribute field is required',
+         ];
+    }
+
     public function rules()
     {
         return $this->isMethod('POST') ? $this->store() : $this->update();
