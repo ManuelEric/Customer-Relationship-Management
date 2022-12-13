@@ -23,7 +23,8 @@ class StoreSchoolRequest extends FormRequest
             'sch_type.in' => 'The Type field is invalid',
             'sch_curriculum.required' => 'The Curriculum field is required',
             'sch_mail.unique' => 'The School Mail already been taken', 
-            'sch_curriculum.*.exists' => 'The Selected Curriculum is invalid'
+            'sch_curriculum.*.exists' => 'The Selected Curriculum is invalid',
+            'sch_score.required' => 'The Target field is required'
         ];
     }
 
@@ -46,6 +47,7 @@ class StoreSchoolRequest extends FormRequest
             'sch_phone' => 'nullable',
             'sch_city' => 'nullable',
             'sch_location' => 'nullable',
+            'sch_score' => 'required'
         ];
     }
 }

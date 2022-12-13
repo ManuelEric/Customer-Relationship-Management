@@ -139,7 +139,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="mb-2">
-                                    <label>Target</label>
+                                    <label>Target <sup class="text-danger">*</sup></label>
                                     <select name="sch_score" class="select w-100"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
