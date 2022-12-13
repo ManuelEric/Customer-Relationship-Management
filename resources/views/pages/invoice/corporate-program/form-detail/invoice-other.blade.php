@@ -25,9 +25,9 @@
                 <div class="input-group input-group-sm mb-1">
                     <input type="number" name="" id="invoice_other_participant" class="form-control"
                         oninput="checkInvoiceOther()">
-                        <span class="input-group-text" id="basic-addon1">
-                            Person
-                        </span>
+                    <span class="input-group-text" id="basic-addon1">
+                        Person
+                    </span>
                 </div>
             </div>
             <div class="col-md-4 mb-3">
@@ -43,8 +43,7 @@
                     <span class="input-group-text" id="basic-addon1">
                         Rp
                     </span>
-                    <input type="number" name="" id="invoice_other_discount_idr" class="form-control"
-                        readonly>
+                    <input type="number" name="" id="invoice_other_discount_idr" class="form-control" readonly>
                 </div>
             </div>
             <div class="col-md-4 mb-3">
@@ -75,6 +74,7 @@
 
 <script>
     function checkInvoiceOther() {
+        let detail = $('#currency_detail').val()
         let kurs = $('#current_rate').val()
         let price = $('#invoice_other_price').val()
         let participant = $('#invoice_other_participant').val()
@@ -88,7 +88,7 @@
         $('#total_idr').val(total * kurs)
         $('#total_other').val(total)
 
-        $('#invoice_other_word').val(wordConverter(total))
-        $('#invoice_other_word_idr').val(wordConverter(total * kurs))
+        $('#invoice_other_word').val(wordConverter(total) + ' ' + currencyText(detail))
+        $('#invoice_other_word_idr').val(wordConverter(total * kurs) + ' Rupiah')
     }
 </script>

@@ -171,6 +171,9 @@ class SchoolProgramController extends Controller
         
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByRole('Employee');
+
+        # retrieve corporate / partner
+        $partners = $this->corporateRepository->getAllCorporate();
  
         return view('pages.program.school-program.form')->with(
             [
@@ -182,7 +185,8 @@ class SchoolProgramController extends Controller
                 'school' => $school,
                 'schoolDetail' => $schoolDetail,
                 'schools' => $schools,
-                'attach' => true
+                'attach' => true,
+                'partners' => $partners,
             ]
         );
     }

@@ -33,7 +33,7 @@
                    </div>
 
                 @empty
-                    No Have Data  
+                    No Attachment Yet  
                 @endforelse
              </div>
          </div>

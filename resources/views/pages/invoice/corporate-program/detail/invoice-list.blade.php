@@ -2,8 +2,8 @@
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
-                        <th class="bg-info text-white">Client Name</th>
-                        <th>Partner Name</th>
+                        <th class="bg-info text-white">Partner Name</th>
+                        <th>Program Name</th>
                         <th>Invoice ID</th>
                         <th>Payment Method</th>
                         <th>Created At</th>

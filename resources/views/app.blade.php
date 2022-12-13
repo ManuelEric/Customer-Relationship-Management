@@ -48,6 +48,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="{{ asset('js/generate-number.js') }}"></script>
+    <script src="{{ asset('js/currency.js') }}"></script>
     @yield('script')
 
     <style>
@@ -176,6 +177,21 @@
         </div>
     </div>
 
+    {{-- Loading when Submiting  --}}
+    <script>
+        $('form').submit(function(e) {
+            e.preventDefault();
+            Swal.fire({
+                width: 100,
+                backdrop: '#4e4e4e7d',
+                allowOutsideClick: false,
+            })
+            Swal.showLoading();
+            this.closest('form').submit();
+        })
+    </script>
+
+    {{-- Realtime for Datatables  --}}
     <script>
         function realtimeData(data) {
             setInterval(() => {
@@ -184,6 +200,7 @@
         }
     </script>
 
+    {{-- Confirm Delete  --}}
     <script>
         function confirmDelete(subject, id) {
             // show modal 
@@ -194,9 +211,8 @@
             $('#formAction').attr('action', '{{ url('') }}/' + subject + '/' + id);
         }
     </script>
-    {{-- / Delete Item  --}}
 
-    {{-- Alert  --}}
+    {{-- Notification by Session  --}}
     @if (session('success') || session('error'))
         <script>
             const Toast = Swal.mixin({
@@ -218,7 +234,7 @@
         </script>
     @endif
 
-    <!-- notification -->
+    <!-- Notification by Jquery/Axios -->
     <script>
         function notification(status, message) {
 
@@ -246,8 +262,8 @@
             })
         }
     </script>
-    {{-- / Alert  --}}
 
+    {{-- TinyMCE  --}}
     <script>
         tinymce.init({
             selector: 'textarea',
@@ -257,6 +273,8 @@
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
         });
     </script>
+
+    {{-- Select2  --}}
     <script>
         $(document).ready(function() {
             $('.select').select2({
@@ -266,7 +284,7 @@
         });
 
         function initSelect2(element) {
-            $(element+'.select').select2({
+            $(element + '.select').select2({
                 placeholder: "Select value",
                 allowClear: true
             });

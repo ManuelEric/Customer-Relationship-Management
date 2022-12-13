@@ -81,6 +81,7 @@
 
 <script>
     function checkNotSessionOther() {
+        let detail = $('#currency_detail').val()
         let kurs = $('#current_rate').val()
         let price = $('#not_session_other_price').val()
         let early = $('#not_session_other_early').val()
@@ -96,7 +97,7 @@
         $('#total_idr').val(total * kurs)
         $('#total_other').val(total)
 
-        $('#not_session_other_word').val(wordConverter(total))
-        $('#not_session_other_word_idr').val(wordConverter(total * kurs))
-    }
+        $('#not_session_other_word').val(wordConverter(total) + ' Rupiah')
+            $('#not_session_other_word_idr').val(wordConverter(total * kurs) + ' ' + currencyText(detail))
+        }
 </script>
