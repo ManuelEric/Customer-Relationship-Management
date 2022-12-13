@@ -51,21 +51,27 @@
                     </div>
                     <div class="card-body">
                         <div class="list-group">
-                            @for ($i = 0; $i < 3; $i++)
+                            @forelse ($university->events as $event)
                                 <div class="list-group-item">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="">
-                                            <strong>Event Name</strong> <br>
-                                            Start Date - End Date
+                                            <strong>{{ $event->event_title }}</strong> <br>
+                                            {{ date('M d, Y', strtotime($event->event_startdate)) }} 
+                                            ({{ date('H:i', strtotime($event->event_startdate)) }})
+                                            - 
+                                            {{ date('M d, Y', strtotime($event->event_enddate)) }} 
+                                            ({{ date('H:i', strtotime($event->event_enddate)) }})
                                         </div>
                                         <div class="">
-                                            <a href="#" class="btn btn-sm btn-outline-success">
+                                            <a href="{{ route('event.show', ['event' => $event->event_id]) }}" class="btn btn-sm btn-outline-success">
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                         </div>
                                     </div>
                                 </div>
-                            @endfor
+                            @empty
+                                No Event
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -94,7 +100,7 @@
                             <div class="col-md-12">
                                 <div class="mb-2">
                                     <label for="">
-                                        University Name
+                                        University Name <i class="text-danger font-weight-bold">*</i>
                                     </label>
                                     <input type="text" name="univ_name" class="form-control form-control-sm rounded"
                                         value="{{ isset($university) ? $university->univ_name : old('univ_name') }}"
@@ -110,7 +116,7 @@
                                         Email
                                     </label>
                                     <input type="text" name="univ_email" class="form-control form-control-sm rounded"
-                                        value="" {{ empty($university) || isset($edit) ? '' : 'disabled' }}>
+                                        value="{{ isset($university) ? $university->univ_email : old('univ_email') }}" {{ empty($university) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -119,13 +125,13 @@
                                         Phone Number
                                     </label>
                                     <input type="text" name="univ_phone" class="form-control form-control-sm rounded"
-                                        value="" {{ empty($university) || isset($edit) ? '' : 'disabled' }}>
+                                        value="{{ isset($university) ? $university->univ_phone : old('univ_phone') }}" {{ empty($university) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-7">
                                 <div class="mb-2">
                                     <label for="">
-                                        Country
+                                        Country <i class="text-danger font-weight-bold">*</i>
                                     </label>
                                     <div class="w-100">
                                         <select name="univ_country" id="univ_country" class="select w-100"
@@ -142,6 +148,29 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="mb-2">
+                                    <label for="">Tags <i class="text-danger font-weight-bold">*</i></label>
+                                    <select name="tag" class="select w-100"
+                                        {{ empty($university) || isset($edit) ? '' : 'disabled' }}>
+                                        <option data-placeholder="true"></option>
+                                        @forelse ($tags as $tag)
+                                            <option value="{{ $tag->id }}"
+                                                @if (isset($university))
+                                                    {{ $university->tag == $tag->id ? 'selected' : null }}
+                                                @elseif (old('tag'))
+                                                    {{ old('tag') == $tag->id ? 'selected' : null }}
+                                                @endif
+                                                >{{ $tag->name }}</option>
+                                        @empty
+                                            <option>No Tag</option>
+                                        @endforelse
+                                    </select>
+                                    @error('tag')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-12">

@@ -315,3 +315,15 @@
 
     @endif
 
+    @if($errors->has('notes_reason')
+        )
+            
+        <script>
+            $(document).ready(function(){
+                $('#reasonModal').modal('show'); 
+            })
+
+        </script>
+
+    @endif
+

@@ -34,8 +34,11 @@ class StoreUniversityRequest extends FormRequest
     {
         return [
             'univ_name' => 'required',
+            'univ_email' => 'nullable',
+            'univ_phone' => 'nullable',
             'univ_country' => 'required|exists:lc_countries_translations,name',
-            'univ_address' => 'nullable'
+            'univ_address' => 'nullable',
+            'tag' => 'required|exists:tbl_curriculum,id',
         ];
     }
 }

@@ -73,7 +73,7 @@
                         data: 'sch_type',
                     },
                     {
-                        data: 'sch_curriculum',
+                        data: 'curriculum',
                     },
                     {
                         data: 'sch_city',

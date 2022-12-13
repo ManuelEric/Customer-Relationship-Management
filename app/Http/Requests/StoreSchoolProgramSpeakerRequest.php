@@ -107,7 +107,7 @@ class StoreSchoolProgramSpeakerRequest extends FormRequest
         return [
             'status' => 'required|in:1,2',
             'agendaId' => 'required|exists:tbl_agenda_speaker,id',
-            'notes_reason' => 'required',
+            'notes_reason' => 'required_if:status,2|nullable',
         ];
     }
 }

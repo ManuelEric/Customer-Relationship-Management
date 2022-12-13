@@ -18,6 +18,7 @@ return new class extends Migration
         CREATE OR REPLACE VIEW Agenda AS
         SELECT 
             asp.id as agenda_id,
+            asp.sch_prog_id,
             e.event_id,
             asp.sch_prog_id,
             e.event_title,

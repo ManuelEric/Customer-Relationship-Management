@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,9 +26,14 @@ Route::get('client-program/1/edit', function () {
     return view('pages.invoice.client-program.form', ['status' => 'edit']);
 });
 
+Route::get('client-program/1/export/pdf', function () {
+    return view('pages.invoice.client-program.export.invoice-pdf', ['is_session' => true]);
+});
+
 Route::get('client-program/status/{status?}', function ($status = null) {
     return view('pages.invoice.client-program.index', ['status' => $status]);
 });
+
 
 
 // PARTNER 
@@ -45,9 +49,14 @@ Route::get('corporate-program/1/edit', function () {
     return view('pages.invoice.corporate-program.form', ['status' => 'edit']);
 });
 
+Route::get('corporate-program/1/export/pdf', function () {
+    return view('pages.invoice.corporate-program.export.invoice-pdf');
+});
+
 Route::get('corporate-program/status/{status?}', function ($status = null) {
     return view('pages.invoice.corporate-program.index', ['status' => $status]);
 });
+
 
 
 // SCHOOL 
@@ -61,6 +70,10 @@ Route::get('school-program/1', function () {
 
 Route::get('school-program/1/edit', function () {
     return view('pages.invoice.school-program.form', ['status' => 'edit']);
+});
+
+Route::get('school-program/1/export/pdf', function () {
+    return view('pages.invoice.school-program.export.invoice-pdf');
 });
 
 Route::get('school-program/status/{status?}', function ($status = null) {
@@ -79,6 +92,10 @@ Route::get('referral/1', function () {
 
 Route::get('referral/1/edit', function () {
     return view('pages.invoice.referral.form', ['status' => 'edit']);
+});
+
+Route::get('referral/1/export/pdf', function () {
+    return view('pages.invoice.referral.export.invoice-pdf');
 });
 
 Route::get('referral/status/{status?}', function ($status = null) {

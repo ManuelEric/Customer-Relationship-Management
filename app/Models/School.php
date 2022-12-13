@@ -24,7 +24,6 @@ class School extends Model
         'sch_id',
         'sch_name',
         'sch_type',
-        'sch_curriculum',
         'sch_mail',
         'sch_phone',
         'sch_insta',
@@ -66,5 +65,10 @@ class School extends Model
     public function schoolProgram()
     {
         return $this->hasMany(SchoolProgram::class, 'sch_id', 'sch_id');
+    }
+
+    public function curriculum()
+    {
+        return $this->belongsToMany(Curriculum::class, 'tbl_sch_curriculum', 'sch_id', 'curriculum_id');
     }
 }

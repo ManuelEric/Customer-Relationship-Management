@@ -61,6 +61,11 @@ class Event extends Model
         return $this->belongsToMany(Corporate::class, 'tbl_corp_partner_event', 'event_id', 'corp_id');
     }
 
+    public function client()
+    {
+        return $this->hasMany(UserClient::class, 'event_id', 'event_id');
+    }
+
     public function school_speaker()
     {
         return $this->belongsToMany(SchoolDetail::class, 'tbl_agenda_speaker', 'event_id', 'sch_pic_id')->using(AgendaSpeaker::class);

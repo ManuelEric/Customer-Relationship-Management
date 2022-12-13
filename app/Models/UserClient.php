@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -46,6 +47,14 @@ class UserClient extends Authenticatable
         'password',
     ];
 
+    # attributes
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->first_name.' '.$this->last_name,
+        );
+    }
+
     # relation
     public function parents()
     {
@@ -70,6 +79,21 @@ class UserClient extends Authenticatable
     public function lead()
     {
         return $this->belongsTo(Lead::class, 'lead_id', 'lead_id');
+    }
+
+    public function external_edufair()
+    {
+        return $this->belongsTo(EdufLead::class, 'eduf_id', 'id');
+    }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id', 'event_id');
+    }
+
+    public function destinationCountries()
+    {
+        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'tag_id');
     }
 
     public function interestUniversities()

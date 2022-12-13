@@ -75,6 +75,7 @@
 
 <script>
     function checkInvoiceOther() {
+        let detail = $('#currency_detail').val()
         let kurs = $('#current_rate').val()
         let price = $('#invoice_other_price').val()
         let participant = $('#invoice_other_participant').val()
@@ -88,7 +89,7 @@
         $('#total_idr').val(total * kurs)
         $('#total_other').val(total)
 
-        $('#invoice_other_word').val(wordConverter(total))
-        $('#invoice_other_word_idr').val(wordConverter(total * kurs))
+        $('#invoice_other_word').val(wordConverter(total) + ' ' + currencyText(detail))
+        $('#invoice_other_word_idr').val(wordConverter(total * kurs)+' Rupiah')
     }
 </script>

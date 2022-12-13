@@ -32,13 +32,14 @@
 
 <script>
     function checkInvoiceOther() {
+        let detail = $('#currency_detail').val()
         let kurs = $('#current_rate').val()
         let total = $('#invoice_other_total').val()
 
         $('#invoice_other_total_idr').val(total * kurs)
         $('#invoice_other_total').val(total)
 
-        $('#invoice_other_word').val(wordConverter(total))
-        $('#invoice_other_word_idr').val(wordConverter(total * kurs))
+        $('#invoice_other_word').val(wordConverter(total) + ' ' + currencyText(detail))
+        $('#invoice_other_word_idr').val(wordConverter(total * kurs) +' Rupiah')
     }
 </script>

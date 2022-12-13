@@ -29,7 +29,8 @@
                     </div>
                 </div>
                 <div class="mt-2 text-end">
-                    <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px">
+                    <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" data-bs-toggle="modal"
+                    data-bs-target="#addReceipt">
                         <i class="bi bi-plus"></i> Receipt
                     </button>
                 </div>
@@ -62,52 +63,3 @@
         </div>
     </div>
 </div>
-
-{{-- Add Installment  --}}
-<div class="modal fade" id="plan" data-bs-backdrop="static" data-bs-keyboard="false"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>
-                    Plan Follow-Up
-                </span>
-                <i class="bi bi-pencil-square"></i>
-            </div>
-            <div class="modal-body w-100 text-start">
-                <form action="" method="POST" id="formPosition">
-                    @csrf
-                    <div class="put"></div>
-                    <div class="row g-2">
-                        <div class="col-md-12 mb-2">
-                            <label for="">
-                                Follw-Up Date <sup class="text-danger">*</sup>
-                            </label>
-                            <input type="date" name="" id=""
-                                class="form-control form-control-sm rounded">
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between">
-                        <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
-                            <i class="bi bi-x-square me-1"></i>
-                            Cancel</a>
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i class="bi bi-save2 me-1"></i>
-                            Save</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    $(document).ready(function() {
-        $('.modal-select').select2({
-            dropdownParent: $('#speaker .modal-content'),
-            placeholder: "Select value",
-            allowClear: true
-        });
-    });
-</script>

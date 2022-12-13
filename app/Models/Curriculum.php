@@ -19,4 +19,9 @@ class Curriculum extends Model
     protected $fillable = [
         'name',
     ];
+
+    public function school()
+    {
+        return $this->belongsToMany(School::class, 'tbl_sch_curriculum', 'curriculum_id', 'sch_id');
+    }
 }

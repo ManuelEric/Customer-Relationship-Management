@@ -29,7 +29,7 @@
                     </div>
                 </div>
                 <div class="mt-2 text-end">
-                    <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px">
+                    <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" onclick="checkReceipt()">
                         <i class="bi bi-plus"></i> Receipt
                     </button>
                 </div>

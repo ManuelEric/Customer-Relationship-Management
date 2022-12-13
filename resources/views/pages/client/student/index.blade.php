@@ -32,6 +32,11 @@
                         href="{{ url('client/student?st=completed') }}">Completed</a>
                 </li>
             </ul>
+            <style>
+                #clientTable tr td.danger{
+                    background: rgb(255, 151, 151)
+                }
+            </style>
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
                 <thead class="bg-dark text-white">
                     <tr class="text-center" role="row">
@@ -49,8 +54,8 @@
                         <th>Lead</th>
                         <th>Level of Interest</th>
                         <th>Interested Program</th>
-                        <th>Success Program</th>
-                        <th>Mentor/Tutor</th>
+                        {{-- <th>Success Program</th>
+                        <th>Mentor/Tutor</th> --}}
                         <th>Year of Study Abroad</th>
                         <th>Country of Study Abroad</th>
                         <th>University Destination</th>
@@ -61,47 +66,9 @@
                         <th class="bg-info text-white"># Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @if (isset($students))
-                    @php
-                        $no = 1;
-                    @endphp
-                        @foreach ($students as $student)
-                            <tr>
-                                <td class="text-center">{{ $no++ }}</td>
-                                <td>{{ $student->first_name.' '.$student->last_name }}</td>
-                                <td>{{ $student->mail }}</td>
-                                <td>{{ $student->phone }}</td>
-                                <td>{{ $student->parents()->first()->first_name.' '.$student->parents()->first()->last_name }}</td>
-                                <td>{{ $student->parents()->first()->phone }}</td>
-                                <td>{{ $student->school->sch_name }}</td>
-                                <td>{{ $student->graduation_year }}</td>
-                                <td>{{ $student->st_grade }}</td>
-                                <td>{{ $student->insta }}</td>
-                                <td>{{ $student->address }}</td>
-                                {{-- <td>{{ $student }}</td> --}}
-                                <td>{{ isset($student->lead) ? ($student->lead->main_lead == "KOL" ? $student->lead->sub_lead : $student->lead->main_lead) : null }}</td>
-                                <td>Level of Interest</td>
-                                <td>Interested Program</td>
-                                <td>Success Program</td>
-                                <td>Main Mentor</td>
-                                <td>Year of Study Abroad</td>
-                                <td>Country of Study Abroad</td>
-                                <td>University Destination</td>
-                                <td>Interest Major</td>
-                                <td>Last Update</td>
-                                <td>Status</td>
-                                <td>Priority</td>
-                                <td class="text-center"><a href="{{ url('client/mentee/1') }}"
-                                        class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="23"></td>
+                        <td colspan="21"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -112,6 +79,10 @@
     <script>
         $(document).ready(function() {
             var table = $('#clientTable').DataTable({
+                order: [
+                    [20, 'desc'],
+                    [1, 'asc']
+                ],
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -128,17 +99,132 @@
                     left: 2,
                     right: 2
                 },
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'full_name',
+                        render: function(data, type, row, meta) {
+                            return data
+                        }
+                    },
+                    {
+                        data: 'mail',
+                    },
+                    {
+                        data: 'phone',
+                    },
+                    {
+                        data: 'parent_name',
+                        name: 'parent_name',
+                        defaultContent: '-',
+                        orderable:true,
+                        searchable:true,
+                    },
+                    {
+                        data: 'parent_phone',
+                        name: 'parent_phone',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'school_name',
+                        name: 'school_name',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'graduation_year',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'st_grade',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'insta',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'address',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'lead_source',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'st_levelinterest',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'interest_prog',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'st_abryear',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'abr_country',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'dream_uni',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'dream_major',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'updated_at',
+                    },
+                    {
+                        data: 'st_statusact',
+                        render: function(data, type, row, meta) {
+                            return data == 1 ? "active" : "nonactive";
+                        }
+                    },
+                    {
+                        data: 'total_score',
+                        className: 'text-primary',
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
+                    }
+                ],
+                createdRow: function(row, data, index) {
+                    // temporary condition
+                    // while change soon
+                    if (data['total_score'] <  2.5) {
+
+                        $('td', row).addClass('bg-danger');
+                    } else if ((data['total_score'] >= 2.5) && (data['total_score'] < 6)) {
+
+                        
+                    } else {
+                        $('td', row).addClass('bg-info');
+                    }
+                }
             });
 
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('asset') }}/" + data.asset_id.toLowerCase() + '/edit';
+                window.location.href = "{{ url('client/student') }}/" + data.id ;
             });
 
-            $('#clientTable tbody').on('click', '.deleteClient ', function() {
-                var data = table.row($(this).parents('tr')).data();
-                confirmDelete('asset', data.asset_id)
-            });
+            // $('#clientTable tbody').on('click', '.deleteClient ', function() {
+            //     var data = table.row($(this).parents('tr')).data();
+            //     confirmDelete('asset', data.asset_id)
+            // });
         });
     </script>
 @endsection
