@@ -290,7 +290,26 @@
             });
         }
     </script>
+    <script async defer>
+        // $(document).ready(function() {
 
+        //     Swal.fire({
+        //         title: 'Please Wait !',
+        //         html: 'data uploading',// add html attribute if you want or remove
+        //         allowOutsideClick: false,
+        //         showConfirmButton: false,
+        //         backdrop: '#FFFFFF',
+        //         onBeforeOpen: () => {
+        //             Swal.showLoading()
+        //         },
+        //     });
+        // })
+
+        // $(window).on('load', function(e) {
+        //     e.preventDefault()
+        //     swal.close()
+        // })
+    </script>
 </body>
 
 </html>

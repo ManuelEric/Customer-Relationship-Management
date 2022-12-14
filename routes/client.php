@@ -37,7 +37,7 @@ Route::get('mentee/{status}', function ($status) {
 
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
-    
+    Route::get('{student}/status/{status}', [ClientStudentController::class, 'updateStatus'])->name('update.status');
 });
 
 // Parent 

@@ -34,13 +34,15 @@ class StoreClientStudentRequest extends FormRequest
      */
     public function rules()
     {
+        $studentId = $this->route('student');
+
         $rules = [
             'first_name' => 'required',
             'last_name' => 'nullable',
-            'mail' => 'required|email|unique:tbl_client,mail',
+            'mail' => 'required|email|unique:tbl_client,mail,'.$studentId.',id',
             'phone' => 'required|min:10|max:12',
             'dob' => 'required',
-            'insta' => 'sometimes|unique:tbl_client,insta',
+            'insta' => 'sometimes|unique:tbl_client,insta,'.$studentId.',id',
             'state' => 'required',
             'city' => 'nullable',
             'postal_code' => 'nullable',

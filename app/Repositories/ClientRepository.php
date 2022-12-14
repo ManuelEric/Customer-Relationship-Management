@@ -131,7 +131,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientById($clientId)
     {
-
+        return UserClient::find($clientId);
     }
 
     public function deleteClient($clientId)
@@ -150,12 +150,26 @@ class ClientRepository implements ClientRepositoryInterface
 
         return $client;
     }
+    
+    public function updateClient($clientId, array $newDetails)
+    {
+        $client = UserClient::find($clientId)->update($newDetails);
+        return $client;
+    }
+
+    public function getParentsByStudentId($studentId)
+    {
+        $student = UserClient::find($studentId);
+        return $student->parents()->pluck('tbl_client.id')->toArray();
+    }
 
     public function createClientRelation($parentId, $studentId)
     {
-        // return "ini parent id : ".$parentId.' dan ini student id : '.$studentId;
         $student = UserClient::find($studentId);
-        $student->parents()->attach($parentId, [
+
+        # why sync?
+        # to create and update all at once
+        $student->parents()->sync($parentId, [
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
@@ -166,33 +180,33 @@ class ClientRepository implements ClientRepositoryInterface
     public function createDestinationCountry($studentId, $destinationCountryDetails)
     {
         $student = UserClient::find($studentId);
-        $student->destinationCountries()->attach($destinationCountryDetails);
+        $student->destinationCountries()->sync($destinationCountryDetails);
         return $student;
     }
 
     public function createInterestProgram($studentId, $interestProgramDetails)
     {
         $student = UserClient::find($studentId);
-        $student->interestPrograms()->attach($interestProgramDetails);
+        $student->interestPrograms()->sync($interestProgramDetails);
         return $student;
     }
 
     public function createInterestUniversities($studentId, $interestUnivDetails)
     {
         $student = UserClient::find($studentId);
-        $student->interestUniversities()->attach($interestUnivDetails);
+        $student->interestUniversities()->sync($interestUnivDetails);
         return $student;
     }
 
     public function createInterestMajor($studentId, $interestMajorDetails)
     {
         $student = UserClient::find($studentId);
-        $student->interestMajor()->attach($interestMajorDetails);
+        $student->interestMajor()->sync($interestMajorDetails);
         return $student;
     }
 
-    public function updateClient($clientId, array $newDetails)
+    public function updateActiveStatus($clientId, $newStatus)
     {
-        
+        return UserClient::find($clientId)->update(['st_statusact' => $newStatus]);
     }
 }
