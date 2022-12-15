@@ -7,6 +7,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\PartnerProgramRepositoryInterface;
+use App\Interfaces\PartnerAggrementRepositoryInterface;
 use App\Models\Corporate;
 use Exception;
 use Illuminate\Http\Request;
@@ -22,12 +23,14 @@ class CorporateController extends Controller
     private CorporateRepositoryInterface $corporateRepository;
     private CorporatePicRepositoryInterface $corporatePicRepository;
     private PartnerProgramRepositoryInterface $partnerProgramRepository;
+    private PartnerAggrementRepositoryInterface $partnerAggrementRepository;
 
-    public function __construct(CorporateRepositoryInterface $corporateRepository, CorporatePicRepositoryInterface $corporatePicRepository, PartnerProgramRepositoryInterface $partnerProgramRepository)
+    public function __construct(CorporateRepositoryInterface $corporateRepository, CorporatePicRepositoryInterface $corporatePicRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, PartnerAggrementRepositoryInterface $partnerAggrementRepository)
     {
         $this->corporateRepository = $corporateRepository;
         $this->corporatePicRepository = $corporatePicRepository;
         $this->partnerProgramRepository = $partnerProgramRepository;
+        $this->partnerAggrementRepository = $partnerAggrementRepository;
     }
 
     public function index(Request $request)
@@ -124,16 +127,20 @@ class CorporateController extends Controller
     {
         $corporateId = $request->route('corporate');
         $corporate = $this->corporateRepository->getCorporateById($corporateId);
-
+        
+        
         # retrieve School Program data by schoolId
         $partnerPrograms = $this->partnerProgramRepository->getAllPartnerProgramsByPartnerId($corporateId);
-
+        
+        $partnerAggrements = $this->partnerAggrementRepository->getAllPartnerAggrementsByPartnerId($corporateId);
+        
         $pics = $this->corporatePicRepository->getAllCorporatePicByCorporateId($corporateId);
 
         return view('pages.instance.corporate.form')->with(
             [
                 'corporate' => $corporate,
                 'partnerPrograms' => $partnerPrograms,
+                'partnerAggrements' => $partnerAggrements,
                 'pics' => $pics
             ]
         );

@@ -27,13 +27,13 @@
                                     <i class="bi bi-arrow-left"></i> Back
                                 </a>
                             @else
-                                <a href="{{ url('program/corporate/' . $partner->corp_id . '/detail/'. $partnerProgram->id .'/edit') }}"
+                                <a href="{{ url('program/corporate/' . strtolower($partner->corp_id) . '/detail/'. $partnerProgram->id .'/edit') }}"
                                     class="btn btn-sm btn-outline-info rounded mx-1">
                                     <i class="bi bi-pencil"></i> Edit
                                 </a>
                             @endif
                             <button type="button"
-                                onclick="confirmDelete('{{'program/corporate/' . $partner->corp_id . '/detail'}}', {{$partnerProgram->id}})"
+                                onclick="confirmDelete('{{'program/corporate/' . strtolower($partner->corp_id) . '/detail'}}', {{$partnerProgram->id}})"
                                 class="btn btn-sm btn-outline-danger rounded mx-1">
                                 <i class="bi bi-trash2"></i> Delete
                             </button>
@@ -60,7 +60,7 @@
                 </div>
                 <div class="card-body">
                     
-                    <form action="{{ url(isset($edit) ? 'program/corporate/' . $partner->corp_id . '/detail/' . $partnerProgram->id : 'program/corporate/' . $partner->corp_id . '/detail')  }}" method="POST">
+                    <form action="{{ url(isset($edit) ? 'program/corporate/' . strtolower($partner->corp_id) . '/detail/' . $partnerProgram->id : 'program/corporate/' . strtolower($partner->corp_id) . '/detail')  }}" method="POST">
                         @csrf
                         @if(isset($edit))
                              @method('put')
@@ -366,6 +366,31 @@
         </div>
     </div>
 
+    <script>
+        function checkStatusSpeaker(agendaId) {
+            let status = $('#status_speaker' + agendaId).val()
+            @if(isset($partnerProgram))
+                let link =
+                    '{{ url('') }}/program/corporate/{{ strtolower($partner->corp_id) }}/detail/{{$partnerProgram->id}}/speaker/' +
+                    agendaId
+                // console.log(link)
+            @endif 
+            let data = new Array()
+
+            $('#reasonForm').attr('action', link)
+
+            if (status == 2) {
+                $('#reasonModal').modal('show')
+                $('#agenda_id').val(agendaId)
+                $('#status_id').val(status)
+            } else {
+                $('#agenda_id').val(agendaId)
+                $('#status_id').val(status)
+                $('#notes').val('')
+                $('#reasonForm').submit()
+            }
+        }
+    </script>
 
     <script>
         function checkStatus() {
@@ -401,6 +426,47 @@
             $('#inputReason input').val(null)
         }
         $(document).ready(function() {})
+
+        
+
+        function changeSpeaker(type) {
+            let id = $('#' + type + '_id').val()
+         
+            @if(isset($partnerProgram))
+                let link = '{{ url('program/corporate/' . strtolower($partner->corp_id) . '/detail/' . $partnerProgram->id . '/edit') }}'
+                let new_link = link + '?type=' + type + '&id=' + id;
+            @endif
+
+            $('.speaker-pic').removeClass('d-none')
+            $('#speaker_pic').attr('name', type + '_speaker')
+            Swal.showLoading()
+            axios.get(new_link)
+                .then((res) => {
+                    // handle success
+                    let data = res.data
+                    $('#speaker_pic').html('<option data-placeholder="true"></option>')
+
+                    if (type == 'partner') {
+                        data.forEach(partner => {
+                            $('#speaker_pic').append('<option value="' + partner.id + '">' + partner
+                                .pic_name + '</option>')
+                        });
+                    } else {
+                        data.forEach(sch => {
+                            $('#speaker_pic').append('<option value="' + sch.schdetail_id + '">' + sch
+                                .schdetail_fullname + '</option>')
+                        });
+                    }
+                    Swal.close();
+                })
+                .catch((err) => {
+                    // handle error
+                    console.error(err)
+                    Swal.close()
+                })
+
+        }
+
     </script>
 
     @if(isset($partnerProgram))
@@ -445,4 +511,15 @@
 
 
     @endif
+
+    @if($errors->has('notes_reason'))
+        <script>
+            $(document).ready(function(){
+                $('#reasonModal').modal('show'); 
+            })
+
+        </script>
+
+    @endif
+
 @endsection

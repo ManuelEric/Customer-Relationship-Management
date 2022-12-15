@@ -10,8 +10,9 @@ use Illuminate\Support\Facades\DB;
 class SchoolProgramRepository implements SchoolProgramRepositoryInterface
 {
 
-    public function getAllSchoolProgramsDataTables()
+    public function getAllSchoolProgramsDataTables($filter=null)
     {
+
         return Datatables::eloquent(
             SchoolProgram::leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->
                     leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')->
@@ -25,8 +26,29 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                         'tbl_sch_prog.participants',
                         'tbl_sch_prog.total_fee',
                         'tbl_sch_prog.status',
+                        'tbl_sch_prog.start_program_date',
+                        'tbl_sch_prog.end_program_date',
+                        'users.id as pic_id',
                         DB::raw('CONCAT(users.first_name," ",users.last_name) as pic_name')
-                    )
+                    )->when($filter && isset($filter['school_name']), function($query) use ($filter) {
+                        $query->whereIn('tbl_sch.sch_name', $filter['school_name']);
+                    })
+                    ->when($filter && isset($filter['program_name']), function($query) use ($filter) {
+                        $query->whereIn('tbl_prog.prog_program', $filter['program_name']);
+                    })
+                    ->when($filter && isset($filter['status']), function($query) use ($filter) {
+                        $query->whereIn('tbl_sch_prog.status', $filter['status']);
+                    })
+                    ->when($filter && isset($filter['pic']), function($query) use ($filter) {
+                        $query->whereIn('users.id', $filter['pic']);
+                    })
+                    ->when($filter && isset($filter['start_date']), function($query) use ($filter) {
+                        $query->where('tbl_sch_prog.start_program_date', $filter['start_date']);
+                    })
+                    ->when($filter && isset($filter['end_date']), function($query) use ($filter) {
+                        $query->where('tbl_sch_prog.end_program_date', $filter['end_date']);
+                    })
+                
         )->filterColumn('pic_name', function($query, $keyword){
             $sql = 'CONCAT(users.first_name," ",users.last_name) like ?';
             $query->whereRaw($sql, ["%{$keyword}%"]);

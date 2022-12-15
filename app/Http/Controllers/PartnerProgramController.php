@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Http\Requests\StorePartnerProgramRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\PartnerProgramRepositoryInterface;
@@ -17,6 +18,7 @@ use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UniversityPicRepositoryInterface;
+use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -42,6 +44,7 @@ class PartnerProgramController extends Controller
     protected UniversityRepositoryInterface $universityRepository;
     protected UniversityPicRepositoryInterface $universityPicRepository;
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
+    protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
 
     public function __construct(
         SchoolRepositoryInterface $schoolRepository, 
@@ -57,6 +60,7 @@ class PartnerProgramController extends Controller
         UniversityRepositoryInterface $universityRepository,
         UniversityPicRepositoryInterface $universityPicRepository,
         SchoolDetailRepositoryInterface $schoolDetailRepository,
+        AgendaSpeakerRepositoryInterface $agendaSpeakerRepository,
         )
     {
         $this->schoolRepository = $schoolRepository;
@@ -72,6 +76,7 @@ class PartnerProgramController extends Controller
         $this->universityRepository = $universityRepository;
         $this->universityPicRepository = $universityPicRepository;
         $this->schoolDetailRepository = $schoolDetailRepository;
+        $this->agendaSpeakerRepository = $agendaSpeakerRepository;
     }
 
   
@@ -115,10 +120,10 @@ class PartnerProgramController extends Controller
 
             DB::rollBack();
             Log::error('Store partner program failed : ' . $e->getMessage());
-            return Redirect::to('program/corporate/'.$corpId.'/detail/create')->withError('Failed to create partner program'.$e->getMessage());
+            return Redirect::to('program/corporate/'.strtolower($corpId).'/detail/create')->withError('Failed to create partner program'.$e->getMessage());
         }
         
-        return Redirect::to('program/corporate/'.$corpId.'/detail/'.$partner_progId)->withSuccess('Partner program successfully created');
+        return Redirect::to('program/corporate/'.strtolower($corpId).'/detail/'.$partner_progId)->withSuccess('Partner program successfully created');
     }
 
     public function create(Request $request)
@@ -183,10 +188,12 @@ class PartnerProgramController extends Controller
         # retrieve partner Program Attach data by corpProgId
         $partnerProgramAttachs = $this->partnerProgramAttachRepository->getAllPartnerProgramAttachsByPartnerProgId($corp_ProgId);
         
-
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByRole('Employee');
  
+        # retrieve speaker data
+        $speakers = $this->agendaSpeakerRepository->getAllSpeakerByPartnerProgram($corp_ProgId);
+        
         return view('pages.program.corporate-program.form')->with(
             [
                 'employees' => $employees,
@@ -196,6 +203,7 @@ class PartnerProgramController extends Controller
                 'partnerProgram' => $partnerProgram,
                 'partnerProgramAttachs' => $partnerProgramAttachs,
                 'partners' => $partners,
+                'speakers' => $speakers,
                 'schools' => $schools,
                 'attach' => true
             ]
@@ -209,7 +217,7 @@ class PartnerProgramController extends Controller
         if ($request->ajax()) {
             $id = $request->get('id');
             $type = $request->get('type');
-
+            
             switch($type) {
             
                 case "partner":
@@ -221,6 +229,7 @@ class PartnerProgramController extends Controller
                     break;
     
             }
+            
             
         }
 
@@ -262,10 +271,7 @@ class PartnerProgramController extends Controller
                 'employees' => $employees,
                 'programs' => $programs,
                 'reasons' => $reasons,
-                // 'schoolProgram' => $schoolProgram,
-                // 'school' => $school,
                 'schools' => $schools,
-                // 'schoolDetail' => $schoolDetail,
                 'partners' => $partners,
                 'partner' => $partner,
                 'partnerProgram' => $partnerProgram,
@@ -307,10 +313,10 @@ class PartnerProgramController extends Controller
 
             DB::rollBack();
             Log::error('Update partner program failed : ' . $e->getMessage());
-            return Redirect::to('program/corporate/' . $corpId . '/detail/' . $partner_progId . '/edit')->withError('Failed to update partner program'. $e->getMessage());
+            return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId . '/edit')->withError('Failed to update partner program'. $e->getMessage());
         }
 
-        return Redirect::to('program/corporate/' . $corpId . '/detail/' . $partner_progId)->withSuccess('Partner program successfully updated');
+        return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $partner_progId)->withSuccess('Partner program successfully updated');
    }
 
    public function destroy(Request $request)
@@ -327,7 +333,7 @@ class PartnerProgramController extends Controller
 
             DB::rollBack();
             Log::error('Delete partner program failed : ' . $e->getMessage());
-            return Redirect::to('program/corporate/' . $corpId . '/detail/' . $corp_progId)->withError('Failed to delete partner program');
+            return Redirect::to('program/corporate/' . strtolower($corpId) . '/detail/' . $corp_progId)->withError('Failed to delete partner program');
         }
 
         return Redirect::to('program/corporate/')->withSuccess('Partner program successfully deleted');

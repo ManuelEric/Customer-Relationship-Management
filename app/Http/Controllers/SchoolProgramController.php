@@ -17,6 +17,7 @@ use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Models\Reason;
 use App\Models\SchoolProgram;
 use Exception;
+use Faker\Calculator\Inn;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -67,12 +68,50 @@ class SchoolProgramController extends Controller
     }
 
     public function index(Request $request){
-        
+
+
         if ($request->ajax()) {
-               return $this->schoolProgramRepository->getAllSchoolProgramsDataTables();
+            $filter = null;
+       
+            if($request->all() != null){
+                $filter = $request->only([
+                    'school_name',
+                    'program_name',
+                    'status',
+                    'pic',
+
+                    // 'start_date',
+                    // 'end_date',
+                ]);
+    
+            }
+
+                      
+               return $this->schoolProgramRepository->getAllSchoolProgramsDataTables($filter);
+
+                
         }
+
+        # retrieve all school data
+        $schools = $this->schoolRepository->getAllSchools();
+
+        # retrieve program data
+        $programsB2B = $this->programRepository->getAllProgramByType('B2B');
+        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
+        $programs = $programsB2B->merge($programsB2BB2C);
+      
+        # retrieve employee data
+        $employees = $this->userRepository->getAllUsersByRole('Employee');
+
+        // dd($request->all());
         
-        return view('pages.program.school-program.index');
+        return view('pages.program.school-program.index')->with(
+            [
+                'schools' => $schools,
+                'programs' => $programs,
+                'employees' => $employees,
+            ]
+        );
     }
 
     public function store(StoreSchoolProgramRequest $request)
@@ -107,10 +146,10 @@ class SchoolProgramController extends Controller
 
             DB::rollBack();
             Log::error('Store school failed : ' . $e->getMessage());
-            return Redirect::to('program/school/'. $schoolId .'/detail/create')->withError('Failed to create school program' . $e->getMessage());
+            return Redirect::to('program/school/'. strtolower($schoolId) .'/detail/create')->withError('Failed to create school program' . $e->getMessage());
         }
         
-        return Redirect::to('program/school/'. $schoolId .'/detail/'.$sch_progId)->withSuccess('School program successfully created');
+        return Redirect::to('program/school/'. strtolower($schoolId) .'/detail/'.$sch_progId)->withSuccess('School program successfully created');
     }
 
     public function create(Request $request)
@@ -298,10 +337,10 @@ class SchoolProgramController extends Controller
 
             DB::rollBack();
             Log::error('Update school program failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId . '/edit')->withError('Failed to update school program'. $e->getMessage());
+            return Redirect::to('program/school/' . strtolower($schoolId) . '/detail/' . $sch_progId . '/edit')->withError('Failed to update school program'. $e->getMessage());
         }
 
-        return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId)->withSuccess('School program successfully updated');
+        return Redirect::to('program/school/' . strtolower($schoolId) . '/detail/' . $sch_progId)->withSuccess('School program successfully updated');
    }
 
    public function destroy(Request $request)
@@ -318,9 +357,10 @@ class SchoolProgramController extends Controller
 
             DB::rollBack();
             Log::error('Delete school program failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . $schoolId . '/detail/' . $sch_progId)->withError('Failed to delete school program');
+        return Redirect::to('program/school/' . strtolower($schoolId) . '/detail/' . $sch_progId)->withError('Failed to delete school program');
         }
 
         return Redirect::to('program/school/')->withSuccess('School program successfully deleted');
     }
+
 }

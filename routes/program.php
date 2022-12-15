@@ -8,6 +8,7 @@ use App\Http\Controllers\SchoolProgramAttachController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\PartnerProgramController;
 use App\Http\Controllers\PartnerProgramAttachController;
+use App\Http\Controllers\PartnerProgramSpeakerController;
 use App\Http\Controllers\SchoolDetailController;
 
 
@@ -54,7 +55,7 @@ Route::get('corporate/1', function () {
 Route::get('corporate', [PartnerProgramController::class, 'index']);
 Route::prefix('corporate')->name('corporate_prog.')->group(function () {
     Route::resource('{corp}/detail', PartnerProgramController::class);
-    // Route::resource('{corp}/detail/{corp_prog}/speaker', PartnerProgramController::class);
+    Route::resource('{corp}/detail/{corp_prog}/speaker', PartnerProgramSpeakerController::class);
     Route::resource('{corp}/detail/{corp_prog}/attach', PartnerProgramAttachController::class);
 });
 
@@ -66,8 +67,9 @@ Route::get('school', function () {
 Route::get('school/create', function () {
     return view('pages.program.school-program.form');
 });
-
-Route::get('school', [SchoolProgramController::class, 'index']);
+// Route::match(array('GET','POST'), 'school', 'SchoolProgramController@index');
+Route::get('school', [SchoolProgramController::class, 'index'])->name('school.index');
+Route::post('school', [SchoolProgramController::class, 'index'])->name('school.index');
 Route::prefix('school')->name('school.')->group(function () {
     Route::resource('{school}/detail', SchoolProgramController::class);
     Route::resource('{school}/detail/{sch_prog}/speaker', SchoolProgramSpeakerController::class);

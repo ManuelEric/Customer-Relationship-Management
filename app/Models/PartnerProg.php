@@ -35,19 +35,19 @@ class PartnerProg extends Model
         'empl_id',
     ];
 
-    public function pic_speaker()
+    public function school_speaker()
     {
-        return $this->belongsToMany(SchoolDetail::class, 'tbl_agenda_speaker', 'sch_pic_id', 'sch_prog_id')->using(AgendaSpeaker::class);
+        return $this->belongsToMany(SchoolDetail::class, 'tbl_agenda_speaker', 'partner_prog_id', 'sch_pic_id')->using(AgendaSpeaker::class);
     }
 
     public function partner_speaker()
     {
-        return $this->belongsToMany(CorporatePic::class, 'tbl_agenda_speaker', 'partner_pic_id', 'sch_prog_id')->using(AgendaSpeaker::class);
+        return $this->belongsToMany(CorporatePic::class, 'tbl_agenda_speaker', 'partner_prog_id', 'partner_pic_id')->using(AgendaSpeaker::class);
     }
 
     public function internal_speaker()
     {
-        return $this->belongsToMany(User::class, 'tbl_agenda_speaker', 'empl_id', 'sch_prog_id')->using(AgendaSpeaker::class);
+        return $this->belongsToMany(User::class, 'tbl_agenda_speaker', 'partner_prog_id', 'empl_id')->using(AgendaSpeaker::class);
     }
 
     public function program()

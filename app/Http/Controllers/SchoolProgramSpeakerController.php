@@ -50,11 +50,11 @@ class SchoolProgramSpeakerController extends Controller
 
             DB::rollBack();
             Log::error('Store event speaker failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . $schoolId . '/detail/' . $schProgId)->withError('Failed to add speaker'. $e->getMessage());
+            return Redirect::to('program/school/' . strtolower($schoolId) . '/detail/' . $schProgId)->withError('Failed to add speaker'. $e->getMessage());
 
         }
 
-        return Redirect::to('program/school/' . $schoolId . '/detail/' . $schProgId)->withSuccess('School program speaker successfully added');
+        return Redirect::to('program/school/' . strtolower($schoolId) . '/detail/' . $schProgId)->withSuccess('School program speaker successfully added');
     }
 
     # get request from event controller
@@ -64,7 +64,7 @@ class SchoolProgramSpeakerController extends Controller
         $schProgId = $request->route('sch_prog');
         $schoolId = $request->route('school');
         $agendaId = $request->speaker;
-        $status = $request->status;
+        $status = $request->status_speaker;
         $notes = $request->notes_reason;
 
         DB::beginTransaction();
@@ -78,12 +78,12 @@ class SchoolProgramSpeakerController extends Controller
 
             DB::rollBack();
             Log::error('update status speaker failed : ' . $e->getMessage());
-            return Redirect::to('program/school/' . $schoolId . '/detail/' . $schProgId)->withError('Failed to update speaker');
+            return Redirect::to('program/school/' . strtolower($schoolId) . '/detail/' . $schProgId)->withError('Failed to update speaker');
 
         }
 
         // return response()->json($responseMessage);
-        return Redirect::to('program/school/'.$schoolId . '/detail/' . $schProgId)->withSuccess('School program speaker successfully updated');
+        return Redirect::to('program/school/'.strtolower($schoolId) . '/detail/' . $schProgId)->withSuccess('School program speaker successfully updated');
     }
 
     public function destroy(Request $request)
@@ -102,11 +102,11 @@ class SchoolProgramSpeakerController extends Controller
 
             DB::rollBack();
             Log::error('Delete school program speaker failed : ' . $e->getMessage());
-            return Redirect::to('program/school/'.$schoolId.'/detail/'.$schProgId)->withError('Failed to remove speaker');
+            return Redirect::to('program/school/'.strtolower($schoolId).'/detail/'.$schProgId)->withError('Failed to remove speaker');
 
         }
 
-        return Redirect::to('program/school/'.$schoolId.'/detail/'.$schProgId)->withSuccess('School program speaker successfully removed');
+        return Redirect::to('program/school/'.strtolower($schoolId).'/detail/'.$schProgId)->withSuccess('School program speaker successfully removed');
     }
 }
 

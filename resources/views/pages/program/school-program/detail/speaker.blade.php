@@ -31,8 +31,8 @@
                                 <small>{{ $speaker->start_time }}</small>
                         </div>
                         <div class="text-end d-flex align-items-center">
-                            <select name="status" class="select w-100 status-form" onchange="checkStatusSpeaker('{{ $speaker->agenda_id }}')"
-                                id="{{ 'speaker' . $speaker->agenda_id }}" style="width: 120px">
+                            <select name="status_speaker" class="select w-100 status-form" onchange="checkStatusSpeaker('{{ $speaker->agenda_id }}')"
+                                id="{{ 'status_speaker' . $speaker->agenda_id }}" style="width: 120px">
                                 <option data-placeholder="true"></option>
                                 @if(isset($speaker->status))
                                     <option value="1" {{ $speaker->status == 1 ? 'selected' : '' }}>
@@ -68,7 +68,7 @@
              <div class="modal-body w-100 text-start">
                  <form
                      action="{{ url('program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/speaker') }}"
-                     method="POST">
+                     method="POST" id="formPosition">
                      @csrf
                      <div class="put"></div>
                      <div class="row g-2">
@@ -155,9 +155,7 @@
                                  <select name="" class="speaker-select w-100" id="speaker_pic">
                                      <option data-placeholder="true"></option>
                                  </select>
-                                 @error('school_speaker')
-                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                 @enderror
+                             
                              </div>
                          </div>
 
@@ -213,7 +211,7 @@
                     @csrf
                     @method('put')
                     <input type="hidden" name="agendaId" id="agenda_id">
-                    <input type="hidden" name="status" id="status_id">
+                    <input type="hidden" name="status_speaker" id="status_id">
                     <label for="">Notes</label>
                     <textarea name="notes_reason" id="notes"></textarea>
                         @error('notes_reason')
@@ -251,44 +249,11 @@
          $(id).removeClass('d-none')
      }
 
-     function changeSpeaker(type) {
-         let id = $('#' + type + '_id').val()
-         let link = '{{ url('program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id . '/edit') }}'
-         let new_link = link + '?type=' + type + '&id=' + id;
-
-         $('.speaker-pic').removeClass('d-none')
-         $('#speaker_pic').attr('name', type + '_speaker')
-         Swal.showLoading()
-         axios.get(new_link)
-             .then((res) => {
-                 // handle success
-                 let data = res.data
-                 $('#speaker_pic').html('<option data-placeholder="true"></option>')
-
-                 if (type == 'partner') {
-                     data.forEach(partner => {
-                         $('#speaker_pic').append('<option value="' + partner.id + '">' + partner
-                             .pic_name + '</option>')
-                     });
-                 } else {
-                     data.forEach(sch => {
-                         $('#speaker_pic').append('<option value="' + sch.schdetail_id + '">' + sch
-                             .schdetail_fullname + '</option>')
-                     });
-                 }
-                 Swal.close();
-             })
-             .catch((err) => {
-                 // handle error
-                 console.error(err)
-                 Swal.close()
-             })
-
-     }
+     
 
      function cancelModal() {
         let id = $('#agenda_id').val();
-        let status = $('#speaker' + id)
+        let status = $('#status_speaker' + id)
         $('#element').select2('destroy');
         $(status).val(1).select2({
             allowClear: true
@@ -296,6 +261,7 @@
         $('#reasonModal').modal('hide')
     }
 
+   
    
  </script>
 
@@ -306,24 +272,18 @@
         $errors->has('end_time')
         )
             
+        @php
+            $old = old('speaker_type');
+        @endphp
+
         <script>
             $(document).ready(function(){
                 $('#speaker').modal('show'); 
+                $('#speaker_type').val('{{$old}}').trigger('change')
             })
 
         </script>
-
     @endif
 
-    @if($errors->has('notes_reason')
-        )
-            
-        <script>
-            $(document).ready(function(){
-                $('#reasonModal').modal('show'); 
-            })
 
-        </script>
-
-    @endif
 

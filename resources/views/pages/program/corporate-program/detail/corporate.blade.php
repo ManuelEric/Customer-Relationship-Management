@@ -16,7 +16,7 @@
                 <label>:</label>
             </div>
             <div class="col-md-8">
-                {{ $partner->corp_mail }}
+                {{ $partner->corp_mail ? $partner->corp_mail : 'Not Available'}}
             </div>
         </div>
         <div class="row mb-2 g-1">
@@ -27,7 +27,7 @@
                 <label>:</label>
             </div>
             <div class="col-md-8">
-               {{ $partner->corp_phone }}
+               {{ $partner->corp_phone ? $partner->corp_phone : 'Not Available' }}
             </div>
         </div>
         <div class="row mb-2 g-1">
@@ -38,9 +38,7 @@
                 <label>:</label>
             </div>
             <div class="col-md-8">
-                Jl. Kayu Putih Tengah No.1C, RT.9/RW.7, Pulo Gadung <br>
-                13260 <br>
-                Jakarta Timur DKI Jakarta
+                {!! $partner->corp_address ? $partner->corp_address : 'Not Available' !!}
             </div>
         </div>
     </div>

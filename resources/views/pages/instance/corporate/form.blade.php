@@ -47,6 +47,186 @@
                 </div>
             </div>
 
+              @if (isset($corporate) && empty($edit))
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="">
+                            <h6 class="m-0 p-0">
+                                <i class="bi bi-building me-2"></i>
+                                Aggrements
+                            </h6>
+                        </div>
+                        <div class="">
+                            <a href="{{ url('program/corporate/'. strtolower($corporate->corp_id) . '/detail/create') }}"
+                                class="btn btn-sm btn-outline-primary rounded mx-1">
+                                <i class="bi bi-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @if (count($partnerAggrements)==0)
+                        <div class="list-group-item text-center py-3">
+                            No Aggrement Yet
+                        </div>
+                        @endif
+                        @foreach ($partnerAggrements as $partnerAggrement)
+                            <div class="list-group-item">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="text-start">
+                                        <div class="">
+                                            {{-- {{ $partnerProgram->program->prog_program }} --}}
+                                        </div>
+                                        <small>
+                                            {{-- @if ($partnerProgram->status == 0)
+                                                Pending
+                                            @elseif ($partnerProgram->status == 1)
+                                                Success
+                                            @elseif ($partnerProgram->status == 2)
+                                                Denied
+                                            @endif --}}
+                                        </small>
+                                    </div>
+                                    {{-- <a href="{{ url('program/corporate/'. strtolower($corporate->corp_id) .'/detail/'. $partnerProgram->id) }}" class="fs-6 text-warning">
+                                        <i class="bi bi-eye"></i>
+                                    </a> --}}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="">
+                            <h6 class="m-0 p-0">
+                                <i class="bi bi-building me-2"></i>
+                                Programs
+                            </h6>
+                        </div>
+                        <div class="">
+                            <a href="{{ url('program/corporate/'. strtolower($corporate->corp_id) . '/detail/create') }}"
+                                class="btn btn-sm btn-outline-primary rounded mx-1">
+                                <i class="bi bi-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @if (count($partnerPrograms)==0)
+                        <div class="list-group-item text-center py-3">
+                            No Program Yet
+                        </div>
+                        @endif
+                        @foreach ($partnerPrograms as $partnerProgram)
+                            <div class="list-group-item">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="text-start">
+                                        <div class="">
+                                            {{ $partnerProgram->program->prog_program }}
+                                        </div>
+                                        <small>
+                                            @if ($partnerProgram->status == 0)
+                                                Pending
+                                            @elseif ($partnerProgram->status == 1)
+                                                Success
+                                            @elseif ($partnerProgram->status == 2)
+                                                Denied
+                                            @endif
+                                        </small>
+                                    </div>
+                                    <a href="{{ url('program/corporate/'. strtolower($corporate->corp_id) .'/detail/'. $partnerProgram->id) }}" class="fs-6 text-warning">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="">
+                            <h6 class="m-0 p-0">
+                                <i class="bi bi-building me-2"></i>
+                                Joined Event
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            @for ($i = 0; $i < 3; $i++)
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="">
+                                            <strong>Event Name</strong> <br>
+                                            Start Date - End Date
+                                        </div>
+                                        <div class="">
+                                            <a href="#" class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endfor
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="">
+                            <h6 class="m-0 p-0">
+                                <i class="bi bi-person me-2"></i>
+                                PIC
+                            </h6>
+                        </div>
+                        <div class="">
+                            <button class="btn btn-sm btn-outline-primary rounded mx-1" data-bs-toggle="modal"
+                                data-bs-target="#picForm">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @if (isset($pics))
+                            @foreach ($pics as $pic)
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <strong class="text-muted me-2">
+                                            {{ $pic->pic_name }}
+                                        </strong>
+                                        <div class="">
+                                            <a href="#"
+                                                onclick="returnData('{{ $corporate->corp_id }}','{{ $pic->id }}')"
+                                                class="text-decoration-none" data-bs-target="#picForm">
+                                                <i class="bi bi-pencil text-warning"></i>
+                                            </a>
+                                            <a href="#"
+                                                onclick="confirmDelete('instance/corporate/{{ $corporate->corp_id }}/detail', '{{ $pic->id }}')"
+                                                class="text-decoration-none">
+                                                <i class="bi bi-trash2 text-danger"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="badge badge-success me-2">
+                                            <i class="bi bi-envelope me-1"></i> {{ $pic->pic_mail }}
+                                        </div>
+                                        <div class="badge badge-info me-2">
+                                            <i class="bi bi-phone me-1"></i> {{ $pic->pic_phone }}
+                                        </div>
+                                        <a href="{{ $pic->pic_linkedin }}"
+                                            class="btn btn-sm btn-outline-primary rounded-circle">
+                                            <i class="bi bi-linkedin"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             @if (isset($corporate) && empty($edit))
                 <div class="card mb-3">
                     <div class="card-header d-flex align-items-center justify-content-between">

@@ -27,13 +27,13 @@
                                     <i class="bi bi-arrow-left"></i> Back
                                 </a>
                             @else
-                                <a href="{{ url('program/school/' . $school->sch_id . '/detail/'. $schoolProgram->id .'/edit') }}"
+                                <a href="{{ url('program/school/' . strtolower($school->sch_id) . '/detail/'. $schoolProgram->id .'/edit') }}"
                                     class="btn btn-sm btn-outline-info rounded mx-1">
                                     <i class="bi bi-pencil"></i> Edit
                                 </a>
                             @endif
                             <button type="button"
-                                onclick="confirmDelete('{{'program/school/' . $school->sch_id . '/detail'}}', {{$schoolProgram->id}})"
+                                onclick="confirmDelete('{{'program/school/' . strtolower($school->sch_id) . '/detail'}}', {{$schoolProgram->id}})"
                                 class="btn btn-sm btn-outline-danger rounded mx-1">
                                 <i class="bi bi-trash2"></i> Delete
                             </button>
@@ -62,7 +62,7 @@
 
                 <div class="card-body">
 
-                    <form action="{{ url(isset($edit) ? 'program/school/' . $school->sch_id . '/detail/' . $schoolProgram->id : 'program/school/' . $school->sch_id . '/detail') }}" method="POST">
+                    <form action="{{ url(isset($edit) ? 'program/school/' . strtolower($school->sch_id) . '/detail/' . $schoolProgram->id : 'program/school/' . strtolower($school->sch_id) . '/detail') }}" method="POST">
                         @csrf
                        @if(isset($edit))
                             @method('put')
@@ -399,6 +399,32 @@
     </div>
 
     <script>
+             function checkStatusSpeaker(agendaId) {
+                let status = $('#status_speaker' + agendaId).val()
+                @if(isset($schoolProgram))
+                    let link =
+                        '{{ url('') }}/program/school/{{ strtolower($school->sch_id) }}/detail/{{$schoolProgram->id}}/speaker/' +
+                        agendaId
+                    console.log(link)
+                @endif 
+                let data = new Array()
+
+                $('#reasonForm').attr('action', link)
+
+                if (status == 2) {
+                    $('#reasonModal').modal('show')
+                    $('#agenda_id').val(agendaId)
+                    $('#status_id').val(status)
+                } else {
+                    $('#agenda_id').val(agendaId)
+                    $('#status_id').val(status)
+                    $('#notes').val('')
+                    $('#reasonForm').submit()
+                }
+            }
+    </script>
+
+    <script>
         function checkStatus() {
             let status = $('#approach_status').val();
             if (status == '0') {
@@ -432,28 +458,45 @@
             $('#inputReason input').val(null)
         }
 
-        function checkStatusSpeaker(agendaId) {
-        let status = $('#speaker' + agendaId).val()
 
-        let link =
-            '{{ url('') }}/program/school/{{ $school->sch_id }}/detail/{{$schoolProgram->id}}/speaker/' +
-            agendaId
-       
-        let data = new Array()
+        function changeSpeaker(type) {
+         let id = $('#' + type + '_id').val()
+         @if (isset($schoolProgram))    
+            let link = '{{ url('program/school/' . strtolower($school->sch_id) . '/detail/' . $schoolProgram->id . '/edit') }}'
+            let new_link = link + '?type=' + type + '&id=' + id;
+         @endif
 
-        $('#reasonForm').attr('action', link)
+         $('.speaker-pic').removeClass('d-none')
+         $('#speaker_pic').attr('name', type + '_speaker')
+         Swal.showLoading()
+         axios.get(new_link)
+             .then((res) => {
+                 // handle success
+                 let data = res.data
+                 $('#speaker_pic').html('<option data-placeholder="true"></option>')
 
-        if (status == 2) {
-            $('#reasonModal').modal('show')
-            $('#agenda_id').val(agendaId)
-            $('#status_id').val(status)
-        } else {
-            $('#agenda_id').val(agendaId)
-            $('#status_id').val(status)
-            $('#notes').val('')
-            $('#reasonForm').submit()
-        }
-    }
+                 if (type == 'partner') {
+                     data.forEach(partner => {
+                         $('#speaker_pic').append('<option value="' + partner.id + '">' + partner
+                             .pic_name + '</option>')
+                     });
+                 } else {
+                     data.forEach(sch => {
+                         $('#speaker_pic').append('<option value="' + sch.schdetail_id + '">' + sch
+                             .schdetail_fullname + '</option>')
+                     });
+                 }
+                 Swal.close();
+             })
+             .catch((err) => {
+                 // handle error
+                 console.error(err)
+                 Swal.close()
+             })
+
+     }
+
+
 
     </script>
     @if(isset($schoolProgram))
@@ -500,6 +543,17 @@
 
         </script>
 
+
+    @endif
+
+    @if($errors->has('notes_reason'))
+            
+        <script>
+            $(document).ready(function(){
+                $('#reasonModal').modal('show'); 
+            })
+
+        </script>
 
     @endif
 
