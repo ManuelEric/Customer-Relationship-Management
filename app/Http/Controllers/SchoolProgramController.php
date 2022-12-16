@@ -69,19 +69,17 @@ class SchoolProgramController extends Controller
 
     public function index(Request $request){
 
-
         if ($request->ajax()) {
             $filter = null;
-       
+
             if($request->all() != null){
                 $filter = $request->only([
                     'school_name',
                     'program_name',
                     'status',
                     'pic',
-
-                    // 'start_date',
-                    // 'end_date',
+                    'start_date',
+                    'end_date',
                 ]);
     
             }

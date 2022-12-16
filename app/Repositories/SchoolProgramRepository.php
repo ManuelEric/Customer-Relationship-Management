@@ -43,10 +43,13 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                         $query->whereIn('users.id', $filter['pic']);
                     })
                     ->when($filter && isset($filter['start_date']), function($query) use ($filter) {
-                        $query->where('tbl_sch_prog.start_program_date', $filter['start_date']);
+                        $query->where('tbl_sch_prog.created_at', $filter['start_date']);
                     })
                     ->when($filter && isset($filter['end_date']), function($query) use ($filter) {
-                        $query->where('tbl_sch_prog.end_program_date', $filter['end_date']);
+                        $query->where('tbl_sch_prog.created_at', $filter['end_date']);
+                    })
+                    ->when($filter && isset($filter['start_date']) && isset($filter['end_date']), function($query) use ($filter) {
+                        $query->whereBetween('tbl_sch_prog.created_at',[$filter['start_date'], $filter['end_date']]);
                     })
                 
         )->filterColumn('pic_name', function($query, $keyword){
