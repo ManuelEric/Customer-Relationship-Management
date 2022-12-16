@@ -5,8 +5,8 @@
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('client/parent') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Parent
+        <a href="{{ route('teacher-counselor.index') }}" class="text-decoration-none text-muted">
+            <i class="bi bi-arrow-left me-2"></i> Teacher/Counselor
         </a>
     </div>
 
@@ -17,14 +17,14 @@
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="">
-                            <h3 class="m-0 p-0">Michael Nathan</h3>
+                            <h3 class="m-0 p-0">{{ $teacher_counselor->fullname }}</h3>
                             <small class="text-muted">
-                                <i class="bi bi-calendar-day me-1"></i> Join Date: 09 Sept 2022 |
-                                <i class="bi bi-calendar-date mx-1"></i> Last Update: 11 Sept 2022
+                                <i class="bi bi-calendar-day me-1"></i> Join Date: {{ date('d M Y', strtotime($teacher_counselor->created_at)) }} |
+                                <i class="bi bi-calendar-date mx-1"></i> Last Update: {{ date('d M Y', strtotime($teacher_counselor->updated_at)) }}
                             </small>
                         </div>
                         <div class="">
-                            <a href="{{ url('client/parent/1/edit') }}" class="btn btn-warning btn-sm rounded"><i
+                            <a href="{{ route('teacher-counselor.edit', ['teacher_counselor' => $teacher_counselor->id]) }}" class="btn btn-warning btn-sm rounded"><i
                                     class="bi bi-pencil"></i></a>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            nathan@gmail.com
+                            {{ $teacher_counselor->mail }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -48,7 +48,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            628921412424
+                            {{ $teacher_counselor->phone }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -59,9 +59,9 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            Jl. Kayu Putih Tengah No.1C, RT.9/RW.7, Pulo Gadung <br>
-                            13260 <br>
-                            Jakarta Timur DKI Jakarta
+                            {!! $teacher_counselor->address !!} 
+                            {!! $teacher_counselor->postal_code ? $teacher_counselor->postal_code."<br>" : null !!} 
+                            {{ $teacher_counselor->city }} {{ $teacher_counselor->state }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -72,7 +72,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            12 April 2022
+                            {{ date('d M Y', strtotime($teacher_counselor->dob)) }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -83,7 +83,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            Website
+                            {{ $teacher_counselor->leadSource }}
                         </div>
                     </div>
                 </div>

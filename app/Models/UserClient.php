@@ -39,8 +39,8 @@ class UserClient extends Authenticatable
         'event_id',
         'st_levelinterest',
         'graduation_year',
-        'st_abroad_year',
-        'st_abrcountry',
+        'st_abryear',
+        // 'st_abrcountry',
         'st_statusact',
         'st_note',
         'st_prospect_status',
@@ -76,6 +76,9 @@ class UserClient extends Authenticatable
             case "KOL":
                 return "KOL - ".$this->lead->sub_lead;
                 break;
+
+            default:
+                return $this->lead->main_lead;
         }
     }
 

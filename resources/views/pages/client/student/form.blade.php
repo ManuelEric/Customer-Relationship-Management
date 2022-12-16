@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ route('student.show', ['student' => $student->id]) }}" class="text-decoration-none text-muted">
+        <a href="{{ route('student.index') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Student
         </a>
     </div>
@@ -155,7 +155,7 @@
                                                 @if (isset($parents))
                                                     @foreach ($parents as $parent)
                                                         <option value="{{ $parent->id }}"
-                                                            @if (isset($student->parents))
+                                                            @if (isset($student->parents) && count($student->parents) > 0)
                                                                 {{ $student->parents()->first()->id == $parent->id ? "selected" : null }}
                                                             @else
                                                                 {{ old('pr_id') == $parent->id ? "selected" : null }}
@@ -274,10 +274,10 @@
                             <div class="col">
                                 <div class="mb-2">
                                     <label>Curriculum <i class="text-danger font-weight-bold">*</i></label>
-                                    <select class="select w-100" name="sch_curriculum">
+                                    <select class="select w-100" name="sch_curriculum[]" multiple id="schCurriculum">
                                         <option data-placeholder="true"></option>
                                         @foreach ($curriculums as $curriculum)
-                                            <option value="{{ $curriculum->name }}" 
+                                            <option value="{{ $curriculum->id }}" 
                                                     {{ old('sch_curriculum') == $curriculum->name ? "selected" : null }}
                                                 >{{ $curriculum->name }}</option>
                                         @endforeach
@@ -291,7 +291,7 @@
                     </div>
                     <div class="col-md-4 school d-none">
                         <div class="mb-2">
-                            <label>School Market</label>
+                            <label>School Market <i class="text-danger font-weight-bold">*</i>                             </label>
                             <select class="select w-100" name="sch_score">
                                 <option data-placeholder="true"></option>
                                 <option value="2" {{ old('sch_score') == 2 ? "selected" : null }}>Low Market</option>
@@ -388,7 +388,11 @@
                                 @if (isset($events) && count($events) > 0)
                                     @foreach ($events as $event)
                                         <option value="{{ $event->event_id }}"
+                                            @if (isset($student->event->event_id))
+                                                {{ $student->event->event_id == $event->event_id ? "selected" : null }}
+                                            @else
                                                 {{ old('event_id') == $event->event_id ? "selected" : null }}
+                                            @endif
                                             >{{ $event->event_title }}</option>
                                     @endforeach
                                 @endif
@@ -408,7 +412,11 @@
                                 @if (isset($ext_edufair) && count($ext_edufair) > 0)
                                     @foreach ($ext_edufair as $edufair)
                                         <option value="{{ $edufair->id }}"
+                                            @if (isset($teacher_counselor->external_edufair->id))
+                                                {{ $teacher_counselor->external_edufair->id == $edufair->id ? "selected" : null }}
+                                            @else
                                                 {{ old('eduf_id') == $edufair->id ? "selected" : null }}
+                                            @endif
                                             >{{ $edufair->title }}</option>
                                     @endforeach
                                 @endif
@@ -533,7 +541,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-2">
-                            <label>Univ Destination</label>
+                            <label>University Destination</label>
                             <label for="" id=test></label>
                             <select class="select w-100" id="univDestination" name="st_abruniv[]" multiple>
                                 <option data-placeholder="true"></option>
@@ -581,7 +589,7 @@
                 <div class="line" style="margin-top:15px; margin-bottom:15px;"></div>
                 <div class="row">
                     <div class="col text-center">
-                        <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-send"></i>&nbsp;
+                        <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-save2"></i>&nbsp;
                             Submit</button>
                     </div>
                 </div>
@@ -671,6 +679,15 @@
                 @endforeach
 
                 $("#univDestination").select2().val(st_abruniv).trigger('change')
+            @elseif (old('st_abruniv'))
+
+                var st_abruniv = new Array();
+                @foreach (old('st_abruniv') as $key => $val)
+                    st_abruniv.push("{{ $val }}")
+                @endforeach
+
+                $("#univDestination").select2().val(st_abruniv).trigger('change')
+                
             @endif
         }
 
@@ -729,7 +746,16 @@
                 @endif
     
                 @if (old('sch_id') !== NULL && old('sch_id') == "add-new")
-                    $("#schoolName").select2().val("{{ old('pr_id') }}").trigger('change')
+                    $("#schoolName").select2().val("{{ old('sch_id') }}").trigger('change')
+
+                    @if (!empty(old('sch_curriculum')) && count(old('sch_curriculum')) > 0)
+                        var sch_curriculum = new Array();
+                        @foreach (old('sch_curriculum') as $key => $val)
+                            sch_curriculum.push("{{ $val }}")
+                        @endforeach
+
+                        $("#schCurriculum").val(sch_curriculum).trigger('change')
+                    @endif
                 @endif
     
                 @if (isset($student->st_abryear))

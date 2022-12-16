@@ -104,13 +104,16 @@ class ClientRepository implements ClientRepositoryInterface
             ->make(true);
     }
 
-    public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient)
+    public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = NULL)
     {
         return Datatables::eloquent(Client::whereHas('roles', function ($query) use ($roleName) {
             $query->where('role_name', $roleName);
-        })->where('st_statuscli', $statusClient))
+        })->when($statusClient, function($query) use ($statusClient) {
+            $query->where('st_statuscli', $statusClient);
+        }))
             ->addColumn('parent_name', function ($data) { return $data->parents()->count() > 0 ? $data->parents()->first()->first_name.' '.$data->parents()->first()->last_name : null; })
             ->addColumn('parent_phone', function ($data) { return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null; })
+            ->addColumn('children_name', function ($data) { return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name.' '.$data->childrens()->first()->last_name : null; })
             ->rawColumns(['address'])
             ->make(true);
     }

@@ -59,8 +59,8 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            {!! $student->address !!} <br>
-                            {{ $student->postal_code }} <br>
+                            {!! $student->address !!} 
+                            {!! $student->postal_code ? $student->postal_code."<br>" : null !!} 
                             {{ $student->city }} {{ $student->state }}
                         </div>
                     </div>

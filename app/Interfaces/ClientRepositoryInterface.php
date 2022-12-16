@@ -5,7 +5,7 @@ namespace App\Interfaces;
 interface ClientRepositoryInterface
 {
     public function getAllClientDataTables();
-    public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient);
+    public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = null);
     public function getAllClientByRole($roleName); # mentee, parent, teacher
     public function getAllClientByRoleAndStatus($roleName, $statusClient);
     public function getClientById($clientId);

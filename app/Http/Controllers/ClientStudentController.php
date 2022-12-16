@@ -13,6 +13,7 @@ use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
@@ -42,8 +43,9 @@ class ClientStudentController extends Controller
     private MajorRepositoryInterface $majorRepository;
     private CurriculumRepositoryInterface $curriculumRepository;
     private TagRepositoryInterface $tagRepository;
+    private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
@@ -55,6 +57,7 @@ class ClientStudentController extends Controller
         $this->majorRepository = $majorRepository;
         $this->curriculumRepository = $curriculumRepository;
         $this->tagRepository = $tagRepository;
+        $this->schoolCurriculumRepository = $schoolCurriculumRepository;
     }
     
     public function index(Request $request)
@@ -139,7 +142,6 @@ class ClientStudentController extends Controller
                     'sch_name',
                     // 'sch_location',
                     'sch_type',
-                    'sch_curriculum',
                     'sch_score',
                 ]);
     
@@ -150,6 +152,10 @@ class ClientStudentController extends Controller
                 if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
                     throw new Exception('Failed to store new school', 1);
                 
+                # insert school curriculum
+                if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
+                    throw new Exception('Failed to store school curriculum', 1);
+
 
                 # remove field sch_id from student detail if exist
                 unset($studentDetails['sch_id']);
@@ -460,7 +466,6 @@ class ClientStudentController extends Controller
                     'sch_name',
                     // 'sch_location',
                     'sch_type',
-                    'sch_curriculum',
                     'sch_score',
                 ]);
     
@@ -470,6 +475,10 @@ class ClientStudentController extends Controller
 
                 if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
                     throw new Exception('Failed to store new school', 1);
+
+                # insert school curriculum
+                if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
+                    throw new Exception('Failed to store school curriculum', 1);
                 
 
                 # remove field sch_id from student detail if exist
@@ -625,7 +634,7 @@ class ClientStudentController extends Controller
 
         }
 
-        return Redirect::to('client/student/'.$studentId)->withSuccess('A student has been updated.');
+        return Redirect::to('client/student/'.$studentId)->withSuccess('A student\'s profile has been updated.');
     }
 
     public function updateStatus(Request $request)
