@@ -28,22 +28,6 @@
                         <th class="bg-info text-white">#</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @for ($i = 0; $i < 10; $i++)
-                        <tr>
-                            <td class="text-center">{{ $i + 1 }}</td>
-                            <td>Parent Name</td>
-                            <td>Parent Mail</td>
-                            <td>Parent Number</td>
-                            <td>Childs</td>
-                            <td>Status</td>
-                            <td>Priority</td>
-                            <td class="text-center"><a href="{{ url('client/parent/1') }}"
-                                    class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>
-                            </td>
-                        </tr>
-                    @endfor
-                </tbody>
                 <tfoot class="bg-light text-white">
                     <tr>
                         <td colspan="8"></td>
@@ -73,6 +57,48 @@
                     left: 2,
                     right: 2
                 },
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'full_name',
+                        render: function(data, type, row, meta) {
+                            return data
+                        }
+                    },
+                    {
+                        data: 'mail',
+                    },
+                    {
+                        data: 'phone',
+                    },
+                    {
+                        data: 'dob',
+                    },
+                    {
+                        data: 'children_name',
+                        name: 'children_name',
+                        defaultContent: '-',
+                        orderable:true,
+                        searchable:true,
+                    },
+                    {
+                        data: 'total_score',
+                        className: 'text-primary',
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
+                    }
+                ],
             });
 
             $('#clientTable tbody').on('click', '.editClient ', function() {

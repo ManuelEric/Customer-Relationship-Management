@@ -6,9 +6,7 @@ use App\Models\Lead;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-use function PHPSTORM_META\map;
-
-class StoreClientStudentRequest extends FormRequest
+class StoreClientParentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,13 +18,6 @@ class StoreClientStudentRequest extends FormRequest
         return true;
     }
 
-    public function messages()
-    {
-        return [
-            'st_firstname.required' => 'The first name field is required'
-        ];
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -34,23 +25,23 @@ class StoreClientStudentRequest extends FormRequest
      */
     public function rules()
     {
-        $studentId = $this->route('student');
+        $parentId = $this->route('parent');
 
         $rules = [
-            'first_name' => 'required',
-            'last_name' => 'nullable',
-            'mail' => 'required|email|unique:tbl_client,mail,'.$studentId.',id',
-            'phone' => 'required|min:10|max:12',
-            'dob' => 'required',
-            'insta' => 'nullable|unique:tbl_client,insta,'.$studentId.',id',
+            'pr_firstname' => 'required',
+            'pr_lastname' => 'nullable',
+            'pr_mail' => 'required|email|unique:tbl_client,mail,'.$parentId.',id',
+            'pr_phone' => 'required|min:10|max:12',
+            'pr_dob' => 'required',
+            'pr_insta' => 'nullable|unique:tbl_client,insta,'.$parentId.',id',
             'state' => 'required',
             'city' => 'nullable',
             'postal_code' => 'nullable',
             'address' => 'nullable',
-            'st_grade' => 'required',
+            'st_grade' => 'required_if:child_id,add-new',
             'st_graduation_year' => 'nullable',
             'sch_id' => [
-                'required',
+                'required_if:child_id,add-new',
                 function ($attribute, $value, $fail) {
                     if ($this->input('sch_id') != "add-new") {
                         Rule::exists('tbl_sch', 'sch_id');
@@ -86,11 +77,11 @@ class StoreClientStudentRequest extends FormRequest
             'st_abrcountry.*' => 'nullable',
             'st_abruniv.*' => 'sometimes|nullable|exists:tbl_univ,univ_id',
             'st_abrmajor.*' => 'sometimes|nullable|exists:tbl_major,id',
-            'pr_id' => 'nullable',
-            'pr_firstname' => 'required_if:pr_id,add-new',
-            'pr_lastname' => 'nullable',
-            'pr_mail' => 'nullable|email',
-            'pr_phone' => 'required_if:pr_id,add-new',
+            'child_id' => 'nullable',
+            'first_name' => 'required_if:child_id,add-new',
+            'last_name' => 'nullable',
+            'mail' => 'nullable|email',
+            'phone' => 'required_if:child_id,add-new',
         ];
 
         if ($this->input('lead_id') != "kol") {

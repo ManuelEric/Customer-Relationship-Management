@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('client/mentee/potential') }}" class="text-decoration-none text-muted">
+        <a href="{{ url('client/student?st=potential') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Student
         </a>
     </div>
@@ -17,14 +17,14 @@
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="">
-                            <h3 class="m-0 p-0">Michael Nathan</h3>
+                            <h3 class="m-0 p-0">{{ $student->fullname }}</h3>
                             <small class="text-muted">
-                                <i class="bi bi-calendar-day me-1"></i> Join Date: 09 Sept 2022 |
-                                <i class="bi bi-calendar-date mx-1"></i> Last Update: 11 Sept 2022
+                                <i class="bi bi-calendar-day me-1"></i> Join Date: {{ date('d M Y', strtotime($student->created_at)) }} |
+                                <i class="bi bi-calendar-date mx-1"></i> Last Update: {{ date('d M Y', strtotime($student->updated_at)) }}
                             </small>
                         </div>
                         <div class="">
-                            <a href="{{ url('client/mentee/1/edit') }}" class="btn btn-warning btn-sm rounded"><i
+                            <a href="{{ url('client/student/'.$student->id.'/edit') }}" class="btn btn-warning btn-sm rounded"><i
                                     class="bi bi-pencil"></i></a>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            nathan@gmail.com
+                            {{ $student->mail }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -48,7 +48,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            628921412424
+                            {{ $student->phone }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -59,9 +59,9 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            Jl. Kayu Putih Tengah No.1C, RT.9/RW.7, Pulo Gadung <br>
-                            13260 <br>
-                            Jakarta Timur DKI Jakarta
+                            {!! $student->address !!} 
+                            {!! $student->postal_code ? $student->postal_code."<br>" : null !!} 
+                            {{ $student->city }} {{ $student->state }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -72,7 +72,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            ACS Jakarta
+                            {{ $student->school->sch_name }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -83,7 +83,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            2024
+                            {{ $student->graduation_year }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -94,7 +94,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            High
+                            {{ $student->st_levelinterest }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -105,7 +105,21 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            Website
+                            {{ $student->leadSource }}
+                        </div>
+                    </div>
+                    <div class="row mb-2 g-1">
+                        <div class="col-md-3 d-flex justify-content-between">
+                            <label>
+                                Active Status
+                            </label>
+                            <label>:</label>
+                        </div>
+                        <div class="col-md-9">
+                            <select name="st_status" id="status">
+                                <option value="1" {{ $student->st_statusact == 1 ? "selected" : null }}>Active</option>
+                                <option value="0" {{ $student->st_statusact == 0 ? "selected" : null }}>Inactive</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -118,13 +132,14 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    @for ($i = 0; $i < 4; $i++)
+                    @forelse ($student->interestPrograms as $program)
                         <a href="{{ url('program/client/create?client_id=1&prog_id=1') }}"
-                            class="btn btn-sm btn-outline-info
-                            me-1 rounded-4">
-                            ALL-in
-                            Program {{ $i }}</a>
-                    @endfor
+                        class="btn btn-sm btn-outline-info
+                        me-1 rounded-4">
+                        {{ $program->prog_program }}</a>
+                        @empty
+                            There's no interest program yet
+                    @endforelse
                 </div>
             </div>
 
@@ -134,13 +149,30 @@
             <div class="card rounded mb-2">
                 <div class="card-header">
                     <div class="">
+                        <h5 class="m-0 p-0">Interest Countries</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @forelse ($student->destinationCountries as $country)
+                        <div class="badge badge-success me-1">{{ $country->name }}</div>
+                        @empty
+                            There's no interest countries yet
+
+                    @endforelse
+                </div>
+            </div>
+            <div class="card rounded mb-2">
+                <div class="card-header">
+                    <div class="">
                         <h5 class="m-0 p-0">Dream University</h5>
                     </div>
                 </div>
                 <div class="card-body">
-                    @for ($i = 0; $i < 5; $i++)
-                        <div class="badge badge-danger me-1">Univ {{ $i }}</div>
-                    @endfor
+                    @forelse ($student->interestUniversities as $university)
+                        <div class="badge badge-danger me-1">{{ $university->univ_name }}</div>
+                        @empty
+                            There's no dream university
+                    @endforelse
                 </div>
             </div>
             <div class="card rounded mb-2">
@@ -150,9 +182,11 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    @for ($i = 0; $i < 5; $i++)
-                        <div class="badge badge-primary me-1">Major {{ $i }}</div>
-                    @endfor
+                    @forelse ($student->interestMajor as $major)
+                        <div class="badge badge-primary me-1">{{ $major->name }}</div>
+                        @empty
+                            There's no interest major yet
+                    @endforelse
                 </div>
             </div>
             <div class="card rounded mb-2">
@@ -162,39 +196,42 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
-                            <label>
-                                Parents Name
-                            </label>
-                            <label>:</label>
+                    @foreach ($student->parents as $parent)
+                        
+                        <div class="row mb-2 g-1">
+                            <div class="col-md-3 d-flex justify-content-between">
+                                <label>
+                                    Parents Name
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-9">
+                                {{ $parent->fullname }}
+                            </div>
                         </div>
-                        <div class="col-md-9">
-                            Bambang Wijanarko
+                        <div class="row mb-2 g-1">
+                            <div class="col-md-3 d-flex justify-content-between">
+                                <label>
+                                    Parents Email
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-9">
+                                {{ $parent->mail }}
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
-                            <label>
-                                Parents Email
-                            </label>
-                            <label>:</label>
+                        <div class="row mb-2 g-1">
+                            <div class="col-md-3 d-flex justify-content-between">
+                                <label>
+                                    Parents Phone
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-9">
+                                {{ $parent->phone }}
+                            </div>
                         </div>
-                        <div class="col-md-9">
-                            parent@gmail.com
-                        </div>
-                    </div>
-                    <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
-                            <label>
-                                Parents Phone
-                            </label>
-                            <label>:</label>
-                        </div>
-                        <div class="col-md-9">
-                            628235230523
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -287,5 +324,31 @@
 
 
 
+    <script type="text/javascript">
+        $("#status").on('change', async function() {
+            
+            Swal.fire({
+                width: 100,
+                backdrop: '#4e4e4e7d',
+                allowOutsideClick: false,
+            })
+            swal.showLoading()
 
+            var val = $(this).val()
+
+            var link = "{{ url('/') }}/client/student/{{ $student->id }}/status/" + val
+            
+            await axios.get(link)
+                .then(function(response) {
+                    console.log(response)
+                    Swal.close()
+                    notification(response.data.success, response.data.message)
+                })
+                .catch(function(error) {
+                    // handle error
+                    Swal.close()
+                    notification(error.response.data.success, error.response.data.message)
+                })
+        })
+    </script>
 @endsection

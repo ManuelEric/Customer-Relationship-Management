@@ -69,6 +69,6 @@ class School extends Model
 
     public function curriculum()
     {
-        return $this->belongsToMany(Curriculum::class, 'tbl_sch_curriculum', 'sch_id', 'curriculum_id');
+        return $this->belongsToMany(Curriculum::class, 'tbl_sch_curriculum', 'sch_id', 'curriculum_id')->withTimestamps();
     }
 }

@@ -187,8 +187,8 @@
                                         href="{{ url('client/parent') }}">Parents</a>
                                 </li>
                                 <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('client/teacher*') ? 'active' : '' }}"
-                                        href="{{ url('client/teacher') }}">Teacher/Counselor</a></li>
+                                        class="nav-link {{ Request::is('client/teacher-counselor*') ? 'active' : '' }}"
+                                        href="{{ url('client/teacher-counselor') }}">Teacher/Counselor</a></li>
                             </ul>
                         </div>
                     </li>

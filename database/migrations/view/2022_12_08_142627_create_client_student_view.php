@@ -62,7 +62,7 @@ return new class extends Migration
                     WHEN year(CURDATE()) - c.graduation_year = 3 THEN 3
                     ELSE 1 
                 END), 
-                (SELECT SUM(t.score) FROM tbl_client_abrcountry ab
+                (SELECT MAX(t.score) FROM tbl_client_abrcountry ab
                     JOIN tbl_tag t ON t.id = ab.tag_id
                     WHERE ab.client_id = c.id
                 )
