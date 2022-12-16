@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Receipt - Client Program - Bigdata Platform')
+@section('title', 'Receipt - School Program - Bigdata Platform')
 
 @section('content')
 
@@ -12,23 +12,12 @@
 
 
     <div class="card rounded">
-        <ul class="nav nav-tabs mb-3">
-            <li class="nav-item">
-                <a class="nav-link " aria-current="page" href="#">Receipt List</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Refund Request</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Refund List</a>
-            </li>
-        </ul>
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
-                        <th class="bg-info text-white">Client Name</th>
+                        <th class="bg-info text-white">School Name</th>
                         <th>Program Name</th>
                         <th>Receipt ID</th>
                         <th>Invoice ID</th>
@@ -42,7 +31,7 @@
                     @for ($i = 0; $i < 5; $i++)
                         <tr>
                             <td>#</td>
-                            <td>Client Name</td>
+                            <td>School Name</td>
                             <td>Program Name</td>
                             <td>Receipt ID</td>
                             <td>Invoice ID</td>
@@ -50,7 +39,7 @@
                             <td>Receipt Date</td>
                             <td>Total Price</td>
                             <td class="text-center">
-                                <a href="{{ url('receipt/client-program/1') }}" class="btn btn-sm btn-outline-warning">
+                                <a href="{{ url('receipt/school-program/1') }}" class="btn btn-sm btn-outline-warning">
                                     <i class="bi bi-eye"></i>
                                 </a>
                             </td>

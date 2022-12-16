@@ -303,10 +303,6 @@
                                         Program</a>
                                 </li>
                                 <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('receipt/refund*') ? 'active' : '' }}""
-                                        href="{{ url('receipt/refund/') }}">Refund Request</a>
-                                </li>
-                                <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('receipt/corporate-program*') ? 'active' : '' }}""
                                         href="{{ url('receipt/corporate-program/') }}">Partner
                                         Program
