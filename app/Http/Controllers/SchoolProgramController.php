@@ -69,6 +69,7 @@ class SchoolProgramController extends Controller
 
     public function index(Request $request){
 
+
         if ($request->ajax()) {
             $filter = null;
 
@@ -84,7 +85,6 @@ class SchoolProgramController extends Controller
     
             }
 
-                      
                return $this->schoolProgramRepository->getAllSchoolProgramsDataTables($filter);
 
                 

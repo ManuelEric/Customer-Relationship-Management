@@ -52,7 +52,7 @@ Route::get('corporate/1', function () {
     return view('pages.program.corporate-program.form');
 });
 
-Route::get('corporate', [PartnerProgramController::class, 'index']);
+Route::get('corporate', [PartnerProgramController::class, 'index'])->name('program.corporate.index');
 Route::prefix('corporate')->name('corporate_prog.')->group(function () {
     Route::resource('{corp}/detail', PartnerProgramController::class);
     Route::resource('{corp}/detail/{corp_prog}/speaker', PartnerProgramSpeakerController::class);

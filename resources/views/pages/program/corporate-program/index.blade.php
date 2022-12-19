@@ -14,53 +14,53 @@
                 data-bs-auto-close="false" id="filter">
                 <i class="bi bi-funnel me-2"></i> Filter
             </button>
-            <form class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 300px">
+            <form action="{{ route('program.corporate.index') }}" class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 300px" method="GET">
                 <h6 class="dropdown-header bg-secondary text-white rounded-top">Advanced Filter</h6>
                 <div class="row p-3">
                     <div class="col-md-12 mb-2">
                         <label for="">Partner Name</label>
-                        <select name="" id="" class="select form-select form-select-sm w-100" multiple>
-                            @for ($i = 0; $i < 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                        <select name="partner_name[]" id="" class="select form-select form-select-sm w-100" multiple>
+                            @foreach ($partners as $partner)
+                                <option value="{{ $partner->corp_name }}">{{ $partner->corp_name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-12 mb-2">
                         <label for="">Program Name</label>
-                        <select name="" id="" class="select form-select form-select-sm w-100" multiple>
-                            @for ($i = 0; $i < 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                        <select name="program_name[]" id="" class="select form-select form-select-sm w-100" multiple>
+                            @foreach ($programs as $program)
+                                <option value="{{ $program->prog_program }}">{{ $program->prog_program }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-12 mb-2">
                         <div class="row g-2">
                             <div class="col-md-6 mb-2">
                                 <label>Start Date</label>
-                                <input type="date" name="" id=""
+                                <input type="date" name="start_date" id=""
                                     class="form-control form-control-sm rounded">
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label>End Date</label>
-                                <input type="date" name="" id=""
+                                <input type="date" name="end_date" id=""
                                     class="form-control form-control-sm rounded">
                             </div>
                         </div>
                     </div>
                     <div class="col-md-12 mb-2">
                         <label for="">Approach Status</label>
-                        <select name="" id="" class="select form-select form-select-sm w-100" multiple>
-                            @for ($i = 0; $i < 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                        <select name="status[]" id="" class="select form-select form-select-sm w-100" multiple>
+                            <option value="0">Pending</option>
+                            <option value="1">Success</option>
+                            <option value="2">Denied</option>
                         </select>
                     </div>
                     <div class="col-md-12 mb-2">
                         <label for="">PIC</label>
-                        <select name="" id="" class="select form-select form-select-sm w-100" multiple>
-                            @for ($i = 0; $i < 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                        <select name="pic[]" id="" class="select form-select form-select-sm w-100" multiple>
+                            @foreach ($employees as $employee)
+                                <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-12 mt-3">

@@ -84,9 +84,37 @@ class PartnerProgramController extends Controller
     public function index(Request $request){
 
         if ($request->ajax()) {
-            return $this->partnerProgramRepository->getAllPartnerProgramsDataTables();
+            $filter = null;
+            
+            if($request->all() != null){
+                $filter = $request->only([
+                    'partner_name',
+                    'program_name',
+                    'status',
+                    'pic',
+                    'start_date',
+                    'end_date',
+                    ]);
+            }
+                return $this->partnerProgramRepository->getAllPartnerProgramsDataTables($filter);
         }
-            return view('pages.program.corporate-program.index');
+
+        $partners = $this->corporateRepository->getAllCorporate();
+
+        # retrieve program data
+        $programsB2B = $this->programRepository->getAllProgramByType('B2B');
+        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
+        $programs = $programsB2B->merge($programsB2BB2C);
+
+        # retrieve employee data
+        $employees = $this->userRepository->getAllUsersByRole('Employee');
+    
+        return view('pages.program.corporate-program.index')->with(
+        [
+            'partners' => $partners,
+            'programs' => $programs,
+            'employees' => $employees,
+        ]);
     }
 
     public function store(StorePartnerProgramRequest $request)
