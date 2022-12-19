@@ -187,8 +187,8 @@
                                         href="{{ url('client/parent') }}">Parents</a>
                                 </li>
                                 <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('client/teacher*') ? 'active' : '' }}"
-                                        href="{{ url('client/teacher') }}">Teacher/Counselor</a></li>
+                                        class="nav-link {{ Request::is('client/teacher-counselor*') ? 'active' : '' }}"
+                                        href="{{ url('client/teacher-counselor') }}">Teacher/Counselor</a></li>
                             </ul>
                         </div>
                     </li>
@@ -301,10 +301,6 @@
                                         class="nav-link {{ Request::is('receipt/client-program*') ? 'active' : '' }}""
                                         href="{{ url('receipt/client-program/') }}">Client
                                         Program</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('receipt/refund*') ? 'active' : '' }}""
-                                        href="{{ url('receipt/refund/') }}">Refund Request</a>
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('receipt/corporate-program*') ? 'active' : '' }}""

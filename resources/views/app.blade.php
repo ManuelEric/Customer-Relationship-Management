@@ -60,6 +60,18 @@
             color: #494949;
         }
 
+        #overlay {
+            position: fixed;
+            background: #FFF;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1060;
+        }
+
         .accordion-button {
             box-shadow: none !important;
             outline: none !important;
@@ -149,6 +161,7 @@
 </head>
 
 <body>
+    <div id="overlay"></div>
     @yield('body')
 
     {{-- Delete Item  --}}
@@ -289,6 +302,19 @@
                 allowClear: true
             });
         }
+    </script>
+
+    <script>
+        Swal.fire({
+            width: 100,
+            backdrop: "#FFF",
+            allowOutsideClick: false,
+        })
+        Swal.showLoading()
+        $(window).on('load', function() {
+            $('#overlay').addClass('d-none')
+            Swal.close()
+        });
     </script>
 
 </body>

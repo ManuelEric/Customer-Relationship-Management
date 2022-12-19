@@ -39,8 +39,8 @@ class UserClient extends Authenticatable
         'event_id',
         'st_levelinterest',
         'graduation_year',
-        'st_abroad_year',
-        'st_abrcountry',
+        'st_abryear',
+        // 'st_abrcountry',
         'st_statusact',
         'st_note',
         'st_prospect_status',
@@ -53,6 +53,33 @@ class UserClient extends Authenticatable
         return Attribute::make(
             get: fn ($value) => $this->first_name.' '.$this->last_name,
         );
+    }
+
+    protected function leadSource(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getLeadSource($this->lead->main_lead)
+        );
+    }
+
+    public function getLeadSource($parameter)
+    {
+        switch ($parameter) {
+            case "All-In Event":
+                return "ALL-In Event - ".$this->event->event_title;
+                break;
+
+            case "External Edufair":
+                return "External Edufair - ".$this->external_edufair->title;
+                break;
+
+            case "KOL":
+                return "KOL - ".$this->lead->sub_lead;
+                break;
+
+            default:
+                return $this->lead->main_lead;
+        }
     }
 
     # relation
@@ -93,21 +120,21 @@ class UserClient extends Authenticatable
 
     public function destinationCountries()
     {
-        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'tag_id');
+        return $this->belongsToMany(Tag::class, 'tbl_client_abrcountry', 'client_id', 'tag_id')->withTimestamps();
     }
 
     public function interestUniversities()
     {
-        return $this->belongsToMany(University::class, 'tbl_dreams_uni', 'client_id', 'univ_id');
+        return $this->belongsToMany(University::class, 'tbl_dreams_uni', 'client_id', 'univ_id')->withTimestamps();
     }
 
     public function interestPrograms()
     {
-        return $this->belongsToMany(Program::class, 'tbl_interest_prog', 'client_id', 'prog_id');
+        return $this->belongsToMany(Program::class, 'tbl_interest_prog', 'client_id', 'prog_id')->withTimestamps();
     }
 
     public function interestMajor()
     {
-        return $this->belongsToMany(Major::class, 'tbl_dreams_major', 'client_id', 'major_id');
+        return $this->belongsToMany(Major::class, 'tbl_dreams_major', 'client_id', 'major_id')->withTimestamps();
     }
 }

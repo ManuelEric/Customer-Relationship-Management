@@ -34,6 +34,12 @@
             line-height: 16px;
         }
 
+        .table-detail th {
+            background: #EEA953;
+            color: #fff;
+            border: 1px solid #ce8e40;
+        }
+
         .table-detail td,
         th {
             border: 1px solid #dedede;

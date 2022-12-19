@@ -12,6 +12,17 @@
 
 
     <div class="card rounded">
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a class="nav-link " aria-current="page" href="#">Receipt List</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Refund Request</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Refund List</a>
+            </li>
+        </ul>
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
                 <thead class="bg-dark text-white">

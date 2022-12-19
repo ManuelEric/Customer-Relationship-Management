@@ -34,13 +34,15 @@ class StoreClientStudentRequest extends FormRequest
      */
     public function rules()
     {
+        $studentId = $this->route('student');
+
         $rules = [
             'first_name' => 'required',
             'last_name' => 'nullable',
-            'mail' => 'required|email|unique:tbl_client,mail',
+            'mail' => 'required|email|unique:tbl_client,mail,'.$studentId.',id',
             'phone' => 'required|min:10|max:12',
             'dob' => 'required',
-            'insta' => 'sometimes|unique:tbl_client,insta',
+            'insta' => 'nullable|unique:tbl_client,insta,'.$studentId.',id',
             'state' => 'required',
             'city' => 'nullable',
             'postal_code' => 'nullable',
@@ -58,7 +60,7 @@ class StoreClientStudentRequest extends FormRequest
             'sch_name' => 'sometimes|required_if:sch_id,add-new|unique:tbl_sch,sch_name',
             // 'sch_location' => 'sometimes|required_if:sch_id,add-new',
             'sch_type' => 'required_if:sch_id,add-new',
-            'sch_curriculum' => 'required_if:sch_id,add-new',
+            'sch_curriculum.*' => 'required_if:sch_id,add-new',
             'sch_score' => 'required_if:sch_id,add-new',
             'event_id' => 'required_if:lead_id,LS004',
             'eduf_id' => 'required_if:lead_id,LS018',

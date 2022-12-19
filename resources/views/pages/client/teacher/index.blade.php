@@ -8,7 +8,7 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Teacher
         </a>
-        <a href="{{ url('client/teacher/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
+        <a href="{{ url('client/teacher-counselor/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
             Teacher</a>
     </div>
 
@@ -22,27 +22,14 @@
                         <th class="bg-info text-white">Teacher Name</th>
                         <th>Teacher Email</th>
                         <th>Teacher Number</th>
+                        <th>From</th>
                         <th class="bg-info text-white">Status</th>
                         <th class="bg-info text-white">#</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @for ($i = 0; $i < 10; $i++)
-                        <tr>
-                            <td class="text-center">{{ $i + 1 }}</td>
-                            <td>Teacher Name</td>
-                            <td>Teacher Mail</td>
-                            <td>Teacher Number</td>
-                            <td>Status</td>
-                            <td class="text-center"><a href="{{ url('client/teacher/1') }}"
-                                    class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>
-                            </td>
-                        </tr>
-                    @endfor
-                </tbody>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="5"></td>
+                        <td colspan="7"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -69,17 +56,52 @@
                     left: 2,
                     right: 2
                 },
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'full_name',
+                        render: function(data, type, row, meta) {
+                            return data
+                        }
+                    },
+                    {
+                        data: 'mail',
+                    },
+                    {
+                        data: 'phone',
+                    },
+                    {
+                        data: 'school_name',
+                        name: 'school_name',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'st_statusact',
+                        render: function(data, type, row, meta) {
+                            return data == 1 ? "active" : "nonactive";
+                        }
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
+                    }
+                ],
             });
 
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('asset') }}/" + data.asset_id.toLowerCase() + '/edit';
+                window.location.href = "{{ url('client/teacher-counselor') }}/" + data.id;
             });
 
-            $('#clientTable tbody').on('click', '.deleteClient ', function() {
-                var data = table.row($(this).parents('tr')).data();
-                confirmDelete('asset', data.asset_id)
-            });
         });
     </script>
 @endsection

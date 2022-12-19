@@ -81,17 +81,7 @@ class SchoolController extends Controller
             $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails);
 
             # insert into sch curriculum
-            if (count($request->sch_curriculum) > 0) {
-
-                foreach ($request->sch_curriculum as $key => $value) {
-
-                    $schoolCurriculumDetails[] = [
-                        'curriculum_id' => $value,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ];
-                }
-            }
+            $schoolCurriculumDetails = $request->sch_curriculum;
 
             $this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $schoolCurriculumDetails);
 
@@ -208,17 +198,7 @@ class SchoolController extends Controller
             $this->schoolRepository->updateSchool($schoolId, $schoolDetails);
 
             # insert into sch curriculum
-            if (count($request->sch_curriculum) > 0) {
-
-                foreach ($request->sch_curriculum as $key => $value) {
-
-                    $newSchoolCurriculumDetails[] = [
-                        'curriculum_id' => $value,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ];
-                }
-            }
+            $newSchoolCurriculumDetails = $request->sch_curriculum;
 
             $this->schoolCurriculumRepository->updateSchoolCurriculum($schoolId, $newSchoolCurriculumDetails);
 

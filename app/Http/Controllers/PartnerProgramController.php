@@ -308,7 +308,7 @@ class PartnerProgramController extends Controller
 
    }
    
-   public function update(Request $request){
+   public function update(StorePartnerProgramRequest $request){
         
         $corpId = $request->route('corp');
         $partner_progId = $request->route('detail');

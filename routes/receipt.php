@@ -23,5 +23,44 @@ Route::get('client-program/1', function () {
 });
 
 Route::get('client-program/1/export/pdf', function () {
-    return view('pages.receipt.client-program.export.invoice-pdf');
+    return view('pages.receipt.client-program.export.receipt-pdf');
+});
+
+// CORPORATE 
+Route::get('corporate-program/', function () {
+    return view('pages.receipt.corporate-program.index');
+});
+
+Route::get('corporate-program/1', function () {
+    return view('pages.receipt.corporate-program.form');
+});
+
+Route::get('corporate-program/1/export/pdf', function () {
+    return view('pages.receipt.corporate-program.export.receipt-pdf');
+});
+
+// school 
+Route::get('school-program/', function () {
+    return view('pages.receipt.school-program.index');
+});
+
+Route::get('school-program/1', function () {
+    return view('pages.receipt.school-program.form');
+});
+
+Route::get('school-program/1/export/pdf', function () {
+    return view('pages.receipt.school-program.export.receipt-pdf');
+});
+
+// referral 
+Route::get('referral/', function () {
+    return view('pages.receipt.referral.index');
+});
+
+Route::get('referral/1', function () {
+    return view('pages.receipt.referral.form');
+});
+
+Route::get('referral/1/export/pdf', function () {
+    return view('pages.receipt.referral.export.receipt-pdf');
 });

@@ -21,6 +21,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url('invoice/client-program/status/list') }}">Invoice List</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url('invoice/client-program/status/list') }}">Due Date Reminder</a>
+                </li>
             </ul>
             @if ($status == 'needed')
                 @include('pages.invoice.client-program.detail.invoice-needed')
