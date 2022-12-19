@@ -303,28 +303,13 @@
             });
         }
     </script>
-    <script async defer>
-        // $(document).ready(function() {
 
-        //     Swal.fire({
-        //         title: 'Please Wait !',
-        //         html: 'data uploading',// add html attribute if you want or remove
-        //         allowOutsideClick: false,
-        //         showConfirmButton: false,
-        //         backdrop: '#FFFFFF',
-        //         onBeforeOpen: () => {
-        //             Swal.showLoading()
-        //         },
-        //     });
-        // })
-
-        <
-        script >
-            Swal.fire({
-                width: 100,
-                backdrop: "#FFF",
-                allowOutsideClick: false,
-            })
+    <script>
+        Swal.fire({
+            width: 100,
+            backdrop: "#FFF",
+            allowOutsideClick: false,
+        })
         Swal.showLoading()
         $(window).on('load', function() {
             $('#overlay').addClass('d-none')

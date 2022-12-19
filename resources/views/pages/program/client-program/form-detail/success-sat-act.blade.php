@@ -33,7 +33,7 @@
                     </div>
                 </div>
 
-                <div class="row mb-2 d-none" id="success_sat_act">
+                <div class="row mb-2">
                     <div class="col-md-6 mb-2">
                         <small>Tutor 1 <sup class="text-danger">*</sup></small>
                         <select name="" id="" class="select w-100">
