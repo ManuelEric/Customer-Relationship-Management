@@ -13,12 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tbl_partner_aggrement', function (Blueprint $table) {
+        Schema::create('tbl_partner_agreement', function (Blueprint $table) {
             $table->id();
-            $table->char('corp_id', 9);
+            $table->char('corp_id', 9)->collation('utf8mb4_general_ci');
             $table->foreign('corp_id')->references('corp_id')->on('tbl_corp')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->string('jenis_aggrement');
+            $table->string('agreement_name');
+            $table->tinyInteger('agreement_type')->comment('0: Referral Mutual Agreement, 1: Partnership Agreement, 2: Speaker Agreement, 3: University Agent');
             $table->string('attachment');
             $table->date('start_date');
             $table->date('end_date');
@@ -40,6 +41,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tbl_partner_aggrement');
+        Schema::dropIfExists('tbl_partner_agreement');
     }
 };

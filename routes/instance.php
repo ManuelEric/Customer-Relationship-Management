@@ -5,7 +5,7 @@ use App\Http\Controllers\SchoolDetailController;
 use App\Http\Controllers\CorporateController;
 use App\Http\Controllers\CorporatePicController;
 // use App\Http\Controllers\PartnerController;
-use App\Http\Controllers\PartnerAggrementController;
+use App\Http\Controllers\PartnerAgreementController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\SchoolProgramController;
 use App\Http\Controllers\UniversityPicController;
@@ -27,7 +27,7 @@ Route::resource('corporate', CorporateController::class);
 Route::prefix('corporate')->name('corporate.')->group(function () {
 
     Route::resource('{corporate}/detail', CorporatePicController::class);
-    Route::resource('{corporate}/aggrement', PartnerAggrementController::class);
+    Route::resource('{corporate}/agreement', PartnerAgreementController::class);
 });
 
 // Route::resource('partner', PartnerController::class);

@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 
 
-class PartnerAggrement extends Model
+class PartnerAgreement extends Model
 {
     use HasFactory;
 
-    protected $table = 'tbl_partner_aggrement';
+    protected $table = 'tbl_partner_agreement';
     protected $primaryKey = 'id';
 
     /**
@@ -22,7 +22,8 @@ class PartnerAggrement extends Model
      */
     protected $fillable = [
         'corp_id',
-        'jenis_aggrement',
+        'agreement_name',
+        'agreement_type',
         'attachment',
         'start_date',
         'end_date',

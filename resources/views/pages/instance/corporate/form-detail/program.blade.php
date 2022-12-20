@@ -16,14 +16,26 @@
 
     <div class="card-body">
         <table class="table table-borderless table-hover">
-            @for ($i = 0; $i < 3; $i++)
+            @forelse ($partnerPrograms as $partnerProgram)
                 <tr>
-                    <td>Program Name</td>
-                    <td class="text-center">ALL-in PIC</td>
-                    <td class="text-center">Program Date</td>
-                    <td class="text-end">Success</td>
+                    <td>{{ $partnerProgram->program->prog_program }}</td>
+                    <td class="text-center">{{ $partnerProgram->user->first_name }} {{ $partnerProgram->user->last_name }}</td>
+                    <td class="text-center">{{ $partnerProgram->first_discuss }}</td>
+                    <td class="text-end">
+                        @if ($partnerProgram->status == 0)
+                            Pending
+                        @elseif ($partnerProgram->status == 1)
+                            Success
+                        @elseif ($partnerProgram->status == 2)
+                            Denied
+                        @endif
+                    </td>
                 </tr>
-            @endfor
+            @empty
+                <tr>
+                    <td>No program yet</td>
+                </tr>
+            @endforelse
         </table>
     </div>
 </div>

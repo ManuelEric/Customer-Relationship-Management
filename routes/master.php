@@ -17,6 +17,7 @@ use App\Http\Controllers\VendorController;
 use App\Http\Controllers\EdufLeadController;
 use App\Http\Controllers\EdufReviewController;
 use App\Http\Controllers\EventSpeakerController;
+use App\Http\Controllers\SalesTargetController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -69,13 +70,15 @@ Route::prefix('event')->name('event.')->group(function () {
 
 Route::resource('edufair', EdufLeadController::class);
 Route::prefix('edufair')->name('edufair.')->group(function () {
-
+    
     Route::post('{edufair}/review', [EdufReviewController::class, 'store'])->name('review.store');
     Route::get('{edufair}/review/{review}/edit', [EdufLeadController::class, 'edit'])->name('review.edit');
     Route::get('{edufair}/review/{review}', [EdufReviewController::class, 'show'])->name('review.show');
     Route::put('{edufair}/review/{review}', [EdufReviewController::class, 'update'])->name('review.update');
     Route::delete('{edufair}/review/{review}', [EdufReviewController::class, 'destroy'])->name('review.destroy');
 });
+
+Route::resource('sales-target', SalesTargetController::class);
 
 Route::get('curriculum', function () {
     return view('pages.master.curriculum.index');
@@ -85,6 +88,6 @@ Route::get('university-tags', function () {
     return view('pages.master.university-tag.index');
 });
 
-Route::get('sales-target', function () {
-    return view('pages.master.sales-target.index');
-});
+// Route::get('sales-target', function () {
+//     return view('pages.master.sales-target.index');
+// });

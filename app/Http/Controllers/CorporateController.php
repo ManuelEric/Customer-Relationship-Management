@@ -7,7 +7,8 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\PartnerProgramRepositoryInterface;
-use App\Interfaces\PartnerAggrementRepositoryInterface;
+use App\Interfaces\PartnerAgreementRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use App\Models\Corporate;
 use Exception;
 use Illuminate\Http\Request;
@@ -23,14 +24,17 @@ class CorporateController extends Controller
     private CorporateRepositoryInterface $corporateRepository;
     private CorporatePicRepositoryInterface $corporatePicRepository;
     private PartnerProgramRepositoryInterface $partnerProgramRepository;
-    private PartnerAggrementRepositoryInterface $partnerAggrementRepository;
+    private PartnerAgreementRepositoryInterface $partnerAgreementRepository;
+    protected UserRepositoryInterface $userRepository;
 
-    public function __construct(CorporateRepositoryInterface $corporateRepository, CorporatePicRepositoryInterface $corporatePicRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, PartnerAggrementRepositoryInterface $partnerAggrementRepository)
+
+    public function __construct(CorporateRepositoryInterface $corporateRepository, CorporatePicRepositoryInterface $corporatePicRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, UserRepositoryInterface $userRepository)
     {
         $this->corporateRepository = $corporateRepository;
         $this->corporatePicRepository = $corporatePicRepository;
         $this->partnerProgramRepository = $partnerProgramRepository;
-        $this->partnerAggrementRepository = $partnerAggrementRepository;
+        $this->partnerAgreementRepository = $partnerAgreementRepository;
+        $this->userRepository = $userRepository;
     }
 
     public function index(Request $request)
@@ -132,16 +136,21 @@ class CorporateController extends Controller
         # retrieve School Program data by schoolId
         $partnerPrograms = $this->partnerProgramRepository->getAllPartnerProgramsByPartnerId($corporateId);
         
-        $partnerAggrements = $this->partnerAggrementRepository->getAllPartnerAggrementsByPartnerId($corporateId);
+        $partnerAgreements = $this->partnerAgreementRepository->getAllPartnerAgreementsByPartnerId($corporateId);
         
         $pics = $this->corporatePicRepository->getAllCorporatePicByCorporateId($corporateId);
+
+        # retrieve employee data
+        $employees = $this->userRepository->getAllUsersByRole('Employee');
+
 
         return view('pages.instance.corporate.form')->with(
             [
                 'corporate' => $corporate,
                 'partnerPrograms' => $partnerPrograms,
-                'partnerAggrements' => $partnerAggrements,
-                'pics' => $pics
+                'partnerAgreements' => $partnerAgreements,
+                'pics' => $pics,
+                'employees' => $employees
             ]
         );
     }
