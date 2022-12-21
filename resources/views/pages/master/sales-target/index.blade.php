@@ -13,16 +13,6 @@
             Sales Target</a>
     </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="salesTargetTable">
@@ -69,7 +59,7 @@
                                     <select name="prog_id" id="prog_id" class="modal-select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($programs as $program)
-                                            <option value="{{ $program->prog_id }}">{{ $program->prog_program }}</option>
+                                            <option value="{{ $program->prog_id }}" {{ $program->prog_id == old('prog_id') ? 'selected' : ''}}>{{ $program->prog_program }}</option>
                                         @endforeach
                                     </select>
                                     @error('prog_id')
@@ -83,7 +73,7 @@
                                         Participants Target <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="number" name="total_participant" id="total_participant"
-                                        class="form-control form-control-sm rounded" required value="">
+                                        class="form-control form-control-sm rounded" required value="{{ old('total_participant') }}">
                                     @error('total_participant')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -95,7 +85,7 @@
                                         Total Amount Target <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="number" name="total_target" id="total_target"
-                                        class="form-control form-control-sm rounded" required value="">
+                                        class="form-control form-control-sm rounded" required value="{{ old('total_target') }}">
                                     @error('total_target')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -107,7 +97,7 @@
                                         Month <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="month" name="month_year" id="month_year"
-                                        class="form-control form-control-sm rounded" required value="">
+                                        class="form-control form-control-sm rounded" required value="{{ old('month_year') }}">
                                     @error('month_year')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreSalesTargetRequest extends FormRequest
 {
@@ -22,6 +23,13 @@ class StoreSalesTargetRequest extends FormRequest
      * @return array<string, mixed>
      */
 
+     public function messages()
+     {
+         return [
+             'unique' => 'The :attribute has already been taken at same time.',
+         ];
+     }
+
      
     public function attributes()
     {
@@ -33,9 +41,12 @@ class StoreSalesTargetRequest extends FormRequest
     public function rules()
     {
         $prog_id = $this->input('prog_id');
+        $month_year = $this->input('month_year') . '-01';
 
         return [
-            'prog_id' => 'required|exists:tbl_prog,prog_id',
+            'prog_id' => ['required','exists:tbl_prog,prog_id', Rule::unique('tbl_sales_target')->where(function ($query) use ($month_year){
+                return $query->where('month_year', $month_year);
+            })],
             'total_participant' => 'required|integer',
             'total_target' => 'required|integer',
             'month_year' => 'required',
