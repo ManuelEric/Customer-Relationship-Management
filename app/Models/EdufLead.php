@@ -52,4 +52,9 @@ class EdufLead extends Model
     {
         return $this->hasMany(EdufReview::class, 'eduf_id', 'id');
     }
+
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'eduf_lead_id', 'id');
+    }
 }

@@ -13,29 +13,47 @@
                 <div class="row mb-2">
                     <div class="col-md-12 mb-2">
                         <small>Trial Date <sup class="text-danger">*</sup></small>
-                        <input type="date" name="" id=""
+                        <input type="date" name="trial_date"
                             class="form-control form-control-sm rounded">
+                        @error('trial_date')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-6 mb-2">
                         <small>Start Date <sup class="text-danger">*</sup></small>
-                        <input type="date" name="" id=""
+                        <input type="date" name="prog_start_date" 
                             class="form-control form-control-sm rounded">
+                        @error('prog_start_date')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-6 mb-2">
                         <small>End Date <sup class="text-danger">*</sup></small>
-                        <input type="date" name="" id=""
+                        <input type="date" name="prog_end_date" 
                             class="form-control form-control-sm rounded">
+                        @error('prog_end_date')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-12 mb-2">
                         <small>Timesheet Link <sup class="text-danger">*</sup></small>
-                        <input type="url" name="" id=""
+                        <input type="url" name="timesheet_link" 
                             class="form-control form-control-sm rounded">
+                        @error('timesheet_link')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
-                    <div class="col-md-6 mb-2">
+                    <div class="col-md-12 mb-2">
                         <small>Tutor Name <sup class="text-danger">*</sup></small>
-                        <select name="" id="" class="select w-100">
+                        <select name="tutor_id" id="" class="select w-100">
                             <option data-placeholder="true"></option>
+                            @foreach ($tutors as $tutor)
+                                <option value="{{ $tutor->id }}">{{ $tutor->first_name.' '.$tutor->last_name.' - '.json_encode($tutor->roles()->where('role_name', 'Tutor')->pluck('tutor_subject')->toArray()) }}</option>
+                            @endforeach
                         </select>
+                        @error('tutor_id')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                 </div>
             </div>

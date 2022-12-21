@@ -242,8 +242,7 @@
                         <h5 class="m-0 p-0">Programs</h5>
                     </div>
                     <div class="">
-                        <a href="{{ url('program/client/create?client_id=1') }}" class="btn btn-sm btn-primary"
-                            data-bs-toggle="modal" data-bs-target="#programForm">Add Program</a>
+                        <a href="{{ route('student.program.create', ['student' => $student->id]) }}" class="btn btn-sm btn-primary">Add Program</a>
                     </div>
                 </div>
                 <div class="card-body">

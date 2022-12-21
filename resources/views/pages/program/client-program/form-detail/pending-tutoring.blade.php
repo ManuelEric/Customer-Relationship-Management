@@ -13,8 +13,11 @@
                 <div class="row mb-2">
                     <div class="col-md-12 mb-2">
                         <small>Trial Date <sup class="text-danger">*</sup></small>
-                        <input type="date" name="" id=""
+                        <input type="date" name="pend_trial_date"
                             class="form-control form-control-sm rounded">
+                        @error('pend_trial_date')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                 </div>
             </div>

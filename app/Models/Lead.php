@@ -37,4 +37,9 @@ class Lead extends Model
     {
         return $this->hasMany(UserClient::class, 'lead_id', 'lead_id');
     }
+
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'lead_id', 'lead_id');
+    }
 }

@@ -132,6 +132,18 @@ class ClientRepository implements ClientRepositoryInterface
         })->where('st_statuscli', $statusClient)->get();
     }
 
+    public function getAllChildrenWithNoParents($parentId = null)
+    {
+        if ($parentId)
+            $parentChilds = UserClient::find($parentId)->childrens()->pluck('tbl_client.id')->toArray();
+
+        return UserClient::whereHas('roles', function ($query) {
+            $query->where('role_name', 'Student');
+        })->doesntHave('parents')->when($parentChilds, function($query) use ($parentChilds) {
+            $query->orWhereIn('id', $parentChilds);
+        })->get();
+    }
+
     public function getClientById($clientId)
     {
         return UserClient::find($clientId);
@@ -172,12 +184,18 @@ class ClientRepository implements ClientRepositoryInterface
 
         # why sync?
         # to create and update all at once
-        $student->parents()->sync($parentId, [
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-        ]);
-
+        $student->parents()->sync($parentId);
         return $student;
+    }
+
+    public function createManyClientRelation($parentId, $studentId)
+    {
+        $parent = UserClient::find($parentId);
+
+        # why sync?
+        # to create and update all at once
+        $parent->childrens()->sync($studentId);  
+        return $parent; 
     }
 
     public function createDestinationCountry($studentId, $destinationCountryDetails)

@@ -22,7 +22,7 @@ class Role extends Model
 
     public function user()
     {
-        return $this->belongsToMany(User::class, 'tbl_user_roles', 'role_id', 'user_id');
+        return $this->belongsToMany(User::class, 'tbl_user_roles', 'role_id', 'user_id')->withPivot('tutor_subject', 'feehours', 'feesession');
     }
 
     public function client()
