@@ -79,4 +79,9 @@ class Program extends Model
     {
         return $this->belongsToMany(UserClient::class, 'tbl_interest_prog', 'prog_id', 'client_id');
     }
+
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'prog_id', 'prog_id');
+    }
 }

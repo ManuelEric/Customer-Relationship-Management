@@ -88,7 +88,7 @@ class User extends Authenticatable
     # relation
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id');
+        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->withPivot('tutor_subject', 'feehours', 'feesession');
     }
 
     public function position()
@@ -134,5 +134,15 @@ class User extends Authenticatable
     public function as_schoolprog_speaker()
     {
         return $this->belongsToMany(SchoolProg::class, 'tbl_agenda_speaker', 'empl_id', 'sch_prog_id')->using(AgendaSpeaker::class);
+    }
+
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'empl_id', 'id');
+    }
+
+    public function mentorClient()
+    {
+        return $this->belongsToMany(ClientProgram::class, 'tbl_client_mentor', 'user_id', 'clientprog_id')->withTimestamps();
     }
 }

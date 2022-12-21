@@ -8,7 +8,7 @@
                 </h6>
             </button>
         </h2>
-        <div id="clientInfo" class="accordion-collapse collapse" aria-labelledby="clientInfo">
+        <div id="clientInfo" class="accordion-collapse collapse show" aria-labelledby="clientInfo">
             <div class="accordion-body p-2">
                 <div class="card">
                     <div class="card-body">
@@ -20,7 +20,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                nathan@gmail.com
+                                {{ $student->mail }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -31,7 +31,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                628921412424
+                                {{ $student->phone }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -42,9 +42,9 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                Jl. Kayu Putih Tengah No.1C, RT.9/RW.7, Pulo Gadung <br>
-                                13260 <br>
-                                Jakarta Timur DKI Jakarta
+                                {!! $student->address !!} 
+                                {!! $student->postal_code ? $student->postal_code."<br>" : null !!} 
+                                {{ $student->city }} {{ $student->state }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -55,7 +55,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                ACS Jakarta
+                                {{ $student->school->sch_name }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -66,7 +66,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                2024
+                                {{ $student->graduation_year }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -77,7 +77,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                High
+                                {{ $student->st_levelinterest }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -88,7 +88,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                Website
+                                {{ $student->leadSource }}
                             </div>
                         </div>
                     </div>
@@ -119,7 +119,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                Bambang Wijanarko
+                                {{ $student->parents()->first()->fullname }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -130,7 +130,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                parent@gmail.com
+                                {{ $student->parents()->first()->mail }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -141,7 +141,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                628235230523
+                                {{ $student->parents()->first()->phone }}
                             </div>
                         </div>
                     </div>

@@ -358,4 +358,191 @@ class ClientParentController extends Controller
 
         return Redirect::to('client/parent')->withSuccess('A new parent has been registered.');
     }
+
+    public function show(Request $request)
+    {
+        $parentId = $request->route('parent');
+        $parent = $this->clientRepository->getClientById($parentId);
+
+        return view('pages.client.parent.view')->with(
+            [
+                'parent' => $parent
+            ]
+        );
+    }
+
+    public function edit(Request $request)
+    {
+        # ajax
+        # to get university by selected country
+        if ($request->ajax()) {
+            $universities = $this->universityRepository->getAllUniversitiesByTag($request->country);
+            return response()->json($universities);
+        }
+        
+        $parentId = $request->route('parent');
+        $parent = $this->clientRepository->getClientById($parentId);
+
+        $schools = $this->schoolRepository->getAllSchools();
+        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $childrens = $this->clientRepository->getAllChildrenWithNoParents($parentId);
+        $leads = $this->leadRepository->getAllMainLead();
+        $events = $this->eventRepository->getAllEvents();
+        $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
+        $kols = $this->leadRepository->getAllKOLlead();
+        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
+        $programsB2C = $this->programRepository->getAllProgramByType('B2C');
+        $programs = $programsB2BB2C->merge($programsB2C);
+        $countries = $this->tagRepository->getAllTags();
+        $majors = $this->majorRepository->getAllMajors();
+
+        return view('pages.client.parent.form')->with(
+            [
+                'parent' => $parent,
+                'schools' => $schools,
+                'curriculums' => $curriculums,
+                'childrens' => $childrens,
+                'leads' => $leads,
+                'events' => $events,
+                'ext_edufair' => $ext_edufair,
+                'kols' => $kols,
+                'programs' => $programs,
+                'countries' => $countries,
+                'majors' => $majors,
+            ]
+        );
+    }
+
+    public function update(StoreClientParentRequest $request)
+    {
+        $parentDetails = $request->only([
+            'pr_firstname',
+            'pr_lastname',
+            'pr_mail',
+            'pr_phone',
+            'pr_dob',
+            'pr_insta',
+            'state',
+            'city',
+            'postal_code',
+            'address',
+            'sch_id',
+            'lead_id',
+            'eduf_id',
+            'kol_lead_id',
+            'event_id',
+            'st_levelinterest',
+            'graduation_year',
+            // 'st_abrcountry',
+            'st_note',
+        ]);
+
+        $parentDetails['first_name'] = $request->pr_firstname;
+        $parentDetails['last_name'] = $request->pr_lastname;
+        $parentDetails['mail'] = $request->pr_mail;
+        $parentDetails['phone'] = $request->pr_phone;
+        $parentDetails['dob'] = $request->pr_dob;
+        $parentDetails['insta'] = $request->pr_insta;
+
+        // $parentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
+        $childrenId = $request->child_id;
+
+        # set lead_id based on lead_id & kol_lead_id
+        # when lead_id is kol
+        # then put kol_lead_id to lead_id
+        # otherwise
+        # when lead_id is not kol 
+        # then lead_id is lead_id
+        if ($request->lead_id == "kol") {
+
+            unset($parentDetails['lead_id']);
+            $parentDetails['lead_id'] = $request->kol_lead_id;
+        }
+
+        $studentDetails = [
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'mail' => $request->mail,
+            'phone' => $request->phone,
+            'state' => $parentDetails['state'],
+            'city' => $parentDetails['city'],
+            'postal_code' => $parentDetails['postal_code'],
+            'address' => $parentDetails['address'],
+            'lead_id' => $parentDetails['lead_id'],
+            'eduf_id' => $parentDetails['eduf_id'],
+            'event_id' => $parentDetails['event_id'],
+            'st_levelinterest' => $parentDetails['st_levelinterest'],
+            'st_grade' => $request->st_grade,
+            'st_abryear' => $request->st_abryear,
+            'graduation_year' => $request->graduation_year
+        ];
+
+        DB::beginTransaction();
+        try {
+
+            $childrens = $request->child_id;
+            $parentId = $request->route('parent');
+
+            # case 1
+            # add relation between parent and student
+            # if they didn't insert parents which parentId = NULL
+            # then assumed that register for student only
+            # so no need to create parent children relation
+            if ($childrens !== NULL) {
+
+                if (!$this->clientRepository->createManyClientRelation($parentId, $childrens))
+                    throw new Exception('Failed to update relation between student and parent', 1);
+            }
+        
+
+            # case 2
+            # create interested program
+            # if they didn't insert interested program 
+            # then skip this case
+            if (isset($request->prog_id) && count($request->prog_id) > 0) {
+
+                for ($i = 0 ; $i < count($request->prog_id) ; $i++) {
+                    $interestProgramDetails[] = [
+                        'prog_id' => $request->prog_id[$i],
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ];
+                }
+    
+                if (!$this->clientRepository->createInterestProgram($parentId, $interestProgramDetails))
+                    throw new Exception('Failed to update interest program', 2);
+            }
+
+            # case 3
+            # update parent's information
+            if (!$this->clientRepository->updateClient($parentId, $parentDetails))
+                throw new Exception('Failed to update parent', 3);
+
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+
+            switch ($e->getCode()) {
+                case 1:
+                    Log::error('Update school failed from parent : ' . $e->getMessage());
+                    break;
+
+                case 2:
+                    Log::error('Update student failed from parent : ' . $e->getMessage());
+                    break;
+
+                case 3:
+                    Log::error('Update parent failed : ' . $e->getMessage());
+                    break;
+                }
+                
+            Log::error('Update a parent failed : ' . $e->getMessage());
+            return Redirect::to('client/parent/'.$parentId.'/edit')->withError($e->getMessage());
+
+        }
+
+        return Redirect::to('client/parent/'.$parentId)->withSuccess('A parent has been updated.');
+    }
 }

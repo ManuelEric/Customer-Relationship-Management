@@ -103,7 +103,7 @@
 
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('asset') }}/" + data.asset_id.toLowerCase() + '/edit';
+                window.location.href = "{{ url('client/parent') }}/" + data.id
             });
 
             $('#clientTable tbody').on('click', '.deleteClient ', function() {

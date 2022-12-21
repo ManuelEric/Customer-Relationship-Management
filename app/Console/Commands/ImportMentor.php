@@ -160,7 +160,7 @@ class ImportMentor extends Command
                                         
                                         $userMajorDetails[] = [
                                             'user_id' => $user->id,
-                                            'univ_id' => $univDetail->id,
+                                            'univ_id' => $univDetail->univ_id,
                                             'major_id' => $majorDetail->id,
                                             'degree' => 'Bachelor',
                                             'graduation_date' => null,
@@ -185,7 +185,7 @@ class ImportMentor extends Command
     
                                         $userMajorDetails[] = [
                                             'user_id' => $user->id,
-                                            'univ_id' => $univDetail->id,
+                                            'univ_id' => $univDetail->univ_id,
                                             'major_id' => $createdMajor->id,
                                             'degree' => 'Bachelor',
                                             'graduation_date' => null,
@@ -206,7 +206,7 @@ class ImportMentor extends Command
 
                                 $userMajorDetails[] = [
                                     'user_id' => $user->id,
-                                    'univ_id' => $univDetail->id,
+                                    'univ_id' => $univDetail->univ_id,
                                     'major_id' => $majorDetail->id,
                                     'degree' => 'Bachelor',
                                     'graduation_date' => null,
@@ -230,7 +230,7 @@ class ImportMentor extends Command
 
                                 $userMajorDetails[] = [
                                     'user_id' => $user->id,
-                                    'univ_id' => $univDetail->id,
+                                    'univ_id' => $univDetail->univ_id,
                                     'major_id' => $createdMajor->id,
                                     'degree' => 'Bachelor',
                                     'graduation_date' => null,

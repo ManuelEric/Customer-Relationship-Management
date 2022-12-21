@@ -198,6 +198,8 @@ class ImportEmployee extends Command
                     if ( ($graduatedFrom != '') && ($graduatedFrom != null) )
                     {
                         
+                        $graduatedFrom = $this->checkUniversityName($graduatedFrom);
+                        
                         if (!$univDetail = $this->universityRepository->getUniversityByName($graduatedFrom)) {
 
                             $last_id = University::max('univ_id');
@@ -227,7 +229,7 @@ class ImportEmployee extends Command
                                     
                                     $userMajorDetails[] = [
                                         'user_id' => $createdUser->id,
-                                        'univ_id' => $univDetail->id,
+                                        'univ_id' => $univDetail->univ_id,
                                         'major_id' => $majorDetail->id,
                                         'degree' => 'Bachelor',
                                         'graduation_date' => null,
@@ -252,7 +254,7 @@ class ImportEmployee extends Command
 
                                     $userMajorDetails[] = [
                                         'user_id' => $createdUser->id,
-                                        'univ_id' => $univDetail->id,
+                                        'univ_id' => $univDetail->univ_id,
                                         'major_id' => $createdMajor->id,
                                         'degree' => 'Bachelor',
                                         'graduation_date' => null,
@@ -273,7 +275,7 @@ class ImportEmployee extends Command
 
                                 $userMajorDetails[] = [
                                     'user_id' => $createdUser->id,
-                                    'univ_id' => $univDetail->id,
+                                    'univ_id' => $univDetail->univ_id,
                                     'major_id' => $majorDetail->id,
                                     'degree' => 'Bachelor',
                                     'graduation_date' => null,
@@ -297,7 +299,7 @@ class ImportEmployee extends Command
 
                                 $userMajorDetails[] = [
                                     'user_id' => $createdUser->id,
-                                    'univ_id' => $univDetail->id,
+                                    'univ_id' => $univDetail->univ_id,
                                     'major_id' => $createdMajor->id,
                                     'degree' => 'Bachelor',
                                     'graduation_date' => null,
@@ -320,6 +322,8 @@ class ImportEmployee extends Command
                         # validate university
                         # if $graduatedMagisterFrom doesn't exist in database
                         # then create a new one
+
+                        $graduatedMagisterFrom = $this->checkUniversityName($graduatedMagisterFrom);
 
                         if (!$univMagisterDetail = $this->universityRepository->getUniversityByName($graduatedMagisterFrom)) 
                         {
@@ -359,7 +363,7 @@ class ImportEmployee extends Command
 
                         $userMajorDetails[] = [
                             'user_id' => $createdUser->id,
-                            'univ_id' => $univMagisterDetail->id,
+                            'univ_id' => $univMagisterDetail->univ_id,
                             'major_id' => $majorMagisterDetail->id,
                             'degree' => 'Magister',
                             'graduation_date' => null,
@@ -609,5 +613,16 @@ class ImportEmployee extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    public function checkUniversityName($univName)
+    {
+        switch($univName) {
+
+            case "Pennsylvania University":
+                return "Pennsylvania State University";
+                break;
+
+        }
     }
 }

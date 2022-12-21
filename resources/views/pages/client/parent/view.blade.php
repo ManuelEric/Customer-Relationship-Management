@@ -17,14 +17,14 @@
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="">
-                            <h3 class="m-0 p-0">Michael Nathan</h3>
+                            <h3 class="m-0 p-0">{{ $parent->fullname }}</h3>
                             <small class="text-muted">
-                                <i class="bi bi-calendar-day me-1"></i> Join Date: 09 Sept 2022 |
-                                <i class="bi bi-calendar-date mx-1"></i> Last Update: 11 Sept 2022
+                                <i class="bi bi-calendar-day me-1"></i> Join Date: {{ date('d M Y', strtotime($parent->created_at)) }} |
+                                <i class="bi bi-calendar-date mx-1"></i> Last Update: {{ date('d M Y', strtotime($parent->updated_at)) }}
                             </small>
                         </div>
                         <div class="">
-                            <a href="{{ url('client/parent/1/edit') }}" class="btn btn-warning btn-sm rounded"><i
+                            <a href="{{ url('client/parent/'.$parent->id.'/edit') }}" class="btn btn-warning btn-sm rounded"><i
                                     class="bi bi-pencil"></i></a>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            nathan@gmail.com
+                            {{ $parent->mail }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -48,7 +48,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            628921412424
+                            {{ $parent->phone }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -59,9 +59,9 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            Jl. Kayu Putih Tengah No.1C, RT.9/RW.7, Pulo Gadung <br>
-                            13260 <br>
-                            Jakarta Timur DKI Jakarta
+                            {!! $parent->address !!} 
+                            {!! $parent->postal_code ? $parent->postal_code."<br>" : null !!} 
+                            {{ $parent->city }} {{ $parent->state }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -72,7 +72,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            12 April 2022
+                            {{ isset($parent->dob) ? date('d M Y', strtotime($parent->dob)) : null }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -83,7 +83,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            Website
+                            {{ $parent->leadSource }}
                         </div>
                     </div>
                 </div>
@@ -98,6 +98,7 @@
                     </h6>
                 </div>
                 <div class="card-body">
+                    @if (isset($parent->childrens))
                     <table class="table table-bordered">
                         <thead>
                             <tr class="text-center">
@@ -109,21 +110,26 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @for ($i = 1; $i < 4; $i++)
-                                <tr class="text-center align-middle">
-                                    <td>{{ $i }}</td>
-                                    <td>Full Name</td>
-                                    <td>School Name</td>
-                                    <td>Graduation Year</td>
+                            @php
+                                $no = 1;
+                            @endphp
+                            @foreach ($parent->childrens as $children)
+                                <tr align="center">
+                                    <td>{{ $no++ }}</td>    
+                                    <td>{{ $children->fullname }}</td>
+                                    <td>{{ $children->school->sch_name }}</td>
+                                    <td>{{ $children->graduation_year }}</td>
                                     <td>
-                                        <a href="{{ url('client/mentee/1') }}" class="btn btn-sm btn-info">
-                                            <i class="bi bi-info-circle me-1"></i>More
-                                        </a>
+                                        <a href="{{ url('client/student').'/'.$children->id }}" class="btn btn-outline-warning btn-sm rounded"><i
+                                            class="bi bi-eye"></i></a>
                                     </td>
-                                </tr>
-                            @endfor
+                                </tr> 
+                            @endforeach
                         </tbody>
                     </table>
+                    @else
+                        There's no children
+                    @endif
                 </div>
             </div>
         </div>

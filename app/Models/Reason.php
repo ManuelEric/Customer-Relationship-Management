@@ -27,4 +27,9 @@ class Reason extends Model
         return $this->hasMany(SchoolProgram::class, 'reason_id', 'reason_id');
     }
 
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'reason_id', 'reason_id');
+    }
+
 }

@@ -85,12 +85,12 @@ class UserClient extends Authenticatable
     # relation
     public function parents()
     {
-        return $this->belongsToMany(UserClient::class, 'tbl_client_relation', 'child_id', 'parent_id');
+        return $this->belongsToMany(UserClient::class, 'tbl_client_relation', 'child_id', 'parent_id')->withTimestamps();
     }
 
     public function childrens()
     {
-        return $this->belongsToMany(UserClient::class, 'tbl_client_relation', 'parent_id', 'child_id');
+        return $this->belongsToMany(UserClient::class, 'tbl_client_relation', 'parent_id', 'child_id')->withTimestamps();
     }
 
     public function roles()
@@ -136,5 +136,15 @@ class UserClient extends Authenticatable
     public function interestMajor()
     {
         return $this->belongsToMany(Major::class, 'tbl_dreams_major', 'client_id', 'major_id')->withTimestamps();
+    }
+
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'client_id', 'id');
+    }
+
+    public function clientMentor()
+    {
+        return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'clientprog_id', 'id', 'clientprog_id');
     }
 }

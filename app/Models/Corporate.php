@@ -60,4 +60,9 @@ class Corporate extends Model
     {
         return $this->belongsToMany(Event::class, 'tbl_corp_partner_event', 'corp_id', 'event_id');
     }
+
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'partner_id', 'corp_id');
+    }
 }

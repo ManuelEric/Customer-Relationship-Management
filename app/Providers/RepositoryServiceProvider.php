@@ -6,6 +6,7 @@ use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetReturnedRepositoryInterface;
 use App\Interfaces\AssetUsedRepositoryInterface;
+use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\CorporatePartnerEventRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
@@ -50,6 +51,7 @@ use App\Repositories\AgendaSpeakerRepository;
 use App\Repositories\AssetRepository;
 use App\Repositories\AssetReturnedRepository;
 use App\Repositories\AssetUsedRepository;
+use App\Repositories\ClientProgramRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\CorporatePartnerEventRepository;
 use App\Repositories\CorporatePicRepository;
@@ -143,6 +145,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(TagRepositoryInterface::class, TagRepository::class);
         $this->app->bind(SchoolCurriculumRepositoryInterface::class, SchoolCurriculumRepository::class);
         $this->app->bind(PartnerProgramRepositoryInterface::class, PartnerProgramRepository::class);
+        $this->app->bind(ClientProgramRepositoryInterface::class, ClientProgramRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
