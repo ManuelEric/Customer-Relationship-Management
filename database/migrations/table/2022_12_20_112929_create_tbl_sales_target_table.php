@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('tbl_sales_target', function (Blueprint $table) {
             $table->id();
 
-            $table->char('prog_id', 11)->collation('utf8mb4_general_ci');
+            $table->char('prog_id', 11)->collation('utf8mb4_0900_ai_ci');
             $table->foreign('prog_id')->references('prog_id')->on('tbl_prog')->onUpdate('cascade')->onDelete('cascade');
 
             $table->integer('month');

@@ -57,4 +57,9 @@ class EdufLead extends Model
     {
         return $this->hasMany(ClientProgram::class, 'eduf_lead_id', 'id');
     }
+
+    public function clientEvent()
+    {
+        return $this->hasMany(ClientEvent::class, 'eduf_id', 'id');
+    }
 }

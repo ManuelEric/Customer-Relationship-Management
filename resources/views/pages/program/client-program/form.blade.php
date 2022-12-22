@@ -99,8 +99,6 @@
                                                             {{ old('lead_id') == $lead->lead_id ? "selected" : null }}
                                                         >{{ $lead->main_lead }}</option>
                                                 @endforeach
-                                                {{-- <option value="program">ALL-in Event</option>
-                                                <option value="edufair">Edufair External</option> --}}
                                                 <option data-lead="KOL" value="kol" {{ old('lead_id') == "kol" ? "selected" : null }}>KOL</option>
                                             @endif
                                         </select>
