@@ -55,7 +55,7 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="#" method="POST" id="formCurriculum">
+                    <form action="{{ url('master/curriculum') }}" method="POST" id="formCurriculum">
                         @csrf
                         <div class="put"></div>
                         <div class="row g-2">
@@ -64,8 +64,11 @@
                                     <label for="">
                                         Curriculum Name <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="curriculum_name" id="curriculum_name"
-                                        class="form-control form-control-sm rounded" required value="">
+                                    <input type="text" name="name" id="name"
+                                        class="form-control form-control-sm rounded" required value="{{ old('name') }}">
+                                    @error('name')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -104,34 +107,34 @@
                     left: 2,
                     right: 1
                 },
-                // processing: true,
-                // serverSide: true,
-                // ajax: '',
-                // columns: [{
-                //         data: 'id',
-                //         className: 'text-center',
-                //         render: function(data, type, row, meta) {
-                //             return meta.row + meta.settings._iDisplayStart + 1;
-                //         }
-                //     },
-                //     {
-                //         data: 'curriculum_name',
-                //     },
-                //     {
-                //         data: 'created_at',
-                //         className: 'text-center',
-                //     },
-                //     {
-                //         data: 'updated_at',
-                //         className: 'text-center',
-                //     },
-                //     {
-                //         data: '',
-                //         className: 'text-center',
-                //         defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#curriculumForm" class="btn btn-sm btn-outline-warning editcurriculum"><i class="bi bi-pencil"></i></button>' +
-                //             '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deletecurriculum"><i class="bi bi-trash2"></i></button>'
-                //     }
-                // ]
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'name',
+                    },
+                    {
+                        data: 'created_at',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'updated_at',
+                        className: 'text-center',
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#curriculumForm" class="btn btn-sm btn-outline-warning editcurriculum"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deletecurriculum"><i class="bi bi-trash2"></i></button>'
+                    }
+                ]
             });
 
             $('#curriculumTable tbody').on('click', '.editcurriculum ', function() {
@@ -146,13 +149,13 @@
         });
 
         function resetForm() {
-            $('#curriculum_name').val(null)
+            $('#name').val(null)
             $('.put').html('')
             $('#formCurriculum').attr('action', '{{ url('master/curriculum') }}')
         }
 
         function editById(id) {
-            let link = "{{ url('master/curriculum') }}/" + id
+            let link = "{{ url('master/curriculum') }}/" + id + '/edit'
 
             axios.get(link)
                 .then(function(response) {
@@ -161,7 +164,7 @@
                     let data = response.data.curriculum
                     // console.log(data)
 
-                    $('#curriculum_name').val(data.curriculum_name)
+                    $('#name').val(data.name)
                     let html =
                         '@method('put')' +
                         '<input type="hidden" name="id" value="' + data.id + '">'

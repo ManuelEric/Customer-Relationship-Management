@@ -4,6 +4,7 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetReturnedController;
 use App\Http\Controllers\AssetUsedController;
 use App\Http\Controllers\CorporatePartnerEventController;
+use App\Http\Controllers\CurriculumController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MajorController;
@@ -80,9 +81,7 @@ Route::prefix('edufair')->name('edufair.')->group(function () {
 
 Route::resource('sales-target', SalesTargetController::class);
 
-Route::get('curriculum', function () {
-    return view('pages.master.curriculum.index');
-});
+Route::resource('curriculum', CurriculumController::class);
 
 Route::get('university-tags', function () {
     return view('pages.master.university-tag.index');
