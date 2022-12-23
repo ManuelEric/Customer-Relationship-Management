@@ -12,6 +12,7 @@ interface ClientRepositoryInterface
     public function getClientById($clientId);
     public function deleteClient($clientId);
     public function createClient($role, array $clientDetails);
+    public function addRole($clientId, $role);
     public function getParentsByStudentId($studentId);
     public function createClientRelation($parentId, $studentId);
     public function createManyClientRelation($parentId, array $studentId);
@@ -21,4 +22,5 @@ interface ClientRepositoryInterface
     public function createInterestMajor($studentId, array $interestMajorDetails);
     public function updateClient($clientId, array $newDetails);
     public function updateActiveStatus($clientId, $newStatus);
+    public function checkAllProgramStatus($clientId);
 }

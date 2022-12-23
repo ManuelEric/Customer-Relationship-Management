@@ -115,4 +115,9 @@ class ClientProgram extends Model
     {
         return $this->belongsToMany(User::class, 'tbl_client_mentor', 'clientprog_id', 'user_id')->withTimestamps();
     }
+
+    public function followUp()
+    {
+        return $this->hasMany(FollowUp::class, 'clientprog_id', 'clientprog_id');
+    }
 }

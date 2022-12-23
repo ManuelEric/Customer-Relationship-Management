@@ -106,11 +106,26 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = NULL)
     {
+        # if role name is student
+        # then retrieve all student without mentee
+        # so first select all mentee
+        # then use not in all mentee
+        $client = [];
+        if ($roleName == "Student") {
+            $client = UserClient::whereHas('roles', function($query) {
+                $query->where('role_name', 'mentee');
+            })->pluck('id')->toArray();
+        }
+
         return Datatables::eloquent(Client::whereHas('roles', function ($query) use ($roleName) {
-            $query->where('role_name', $roleName);
-        })->when($statusClient, function($query) use ($statusClient) {
-            $query->where('st_statuscli', $statusClient);
-        }))
+                $query->where('role_name', $roleName);
+            })->when($roleName == "Student", function ($q) use ($client) {
+                $q->whereNotIn('client.id', $client);
+            })
+            
+            ->when($statusClient, function($query) use ($statusClient) {
+                $query->where('st_statuscli', $statusClient);
+            }))
             ->addColumn('parent_name', function ($data) { return $data->parents()->count() > 0 ? $data->parents()->first()->first_name.' '.$data->parents()->first()->last_name : null; })
             ->addColumn('parent_phone', function ($data) { return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null; })
             ->addColumn('children_name', function ($data) { return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name.' '.$data->childrens()->first()->last_name : null; })
@@ -163,6 +178,16 @@ class ClientRepository implements ClientRepositoryInterface
                 'updated_at' => Carbon::now()
             ]);   
 
+        return $client;
+    }
+
+    public function addRole($clientId, $role)
+    {
+        $roleId = $this->roleRepository->getRoleByName($role);
+        $client = UserClient::find($clientId);
+        if ($client->roles()->where('tbl_roles.id', 5)->count() == 0) {
+            $client->roles()->attach($roleId);
+        }
         return $client;
     }
     
@@ -229,5 +254,11 @@ class ClientRepository implements ClientRepositoryInterface
     public function updateActiveStatus($clientId, $newStatus)
     {
         return UserClient::find($clientId)->update(['st_statusact' => $newStatus]);
+    }
+
+    public function checkAllProgramStatus($clientId)
+    {
+        $client = UserClient::find($clientId);
+        return $client->clientProgram()->where('status', 1)->where('prog_running_status', 2)->count() == 0 ? "completed" : "notyet";
     }
 }

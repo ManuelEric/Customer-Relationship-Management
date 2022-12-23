@@ -8,4 +8,5 @@ interface ClientProgramRepositoryInterface
     public function getClientProgramById($clientProgramId);
     public function createClientProgram(array $clientProgramDetails);
     public function updateClientProgram($clientProgramId, array $clientProgramDetails);
+    public function deleteClientProgram($clientProgramId);
 }

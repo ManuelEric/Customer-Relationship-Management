@@ -271,6 +271,45 @@ class ClientProgramController extends Controller
         try {
 
             $this->clientProgramRepository->createClientProgram(['client_id' => $studentId] + $clientProgramDetails);
+
+            switch ($clientProgramDetails['status']) {
+
+                # if client program has been submitted 
+                # then change status client to potential
+                case 0: # pending
+
+                    # if he/she join admission mentoring program
+                    # add role mentee
+                    if (in_array($progId, $this->admission_prog_list)) {
+                        $this->clientRepository->addRole($studentId, 'Mentee');
+                    }
+
+                    $this->clientRepository->updateClient($studentId, ['st_statuscli' => 1]);
+                    break;
+
+                case 1: # success
+
+                    # if he/she join admission mentoring program
+                    # add role mentee
+                    if (in_array($progId, $this->admission_prog_list)) {
+                        $this->clientRepository->addRole($studentId, 'Mentee');
+                    }
+
+                    # when program running status was 2 which mean done
+                    # then check if client has other program running or done
+                    if ($clientProgramDetails['prog_running_status'] != 2) 
+                        $this->clientRepository->updateClient($studentId, ['st_statuscli' => 2]);
+                    
+
+                    # when all program were done
+                    # change status client to completed (3)
+                    if ($this->clientRepository->checkAllProgramStatus($studentId) == "completed")
+                        $this->clientRepository->updateClient($studentId, ['st_statuscli' => 3]);
+
+                    break;
+
+            }
+            
             DB::commit();
 
         } catch (Exception $e) {
@@ -493,6 +532,29 @@ class ClientProgramController extends Controller
         }
 
         return Redirect::to('client/student/'.$studentId.'/program/'.$clientProgramId)->withSuccess('A program has been updated for '.$student->fullname);
+    }
+
+    public function destroy(Request $request)
+    {
+        $studentId = $request->route('student');
+        $clientProgramId = $request->route('program');
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientProgramRepository->deleteClientProgram($clientProgramId);
+            DB::commit();           
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete client program failed : ' . $e->getMessage());
+            return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withError('Failed to delete client program');
+
+        }
+
+        return Redirect::to('client/student/' . $studentId)->withSuccess('Client program has been deleted');
+
     }
 
 }

@@ -35,9 +35,11 @@
                                 {{ $disabled ? 'Edit' : 'Back' }}
                             </a>
 
-                            <button type="button" class="btn btn-sm btn-outline-danger rounded mx-1">
+                            @if (isset($clientProgram))
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded mx-1" onclick="confirmDelete('client/student/{{ $student->id }}/program', {{ $clientProgram->clientprog_id }})">
                                 <i class="bi bi-trash2"></i> Delete
                             </button>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -549,6 +551,7 @@
             }
    
         }
+
     </script>
     <script>
         $(document).ready(function() {
@@ -556,6 +559,10 @@
             @if (isset($clientProgram) && $clientProgram->status !== false)
                 $("#program_status").val("{{ $clientProgram->status }}").trigger('change');
             @endif
+
+            @error('followup_date')
+                $("#plan").modal('show')
+            @enderror
 
             const documentReady = () => {
                 @if (old('lead_id') !== NULL)
@@ -593,6 +600,7 @@
                 @elseif (isset($clientProgram))
                     $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
                 @endif
+                
             }
             
             documentReady();

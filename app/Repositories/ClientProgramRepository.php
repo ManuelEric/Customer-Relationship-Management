@@ -13,13 +13,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     public function getAllClientProgramDataTables($clientId)
     {
         return Datatables::eloquent(ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
             ->leftJoin('users', 'users.id', '=', 'tbl_client_prog.empl_id')
             ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_prog.lead_id')
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_prog.eduf_lead_id')
             ->leftJoin('tbl_client_event', 'tbl_client_event.clientevent_id', '=', 'tbl_client_prog.clientevent_id')
                 ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_prog.partner_id')
-            ->select('tbl_client_prog.*', 'tbl_prog.prog_program as program_name', 
+            ->select('tbl_client_prog.*', 
+                DB::raw('CONCAT(tbl_prog.prog_program, " - ", tbl_main_prog.prog_name) as program_name'), 
                 DB::raw('(CASE WHEN tbl_client_prog.status = 0 THEN "Pending"
                             WHEN tbl_client_prog.status = 1 THEN "Success"
                             WHEN tbl_client_prog.status = 2 THEN "Failed"
@@ -262,4 +264,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             
         return $clientProgram;
     }    
+
+    public function deleteClientProgram($clientProgramId)
+    {
+        return ClientProgram::where('clientprog_id', $clientProgramId)->delete();
+    }
 }

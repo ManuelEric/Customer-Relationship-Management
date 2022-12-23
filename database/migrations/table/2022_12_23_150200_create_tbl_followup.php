@@ -13,13 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tbl_client_mentor', function (Blueprint $table) {
+        Schema::create('tbl_followup', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('clientprog_id');
             $table->foreign('clientprog_id')->references('clientprog_id')->on('tbl_client_prog')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('restrict');
-            $table->boolean('status');
+
+            $table->date('followup_date');
+            $table->tinyInteger('status')->default(0)->comment('0: Not yet, 1: Done');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tbl_client_mentor');
+        Schema::dropIfExists('tbl_followup');
     }
 };

@@ -180,7 +180,7 @@
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('client/mentee*') ? 'active' : '' }}"
-                                        href="{{ url('client/mentee/active') }}">Mentees</a>
+                                        href="{{ url('client/mentee?st=active') }}">Mentees</a>
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('client/parent*') ? 'active' : '' }}"

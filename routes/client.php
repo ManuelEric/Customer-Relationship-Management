@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\ClientMenteeController;
 use App\Http\Controllers\ClientParentController;
 use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\ClientTeacherCounselorController;
+use App\Http\Controllers\FollowupController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,7 +43,13 @@ Route::get('mentee/{status}', function ($status) {
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
     Route::get('{student}/status/{status}', [ClientStudentController::class, 'updateStatus'])->name('update.status');
+
     Route::resource('{student}/program', ClientProgramController::class);
+    Route::prefix('{student}/program')->name('program.')->group(function () {
+
+        Route::resource('{program}/followup', FollowupController::class);
+    });
 });
+Route::resource('mentee', ClientMenteeController::class);
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
 Route::resource('parent', ClientParentController::class);
