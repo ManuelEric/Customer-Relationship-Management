@@ -28,27 +28,13 @@
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
                         <th>Event Name</th>
-                        <th>Lead</th>
+                        {{-- <th>Lead</th> --}}
                         <th>Conversion Lead</th>
                         <th>Joined Date</th>
-                        <th class="bg-info text-white">Status</th>
+                        <th>Status</th>
+                        <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @for ($i = 0; $i < 5; $i++)
-                        <tr>
-                            <td class="text-center">
-                                <input type="checkbox" class="form-check-input">
-                            </td>
-                            <td>Client Name</td>
-                            <td>Event Name</td>
-                            <td>Lead</td>
-                            <td>Conversion Lead</td>
-                            <td>Joined Date</td>
-                            <td>Status</td>
-                        </tr>
-                    @endfor
-                </tbody>
                 <tfoot class="bg-light text-white">
                     <tr>
                         <td colspan="6"></td>
@@ -108,36 +94,52 @@
                     left: 2,
                     right: 1
                 },
-                // processing: true,
-                // serverSide: true,
-                // ajax: '',
-                // columns: [{
-                //         data: 'id',
-                //         className: 'text-center',
-                //     },
-                //     {
-                //         data: 'univ_id',
-                //     },
-                //     {
-                //         data: 'univ_name',
-                //     },
-                //     {
-                //         data: 'univ_address',
-                //     },
-                //     {
-                //         data: 'univ_country',
-                //     },
-                //     {
-                //         data: '',
-                //         className: 'text-center',
-                //         defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning editUniv"><i class="bi bi-eye"></i></button>'
-                //     }
-                // ]
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'clientevent_id',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'client_name',
+                    },
+                    {
+                        data: 'event_name',
+                    },
+                    {
+                        data: 'main_lead',
+                        name: 'tbl_lead.main_lead'
+                    },
+                    {
+                        data: 'joined_date',
+                    },
+                    {
+                        data: 'status',
+                        render: function(data, type, row, meta) {
+                            switch (row.status) {
+                                case 0:
+                                    return "Join"
+                                    break;
+
+                                case 1:
+                                    return "Attend"
+                                    break;
+                                
+                            }
+                        }
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning detailEvent"><i class="bi bi-eye"></i></button>'
+                    }
+                ]
             });
 
-            $('#eventTable tbody').on('click', '.editUniv ', function() {
+            $('#eventTable tbody').on('click', '.detailEvent ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('instance/university') }}/" + data.univ_id.toLowerCase();
+                window.location.href = "{{ url('program/event') }}/" + data.clientevent_id;
             });
         });
     </script>

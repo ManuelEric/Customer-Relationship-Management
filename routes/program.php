@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ReferralController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\SchoolProgramController;
 use App\Http\Controllers\SchoolProgramSpeakerController;
 use App\Http\Controllers\SchoolProgramAttachController;
@@ -24,9 +25,9 @@ use App\Http\Controllers\SchoolDetailController;
 */
 Route::resource('referral', ReferralController::class);
 
-Route::get('event', function () {
-    return view('pages.program.client-event.index');
-});
+// Route::get('event', function () {
+//     return view('pages.program.client-event.index');
+// });
 Route::get('event/create', function () {
     return view('pages.program.client-event.form');
 });
@@ -51,6 +52,8 @@ Route::get('corporate', function () {
 Route::get('corporate/1', function () {
     return view('pages.program.corporate-program.form');
 });
+
+Route::resource('event', ClientEventController::class);
 
 Route::get('corporate', [PartnerProgramController::class, 'index'])->name('program.corporate.index');
 Route::prefix('corporate')->name('corporate_prog.')->group(function () {
