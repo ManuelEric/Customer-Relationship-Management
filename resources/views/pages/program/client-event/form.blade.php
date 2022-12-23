@@ -6,7 +6,7 @@
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('program/event') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Client Event
+            <i class="bi bi-arrow-left me-2"></i> Client Event 
         </a>
     </div>
 
@@ -50,15 +50,6 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
                     <form action="{{ url(isset($edit) ? 'program/event/' . $clientEvent->clientevent_id : 'program/event') }}" method="POST">
                         @csrf
                         @if(isset($edit))
@@ -68,7 +59,7 @@
                             @if(!isset($clientEvent))
                                 <div class="col-md-4 mb-2">
                                     <label>Existing Client <sup class="text-danger">*</sup></label>
-                                    <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center" id="div-exist">
                                         <div class="form-check ms-4">
                                             <input class="form-check-input exist" type="radio" name="existing_client"
                                             id="exist1" value="1" checked onchange="checkExist(this)">
@@ -330,7 +321,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>                    
-                            <div class="col-md-6 mb-2 program d-none">
+                            <div class="col-md-6 mb-2 program">
                                 <label>Event Name <sup class="text-danger">*</sup></label>
                                 <select name="event_id" class="select w-100" id="eventName" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
@@ -390,7 +381,8 @@
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label>Joined Date <sup class="text-danger">*</sup></label>
-                                <input type="date" name="joined_date" value="{{ isset($clientEvent) ? $clientEvent->joined_date : ''}}"
+                                <input type="date" name="joined_date" 
+                                    value="{{ (isset($clientEvent)) ? $clientEvent->joined_date : old('joined_date') }}"      
                                     class="form-control form-control-sm rounded" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
                                 @error('joined_date')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -438,6 +430,40 @@
                 </script>     
             @endif
     @endif
+
+    @if((String)old('existing_client') == '0')
+        <script>
+            $(document).ready(function(){
+                $('input[name=existing_client][value="{{old('existing_client')}}"]').prop('checked', true).trigger('change')
+            })
+        </script>
+    @endif
+
+    @if(!empty(old('status_client')))
+        <script>
+            $(document).ready(function(){
+                $('#status_client').val("{{old('status_client')}}").trigger('change')
+            })
+        </script>
+    @endif
+
+    @if(!empty(old('sch_id')))
+        <script>
+            $(document).ready(function(){
+                $('#schoolName').val("{{old('sch_id')}}").trigger('change')
+            })
+        </script>
+    @endif
+
+    @if(!empty(old('lead_id')))
+        <script>
+            $(document).ready(function(){
+                $('#leadSource').val("{{old('lead_id')}}").trigger('change')
+            })
+        </script>
+    @endif
+
+    
     
     <script>
 
@@ -454,7 +480,6 @@
 
         function checkStatus() {
             let status = $('#status_client').val();
-            console.log(status)
             if (status == 'Mentee' || status == 'Teacher/Counsellor') {
                 $('.status-mentee').removeClass('d-none')
             } else if (status == 'Parent') {

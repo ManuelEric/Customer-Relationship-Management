@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientEventRequest;
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -11,7 +12,9 @@ use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
-use App\Models\v1\School;
+use App\Interfaces\SchoolCurriculumRepositoryInterface;
+
+use App\Models\School;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -20,15 +23,9 @@ use Illuminate\Support\Facades\Redirect;
 
 
 
-// TODO: Use request, repo, interface
-// TODO: Ambil data untuk form
-// TODO: Store, destroy data
-// TODO: Buat form untuk create client
-// TODO: Store client
-
 class ClientEventController extends Controller
 {
-
+    use CreateCustomPrimaryKeyTrait;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -36,6 +33,8 @@ class ClientEventController extends Controller
     protected EventRepositoryInterface $eventRepository;
     protected LeadRepositoryInterface $leadRepository;
     protected SchoolRepositoryInterface $schoolRepository;
+    protected SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+
 
     public function __construct(
         CurriculumRepositoryInterface $curriculumRepository,
@@ -45,6 +44,7 @@ class ClientEventController extends Controller
         EventRepositoryInterface $eventRepository,
         LeadRepositoryInterface $leadRepository,
         SchoolRepositoryInterface $schoolRepository,
+        SchoolCurriculumRepositoryInterface $schoolCurriculumRepository,
         )
     {
         $this->curriculumRepository = $curriculumRepository;
@@ -54,6 +54,8 @@ class ClientEventController extends Controller
         $this->eventRepository = $eventRepository;
         $this->leadRepository = $leadRepository;
         $this->schoolRepository = $schoolRepository;
+        $this->schoolCurriculumRepository = $schoolCurriculumRepository;
+
     }
 
     public function index(Request $request)
@@ -92,6 +94,7 @@ class ClientEventController extends Controller
     public function store(StoreClientEventRequest $request)
     {
 
+        // Client existing
         $clientEvents = $request->only([
             'client_id',
             'event_id',
@@ -101,23 +104,11 @@ class ClientEventController extends Controller
             'joined_date'
         ]);
 
+        // Client not existing
         if($request->existing_client == 0){
             
-            if($request->status_client == 'Parent'){
-                $clientDetails = $request->only([
-                    'first_name',
-                    'last_name',
-                    'mail',
-                    'phone',
-                    'dob',
-                    'state',
-                    'lead_id',
-                    'eduf_id',
-                    'kol_lead_id',
-                    'event_id',
-                ]);
-            }
-
+           
+            // Client as student or teacher
             $clientDetails = $request->only([
                 'first_name',
                 'last_name',
@@ -136,6 +127,23 @@ class ClientEventController extends Controller
                 'st_password'
             ]);
 
+             // Client as parent
+             if($request->status_client == 'Parent'){
+                $clientDetails = $request->only([
+                    'first_name',
+                    'last_name',
+                    'mail',
+                    'phone',
+                    'dob',
+                    'state',
+                    'lead_id',
+                    'eduf_id',
+                    'kol_lead_id',
+                    'event_id',
+                ]);
+            }
+
+
         }
 
         # set lead_id based on lead_id & kol_lead_id
@@ -147,18 +155,24 @@ class ClientEventController extends Controller
         if ($request->lead_id == "kol") {
 
             unset($clientEvents['lead_id']);
+            $clientEvents['eduf_id'] = null;
+            $clientEvents['event_id'] = null;
             $clientEvents['lead_id'] = $request->kol_lead_id;
+            
         }
+        else if($request->lead_id != 'LS018' && $request->lead_id != 'kol'){
+            
+            $clientEvents['eduf_id'] = null;
+            
+        }else if($request->lead_id != "kol" && $request->lead_id == 'LS018'){
+            
+            $clientEvents['event_id'] = null;
 
-      
+        }
 
         DB::beginTransaction();
         
         try {
-            
-            // unset($clientEvents['existing_client']);
-            // return $clientEvents;
-            // exit;
 
             # case 1
             # create new school
@@ -193,19 +207,25 @@ class ClientEventController extends Controller
 
             }
 
+            // Case 2
+            // Create new client
+            // When client not existing
             if($request->existing_client == 0){
 
                 switch ($request->status_client) {
                     case 'Mentee':
-                        $clientCreated = $this->clientRepository->createClient('Mentee', $clientDetails);
+                        if(!$clientCreated = $this->clientRepository->createClient('Mentee', $clientDetails))
+                            throw new Exception('Failed to store new client', 2);
                         break;
-                    
+                            
                     case 'Parent':
-                        $clientCreated = $this->clientRepository->createClient('Parent', $clientDetails);
+                        if(!$clientCreated = $this->clientRepository->createClient('Parent', $clientDetails))    
+                            throw new Exception('Failed to store new client', 2);
                         break;
                         
-                    case 'Teacher/Counselor':
-                        $clientCreated = $this->clientRepository->createClient('Teacher/Counselor', $clientDetails);
+                    case 'Teacher/Counsellor':
+                        if(!$clientCreated = $this->clientRepository->createClient('Teacher/Counselor', $clientDetails))
+                            throw new Exception('Failed to store new client', 2);
                         break;
                 }
                 
@@ -213,18 +233,35 @@ class ClientEventController extends Controller
                 
             }
             
-            // dd($clientEvents);
-
+            // Case 3
+            // Create client event
             # insert into client event
-            $this->clientEventRepository->createClientEvent($clientEvents);
+            if(!$this->clientEventRepository->createClientEvent($clientEvents))
+                throw new Exception('Failed to store new client event', 3);
+
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store client event failed : ' . $e->getMessage());
-            return $e->getMessage();
-            exit;
+
+            switch ($e->getCode()) {
+                case 1:
+                    Log::error('Store school failed from client event : ' . $e->getMessage());
+                    break;
+
+                case 2:
+                    Log::error('Store client failed from client event : ' . $e->getMessage());
+                    break;
+
+                case 3:
+                    Log::error('Store client event failed : ' . $e->getMessage());
+                    break;
+                }
+
+            Log::error('Store a new client event failed : ' . $e->getMessage());
+            // return $e->getMessage();
+            // exit;
             return Redirect::to('program/event/create')->withError('Failed to create client event');
         }
         
@@ -301,6 +338,29 @@ class ClientEventController extends Controller
             'status',
             'joined_date'
         ]);
+
+        # set lead_id based on lead_id & kol_lead_id
+        # when lead_id is kol
+        # then put kol_lead_id to lead_id
+        # otherwise
+        # when lead_id is not kol 
+        # then lead_id is lead_id
+        if ($request->lead_id == "kol") {
+
+            unset($clientEvent['lead_id']);
+            $clientEvent['eduf_id'] = null;
+            $clientEvent['event_id'] = null;
+            $clientEvent['lead_id'] = $request->kol_lead_id;
+            
+        }else if($request->lead_id != 'LS018' && $request->lead_id != 'kol'){
+            
+            $clientEvent['eduf_id'] = null;
+            
+        }else if($request->lead_id == 'LS018' && $request->lead_id != 'kol'){
+            
+            $clientEvent['event_id'] = null;
+
+        }
 
         DB::beginTransaction();
         try {

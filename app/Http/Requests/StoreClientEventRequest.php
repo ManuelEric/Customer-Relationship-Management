@@ -90,6 +90,10 @@ class StoreClientEventRequest extends FormRequest
             ],
             'st_grade' => 'required_if:status_client,Mentee,Teacher/Conselor',
             'st_graduation_year' => 'nullable',
+            'sch_name' => 'sometimes|required_if:sch_id,add-new|unique:tbl_sch,sch_name',
+            'sch_type' => 'required_if:sch_id,add-new',
+            'sch_curriculum' => 'required_if:sch_id,add-new',
+            'sch_score' => 'required_if:sch_id,add-new',
             'event_id' => 'required_if:lead_id,LS004',
             'eduf_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
@@ -104,6 +108,10 @@ class StoreClientEventRequest extends FormRequest
             'joined_date' => 'required|date',
             'status' => 'required|in:0,1',
         ];
+
+        if ($this->input('lead_id') != "kol") {
+            $rules['lead_id'] = 'required|exists:tbl_lead,lead_id';
+        }
 
         return $rules;
     }

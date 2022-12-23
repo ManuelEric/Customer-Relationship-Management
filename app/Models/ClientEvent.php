@@ -20,6 +20,7 @@ class ClientEvent extends Model
     protected $fillable = [
         'client_id',
         'event_id', 
+        'eduf_id', 
         'lead_id', 
         'joined_date', 
         'status',

@@ -106,10 +106,9 @@
                     },
                     {
                         data: 'event_name',
-                        name: 'tbl_events.event_title'
                     },
                     {
-                        data: 'conversion_lead',
+                        data: 'main_lead',
                         name: 'tbl_lead.main_lead'
                     },
                     {
