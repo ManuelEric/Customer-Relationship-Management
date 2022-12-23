@@ -133,7 +133,7 @@
                 </div>
                 <div class="card-body">
                     @forelse ($student->interestPrograms as $program)
-                        <a href="{{ url('program/client/create?client_id=1&prog_id=1') }}"
+                        <a href="{{ url('client/student/'.$student->id.'/program/create?p='.$program->prog_id) }}"
                         class="btn btn-sm btn-outline-info
                         me-1 rounded-4">
                         {{ $program->prog_program }}</a>
@@ -259,25 +259,9 @@
                                 <th class="text-dark">#</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @for ($i = 0; $i < 5; $i++)
-                                <tr>
-                                    <td class="text-center">{{ $i + 1 }}</td>
-                                    <td>Program Name</td>
-                                    <td>Instagram</td>
-                                    <td>22 Sept 2022</td>
-                                    <td>Anggita</td>
-                                    <td>Interest</td>
-                                    <td class="text-center">Hot</td>
-                                    <td class="text-center"><a href="{{ url('client/mentee/1') }}"
-                                            class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>
-                                    </td>
-                                </tr>
-                            @endfor
-                        </tbody>
                         <tfoot class="bg-light text-white">
                             <tr>
-                                <td colspan="7"></td>
+                                <td colspan="8"></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -288,7 +272,8 @@
 
 
     {{-- Need Changing --}}
-    {{-- <script>
+    <script>
+        var url = "{{ url('client/student').'/'.$student->id.'/program' }}"
         $(document).ready(function() {
             var table = $('#programTable').DataTable({
                 dom: 'Bfrtip',
@@ -307,6 +292,46 @@
                     left: 2,
                     right: 2
                 },
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'prog_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'program_name',
+                    },
+                    {
+                        data: 'lead_source',
+                    },
+                    {
+                        data: 'last_discuss_date',
+                    },
+                    {
+                        data: 'pic_name',
+                    },
+                    {
+                        data: 'program_status',
+                    },
+                    {
+                        data: 'prog_id',
+                        render: function(data, type, row, meta) {
+                            return "Hot"
+                        }
+                        
+                    },
+                    {
+                        data: 'clientprog_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + url + '/' + data +'" class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>'
+                        }
+                    }
+                ]
             });
 
             $('#programTable tbody').on('click', '.editClient ', function() {
@@ -319,7 +344,7 @@
                 confirmDelete('asset', data.asset_id)
             });
         });
-    </script> --}}
+    </script>
 
 
 

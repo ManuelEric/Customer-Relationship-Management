@@ -145,6 +145,6 @@ class UserClient extends Authenticatable
 
     public function clientMentor()
     {
-        return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'clientprog_id', 'id', 'clientprog_id');
+        return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'users.id', 'id', 'clientprog_id');
     }
 }

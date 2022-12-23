@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,6 +12,7 @@ class ClientProgram extends Model
     use HasFactory;
 
     protected $table = 'tbl_client_prog';
+    protected $primaryKey = 'clientprog_id';
 
     /**
      * The attributes that should be visible in arrays.
@@ -58,6 +61,15 @@ class ClientProgram extends Model
         'timesheet_link',
         'trial_date',
     ];
+
+    public static function whereClientProgramId($id)
+    {
+        if (is_array($id) && empty($id)) return new Collection;
+        
+        $instance = new static;
+
+        return $instance->newQuery()->where('clientprog_id', $id)->first();
+    }
 
     public function client()
     {

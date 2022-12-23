@@ -6,6 +6,7 @@ use App\Exceptions\StoreNewSchoolException;
 use App\Http\Requests\StoreClientStudentRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
+use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
@@ -44,8 +45,9 @@ class ClientStudentController extends Controller
     private CurriculumRepositoryInterface $curriculumRepository;
     private TagRepositoryInterface $tagRepository;
     private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+    private ClientProgramRepositoryInterface $clientProgramRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
@@ -58,6 +60,7 @@ class ClientStudentController extends Controller
         $this->curriculumRepository = $curriculumRepository;
         $this->tagRepository = $tagRepository;
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
+        $this->clientProgramRepository = $clientProgramRepository;
     }
     
     public function index(Request $request)
@@ -79,6 +82,9 @@ class ClientStudentController extends Controller
     public function show(Request $request)
     {
         $studentId = $request->route('student');
+        if ($request->ajax()) 
+            return $this->clientProgramRepository->getAllClientProgramDataTables($studentId);
+
         $student = $this->clientRepository->getClientById($studentId);
 
         return view('pages.client.student.view')->with(

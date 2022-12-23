@@ -436,7 +436,7 @@
                                 @if (isset($kols) && count($kols) > 0)
                                     @foreach ($kols as $kol)
                                         <option value="{{ $kol->lead_id }}"
-                                            @if (isset($student->lead_id) && $student->lead_id == "LS017")
+                                            @if (isset($student->lead_id) && $student->lead->main_lead == "KOL")
                                                 {{ $student->lead_id == $kol->lead_id ? "selected" : null }}
                                             @else
                                                 {{ old('kol_lead_id') == $kol->lead_id ? "selected" : null }}

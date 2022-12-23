@@ -161,7 +161,7 @@
 </head>
 
 <body>
-    <div id="overlay"></div>
+    {{-- <div id="overlay"></div> --}}
     @yield('body')
 
     {{-- Delete Item  --}}
@@ -305,16 +305,16 @@
     </script>
 
     <script>
-        Swal.fire({
-            width: 100,
-            backdrop: "#FFF",
-            allowOutsideClick: false,
-        })
-        Swal.showLoading()
-        $(window).on('load', function() {
-            $('#overlay').addClass('d-none')
-            Swal.close()
-        });
+        // Swal.fire({
+        //     width: 100,
+        //     backdrop: "#FFF",
+        //     allowOutsideClick: false,
+        // })
+        // Swal.showLoading()
+        // $(window).on('load', function() {
+        //     $('#overlay').addClass('d-none')
+        //     Swal.close()
+        // });
     </script>
 
 </body>

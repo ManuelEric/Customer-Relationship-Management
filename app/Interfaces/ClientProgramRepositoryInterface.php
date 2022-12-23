@@ -4,6 +4,8 @@ namespace App\Interfaces;
 
 interface ClientProgramRepositoryInterface
 {
-    public function getAllClientProgramDataTables();
+    public function getAllClientProgramDataTables($clientId);
+    public function getClientProgramById($clientProgramId);
     public function createClientProgram(array $clientProgramDetails);
+    public function updateClientProgram($clientProgramId, array $clientProgramDetails);
 }

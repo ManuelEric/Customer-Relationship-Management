@@ -13,16 +13,16 @@
                 <div class="row mb-2">
                     <div class="col-md-6">
                         <small>Initial Consult Date <sup class="text-danger">*</sup></small>
-                        <input type="date" name="pend_initconsult_date"
-                            class="form-control form-control-sm rounded">
+                        <input type="date" name="pend_initconsult_date" {{ $disabled }}
+                            class="form-control form-control-sm rounded" value="{{ isset($clientProgram->initconsult_date) ? $clientProgram->initconsult_date : old('pend_initconsult_date') }}">
                         @error('pend_initconsult_date')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <small>Initial Assessment Sent <sup class="text-danger">*</sup></small>
-                        <input type="date" name="pend_assessmentsent_date" 
-                            class="form-control form-control-sm rounded">
+                        <input type="date" name="pend_assessmentsent_date" {{ $disabled }} 
+                            class="form-control form-control-sm rounded" value="{{ isset($clientProgram->assessmentsent_date) ? $clientProgram->assessmentsent_date : old('pend_assessmentsent_date') }}">
                         @error('pend_assessmentsent_date')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
