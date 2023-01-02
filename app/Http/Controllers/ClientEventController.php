@@ -70,7 +70,7 @@ class ClientEventController extends Controller
 
     public function create()
     {
-        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $curriculums = $this->curriculumRepository->getAllCurriculums();
         $clients = $this->clientRepository->getAllClients();
         $events = $this->eventRepository->getAllEvents();
         $leads = $this->leadRepository->getAllLead();

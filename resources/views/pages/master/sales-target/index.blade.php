@@ -35,7 +35,6 @@
             </table>
         </div>
     </div>
-
     <div class="modal fade" id="salesTargetForm" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -54,9 +53,9 @@
                             <div class="col-md-12">
                                 <div class="mb-2">
                                     <label for="">
-                                        Progrm Name <sup class="text-danger">*</sup>
+                                        Program Name <sup class="text-danger">*</sup>
                                     </label>
-                                    <select name="prog_id" id="prog_id" class="modal-select w-100">
+                                    <select name="prog_id" id="prog_id" class="modal-select w-100" onchange="changeProgram()">
                                         <option data-placeholder="true"></option>
                                         @foreach ($programs as $program)
                                             <option value="{{ $program->prog_id }}" {{ $program->prog_id == old('prog_id') ? 'selected' : ''}}>{{ $program->prog_program }}</option>
@@ -65,6 +64,22 @@
                                     @error('prog_id')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="sub-program d-none">
+                                    <div class="mb-2">
+                                        <label for="">
+                                            Sub Program <sup class="text-danger">*</sup>
+                                        </label>
+                                        <select name="sub_prog_id" id="sub_prog_id" class="modal-select w-100">
+                                            <option data-placeholder="true"></option>
+                                          
+                                        </select>
+                                        @error('prog_id')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -119,7 +134,6 @@
         </div>
     </div>
 
-    {{-- Need Changing --}}
     <script>
         $(document).ready(function() {
             $('.modal-select').select2({
@@ -159,7 +173,7 @@
                     },
                     {
                         data: 'program_name',
-                        name: 'tbl_prog.prog_program'
+                        // name: 'program_name',
                     },
                     {
                         data: 'total_participant',
@@ -211,9 +225,44 @@
             $('#formSalesTarget').attr('action', '{{ url('master/sales-target') }}')
         }
 
+        function changeProgram() {
+            let id = $('#prog_id').val()
+            let link = '{{ url('master/sales-target/create') }}'
+            let new_link = link + '?id=' + id;
+
+            Swal.showLoading()
+            axios.get(new_link)
+            .then((res) => {
+                // handle success
+                let data = res.data
+                $('#sub_prog_id').html('<option data-placeholder="true"></option>')
+                $('.sub-program').removeClass('d-none')
+                
+                console.log(data)
+                if(data.length === 0){
+                    $('.sub-program').addClass('d-none')
+                }
+                data.forEach(sub_prog => {
+                       
+                        
+                        $('#sub_prog_id').append('<option value="' + sub_prog.id + '">' + sub_prog
+                                .sub_prog_name + '</option>')
+
+                    });
+                   
+                    Swal.close();
+                })
+                .catch((err) => {
+                    // handle error
+                    console.error(err)
+                    Swal.close()
+                })
+        }
+
+
         function editById(id) {
             let link = "{{ url('master/sales-target') }}/" + id + "/edit"
-            console.log(link)
+            // console.log(link)
 
             axios.get(link)
                 .then(function(response) {
@@ -225,7 +274,7 @@
                     $('#total_participant').val(data.total_participant)
                     $('#total_target').val(data.total_target)
                     $('#month_year').val(data.month_year)
-                    $('#prog_id').select2().val(data.prog_id).trigger('change')
+                    $('#prog_id').val(data.prog_id).trigger('change')
                     let html =
                         '@method('put')' +
                         '<input type="hidden" name="id" value="' + data.id + '">'
