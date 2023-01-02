@@ -74,4 +74,14 @@ class Client extends Model
     {
         return $this->belongsToMany(Major::class, 'tbl_dreams_major', 'client_id', 'major_id');
     }
+
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'client_id', 'id');
+    }
+
+    public function clientMentor()
+    {
+        return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'users.id', 'id', 'clientprog_id');
+    }
 }

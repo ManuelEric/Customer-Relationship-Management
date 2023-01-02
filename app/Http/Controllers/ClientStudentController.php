@@ -68,6 +68,7 @@ class ClientStudentController extends Controller
         // $statusClient = $request->get('st');
         // $statusClientCode = $this->getStatusClientCode($statusClient);
         // return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
+        
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');

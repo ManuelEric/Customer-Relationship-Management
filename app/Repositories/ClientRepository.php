@@ -111,21 +111,47 @@ class ClientRepository implements ClientRepositoryInterface
         # so first select all mentee
         # then use not in all mentee
         $client = [];
-        if ($roleName == "Student") {
+        if ($roleName == "Student" && $statusClient == 0) {
             $client = UserClient::whereHas('roles', function($query) {
                 $query->where('role_name', 'mentee');
             })->pluck('id')->toArray();
         }
 
-        return Datatables::eloquent(Client::whereHas('roles', function ($query) use ($roleName) {
-                $query->where('role_name', $roleName);
-            })->when($roleName == "Student", function ($q) use ($client) {
-                $q->whereNotIn('client.id', $client);
-            })
-            
-            ->when($statusClient, function($query) use ($statusClient) {
-                $query->where('st_statuscli', $statusClient);
-            }))
+        return Datatables::eloquent(
+                Client::
+                whereHas('roles', function ($query) use ($roleName) {
+                    $query->where('role_name', $roleName);
+                })->when($roleName == "Student", function ($q) use ($client) {
+                    $q->whereNotIn('client.id', $client);
+                })
+                
+                ->when(is_int($statusClient) && $statusClient !== NULL, function($query) use ($statusClient) {
+                    $query->where('st_statuscli', $statusClient);
+                })
+                ->when(is_string($statusClient) && $statusClient !== NULL, function($query) use ($statusClient) {
+
+                    $query->when($statusClient == "active", function ($query1) {
+    
+                        $query1->whereHas('clientProgram', function ($q2) {
+                            $q2->whereIn('prog_running_status', [0,1]);
+                        })->withCount('clientProgram')->having('client_program_count', '>', 0);
+                    
+                    }, function ($query1) {
+    
+                        $query1->whereHas('clientProgram', function ($q2) {
+                            $q2->whereIn('prog_running_status', [2]);
+                        })->withCount([
+                            'clientProgram as client_program_count' => function ($query) {
+                                $query->whereIn('prog_running_status', [0, 1, 2]);   
+                            },
+                            'clientProgram as client_program_finish_count' => function ($query) {
+                                $query->where('prog_running_status', 2);
+                            }
+                        ])->havingRaw('client_program_count = client_program_finish_count');
+    
+                    });
+                })
+            )
             ->addColumn('parent_name', function ($data) { return $data->parents()->count() > 0 ? $data->parents()->first()->first_name.' '.$data->parents()->first()->last_name : null; })
             ->addColumn('parent_phone', function ($data) { return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null; })
             ->addColumn('children_name', function ($data) { return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name.' '.$data->childrens()->first()->last_name : null; })
