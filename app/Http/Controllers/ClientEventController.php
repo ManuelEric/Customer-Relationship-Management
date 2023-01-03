@@ -70,7 +70,7 @@ class ClientEventController extends Controller
 
     public function create()
     {
-        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $curriculums = $this->curriculumRepository->getAllCurriculums();
         $clients = $this->clientRepository->getAllClients();
         $events = $this->eventRepository->getAllEvents();
         $leads = $this->leadRepository->getAllLead();
@@ -274,7 +274,7 @@ class ClientEventController extends Controller
         $clientevent_id = $request->route('event');
         $clientEvent = $this->clientEventRepository->getClientEventById($clientevent_id);
 
-        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $curriculums = $this->curriculumRepository->getAllCurriculums();
         $clients = $this->clientRepository->getAllClients();
         $events = $this->eventRepository->getAllEvents();
         $leads = $this->leadRepository->getAllLead();
@@ -302,7 +302,7 @@ class ClientEventController extends Controller
 
         $clientEvent = $this->clientEventRepository->getClientEventById($clientevent_id);
 
-        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $curriculums = $this->curriculumRepository->getAllCurriculums();
         $clients = $this->clientRepository->getAllClients();
         $events = $this->eventRepository->getAllEvents();
         $leads = $this->leadRepository->getAllLead();

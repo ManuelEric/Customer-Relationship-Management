@@ -98,7 +98,7 @@ class SchoolController extends Controller
 
     public function create()
     {
-        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $curriculums = $this->curriculumRepository->getAllCurriculums();
         return view('pages.instance.school.form')->with(
             [
                 'curriculums' => $curriculums
@@ -112,7 +112,7 @@ class SchoolController extends Controller
         $sch_progId = $request->route('detail');
 
         # retrieve curriculum data
-        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $curriculums = $this->curriculumRepository->getAllCurriculums();
 
         # retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($schoolId);
@@ -150,7 +150,7 @@ class SchoolController extends Controller
         $schoolId = $request->route('school');
 
         # retrieve curriculum data
-        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $curriculums = $this->curriculumRepository->getAllCurriculums();
 
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
