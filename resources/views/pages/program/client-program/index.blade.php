@@ -14,61 +14,62 @@
                 data-bs-auto-close="false" id="filter">
                 <i class="bi bi-funnel me-2"></i> Filter
             </button>
-            <form class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 450px">
+            <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 450px">
                 <h6 class="dropdown-header bg-secondary text-white rounded-top">Advanced Filter</h6>
                 <div class="row p-3">
                     <div class="col-md-12 mb-2">
                         <label for="">Program Name</label>
-                        <select name="" id="" class="select form-select form-select-sm w-100" multiple>
-                            @for ($i = 0; $i < 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                        <select name="program_name" class="select form-select form-select-sm w-100" multiple>
+                            @foreach ($programs as $program)
+                                <option value="{{ $program->prog_id }}">{{ $program->program_name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-12 mb-2">
                         <label for="">Conversion Lead</label>
-                        <select name="" id="" class="select form-select form-select-sm w-100" multiple>
-                            @for ($i = 0; $i < 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                        <select name="conversion_lead" class="select form-select form-select-sm w-100" multiple>
+                            @foreach ($conversion_leads as $lead)
+                                <option value="{{ $lead->lead_id }}">{{ $lead->conversion_lead }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-12 mb-2">
                         <div class="row g-2">
                             <div class="col-md-6 mb-2">
                                 <label>Start Date</label>
-                                <input type="date" name="" id=""
+                                <input type="date" name="start_date" value=""
                                     class="form-control form-control-sm rounded">
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label>End Date</label>
-                                <input type="date" name="" id=""
+                                <input type="date" name="end_date" value=""
                                     class="form-control form-control-sm rounded">
                             </div>
                         </div>
                     </div>
                     <div class="col-md-12 mb-2">
                         <label for="">Program Status</label>
-                        <select name="" id="" class="select form-select form-select-sm w-100" multiple>
-                            @for ($i = 0; $i < 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                        <select name="program_status" class="select form-select form-select-sm w-100" multiple>
+                            <option value="{{ Crypt::encrypt(0) }}">Pending</option>
+                            <option value="{{ Crypt::encrypt(1) }}">Success</option>
+                            <option value="{{ Crypt::encrypt(2) }}">Failed</option>
+                            <option value="{{ Crypt::encrypt(3) }}">Refund</option>
                         </select>
                     </div>
                     <div class="col-md-12 mb-2">
-                        <label for="">Mentor Name</label>
-                        <select name="" id="" class="select form-select form-select-sm w-100" multiple>
-                            @for ($i = 0; $i < 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                        <label for="">Mentor / Tutor Name</label>
+                        <select name="mentor_tutor" class="select form-select form-select-sm w-100" multiple>
+                            @foreach ($mentor_tutors as $user)
+                                <option value="{{ Crypt::encrypt($user->id) }}">{{ $user->fullname }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-12 mb-2">
                         <label for="">PIC</label>
-                        <select name="" id="" class="select form-select form-select-sm w-100" multiple>
-                            @for ($i = 0; $i < 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                        <select name="pic" id="" class="select form-select form-select-sm w-100" multiple>
+                            @foreach ($pics as $pic)
+                                <option value="{{ Crypt::encrypt($pic->empl_id) }}">{{ $pic->pic_name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-12 mt-3">
@@ -106,32 +107,6 @@
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @for ($i = 0; $i < 5; $i++)
-                        <tr>
-                            <td>#</td>
-                            <td>Client Name</td>
-                            <td>Grade</td>
-                            <td>Program Name</td>
-                            <td>Mentor/Tutor Name</td>
-                            <td>End Program Date</td>
-                            <td>Lead Source</td>
-                            <td>Conversion Lead</td>
-                            <td>Program Status</td>
-                            <td>Running Status</td>
-                            <td>Reason</td>
-                            <td>PIC</td>
-                            <td>Initial Consult</td>
-                            <td>Initial Assessment Sent</td>
-                            <td>Success Program Date</td>
-                            <td class="text-center">
-                                <a href="{{ url('program/client/1') }}" class="btn btn-sm btn-outline-warning">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    @endfor
-                </tbody>
                 <tfoot class="bg-light text-white">
                     <tr>
                         <td colspan="16"></td>
@@ -141,6 +116,14 @@
         </div>
     </div>
 
+    <script type="text/javascript">
+    $(document).ready(function() {
+
+        $("form").submit(function(e) {
+            e.preventDefault();    
+        })
+    })
+    </script>
     {{-- Need Changing --}}
     <script>
         $('#cancel').click(function() {
@@ -164,72 +147,110 @@
                 fixedColumns: {
                     left: 2,
                     right: 1
-                }
+                },
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'clientprog_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'fullname',
+                    },
+                    {
+                        data: 'st_grade',
+                    },
+                    {
+                        data: 'program_name',
+                        render: function(data, type, row, meta) {
+                            return row.referral_type == "Out" ? row.additional_prog_name : row.program_name
+                        }
+                    },
+                    {
+                        data: 'mentor_tutor_name',
+                    },
+                    {
+                        data: 'prog_end_date',
+                    },
+                    {
+                        data: 'lead_source',
+                    },
+                    {
+                        data: 'conversion_lead',
+                    },
+                    {
+                        data: 'status',
+                        render: function(data, type, row, meta) {
+                            switch(data) {
+                                case 0:
+                                    return 'pending'
+                                    break;
+
+                                case 1:
+                                    return 'success'
+                                    break;
+
+                                case 2:
+                                    return 'failed'
+                                    break;
+
+                                case 3:
+                                    return 'refund'
+                                    break;
+                            }
+                        }
+                    },
+                    {
+                        data: 'prog_running_status',
+                        render: function(data, type, row, meta) {
+                            switch(data) {
+                                case 0:
+                                    return 'not yet'
+                                    break;
+
+                                case 1:
+                                    return 'ongoing'
+                                    break;
+
+                                case 2:
+                                    return 'done'
+                                    break;
+                            }
+                        }
+                    },
+                    {
+                        data: 'reason',
+                    },
+                    {
+                        data: 'pic_name',
+                    },
+                    {
+                        data: 'initconsult_date',
+                    },
+                    {
+                        data: 'assessmentsent_date',
+                    },
+                    {
+                        data: 'success_date',
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning showClientProgram"><i class="bi bi-eye"></i></button>'
+                    }
+                ]
             })
-            // var table = $('#programTable').DataTable({
-            //     dom: 'Bfrtip',
-            //     lengthMenu: [
-            //         [10, 25, 50, 100, -1],
-            //         ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-            //     ],
-            //     buttons: [
-            //         'pageLength', {
-            //             extend: 'excel',
-            //             text: 'Export to Excel',
-            //         }
-            //     ],
-            //     scrollX: true,
-            //     fixedColumns: {
-            //         left: 2,
-            //         right: 1
-            //     },
-            //     processing: true,
-            //     serverSide: true,
-            //     ajax: '',
-            //     columns: [{
-            //             data: 'event_id',
-            //             className: 'text-center',
-            //             render: function(data, type, row, meta) {
-            //                 return meta.row + meta.settings._iDisplayStart + 1;
-            //             }
-            //         },
-            //         {
-            //             data: 'event_title',
-            //         },
-            //         {
-            //             data: 'event_location',
-            //         },
-            //         {
-            //             data: 'event_startdate',
-            //             render: function(data, type, row) {
-            //                 let event_startdate = row.event_startdate ? moment(row
-            //                     .event_startdate).format("MMMM Do YYYY HH:mm:ss") : '-'
-            //                 return event_startdate
-            //             }
-            //         },
-            //         {
-            //             data: 'event_enddate',
-            //             render: function(data, type, row) {
-            //                 let event_enddate = row.event_enddate ? moment(row
-            //                     .event_enddate).format("MMMM Do YYYY HH:mm:ss") : '-'
-            //                 return event_enddate
-            //             }
-            //         },
-            //         {
-            //             data: '',
-            //             className: 'text-center',
-            //             defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning showEvent"><i class="bi bi-eye"></i></button>' +
-            //                 '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteEvent"><i class="bi bi-trash2"></i></button>'
-            //         }
-            //     ]
-            // });
 
             // realtimeData(table)
 
-            // $('#programTable tbody').on('click', '.showEvent ', function() {
-            //     var data = table.row($(this).parents('tr')).data();
-            //     window.location.href = "{{ url('master/event') }}/" + data.event_id;
-            // });
+            $('#programTable tbody').on('click', '.showClientProgram ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                window.location.href = "{{ url('client/student') }}/" + data.client_id + "/program/" + data.clientprog_id;
+            });
 
             // $('#programTable tbody').on('click', '.deleteEvent ', function() {
             //     var data = table.row($(this).parents('tr')).data();

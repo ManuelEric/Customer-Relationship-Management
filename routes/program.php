@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\ReferralController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientEventController;
@@ -33,18 +34,20 @@ Route::get('event/create', function () {
 });
 
 //  
-Route::get('client', function () {
-    return view('pages.program.client-program.index');
-});
-Route::get('client/create', function () {
-    return view('pages.program.client-program.form');
-});
-Route::get('client/1', function () {
-    return view('pages.program.client-program.form');
-});
-Route::get('client/1/edit', function () {
-    return view('pages.program.client-program.form');
-});
+// Route::get('client', function () {
+//     return view('pages.program.client-program.index');
+// });
+// Route::get('client/create', function () {
+//     return view('pages.program.client-program.form');
+// });
+// Route::get('client/1', function () {
+//     return view('pages.program.client-program.form');
+// });
+// Route::get('client/1/edit', function () {
+//     return view('pages.program.client-program.form');
+// });
+
+Route::resource('client', ClientProgramController::class);
 
 Route::get('corporate', function () {
     return view('pages.program.corporate-program.index');

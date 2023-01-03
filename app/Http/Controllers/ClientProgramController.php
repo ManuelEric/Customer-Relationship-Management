@@ -58,6 +58,33 @@ class ClientProgramController extends Controller
             })->pluck('prog_id')->toArray();
     }
 
+    public function index(Request $request)
+    {
+
+        
+        if ($request->ajax()) { 
+            
+            $progId = $request->get('program_name') ?? null;
+
+            return $this->clientProgramRepository->getAllClientProgramDataTables(NULL);
+        }
+
+        # advanced filter data
+        $programs = $this->clientProgramRepository->getAllProgramOnClientProgram();
+        $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
+        $mentor_tutors = $this->clientProgramRepository->getAllMentorTutorOnClientProgram();
+        $pics = $this->clientProgramRepository->getAllPICOnClientProgram();
+
+        return view('pages.program.client-program.index')->with(
+            [
+                'programs' => $programs,
+                'conversion_leads' => $conversion_leads,
+                'mentor_tutors' => $mentor_tutors,
+                'pics' => $pics,
+            ]
+        );
+    }
+
     public function show(Request $request)
     {
         $studentId = $request->route('student');

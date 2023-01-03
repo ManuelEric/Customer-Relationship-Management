@@ -185,20 +185,7 @@
                         className: 'text-center',
                         defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
                     }
-                ],
-                createdRow: function(row, data, index) {
-                    // temporary condition
-                    // while change soon
-                    if (data['total_score'] <  2.5) {
-
-                        $('td', row).addClass('bg-danger');
-                    } else if ((data['total_score'] >= 2.5) && (data['total_score'] < 6)) {
-
-                        
-                    } else {
-                        $('td', row).addClass('bg-info');
-                    }
-                }
+                ]
             });
 
             $('#clientTable tbody').on('click', '.editClient ', function() {
