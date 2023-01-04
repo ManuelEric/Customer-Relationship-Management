@@ -100,6 +100,9 @@
                 columns: [{
                         data: 'clientevent_id',
                         className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
                     },
                     {
                         data: 'client_name',

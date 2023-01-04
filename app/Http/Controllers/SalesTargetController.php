@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSalesTargetRequest;
-use App\Interfaces\SubProgRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SalesTargetRepositoryInterface;
 use Carbon\Carbon;
@@ -17,14 +16,12 @@ class SalesTargetController extends Controller
 {
 
     protected SalesTargetRepositoryInterface $salesTargetRepository;
-    protected SubProgRepositoryInterface $subProgRepository;
     protected ProgramRepositoryInterface $programRepository;
 
-    public function __construct(SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, subProgRepositoryInterface $subProgRepository)
+    public function __construct(SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository)
     {
         $this->salesTargetRepository = $salesTargetRepository;
         $this->programRepository = $programRepository;
-        $this->subProgRepository = $subProgRepository;
     }
 
     public function index(Request $request)
@@ -36,35 +33,19 @@ class SalesTargetController extends Controller
 
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
-        $subProg = $this->subProgRepository->getSubProgByMainProgId(1);
 
         return view('pages.master.sales-target.index')->with(
             [
                 'programs' => $programs,
-                'subProg' => $subProg,
             ]
         );
     }
 
-    public function create(Request $request){
-       
-        if ($request->ajax()) {
-         
-            $id = $request->get('id');
-            $program = $this->programRepository->getProgramById($id);
-            $sub_prog_id = $program->sub_prog_id;
-                return $this->subProgRepository->getSubProgByMainProgId($sub_prog_id);
-  
-        }
-            
-        
-    }
 
     public function store(StoreSalesTargetRequest $request)
     {
         $salesTargets = $request->only([
             'prog_id',
-            'sub_prog_id',
             'total_participant',
             'total_target',
             'month_year'
@@ -92,7 +73,6 @@ class SalesTargetController extends Controller
     {
         $salesTargets = $request->only([
             'prog_id',
-            'sub_prog_id',
             'total_participant',
             'total_target',
             'month_year'

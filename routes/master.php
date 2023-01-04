@@ -13,6 +13,7 @@ use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\PurchaseDetailController;
 use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\SchoolEventController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\UniversityEventController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\EdufLeadController;
@@ -83,9 +84,11 @@ Route::resource('sales-target', SalesTargetController::class);
 
 Route::resource('curriculum', CurriculumController::class);
 
-Route::get('university-tags', function () {
-    return view('pages.master.university-tag.index');
-});
+Route::resource('university-tags', TagController::class);
+
+// Route::get('university-tags', function () {
+//     return view('pages.master.university-tag.index');
+// });
 
 // Route::get('sales-target', function () {
 //     return view('pages.master.sales-target.index');

@@ -27,6 +27,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                         'tbl_sch_prog.participants',
                         'tbl_sch_prog.total_fee',
                         'tbl_sch_prog.status',
+                        'tbl_sch_prog.success_date',
                         'tbl_sch_prog.start_program_date',
                         'tbl_sch_prog.end_program_date',
                         'users.id as pic_id',

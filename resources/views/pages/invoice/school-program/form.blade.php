@@ -16,30 +16,34 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>School Name</h4>
-                    <h6>Program Name</h6>
+                    <h4>{{ $school->sch_name }}</h4>
+                    <h6>{{ $schoolProgram->program->prog_program }}</h6>
                     <div class="d-flex justify-content-center mt-3">
-                        <a href="{{ url('program/school/1') }}" class="btn btn-sm btn-outline-info rounded mx-1"
+                        <a href="{{ url('program/school/'. strtolower($school->sch_id) .'/detail/'.$schoolProgram->id) }}" class="btn btn-sm btn-outline-info rounded mx-1"
                             target="_blank">
                             <i class="bi bi-eye me-1"></i> More
                         </a>
+                        @if (isset($invoiceSch))
+                            <a href="{{ $status == 'edit' ? url('invoice/school-program/1') : url('invoice/school-program/1/edit') }}"
+                                class="btn btn-sm btn-outline-warning rounded mx-1">
+                                <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
+                                {{ $status == 'edit' ? 'Back' : 'Edit' }}
+                            </a>
 
-                        <a href="{{ $status == 'edit' ? url('invoice/school-program/1') : url('invoice/school-program/1/edit') }}"
-                            class="btn btn-sm btn-outline-warning rounded mx-1">
-                            <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
-                            {{ $status == 'edit' ? 'Back' : 'Edit' }}
-                        </a>
-
-                        <button class="btn btn-sm btn-outline-danger rounded mx-1">
-                            <i class="bi bi-trash2 me-1"></i> Delete
-                        </button>
+                            <button class="btn btn-sm btn-outline-danger rounded mx-1"
+                                onclick="confirmDelete('{{'invoice/school-program/' . $schoolProgram->id . '/detail'}}', {{$invoiceSch->invb2b_num}})">
+                                <i class="bi bi-trash2 me-1"></i> Delete
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
 
             @include('pages.invoice.school-program.form-detail.client')
-
-            @include('pages.invoice.school-program.form-detail.installment-list')
+            
+            @if(isset($invoiceSch) && $invoiceSch->invb2b_pm == 'installment')
+                @include('pages.invoice.school-program.form-detail.installment-list')
+            @endif
         </div>
 
         <div class="col-md-8">
@@ -51,102 +55,158 @@
                             Invoice
                         </h6>
                     </div>
-                    <div class="">
-                        <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
-                            <i class="bi bi-plus"></i> Receipt
-                        </button>
-                        <button class="btn btn-sm btn-outline-warning py-1">
-                            <i class="bi bi-eye"></i> View Receipt
-                        </button>
-                    </div>
+                    @if(isset($invoiceSch) && $invoiceSch->invb2b_pm == 'full')
+                        <div class="">
+                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
+                                <i class="bi bi-plus"></i> Receipt
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning py-1">
+                                <i class="bi bi-eye"></i> View Receipt
+                            </button>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <label for="">Currency</label>
-                            <select id="currency" class="select w-100" onchange="checkCurrency()">
-                                <option value="idr">IDR</option>
-                                <option value="other">Other Currency</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 mb-3 currency-detail d-none">
-                            <label for="">Currency Detail</label>
-                            <select class="select w-100" id="currency_detail" onchange="checkCurrencyDetail()">
-                                <option data-placeholder="true"></option>
-                                <option value="usd">USD</option>
-                                <option value="sgd">SGD</option>
-                                <option value="gbp">GBP</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-3  mb-3 currency-detail d-none">
-                            <label for="">Current Rate to IDR</label>
-                            <input type="number" name="" id="current_rate"
-                                class="form-control form-control-sm rounded" disabled>
-                        </div>
-
-
-                        <div class="col-md-12 mb-3">
-                            {{-- IDR  --}}
-                            <div class="invoice-currency invoice-idr">
-                                @include('pages.invoice.school-program.form-detail.invoice-idr')
+                    <form action="{{ url('invoice/school-program/' . $schoolProgram->id . '/store') }}" method="POST">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="">Currency</label>
+                                <select id="currency" name="select_currency" class="select w-100" onchange="checkCurrency()" {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                                    <option value="idr">IDR</option>
+                                    <option value="other">Other Currency</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3 currency-detail d-none">
+                                <label for="">Currency Detail</label>
+                                <select class="select w-100" name="currency" id="currency_detail" onchange="checkCurrencyDetail()" {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                                    <option data-placeholder="true"></option>
+                                    @if(isset($invoiceSch))
+                                        <option value="USD" {{ $invoiceSch->currency == 'USD' ? 'selected' : ''}}>USD</option>
+                                        <option value="SGD" {{ $invoiceSch->currency == 'SGD' ? 'selected' : ''}}>SGD</option>
+                                        <option value="GBP" {{ $invoiceSch->currency == 'GBP' ? 'selected' : ''}}>GBP</option>
+                                    @elseif(empty($invoiceSch))
+                                        <option value="USD" {{ old('currency') == 'USD' ? 'selected' : ''}}>USD</option>
+                                        <option value="SGD" {{ old('currency') == 'SGD' ? 'selected' : ''}}>SGD</option>
+                                        <option value="GBP" {{ old('currency') == 'GBP' ? 'selected' : ''}}>GBP</option>
+                                    @endif
+                                </select>
+                                @error('currency')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
 
-                            {{-- OTHER  --}}
-                            <div class="invoice-currency d-none  invoice-other">
-                                @include('pages.invoice.school-program.form-detail.invoice-other')
+                            <div class="col-md-3  mb-3 currency-detail d-none">
+                                <label for="">Current Rate to IDR</label>
+                                <input type="number" name="cursrate" id="current_rate"
+                                    class="form-control form-control-sm rounded" 
+                                    value="{{ (isset($invoiceSch)) ? $invoiceSch->cursrate : old('cursrate') }}" disabled>
+                                @error('cursrate')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
-                        </div>
 
-                        <div class="col-md-12">
-                            <input type="hidden" name="" id="total_idr">
-                            <input type="hidden" name="" id="total_other">
-                        </div>
 
-                        <div class="col-md-5 mb-3">
-                            <label for="">Payment Method</label>
-                            <select name="" id="payment_method" class="select w-100" onchange="checkPayment()">
-                                <option data-placeholder="true"></option>
-                                <option value="full">Full Payment</option>
-                                <option value="installment">Installment</option>
-                            </select>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="">Invoice Date</label>
-                                    <input type="date" name="" id=""
-                                        class='form-control form-control-sm rounded'>
+                            <div class="col-md-12 mb-3">
+                                {{-- IDR  --}}
+                                <div class="invoice-currency invoice-idr">
+                                    @include('pages.invoice.school-program.form-detail.invoice-idr')
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="">Invoice Due Date</label>
-                                    <input type="date" name="" id=""
-                                        class='form-control form-control-sm rounded'>
+
+                                {{-- OTHER  --}}
+                                <div class="invoice-currency d-none  invoice-other">
+                                    @include('pages.invoice.school-program.form-detail.invoice-other')
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            {{-- IDR  --}}
-                            <div class="installment-card d-none installment-idr">
-                                @include('pages.invoice.school-program.form-detail.installment-idr')
+
+                            <div class="col-md-12">
+                                <input type="hidden" name="invb2b_totpriceidr" id="total_idr">
+                                    {{-- @error('invb2b_totpriceidr')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror --}}
+                                <input type="hidden" name="invb2b_totprice" id="total_other">
+                                    {{-- @error('invb2b_totprice')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror --}}
                             </div>
 
-                            <div class="installment-card d-none installment-other">
-                                @include('pages.invoice.school-program.form-detail.installment-other')
+                            <div class="col-md-5 mb-3">
+                                <label for="">Payment Method</label>
+                                <select name="invb2b_pm" id="payment_method" class="select w-100" {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }} onchange="checkPayment()">
+                                    <option data-placeholder="true"></option>
+                                    @if(isset($invoiceSch))
+                                        <option value="full" {{ $invoiceSch->invb2b_pm == 'full' ? 'selected' : '' }}>Full Payment</option>
+                                        <option value="installment" {{ $invoiceSch->invb2b_pm == 'installment' ? 'selected' : '' }}>Installment</option>
+                                    @elseif(empty($invoiceSch))
+                                        <option value="full" {{ old('invb2b_pm') == 'full' ? 'selected' : '' }}>Full Payment</option>
+                                        <option value="installment" {{ old('invb2b_pm') == 'installment' ? 'selected' : '' }}>Installment</option>
+                                    @endif
+                                </select>
+                                @error('invb2b_pm')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
-
+                            <div class="col-md-7">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="">Invoice Date</label>
+                                        <input type="date" name="invb2b_date" id=""
+                                            class='form-control form-control-sm rounded'
+                                            value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_date : old('invb2b_date') }}"
+                                            {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                                        @error('invb2b_date')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="">Invoice Due Date</label>
+                                        <input type="date" name="invb2b_duedate" id=""
+                                            class='form-control form-control-sm rounded'
+                                            value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_duedate : old('invb2b_duedate') }}"
+                                            {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                                        @error('invb2b_duedate')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            
+                                <div class="col-md-12">
+                                    {{-- IDR  --}}
+                                    <div class="installment-card d-none installment-idr">
+                                        @include('pages.invoice.school-program.form-detail.installment-idr')
+                                    </div>
+                                    
+                                    <div class="installment-card d-none installment-other">
+                                        @include('pages.invoice.school-program.form-detail.installment-other')
+                                    </div>
+                                    
+                                </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="">Notes</label>
+                                <textarea name="invb2b_notes" id="">{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_notes : old('invb2b_notes') }}</textarea>
+                                @error('invb2b_notes')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="">Terms & Condition</label>
+                                <textarea name="invb2b_tnc" id="">{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_tnc : old('invb2b_tnc') }}</textarea>
+                                @error('invb2b_tnc')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            @if(empty($invoiceSch) || isset($edit))
+                                <div class="mt-3 text-end">
+                                    <button type="submit" class="btn btn-sm btn-primary rounded">
+                                        <i class="bi bi-save2 me-2"></i> Submit
+                                    </button>
+                                </div>
+                            @endif
                         </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="">Notes</label>
-                            <textarea name="" id=""></textarea>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="">Terms & Condition</label>
-                            <textarea name="" id=""></textarea>
-                        </div>
-
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -327,4 +387,24 @@
             }
         }
     </script>
+
+    @if(isset($invoiceSch->currency))
+        <script>
+            $(document).ready(function(){
+                $('#currency').val('other').trigger('change')
+            })
+        </script>
+    @endif
+
+    @if(!empty(old('select_currency')))
+        
+        <script>
+            $(document).ready(function(){
+                $('#currency').val("{{old('select_currency')}}").trigger('change')
+            })
+
+        </script>
+
+
+    @endif
 @endsection

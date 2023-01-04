@@ -55,31 +55,15 @@
                                     <label for="">
                                         Program Name <sup class="text-danger">*</sup>
                                     </label>
-                                    <select name="prog_id" id="prog_id" class="modal-select w-100" onchange="changeProgram()">
+                                    <select name="prog_id" id="prog_id" class="modal-select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($programs as $program)
-                                            <option value="{{ $program->prog_id }}" {{ $program->prog_id == old('prog_id') ? 'selected' : ''}}>{{ $program->prog_program }}</option>
+                                            <option value="{{ $program->prog_id }}" {{ $program->prog_id == old('prog_id') ? 'selected' : ''}}>{{$program->sub_prog ? $program->sub_prog->sub_prog_name.' - ':''}}{{ $program->prog_program }}</option>
                                         @endforeach
                                     </select>
                                     @error('prog_id')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="sub-program d-none">
-                                    <div class="mb-2">
-                                        <label for="">
-                                            Sub Program <sup class="text-danger">*</sup>
-                                        </label>
-                                        <select name="sub_prog_id" id="sub_prog_id" class="modal-select w-100">
-                                            <option data-placeholder="true"></option>
-                                          
-                                        </select>
-                                        @error('prog_id')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                        @enderror
-                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -223,40 +207,6 @@
             });
             $('.put').html('')
             $('#formSalesTarget').attr('action', '{{ url('master/sales-target') }}')
-        }
-
-        function changeProgram() {
-            let id = $('#prog_id').val()
-            let link = '{{ url('master/sales-target/create') }}'
-            let new_link = link + '?id=' + id;
-
-            Swal.showLoading()
-            axios.get(new_link)
-            .then((res) => {
-                // handle success
-                let data = res.data
-                $('#sub_prog_id').html('<option data-placeholder="true"></option>')
-                $('.sub-program').removeClass('d-none')
-                
-                console.log(data)
-                if(data.length === 0){
-                    $('.sub-program').addClass('d-none')
-                }
-                data.forEach(sub_prog => {
-                       
-                        
-                        $('#sub_prog_id').append('<option value="' + sub_prog.id + '">' + sub_prog
-                                .sub_prog_name + '</option>')
-
-                    });
-                   
-                    Swal.close();
-                })
-                .catch((err) => {
-                    // handle error
-                    console.error(err)
-                    Swal.close()
-                })
         }
 
 
