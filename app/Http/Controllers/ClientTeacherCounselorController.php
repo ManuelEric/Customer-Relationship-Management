@@ -53,7 +53,7 @@ class ClientTeacherCounselorController extends Controller
     public function create()
     {
         $schools = $this->schoolRepository->getAllSchools();
-        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $curriculums = $this->curriculumRepository->getAllCurriculums();
         $leads = $this->leadRepository->getAllMainLead();
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
@@ -187,7 +187,7 @@ class ClientTeacherCounselorController extends Controller
         $teacher_counselorId = $request->route('teacher_counselor');
         $teacher_counselor = $this->clientRepository->getClientById($teacher_counselorId);
         $schools = $this->schoolRepository->getAllSchools();
-        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $curriculums = $this->curriculumRepository->getAllCurriculums();
         $leads = $this->leadRepository->getAllMainLead();
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();

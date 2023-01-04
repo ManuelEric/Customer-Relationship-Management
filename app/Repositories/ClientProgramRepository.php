@@ -4,37 +4,40 @@ namespace App\Repositories;
 
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Models\ClientProgram;
+use App\Models\pivot\ClientMentor;
 use App\Models\Reason;
+use App\Models\ViewClientProgram;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
 class ClientProgramRepository implements ClientProgramRepositoryInterface 
 {
-    public function getAllClientProgramDataTables($clientId)
+    public function getAllClientProgramDataTables($clientId = NULL)
     {
-        return Datatables::eloquent(ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-            ->leftJoin('users', 'users.id', '=', 'tbl_client_prog.empl_id')
-            ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_prog.lead_id')
-            ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_prog.eduf_lead_id')
-            ->leftJoin('tbl_client_event', 'tbl_client_event.clientevent_id', '=', 'tbl_client_prog.clientevent_id')
-                ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
-            ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_prog.partner_id')
-            ->select('tbl_client_prog.*', 
-                DB::raw('CONCAT(tbl_prog.prog_program, " - ", tbl_main_prog.prog_name) as program_name'), 
-                DB::raw('(CASE WHEN tbl_client_prog.status = 0 THEN "Pending"
-                            WHEN tbl_client_prog.status = 1 THEN "Success"
-                            WHEN tbl_client_prog.status = 2 THEN "Failed"
-                            WHEN tbl_client_prog.status = 3 THEN "Refund"
-                        END) AS program_status'),
-                DB::raw('CONCAT(users.first_name, " ", users.last_name) AS pic_name'),
-                DB::raw('(CASE 
-                    WHEN tbl_lead.main_lead = "KOL" THEN CONCAT("KOL - ", tbl_lead.sub_lead)
-                    WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", tbl_eduf_lead.title)
-                    WHEN tbl_lead.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", tbl_events.event_title)
-                    WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT("All-In Partner - ", tbl_corp.corp_name)
-                    ELSE tbl_lead.main_lead
-                END) AS lead_source')))->make(true);
+        return Datatables::eloquent(ViewClientProgram::when($clientId, function($query) use ($clientId) {
+            $query->where('client_id', $clientId);
+        }))->make(true);
+    }
+
+    public function getAllProgramOnClientProgram()
+    {
+        return ViewClientProgram::distinct('program_name')->select('program_name', 'prog_id')->get();
+    }
+
+    public function getAllConversionLeadOnClientProgram()
+    {
+        return ViewClientProgram::distinct('conversion_lead')->select('conversion_lead', 'lead_id')->get();
+    }
+
+    public function getAllMentorTutorOnClientProgram()
+    {
+        return ClientMentor::leftJoin('users', 'users.id', '=', 'tbl_client_mentor.user_id')->distinct('user_id')
+            ->select('users.id', DB::raw('CONCAT(users.first_name, " ", users.last_name) as fullname'))->get();
+    }
+
+    public function getAllPICOnClientProgram()
+    {
+        return ViewClientProgram::distinct('empl_id')->select('empl_id', 'pic_name')->get();
     }
 
     public function getClientProgramById($clientProgramId)

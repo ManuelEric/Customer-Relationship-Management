@@ -1,0 +1,86 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        DB::statement('
+        CREATE OR REPLACE VIEW ClientProgram AS
+        SELECT cp.*, 
+            c.st_grade,
+            r.reason_name as reason,
+            CONCAT(c.first_name, " ", c.last_name) as fullname,
+            CONCAT(p.prog_program, " - ", mp.prog_name) as program_name,
+            (CASE WHEN cp.status = 0 THEN "Pending"
+                WHEN cp.status = 1 THEN "Success"
+                WHEN cp.status = 2 THEN "Failed"
+                WHEN cp.status = 3 THEN "Refund"
+            END) AS program_status,
+            CONCAT(u.first_name, " ", u.last_name) AS pic_name,
+            (CASE 
+                WHEN cl.main_lead = "KOL" THEN CONCAT("KOL - ", cl.sub_lead)
+                WHEN cl.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", cedl.title)
+                WHEN cl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", cec.event_title)
+                ELSE cl.main_lead
+            END) AS lead_source,
+            (CASE 
+                WHEN cpl.main_lead = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead)
+                WHEN cpl.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", edl.title)
+                WHEN cpl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title)
+                WHEN cpl.main_lead = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name)
+                ELSE cpl.main_lead
+            END) AS conversion_lead,
+            (SELECT GROUP_CONCAT(CONCAT(squ.first_name, " ", squ.last_name)) FROM tbl_client_mentor sqcm
+                    LEFT JOIN users squ ON squ.id = sqcm.user_id
+                    WHERE sqcm.clientprog_id = cp.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name        
+        FROM tbl_client_prog cp
+            LEFT JOIN tbl_prog p
+                ON p.prog_id = cp.prog_id
+                    LEFT JOIN tbl_main_prog mp
+                        ON mp.id = p.main_prog_id
+            LEFT JOIN tbl_client c
+                ON c.id = cp.client_id
+                    LEFT JOIN tbl_lead cl
+                        ON cl.lead_id = c.lead_id
+                            LEFT JOIN tbl_eduf_lead cedl
+                                ON cedl.id = c.eduf_id
+                            LEFT JOIN tbl_events cec
+                                ON cec.event_id = c.event_id
+            LEFT JOIN users u
+                ON u.id = cp.empl_id
+            LEFT JOIN tbl_lead cpl
+                ON cpl.lead_id = cp.lead_id
+            LEFT JOIN tbl_eduf_lead edl
+                ON edl.id = cp.eduf_lead_id
+            LEFT JOIN tbl_client_event ce
+                ON ce.clientevent_id = cp.clientevent_id
+                    LEFT JOIN tbl_events e
+                        ON e.event_id = ce.event_id
+            LEFT JOIN tbl_corp corp
+                ON corp.corp_id = cp.partner_id
+            LEFT JOIN tbl_reason r
+                ON r.reason_id = cp.reason_id
+            
+        ');
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('client_program_view');
+    }
+};
