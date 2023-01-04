@@ -12,11 +12,99 @@ use Illuminate\Support\Facades\DB;
 
 class ClientProgramRepository implements ClientProgramRepositoryInterface 
 {
-    public function getAllClientProgramDataTables($clientId = NULL)
+    public function getAllClientProgramDataTables($searchQuery = NULL)
     {
-        return Datatables::eloquent(ViewClientProgram::when($clientId, function($query) use ($clientId) {
-            $query->where('client_id', $clientId);
-        }))->make(true);
+        # finding fieldKey that being searched
+        # depends on status
+        $fieldKey = ["created_at"];
+        if (isset($searchQuery['status'])) {
+            foreach ($searchQuery['status'] as $status) {
+
+                switch ($status) {
+                    case $status == 1: # success
+                        $fieldKey[] = "success_date";
+                        break;
+    
+                    case $status == 2: # failed
+                        $fieldKey[] = "failed_date";
+                        break;
+    
+                    case $status == 3: # refund
+                        $fieldKey[] = "refund_date";
+                        break;
+    
+                    default: # pending
+                        $fieldKey = ["created_at"];
+                }
+            }
+        }
+
+        return Datatables::eloquent(ViewClientProgram::when($searchQuery['clientId'], function($query) use ($searchQuery) {
+                $query->where('client_id', $searchQuery['clientId']);
+            })
+            # search by program name 
+            ->when($searchQuery['programName'], function ($query) use ($searchQuery) {
+                $query->whereIn('prog_id', $searchQuery['programName']);
+            })
+            # search by conversion lead
+            ->when($searchQuery['leadId'], function ($query) use ($searchQuery) {
+                $query->whereIn('lead_id', $searchQuery['leadId']);
+            })
+            # search by status
+            ->when($searchQuery['status'], function ($query) use ($searchQuery) {
+                $query->whereIn('status', $searchQuery['status']);
+            })
+            # search by date
+            # when start date && end date filled
+            ->when($searchQuery['startDate'] !== NULL && $searchQuery['endDate'] !== NULL, function ($query) use ($searchQuery, $fieldKey) {
+                $no = 0;
+                foreach ($fieldKey as $key => $val) {
+                    if ($no == 0)
+                        $query->whereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                    else
+                        $query->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+
+                    $no++;
+                }
+            })
+            # when start date filled && end date null
+            ->when($searchQuery['startDate'] !== NULL && $searchQuery['endDate'] === NULL, function ($query) use ($searchQuery, $fieldKey) {
+                $no = 0;
+                foreach ($fieldKey as $key => $val) {
+                    if ($no == 0)
+                        $query->whereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
+                    else
+                        $query->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
+
+                    $no++;
+                }
+            })
+            ->when($searchQuery['endDate'] !== NULL && $searchQuery['startDate'] === NULL, function ($query) use ($searchQuery, $fieldKey) {
+                $no = 0;
+                foreach ($fieldKey as $key => $val) {
+                    if ($no == 0)
+                        $query->whereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
+                    else
+                        $query->orWhereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
+
+                    $no++;
+                }
+            })
+
+
+            # search by mentor / tutor id
+            ->when($searchQuery['userId'], function ($query) use ($searchQuery) {
+                $query->whereHas('clientMentor', function ($query2) use ($searchQuery) {
+                    $query2->whereIn('users.id', $searchQuery['userId']);
+                });
+            })
+            # search by pic id
+            ->when($searchQuery['emplId'], function ($query) use ($searchQuery) {
+                $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
+                    $query2->whereIn('users.id', $searchQuery['emplId']);
+                });
+            })
+        )->make(true);
     }
 
     public function getAllProgramOnClientProgram()

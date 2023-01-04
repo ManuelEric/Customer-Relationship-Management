@@ -84,7 +84,7 @@ class ClientStudentController extends Controller
     {
         $studentId = $request->route('student');
         if ($request->ajax()) 
-            return $this->clientProgramRepository->getAllClientProgramDataTables($studentId);
+            return $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => $studentId]);
 
         $student = $this->clientRepository->getClientById($studentId);
 

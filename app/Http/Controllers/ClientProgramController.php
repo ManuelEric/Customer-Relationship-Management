@@ -15,6 +15,7 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Models\Program;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -60,13 +61,38 @@ class ClientProgramController extends Controller
 
     public function index(Request $request)
     {
+        $data = $status = [];
+        $status = $userId = $emplId = NULL;
 
+        $data['clientId'] = NULL;
+        $data['programName'] = $request->get('program_name') ?? null;
+        $data['leadId'] = $request->get('conversion_lead') ?? null;
+
+        if ($request->get('program_status')) {
+            for ($i = 0 ; $i < count($request->get('program_status')); $i++) {
+                $status[] = Crypt::decrypt($request->get('program_status')[$i]);
+            }
+        }
+        $data['status'] = $status;
+
+        if ($request->get('mentor_tutor')) {
+            for ($i = 0 ; $i < count($request->get('mentor_tutor')); $i++) {
+                $userId[] = Crypt::decrypt($request->get('mentor_tutor')[$i]);
+            }
+        }
+        $data['userId'] = $userId;
+
+        if ($request->get('pic')) {
+            for ($i = 0 ; $i < count($request->get('pic')); $i++) {
+                $emplId[] = Crypt::decrypt($request->get('pic')[$i]);
+            }
+        }
+        $data['emplId'] = $emplId;
+        $data['startDate'] = $request->get('start_date') ?? null;
+        $data['endDate'] = $request->get('end_date') ?? null;
         
         if ($request->ajax()) { 
-            
-            $progId = $request->get('program_name') ?? null;
-
-            return $this->clientProgramRepository->getAllClientProgramDataTables(NULL);
+            return $this->clientProgramRepository->getAllClientProgramDataTables($data);
         }
 
         # advanced filter data
@@ -81,6 +107,10 @@ class ClientProgramController extends Controller
                 'conversion_leads' => $conversion_leads,
                 'mentor_tutors' => $mentor_tutors,
                 'pics' => $pics,
+                'request' => $request,
+                'status_decrypted' => $status,
+                'mentor_tutor_decrypted' => $userId,
+                'pic_decrypted' => $emplId,
             ]
         );
     }

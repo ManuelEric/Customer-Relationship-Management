@@ -11,6 +11,7 @@ class ViewClientProgram extends Model
     use HasFactory;
 
     protected $table = 'clientprogram';
+    protected $primaryKey = 'clientprog_id';
 
     public static function whereClientProgramId($id)
     {
