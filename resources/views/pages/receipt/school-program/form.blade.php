@@ -22,12 +22,14 @@
                         <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1">
                             <i class="bi bi-trash2 me-1"></i> Delete
                         </button>
-                        <button class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                        <a href="{{ url('receipt/school-program/1/export/pdf') }}"
+                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                             <i class="bi bi-printer me-1"></i> Print Others
-                        </button>
-                        <button class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                        </a>
+                        <a href="{{ url('receipt/school-program/1/export/pdf') }}"
+                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                             <i class="bi bi-printer me-1"></i> Print IDR
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>

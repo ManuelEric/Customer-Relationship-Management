@@ -298,24 +298,24 @@
                         <div class="collapse {{ Request::is('receipt*') ? 'show' : 'hide' }}" id="receipt">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('receipt/client-program*') ? 'active' : '' }}""
+                                        class="nav-link {{ Request::is('receipt/client-program*') ? 'active' : '' }}"
                                         href="{{ url('receipt/client-program/') }}">Client
                                         Program</a>
                                 </li>
                                 <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('receipt/corporate-program*') ? 'active' : '' }}""
+                                        class="nav-link {{ Request::is('receipt/corporate-program*') ? 'active' : '' }}"
                                         href="{{ url('receipt/corporate-program/') }}">Partner
                                         Program
                                     </a>
                                 </li>
                                 <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('receipt/school-program*') ? 'active' : '' }}""
+                                        class="nav-link {{ Request::is('receipt/school-program*') ? 'active' : '' }}"
                                         href="{{ url('receipt/school-program/') }}">School
                                         Program
                                     </a>
                                 </li>
                                 <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('receipt/referral*') ? 'active' : '' }}""
+                                        class="nav-link {{ Request::is('receipt/referral*') ? 'active' : '' }}"
                                         href="{{ url('receipt/referral/') }}">Referral
                                         Program
                                     </a>
@@ -330,20 +330,11 @@
                             <span class="menu-title">Users</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="collapse" id="users">
+                        <div class="collapse {{ Request::is('user*') ? 'show' : 'hide' }}" id="users">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('employee') }}">Employee</a>
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('user/employee') }}">Employee</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('mentor') }}">Mentor
-                                    </a>
-                                </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('tutor') }}">Tutor
-                                    </a>
-                                </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('editor') }}">Editor
-                                    </a>
-                                </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('volunteer') }}">Volunteer
+                                <li class="nav-item"> <a class="nav-link" href="{{ url('user/volunteer') }}">Volunteer
                                     </a>
                                 </li>
                             </ul>

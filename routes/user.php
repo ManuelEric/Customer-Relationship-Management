@@ -15,4 +15,22 @@ use Illuminate\Support\Facades\Route;
 */
 
 // User 
+
+Route::get('employee', function () {
+    return view('pages.user.employee.index');
+});
+Route::get('mentor', function () {
+    return view('pages.user.employee.index');
+});
+Route::get('editor', function () {
+    return view('pages.user.employee.index');
+});
+Route::get('tutor', function () {
+    return view('pages.user.employee.index');
+});
+
+Route::get('employee/create', function () {
+    return view('pages.user.employee.form');
+});
+
 Route::resource('volunteer', VolunteerController::class);
