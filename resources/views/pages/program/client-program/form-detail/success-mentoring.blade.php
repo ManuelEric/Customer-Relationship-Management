@@ -34,7 +34,7 @@
                         <small>End Date <sup class="text-danger">*</sup></small>
                         <input type="date" name="mentoring_prog_end_date" {{ $disabled }} value="{{ isset($clientProgram->prog_end_date) ? $clientProgram->prog_end_date : old('prog_end_date') }}"
                             class="form-control form-control-sm rounded">
-                        @error('prog_end_date')
+                        @error('mentoring_prog_end_date')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>

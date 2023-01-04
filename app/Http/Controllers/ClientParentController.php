@@ -73,12 +73,14 @@ class ClientParentController extends Controller
         # ajax
         # to get university by selected country
         if ($request->ajax()) {
-            $universities = $this->universityRepository->getAllUniversitiesByTag($request->country);
-            return response()->json($universities);
+            if (isset($request->country) && count($request->country) > 0) {
+                $universities = $this->universityRepository->getAllUniversitiesByTag($request->country);
+                return response()->json($universities);
+            }
         }
 
         $student = null;
-        if ($childId = $request->get('child_id'))
+        if ($childId = $request->get('child'))
             $student = $this->clientRepository->getClientById($childId);
 
         $schools = $this->schoolRepository->getAllSchools();
@@ -113,6 +115,10 @@ class ClientParentController extends Controller
 
     public function store(StoreClientParentRequest $request)
     {
+        $qChildrenId = isset($request->queryChildId) ? $request->queryChildId : null;
+        $qClientProgId = isset($request->queryClientProgId) ? $request->queryClientProgId : null;
+        $query = isset($qChildrenId) ? "?child=".$qChildrenId.'&client_prog='.$qClientProgId : null;
+
         $parentDetails = $request->only([
             'pr_firstname',
             'pr_lastname',
@@ -233,9 +239,14 @@ class ClientParentController extends Controller
             # if they didn't insert parents which parentId = NULL
             # then assumed that register for student only
             # so no need to create parent children relation
-            if ($newStudentId !== NULL) {
+            if (isset($newStudentId)) {
 
                 if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
+                    throw new Exception('Failed to store relation between student and parent', 4);
+            } elseif ($childrenId) {
+
+                // return $this->clientRepository->createClientRelation($parentId, $childrenId);
+                if (!$this->clientRepository->createClientRelation($parentId, $childrenId))
                     throw new Exception('Failed to store relation between student and parent', 4);
             }
         
@@ -260,6 +271,7 @@ class ClientParentController extends Controller
                     throw new Exception('Failed to store destination country', 5);
             }
 
+
             # case 6
             # create interested program
             # if they didn't insert interested program 
@@ -277,6 +289,7 @@ class ClientParentController extends Controller
                 if (!$this->clientRepository->createInterestProgram($parentId, $interestProgramDetails))
                     throw new Exception('Failed to store interest program', 6);
             }
+
 
             # case 7
             # create interested universities
@@ -357,8 +370,12 @@ class ClientParentController extends Controller
                 }
                 
             Log::error('Store a new parent failed : ' . $e->getMessage());
-            return Redirect::to('client/parent/create')->withError($e->getMessage());
+            return Redirect::to('client/parent/create'.$query)->withError($e->getMessage());
 
+        }
+        
+        if ($query != NULL) {
+            return Redirect::to('client/student/'.$qChildrenId.'/program/'.$qClientProgId)->withSuccess("Parent Information has been added.");
         }
 
         return Redirect::to('client/parent')->withSuccess('A new parent has been registered.');

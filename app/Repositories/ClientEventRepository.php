@@ -48,6 +48,11 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             )->make(true);
     }
 
+    public function getAllClientEventByClientId($clientId)
+    {
+        return ClientEvent::where('client_id', $clientId)->get();
+    }
+
     public function getClientEventById($clientEventId)
     {
         return ClientEvent::find($clientEventId);

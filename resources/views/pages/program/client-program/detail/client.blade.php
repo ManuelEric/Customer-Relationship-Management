@@ -149,7 +149,22 @@
                             <div class="row mb-2 g-1">
                                 <div class="col-md justify-content-between">
                                     <label for="">There's no parent information.</label><br>
-                                    <span>Input parent information <a href="{{ route('parent.create').'?child_id='.$student->id }}">here</a></span>
+                                    <span>Input parent information <a href="
+                                        @php
+                                            $link = '';
+                                        @endphp
+                                        @if (isset($student))
+                                            @php
+                                                $link = route('parent.create').'?child='.$student->id;
+                                            @endphp
+                                        @endif
+                                        
+                                        @if (isset($clientProgram))
+                                            @php
+                                                $link .= "&client_prog=".$clientProgram->clientprog_id;
+                                            @endphp
+                                        @endif
+                                        {{ $link }}">here</a></span>
                                 </div>
                             </div>
                         @endif

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreClientProgramRequest;
+use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
@@ -31,8 +32,9 @@ class ClientProgramController extends Controller
     private CorporateRepositoryInterface $corporateRepository;
     private ReasonRepositoryInterface $reasonRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
+    private ClientEventRepositoryInterface $clientEventRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -43,6 +45,7 @@ class ClientProgramController extends Controller
         $this->corporateRepository = $corporateRepository;
         $this->reasonRepository = $reasonRepository;
         $this->clientProgramRepository = $clientProgramRepository;
+        $this->clientEventRepository = $clientEventRepository;
 
         $this->admission_prog_list = Program::whereHas('main_prog', function($query) {
                 $query->where('prog_name', 'Admissions Mentoring');
@@ -130,7 +133,7 @@ class ClientProgramController extends Controller
         
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
-        $clientEvents = $this->eventRepository->getAllEvents();
+        $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentId);
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
@@ -174,7 +177,7 @@ class ClientProgramController extends Controller
         
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
-        $events = $this->eventRepository->getAllEvents();
+        $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentId);
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
@@ -192,7 +195,7 @@ class ClientProgramController extends Controller
                 'student' => $student,
                 'programs' => $programs,
                 'leads' => $leads,
-                'clientEvents' => $events,
+                'clientEvents' => $clientEvents,
                 'external_edufair' => $external_edufair,
                 'kols' => $kols,
                 'partners' => $partners,
@@ -207,7 +210,7 @@ class ClientProgramController extends Controller
     public function store(StoreClientProgramRequest $request)
     {
         # p means program from interested program
-        $query = $request->get('p') !== NULL ? "?p=".$request->get('p') : null;
+        $query = $request->queryP !== NULL ? "?p=".$request->queryP : null;
 
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
@@ -271,14 +274,14 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['initconsult_date'] = $request->initconsult_date;
                     $clientProgramDetails['assessmentsent_date'] = $request->assessmentsent_date;
-                    $clientProgramDetails['prog_end_date'] = $request->prog_end_date;
+                    $clientProgramDetails['prog_end_date'] = $request->mentoring_prog_end_date;
                     $clientProgramDetails['total_uni'] = $request->total_uni;
                     $clientProgramDetails['total_foreign_currency'] = $request->total_foreign_currency;
                     $clientProgramDetails['foreign_currency'] = $request->foreign_currency;
                     $clientProgramDetails['foreign_currency_exchange'] = $request->foreign_currency_exchange;
                     $clientProgramDetails['total_idr'] = $request->total_idr;
-                    $clientProgramDetails['main_mentor'] = $request->main_mentor;
-                    $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
+                    // $clientProgramDetails['main_mentor'] = $request->main_mentor;
+                    // $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
                     
@@ -291,7 +294,7 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['prog_start_date'] = $request->prog_start_date;
                     $clientProgramDetails['prog_end_date'] = $request->prog_end_date;
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
-                    $clientProgramDetails['tutor_id'] = $request->tutor_id;
+                    // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
 
                 } elseif (in_array($progId, $this->satact_prog_list)) {
@@ -302,8 +305,8 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['last_class'] = $request->last_class;
                     $clientProgramDetails['diag_score'] = $request->diag_score;
                     $clientProgramDetails['test_score'] = $request->test_score;
-                    $clientProgramDetails['tutor_1'] = $request->tutor_1;
-                    $clientProgramDetails['tutor_2'] = $request->tutor_2;
+                    // $clientProgramDetails['tutor_1'] = $request->tutor_1;
+                    // $clientProgramDetails['tutor_2'] = $request->tutor_2;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
 
                 }
@@ -327,6 +330,22 @@ class ClientProgramController extends Controller
                 break;
         }
 
+        if (in_array($progId, $this->admission_prog_list)) {
+
+            $clientProgramDetails['main_mentor'] = $request->main_mentor;
+            $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
+
+        } elseif (in_array($progId, $this->tutoring_prog_list)) {
+
+            $clientProgramDetails['tutor_id'] = $request->tutor_id;
+
+        } elseif (in_array($progId, $this->satact_prog_list)) {
+
+            $clientProgramDetails['tutor_1'] = $request->tutor_1;
+            $clientProgramDetails['tutor_2'] = $request->tutor_2;
+
+        }
+
         DB::beginTransaction();
         try {
 
@@ -337,12 +356,6 @@ class ClientProgramController extends Controller
                 # if client program has been submitted 
                 # then change status client to potential
                 case 0: # pending
-
-                    # if he/she join admission mentoring program
-                    # add role mentee
-                    if (in_array($progId, $this->admission_prog_list)) {
-                        $this->clientRepository->addRole($studentId, 'Mentee');
-                    }
 
                     $this->clientRepository->updateClient($studentId, ['st_statuscli' => 1]);
                     break;
@@ -399,7 +412,7 @@ class ClientProgramController extends Controller
         
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
-        $clientEvents = $this->eventRepository->getAllEvents();
+        $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentId);
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
@@ -582,6 +595,42 @@ class ClientProgramController extends Controller
         try {
 
             $this->clientProgramRepository->updateClientProgram($clientProgramId, ['client_id' => $studentId] + $clientProgramDetails);
+
+            switch ($clientProgramDetails['status']) {
+
+                # if client program has been submitted 
+                # then change status client to potential
+                case 0: # pending
+
+                    $this->clientRepository->updateClient($studentId, ['st_statuscli' => 1]);
+                    break;
+
+                case 1: # success
+
+                    # if he/she join admission mentoring program
+                    # add role mentee
+                    if (in_array($progId, $this->admission_prog_list)) {
+                        $this->clientRepository->addRole($studentId, 'Mentee');
+                    }
+
+                    # when program running status was 2 which mean done
+                    # then check if client has other program running or done
+                    if ((int) $clientProgramDetails['prog_running_status'] != 2) {
+                        $this->clientRepository->updateClient($studentId, ['st_statuscli' => 2]);
+                    }
+
+                    # when all program were done
+                    # change status client to completed (3)
+                    
+                    if ((int) $clientProgramDetails['prog_running_status'] == 2) {
+
+                        if ($this->clientRepository->checkAllProgramStatus($studentId) == "completed")
+                            $this->clientRepository->updateClient($studentId, ['st_statuscli' => 3]);
+                    }
+
+                    break;
+
+            }
             DB::commit();
 
         } catch (Exception $e) {

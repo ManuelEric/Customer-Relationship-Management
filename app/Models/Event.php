@@ -85,4 +85,9 @@ class Event extends Model
     {
         return $this->belongsToMany(User::class, 'tbl_agenda_speaker', 'event_id', 'empl_id')->using(AgendaSpeaker::class);
     }
+
+    public function clientEvent()
+    {
+        return $this->hasMany(ClientEvent::class, 'event_id', 'event_id');
+    }
 }

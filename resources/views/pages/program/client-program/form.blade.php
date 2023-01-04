@@ -70,6 +70,7 @@
                         @if (isset($clientProgram))
                             @method('PUT')
                         @endif
+                        <input type="hidden" name="queryP" value="{{ isset($_GET['p']) ? $_GET['p'] : null }}">
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label for="">
@@ -141,14 +142,14 @@
                                         <small>Sub Lead <sup class="text-danger">*</sup></small>
                                         <select name="clientevent_id" id="event_id" class="select w-100" {{ $disabled }}>
                                             <option data-placeholder="true"></option>
-                                            @forelse ($clientEvents as $event)
-                                                <option value="{{ $event->event_id }}"
-                                                    @if (old('event_id') == $event->event_id)
+                                            @forelse ($clientEvents as $clientEvent)
+                                                <option value="{{ $clientEvent->clientevent_id }}"
+                                                    @if (old('clientevent_id') == $clientEvent->clientevent_id)
                                                         {{ "selected" }}
-                                                    @elseif (isset($clientProgram->clientevent_id) && $clientProgram->clientevent_id == $event->event_id)
+                                                    @elseif (isset($clientProgram->clientevent_id) && $clientProgram->clientevent_id == $clientEvent->clientevent_id)
                                                         {{ "selected" }}
                                                     @endif
-                                                    >{{ $event->event_title }}</option>
+                                                    >{{ $clientEvent->event->event_title }}</option>
                                             @empty
                                                 <option>There's no data</option>
                                             @endforelse
@@ -749,6 +750,13 @@
             @enderror
 
             const documentReady = () => {
+
+                @if (isset($p) && $p !== NULL)
+                    $("#program_name").select2().val("{{ $p }}").trigger('change');
+                @elseif (isset($clientProgram))
+                    $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
+                @endif
+
                 @if (old('lead_id') !== NULL)
                     $("#main_lead").select2().val("{{ old('lead_id') }}").trigger('change');
                 @elseif (isset($clientProgram->lead_id))
@@ -779,11 +787,7 @@
                     $("#program_status").select2().val("{{ (int) old('status') }}").trigger('change');
                 @endif  
 
-                @if (isset($p) && $p !== NULL)
-                    $("#program_name").select2().val("{{ $p }}").trigger('change');
-                @elseif (isset($clientProgram))
-                    $("#program_name").select2().val("{{ $clientProgram->prog_id }}").trigger('change');
-                @endif
+                
                 
             }
             

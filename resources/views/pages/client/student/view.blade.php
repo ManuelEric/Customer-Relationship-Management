@@ -258,7 +258,7 @@
                                 <th>Last Discuss</th>
                                 <th>PIC</th>
                                 <th>Program Status</th>
-                                <th class="text-dark">Status</th>
+                                <th class="text-dark">Running Status</th>
                                 <th class="text-dark">#</th>
                             </tr>
                         </thead>
@@ -309,7 +309,7 @@
                         data: 'program_name',
                     },
                     {
-                        data: 'lead_source',
+                        data: 'conversion_lead',
                     },
                     {
                         data: 'last_discuss_date',
@@ -321,9 +321,21 @@
                         data: 'program_status',
                     },
                     {
-                        data: 'prog_id',
+                        data: 'prog_running_status',
                         render: function(data, type, row, meta) {
-                            return "Hot"
+                            switch(data) {
+                                case 0:
+                                    return "not yet"
+                                    break;
+
+                                case 1:
+                                    return "ongoing"
+                                    break;
+
+                                case 2:
+                                    return "done"
+                                    break;
+                            }
                         }
                         
                     },

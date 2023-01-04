@@ -24,6 +24,8 @@
                 @if (isset($parent))
                     @method('PUT')
                 @endif
+                <input type="hidden" name="queryChildId" value="{{ isset($_GET['child']) ? $_GET['child'] : null }}">
+                <input type="hidden" name="queryClientProgId" value="{{ isset($_GET['client_prog']) ? $_GET['client_prog'] : null }}">
                 <div class="row align-items-center">
                     <div class="col-4 text-center">
                         <img src="{{ asset('img/parent.jpeg') }}" class="w-50">

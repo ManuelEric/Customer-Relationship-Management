@@ -224,8 +224,7 @@ class ClientRepository implements ClientRepositoryInterface
     
     public function updateClient($clientId, array $newDetails)
     {
-        $client = UserClient::find($clientId)->update($newDetails);
-        return $client;
+        return UserClient::whereId($clientId)->update($newDetails);
     }
 
     public function getParentsByStudentId($studentId)
@@ -236,7 +235,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function createClientRelation($parentId, $studentId)
     {
-        $student = UserClient::find($studentId);
+        $student = UserClient::where('id',$studentId)->first();
 
         # why sync?
         # to create and update all at once
@@ -290,6 +289,6 @@ class ClientRepository implements ClientRepositoryInterface
     public function checkAllProgramStatus($clientId)
     {
         $client = UserClient::find($clientId);
-        return $client->clientProgram()->where('status', 1)->where('prog_running_status', 2)->count() == 0 ? "completed" : "notyet";
+        return $client->clientProgram()->where('status', 1)->whereNot('prog_running_status', 2)->count() == 0 ? "completed" : "notyet";
     }
 }
