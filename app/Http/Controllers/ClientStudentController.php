@@ -351,7 +351,7 @@ class ClientStudentController extends Controller
         }
 
         $schools = $this->schoolRepository->getAllSchools();
-        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $curriculums = $this->curriculumRepository->getAllCurriculums();
         $parents = $this->clientRepository->getAllClientByRole('Parent');
         $leads = $this->leadRepository->getAllMainLead();
         $events = $this->eventRepository->getAllEvents();
@@ -391,7 +391,7 @@ class ClientStudentController extends Controller
         $student = $this->clientRepository->getClientById($studentId);
 
         $schools = $this->schoolRepository->getAllSchools();
-        $curriculums = $this->curriculumRepository->getAllCurriculum();
+        $curriculums = $this->curriculumRepository->getAllCurriculums();
         $parents = $this->clientRepository->getAllClientByRole('Parent');
         $leads = $this->leadRepository->getAllMainLead();
         $events = $this->eventRepository->getAllEvents();

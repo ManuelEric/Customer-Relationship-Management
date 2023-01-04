@@ -24,6 +24,11 @@ class ClientRepository implements ClientRepositoryInterface
         $this->roleRepository = $roleRepository;
     }
 
+    public function getAllClients()
+    {
+        return UserClient::all();
+    }
+
     public function getAllClientDataTables()
     {
         return Datatables::eloquent(UserClient::query())->make(true);

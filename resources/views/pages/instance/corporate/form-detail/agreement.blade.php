@@ -72,7 +72,7 @@
                     <div class="row">
                         <div class="col-md-12 mb-2">
                             <label for="">Agreement Name</label>
-                            <input type="text" name="agreement_name" id="pic_name"
+                            <input type="text" name="agreement_name" id="pic_name" value="{{ old('agreement_name') }}"
                                 class="form-control form-control-sm rounded">
                             @error('agreement_name')
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -82,10 +82,10 @@
                             <label for="">Agreement Type</label>
                             <select name="agreement_type" class="agreement-select w-100">
                                 <option data-placeholder="true"></option>
-                                <option value="0">Referral Mutual agreement</option>
-                                <option value="1">Partnership Agreement</option>
-                                <option value="2">Speaker Agreement</option>
-                                <option value="3">University Agent</option>
+                                <option value="0" {{ old('agreement_type') == '0' ? 'selected' : '' }}>Referral Mutual agreement</option>
+                                <option value="1" {{ old('agreement_type') == '1' ? 'selected' : '' }}>Partnership Agreement</option>
+                                <option value="2" {{ old('agreement_type') == '2' ? 'selected' : '' }}>Speaker Agreement</option>
+                                <option value="3" {{ old('agreement_type') == '3' ? 'selected' : '' }}>University Agent</option>
                             </select>
                             @error('agreement_type')
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -93,7 +93,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <label for="">Agreement Start Date</label>
-                            <input type="date" name="start_date" id=""
+                            <input type="date" name="start_date" id="" value="{{ old('start_date') }}"
                             class="form-control form-control-sm rounded">
                             @error('start_date')
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -101,7 +101,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <label for="">Agreement End Date</label>
-                            <input type="date" name="end_date" id=""
+                            <input type="date" name="end_date" id="" value="{{ old('end_date') }}"
                             class="form-control form-control-sm rounded">
                             @error('end_date')
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -112,7 +112,7 @@
                             <select name="corp_pic" class="agreement-select w-100">
                                 <option data-placeholder="true"></option>
                                 @foreach ($pics as $pic)
-                                    <option value="{{ $pic->id }}">{{ $pic->pic_name }}</option>
+                                    <option value="{{ $pic->id }}" {{ $pic->id == old('corp_pic') ? 'selected' : '' }}>{{ $pic->pic_name }}</option>
                                 @endforeach
                             </select>
                             @error('corp_pic')
@@ -124,7 +124,7 @@
                             <select name="empl_id" class="agreement-select w-100">
                                 <option data-placeholder="true"></option>
                                 @foreach ($employees as $employee)
-                                    <option value="{{ $employee->id }}">{{ $employee->first_name }}  {{ $employee->last_name }}</option>
+                                    <option value="{{ $employee->id }}" {{ $employee->id == old('empl_id') ? 'selected' : '' }}>{{ $employee->first_name }}  {{ $employee->last_name }}</option>
                                 @endforeach
                             </select>
                             @error('empl_id')
@@ -133,7 +133,7 @@
                         </div>
                         <div class="col-md-12 mb-2">
                             <label for="">Agreement File</label>
-                            <input type="file" name="attachment" class="form-control form-control-sm rounded">
+                            <input type="file" name="attachment" value="{{ old('attachment') }}" class="form-control form-control-sm rounded">
                             @error('attachment')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
