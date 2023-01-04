@@ -71,7 +71,7 @@
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
-                    <div class="col-md-6 mb-2">
+                    {{-- <div class="col-md-6 mb-2">
                         <small>Main Mentor <sup class="text-danger">*</sup></small>
                         <select name="main_mentor" id="" class="select w-100" {{ $disabled }}>
                             <option data-placeholder="true"></option>
@@ -110,7 +110,7 @@
                         @error('backup_mentor')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
-                    </div>
+                    </div> --}}
                     <div class="col-md-12 mb-2">
                         <small>Installment Plan</small>
                         <textarea name="installment_notes" {{ $disabled }}>

@@ -14,9 +14,9 @@
         </a>
     </div>
 
-    @if($errors->any())
+    {{-- @if($errors->any())
         {{ implode('', $errors->all('<div>:message</div>')) }}
-    @endif
+    @endif --}}
 
     <div class="row">
         <div class="col-md-4">
@@ -82,7 +82,8 @@
                                     <option data-placeholder="true"></option>
                                     @forelse ($programs as $program)
                                         
-                                        <option data-mprog="{{ $program->main_prog->prog_name }}" data-sprog="{{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name : null }}" 
+                                        <option data-pmentor="{{ $program->prog_mentor }}"
+                                            data-mprog="{{ $program->main_prog->prog_name }}" data-sprog="{{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name : null }}" 
                                             value="{{ $program->prog_id }}"
                                             @if (!empty(old('prog_id')) && old('prog_id') == $program->prog_id)
                                                 {{ "selected" }}
@@ -406,6 +407,162 @@
                                 </div>
                             </div>
                         </div>
+                        <section id="available-mentor" class="d-none">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label for="">
+                                        Main Mentor <sup class="text-danger">*</sup>
+                                    </label>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <select name="main_mentor" id="" class="select w-100" {{ $disabled }}>
+                                                <option data-placeholder="true"></option>
+                                                @foreach ($mentors as $mentor)
+                                                    <option value="{{ $mentor->id }}"
+                                                        @if (old('main_mentor') == $mentor->id)
+                                                            {{ "selected" }}
+                                                        @elseif (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'asc')->count() > 0)
+                                                            @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'asc')->first()->id == $mentor->id)
+                                                                {{ "selected" }}
+                                                            @endif
+                                                        @endif
+                                                        >{{ $mentor->first_name.' '.$mentor->last_name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('main_mentor')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <label for="">
+                                        Backup Mentor <sup class="text-danger">*</sup>
+                                    </label>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <select name="backup_mentor" id="" class="select w-100" {{ $disabled }}>
+                                                <option data-placeholder="true"></option>
+                                                @foreach ($mentors as $mentor)
+                                                    <option value="{{ $mentor->id }}"
+                                                        @if (old('backup_mentor') == $mentor->id)
+                                                            {{ "selected" }}
+                                                        @elseif (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->count() > 0)
+                                                            @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->first()->id == $mentor->id)
+                                                                {{ "selected" }}
+                                                            @endif
+                                                        @endif
+                                                        >{{ $mentor->first_name.' '.$mentor->last_name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('backup_mentor')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section id="available-tutor" class="d-none">
+                            <div id="tutoring" class="d-none">
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <label for="">
+                                            Tutor <sup class="text-danger">*</sup>
+                                        </label>
+                                    </div>
+                                    <div class="col-md">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <select name="tutor_id" id="" class="select w-100" {{ $disabled }}>
+                                                    <option data-placeholder="true"></option>
+                                                    @foreach ($tutors as $tutor)
+                                                        <option value="{{ $tutor->id }}"
+                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 0)
+                                                                @if ($clientProgram->clientMentor()->first()->id == $tutor->id)
+                                                                    {{ "selected" }}
+                                                                @endif
+                                                            @endif
+                                                            >{{ $tutor->first_name.' '.$tutor->last_name.' - '.json_encode($tutor->roles()->where('role_name', 'Tutor')->pluck('tutor_subject')->toArray()) }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('tutor_id')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="sat-act" class="d-none">
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <label for="">
+                                            Tutor 1<sup class="text-danger">*</sup>
+                                        </label>
+                                    </div>
+                                    <div class="col-md">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <select name="tutor_1" class="select w-100" {{ $disabled }}>
+                                                    <option data-placeholder="true"></option>
+                                                    @foreach ($tutors as $tutor)
+                                                        <option value="{{ $tutor->id }}"
+                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 0)
+                                                                @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'asc')->first()->id == $tutor->id)
+                                                                    {{ "selected" }}
+                                                                @endif
+                                                            @elseif (old('tutor_1') == $tutor->id) 
+                                                                {{ "selected" }}
+                                                            @endif
+                                                            >{{ $tutor->first_name.' '.$tutor->last_name.' - '.json_encode($tutor->roles()->where('role_name', 'Tutor')->pluck('tutor_subject')->toArray()) }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('tutor_1')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <label for="">
+                                            Tutor 2<sup class="text-danger">*</sup>
+                                        </label>
+                                    </div>
+                                    <div class="col-md">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <select name="tutor_2" class="select w-100" {{ $disabled }}>
+                                                    <option data-placeholder="true"></option>
+                                                    @foreach ($tutors as $tutor)
+                                                        <option value="{{ $tutor->id }}"
+                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 1)
+                                                                @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->first()->id == $tutor->id)
+                                                                    {{ "selected" }}
+                                                                @endif
+                                                            @elseif (old('tutor_2') == $tutor->id) 
+                                                                {{ "selected" }}
+                                                            @endif
+                                                            >{{ $tutor->first_name.' '.$tutor->last_name.' - '.json_encode($tutor->roles()->where('role_name', 'Tutor')->pluck('tutor_subject')->toArray()) }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('tutor_2')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="">
@@ -508,6 +665,33 @@
                 $("#kol").addClass("d-none")
                 $("#partner").addClass("d-none")
 
+            }
+        })
+
+        $("#program_name").on('change', function() {
+            var _this = $(this).find(":selected")
+            var prog_mentor = _this.data('pmentor');
+            var programMainProg = _this.data('mprog')
+            var programSubProg = _this.data('sprog')
+            switch (prog_mentor) {
+                case "Mentor":
+                    $("#available-mentor").removeClass("d-none")
+                    $("#available-tutor").addClass("d-none")
+                        
+                    break;
+
+                case "Tutor":
+                    $("#available-mentor").addClass("d-none")
+                    $("#available-tutor").removeClass("d-none")
+                    if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
+                        $('#tutoring').removeClass('d-none')
+                        $('#sat-act').addClass('d-none')
+                    } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg.includes('SAT') || programSubProg.includes('SAT')) {
+                        $('#tutoring').addClass('d-none')
+                        $('#sat-act').removeClass('d-none')
+                        
+                    }
+                    break;
             }
         })
 

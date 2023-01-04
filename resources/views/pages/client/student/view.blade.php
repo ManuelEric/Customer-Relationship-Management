@@ -196,7 +196,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    @foreach ($student->parents as $parent)
+                    @forelse ($student->parents as $parent)
                         
                         <div class="row mb-2 g-1">
                             <div class="col-md-3 d-flex justify-content-between">
@@ -231,7 +231,10 @@
                                 {{ $parent->phone }}
                             </div>
                         </div>
-                    @endforeach
+
+                        @empty
+                            There's no parent information yet
+                    @endforelse
                 </div>
             </div>
         </div>

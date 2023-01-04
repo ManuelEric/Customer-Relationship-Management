@@ -94,7 +94,7 @@
                                 <div class="mb-2">
                                     <label>State / Region <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="state" type="text" class="form-control form-control-sm"
-                                        placeholder="State / Region" id="state" value="{{ isset($parent->state) ? $parent->state : old('state') }}">
+                                        placeholder="State / Region" id="state" value="{{ isset($parent->state) ? $parent->state : old('state') }}{{ isset($student->state) ? $student->state : null }}">
                                     @error('pr_state')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -104,7 +104,7 @@
                                 <div class="mb-2">
                                     <label>City</label>
                                     <input name="city" type="text" class="form-control form-control-sm"
-                                        placeholder="City" id="city" value="{{ isset($parent->city) ? $parent->city : old('city') }}">
+                                        placeholder="City" id="city" value="{{ isset($parent->city) ? $parent->city : old('city') }}{{ isset($student->city) ? $student->city : null }}">
                                     @error('pr_city')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -114,7 +114,7 @@
                                 <div class="mb-2">
                                     <label>Postal Code</label>
                                     <input name="postal_code" type="text" class="form-control form-control-sm"
-                                        placeholder="Postal Code" value="{{ isset($parent->postal_code) ? $parent->postal_code : old('postal_code') }}">
+                                        placeholder="Postal Code" value="{{ isset($parent->postal_code) ? $parent->postal_code : old('postal_code') }}{{ isset($student->postal_code) ? $student->postal_code : null }}">
                                     @error('pr_postal_code')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -125,7 +125,7 @@
                     <div class="col-md-12">
                         <div class="mb-2">
                             <label>Address</label>
-                            <textarea name="address" class="form-control form-control-sm" placeholder="Address" rows="5">{{ isset($parent->address) ? $parent->address : old('address') }}</textarea>
+                            <textarea name="address" class="form-control form-control-sm" placeholder="Address" rows="5">{{ isset($parent->address) ? $parent->address : old('address') }}{{ isset($student->address) ? $student->address : null }}</textarea>
                             @error('pr_address')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
@@ -144,6 +144,7 @@
                                 @foreach ($leads as $lead)
                                     <option data-lead="{{ $lead->main_lead }}" value="{{ $lead->lead_id }}"
                                             {{ old('lead_id') == $lead->lead_id ? "selected" : null }}
+                                            {{ isset($student->lead) && $student->lead->lead_id == $lead->lead_id ? "selected" : null }}
                                         >{{ $lead->main_lead }}</option>
                                 @endforeach
                                 {{-- <option value="program">ALL-in Event</option>
@@ -237,6 +238,8 @@
                                 <option value="High" 
                                     @if (isset($parent->st_levelinterest))
                                         {{ $parent->st_levelinterest == "High" ? "selected" : null }}
+                                    @elseif (isset($student->st_levelinterest))
+                                        {{ $student->st_levelinterest == "High" ? "selected" : null }}
                                     @else
                                         {{ old('st_levelinterest') == "High" ? "selected" : null }}
                                     @endif
@@ -244,6 +247,8 @@
                                 <option value="Medium" 
                                     @if (isset($parent->st_levelinterest))
                                         {{ $parent->st_levelinterest == "Medium" ? "selected" : null }}
+                                    @elseif (isset($student->st_levelinterest))
+                                        {{ $student->st_levelinterest == "Medium" ? "selected" : null }}
                                     @else
                                         {{ old('st_levelinterest') == "Medium" ? "selected" : null }}
                                     @endif
@@ -251,6 +256,8 @@
                                 <option value="Low" 
                                     @if (isset($parent->st_levelinterest))
                                         {{ $parent->st_levelinterest == "Low" ? "selected" : null }}
+                                    @elseif (isset($student->st_levelinterest))
+                                        {{ $student->st_levelinterest == "Low" ? "selected" : null }}
                                     @else
                                     {{ old('st_levelinterest') == "Low" ? "selected" : null }}
                                     @endif
@@ -270,6 +277,7 @@
                                     @foreach ($programs as $program)
                                         <option value="{{ $program->prog_id }}"
                                                 {{ old('prog_id') == $program->prog_id ? "selected" : null }}
+                                                {{ isset($student->interestPrograms) && in_array($program->prog_id, $student->interestPrograms()->pluck('tbl_interest_prog.prog_id')->toArray()) ? "selected" : null }}
                                             >{{ $program->prog_program }}</option>
                                     @endforeach
                                 @endif
@@ -300,6 +308,7 @@
                                         @if (isset($childrens))
                                             @foreach ($childrens as $children)
                                                 <option value="{{ $children->id }}"
+                                                        {{ isset($student) && $student->id == $children->id ? "selected" : null }}
                                                         {{ old('child_id') == $children->id ? "selected" : null }}
                                                     >{{ $children->first_name.' '.$children->last_name }}</option>
                                             @endforeach

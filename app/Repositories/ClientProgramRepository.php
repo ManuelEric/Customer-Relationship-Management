@@ -43,20 +43,20 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $query->where('client_id', $searchQuery['clientId']);
             })
             # search by program name 
-            ->when($searchQuery['programName'], function ($query) use ($searchQuery) {
+            ->when(isset($searchQuery['programName']), function ($query) use ($searchQuery) {
                 $query->whereIn('prog_id', $searchQuery['programName']);
             })
             # search by conversion lead
-            ->when($searchQuery['leadId'], function ($query) use ($searchQuery) {
+            ->when(isset($searchQuery['leadId']), function ($query) use ($searchQuery) {
                 $query->whereIn('lead_id', $searchQuery['leadId']);
             })
             # search by status
-            ->when($searchQuery['status'], function ($query) use ($searchQuery) {
+            ->when(isset($searchQuery['status']), function ($query) use ($searchQuery) {
                 $query->whereIn('status', $searchQuery['status']);
             })
             # search by date
             # when start date && end date filled
-            ->when($searchQuery['startDate'] !== NULL && $searchQuery['endDate'] !== NULL, function ($query) use ($searchQuery, $fieldKey) {
+            ->when(isset($searchQuery['startDate']) && isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
                 $no = 0;
                 foreach ($fieldKey as $key => $val) {
                     if ($no == 0)
@@ -68,7 +68,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 }
             })
             # when start date filled && end date null
-            ->when($searchQuery['startDate'] !== NULL && $searchQuery['endDate'] === NULL, function ($query) use ($searchQuery, $fieldKey) {
+            ->when(isset($searchQuery['startDate']) && !isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
                 $no = 0;
                 foreach ($fieldKey as $key => $val) {
                     if ($no == 0)
@@ -79,7 +79,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $no++;
                 }
             })
-            ->when($searchQuery['endDate'] !== NULL && $searchQuery['startDate'] === NULL, function ($query) use ($searchQuery, $fieldKey) {
+            ->when(isset($searchQuery['endDate']) && !isset($searchQuery['startDate']), function ($query) use ($searchQuery, $fieldKey) {
                 $no = 0;
                 foreach ($fieldKey as $key => $val) {
                     if ($no == 0)
@@ -93,13 +93,13 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
 
             # search by mentor / tutor id
-            ->when($searchQuery['userId'], function ($query) use ($searchQuery) {
+            ->when(isset($searchQuery['userId']), function ($query) use ($searchQuery) {
                 $query->whereHas('clientMentor', function ($query2) use ($searchQuery) {
                     $query2->whereIn('users.id', $searchQuery['userId']);
                 });
             })
             # search by pic id
-            ->when($searchQuery['emplId'], function ($query) use ($searchQuery) {
+            ->when(isset($searchQuery['emplId']), function ($query) use ($searchQuery) {
                 $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
                     $query2->whereIn('users.id', $searchQuery['emplId']);
                 });

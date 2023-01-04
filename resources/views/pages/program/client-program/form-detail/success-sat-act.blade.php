@@ -45,7 +45,7 @@
                     </div>
                 </div>
 
-                <div class="row mb-2">
+                {{-- <div class="row mb-2">
                     <div class="col-md-6 mb-2">
                         <small>Tutor 1 <sup class="text-danger">*</sup></small>
                         <select name="tutor_1" class="select w-100" {{ $disabled }}>
@@ -86,7 +86,7 @@
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

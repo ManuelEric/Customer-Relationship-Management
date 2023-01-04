@@ -206,6 +206,9 @@ class ClientProgramController extends Controller
 
     public function store(StoreClientProgramRequest $request)
     {
+        # p means program from interested program
+        $query = $request->get('p') !== NULL ? "?p=".$request->get('p') : null;
+
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
 
@@ -373,7 +376,8 @@ class ClientProgramController extends Controller
 
             DB::rollBack();
             Log::error('Create a student program failed : ' . $e->getMessage());
-            return Redirect::to('client/student/'.$studentId.'/program/create')->withError($e->getMessage());
+
+            return Redirect::to('client/student/'.$studentId.'/program/create'.$query)->withError($e->getMessage());
             
         }
 

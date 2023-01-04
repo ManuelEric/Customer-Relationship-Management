@@ -99,7 +99,7 @@
     </div>
     <div class="accordion-item">
         <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            <button class="accordion-button" type="button" data-bs-toggle="collapse"
                 data-bs-target="#parentInfo">
                 <h6 class="m-0 p-0">
                     <i class="bi bi-person me-2"></i>
@@ -107,43 +107,52 @@
                 </h6>
             </button>
         </h2>
-        <div id="parentInfo" class="accordion-collapse collapse">
+        <div id="parentInfo" class="accordion-collapse collapse show">
             <div class="accordion-body p-2">
                 <div class="card">
                     <div class="card-body">
-                        <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
-                                <label>
-                                    Parents Name
-                                </label>
-                                <label>:</label>
+                        @if ($student->parents()->count() > 0)
+                            <div class="row mb-2 g-1">
+                                <div class="col-md-4 d-flex justify-content-between">
+                                    <label>
+                                        Parents Name
+                                    </label>
+                                    <label>:</label>
+                                </div>
+                                <div class="col-md-8">
+                                    {{ $student->parents()->first()->fullname }}
+                                </div>
                             </div>
-                            <div class="col-md-8">
-                                {{ $student->parents()->first()->fullname }}
+                            <div class="row mb-2 g-1">
+                                <div class="col-md-4 d-flex justify-content-between">
+                                    <label>
+                                        Parents Email
+                                    </label>
+                                    <label>:</label>
+                                </div>
+                                <div class="col-md-8">
+                                    {{ $student->parents()->first()->mail }}
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
-                                <label>
-                                    Parents Email
-                                </label>
-                                <label>:</label>
+                            <div class="row mb-2 g-1">
+                                <div class="col-md-4 d-flex justify-content-between">
+                                    <label>
+                                        Parents Phone
+                                    </label>
+                                    <label>:</label>
+                                </div>
+                                <div class="col-md-8">
+                                    {{ $student->parents()->first()->phone }}
+                                </div>
                             </div>
-                            <div class="col-md-8">
-                                {{ $student->parents()->first()->mail }}
+                        @else
+                            <div class="row mb-2 g-1">
+                                <div class="col-md justify-content-between">
+                                    <label for="">There's no parent information.</label><br>
+                                    <span>Input parent information <a href="{{ route('parent.create').'?child_id='.$student->id }}">here</a></span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
-                                <label>
-                                    Parents Phone
-                                </label>
-                                <label>:</label>
-                            </div>
-                            <div class="col-md-8">
-                                {{ $student->parents()->first()->phone }}
-                            </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

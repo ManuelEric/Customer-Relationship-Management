@@ -77,6 +77,10 @@ class ClientParentController extends Controller
             return response()->json($universities);
         }
 
+        $student = null;
+        if ($childId = $request->get('child_id'))
+            $student = $this->clientRepository->getClientById($childId);
+
         $schools = $this->schoolRepository->getAllSchools();
         $curriculums = $this->curriculumRepository->getAllCurriculum();
         $childrens = $this->clientRepository->getAllClientByRole('Student');
@@ -102,6 +106,7 @@ class ClientParentController extends Controller
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
+                'student' => $student,
             ]
         );
     }

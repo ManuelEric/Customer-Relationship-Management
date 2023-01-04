@@ -85,6 +85,7 @@ class StoreClientProgramRequest extends FormRequest
         # when program name is admission mentoring and status is pending
         switch ($this->input('status')) {
             
+            # pending
             case 0:
 
                 if (in_array($this->input('prog_id'), $admission_prog_id))
@@ -94,8 +95,9 @@ class StoreClientProgramRequest extends FormRequest
 
                 break;
 
+            # success
             case 1:
-
+                
                 if (in_array($this->input('prog_id'), $admission_prog_id))
                     $rules = $this->store_admission_success();
                 elseif (in_array($this->input('prog_id'), $tutoring_prog_id))
@@ -103,8 +105,21 @@ class StoreClientProgramRequest extends FormRequest
                 elseif (in_array($this->input('prog_id'), $satact_prog_id))
                     $rules = $this->store_satact_success();
 
+                $rules['status'] = [
+                    'required',
+                    'in:0,1,2,3',
+                    function ($attribute, $value, $fail) {
+                        $studentId = $this->route('student');
+                        $student = UserClient::find($studentId);
+
+                        if ($student->parents()->count() == 0)
+                            $fail('Not able change status to success. Please complete the parent\'s information');
+
+                    }
+                ];
                 break;
 
+            # failed
             case 2:
                 $rules = [
                     'prog_id' => 'required|exists:tbl_prog,prog_id',
@@ -140,6 +155,7 @@ class StoreClientProgramRequest extends FormRequest
                 ];
                 break;
 
+            # refund
             case 3:
                 $rules = [
                     'prog_id' => 'required|exists:tbl_prog,prog_id',
@@ -238,7 +254,7 @@ class StoreClientProgramRequest extends FormRequest
             'partner_id' => 'required_if:lead_id,LS015',
             'first_discuss_date' => 'required|date',
             'meeting_notes' => 'nullable',
-            'status' => 'required|in:0,1,2,3',
+            // 'status' => 'required|in:0,1,2,3',
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
@@ -343,7 +359,7 @@ class StoreClientProgramRequest extends FormRequest
             'partner_id' => 'required_if:lead_id,LS015',
             'first_discuss_date' => 'required|date',
             'meeting_notes' => 'nullable',
-            'status' => 'required|in:0,1,2,3',
+            // 'status' => 'required|in:0,1,2,3',
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
@@ -393,7 +409,7 @@ class StoreClientProgramRequest extends FormRequest
             'partner_id' => 'required_if:lead_id,LS015',
             'first_discuss_date' => 'required|date',
             'meeting_notes' => 'nullable',
-            'status' => 'required|in:0,1,2,3',
+            // 'status' => 'required|in:0,1,2,3',
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {

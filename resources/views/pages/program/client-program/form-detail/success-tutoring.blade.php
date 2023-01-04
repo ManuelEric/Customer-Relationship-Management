@@ -43,7 +43,7 @@
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
-                    <div class="col-md-12 mb-2">
+                    {{-- <div class="col-md-12 mb-2">
                         <small>Tutor Name <sup class="text-danger">*</sup></small>
                         <select name="tutor_id" id="" class="select w-100" {{ $disabled }}>
                             <option data-placeholder="true"></option>
@@ -60,7 +60,7 @@
                         @error('tutor_id')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
