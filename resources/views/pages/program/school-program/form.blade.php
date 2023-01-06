@@ -81,18 +81,18 @@
                                     @if(isset($edit))
                                         @foreach ($programs as $program)
                                             <option value="{{ $program->prog_id }}" {{ $schoolProgram->prog_id == $program->prog_id ? 'selected' : ''}}>
-                                                {{ $program->prog_program }}
+                                                {{$program->sub_prog ? $program->sub_prog->sub_prog_name.' - ':''}}{{ $program->prog_program }}
                                             </option>
                                         @endforeach
                                     @else        
                                         <option value="{{ $schoolProgram->prog_id }}" selected>
-                                            {{ $schoolProgram->program->prog_program }}
+                                            {{  $schoolProgram->program->sub_prog ? $schoolProgram->program->sub_prog->sub_prog_name.' - ':''}}{{ $schoolProgram->program->prog_program }}
                                         </option>
                                     @endif
                                 @elseif(empty($schoolProgram))
                                     @foreach ($programs as $program)
                                         <option value="{{ $program->prog_id }}" {{ old('prog_id') == $program->prog_id ? "selected" : "" }}>
-                                            {{ $program->prog_program }}
+                                            {{$program->sub_prog ? $program->sub_prog->sub_prog_name.' - ':''}}{{ $program->prog_program }}
                                         </option>
                                     @endforeach
                               
