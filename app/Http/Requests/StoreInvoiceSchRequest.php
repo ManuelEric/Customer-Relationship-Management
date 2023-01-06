@@ -57,14 +57,14 @@ class StoreInvoiceSchRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules(Request $request)
+    public function rules()
     {
-        return $this->isMethod('POST') ? $this->store($request) : $this->update();
+        return $this->isMethod('POST') ? $this->store() : $this->update();
 
 
     }
 
-    protected function store($input)
+    protected function store()
     {
         return [
             'invb2b_price' => 'required_if:select_currency,other|integer|nullable',
@@ -88,6 +88,24 @@ class StoreInvoiceSchRequest extends FormRequest
             'invb2b_tnc' => 'nullable',
             'curs_rate' => 'required_if:select_currency,other|integer|nullable',
             'currency' => 'required_if:select_currency,other|in:gbp,usd,sgd|nullable',
+            'invdtl_installment.*' => function ($attribute, $value, $fail) {
+                if($this->input('select_currency') == 'idr'){
+                    if ($this->input('invb2b_pm') === 'installment') {
+                        if($value == null){
+                            $fail('The '.$attribute.' is required.');
+                        }
+                    }
+                }
+            },
+            'invdtl_installment_other.*' => function ($attribute, $value, $fail) {
+                if($this->input('select_currency') == 'other'){
+                    if ($this->input('invb2b_pm') === 'installment') {
+                        if($value == null){
+                            $fail('The '.$attribute.' is required.');
+                        }
+                    }
+                }
+            },
             // 'invdtl_installment.*' => [Rule::when('invdtl_installment', 'required', function ($input) {
             //     return $this->input('select_currency') == 'idr' && $this->input('invb2b_pm') == 'installment';
             // })],
@@ -99,8 +117,25 @@ class StoreInvoiceSchRequest extends FormRequest
             // })],
             // 'invdtl_duedate.*' => 'required_unless:invb2b_pm,full|required_if:select_currency,idr|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
             // 'invdtl_duedate_other.*' => 'required_unless:invb2b_pm,full|required_if:select_currency,other|required_with:invdtl_pm|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
-            'invdtl_duedate.*' => 'date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
-            'invdtl_duedate_other.*' => 'date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
+            'invdtl_duedate.*' =>  [function ($attribute, $value, $fail) {
+                if($this->input('select_currency') == 'idr'){
+                    if ($this->input('invb2b_pm') == 'installment') {
+                        if($value == null){
+                            $fail('The '.$attribute.' is required.');
+                        }
+                    }
+                }
+            }, 'date','before_or_equal:invb2b_duedate','after_or_equal:invb2b_date'],
+
+            'invdtl_duedate_other.*' => [function ($attribute, $value, $fail) {
+                if($this->input('select_currency') == 'other'){
+                    if ($this->input('invb2b_pm') == 'installment') {
+                        if($value == null){
+                            $fail('The '.$attribute.' is required.');
+                        }
+                    }
+                }
+            }, 'date','before_or_equal:invb2b_duedate','after_or_equal:invb2b_date'],
             
       
         ];
@@ -138,8 +173,43 @@ class StoreInvoiceSchRequest extends FormRequest
             // 'invdtl_installment_other.*' => 'required_if:invb2b_pm,installment|nullable',
             // 'invdtl_duedate.*' => 'required_unless:invb2b_pm,installment|required_if:select_currency,idr|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
             // 'invdtl_duedate_other.*' => 'required_unless:invb2b_pm,full|required_if:select_currency,other|required_with:invdtl_pm|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
-            'invdtl_duedate.*' => 'date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
-            'invdtl_duedate_other.*' => 'date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
+            'invdtl_installment.*' => function ($attribute, $value, $fail) {
+                if($this->input('select_currency') == 'idr'){
+                    if ($this->input('invb2b_pm') === 'installment') {
+                        if($value == null){
+                            $fail('The '.$attribute.' is required.');
+                        }
+                    }
+                }
+            },
+            'invdtl_installment_other.*' => function ($attribute, $value, $fail) {
+                if($this->input('select_currency') == 'other'){
+                    if ($this->input('invb2b_pm') === 'installment') {
+                        if($value == null){
+                            $fail('The '.$attribute.' is required.');
+                        }
+                    }
+                }
+            },
+            'invdtl_duedate.*' =>  [function ($attribute, $value, $fail) {
+                if($this->input('select_currency') == 'idr'){
+                    if ($this->input('invb2b_pm') == 'installment') {
+                        if($value == null){
+                            $fail('The '.$attribute.' is required.');
+                        }
+                    }
+                }
+            }, 'date','before_or_equal:invb2b_duedate','after_or_equal:invb2b_date'],
+
+            'invdtl_duedate_other.*' => [function ($attribute, $value, $fail) {
+                if($this->input('select_currency') == 'other'){
+                    if ($this->input('invb2b_pm') == 'installment') {
+                        if($value == null){
+                            $fail('The '.$attribute.' is required.');
+                        }
+                    }
+                }
+            }, 'date','before_or_equal:invb2b_duedate','after_or_equal:invb2b_date'],
 
       
         ];
