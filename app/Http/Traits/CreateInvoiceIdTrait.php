@@ -5,7 +5,11 @@ use Carbon\Carbon;
 
 trait CreateInvoiceIdTrait {
 
-    public function getId($last_id, $prog_id) {
+    public function getInvoiceId($last_id, $prog_id) {
+
+        if($last_id == null){
+            $last_id = 0;
+        }
 
         $now = Carbon::now();
         $thisMonth = $now->month;

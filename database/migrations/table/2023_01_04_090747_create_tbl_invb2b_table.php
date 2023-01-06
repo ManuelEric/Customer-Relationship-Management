@@ -37,9 +37,9 @@ return new class extends Migration
             $table->string('invb2b_pm');
             $table->text('invb2b_notes')->nullable();
             $table->text('invb2b_tnc')->nullable();
-            $table->tinyInteger('invb2b_status')->default('1');
-            $table->bigInteger('cursrate')->nullable();
-            $table->enum('currency', ['GDP', 'USD', 'SGD'])->nullable();
+            $table->tinyInteger('invb2b_status')->default('0');
+            $table->bigInteger('curs_rate')->nullable();
+            $table->enum('currency', ['gbp', 'usd', 'sgd'])->nullable();
 
             $table->timestamps();
         });

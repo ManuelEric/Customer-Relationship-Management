@@ -164,7 +164,7 @@
 
                     $('#programTable tbody').on('click', '.createInvSch ', function() {
                         var data = table.row($(this).parents('tr')).data();
-                        window.location.href = "{{ url('invoice/school-program') }}/" + data.id + "/create";
+                        window.location.href = "{{ url('invoice/school-program') }}/" + data.id + "/detail/create";
 
                     });
         

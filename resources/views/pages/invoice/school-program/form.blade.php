@@ -24,7 +24,7 @@
                             <i class="bi bi-eye me-1"></i> More
                         </a>
                         @if (isset($invoiceSch))
-                            <a href="{{ $status == 'edit' ? url('invoice/school-program/1') : url('invoice/school-program/1/edit') }}"
+                            <a href="{{ $status == 'edit' ? url('invoice/school-program/'. $schoolProgram->id .'/detail/'. $invoiceSch->invb2b_num) : url('invoice/school-program/'. $schoolProgram->id .'/detail/'. $invoiceSch->invb2b_num .'/edit') }}"
                                 class="btn btn-sm btn-outline-warning rounded mx-1">
                                 <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
                                 {{ $status == 'edit' ? 'Back' : 'Edit' }}
@@ -68,28 +68,41 @@
                 </div>
 
                 <div class="card-body">
-                    <form action="{{ url('invoice/school-program/' . $schoolProgram->id . '/store') }}" method="POST">
+                    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+                    <form action="{{ url($status == 'edit' ? 'invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num : 'invoice/school-program/' . $schoolProgram->id . '/detail') }}" method="POST">
                         @csrf
+                        @if($status == 'edit')
+                            @method('put')
+                        @endif
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label for="">Currency</label>
-                                <select id="currency" name="select_currency" class="select w-100" onchange="checkCurrency()" {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                                <select id="currency" name="select_currency" class="select w-100" onchange="checkCurrency()" {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                                     <option value="idr">IDR</option>
                                     <option value="other">Other Currency</option>
                                 </select>
                             </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
                                 <label for="">Currency Detail</label>
-                                <select class="select w-100" name="currency" id="currency_detail" onchange="checkCurrencyDetail()" {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                                <select class="select w-100" name="currency" id="currency_detail" onchange="checkCurrencyDetail()" {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     @if(isset($invoiceSch))
-                                        <option value="USD" {{ $invoiceSch->currency == 'USD' ? 'selected' : ''}}>USD</option>
-                                        <option value="SGD" {{ $invoiceSch->currency == 'SGD' ? 'selected' : ''}}>SGD</option>
-                                        <option value="GBP" {{ $invoiceSch->currency == 'GBP' ? 'selected' : ''}}>GBP</option>
+                                        <option value="usd" {{ $invoiceSch->currency == 'usd' ? 'selected' : ''}}>USD</option>
+                                        <option value="sgd" {{ $invoiceSch->currency == 'sgd' ? 'selected' : ''}}>SGD</option>
+                                        <option value="gbp" {{ $invoiceSch->currency == 'gbp' ? 'selected' : ''}}>GBP</option>
                                     @elseif(empty($invoiceSch))
-                                        <option value="USD" {{ old('currency') == 'USD' ? 'selected' : ''}}>USD</option>
-                                        <option value="SGD" {{ old('currency') == 'SGD' ? 'selected' : ''}}>SGD</option>
-                                        <option value="GBP" {{ old('currency') == 'GBP' ? 'selected' : ''}}>GBP</option>
+                                        <option value="usd" {{ old('currency') == 'usd' ? 'selected' : ''}}>USD</option>
+                                        <option value="sgd" {{ old('currency') == 'sgd' ? 'selected' : ''}}>SGD</option>
+                                        <option value="gbp" {{ old('currency') == 'gbp' ? 'selected' : ''}}>GBP</option>
                                     @endif
                                 </select>
                                 @error('currency')
@@ -99,10 +112,10 @@
 
                             <div class="col-md-3  mb-3 currency-detail d-none">
                                 <label for="">Current Rate to IDR</label>
-                                <input type="number" name="cursrate" id="current_rate"
+                                <input type="number" name="curs_rate" id="current_rate"
                                     class="form-control form-control-sm rounded" 
-                                    value="{{ (isset($invoiceSch)) ? $invoiceSch->cursrate : old('cursrate') }}" disabled>
-                                @error('cursrate')
+                                    value="{{ (isset($invoiceSch)) ? $invoiceSch->curs_rate : old('curs_rate') }}" {{ $status=='edit' ? '' : 'disabled' }}>
+                                @error('curs_rate')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
@@ -121,27 +134,17 @@
                             </div>
 
                             <div class="col-md-12">
-                                <input type="hidden" name="invb2b_totpriceidr" id="total_idr">
-                                    {{-- @error('invb2b_totpriceidr')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror --}}
-                                <input type="hidden" name="invb2b_totprice" id="total_other">
-                                    {{-- @error('invb2b_totprice')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror --}}
+                                <input type="hidden" name="" id="total_idr">
+                                <input type="hidden" name="" id="total_other">
+                                    
                             </div>
 
                             <div class="col-md-5 mb-3">
                                 <label for="">Payment Method</label>
-                                <select name="invb2b_pm" id="payment_method" class="select w-100" {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }} onchange="checkPayment()">
+                                <select name="invb2b_pm" id="payment_method" class="select w-100" {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }} onchange="checkPayment()">
                                     <option data-placeholder="true"></option>
-                                    @if(isset($invoiceSch))
-                                        <option value="full" {{ $invoiceSch->invb2b_pm == 'full' ? 'selected' : '' }}>Full Payment</option>
-                                        <option value="installment" {{ $invoiceSch->invb2b_pm == 'installment' ? 'selected' : '' }}>Installment</option>
-                                    @elseif(empty($invoiceSch))
-                                        <option value="full" {{ old('invb2b_pm') == 'full' ? 'selected' : '' }}>Full Payment</option>
-                                        <option value="installment" {{ old('invb2b_pm') == 'installment' ? 'selected' : '' }}>Installment</option>
-                                    @endif
+                                        <option value="full">Full Payment</option>
+                                        <option value="installment">Installment</option>
                                 </select>
                                 @error('invb2b_pm')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -154,7 +157,7 @@
                                         <input type="date" name="invb2b_date" id=""
                                             class='form-control form-control-sm rounded'
                                             value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_date : old('invb2b_date') }}"
-                                            {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                                            {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                                         @error('invb2b_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
@@ -164,7 +167,7 @@
                                         <input type="date" name="invb2b_duedate" id=""
                                             class='form-control form-control-sm rounded'
                                             value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_duedate : old('invb2b_duedate') }}"
-                                            {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                                            {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                                         @error('invb2b_duedate')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
@@ -198,7 +201,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            @if(empty($invoiceSch) || isset($edit))
+                            @if(empty($invoiceSch) || $status == 'edit')
                                 <div class="mt-3 text-end">
                                     <button type="submit" class="btn btn-sm btn-primary rounded">
                                         <i class="bi bi-save2 me-2"></i> Submit
@@ -393,6 +396,24 @@
             $(document).ready(function(){
                 $('#currency').val('other').trigger('change')
             })
+        </script>
+    @endif
+
+    @if(isset($invoiceSch->invb2b_pm))
+        <script>
+            $(document).ready(function(){
+                $('#payment_method').val('{{$invoiceSch->invb2b_pm}}').trigger('change')
+            })
+
+        </script>
+    @endif
+
+    @if(!empty(old('invb2b_pm')))
+        <script>
+            $(document).ready(function(){
+                $('#payment_method').val("{{old('invb2b_pm')}}").trigger('change')
+            })
+
         </script>
     @endif
 

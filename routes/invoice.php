@@ -104,11 +104,6 @@ Route::get('referral/status/{status?}', function ($status = null) {
 });
 
 Route::prefix('school-program')->name('invoice-sch.')->group(function () {
-    
-    Route::get('status/list', [InvoiceSchoolController::class, 'invoice_list'])->name('list');
-    Route::get('status/needed', [InvoiceSchoolController::class, 'invoice_needed'])->name('needed');
-    Route::get('{sch_prog}/create', [InvoiceSchoolController::class, 'create'])->name('create');
-    Route::post('{sch_prog}/store', [InvoiceSchoolController::class, 'store'])->name('store');
-    Route::get('{sch_prog}/detail/{invsch}', [InvoiceSchoolController::class, 'show'])->name('show');
-    Route::delete('{sch_prog}/detail/{invsch}', [InvoiceSchoolController::class, 'destroy'])->name('destroy');
+    Route::resource('{sch_prog}/detail', InvoiceSchoolController::class)->except(['index']);
+    Route::get('status/{status}', [InvoiceSchoolController::class, 'index'])->name('index');
 });

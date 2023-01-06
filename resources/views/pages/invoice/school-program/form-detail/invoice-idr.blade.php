@@ -13,7 +13,7 @@
                      <input type="number" name="invb2b_priceidr" id="invoice_idr_price" class="form-control"
                          oninput="checkInvoiceIDR()" 
                          value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_priceidr : old('invb2b_priceidr') }}"
-                         {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                         {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                      @error('invb2b_priceidr')
                         <small class="text-danger fw-light">{{ $message }}</small>
                      @enderror
@@ -25,7 +25,7 @@
                      <input type="number" name="invb2b_participants" id="invoice_idr_participants" class="form-control"
                          oninput="checkInvoiceIDR()"
                          value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_participants : old('invb2b_participants') }}"
-                         {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                         {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                          <span class="input-group-text" id="basic-addon1">
                              Person
                             </span>
@@ -43,7 +43,7 @@
                      <input type="number" name="invb2b_discidr" id="invoice_idr_discount" class="form-control"
                          oninput="checkInvoiceIDR()"
                          value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_discidr : old('invb2b_discidr') }}"
-                         {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                         {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                         @error('invb2b_discidr')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
@@ -57,7 +57,7 @@
                      </span>
                      <input type="number" name="invb2b_totpriceidr" id="invoice_idr_total" class="form-control"
                      value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totpriceidr : old('invb2b_totpriceidr') }}"
-                     {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                     {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                      @error('invb2b_totpriceidr')
                         <small class="text-danger fw-light">{{ $message }}</small>
                      @enderror
@@ -68,7 +68,7 @@
                  <input type="text" name="invb2b_wordsidr" id="invoice_idr_word"
                      class="form-control form-control-sm rounded" 
                      value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_wordsidr : old('invb2b_wordsidr') }}" readonly
-                     {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                     {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                     @error('invb2b_wordsidr')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror

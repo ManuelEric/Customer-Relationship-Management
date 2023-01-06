@@ -40,7 +40,7 @@ class Invb2b extends Model
         'invb2b_notes',
         'invb2b_tnc',
         'invb2b_status',
-        'cursrate',
+        'curs_rate',
         'currency',
     ];
 
@@ -56,6 +56,11 @@ class Invb2b extends Model
         return Attribute::make(
             get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
         );
+    }
+
+    public function inv_detail()
+    {
+        return $this->hasMany(InvDetail::class, 'invb2b_id', 'invb2b_id');
     }
   
 

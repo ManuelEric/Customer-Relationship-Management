@@ -8,7 +8,8 @@
                         <th>Payment Method</th>
                         <th>Created At</th>
                         <th>Due Date</th>
-                        <th>Total Price</th>
+                        <th>Total Price Other</th>
+                        <th>Total Price IDR</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -73,6 +74,34 @@
                             },
                             {
                                 data: 'invb2b_totprice',
+                                render: function(data, type, row, meta) {
+                                    var currency;
+                                    var totprice = new Intl.NumberFormat().format(row.invb2b_totprice);
+                                    switch (row.currency) {
+                                        case 'usd':
+                                            currency = '$. ';
+                                            break;
+                                        case 'sgd':
+                                            currency = 'S$. ';
+                                            break;
+                                        case 'gbp':
+                                            currency = '£. ';
+                                            break;
+                                        default:
+                                            currency = '';
+                                            totprice = '-'
+                                            break;
+                                    }
+                                    return currency + totprice;   
+                                }
+                            },
+                            {
+                                data: 'invb2b_totpriceidr',
+                                render: function(data, type, row, meta) {
+                                    var currency = 'Rp. ';
+                                    var totprice = new Intl.NumberFormat().format(row.invb2b_totpriceidr);
+                                    return currency + ' ' + totprice;   
+                                }
                             },
                             {
                                 data: '',
@@ -88,6 +117,5 @@
                         var data = table.row($(this).parents('tr')).data();
                         window.location.href = "{{ url('invoice/school-program') }}/" + data.schprog_id + "/detail/" + data.invb2b_num;
                     });
-
                 });
             </script>

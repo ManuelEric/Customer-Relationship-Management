@@ -50,6 +50,8 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'tbl_invb2b.invb2b_pm',
                     'tbl_invb2b.created_at',
                     'tbl_invb2b.invb2b_duedate',
+                    'tbl_invb2b.currency',
+                    'tbl_invb2b.invb2b_totpriceidr',
                     'tbl_invb2b.invb2b_totprice',)->
                 where('tbl_sch_prog.status', 1)
             )->make(true);

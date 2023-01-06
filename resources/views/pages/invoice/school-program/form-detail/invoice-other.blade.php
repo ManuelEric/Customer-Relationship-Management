@@ -13,7 +13,7 @@
                     <input type="number" name="invb2b_price" id="invoice_other_price" class="form-control"
                         oninput="checkInvoiceOther()"
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_price : old('invb2b_price') }}"
-                        {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                        {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                     @error('invb2b_price')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
@@ -25,8 +25,8 @@
                     <input type="number" name="invb2b_priceidr_other" id="invoice_other_price_idr" class="form-control" 
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_priceidr : old('invb2b_priceidr_other') }}"
                         readonly
-                        {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
-                    @error('invb2b_priceidr')
+                        {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                    @error('invb2b_priceidr_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
                 </div>
@@ -37,11 +37,11 @@
                     <input type="number" name="invb2b_participants_other" id="invoice_other_participant" class="form-control"
                         oninput="checkInvoiceOther()"
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_participants : old('invb2b_participants_other') }}"
-                        {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                        {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                         <span class="input-group-text" id="basic-addon1">
                             Person
                         </span>
-                    @error('invb2b_participants')
+                    @error('invb2b_participants_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
                 </div>
@@ -55,7 +55,7 @@
                     <input type="number" name="invb2b_disc" id="invoice_other_discount" class="form-control"
                         oninput="checkInvoiceOther()"
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_disc : old('invb2b_price') }}"
-                        {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                        {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                     @error('invb2b_disc')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
@@ -67,8 +67,8 @@
                     <input type="number" name="invb2b_discidr_other" id="invoice_other_discount_idr" class="form-control"
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_discidr : old('invb2b_discidr_other') }}"
                         readonly
-                        {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
-                    @error('invb2b_discidr')
+                        {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                    @error('invb2b_discidr_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
                 </div>
@@ -81,7 +81,7 @@
                     </span>
                     <input type="number" name="invb2b_totprice" id="invoice_other_total" class="form-control"
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totprice : old('invb2b_totprice') }}"
-                        {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                        {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                     @error('invb2b_totprice')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
@@ -93,8 +93,8 @@
                     <input type="number" name="invb2b_totpriceidr_other" id="invoice_other_total_idr" class="form-control" 
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totpriceidr : old('invb2b_totpriceidr_other') }}"
                         readonly
-                        {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
-                    @error('invb2b_totpriceidr')
+                        {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                    @error('invb2b_totpriceidr_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
                 </div>
@@ -104,15 +104,15 @@
                 <input type="text" name="invb2b_words" id="invoice_other_word"
                     class="form-control form-control-sm rounded mb-1" 
                     value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_words : old('invb2b_words') }}"
-                    readonly {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
+                    readonly {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                 @error('invb2b_words')
                     <small class="text-danger fw-light">{{ $message }}</small>
                 @enderror
                 <input type="text" name="invb2b_wordsidr_other" id="invoice_other_word_idr"
                     class="form-control form-control-sm rounded" 
                     value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_wordsidr : old('invb2b_wordsidr_other') }}"
-                    readonly {{ empty($invoiceSch) || isset($edit) ? '' : 'disabled' }}>
-                @error('invb2b_wordsidr')
+                    readonly {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                @error('invb2b_wordsidr_other')
                     <small class="text-danger fw-light">{{ $message }}</small>
                 @enderror
             </div>
