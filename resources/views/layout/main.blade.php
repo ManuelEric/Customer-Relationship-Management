@@ -347,13 +347,20 @@
                             <span class="menu-title">Report</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="collapse" id="report">
+                        <div class="collapse {{ Request::is('report*') ? 'show' : 'hide' }}" id="report">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('report/sales') }}">Sales
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url('report/sales') }}">Sales
                                         Tracking</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('report/pph') }}">PPH Final
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url('report/partnership') }}">
+                                        Partnership
                                     </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url('report/invoice') }}">Invoice &
+                                        Receipt</a>
                                 </li>
                             </ul>
                         </div>
