@@ -16,6 +16,13 @@ class SubProgRepository implements SubProgRepositoryInterface
         })->get();
     }
 
+    // public function getSubProgBySubProgId($subProg)
+    // {
+    //     return SubProg::whereHas('program', function($query) use ($subProg) {
+    //         $query->where('id', $subProg);
+    //     })->get();
+    // }
+
     public function getSubProgById($subProgId)
     {
         return SubProg::find($subProgId);

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreCurriculumRequest extends FormRequest
+class StoreTagRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,21 +24,24 @@ class StoreCurriculumRequest extends FormRequest
 
     public function rules()
     {
+
         return $this->isMethod('POST') ? $this->store() : $this->update();
+
     }
 
     protected function store()
     {
         return [
-            'name' => 'required|string|max:50|unique:tbl_curriculum,name',
+            'name' => 'required|string|max:50|unique:tbl_tag,name',
+            'score' => 'required|integer',
         ];
-           
     }
 
     protected function update()
     {
         return [
             'name' => 'required|string|max:50',
+            'score' => 'required|integer',
         ];
     }
 }

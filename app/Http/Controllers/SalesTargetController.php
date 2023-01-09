@@ -41,6 +41,7 @@ class SalesTargetController extends Controller
         );
     }
 
+
     public function store(StoreSalesTargetRequest $request)
     {
         $salesTargets = $request->only([

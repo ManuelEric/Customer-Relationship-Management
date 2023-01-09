@@ -44,9 +44,10 @@ class StoreSalesTargetRequest extends FormRequest
         $month_year = $this->input('month_year') . '-01';
 
         return [
-            'prog_id' => ['required','exists:tbl_prog,prog_id', Rule::unique('tbl_sales_target')->where(function ($query) use ($month_year){
-                return $query->where('month_year', $month_year);
-            })],
+            'prog_id' => 'required|exists:tbl_prog,prog_id',
+            // 'prog_id' => ['required','exists:tbl_prog,prog_id', Rule::unique('tbl_sales_target')->where(function ($query) use ($month_year){
+            //     return $query->where('month_year', $month_year);
+            // })],
             'total_participant' => 'required|integer',
             'total_target' => 'required|integer',
             'month_year' => 'required',

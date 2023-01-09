@@ -13,16 +13,6 @@
             Curriculum</a>
     </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="curriculumTable">
@@ -179,4 +169,17 @@
                 })
         }
     </script>
+
+    @if(
+        $errors->has('name')
+        )
+        
+        <script>
+            $(document).ready(function(){
+                $('#curriculumForm').modal('show');
+            })
+
+        </script>
+
+    @endif
 @endsection

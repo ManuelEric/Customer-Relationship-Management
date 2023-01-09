@@ -13,19 +13,9 @@
             University Tags</a>
     </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <div class="card rounded">
         <div class="card-body">
-            <table class="table table-bordered table-hover nowrap align-middle w-100" id="curriculumTable">
+            <table class="table table-bordered table-hover nowrap align-middle w-100" id="tagTable">
                 <thead class="bg-dark text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
@@ -56,7 +46,7 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="#" method="POST" id="formCurriculum">
+                    <form action="{{ url('master/university-tags') }}" method="POST" id="formTag">
                         @csrf
                         <div class="put"></div>
                         <div class="row g-2">
@@ -65,8 +55,11 @@
                                     <label for="">
                                         Tags Name <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="tags_name" id="tags_name"
-                                        class="form-control form-control-sm rounded" required value="">
+                                    <input type="text" name="name" id="name"
+                                        class="form-control form-control-sm rounded" required value="{{ old('name') }}">
+                                    @error('name')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -74,8 +67,11 @@
                                     <label for="">
                                         Score <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="score" id="score"
-                                        class="form-control form-control-sm rounded" required value="">
+                                    <input type="number" name="score" id="score"
+                                        class="form-control form-control-sm rounded" required value="{{ old('score') }}">
+                                    @error('score')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -97,7 +93,7 @@
     {{-- Need Changing --}}
     <script>
         $(document).ready(function() {
-            var table = $('#curriculumTable').DataTable({
+            var table = $('#tagTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -114,71 +110,76 @@
                     left: 2,
                     right: 1
                 },
-                // processing: true,
-                // serverSide: true,
-                // ajax: '',
-                // columns: [{
-                //         data: 'id',
-                //         className: 'text-center',
-                //         render: function(data, type, row, meta) {
-                //             return meta.row + meta.settings._iDisplayStart + 1;
-                //         }
-                //     },
-                //     {
-                //         data: 'curriculum_name',
-                //     },
-                //     {
-                //         data: 'created_at',
-                //         className: 'text-center',
-                //     },
-                //     {
-                //         data: 'updated_at',
-                //         className: 'text-center',
-                //     },
-                //     {
-                //         data: '',
-                //         className: 'text-center',
-                //         defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#universityTagsForm" class="btn btn-sm btn-outline-warning editcurriculum"><i class="bi bi-pencil"></i></button>' +
-                //             '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deletecurriculum"><i class="bi bi-trash2"></i></button>'
-                //     }
-                // ]
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'name',
+                    },
+                    {
+                        data: 'score',
+                    },
+                    {
+                        data: 'created_at',
+                        className: 'text-center',
+                    },
+                    {
+                        data: 'updated_at',
+                        className: 'text-center',
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#universityTagsForm" class="btn btn-sm btn-outline-warning editTag"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteTag"><i class="bi bi-trash2"></i></button>'
+                    }
+                ]
             });
 
-            $('#curriculumTable tbody').on('click', '.editcurriculum ', function() {
+            $('#tagTable tbody').on('click', '.editTag ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 editById(data.id)
             });
 
-            $('#curriculumTable tbody').on('click', '.deletecurriculum ', function() {
+            $('#tagTable tbody').on('click', '.deleteTag ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('master/curriculum', data.id)
+                confirmDelete('master/university-tags', data.id)
             });
         });
 
         function resetForm() {
-            $('#curriculum_name').val(null)
+            $('#name').val(null)
+            $('#score').val(null)
             $('.put').html('')
-            $('#formCurriculum').attr('action', '{{ url('master/curriculum') }}')
+            $('#formTag').attr('action', '{{ url('master/university-tags') }}')
         }
 
         function editById(id) {
-            let link = "{{ url('master/curriculum') }}/" + id
+            let link = "{{ url('master/university-tags') }}/" + id + '/edit'
 
             axios.get(link)
                 .then(function(response) {
 
                     // handle success
-                    let data = response.data.curriculum
-                    // console.log(data)
+                    let data = response.data.tag
+                    console.log(data)
 
-                    $('#curriculum_name').val(data.curriculum_name)
+                    $('#name').val(data.name)
+                    $('#score').val(data.score)
                     let html =
                         '@method('put')' +
                         '<input type="hidden" name="id" value="' + data.id + '">'
 
                     $('.put').html(html)
 
-                    $('#formCurriculum').attr('action', '{{ url('master/curriculum') }}/' + data.id + '')
+                    $('#formTag').attr('action', '{{ url('master/university-tags') }}/' + data.id + '')
                 })
                 .catch(function(error) {
                     // handle error
@@ -186,4 +187,18 @@
                 })
         }
     </script>
+
+    @if(
+        $errors->has('name') || 
+        $errors->has('score') 
+        )
+        
+        <script>
+            $(document).ready(function(){
+                $('#universityTagsForm').modal('show');
+            })
+
+        </script>
+
+    @endif
 @endsection

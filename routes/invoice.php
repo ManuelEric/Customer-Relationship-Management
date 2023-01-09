@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InvoiceProgramController;
+use App\Http\Controllers\InvoiceSchoolController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -92,9 +93,9 @@ Route::get('school-program/1/export/pdf', function () {
     return view('pages.invoice.school-program.export.invoice-pdf');
 });
 
-Route::get('school-program/status/{status?}', function ($status = null) {
-    return view('pages.invoice.school-program.index', ['status' => $status]);
-});
+// Route::get('school-program/status/{status?}', function ($status = null) {
+//     return view('pages.invoice.school-program.index', ['status' => $status]);
+// });
 
 
 // Referral 
@@ -116,4 +117,9 @@ Route::get('referral/1/export/pdf', function () {
 
 Route::get('referral/status/{status?}', function ($status = null) {
     return view('pages.invoice.referral.index', ['status' => $status]);
+});
+
+Route::prefix('school-program')->name('invoice-sch.')->group(function () {
+    Route::resource('{sch_prog}/detail', InvoiceSchoolController::class)->except(['index']);
+    Route::get('status/{status}', [InvoiceSchoolController::class, 'index'])->name('index');
 });

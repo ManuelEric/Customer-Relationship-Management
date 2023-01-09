@@ -22,6 +22,8 @@ use App\Interfaces\EmployeeRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
+use App\Interfaces\InvoiceB2bRepositoryInterface;
+use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
@@ -73,6 +75,8 @@ use App\Repositories\EmployeeRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\FollowupRepository;
 use App\Repositories\InvoiceProgramRepository;
+use App\Repositories\InvoiceDetailRepository;
+use App\Repositories\InvoiceB2bRepository;
 use App\Repositories\LeadRepository;
 use App\Repositories\MainProgRepository;
 use App\Repositories\MajorRepository;
@@ -164,6 +168,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(FollowupRepositoryInterface::class, FollowupRepository::class);
         $this->app->bind(ClientEventRepositoryInterface::class, ClientEventRepository::class);
         $this->app->bind(InvoiceProgramRepositoryInterface::class, InvoiceProgramRepository::class);
+        $this->app->bind(InvoiceB2bRepositoryInterface::class, InvoiceB2bRepository::class);
+        $this->app->bind(InvoiceDetailRepositoryInterface::class, InvoiceDetailRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);

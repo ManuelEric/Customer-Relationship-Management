@@ -22,6 +22,7 @@ class SalesTarget extends Model
      */
     protected $fillable = [
         'prog_id',
+        'sub_prog_id',
         'month_year',
         'total_participant',
         'total_target',

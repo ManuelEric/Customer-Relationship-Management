@@ -15,12 +15,16 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
         return Datatables::eloquent(
             PartnerProg::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->
                     leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_partner_prog.prog_id')->
+                    leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->
                     leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')->
                     select(
                         'tbl_corp.corp_id', 
                         'tbl_partner_prog.id', 
                         'tbl_corp.corp_name as corp_name',
-                        'tbl_prog.prog_program as program_name',
+                        DB::raw('(CASE
+                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                            ELSE tbl_prog.prog_program
+                        END) AS program_name'),
                         'tbl_partner_prog.first_discuss',
                         'tbl_partner_prog.participants',
                         'tbl_partner_prog.total_fee',

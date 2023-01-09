@@ -3,48 +3,105 @@
         <div class="">
             Installment
         </div>
-        <button class="btn btn-sm btn-outline-primary" onclick="addInstallmentOther()">
-            <i class="bi bi-plus"></i>
-        </button>
+        @if(empty($invoiceSch->inv_detail) || $status == 'edit')
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addInstallmentOther()">
+                <i class="bi bi-plus"></i>
+            </button>
+        @endif
     </div>
     <div class="card-body " id="installment_content_other">
-        <div class="row g-2 installment-others mb-3">
-            <div class="col-md-3">
-                <label for="">Name</label>
-                <input type="text" name="" class="form-control form-control-sm installment-name" value="Installment 1">
-            </div>
-            <div class="col-md-3">
-                <label for="">Due Date</label>
-                <input type="date" name="" class="form-control form-control-sm ">
-            </div>
-            <div class="col-md-2">
-                <label for="">Percentage (%)</label>
-                <input type="text" name="" id="percentage_other_0"
-                    class="form-control form-control-sm percentage-other" onchange="checkPercentageOther('0')">
-            </div>
-            <div class="col-md-4">
-                <div class="d-flex justify-content-between">
-                    <div class="">
-                        Amount
+        @if(isset($invoiceSch->inv_detail))
+            @foreach ($invoiceSch->inv_detail as $inv_dtl)
+                <div class="row g-2 installment-others mb-3">
+                    <div class="col-md-3">
+                        <label for="">Name</label>
+                        <input type="text" name="invdtl_installment_other[]" class="form-control form-control-sm installment-name" 
+                            value="{{$inv_dtl->invdtl_installment}}"
+                            {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
                     </div>
-                    <div class="cursor-pointer" onclick="removeInstallmentOther(0)">
-                        <i class="bi bi-trash2 text-danger"></i>
+                    <div class="col-md-3">
+                        <label for="">Due Date</label>
+                        <input type="date" name="invdtl_duedate_other[]" class="form-control form-control-sm"
+                            value="{{ $inv_dtl->invdtl_duedate }}"
+                            {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="">Percentage (%)</label>
+                        <input type="text" name="invdtl_percentage_other[]" id="percentage_other_0"
+                            class="form-control form-control-sm percentage-other" onchange="checkPercentageOther('0')"
+                            onchange="checkPercentage('0')" value="{{ $inv_dtl->invdtl_percentage }}"
+                            {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between">
+                            <div class="">
+                                Amount
+                            </div>
+                            @if(empty($invoiceSch->inv_detail) || $status == 'edit')
+                                <div class="cursor-pointer" onclick="removeInstallmentOther(0)">
+                                    <i class="bi bi-trash2 text-danger"></i>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="input-group input-group-sm mb-1">
+                            <span class="input-group-text currency-icon" id="basic-addon1">
+                                $
+                            </span>
+                            <input type="number" name="invdtl_amount[]" class="form-control amount-other" id="amount_other_0"
+                                value="{{ $inv_dtl->invdtl_amount }}"
+                                {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text" id="basic-addon1">
+                                Rp
+                            </span>
+                            <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" 
+                                id="amount_other_idr_0"
+                                value="{{ $inv_dtl->invdtl_amountidr }}"
+                                {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                        </div>
                     </div>
                 </div>
-                <div class="input-group input-group-sm mb-1">
-                    <span class="input-group-text currency-icon" id="basic-addon1">
-                        $
-                    </span>
-                    <input type="number" name="" class="form-control amount-other" id="amount_other_0">
+            @endforeach
+        @else
+            <div class="row g-2 installment-others mb-3">
+                <div class="col-md-3">
+                    <label for="">Name</label>
+                    <input type="text" name="invdtl_installment_other[]" class="form-control form-control-sm installment-name" value="Installment 1">
                 </div>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text" id="basic-addon1">
-                        Rp
-                    </span>
-                    <input type="number" name="" class="form-control amount-other-idr" id="amount_other_idr_0">
+                <div class="col-md-3">
+                    <label for="">Due Date</label>
+                    <input type="date" name="invdtl_duedate_other[]" class="form-control form-control-sm ">
+                </div>
+                <div class="col-md-2">
+                    <label for="">Percentage (%)</label>
+                    <input type="text" name="invdtl_percentage_other[]" id="percentage_other_0"
+                        class="form-control form-control-sm percentage-other" onchange="checkPercentageOther('0')">
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-between">
+                        <div class="">
+                            Amount
+                        </div>
+                        <div class="cursor-pointer" onclick="removeInstallmentOther(0)">
+                            <i class="bi bi-trash2 text-danger"></i>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm mb-1">
+                        <span class="input-group-text currency-icon" id="basic-addon1">
+                            $
+                        </span>
+                        <input type="number" name="invdtl_amount[]" class="form-control amount-other" id="amount_other_0">
+                    </div>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text" id="basic-addon1">
+                            Rp
+                        </span>
+                        <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" id="amount_other_idr_0">
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 </div>
 

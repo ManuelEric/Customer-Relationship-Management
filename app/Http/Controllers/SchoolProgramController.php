@@ -36,7 +36,7 @@ class SchoolProgramController extends Controller
     protected SchoolProgramAttachRepositoryInterface $schoolProgramAttachRepository;
     protected ProgramRepositoryInterface $programRepository;
     protected UserRepositoryInterface $userRepository;
-    protected ReasonRepositoryInterface $rasonRepository;
+    protected ReasonRepositoryInterface $reasonRepository;
     protected CorporateRepositoryInterface $corporateRepository;
     protected CorporatePicRepositoryInterface $corporatePicRepository;
     protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
