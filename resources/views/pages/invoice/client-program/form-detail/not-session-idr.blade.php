@@ -10,7 +10,7 @@
                      <span class="input-group-text" id="basic-addon1">
                          Rp
                      </span>
-                     <input type="number" name="" id="not_session_idr_price" class="form-control"
+                     <input type="number" name="inv_price_idr" id="not_session_idr_price" class="form-control"
                          oninput="checkNotSessionIDR()">
                  </div>
              </div>
@@ -20,7 +20,7 @@
                      <span class="input-group-text" id="basic-addon1">
                          Rp
                      </span>
-                     <input type="number" name="" id="not_session_idr_early" class="form-control"
+                     <input type="number" name="inv_earlybird_idr" id="not_session_idr_early" class="form-control"
                          oninput="checkNotSessionIDR()">
                  </div>
              </div>
@@ -30,7 +30,7 @@
                      <span class="input-group-text" id="basic-addon1">
                          Rp
                      </span>
-                     <input type="number" name="" id="not_session_idr_discount" class="form-control"
+                     <input type="number" name="inv_discount_idr" id="not_session_idr_discount" class="form-control"
                          oninput="checkNotSessionIDR()">
                  </div>
              </div>
@@ -40,12 +40,12 @@
                      <span class="input-group-text" id="basic-addon1">
                          Rp
                      </span>
-                     <input type="number" name="" id="not_session_idr_total" class="form-control">
+                     <input type="number" name="inv_totalnumber_idr" id="not_session_idr_total" class="form-control">
                  </div>
              </div>
              <div class="col-md-8 mb-3">
                  <label for="">Words</label>
-                 <input type="text" name="" id="not_session_idr_word"
+                 <input type="text" name="inv_words_idr" id="not_session_idr_word"
                      class="form-control form-control-sm rounded" readonly>
              </div>
          </div>

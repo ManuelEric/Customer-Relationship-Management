@@ -264,7 +264,7 @@
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item">
                                     <a class="nav-link {{ Request::is('invoice/client-program*') ? 'active' : '' }}"
-                                        href="{{ url('invoice/client-program/status/needed') }}">Client
+                                        href="{{ url('invoice/client-program?s=needed') }}">Client
                                         Program</a>
                                 </li>
                                 <li class="nav-item"> <a

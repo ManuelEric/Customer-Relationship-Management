@@ -10,14 +10,29 @@
         </a>
     </div>
 
+    @if($errors->any())
+        {{ implode('', $errors->all('<div>:message</div>')) }}
+    @endif
 
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>Michael Nathan</h4>
-                    <h6>Program Name</h6>
+                    <h4>{{ $clientProg->client->full_name }}</h4>
+                    <h6 class="d-flex flex-column">
+                        @php
+                            $programName = explode('-', $clientProg->program_name);
+                        @endphp
+                        @for ($i = 0; $i < count($programName) ; $i++)
+                            <span
+                                @if ($i > 0 )
+                                    style="font-size:.8em;color:blue"    
+                                @endif
+                                >{{ $programName[$i] }}</span>
+                        @endfor
+                    </h6>
+                    @if (isset($invoiceProgram))
                     <div class="d-flex justify-content-center mt-3">
                         <a href="{{ url('program/client/1') }}" class="btn btn-sm btn-outline-info rounded mx-1"
                             target="_blank">
@@ -34,6 +49,7 @@
                             <i class="bi bi-trash2 me-1"></i> Delete
                         </button>
                     </div>
+                    @endif
                 </div>
             </div>
 
@@ -53,6 +69,7 @@
                             Invoice
                         </h6>
                     </div>
+                    @if (isset($invoiceProgram))
                     <div class="">
                         <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
                             <i class="bi bi-plus"></i> Receipt
@@ -61,116 +78,142 @@
                             <i class="bi bi-eye"></i> View Receipt
                         </button>
                     </div>
+                    @endif
                 </div>
 
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <label for="">Currency</label>
-                            <select id="currency" class="select w-100" onchange="checkCurrency()">
-                                <option value="idr">IDR</option>
-                                <option value="other">Other Currency</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 mb-3 currency-detail d-none">
-                            <label for="">Currency Detail</label>
-                            <select class="select w-100" id="currency_detail" onchange="checkCurrencyDetail()">
-                                <option data-placeholder="true"></option>
-                                <option value="usd">USD</option>
-                                <option value="sgd">SGD</option>
-                                <option value="gbp">GBP</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-3  mb-3 currency-detail d-none">
-                            <label for="">Current Rate to IDR</label>
-                            <input type="number" name="" id="current_rate"
-                                class="form-control form-control-sm rounded" disabled>
-                        </div>
-
-                        <div class="col-md-3 mb-3">
-                            <label for="">Is Session?</label>
-                            <select name="" id="session" class="select w-100" onchange="checkSession()">
-                                <option data-placeholder="true"></option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-
-                        {{-- SESSION  --}}
-                        <div class="col-md-12 session-detail d-none session mb-3">
-                            {{-- IDR  --}}
-                            <div class="session-currency d-none session-idr">
-                                @include('pages.invoice.client-program.form-detail.session-idr')
+                    <form action="{{ route('invoice.program.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="clientProgId" value="{{ $clientProg->clientprog_id }}">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="">Currency</label>
+                                <select id="currency" name="currency[]" class="select w-100" onchange="checkCurrency()">
+                                    <option value="idr"    
+                                    @if ($clientProg->program->prog_payment == "session" OR $clientProg->program->prog_payment == "idr")
+                                        {{ "selected" }}
+                                    @endif
+                                        >IDR</option>
+                                    <option value="other"
+                                    @if ($clientProg->program->prog_payment != "session" && $clientProg->program->prog_payment != "idr")
+                                        {{ "selected" }}
+                                    @endif
+                                        >Other Currency</option>
+                                </select>
+                                @error('currency')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="col-md-3 mb-3 currency-detail d-none">
+                                <label for="">Currency Detail</label>
+                                <select class="select w-100" name="currency[]" id="currency_detail" onchange="checkCurrencyDetail()">
+                                    <option data-placeholder="true"></option>
+                                    <option value="usd">USD</option>
+                                    <option value="sgd">SGD</option>
+                                    <option value="gbp">GBP</option>
+                                </select>
                             </div>
 
-                            {{-- OTHER  --}}
-                            <div class="session-currency d-none session-other">
-                                @include('pages.invoice.client-program.form-detail.session-other')
+                            <div class="col-md-3  mb-3 currency-detail d-none">
+                                <label for="">Current Rate to IDR</label>
+                                <input type="number" name="curs_rate" id="current_rate"
+                                    class="form-control form-control-sm rounded" disabled>
                             </div>
 
-                        </div>
-
-                        {{-- NOT SESSION  --}}
-                        <div class="col-md-12 session-detail d-none not-session mb-3">
-                            {{-- IDR  --}}
-                            <div class="not-session-currency d-none not-session-idr">
-                                @include('pages.invoice.client-program.form-detail.not-session-idr')
+                            <div class="col-md-3 mb-3">
+                                <label for="">Is Session?</label>
+                                <select name="session" id="session" class="select w-100" onchange="checkSession()">
+                                    <option data-placeholder="true"></option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                                @error('session')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
 
-                            {{-- OTHER  --}}
-                            <div class="not-session-currency d-none not-session-other">
-                                @include('pages.invoice.client-program.form-detail.not-session-other')
-                            </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <input type="hidden" name="" id="total_idr">
-                            <input type="hidden" name="" id="total_other">
-                        </div>
-
-                        <div class="col-md-5 mb-3 invoice d-none">
-                            <label for="">Payment Method</label>
-                            <select name="" id="payment_method" class="select w-100" onchange="checkPayment()">
-                                <option data-placeholder="true"></option>
-                                <option value="full">Full Payment</option>
-                                <option value="installment">Installment</option>
-                            </select>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="row">
-                                <div class="col-md-6 mb-3 invoice d-none">
-                                    <label for="">Invoice Date</label>
-                                    <input type="date" name="" id=""
-                                        class='form-control form-control-sm rounded'>
+                            {{-- SESSION  --}}
+                            <div class="col-md-12 session-detail d-none session mb-3">
+                                {{-- IDR  --}}
+                                <div class="session-currency d-none session-idr">
+                                    @include('pages.invoice.client-program.form-detail.session-idr')
                                 </div>
-                                <div class="col-md-6 mb-3 invoice d-none">
-                                    <label for="">Invoice Due Date</label>
-                                    <input type="date" name="" id=""
-                                        class='form-control form-control-sm rounded'>
+
+                                {{-- OTHER  --}}
+                                <div class="session-currency d-none session-other">
+                                    @include('pages.invoice.client-program.form-detail.session-other')
+                                </div>
+
+                            </div>
+
+                            {{-- NOT SESSION  --}}
+                            <div class="col-md-12 session-detail d-none not-session mb-3">
+                                {{-- IDR  --}}
+                                <div class="not-session-currency d-none not-session-idr">
+                                    @include('pages.invoice.client-program.form-detail.not-session-idr')
+                                </div>
+
+                                {{-- OTHER  --}}
+                                <div class="not-session-currency d-none not-session-other">
+                                    @include('pages.invoice.client-program.form-detail.not-session-other')
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            {{-- IDR  --}}
-                            <div class="installment-card d-none installment-idr">
-                                @include('pages.invoice.client-program.form-detail.installment-idr')
+
+                            <div class="col-md-12">
+                                <input type="hidden" name="" id="total_idr">
+                                <input type="hidden" name="" id="total_other">
                             </div>
 
-                            <div class="installment-card d-none installment-other">
-                                @include('pages.invoice.client-program.form-detail.installment-other')
+                            <div class="col-md-5 mb-3 invoice d-none">
+                                <label for="">Payment Method</label>
+                                <select name="inv_paymentmethod" id="payment_method" class="select w-100" onchange="checkPayment()">
+                                    <option data-placeholder="true"></option>
+                                    <option value="full">Full Payment</option>
+                                    <option value="installment">Installment</option>
+                                </select>
                             </div>
+                            <div class="col-md-7">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3 invoice d-none">
+                                        <label for="">Created Date</label>
+                                        <input type="date" name="invoice_date" id="" value="{{ date('Y-m-d') }}" readonly
+                                            class='form-control form-control-sm rounded'>
+                                    </div>
+                                    <div class="col-md-6 mb-3 invoice d-none">
+                                        <label for="">Due Date</label>
+                                        <input type="date" name="inv_duedate" id=""
+                                            class='form-control form-control-sm rounded'>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                {{-- IDR  --}}
+                                <div class="installment-card d-none installment-idr">
+                                    @include('pages.invoice.client-program.form-detail.installment-idr')
+                                </div>
 
+                                <div class="installment-card d-none installment-other">
+                                    @include('pages.invoice.client-program.form-detail.installment-other')
+                                </div>
+
+                            </div>
+                            <div class="col-md-12 mb-3 invoice d-none">
+                                <label for="">Notes</label>
+                                <textarea name="inv_notes" id=""></textarea>
+                            </div>
+                            <div class="col-md-12 mb-3 invoice d-none">
+                                <label for="">Terms & Condition</label>
+                                <textarea name="inv_tnc" id=""></textarea>
+                            </div>
                         </div>
-                        <div class="col-md-12 mb-3 invoice d-none">
-                            <label for="">Notes</label>
-                            <textarea name="" id=""></textarea>
+
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-primary">
+                                <i class="bi bi-receipt"></i>
+                                <small>Create Invoice</small>
+                            </button>
                         </div>
-                        <div class="col-md-12 mb-3 invoice d-none">
-                            <label for="">Terms & Condition</label>
-                            <textarea name="" id=""></textarea>
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -292,6 +335,32 @@
                 placeholder: "Select value",
                 allowClear: true
             });
+
+            @if ($clientProg->program->prog_payment == "idr" || $clientProg->program->prog_payment == "session") 
+                $("#currency").val('idr').trigger('change')
+            @else
+                $("#currency").val('other').trigger('change')
+            @endif
+
+            @switch (strtolower($clientProg->program->prog_payment))
+                @case("usd")
+                    $("#currency_detail").val("usd").trigger('change')
+                @break
+
+                @case("sgd")
+                    $("#currency_detail").val("sgd").trigger('change')
+                @break
+
+                @case("gbp")
+                    $("#currency_detail").val("gbp").trigger('change')
+                @break
+            @endswitch
+
+            @if ($clientProg->program->prog_payment == "session")
+                $("#session").val('yes').trigger('change')
+            @else
+                $("#session").val('no').trigger('change')    
+            @endif
         });
 
         function checkCurrency() {

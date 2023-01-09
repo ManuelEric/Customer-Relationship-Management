@@ -71,4 +71,9 @@ class ViewClientProgram extends Model
     {
         return $this->hasMany(FollowUp::class, 'clientprog_id', 'clientprog_id');
     }
+
+    public function invoice()
+    {
+        return $this->hasMany(InvoiceProgram::class, 'clientprog_id', 'clientprog_id');
+    }
 }

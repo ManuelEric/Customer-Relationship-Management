@@ -71,6 +71,14 @@ class ClientProgram extends Model
         return $instance->newQuery()->where('clientprog_id', $id)->first();
     }
 
+    # attributes
+    protected function programName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->program->prog_program. ' - ' .$this->program->prog_main,
+        );
+    }
+
     public function client()
     {
         return $this->belongsTo(UserClient::class, 'client_id', 'id');
@@ -119,5 +127,10 @@ class ClientProgram extends Model
     public function followUp()
     {
         return $this->hasMany(FollowUp::class, 'clientprog_id', 'clientprog_id');
+    }
+
+    public function invoice()
+    {
+        return $this->hasMany(InvoiceProgram::class, 'clientprog_id', 'clientprog_id');
     }
 }

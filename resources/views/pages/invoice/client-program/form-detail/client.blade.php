@@ -8,7 +8,7 @@
                 </h6>
             </button>
         </h2>
-        <div id="clientInfo" class="accordion-collapse collapse" aria-labelledby="clientInfo">
+        <div id="clientInfo" class="accordion-collapse collapse show" aria-labelledby="clientInfo">
             <div class="accordion-body p-2">
                 <div class="card">
                     <div class="card-body">
@@ -99,7 +99,7 @@
     </div>
     <div class="accordion-item">
         <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            <button class="accordion-button" type="button" data-bs-toggle="collapse"
                 data-bs-target="#parentInfo">
                 <h6 class="m-0 p-0">
                     <i class="bi bi-person me-2"></i>
@@ -107,7 +107,7 @@
                 </h6>
             </button>
         </h2>
-        <div id="parentInfo" class="accordion-collapse collapse">
+        <div id="parentInfo" class="accordion-collapse collapse show">
             <div class="accordion-body p-2">
                 <div class="card">
                     <div class="card-body">

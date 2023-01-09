@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Models\pivot\AgendaSpeaker;
 use App\Models\pivot\AssetReturned;
 use App\Models\pivot\AssetUsed;
+use App\Models\pivot\UserTypeDetail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -144,5 +145,10 @@ class User extends Authenticatable
     public function mentorClient()
     {
         return $this->belongsToMany(ClientProgram::class, 'tbl_client_mentor', 'user_id', 'clientprog_id')->withTimestamps();
+    }
+
+    public function user_type()
+    {
+        return $this->belongsToMany(UserType::class, 'tbl_user_type_detail', 'user_id', 'user_type_id')->using(UserTypeDetail::class);
     }
 }

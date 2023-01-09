@@ -28,4 +28,9 @@ class Referral extends Model
         'ref_date',
         'notes',
     ];
+
+    public function invoice()
+    {
+        return $this->hasMany(InvoiceProgram::class, 'ref_id', 'id');
+    }
 }

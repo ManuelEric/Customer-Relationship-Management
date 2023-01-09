@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\InvoiceProgramController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,24 +15,39 @@ use Illuminate\Support\Facades\Route;
 */
 
 // CLIENT 
-Route::get('client-program/create', function () {
-    return view('pages.invoice.client-program.form', ['status' => 'create']);
-});
+// Route::get('client-program/create', function () {
+//     return view('pages.invoice.client-program.form', ['status' => 'create']);
+// });
 
-Route::get('client-program/1', function () {
-    return view('pages.invoice.client-program.form', ['status' => 'view']);
-});
+// Route::get('client-program/1', function () {
+//     return view('pages.invoice.client-program.form', ['status' => 'view']);
+// });
 
-Route::get('client-program/1/edit', function () {
-    return view('pages.invoice.client-program.form', ['status' => 'edit']);
-});
+// Route::get('client-program/1/edit', function () {
+//     return view('pages.invoice.client-program.form', ['status' => 'edit']);
+// });
 
-Route::get('client-program/1/export/pdf', function () {
-    return view('pages.invoice.client-program.export.invoice-pdf', ['is_session' => true]);
-});
+// Route::get('client-program/1/export/pdf', function () {
+//     return view('pages.invoice.client-program.export.invoice-pdf', ['is_session' => true]);
+// });
 
-Route::get('client-program/status/{status?}', function ($status = null) {
-    return view('pages.invoice.client-program.index', ['status' => $status]);
+// Route::get('client-program/status/{status?}', function ($status = null) {
+//     return view('pages.invoice.client-program.index', ['status' => $status]);
+// });
+
+Route::resource('client-program', InvoiceProgramController::class, [
+    'names' => [
+        'index' => 'invoice.program.index',
+        'store' => 'invoice.program.store',
+        'create' => 'invoice.program.create',
+        'show' => 'invoice.program.show',
+        'update' => 'invoice.program.update',
+        'edit' => 'invoice.program.edit',
+        'destroy' => 'invoice.program.destroy',
+    ]
+]);
+Route::prefix('client-program')->name('invoice.program.')->group(function() {
+    Route::get('{client_program}/export', [InvoiceProgramController::class, 'export'])->name('export');
 });
 
 
