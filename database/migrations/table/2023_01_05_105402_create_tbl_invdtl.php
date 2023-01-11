@@ -19,7 +19,9 @@ return new class extends Migration
             $table->char('invb2b_id', 50)->collation('utf8mb4_general_ci')->nullable();
             $table->foreign('invb2b_id')->references('invb2b_id')->on('tbl_invb2b')->onUpdate('cascade')->onDelete('cascade');
             
-            $table->char('inv_id', 50)->collation('utf8mb4_general_ci')->nullable()->unique();
+            $table->char('inv_id', 50)->collation('utf8mb4_general_ci')->nullable();
+            $table->foreign('inv_id')->references('inv_id')->on('tbl_inv')->onUpdate('cascade')->onDelete('cascade');
+            
             $table->string('invdtl_installment')->nullable();
             $table->date('invdtl_duedate')->nullable();
             $table->float('invdtl_percentage')->nullable();
@@ -27,7 +29,7 @@ return new class extends Migration
             $table->integer('invdtl_amountidr')->nullable();
             $table->tinyInteger('invdtl_status')->default('0');
             $table->bigInteger('invdtl_cursrate')->nullable();
-            $table->enum('invdtl_currency', ['gbp', 'usd', 'sgd'])->nullable();
+            $table->enum('invdtl_currency', ['gbp', 'usd', 'sgd', 'idr'])->nullable();
 
             $table->timestamps();
         });

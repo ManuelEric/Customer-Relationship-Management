@@ -38,6 +38,8 @@ class InvoiceProgram extends Model
         'inv_duedate',
         'inv_notes',
         'inv_tnc',
+        'curs_rate',
+        'currency',
         'inv_status'
     ];
 
@@ -49,5 +51,10 @@ class InvoiceProgram extends Model
     public function referral()
     {
         return $this->belongsTo(Referral::class, 'ref_id', 'id');
+    }
+
+    public function invoiceDetail()
+    {
+        return $this->hasMany(InvDetail::class, 'inv_id', 'inv_id');
     }
 }

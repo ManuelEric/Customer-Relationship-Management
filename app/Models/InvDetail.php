@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\Invb2b;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 
 class InvDetail extends Model
@@ -37,6 +36,11 @@ class InvDetail extends Model
     public function inv_b2b()
     {
         return $this->belongsTo(Invb2b::class, 'invb2b_id', 'invb2b_id');
+    }
+
+    public function invoiceProgram()
+    {
+        return $this->belongsTo(InvoiceProgram::class, 'inv_id', 'inv_id');
     }
 
 }

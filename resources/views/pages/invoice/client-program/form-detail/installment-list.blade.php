@@ -9,57 +9,48 @@
     </div>
     <div class="card-body">
         <div class="list-group">
-            <div class="list-group-item">
-                <div class="">
-                    <div class="ps-1 fs-6">
-                        Installment 1
+            @forelse ($invoice->invoiceDetail as $detail)
+                <div class="list-group-item">
+                    <div class="">
+                        <div class="ps-1 fs-6">
+                            {{ $detail->invdtl_installment }}
+                        </div>
+                        <table class="table">
+                            <tr>
+                                <td>Invoice ID:</td>
+                                <td class="text-end">{{ $invoice->inv_id }}</td>
+                            </tr>
+                            <tr>
+                                <td> Due Date:</td>
+                                <td class="text-end">{{ $detail->invdtl_duedate }}</td>
+                            </tr>
+                        </table>
+                        <div class="ps-1 mt-1">
+                            @if ($detail->invdtl_currency != NULL)
+                            {{ strtoupper($detail->invdtl_currency) }} {{ $detail->invdtl_amount }} |  
+                            @endif
+                            Rp. {{ number_format($detail->invdtl_amountidr,2,',','.') }}
+                        </div>
                     </div>
-                    <table class="table">
-                        <tr>
-                            <td>Invoice ID:</td>
-                            <td class="text-end">INV-243/32235/2352</td>
-                        </tr>
-                        <tr>
-                            <td> Due Date:</td>
-                            <td class="text-end">24 July 2024</td>
-                        </tr>
-                    </table>
-                    <div class="ps-1 mt-1">
-                        USD 2345 | Rp. 123.123.334
-                    </div>
-                </div>
-                <div class="mt-2 text-end">
-                    <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" data-bs-toggle="modal"
-                    data-bs-target="#addReceipt">
-                        <i class="bi bi-plus"></i> Receipt
-                    </button>
-                </div>
-            </div>
-            <div class="list-group-item">
-                <div class="">
-                    <div class="ps-1 fs-6">
-                        Installment 1
-                    </div>
-                    <table class="table">
-                        <tr>
-                            <td>Invoice ID:</td>
-                            <td class="text-end">INV-243/32235/2352</td>
-                        </tr>
-                        <tr>
-                            <td> Due Date:</td>
-                            <td class="text-end">24 July 2024</td>
-                        </tr>
-                    </table>
-                    <div class="ps-1 mt-1">
-                        USD 2345 | Rp. 123.123.334
+                    <div class="mt-2 text-end">
+
+                        @if (isset($detail->receipt))
+                            <button class="btn btn-sm btn-outline-warning py-1" style="font-size: 11px">
+                                <i class="bi bi-eye"></i> View
+                            </button>
+                        @else
+                            <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" data-bs-toggle="modal"
+                            data-bs-target="#addReceipt">
+                                <i class="bi bi-plus"></i> Receipt
+                            </button>
+                        @endif
                     </div>
                 </div>
-                <div class="mt-2 text-end">
-                    <button class="btn btn-sm btn-outline-warning py-1" style="font-size: 11px">
-                        <i class="bi bi-eye"></i> View
-                    </button>
-                </div>
-            </div>
+
+                @empty
+                <small>No installment details</small>
+
+            @endforelse
         </div>
     </div>
 </div>

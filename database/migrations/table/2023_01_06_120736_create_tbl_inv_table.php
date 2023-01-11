@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('tbl_inv', function (Blueprint $table) {
             $table->id();
-            $table->char('inv_id', 50)->collation('utf8mb4_unicode_ci')->unique();
+            $table->char('inv_id', 50)->collation('utf8mb4_general_ci')->unique();
             $table->unsignedBigInteger('clientprog_id');
             $table->foreign('clientprog_id')->references('clientprog_id')->on('tbl_client_prog')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedBigInteger('ref_id')->nullable();
@@ -37,9 +37,9 @@ return new class extends Migration
             $table->date('inv_duedate');
             $table->text('inv_notes')->nullable();
             $table->text('inv_tnc')->nullable();
-            $table->boolean('inv_status');
-            $table->integer('curs_rate');
-            $table->enum('currency', ['GBP', 'USD', 'SGD', 'IDR'])->default('IDR');
+            $table->boolean('inv_status')->default(false);
+            $table->integer('curs_rate')->default(0);
+            $table->enum('currency', ['gbp', 'usd', 'sgd', 'idr'])->default('idr');
             $table->timestamps();
         });
     }
