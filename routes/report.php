@@ -25,3 +25,7 @@ Route::get('partnership', function () {
 Route::get('sales', function () {
     return view('pages.report.sales-tracking.index');
 });
+
+Route::get('unpaid', function () {
+    return view('pages.report.unpaid-payment.index');
+});

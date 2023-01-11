@@ -362,6 +362,9 @@
                                     <a class="nav-link" href="{{ url('report/invoice') }}">Invoice &
                                         Receipt</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url('report/unpaid') }}">Unpaid Payment</a>
+                                </li>
                             </ul>
                         </div>
                     </li>

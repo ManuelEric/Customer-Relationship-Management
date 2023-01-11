@@ -26,7 +26,7 @@ Route::get('login', function () {
 });
 
 Route::get('dashboard', function () {
-    return view('layout.main');
+    return view('pages.dashboard.index');
 });
 
 // User 

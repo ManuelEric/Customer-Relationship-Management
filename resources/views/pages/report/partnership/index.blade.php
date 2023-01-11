@@ -38,6 +38,15 @@
                         </div>
                     </div>
                     <hr class="my-1">
+                    <div class="d-flex justify-content-between">
+                        <div class="">
+                            Total Partner Program
+                        </div>
+                        <div class="text-end">
+                            134
+                        </div>
+                    </div>
+                    <hr class="my-1">
                     <div class="d-flex justify-content-between" onclick="showHideDetail('school')" style="cursor: pointer">
                         <div class="">
                             Total New School
