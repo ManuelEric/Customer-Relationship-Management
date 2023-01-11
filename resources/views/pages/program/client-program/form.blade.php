@@ -4,9 +4,9 @@
 
 @section('content')
 
-@php
-    $disabled = !isset($edit) ? "disabled" : null;
-@endphp
+    @php
+        $disabled = !isset($edit) ? 'disabled' : null;
+    @endphp
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ route('student.show', ['student' => $student->id]) }}" class="text-decoration-none text-muted">
@@ -26,19 +26,19 @@
                     <h4>{{ $student->fullname }}</h4>
                     @if (!request()->is('program/client/create*'))
                         <div class="mt-3 d-flex justify-content-center">
-                            <a href="{{ $disabled ? 
-                                route('student.program.edit', ['student' => $student->id, 'program' => $clientProgram->clientprog_id]) 
+                            <a href="{{ $disabled
+                                ? route('student.program.edit', ['student' => $student->id, 'program' => $clientProgram->clientprog_id])
                                 : route('student.show', ['student' => $student->id]) }}"
                                 type="button" class="btn btn-sm btn-outline-warning rounded mx-1">
-                                <i
-                                    class="bi {{ $disabled ? 'bi-pencil' : 'bi-arrow-left' }} me-1"></i>
+                                <i class="bi {{ $disabled ? 'bi-pencil' : 'bi-arrow-left' }} me-1"></i>
                                 {{ $disabled ? 'Edit' : 'Back' }}
                             </a>
 
                             @if (isset($clientProgram))
-                            <button type="button" class="btn btn-sm btn-outline-danger rounded mx-1" onclick="confirmDelete('client/student/{{ $student->id }}/program', {{ $clientProgram->clientprog_id }})">
-                                <i class="bi bi-trash2"></i> Delete
-                            </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded mx-1"
+                                    onclick="confirmDelete('client/student/{{ $student->id }}/program', {{ $clientProgram->clientprog_id }})">
+                                    <i class="bi bi-trash2"></i> Delete
+                                </button>
                             @endif
                         </div>
                     @endif
@@ -46,7 +46,9 @@
             </div>
 
             @include('pages.program.client-program.detail.client')
-            
+
+            @include('pages.program.client-program.detail.refund')
+
             @if (isset($clientProgram))
                 @include('pages.program.client-program.detail.plan-followup')
             @endif
@@ -63,9 +65,11 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <form action="{{ isset($clientProgram) ? 
-                            route('student.program.update', ['student' => $student->id, 'program' => $clientProgram->clientprog_id]) 
-                            : route('student.program.store', ['student' => $student->id]) }}" method="POST">
+                    <form
+                        action="{{ isset($clientProgram)
+                            ? route('student.program.update', ['student' => $student->id, 'program' => $clientProgram->clientprog_id])
+                            : route('student.program.store', ['student' => $student->id]) }}"
+                        method="POST">
                         @csrf
                         @if (isset($clientProgram))
                             @method('PUT')
@@ -86,12 +90,10 @@
                                         <option data-pmentor="{{ $program->prog_mentor }}"
                                             data-mprog="{{ $program->main_prog->prog_name }}" data-sprog="{{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name : null }}" 
                                             value="{{ $program->prog_id }}"
-                                            @if (!empty(old('prog_id')) && old('prog_id') == $program->prog_id)
-                                                {{ "selected" }}
+                                            @if (!empty(old('prog_id')) && old('prog_id') == $program->prog_id) {{ 'selected' }}
                                             @elseif (isset($clientProgram) && $clientProgram->prog_id == $program->prog_id)
-                                                {{ "selected" }}
-                                            @endif
-                                            >{{ $program->prog_program }}</option>
+                                                {{ 'selected' }} @endif>
+                                            {{ $program->prog_program }}</option>
                                     @empty
                                         <option>There's no data</option>
                                     @endforelse
@@ -115,23 +117,20 @@
                                             <option data-placeholder="true"></option>
                                             @if (isset($leads) && count($leads) > 0)
                                                 @foreach ($leads as $lead)
-                                                    <option data-lead="{{ $lead->main_lead }}" value="{{ $lead->lead_id }}"
-                                                            @if (old('lead_id') !== NULL)
-                                                                {{ old('lead_id') == $lead->lead_id ? "selected" : null }}
+                                                    <option data-lead="{{ $lead->main_lead }}"
+                                                        value="{{ $lead->lead_id }}"
+                                                        @if (old('lead_id') !== null) {{ old('lead_id') == $lead->lead_id ? 'selected' : null }}
                                                             @elseif (isset($clientProgram->lead_id) && $clientProgram->lead_id == $lead->lead_id)
-                                                                {{ "selected" }}
-                                                            @endif
-                                                        >{{ $lead->main_lead }}</option>
+                                                                {{ 'selected' }} @endif>
+                                                        {{ $lead->main_lead }}</option>
                                                 @endforeach
                                                 {{-- <option value="program">ALL-in Event</option>
                                                 <option value="edufair">Edufair External</option> --}}
-                                                <option data-lead="KOL" value="kol" 
-                                                    @if (old('lead_id') && old('lead_id') == "kol")
-                                                        {{ "selected" }}
-                                                    @elseif (isset($clientProgram->lead_id) && $clientProgram->lead->main_lead == "KOL")
-                                                        {{ "selected" }}
-                                                    @endif
-                                                        >KOL</option>
+                                                <option data-lead="KOL" value="kol"
+                                                    @if (old('lead_id') && old('lead_id') == 'kol') {{ 'selected' }}
+                                                    @elseif (isset($clientProgram->lead_id) && $clientProgram->lead->main_lead == 'KOL')
+                                                        {{ 'selected' }} @endif>
+                                                    KOL</option>
                                             @endif
                                         </select>
                                         @error('lead_id')
@@ -140,7 +139,8 @@
                                     </div>
                                     <div class="col-md-6 d-none" id="event">
                                         <small>Sub Lead <sup class="text-danger">*</sup></small>
-                                        <select name="clientevent_id" id="event_id" class="select w-100" {{ $disabled }}>
+                                        <select name="clientevent_id" id="event_id" class="select w-100"
+                                            {{ $disabled }}>
                                             <option data-placeholder="true"></option>
                                             @forelse ($clientEvents as $clientEvent)
                                                 <option value="{{ $clientEvent->clientevent_id }}"
@@ -160,16 +160,15 @@
                                     </div>
                                     <div class="col-md-6 d-none" id="edufair">
                                         <small>Sub Lead <sup class="text-danger">*</sup></small>
-                                        <select name="eduf_lead_id" id="eduf_id" class="select w-100" {{ $disabled }}>
+                                        <select name="eduf_lead_id" id="eduf_id" class="select w-100"
+                                            {{ $disabled }}>
                                             <option data-placeholder="true"></option>
                                             @forelse ($external_edufair as $edufair)
                                                 <option value="{{ $edufair->id }}"
-                                                    @if (old('eduf_id') == $edufair->id)
-                                                        {{ "selected" }}
+                                                    @if (old('eduf_id') == $edufair->id) {{ 'selected' }}
                                                     @elseif (isset($clientProgram) && $clientProgram->eduf_lead_id)
-                                                        {{ "selected" }}
-                                                    @endif
-                                                    >{{ $edufair->title }}</option>
+                                                        {{ 'selected' }} @endif>
+                                                    {{ $edufair->title }}</option>
                                             @empty
                                                 <option>There's no data</option>
                                             @endforelse
@@ -180,16 +179,15 @@
                                     </div>
                                     <div class="col-md-6 d-none" id="kol">
                                         <small>Sub Lead <sup class="text-danger">*</sup></small>
-                                        <select name="kol_lead_id" id="kol_lead_id" class="select w-100" {{ $disabled }}>
+                                        <select name="kol_lead_id" id="kol_lead_id" class="select w-100"
+                                            {{ $disabled }}>
                                             <option data-placeholder="true"></option>
                                             @forelse ($kols as $kol)
                                                 <option value="{{ $kol->lead_id }}"
-                                                    @if (old('kol_lead_id') == $kol->lead_id)
-                                                        {{ "selected" }}
+                                                    @if (old('kol_lead_id') == $kol->lead_id) {{ 'selected' }}
                                                     @elseif (isset($clientProgram->lead_id) && $clientProgram->lead_id == $kol->lead_id)
-                                                        {{ "selected" }}
-                                                    @endif
-                                                    >{{ $kol->sub_lead }}</option>
+                                                        {{ 'selected' }} @endif>
+                                                    {{ $kol->sub_lead }}</option>
                                             @empty
                                                 <option>There's no data</option>
                                             @endforelse
@@ -204,12 +202,10 @@
                                             <option data-placeholder="true"></option>
                                             @forelse ($partners as $partner)
                                                 <option value="{{ $partner->corp_id }}"
-                                                    @if (old('partner_id') == $partner->corp_id)
-                                                        {{ "selected" }}
+                                                    @if (old('partner_id') == $partner->corp_id) {{ 'selected' }}
                                                     @elseif (isset($clientProgram) && $clientProgram->partner_id == $partner->corp_id)
-                                                        {{ "selected" }}
-                                                    @endif
-                                                    >{{ $partner->corp_name }}</option>
+                                                        {{ 'selected' }} @endif>
+                                                    {{ $partner->corp_name }}</option>
                                             @empty
                                                 <option>There's no data</option>
                                             @endforelse
@@ -231,8 +227,9 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <small>First Discuss <sup class="text-danger">*</sup></small>
-                                        <input type="date" name="first_discuss_date" {{ $disabled }} id=""
-                                            class="form-control form-control-sm rounded" value="{{ isset($clientProgram->first_discuss_date) ? $clientProgram->first_discuss_date : old('first_discuss_date') }}">
+                                        <input type="date" name="first_discuss_date" {{ $disabled }}
+                                            id="" class="form-control form-control-sm rounded"
+                                            value="{{ isset($clientProgram->first_discuss_date) ? $clientProgram->first_discuss_date : old('first_discuss_date') }}">
                                         @error('first_discuss_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
@@ -247,7 +244,7 @@
                                 </label>
                             </div>
                             <div class="col-md-9">
-                                <textarea name="meeting_notes" {{ $disabled }} id="" class="w-100">{{ isset($clientProgram->meeting_notes) ? $clientProgram->meeting_notes : old("meeting_notes") }}</textarea>
+                                <textarea name="meeting_notes" {{ $disabled }} id="" class="w-100">{{ isset($clientProgram->meeting_notes) ? $clientProgram->meeting_notes : old('meeting_notes') }}</textarea>
                                 @error('meeting_notes')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -265,15 +262,19 @@
                                         <small>Status <sup class="text-danger">*</sup></small>
                                         <select name="status" id="program_status" class="select w-100"
                                             onchange="changeProgramStatus()" {{ $disabled }}>
-                                            <option data-placeholder="true" {{ old('status') ?? "selected" }}></option>
-                                            <option value="0" 
-                                                @if (old('status') !== null && old('status') == 0)
-                                                    {{ "selected" }}
-                                                @endif
-                                                    >Pending</option>
-                                            <option value="1" {{ old('status') !== null && old('status') == 1 ? "selected" : null }}>Success</option>
-                                            <option value="2" {{ old('status') !== null && old('status') == 2 ? "selected" : null }}>Failed</option>
-                                            <option value="3" {{ old('status') !== null && old('status') == 3 ? "selected" : null }}>Refund</option>
+                                            <option data-placeholder="true" {{ old('status') ?? 'selected' }}></option>
+                                            <option value="0"
+                                                @if (old('status') !== null && old('status') == 0) {{ 'selected' }} @endif>Pending
+                                            </option>
+                                            <option value="1"
+                                                {{ old('status') !== null && old('status') == 1 ? 'selected' : null }}>
+                                                Success</option>
+                                            <option value="2"
+                                                {{ old('status') !== null && old('status') == 2 ? 'selected' : null }}>
+                                                Failed</option>
+                                            <option value="3"
+                                                {{ old('status') !== null && old('status') == 3 ? 'selected' : null }}>
+                                                Refund</option>
                                         </select>
                                         @error('status')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -282,7 +283,8 @@
                                     <div class="col-md-6 program-detail d-none" id="success_date">
                                         <small>Success Date <sup class="text-danger">*</sup></small>
                                         <input type="date" name="success_date" id="" {{ $disabled }}
-                                            class="form-control form-control-sm rounded" value="{{ isset($clientProgram->success_date) ? $clientProgram->success_date : old("success_date") }}">
+                                            class="form-control form-control-sm rounded"
+                                            value="{{ isset($clientProgram->success_date) ? $clientProgram->success_date : old('success_date') }}">
                                         @error('success_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
@@ -290,7 +292,8 @@
                                     <div class="col-md-6 program-detail d-none" id="failed_date">
                                         <small>Failed Date <sup class="text-danger">*</sup></small>
                                         <input type="date" name="failed_date" id="" {{ $disabled }}
-                                            class="form-control form-control-sm rounded" value="{{ isset($clientProgram->failed_date) ? $clientProgram->failed_date : old('failed_date') }}">
+                                            class="form-control form-control-sm rounded"
+                                            value="{{ isset($clientProgram->failed_date) ? $clientProgram->failed_date : old('failed_date') }}">
                                         @error('failed_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
@@ -298,7 +301,8 @@
                                     <div class="col-md-6 program-detail d-none" id="refund_date">
                                         <small>Refund Date <sup class="text-danger">*</sup></small>
                                         <input type="date" name="refund_date" id="" {{ $disabled }}
-                                            class="form-control form-control-sm rounded" value="{{ isset($clientProgram->refund_date) ? $clientProgram->refund_date : old('refund_date') }}">
+                                            class="form-control form-control-sm rounded"
+                                            value="{{ isset($clientProgram->refund_date) ? $clientProgram->refund_date : old('refund_date') }}">
                                         @error('refund_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
@@ -309,29 +313,26 @@
                                         <small>Reason <sup class="text-danger">*</sup></small>
                                         <div class="classReason">
                                             <select name="reason_id" class="select w-100" {{ $disabled }}
-                                                    style="display: none !important; width:100% !important" id="selectReason"
-                                                    onchange="otherOption($(this).val())">
-                                                    <option data-placeholder="true"></option>
-                                                    @foreach ($reasons as $reason)
-                                                        <option value="{{ $reason->reason_id }}" 
-                                                            @if (isset($clientProgram->reason_id) && $clientProgram->reason_id == $reason->reason_id)
-                                                                {{ "selected" }}
+                                                style="display: none !important; width:100% !important" id="selectReason"
+                                                onchange="otherOption($(this).val())">
+                                                <option data-placeholder="true"></option>
+                                                @foreach ($reasons as $reason)
+                                                    <option value="{{ $reason->reason_id }}"
+                                                        @if (isset($clientProgram->reason_id) && $clientProgram->reason_id == $reason->reason_id) {{ 'selected' }}
                                                             @elseif (old('reason_id') == $reason->reason_id)
-                                                                {{ "selected" }}
-                                                            @endif
-                                                            >
-                                                            {{ $reason->reason_name }}
-                                                        </option>
-                                                    @endforeach
-                                                    <option value="other">
-                                                        Other option
+                                                                {{ 'selected' }} @endif>
+                                                        {{ $reason->reason_name }}
                                                     </option>
+                                                @endforeach
+                                                <option value="other">
+                                                    Other option
+                                                </option>
                                             </select>
                                             @error('reason_id')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
-                                        
+
                                         <div class="d-flex align-items-center d-none" id="inputReason">
                                             <input type="text" name="other_reason" {{ $disabled }}
                                                 class="form-control form-control-sm rounded">
@@ -345,7 +346,7 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                         {{-- <input type="text" name="" class="form-control form-control-sm"> --}}
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -377,29 +378,24 @@
                             <div class="col-md-9">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <select name="prog_running_status" id="" class="select w-100" {{ $disabled }}>
+                                        <select name="prog_running_status" id="" class="select w-100"
+                                            {{ $disabled }}>
                                             <option data-placeholder="true"></option>
-                                            <option value="0" 
-                                                @if (isset($clientProgram->prog_running_status) && $clientProgram->prog_running_status == 0)
-                                                    {{ "selected" }}
+                                            <option value="0"
+                                                @if (isset($clientProgram->prog_running_status) && $clientProgram->prog_running_status == 0) {{ 'selected' }}
                                                 @elseif (old('prog_running_status') == 0)
-                                                    {{ "selected" }}
-                                                @endif
-                                                >Not yet</option>
+                                                    {{ 'selected' }} @endif>
+                                                Not yet</option>
                                             <option value="1"
-                                                @if (isset($clientProgram->prog_running_status) && $clientProgram->prog_running_status == 1)
-                                                    {{ "selected" }}
+                                                @if (isset($clientProgram->prog_running_status) && $clientProgram->prog_running_status == 1) {{ 'selected' }}
                                                 @elseif (old('prog_running_status') == 1)
-                                                    {{ "selected" }}
-                                                @endif
-                                                >Ongoing</option>
+                                                    {{ 'selected' }} @endif>
+                                                Ongoing</option>
                                             <option value="2"
-                                                @if (isset($clientProgram->prog_running_status) && $clientProgram->prog_running_status == 2)
-                                                    {{ "selected" }}
+                                                @if (isset($clientProgram->prog_running_status) && $clientProgram->prog_running_status == 2) {{ 'selected' }}
                                                 @elseif (old('prog_running_status') == 2)
-                                                    {{ "selected" }}
-                                                @endif
-                                                >Done</option>
+                                                    {{ 'selected' }} @endif>
+                                                Done</option>
                                         </select>
                                         @error('prog_running_status')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -577,12 +573,10 @@
                                             <option data-placeholder="true"></option>
                                             @foreach ($internalPIC as $pic)
                                                 <option value="{{ $pic->id }}"
-                                                    @if (old('empl_id') == $pic->id)
-                                                        {{ "selected" }}
+                                                    @if (old('empl_id') == $pic->id) {{ 'selected' }}
                                                     @elseif (isset($clientProgram->empl_id) && $clientProgram->empl_id == $pic->id)
-                                                        {{ "selected" }}
-                                                    @endif
-                                                    >{{ $pic->first_name.' '.$pic->last_name }}</option>
+                                                        {{ 'selected' }} @endif>
+                                                    {{ $pic->first_name . ' ' . $pic->last_name }}</option>
                                             @endforeach
                                         </select>
                                         @error('empl_id')
@@ -594,11 +588,11 @@
                         </div>
                         <hr>
                         @if (!$disabled)
-                        <div class="mt-3 text-end">
-                            <button type="submit" class="btn btn-sm btn-primary rounded">
-                                <i class="bi bi-save2 me-2"></i> Submit
-                            </button>
-                        </div>
+                            <div class="mt-3 text-end">
+                                <button type="submit" class="btn btn-sm btn-primary rounded">
+                                    <i class="bi bi-save2 me-2"></i> Submit
+                                </button>
+                            </div>
                         @endif
                     </form>
                 </div>
@@ -630,9 +624,9 @@
 
         $("#main_lead").on('change', function() {
             var lead = $(this).select2().find(":selected").data('lead')
-            
+
             if (lead.includes('All-In Event')) {
-                
+
                 $("#event").removeClass('d-none')
                 $("#edufair").addClass("d-none")
                 $("#kol").addClass("d-none")
@@ -645,7 +639,7 @@
                 $("#kol").addClass("d-none")
                 $("#partner").addClass("d-none")
 
-            } else  if (lead.includes('KOL')) {
+            } else if (lead.includes('KOL')) {
 
                 $("#event").addClass("d-none")
                 $("#edufair").addClass("d-none")
@@ -722,10 +716,11 @@
                     $('#success_mentoring').removeClass('d-none')
                 } else if (programMainProg.includes('Tutoring') || programSubProg.includes('Tutoring')) {
                     $('#success_tutoring').removeClass('d-none')
-                } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg.includes('SAT') || programSubProg.includes('SAT')) {
-                    
+                } else if (programMainProg.includes('ACT') || programSubProg.includes('ACT') || programMainProg.includes(
+                        'SAT') || programSubProg.includes('SAT')) {
+
                     $('#success_sat_act').removeClass('d-none')
-                } 
+                }
 
             } else if (programStatus == 2) { // failed
                 $('#failed_date').removeClass('d-none')
@@ -734,9 +729,8 @@
                 $('#refund_date').removeClass('d-none')
                 $('#reason').removeClass('d-none')
             }
-   
-        }
 
+        }
     </script>
     <script>
         $(document).ready(function() {
@@ -760,37 +754,35 @@
                 @if (old('lead_id') !== NULL)
                     $("#main_lead").select2().val("{{ old('lead_id') }}").trigger('change');
                 @elseif (isset($clientProgram->lead_id))
-                    @if ($clientProgram->lead->main_lead == "KOL")
+                    @if ($clientProgram->lead->main_lead == 'KOL')
                         $("#main_lead").select2().val("kol").trigger('change');
                     @else
                         $("#main_lead").select2().val("{{ $clientProgram->lead_id }}").trigger('change');
-                    @endif                    
+                    @endif
                 @endif
 
-                @if (old('event_id') !== NULL)
+                @if (old('event_id') !== null)
                     $("#event_id").select2().val("{{ old('event_id') }}").trigger('change');
                 @endif
 
-                @if (old('kol_lead_id') !== NULL)
+                @if (old('kol_lead_id') !== null)
                     $("#kol_lead_id").select2().val("{{ old('kol_lead_id') }}").trigger('change');
                 @endif
 
-                @if (old('eduf_id') !== NULL)
+                @if (old('eduf_id') !== null)
                     $("#eduf_id").select2().val("{{ old('eduf_id') }}").trigger('change');
                 @endif
 
-                @if (old('partner_id') !== NULL)
+                @if (old('partner_id') !== null)
                     $("#partner_id").select2().val("{{ old('partner_id') }}").trigger('change');
                 @endif
 
-                @if (old('status') !== NULL)
+                @if (old('status') !== null)
                     $("#program_status").select2().val("{{ (int) old('status') }}").trigger('change');
-                @endif  
+                @endif
 
-                
-                
             }
-            
+
             documentReady();
         })
     </script>

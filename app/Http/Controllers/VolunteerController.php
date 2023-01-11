@@ -29,7 +29,7 @@ class VolunteerController extends Controller
         if ($request->ajax()) {
             return $this->volunteerRepository->getAllVolunteerDataTables();
         }
-        return view('pages.volunteer.index');
+        return view('pages.user.volunteer.index');
     }
 
     // public function data(): JsonResponse
@@ -63,16 +63,15 @@ class VolunteerController extends Controller
 
             DB::rollBack();
             Log::error('Store volunteer failed : ' . $e->getMessage());
-            return Redirect::to('master/volunteer')->withError('Failed to create a new volunteer');
-
+            return Redirect::to('user/volunteer')->withError('Failed to create a new volunteer');
         }
 
-        return Redirect::to('master/volunteer')->withSuccess('Volunteer successfully created');
+        return Redirect::to('user/volunteer')->withSuccess('Volunteer successfully created');
     }
 
     public function create()
     {
-        return view('pages.volunteer.form');
+        return view('pages.user.volunteer.form');
     }
 
     public function edit(Request $request)
@@ -84,7 +83,7 @@ class VolunteerController extends Controller
 
         # put the link to update volunteer form below
         # example
-        return view('pages.volunteer.form')->with(
+        return view('pages.user.volunteer.form')->with(
             [
                 'volunteer' => $volunteer,
             ]
@@ -116,10 +115,10 @@ class VolunteerController extends Controller
 
             DB::rollBack();
             Log::error('Update volunteer failed : ' . $e->getMessage());
-            return Redirect::to('master/volunteer')->withError('Failed to update a volunteer');
+            return Redirect::to('user/volunteer')->withError('Failed to update a volunteer');
         }
 
-        return Redirect::to('master/volunteer')->withSuccess('Volunteer successfully updated');
+        return Redirect::to('user/volunteer')->withSuccess('Volunteer successfully updated');
     }
 
     public function destroy(Request $request)
@@ -135,9 +134,9 @@ class VolunteerController extends Controller
 
             DB::rollBack();
             Log::error('Delete volunteer failed : ' . $e->getMessage());
-            return Redirect::to('master/volunteer')->withError('Failed to delete a volunteer');
+            return Redirect::to('user/volunteer')->withError('Failed to delete a volunteer');
         }
 
-        return Redirect::to('master/volunteer')->withSuccess('Volunteer successfully deleted');
+        return Redirect::to('user/volunteer')->withSuccess('Volunteer successfully deleted');
     }
 }

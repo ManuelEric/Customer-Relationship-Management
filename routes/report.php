@@ -1,13 +1,10 @@
 <?php
 
-use App\Http\Controllers\SchoolController;
-use App\Http\Controllers\SchoolDetailController;
-use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| Report Routes
 |--------------------------------------------------------------------------
 |
 | Here is where you can register web routes for your application. These
@@ -17,17 +14,18 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::get('/', function () {
-    return view('home');
+Route::get('invoice', function () {
+    return view('pages.report.invoice.index');
 });
 
-Route::get('login', function () {
-    return view('auth.login');
+Route::get('partnership', function () {
+    return view('pages.report.partnership.index');
 });
 
-Route::get('dashboard', function () {
-    return view('pages.dashboard.index');
+Route::get('sales', function () {
+    return view('pages.report.sales-tracking.index');
 });
 
-// User 
-Route::resource('user/volunteer', VolunteerController::class);
+Route::get('unpaid', function () {
+    return view('pages.report.unpaid-payment.index');
+});
