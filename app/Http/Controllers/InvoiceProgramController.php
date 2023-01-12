@@ -32,6 +32,7 @@ class InvoiceProgramController extends Controller
     public function index(Request $request)
     {
         $status = $request->get('s') !== NULL ? $request->get('s') : null;
+        // return $this->invoiceProgramRepository->getAllInvoiceProgramDataTables($status);
         if ($request->ajax())
             return $this->invoiceProgramRepository->getAllInvoiceProgramDataTables($status);
 

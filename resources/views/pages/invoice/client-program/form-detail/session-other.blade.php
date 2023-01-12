@@ -29,7 +29,7 @@
             </div>
             <div class="col-md-2 mb-3">
                 <label for="">Session</label>
-                <input type="number" name="session__so" id="session_other_session" {{ $disabled }} value="{{  i }}sset($invoice->session) ? $invoice->session : old('session__so') }}"
+                <input type="number" name="session__so" id="session_other_session" {{ $disabled }} value="{{  isset($invoice->session) ? $invoice->session : old('session__so') }}"
                     class="form-control form-control-sm rounded" oninput="checkSessionOther()">
                 @error('session__so')
                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -37,7 +37,7 @@
             </div>
             <div class="col-md-2 mb-3">
                 <label for="">Duration/Minutes</label>
-                <input type="number" name="duration__so" id="session_other_duration" {{ $disabled }} value="{{  i }}sset($invoice->duration) ? $invoice->duration : old('duration__so') }}"
+                <input type="number" name="duration__so" id="session_other_duration" {{ $disabled }} value="{{  isset($invoice->duration) ? $invoice->duration : old('duration__so') }}"
                     class="form-control form-control-sm rounded" oninput="checkSessionOther()">
                 @error('duration__so')
                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -49,7 +49,7 @@
                     <span class="input-group-text currency-icon" id="basic-addon1">
                         $
                     </span>
-                    <input type="number" name="inv_discount__so" id="session_other_discount" class="form-control" {{ $disabled }} value="{{  i }}sset($invoice->inv_discount) ? $invoice->inv_discount : old('inv_discount__so') }}"
+                    <input type="number" name="inv_discount__so" id="session_other_discount" class="form-control" {{ $disabled }} value="{{  isset($invoice->inv_discount) ? $invoice->inv_discount : old('inv_discount__so') }}"
                         oninput="checkSessionOther()">
                 </div>
                 @error('inv_discount__so')
