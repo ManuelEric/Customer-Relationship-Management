@@ -88,19 +88,6 @@
                                 }
                             }
                         ],
-                        createdRow: function(row, data, index) {
-                            // temporary condition
-                            // while change soon
-                            if (data['date_difference'] <=  3) {
-
-                                $('td', row).addClass('bg-danger');
-                            } else if (data['date_difference'] <= 7) {
-
-                                $('td', row).addClass('bg-warning');
-                            } else {
-                                $('td', row).addClass('bg-info');
-                            }
-                        }
                     })
 
                 });
