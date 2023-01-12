@@ -16,24 +16,24 @@
         <div class="card-body">
             <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == "prospective" ? 'active' : '' }}" aria-current="page"
+                    <a class="nav-link {{ Request::get('st') == 'prospective' ? 'active' : '' }}" aria-current="page"
                         href="{{ url('client/student?st=prospective') }}">Prospective</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == "potential" ? 'active' : '' }}"
+                    <a class="nav-link {{ Request::get('st') == 'potential' ? 'active' : '' }}"
                         href="{{ url('client/student?st=potential') }}">Potential</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == "current" ? 'active' : '' }}"
+                    <a class="nav-link {{ Request::get('st') == 'current' ? 'active' : '' }}"
                         href="{{ url('client/student?st=current') }}">Current</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == "completed" ? 'active' : '' }}"
+                    <a class="nav-link {{ Request::get('st') == 'completed' ? 'active' : '' }}"
                         href="{{ url('client/student?st=completed') }}">Completed</a>
                 </li>
             </ul>
             <style>
-                #clientTable tr td.danger{
+                #clientTable tr td.danger {
                     background: rgb(255, 151, 151)
                 }
             </style>
@@ -125,8 +125,8 @@
                         data: 'parent_name',
                         name: 'parent_name',
                         defaultContent: '-',
-                        orderable:true,
-                        searchable:true,
+                        orderable: true,
+                        searchable: true,
                     },
                     {
                         data: 'parent_phone',
@@ -193,7 +193,7 @@
                     },
                     {
                         data: 'total_score',
-                        className: 'text-primary',
+                        className: 'text-primary text-center',
                     },
                     {
                         data: '',
@@ -204,21 +204,22 @@
                 createdRow: function(row, data, index) {
                     // temporary condition
                     // while change soon
-                    if (data['total_score'] <  2.5) {
-
-                        $('td', row).addClass('bg-danger');
+                    if (data['total_score'] < 2.5) {
+                        $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
+                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Low)');
                     } else if ((data['total_score'] >= 2.5) && (data['total_score'] < 6)) {
-
-                        
+                        $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
+                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Middle)');
                     } else {
-                        $('td', row).addClass('bg-info');
+                        $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
+                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (High)');
                     }
                 }
             });
 
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('client/student') }}/" + data.id ;
+                window.location.href = "{{ url('client/student') }}/" + data.id;
             });
 
             // $('#clientTable tbody').on('click', '.deleteClient ', function() {

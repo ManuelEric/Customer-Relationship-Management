@@ -62,19 +62,18 @@ class ClientStudentController extends Controller
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
         $this->clientProgramRepository = $clientProgramRepository;
     }
-    
+
     public function index(Request $request)
     {
         // $statusClient = $request->get('st');
         // $statusClientCode = $this->getStatusClientCode($statusClient);
         // return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
-        
+
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
             $statusClientCode = $this->getStatusClientCode($statusClient);
             return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
-
         }
 
         return view('pages.client.student.index');
@@ -83,7 +82,7 @@ class ClientStudentController extends Controller
     public function show(Request $request)
     {
         $studentId = $request->route('student');
-        if ($request->ajax()) 
+        if ($request->ajax())
             return $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => $studentId]);
 
         $student = $this->clientRepository->getClientById($studentId);
@@ -151,14 +150,14 @@ class ClientStudentController extends Controller
                     'sch_type',
                     'sch_score',
                 ]);
-    
+
                 $last_id = School::max('sch_id');
                 $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
                 $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
 
                 if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
                     throw new Exception('Failed to store new school', 1);
-                
+
                 # insert school curriculum
                 if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
                     throw new Exception('Failed to store school curriculum', 1);
@@ -170,7 +169,6 @@ class ClientStudentController extends Controller
                 # create index sch_id to student details
                 # filled with a new school id that was inserted before
                 $studentDetails['sch_id'] = $school->sch_id;
-
             }
 
 
@@ -219,7 +217,7 @@ class ClientStudentController extends Controller
                 if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
                     throw new Exception('Failed to store relation between student and parent', 4);
             }
-            
+
 
             # case 5
             # create interested program
@@ -227,14 +225,14 @@ class ClientStudentController extends Controller
             # then skip this case
             if (isset($request->prog_id) && count($request->prog_id) > 0) {
 
-                for ($i = 0 ; $i < count($request->prog_id) ; $i++) {
+                for ($i = 0; $i < count($request->prog_id); $i++) {
                     $interestProgramDetails[] = [
                         'prog_id' => $request->prog_id[$i],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ];
                 }
-    
+
                 if (!$this->clientRepository->createInterestProgram($newStudentId, $interestProgramDetails))
                     throw new Exception('Failed to store interest program', 5);
             }
@@ -247,7 +245,7 @@ class ClientStudentController extends Controller
 
                 # hari senin lanjutin utk insert destination countries
                 # dan hubungin score nya melalui client view
-                for ($i = 0 ; $i < count($request->st_abrcountry) ; $i++) {
+                for ($i = 0; $i < count($request->st_abrcountry); $i++) {
                     $destinationCountryDetails[] = [
                         'tag_id' => $this->tagRepository->getTagById($request->st_abrcountry[$i])->id,
                         'created_at' => Carbon::now(),
@@ -265,14 +263,14 @@ class ClientStudentController extends Controller
             # then skip this case
             if (isset($request->st_abruniv) && count($request->st_abruniv) > 0) {
 
-                for ($i = 0 ; $i < count($request->st_abruniv) ; $i++) {
+                for ($i = 0; $i < count($request->st_abruniv); $i++) {
                     $interestUnivDetails[] = [
                         'univ_id' => $request->st_abruniv[$i],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ];
                 }
-    
+
                 if (!$this->clientRepository->createInterestUniversities($newStudentId, $interestUnivDetails))
                     throw new Exception('Failed to store interest universities', 6);
             }
@@ -284,21 +282,20 @@ class ClientStudentController extends Controller
             # then skip this case
             if (isset($request->st_abrmajor) && count($request->st_abrmajor) > 0) {
 
-                for ($i = 0 ; $i < count($request->st_abrmajor) ; $i++) {
+                for ($i = 0; $i < count($request->st_abrmajor); $i++) {
                     $interestMajorDetails[] = [
                         'major_id' => $request->st_abrmajor[$i],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ];
                 }
-    
+
                 if (!$this->clientRepository->createInterestMajor($newStudentId, $interestMajorDetails))
                     throw new Exception('Failed to store interest major', 7);
             }
 
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -331,11 +328,10 @@ class ClientStudentController extends Controller
                 case 7:
                     Log::error('Store interest major failed : ' . $e->getMessage());
                     break;
-                }
-                
+            }
+
             Log::error('Store a new student failed : ' . $e->getMessage());
             return Redirect::to('client/student/create')->withError($e->getMessage());
-
         }
 
         return Redirect::to('client/student?st=prospective')->withSuccess('A new student has been registered.');
@@ -475,7 +471,7 @@ class ClientStudentController extends Controller
                     'sch_type',
                     'sch_score',
                 ]);
-    
+
                 $last_id = School::max('sch_id');
                 $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
                 $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
@@ -486,7 +482,7 @@ class ClientStudentController extends Controller
                 # insert school curriculum
                 if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
                     throw new Exception('Failed to store school curriculum', 1);
-                
+
 
                 # remove field sch_id from student detail if exist
                 unset($studentDetails['sch_id']);
@@ -494,7 +490,6 @@ class ClientStudentController extends Controller
                 # create index sch_id to student details
                 # filled with a new school id that was inserted before
                 $studentDetails['sch_id'] = $school->sch_id;
-
             }
 
 
@@ -546,7 +541,7 @@ class ClientStudentController extends Controller
                         throw new Exception('Failed to store relation between student and parent', 4);
                 }
             }
-            
+
 
             # case 5
             # create interested program
@@ -555,7 +550,7 @@ class ClientStudentController extends Controller
             if (isset($request->prog_id) && count($request->prog_id) > 0) {
 
                 $interestProgramDetails = $request->prog_id;
-    
+
                 if (!$this->clientRepository->createInterestProgram($studentId, $interestProgramDetails))
                     throw new Exception('Failed to store interest program', 5);
             }
@@ -581,7 +576,7 @@ class ClientStudentController extends Controller
             if (isset($request->st_abruniv) && count($request->st_abruniv) > 0) {
 
                 $interestUnivDetails = $request->st_abruniv;
-    
+
                 if (!$this->clientRepository->createInterestUniversities($studentId, $interestUnivDetails))
                     throw new Exception('Failed to store interest universities', 6);
             }
@@ -594,14 +589,13 @@ class ClientStudentController extends Controller
             if (isset($request->st_abrmajor) && count($request->st_abrmajor) > 0) {
 
                 $interestMajorDetails = $request->st_abrmajor;
-    
+
                 if (!$this->clientRepository->createInterestMajor($studentId, $interestMajorDetails))
                     throw new Exception('Failed to store interest major', 7);
             }
 
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -634,14 +628,13 @@ class ClientStudentController extends Controller
                 case 7:
                     Log::error('Update interest major failed : ' . $e->getMessage());
                     break;
-                }
-                
-            Log::error('Update a student failed : ' . $e->getMessage());
-            return Redirect::to('client/student/'.$studentId.'/edit')->withError($e->getMessage());
+            }
 
+            Log::error('Update a student failed : ' . $e->getMessage());
+            return Redirect::to('client/student/' . $studentId . '/edit')->withError($e->getMessage());
         }
 
-        return Redirect::to('client/student/'.$studentId)->withSuccess('A student\'s profile has been updated.');
+        return Redirect::to('client/student/' . $studentId)->withSuccess('A student\'s profile has been updated.');
     }
 
     public function updateStatus(Request $request)
@@ -665,7 +658,6 @@ class ClientStudentController extends Controller
 
             $this->clientRepository->updateActiveStatus($studentId, $newStatus);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -676,7 +668,6 @@ class ClientStudentController extends Controller
                     'message' => $e->getMessage()
                 ]
             );
-
         }
 
         return response()->json(
