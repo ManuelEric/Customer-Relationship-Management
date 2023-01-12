@@ -27,8 +27,10 @@
             </ul>
             @if ($status == 'needed')
                 @include('pages.invoice.client-program.detail.invoice-needed')
-            @else
+            @elseif ($status == 'list')
                 @include('pages.invoice.client-program.detail.invoice-list')
+            @elseif ($status == 'reminder')
+                @include('pages.invoice.client-program.detail.invoice-reminder')
             @endif
 
         </div>

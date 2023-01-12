@@ -311,6 +311,22 @@ class ClientProgramController extends Controller
 
                 }
 
+                if (in_array($progId, $this->admission_prog_list)) {
+
+                    $clientProgramDetails['main_mentor'] = $request->main_mentor;
+                    $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
+        
+                } elseif (in_array($progId, $this->tutoring_prog_list)) {
+        
+                    $clientProgramDetails['tutor_id'] = $request->tutor_id;
+        
+                } elseif (in_array($progId, $this->satact_prog_list)) {
+        
+                    $clientProgramDetails['tutor_1'] = $request->tutor_1;
+                    $clientProgramDetails['tutor_2'] = $request->tutor_2;
+        
+                }
+
                 break;
 
             # when program status is failed
@@ -328,22 +344,6 @@ class ClientProgramController extends Controller
                 $clientProgramDetails['reason_id'] = $request->reason_id;
                 $clientProgramDetails['other_reason'] = $request->other_reason;
                 break;
-        }
-
-        if (in_array($progId, $this->admission_prog_list)) {
-
-            $clientProgramDetails['main_mentor'] = $request->main_mentor;
-            $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
-
-        } elseif (in_array($progId, $this->tutoring_prog_list)) {
-
-            $clientProgramDetails['tutor_id'] = $request->tutor_id;
-
-        } elseif (in_array($progId, $this->satact_prog_list)) {
-
-            $clientProgramDetails['tutor_1'] = $request->tutor_1;
-            $clientProgramDetails['tutor_2'] = $request->tutor_2;
-
         }
 
         DB::beginTransaction();
