@@ -47,19 +47,19 @@ class ClientProgramController extends Controller
         $this->clientProgramRepository = $clientProgramRepository;
         $this->clientEventRepository = $clientEventRepository;
 
-        $this->admission_prog_list = Program::whereHas('main_prog', function($query) {
-                $query->where('prog_name', 'Admissions Mentoring');
-            })->orWhereHas('sub_prog', function ($query) {
-                $query->where('sub_prog_name', 'Admissions Mentoring');
-            })->pluck('prog_id')->toArray();
+        $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
+            $query->where('prog_name', 'Admissions Mentoring');
+        })->orWhereHas('sub_prog', function ($query) {
+            $query->where('sub_prog_name', 'Admissions Mentoring');
+        })->pluck('prog_id')->toArray();
 
         $this->tutoring_prog_list = Program::whereHas('sub_prog', function ($query) {
-                $query->where('sub_prog_name', 'like', '%Tutoring%');
-            })->pluck('prog_id')->toArray();
+            $query->where('sub_prog_name', 'like', '%Tutoring%');
+        })->pluck('prog_id')->toArray();
 
         $this->satact_prog_list = Program::whereHas('sub_prog', function ($query) {
-                $query->where('sub_prog_name', 'like', '%SAT%')->orWhere('sub_prog_name', 'like', '%ACT%');
-            })->pluck('prog_id')->toArray();
+            $query->where('sub_prog_name', 'like', '%SAT%')->orWhere('sub_prog_name', 'like', '%ACT%');
+        })->pluck('prog_id')->toArray();
     }
 
     public function index(Request $request)
@@ -72,29 +72,29 @@ class ClientProgramController extends Controller
         $data['leadId'] = $request->get('conversion_lead') ?? null;
 
         if ($request->get('program_status')) {
-            for ($i = 0 ; $i < count($request->get('program_status')); $i++) {
+            for ($i = 0; $i < count($request->get('program_status')); $i++) {
                 $status[] = Crypt::decrypt($request->get('program_status')[$i]);
             }
         }
         $data['status'] = $status;
 
         if ($request->get('mentor_tutor')) {
-            for ($i = 0 ; $i < count($request->get('mentor_tutor')); $i++) {
+            for ($i = 0; $i < count($request->get('mentor_tutor')); $i++) {
                 $userId[] = Crypt::decrypt($request->get('mentor_tutor')[$i]);
             }
         }
         $data['userId'] = $userId;
 
         if ($request->get('pic')) {
-            for ($i = 0 ; $i < count($request->get('pic')); $i++) {
+            for ($i = 0; $i < count($request->get('pic')); $i++) {
                 $emplId[] = Crypt::decrypt($request->get('pic')[$i]);
             }
         }
         $data['emplId'] = $emplId;
         $data['startDate'] = $request->get('start_date') ?? null;
         $data['endDate'] = $request->get('end_date') ?? null;
-        
-        if ($request->ajax()) { 
+
+        if ($request->ajax()) {
             return $this->clientProgramRepository->getAllClientProgramDataTables($data);
         }
 
@@ -130,7 +130,7 @@ class ClientProgramController extends Controller
         $b2cprograms = $this->programRepository->getAllProgramByType("B2C");
         $b2bb2cprograms = $this->programRepository->getAllProgramByType("B2B/B2C");
         $programs = $b2cprograms->merge($b2bb2cprograms);
-        
+
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
         $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentId);
@@ -174,7 +174,7 @@ class ClientProgramController extends Controller
         $b2cprograms = $this->programRepository->getAllProgramByType("B2C");
         $b2bb2cprograms = $this->programRepository->getAllProgramByType("B2B/B2C");
         $programs = $b2cprograms->merge($b2bb2cprograms);
-        
+
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
         $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentId);
@@ -210,7 +210,7 @@ class ClientProgramController extends Controller
     public function store(StoreClientProgramRequest $request)
     {
         # p means program from interested program
-        $query = $request->queryP !== NULL ? "?p=".$request->queryP : null;
+        $query = $request->queryP !== NULL ? "?p=" . $request->queryP : null;
 
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
@@ -246,26 +246,24 @@ class ClientProgramController extends Controller
 
         switch ($status) {
 
-            # when program status is pending
-            case 0: 
+                # when program status is pending
+            case 0:
 
                 # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
-                    
+
                     # add additional values
                     $clientProgramDetails['initconsult_date'] = $request->pend_initconsult_date;
                     $clientProgramDetails['assessmentsent_date'] = $request->pend_assessmentsent_date;
-
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
-    
+
                     # add additional values
                     $clientProgramDetails['trial_date'] = $request->pend_trial_date;
-
                 }
 
                 break;
 
-            # when program status is active
+                # when program status is active
             case 1:
                 # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
@@ -284,10 +282,8 @@ class ClientProgramController extends Controller
                     // $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-                    
-
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
-    
+
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['trial_date'] = $request->trial_date;
@@ -296,7 +292,6 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
                     // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-
                 } elseif (in_array($progId, $this->satact_prog_list)) {
 
                     # add additional values
@@ -308,37 +303,33 @@ class ClientProgramController extends Controller
                     // $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     // $clientProgramDetails['tutor_2'] = $request->tutor_2;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-
                 }
 
                 if (in_array($progId, $this->admission_prog_list)) {
 
                     $clientProgramDetails['main_mentor'] = $request->main_mentor;
                     $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
-        
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
-        
+
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;
-        
                 } elseif (in_array($progId, $this->satact_prog_list)) {
-        
+
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     $clientProgramDetails['tutor_2'] = $request->tutor_2;
-        
                 }
 
                 break;
 
-            # when program status is failed
+                # when program status is failed
             case 2:
-                
+
                 $clientProgramDetails['failed_date'] = $request->failed_date;
                 $clientProgramDetails['reason_id'] = $request->reason_id;
                 $clientProgramDetails['other_reason'] = $request->other_reason;
-                
+
                 break;
-                
-            # when program status is refund
+
+                # when program status is refund
             case 3:
                 $clientProgramDetails['refund_date'] = $request->failed_date;
                 $clientProgramDetails['reason_id'] = $request->reason_id;
@@ -353,8 +344,8 @@ class ClientProgramController extends Controller
 
             switch ($clientProgramDetails['status']) {
 
-                # if client program has been submitted 
-                # then change status client to potential
+                    # if client program has been submitted 
+                    # then change status client to potential
                 case 0: # pending
 
                     $this->clientRepository->updateClient($studentId, ['st_statuscli' => 1]);
@@ -370,9 +361,9 @@ class ClientProgramController extends Controller
 
                     # when program running status was 2 which mean done
                     # then check if client has other program running or done
-                    if ($clientProgramDetails['prog_running_status'] != 2) 
+                    if ($clientProgramDetails['prog_running_status'] != 2)
                         $this->clientRepository->updateClient($studentId, ['st_statuscli' => 2]);
-                    
+
 
                     # when all program were done
                     # change status client to completed (3)
@@ -380,21 +371,18 @@ class ClientProgramController extends Controller
                         $this->clientRepository->updateClient($studentId, ['st_statuscli' => 3]);
 
                     break;
-
             }
-            
-            DB::commit();
 
+            DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Create a student program failed : ' . $e->getMessage());
 
-            return Redirect::to('client/student/'.$studentId.'/program/create'.$query)->withError($e->getMessage());
-            
+            return Redirect::to('client/student/' . $studentId . '/program/create' . $query)->withError($e->getMessage());
         }
 
-        return Redirect::to('client/student/'.$studentId)->withSuccess('A new program has been submitted for '.$student->fullname);
+        return Redirect::to('client/student/' . $studentId)->withSuccess('A new program has been submitted for ' . $student->fullname);
     }
 
     public function edit(Request $request)
@@ -409,7 +397,7 @@ class ClientProgramController extends Controller
         $b2cprograms = $this->programRepository->getAllProgramByType("B2C");
         $b2bb2cprograms = $this->programRepository->getAllProgramByType("B2B/B2C");
         $programs = $b2cprograms->merge($b2bb2cprograms);
-        
+
         # main leads
         $leads = $this->leadRepository->getAllMainLead();
         $clientEvents = $this->clientEventRepository->getAllClientEventByClientId($studentId);
@@ -469,25 +457,25 @@ class ClientProgramController extends Controller
 
             case "LS004": #All-In Event
                 $clientProgramDetails['eduf_lead_id'] = null;
-                $clientProgramDetails['kol_lead_id'] = null;
+                // $clientProgramDetails['kol_lead_id'] = null;
                 $clientProgramDetails['partner_id'] = null;
                 break;
-                
+
             case "LS015": #ALL-In Partners
                 $clientProgramDetails['eduf_lead_id'] = null;
-                $clientProgramDetails['kol_lead_id'] = null;
+                // $clientProgramDetails['kol_lead_id'] = null;
                 $clientProgramDetails['clientevent_id'] = null;
                 break;
 
             case "LS018": #External Edufair
                 $clientProgramDetails['partner_id'] = null;
-                $clientProgramDetails['kol_lead_id'] = null;
+                // $clientProgramDetails['kol_lead_id'] = null;
                 $clientProgramDetails['clientevent_id'] = null;
                 break;
-                
+
             case "kol": #External Edufair
                 $clientProgramDetails['partner_id'] = null;
-                $clientProgramDetails['eduf_lead_id'] = null;
+                // $clientProgramDetails['eduf_lead_id'] = null;
                 $clientProgramDetails['clientevent_id'] = null;
                 break;
         }
@@ -502,31 +490,28 @@ class ClientProgramController extends Controller
 
             unset($clientProgramDetails['lead_id']);
             $clientProgramDetails['lead_id'] = $request->kol_lead_id;
-        
         }
 
         switch ($status) {
 
-            # when program status is pending
-            case 0: 
+                # when program status is pending
+            case 0:
 
                 # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
-                    
+
                     # add additional values
                     $clientProgramDetails['initconsult_date'] = $request->pend_initconsult_date;
                     $clientProgramDetails['assessmentsent_date'] = $request->pend_assessmentsent_date;
-
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
-    
+
                     # add additional values
                     $clientProgramDetails['trial_date'] = $request->pend_trial_date;
-
                 }
 
                 break;
 
-            # when program status is active
+                # when program status is active
             case 1:
                 # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
@@ -545,10 +530,8 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-                    
-
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
-    
+
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['trial_date'] = $request->trial_date;
@@ -557,7 +540,6 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-
                 } elseif (in_array($progId, $this->satact_prog_list)) {
 
                     # add additional values
@@ -569,21 +551,20 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     $clientProgramDetails['tutor_2'] = $request->tutor_2;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-
                 }
 
                 break;
 
-            # when program status is failed
+                # when program status is failed
             case 2:
-                
+
                 $clientProgramDetails['failed_date'] = $request->failed_date;
                 $clientProgramDetails['reason_id'] = $request->reason_id;
                 $clientProgramDetails['other_reason'] = $request->other_reason;
-                
+
                 break;
-                
-            # when program status is refund
+
+                # when program status is refund
             case 3:
                 $clientProgramDetails['refund_date'] = $request->failed_date;
                 $clientProgramDetails['reason_id'] = $request->reason_id;
@@ -598,8 +579,8 @@ class ClientProgramController extends Controller
 
             switch ($clientProgramDetails['status']) {
 
-                # if client program has been submitted 
-                # then change status client to potential
+                    # if client program has been submitted 
+                    # then change status client to potential
                 case 0: # pending
 
                     $this->clientRepository->updateClient($studentId, ['st_statuscli' => 1]);
@@ -621,7 +602,7 @@ class ClientProgramController extends Controller
 
                     # when all program were done
                     # change status client to completed (3)
-                    
+
                     if ((int) $clientProgramDetails['prog_running_status'] == 2) {
 
                         if ($this->clientRepository->checkAllProgramStatus($studentId) == "completed")
@@ -629,19 +610,16 @@ class ClientProgramController extends Controller
                     }
 
                     break;
-
             }
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update a student program failed : ' . $e->getMessage());
-            return Redirect::to('client/student/'.$studentId.'/program/'.$clientProgramId.'/edit')->withError($e->getMessage());
-            
+            return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId . '/edit')->withError($e->getMessage());
         }
 
-        return Redirect::to('client/student/'.$studentId.'/program/'.$clientProgramId)->withSuccess('A program has been updated for '.$student->fullname);
+        return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withSuccess('A program has been updated for ' . $student->fullname);
     }
 
     public function destroy(Request $request)
@@ -653,18 +631,14 @@ class ClientProgramController extends Controller
         try {
 
             $this->clientProgramRepository->deleteClientProgram($clientProgramId);
-            DB::commit();           
-
+            DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete client program failed : ' . $e->getMessage());
             return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withError('Failed to delete client program');
-
         }
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('Client program has been deleted');
-
     }
-
 }

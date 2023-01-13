@@ -44,10 +44,9 @@
                     @endif
                 </div>
             </div>
+            @include('pages.program.client-program.detail.refund')
 
             @include('pages.program.client-program.detail.client')
-
-            @include('pages.program.client-program.detail.refund')
 
             @if (isset($clientProgram))
                 @include('pages.program.client-program.detail.plan-followup')
@@ -604,7 +603,6 @@
 
     <script>
         function otherOption(value) {
-
             if (value == 'other') {
                 $('.classReason').addClass('d-none')
                 $('#inputReason').removeClass('d-none')
@@ -758,6 +756,8 @@
             }
 
         }
+
+        changeProgramStatus()
     </script>
     <script>
         $(document).ready(function() {

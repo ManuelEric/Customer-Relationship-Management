@@ -13,7 +13,8 @@
                 <div class="row mb-2 ">
                     <div class="col-md-6">
                         <small>Initial Consult Date <sup class="text-danger">*</sup></small>
-                        <input type="date" name="initconsult_date" {{ $disabled }} value="{{ isset($clientProgram->initconsult_date) ? $clientProgram->initconsult_date : old('initconsult_date') }}"
+                        <input type="date" name="initconsult_date" {{ $disabled }}
+                            value="{{ isset($clientProgram->initconsult_date) ? $clientProgram->initconsult_date : old('initconsult_date') }}"
                             class="form-control form-control-sm rounded">
                         @error('initconsult_date')
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -21,7 +22,8 @@
                     </div>
                     <div class="col-md-6">
                         <small>Initial Assessment Sent <sup class="text-danger">*</sup></small>
-                        <input type="date" name="assessmentsent_date" {{ $disabled }} value="{{ isset($clientProgram->assessmentsent_date) ? $clientProgram->assessmentsent_date : old('assessmentsent_date') }}"
+                        <input type="date" name="assessmentsent_date" {{ $disabled }}
+                            value="{{ isset($clientProgram->assessmentsent_date) ? $clientProgram->assessmentsent_date : old('assessmentsent_date') }}"
                             class="form-control form-control-sm rounded">
                         @error('assessmentsent_date')
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -32,7 +34,8 @@
                 <div class="row mb-2 ">
                     <div class="col-md-12 mb-2">
                         <small>End Date <sup class="text-danger">*</sup></small>
-                        <input type="date" name="mentoring_prog_end_date" {{ $disabled }} value="{{ isset($clientProgram->prog_end_date) ? $clientProgram->prog_end_date : old('prog_end_date') }}"
+                        <input type="date" name="mentoring_prog_end_date" {{ $disabled }}
+                            value="{{ isset($clientProgram->prog_end_date) ? $clientProgram->prog_end_date : old('prog_end_date') }}"
                             class="form-control form-control-sm rounded">
                         @error('mentoring_prog_end_date')
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -40,7 +43,8 @@
                     </div>
                     <div class="col-md-6 mb-2">
                         <small>Total Universities <sup class="text-danger">*</sup></small>
-                        <input type="number" name="total_uni" {{ $disabled }} value="{{ isset($clientProgram->total_uni) ? $clientProgram->total_uni : old('total_uni') }}"
+                        <input type="number" name="total_uni" {{ $disabled }}
+                            value="{{ isset($clientProgram->total_uni) ? $clientProgram->total_uni : old('total_uni') }}"
                             class="form-control form-control-sm rounded">
                         @error('total_uni')
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -48,8 +52,9 @@
                     </div>
                     <div class="col-md-6 mb-2">
                         <small>Total Dollar <sup class="text-danger">*</sup></small>
-                        <input type="number" name="total_foreign_currency" {{ $disabled }} value="{{ isset($clientProgram->total_foreign_currency) ? $clientProgram->total_foreign_currency : old('total_foreign_currency') }}"
-                            class="form-control form-control-sm rounded">
+                        <input type="number" name="total_foreign_currency" {{ $disabled }}
+                            value="{{ isset($clientProgram->total_foreign_currency) ? $clientProgram->total_foreign_currency : old('total_foreign_currency') }}"
+                            class="form-control form-control-sm rounded" id="tot_usd" oninput="calculatePrice()">
                         @error('total_foreign_currency')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
@@ -57,15 +62,17 @@
                     </div>
                     <div class="col-md-6 mb-2">
                         <small>Kurs Dollar-Rupiah <sup class="text-danger">*</sup></small>
-                        <input type="number" name="foreign_currency_exchange" {{ $disabled }} value="{{ isset($clientProgram->foreign_currency_exchange) ? $clientProgram->foreign_currency_exchange : old('foreign_currency_exchange') }}"
-                            class="form-control form-control-sm rounded">
+                        <input type="number" name="foreign_currency_exchange" {{ $disabled }}
+                            value="{{ isset($clientProgram->foreign_currency_exchange) ? $clientProgram->foreign_currency_exchange : old('foreign_currency_exchange') }}"
+                            class="form-control form-control-sm rounded" oninput="calculatePrice()" id="kurs_rate">
                         @error('foreign_currency_exchange')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
                     <div class="col-md-6 mb-2">
                         <small>Total Rupiah <sup class="text-danger">*</sup></small>
-                        <input type="number" name="total_idr" id="" {{ $disabled }} value="{{ isset($clientProgram->total_idr) ? $clientProgram->total_idr : old('total_idr') }}"
+                        <input type="number" name="total_idr" id="tot_idr" {{ $disabled }}
+                            value="{{ isset($clientProgram->total_idr) ? $clientProgram->total_idr : old('total_idr') }}"
                             class="form-control form-control-sm rounded">
                         @error('total_idr')
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -115,10 +122,10 @@
                         <small>Installment Plan</small>
                         <textarea name="installment_notes" {{ $disabled }}>
                             @if (old('installment_notes'))
-                                {{ old('installment_notes') }}
-                            @elseif (isset($clientProgram->installment_notes))
-                                {{ $clientProgram->installment_notes }}
-                            @endif
+{{ old('installment_notes') }}
+@elseif (isset($clientProgram->installment_notes))
+{{ $clientProgram->installment_notes }}
+@endif
                         </textarea>
                         @error('installment_notes')
                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -129,3 +136,12 @@
         </div>
     </div>
 </div>
+
+<script>
+    function calculatePrice() {
+        let tot_usd = $('#tot_usd').val()
+        let kurs = $('#kurs_rate').val()
+        let tot = tot_usd * kurs
+        $('#tot_idr').val(tot)
+    }
+</script>
