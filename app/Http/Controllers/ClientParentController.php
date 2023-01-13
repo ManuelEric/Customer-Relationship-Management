@@ -465,12 +465,19 @@ class ClientParentController extends Controller
             'st_note',
         ]);
 
+
         $parentDetails['first_name'] = $request->pr_firstname;
         $parentDetails['last_name'] = $request->pr_lastname;
         $parentDetails['mail'] = $request->pr_mail;
         $parentDetails['phone'] = $request->pr_phone;
         $parentDetails['dob'] = $request->pr_dob;
         $parentDetails['insta'] = $request->pr_insta;
+        unset($parentDetails['pr_firstname']);
+        unset($parentDetails['pr_lastname']);
+        unset($parentDetails['pr_mail']);
+        unset($parentDetails['pr_phone']);
+        unset($parentDetails['pr_dob']);
+        unset($parentDetails['pr_insta']);
 
         // $parentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
         $childrenId = $request->child_id;
@@ -486,6 +493,7 @@ class ClientParentController extends Controller
             unset($parentDetails['lead_id']);
             $parentDetails['lead_id'] = $request->kol_lead_id;
         }
+        unset($parentDetails['kol_lead_id']);
 
         $studentDetails = [
             'first_name' => $request->first_name,

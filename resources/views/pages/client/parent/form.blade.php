@@ -633,7 +633,7 @@
         })
 
         const anotherDocument = () => {
-            @if (isset($parent->childrens))
+            @if (isset($parent->childrens) && count($parent->childrens) > 0)
                 var st_abruniv = new Array();
                 @foreach ($parent->childrens()->first()->interestUniversities as $university)
                     st_abruniv.push("{{ $university->univ_id }}")
@@ -714,7 +714,7 @@
                     $("#chName").select2().val("{{ old('child_id') }}").trigger('change')
                 @endif
 
-                @if (isset($parent->childrens))
+                @if (isset($parent->childrens) && count($parent->childrens) > 0)
                     var child_id = new Array()
                     @foreach ($parent->childrens as $children)
                         child_id.push("{{ $children->id }}")
@@ -745,13 +745,13 @@
                     @endif
                 @endif
 
-                @if (isset($parent->childrens))
+                @if (isset($parent->childrens) && count($parent->childrens) > 0)
                     $("#year").select2().val("{{ $parent->childrens()->first()->st_abryear }}").trigger('change')
                 @elseif (old('st_abryear') !== NULL)
                     $("#year").select2().val("{{ old('st_abryear') }}").trigger('change')
                 @endif
                 
-                @if (isset($parent->childrens))
+                @if (isset($parent->childrens) && count($parent->childrens) > 0)
                     var st_abrcountry = new Array();
                     @foreach ($parent->childrens()->first()->destinationCountries as $country)
                         st_abrcountry.push("{{ $country->id }}")
@@ -769,7 +769,7 @@
 
                 @endif
 
-                @if (isset($parent->childrens))
+                @if (isset($parent->childrens) && count($parent->childrens) > 0)
                     var st_abrmajor = new Array()
                     @foreach ($parent->childrens()->first()->interestMajor as $major)
                         st_abrmajor.push("{{ $major->id }}")

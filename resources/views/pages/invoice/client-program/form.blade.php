@@ -74,14 +74,12 @@
                         </h6>
                     </div>
                     <div class="">
-                        @if (isset($invoice))
-                            @if (!isset($invoice->invoiceDetail))
+                        @if (isset($invoice) && count($invoice->receipt) == 0 && $invoice->inv_paymentmethod == "Full Payment")
                             <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
-                            @endif
                         @endif
-                        @if (isset($invoice->receipt))
+                        @if (count($invoice->receipt) > 0 && $invoice->inv_paymentmethod == "Full Payment")
                             <button class="btn btn-sm btn-outline-warning py-1">
                                 <i class="bi bi-eye"></i> View Receipt
                             </button>
