@@ -115,9 +115,10 @@ class ClientParentController extends Controller
 
     public function store(StoreClientParentRequest $request)
     {
-        $qChildrenId = isset($request->queryChildId) ? $request->queryChildId : null;
-        $qClientProgId = isset($request->queryClientProgId) ? $request->queryClientProgId : null;
-        $query = isset($qChildrenId) ? "?child=".$qChildrenId.'&client_prog='.$qClientProgId : null;
+        $qChildrenId = isset($request->queryChildId) ? "?child=".$request->queryChildId : null;
+        $qClientProgId = isset($request->queryClientProgId) ? "&client_prog=".$request->queryClientProgId : null;
+        
+        $query = $qChildrenId.$qClientProgId;
 
         $parentDetails = $request->only([
             'pr_firstname',
@@ -375,7 +376,12 @@ class ClientParentController extends Controller
         }
         
         if ($query != NULL) {
-            return Redirect::to('client/student/'.$qChildrenId.'/program/'.$qClientProgId)->withSuccess("Parent Information has been added.");
+            if ($qChildrenId != NULL && $qClientProgId == NULL)
+                $link = "client/student/".$request->queryChildId."/program/create/";
+            elseif ($qChildrenId != NULL && $qClientProgId != NULL)
+                $link = 'client/student/'.$request->queryChildId.'/program/'.$request->queryClientProgId;
+
+            return Redirect::to($link)->withSuccess("Parent Information has been added.");
         }
 
         return Redirect::to('client/parent')->withSuccess('A new parent has been registered.');

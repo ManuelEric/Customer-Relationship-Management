@@ -98,25 +98,32 @@ class StoreClientProgramRequest extends FormRequest
             # success
             case 1:
                 
-                if (in_array($this->input('prog_id'), $admission_prog_id))
+                if (in_array($this->input('prog_id'), $admission_prog_id)) {
+
                     $rules = $this->store_admission_success();
-                elseif (in_array($this->input('prog_id'), $tutoring_prog_id))
+
+                    $rules['status'] = [
+                        'required',
+                        'in:0,1,2,3',
+                        function ($attribute, $value, $fail) {
+                            $studentId = $this->route('student');
+                            $student = UserClient::find($studentId);
+
+                            if (($student->mail == NULL || $student->mail == '') && ($student->phone == NULL || $studnet->phone == ''))
+                                $fail('Not able change status to success. Please complete student\'s email and phone number.');
+    
+                            if ($student->parents()->count() == 0)
+                                $fail('Not able change status to success. Please complete the parent\'s information');
+    
+                        }
+                    ];
+
+                } elseif (in_array($this->input('prog_id'), $tutoring_prog_id))
                     $rules = $this->store_tutoring_success();
                 elseif (in_array($this->input('prog_id'), $satact_prog_id))
                     $rules = $this->store_satact_success();
 
-                $rules['status'] = [
-                    'required',
-                    'in:0,1,2,3',
-                    function ($attribute, $value, $fail) {
-                        $studentId = $this->route('student');
-                        $student = UserClient::find($studentId);
-
-                        if ($student->parents()->count() == 0)
-                            $fail('Not able change status to success. Please complete the parent\'s information');
-
-                    }
-                ];
+                
                 break;
 
             # failed
