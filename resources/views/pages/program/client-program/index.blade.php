@@ -303,7 +303,7 @@
 
             $('#programTable tbody').on('click', '.showClientProgram ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('client/student') }}/" + data.client_id + "/program/" + data.clientprog_id + "?menu=program";
+                window.location.href = "{{ url('client/student') }}/" + data.client_id + "/program/" + data.clientprog_id;
             });
 
             // $('#programTable tbody').on('click', '.deleteEvent ', function() {

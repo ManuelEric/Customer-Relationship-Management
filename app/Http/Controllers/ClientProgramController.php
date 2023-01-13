@@ -120,7 +120,11 @@ class ClientProgramController extends Controller
 
     public function show(Request $request)
     {
-        $studentId = $request->route('student');
+        if ($request->route('student') !== null)
+            $studentId = $request->route('student');
+        elseif ($request->route('client') !== null)
+            $studentId = $request->route('client');
+        // $studentId = isset($request->route('student')) ? $request->route('student') : isset($request->route('client')) ? $request->route('client') : null;
         $clientProgramId = $request->route('program');
 
         $student = $this->clientRepository->getClientById($studentId);
