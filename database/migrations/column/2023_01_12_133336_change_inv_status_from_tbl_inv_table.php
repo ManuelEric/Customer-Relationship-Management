@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('tbl_client_event', function (Blueprint $table) {
-            $table->date('joined_date')->nullable()->after('status');
+        Schema::table('tbl_inv', function (Blueprint $table) {
+            $table->integer('inv_status')->comment('1: success, 2: refund')->default(1)->change();
         });
     }
 
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('tbl_client_event', function (Blueprint $table) {
+        Schema::table('tbl_inv', function (Blueprint $table) {
             //
         });
     }

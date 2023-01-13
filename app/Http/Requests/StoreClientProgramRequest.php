@@ -186,6 +186,7 @@ class StoreClientProgramRequest extends FormRequest
                         },
                     ],
                     'refund_date' => 'required',
+                    'refund_notes' => 'nullable',
                     'reason_id' => 'required_if:other_reason,null',
                     'other_reason' => 'required_if:reason_id,=,null'
                 ];
@@ -220,7 +221,7 @@ class StoreClientProgramRequest extends FormRequest
             'meeting_notes' => 'nullable',
             'status' => 'required|in:0,1,2,3',
             'pend_initconsult_date' => 'required|date',
-            'pend_assessmentsent_date' => 'required|date',
+            'pend_assessmentsent_date' => 'nullable|date',
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
@@ -267,7 +268,7 @@ class StoreClientProgramRequest extends FormRequest
             ],
             'success_date' => 'required_if:status,1',
             'initconsult_date' => 'required',
-            'assessmentsent_date' => 'required',
+            'assessmentsent_date' => 'required', # update v1.4 : <= 1.3 required
             'mentoring_prog_end_date' => 'required',
             'total_uni' => 'required|numeric',
             'total_foreign_currency' => 'required|numeric',

@@ -37,7 +37,7 @@
                                     <label>First Name <i class="text-danger font-weight-bold">*</i>
                                     </label>
                                     <input name="pr_firstname" type="text" class="form-control form-control-sm"
-                                        placeholder="First name" value="{{ isset($parent->first_name) ? $parent->first_name : old('first_name') }}">
+                                        placeholder="First name" value="{{ isset($parent->first_name) ? $parent->first_name : old('pr_first_name') }}">
                                     @error('pr_firstname')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -47,7 +47,7 @@
                                 <div class="mb-2">
                                     <label>Last Name</label>
                                     <input name="pr_lastname" type="text" class="form-control form-control-sm"
-                                        placeholder="Last name" value="{{ isset($parent->last_name) ? $parent->last_name : old('last_name') }}">
+                                        placeholder="Last name" value="{{ isset($parent->last_name) ? $parent->last_name : old('pr_last_name') }}">
                                     @error('pr_lastname')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -57,7 +57,7 @@
                                 <div class="mb-2">
                                     <label>E-mail <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="pr_mail" type="text" class="form-control form-control-sm"
-                                        placeholder="E-mail" value="{{ isset($parent->mail) ? $parent->mail : old('mail') }}">
+                                        placeholder="E-mail" value="{{ isset($parent->mail) ? $parent->mail : old('pr_mail') }}">
                                     @error('pr_mail')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -67,7 +67,7 @@
                                 <div class="mb-2">
                                     <label>Phone Number <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="pr_phone" type="text" class="form-control form-control-sm"
-                                        placeholder="Phone Number" value="{{ isset($parent->phone) ? $parent->phone : old('phone') }}">
+                                        placeholder="Phone Number" value="{{ isset($parent->phone) ? $parent->phone : old('pr_phone') }}">
                                     @error('pr_phone')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -76,7 +76,7 @@
                             <div class="col-md-6">
                                 <div class="mb-2">
                                     <label>Date of Birth <i class="text-danger font-weight-bold">*</i></label>
-                                    <input name="pr_dob" type="date" class="form-control form-control-sm" value="{{ isset($parent->dob) ? $parent->dob : old('dob') }}">
+                                    <input name="pr_dob" type="date" class="form-control form-control-sm" value="{{ isset($parent->dob) ? $parent->dob : old('pr_dob') }}">
                                     @error('pr_dob')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -86,7 +86,7 @@
                                 <div class="mb-2">
                                     <label>Instagram</label>
                                     <input name="pr_insta" type="text" class="form-control form-control-sm"
-                                        placeholder="Instagram" value="{{ isset($parent->insta) ? $parent->insta : old('insta') }}">
+                                        placeholder="Instagram" value="{{ isset($parent->insta) ? $parent->insta : old('pr_insta') }}">
                                     @error('pr_insta')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -96,7 +96,7 @@
                                 <div class="mb-2">
                                     <label>State / Region <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="state" type="text" class="form-control form-control-sm"
-                                        placeholder="State / Region" id="state" value="{{ isset($parent->state) ? $parent->state : old('state') }}{{ isset($student->state) ? $student->state : null }}">
+                                        placeholder="State / Region" id="state" value="{{ isset($parent->state) ? $parent->state : old('pr_state') }}{{ isset($student->state) ? $student->state : null }}">
                                     @error('pr_state')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror

@@ -58,6 +58,7 @@ class ClientProgram extends Model
         'success_date',
         'failed_date',
         'refund_date',
+        'refund_notes',
         'timesheet_link',
         'trial_date',
     ];
