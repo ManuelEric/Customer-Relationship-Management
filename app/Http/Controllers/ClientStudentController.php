@@ -456,6 +456,7 @@ class ClientStudentController extends Controller
             unset($studentDetails['lead_id']);
             $studentDetails['lead_id'] = $request->kol_lead_id;
         }
+        unset($studentDetails['kol_lead_id']);
 
         DB::beginTransaction();
         try {
