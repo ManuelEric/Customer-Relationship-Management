@@ -71,7 +71,7 @@
                     <span class="input-group-text currency-icon" id="basic-addon1">
                         $
                     </span>
-                    <input type="number" name="inv_totalprice__so" id="session_other_total" class="form-control" {{ $disabled }} value="{{  i }}sset($invoice->inv_totalprice) ? $invoice->inv_totalprice : old('inv_totalprice__so') }}">
+                    <input type="number" name="inv_totalprice__so" id="session_other_total" class="form-control" {{ $disabled }} value="{{  isset($invoice->inv_totalprice) ? $invoice->inv_totalprice : old('inv_totalprice__so') }}">
                 </div>
                 @error('inv_totalprice__so')
                     <small class="text-danger fw-light">{{ $message }}</small>
