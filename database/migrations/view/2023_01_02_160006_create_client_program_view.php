@@ -19,7 +19,7 @@ return new class extends Migration
         SELECT cp.*, 
             c.st_grade,
             r.reason_name as reason,
-            CONCAT(c.first_name, " ", c.last_name) as fullname,
+            CONCAT(c.first_name, " ", COALESCE(c.last_name, "")) as fullname,
             CONCAT(p.prog_program, " - ", mp.prog_name) as program_name,
             (CASE WHEN cp.status = 0 THEN "Pending"
                 WHEN cp.status = 1 THEN "Success"

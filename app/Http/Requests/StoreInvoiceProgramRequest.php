@@ -59,13 +59,13 @@ class StoreInvoiceProgramRequest extends FormRequest
             'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
             'currency' => [
                 'required',
-                function ($attribute, $value, $fail) use ($clientProgram) {
-                    if ($index = array_search('other', $value) !== false)
-                        unset($value[$index]);
+                // function ($attribute, $value, $fail) use ($clientProgram) {
+                //     if ($index = array_search('other', $value) !== false)
+                //         unset($value[$index]);
 
-                    if ($value[0] != $clientProgram->program->prog_payment)
-                        $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
-                }
+                //     if ($value[0] != $clientProgram->program->prog_payment)
+                //         $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
+                // }
             ],
             'is_session' => [
                 function ($attribute, $value, $fail) use ($clientProgram) {
@@ -111,16 +111,16 @@ class StoreInvoiceProgramRequest extends FormRequest
             'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
             'currency' => [
                 'required',
-                function ($attribute, $value, $fail) use ($clientProgram) {
-                    $currency = null;
-                    foreach ($value as $key => $val) {
-                        if ($val != NULL)
-                            $currency = $val != "other" ? $val : null;
-                    }
+                // function ($attribute, $value, $fail) use ($clientProgram) {
+                //     $currency = null;
+                //     foreach ($value as $key => $val) {
+                //         if ($val != NULL)
+                //             $currency = $val != "other" ? $val : null;
+                //     }
 
-                    if ($currency != $clientProgram->program->prog_payment)
-                        $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
-                }
+                //     if ($currency != $clientProgram->program->prog_payment)
+                //         $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
+                // }
             ],
             'is_session' => [
                 function ($attribute, $value, $fail) use ($clientProgram) {
@@ -173,16 +173,16 @@ class StoreInvoiceProgramRequest extends FormRequest
             'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
             'currency' => [
                 'required',
-                function ($attribute, $value, $fail) use ($clientProgram) {
-                    $currency = null;
-                    foreach ($value as $key => $val) {
-                        if ($val != NULL)
-                            $currency = $val != "other" ? $val : null;
-                    }
+                // function ($attribute, $value, $fail) use ($clientProgram) {
+                //     $currency = null;
+                //     foreach ($value as $key => $val) {
+                //         if ($val != NULL)
+                //             $currency = $val != "other" ? $val : null;
+                //     }
 
-                    if ($currency != $clientProgram->program->prog_payment)
-                        $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
-                }
+                //     if ($currency != $clientProgram->program->prog_payment)
+                //         $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
+                // }
             ],
             'is_session' => [
                 function ($attribute, $value, $fail) use ($clientProgram) {
@@ -239,13 +239,13 @@ class StoreInvoiceProgramRequest extends FormRequest
             'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
             'currency' => [
                 'required',
-                function ($attribute, $value, $fail) use ($clientProgram) {
-                    if ($index = array_search('other', $value) !== false)
-                        unset($value[$index]);
+                // function ($attribute, $value, $fail) use ($clientProgram) {
+                //     if ($index = array_search('other', $value) !== false)
+                //         unset($value[$index]);
 
-                    if ($value[0] != $clientProgram->program->prog_payment)
-                        $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
-                }
+                //     if ($value[0] != $clientProgram->program->prog_payment)
+                //         $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
+                // }
             ],
             'is_session' => [
                 function ($attribute, $value, $fail) use ($clientProgram) {
