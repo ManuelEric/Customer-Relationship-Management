@@ -68,7 +68,7 @@
                 </div>
 
                 <div class="card-body">
-                    @if ($errors->any())
+                    {{-- @if ($errors->any())
     <div class="alert alert-danger">
         <ul>
             @foreach ($errors->all() as $error)
@@ -76,9 +76,9 @@
             @endforeach
         </ul>
     </div>
-@endif
+@endif --}}
 
-                    <form action="{{ url($status == 'edit' ? 'invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num : 'invoice/school-program/' . $schoolProgram->id . '/detail') }}" method="POST">
+                    <form action="{{ url($status == 'edit' ? 'invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num : 'invoice/school-program/' . $schoolProgram->id . '/detail') }}" method="POST" id="invoice-form">
                         @csrf
                         @if($status == 'edit')
                             @method('put')
@@ -134,8 +134,8 @@
                             </div>
 
                             <div class="col-md-12">
-                                <input type="hidden" name="" id="total_idr">
-                                <input type="hidden" name="" id="total_other">
+                                <input type="hidden" name="" id="total_idr" value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totpriceidr : null }}">
+                                <input type="hidden" name="" id="total_other" value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totprice : null }}">
                                     
                             </div>
 
@@ -177,11 +177,11 @@
                             
                                 <div class="col-md-12">
                                     {{-- IDR  --}}
-                                    <div class="installment-card d-none installment-idr">
+                                    <div class="installment-card installment-idr d-none">
                                         @include('pages.invoice.school-program.form-detail.installment-idr')
                                     </div>
                                     
-                                    <div class="installment-card d-none installment-other">
+                                    <div class="installment-card installment-other d-none">
                                         @include('pages.invoice.school-program.form-detail.installment-other')
                                     </div>
                                     
@@ -203,7 +203,7 @@
                             </div>
                             @if(empty($invoiceSch) || $status == 'edit')
                                 <div class="mt-3 text-end">
-                                    <button type="submit" class="btn btn-sm btn-primary rounded">
+                                    <button type="submit" class="btn btn-sm btn-primary rounded" id="submit-form">
                                         <i class="bi bi-save2 me-2"></i> Submit
                                     </button>
                                 </div>
@@ -335,6 +335,8 @@
         
         function checkCurrency() {
             let cur = $('#currency').val()
+            checkPayment();
+            // console.log()
             $('.invoice-currency').addClass('d-none')
             if (cur == 'other') {
                 $('.invoice-other').removeClass('d-none')
@@ -354,14 +356,14 @@
         }
 
         function checkPayment() {
-            let cur = $('#currency').val()
             let method = $('#payment_method').val()
+            let cur = $('#currency').val()
 
             $('.installment-card').addClass('d-none')
             if (method == 'installment') {
                 if (cur == 'idr') {
                     $('.installment-idr').removeClass('d-none')
-                } else {
+                } else if(cur == 'other') {
                     $('.installment-other').removeClass('d-none')
                 }
             }
@@ -417,15 +419,47 @@
         </script>
     @endif
 
-    @if(!empty(old('select_currency')))
-        
         <script>
             $(document).ready(function(){
-                $('#currency').val("{{old('select_currency')}}").trigger('change')
+                @if(!empty(old('select_currency')) )
+                    $('#currency').val("{{old('select_currency')}}").trigger('change')
+                @endif
             })
 
+             $("#submit-form").click(function(e) {
+            e.preventDefault();
+
+            var currency = $("#currency").val()
+            if (currency == "idr") {
+
+                var tot_percent = 0;
+                $('.percentage').each(function() {
+                    tot_percent += parseInt($(this).val())
+                })
+    
+                if (tot_percent < 100) {
+                    notification('error', 'Installment amount is not right. Please double check before create invoice')
+                    return;
+                }
+
+            } else if (currency == "other") {
+
+                var tot_percent = 0;
+                $('.percentage-other').each(function() {
+                    tot_percent += parseInt($(this).val())
+                })
+    
+                if (tot_percent < 100) {
+                    notification('error', 'Installment amount is not right. Please double check before create invoice')
+                    return;
+                }
+
+            }
+
+
+            $("#invoice-form").submit()
+        })
         </script>
-
-
-    @endif
+    
+        
 @endsection

@@ -10,26 +10,38 @@
         @endif
     </div>
     <div class="card-body " id="installment_content">
-        @if(isset($invoiceSch->inv_detail))
-            @foreach ($invoiceSch->inv_detail as $inv_dtl)
+        @if (old('invdtl_installment') || isset($invoiceSch->inv_detail))
+        @php
+            $limit = isset($invoiceSch->inv_detail) ? count($invoiceSch->inv_detail) : count(old('invdtl_installment'))
+        @endphp
+            @for ($i = 0; $i < $limit ; $i++)
                 <div class="row g-2 installment mb-3">
                     <div class="col-md-3">
                         <label for="">Name</label>
                         <input type="text" name="invdtl_installment[]" class="form-control form-control-sm installment-name" 
-                            value="{{$inv_dtl->invdtl_installment}}"
-                            {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                            value="{{ isset($invoiceSch->inv_detail) ? $invoiceSch->inv_detail[$i]->invdtl_installment : old('invdtl_installment')[$i] }}" 
+                                    {{ empty($invoiceSch->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
+                         @error('invdtl_installment.'.$i)
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <label for="">Due Date</label>
                         <input type="date" name="invdtl_duedate[]" class="form-control form-control-sm" 
-                            value="{{ $inv_dtl->invdtl_duedate }}"
-                            {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                            value="{{ isset($invoiceSch->inv_detail) ? $invoiceSch->inv_detail[$i]->invdtl_duedate : old('invdtl_duedate')[$i] }}" 
+                                    {{ empty($invoiceSch->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
+                        @error('invdtl_duedate.'.$i)
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-2">
                         <label for="">Percentage (%)</label>
-                        <input type="text" name="invdtl_percentage[]" id="percentage_0" class="form-control form-control-sm percentage"
-                            onchange="checkPercentage('0')" value="{{ $inv_dtl->invdtl_percentage }}"
-                            {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                        <input type="text" name="invdtl_percentage[]" id="percentage_{{ $i }}" class="form-control form-control-sm percentage"
+                            onchange="checkPercentage('{{ $i }}')" value="{{ isset($invoiceSch->inv_detail) ? $invoiceSch->inv_detail[$i]->invdtl_percentage : old('invdtl_percentage')[$i] }}" 
+                                    {{ empty($invoiceSch->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
+                        @error('invdtl_percentage.'.$i)
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-4">
                         <div class="d-flex justify-content-between">
@@ -37,7 +49,7 @@
                                 Amount
                             </div>
                             @if(empty($invoiceSch->inv_detail) || $status == 'edit')
-                                <div class="cursor-pointer" onclick="removeInstallment(0)">
+                                <div class="cursor-pointer" onclick="removeInstallment({{$i}})">
                                     <i class="bi bi-trash2 text-danger"></i>
                                 </div>
                             @endif
@@ -47,12 +59,14 @@
                                 Rp
                             </span>
                             <input type="number" name="invdtl_amountidr[]" class="form-control amount" 
-                                id="amount_0" value="{{ $inv_dtl->invdtl_amountidr }}"
-                                {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                                id="amount_{{ $i }}" onchange="checkAmount('{{ $i }}')" value="{{ isset($invoiceSch->inv_detail) ? $invoiceSch->inv_detail[$i]->invdtl_amountidr : old('invdtl_amountidr')[$i] }}" {{ empty($invoiceSch->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
+                            @error('invdtl_amountidr.'.$i)
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @endfor
         @else
             <div class="row g-2 installment mb-3">
                 <div class="col-md-3">
@@ -81,7 +95,7 @@
                         <span class="input-group-text" id="basic-addon1">
                             Rp
                         </span>
-                        <input type="number" name="invdtl_amountidr[]" class="form-control amount" id="amount_0">
+                        <input type="number" name="invdtl_amountidr[]" class="form-control amount" id="amount_0" onchange="checkAmount('0')">
                     </div>
                 </div>
             </div>
@@ -124,11 +138,36 @@
         $('#installment_' + id).remove()
     }
 
+    function triggerInstallment()
+    {
+        $(".percentage").each(function() {
+            
+            var each_element = $(this)
+            var element_id = each_element.attr('id')
+            const arrayElement = element_id.split("_")
+            var id = arrayElement[1]
+
+            let percent = $("#" + element_id).val()
+            let kurs = $("#current_rate").val()
+            let tot_idr = $("#total_idr").val()
+            let currency = $("#currency").val()
+            let total = (percent / 100) * tot_idr
+            // console.log(total)
+
+            $("#amount_" + id).val(total)
+        })
+    }
+
     function checkPercentage(id) {
+        // triggerInstallment()
         var sum = 0
         $('.percentage').each(function() {
             sum += parseInt($(this).val())
         })
+
+
+        if (isNaN(sum))
+            sum = 0
 
         if (sum <= 100) {
             let percent = $('#percentage_' + id).val()
@@ -146,10 +185,27 @@
     }
 
     function checkAmount(id) {
+        var sum = 0
+        $('.amount').each(function() {
+            sum += parseInt($(this).val())
+        })
 
+        if (isNaN(sum))
+            sum = 0
+
+        let tot_idr = $('#total_idr').val()
+
+        console.log(tot_idr)
+
+        if (sum <= tot_idr) {
+            let amount = $('#amount_' + id).val()
+            let total = Math.round((amount / tot_idr) * 100)
+            $("#percentage_" + id).val(total)
+        } else {
+            $('#percentage_' + id).val(null)
+            $('#amount_' + id).val(null)
+            notification('error', 'Installment amount should be less than total invoice')
+        }
     }
 
-//     window.onload = function() {
-//   yourFunction(param1, param2);
-// };
 </script>

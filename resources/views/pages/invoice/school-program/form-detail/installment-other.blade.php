@@ -10,27 +10,39 @@
         @endif
     </div>
     <div class="card-body " id="installment_content_other">
-        @if(isset($invoiceSch->inv_detail))
-            @foreach ($invoiceSch->inv_detail as $inv_dtl)
+         @if (old('invdtl_installment') || isset($invoiceSch->inv_detail))
+        @php
+            $limit = isset($invoiceSch->inv_detail) ? count($invoiceSch->inv_detail) : count(old('invdtl_installment'))
+        @endphp
+            @for ($i = 0; $i < $limit ; $i++)
                 <div class="row g-2 installment-others mb-3">
                     <div class="col-md-3">
                         <label for="">Name</label>
                         <input type="text" name="invdtl_installment_other[]" class="form-control form-control-sm installment-name" 
-                            value="{{$inv_dtl->invdtl_installment}}"
-                            {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                            value="{{ isset($invoiceSch->inv_detail) ? $invoiceSch->inv_detail[$i]->invdtl_installment : old('invdtl_installment_other')[$i] }}" 
+                                    {{ empty($invoiceSch->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
+                        @error('invdtl_installment_other.'.$i)
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <label for="">Due Date</label>
                         <input type="date" name="invdtl_duedate_other[]" class="form-control form-control-sm"
-                            value="{{ $inv_dtl->invdtl_duedate }}"
-                            {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                           value="{{ isset($invoiceSch->inv_detail) ? $invoiceSch->inv_detail[$i]->invdtl_duedate : old('invdtl_duedate_other')[$i] }}" 
+                                    {{ empty($invoiceSch->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
+                        @error('invdtl_duedate_other.'.$i)
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-2">
                         <label for="">Percentage (%)</label>
                         <input type="text" name="invdtl_percentage_other[]" id="percentage_other_0"
                             class="form-control form-control-sm percentage-other" onchange="checkPercentageOther('0')"
-                            onchange="checkPercentage('0')" value="{{ $inv_dtl->invdtl_percentage }}"
-                            {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                            onchange="checkPercentage('{{$i}}')" value="{{ isset($invoiceSch->inv_detail) ? $invoiceSch->inv_detail[$i]->invdtl_percentage : old('invdtl_percentage_other')[$i] }}" 
+                                    {{ empty($invoiceSch->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
+                        @error('invdtl_percentage_other.'.$i)
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-4">
                         <div class="d-flex justify-content-between">
@@ -38,7 +50,7 @@
                                 Amount
                             </div>
                             @if(empty($invoiceSch->inv_detail) || $status == 'edit')
-                                <div class="cursor-pointer" onclick="removeInstallmentOther(0)">
+                                <div class="cursor-pointer" onclick="removeInstallmentOther({{$i}})">
                                     <i class="bi bi-trash2 text-danger"></i>
                                 </div>
                             @endif
@@ -47,22 +59,28 @@
                             <span class="input-group-text currency-icon" id="basic-addon1">
                                 $
                             </span>
-                            <input type="number" name="invdtl_amount[]" class="form-control amount-other" id="amount_other_0"
-                                value="{{ $inv_dtl->invdtl_amount }}"
-                                {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                            <input type="number" name="invdtl_amount[]" class="form-control amount-other" id="amount_other_{{$i}}" onchange="checkAmountOther('{{ $i }}')"
+                                value="{{ isset($invoiceSch->inv_detail) ? $invoiceSch->inv_detail[$i]->invdtl_amount : old('invdtl_amount')[$i] }}" 
+                                {{ empty($invoiceSch->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
+                             @error('invdtl_amount.'.$i)
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text" id="basic-addon1">
                                 Rp
                             </span>
                             <input type="number" name="invdtl_amountidr_other[]" class="form-control amount-other-idr" 
-                                id="amount_other_idr_0"
-                                value="{{ $inv_dtl->invdtl_amountidr }}"
-                                {{ empty($inv_dtl) || $status == 'edit' ? '' : 'disabled' }}>
+                                id="amount_other_idr_{{$i}}"
+                               value="{{ isset($invoiceSch->inv_detail) ? $invoiceSch->inv_detail[$i]->invdtl_amountidr : old('invdtl_amountidr_other')[$i] }}" 
+                               {{ empty($invoiceSch->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
+                             @error('invdtl_amountidr_other.'.$i)
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @endfor
         @else
             <div class="row g-2 installment-others mb-3">
                 <div class="col-md-3">
@@ -129,6 +147,7 @@
         $('#installment_other_' + id).find('.percentage-other').attr('id', 'percentage_other_' + id)
         $('#installment_other_' + id).find('.percentage-other').attr('onchange', 'checkPercentageOther(' + id + ')')
         $('#installment_other_' + id).find('.amount-other').attr('id', 'amount_other_' + id)
+        $('#installment_other_' + id).find('.amount-other').attr('onchange', 'checkAmountOther(' + id + ')')
         $('#installment_other_' + id).find('.amount-other-idr').attr('id', 'amount_other_idr_' + id)
         $('#installment_other_' + id).find('.cursor-pointer').attr('onclick', 'removeInstallmentOther(' + id + ')')
     }
@@ -146,6 +165,9 @@
             sum += parseInt($(this).val())
         })
 
+        if (isNaN(sum))
+            sum = 0
+
         if (sum <= 100) {
             let percent = $('#percentage_other_' + id).val()
             let kurs = $('#current_rate').val()
@@ -161,6 +183,28 @@
             $('#amount_other_idr_' + id).val(null)
 
             notification('error', 'Percentage is more than 100')
+        }
+    }
+
+     function checkAmountOther(id) {
+        var sum = 0
+        $('.amount-other').each(function() {
+            sum += parseInt($(this).val())
+        })
+
+        if (isNaN(sum))
+            sum = 0
+
+        let tot_other = $('#total_other').val()
+
+        if (sum <= tot_other) {
+            let amount = $('#amount_other_' + id).val()
+            let total = Math.round((amount / tot_idr) * 100)
+            $("#percentage_other_" + id).val(total)
+        } else {
+            $('#percentage_other_' + id).val(null)
+            $('#amount_other_' + id).val(null)
+            notification('error', 'Installment amount should be less than total invoice')
         }
     }
 </script>

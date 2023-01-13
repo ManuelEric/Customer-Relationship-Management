@@ -52,7 +52,6 @@ class InvoiceSchoolController extends Controller
         }
 
         return view('pages.invoice.school-program.index')->with(['status' => $status]);
-
     }
 
     public function create(Request $request)
@@ -79,7 +78,7 @@ class InvoiceSchoolController extends Controller
     {
 
         // TODO: Validation Installment
-        
+
 
         $schProgId = $request->route('sch_prog');
         $invoices = $request->only([
@@ -109,33 +108,34 @@ class InvoiceSchoolController extends Controller
 
         $installments = $request->only(
             [
-            'invdtl_installment',
-            'invdtl_duedate',
-            'invdtl_percentage',
-            'invdtl_installment_other',
-            'invdtl_duedate_other',
-            'invdtl_percentage_other',
-            'invdtl_amount',
-            'invdtl_amountidr',
-            'invdtl_amountidr_other',
-        ]);
+                'invdtl_installment',
+                'invdtl_duedate',
+                'invdtl_percentage',
+                'invdtl_installment_other',
+                'invdtl_duedate_other',
+                'invdtl_percentage_other',
+                'invdtl_amount',
+                'invdtl_amountidr',
+                'invdtl_amountidr_other',
+            ]
+        );
 
         switch ($invoices['select_currency']) {
             case 'other':
-                $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other']; 
-                $invoices['invb2b_discidr'] = $invoices['invb2b_discidr_other']; 
-                $invoices['invb2b_participants'] = $invoices['invb2b_participants_other']; 
-                $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other']; 
-                $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other']; 
+                $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other'];
+                $invoices['invb2b_discidr'] = $invoices['invb2b_discidr_other'];
+                $invoices['invb2b_participants'] = $invoices['invb2b_participants_other'];
+                $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other'];
+                $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other'];
                 break;
-            
+
             case 'idr':
                 unset($invoices['invb2b_price']);
                 unset($invoices['invb2b_disc']);
                 unset($invoices['invb2b_totprice']);
                 unset($invoices['invb2b_words']);
                 unset($invoices['currency']);
-                break;                
+                break;
         }
 
         unset($invoices['invb2b_participants_other']);
@@ -143,22 +143,22 @@ class InvoiceSchoolController extends Controller
         unset($invoices['invb2b_discidr_other']);
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
-        
+
 
         $now = Carbon::now();
         $thisMonth = $now->month;
-        
+
         $last_id = Invb2b::whereMonth('created_at', $thisMonth)->max(DB::raw('substr(invb2b_id, 1, 4)'));
- 
+
         $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
         $prog_id = $schoolProgram->prog_id;
-        
+
         // Use Trait Create Invoice Id
         $inv_id = $this->getInvoiceId($last_id, $prog_id);
 
         $invoices['invb2b_id'] = $inv_id;
         $invoices['schprog_id'] = $schProgId;
-       
+
         $installment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
         unset($installments);
 
@@ -169,7 +169,6 @@ class InvoiceSchoolController extends Controller
             $this->invoiceDetailRepository->createInvoiceDetail($installment);
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -177,11 +176,10 @@ class InvoiceSchoolController extends Controller
 
             return $e->getMessage();
             exit;
-            return Redirect::to('invoice/school-program/'. $schProgId . '/detail/create')->withError('Failed to create a new invoice');
+            return Redirect::to('invoice/school-program/' . $schProgId . '/detail/create')->withError('Failed to create a new invoice');
         }
 
         return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully created');
-        
     }
 
     public function show(Request $request)
@@ -205,7 +203,6 @@ class InvoiceSchoolController extends Controller
                 'status' => 'show',
             ]
         );
-
     }
 
     public function edit(Request $request)
@@ -229,12 +226,11 @@ class InvoiceSchoolController extends Controller
                 'invoiceSch' => $invoiceSch,
             ]
         );
-
     }
 
     public function update(StoreInvoiceSchRequest $request)
     {
-        
+
         $schProgId = $request->route('sch_prog');
         $invNum = $request->route('detail');
 
@@ -265,40 +261,41 @@ class InvoiceSchoolController extends Controller
 
         $installments = $request->only(
             [
-            'invdtl_installment',
-            'invdtl_duedate',
-            'invdtl_percentage',
-            'invdtl_installment_other',
-            'invdtl_duedate_other',
-            'invdtl_percentage_other',
-            'invdtl_amount',
-            'invdtl_amountidr',
-            'invdtl_amountidr_other',
-        ]);
+                'invdtl_installment',
+                'invdtl_duedate',
+                'invdtl_percentage',
+                'invdtl_installment_other',
+                'invdtl_duedate_other',
+                'invdtl_percentage_other',
+                'invdtl_amount',
+                'invdtl_amountidr',
+                'invdtl_amountidr_other',
+            ]
+        );
 
         switch ($invoices['select_currency']) {
             case 'other':
-                $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other']; 
-                $invoices['invb2b_discidr'] = $invoices['invb2b_discidr_other']; 
-                $invoices['invb2b_participants'] = $invoices['invb2b_participants_other']; 
-                $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other']; 
-                $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other']; 
+                $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other'];
+                $invoices['invb2b_discidr'] = $invoices['invb2b_discidr_other'];
+                $invoices['invb2b_participants'] = $invoices['invb2b_participants_other'];
+                $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other'];
+                $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other'];
                 break;
-            
+
             case 'idr':
                 unset($invoices['invb2b_price']);
                 unset($invoices['invb2b_disc']);
                 unset($invoices['invb2b_totprice']);
                 unset($invoices['invb2b_words']);
                 unset($invoices['currency']);
-                break;                
+                break;
         }
 
         unset($invoices['invb2b_participants_other']);
         unset($invoices['invb2b_priceidr_other']);
         unset($invoices['invb2b_discidr_other']);
         unset($invoices['invb2b_totpriceidr_other']);
-        unset($invoices['invb2b_wordsidr_other']);    
+        unset($invoices['invb2b_wordsidr_other']);
 
         $invoices['schprog_id'] = $schProgId;
 
@@ -307,7 +304,7 @@ class InvoiceSchoolController extends Controller
 
         $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
         unset($installments);
-        
+
         // return $installment;
         // exit;
 
@@ -315,21 +312,12 @@ class InvoiceSchoolController extends Controller
         try {
 
             $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $invoices);
-            
-            $i = 0;
-            foreach($NewInstallment as $installment){
-               
-                $currentInstallment = $this->invoiceDetailRepository->getInvoiceDetailByInvB2bId($installment['invb2b_id']);
 
-                $invdtl_id = $this->invoiceDetailRepository->getInvoiceDetailIdByInvB2b($currentInstallment[$i]['invb2b_id'], $currentInstallment[$i]['invdtl_installment']);
-                
-                $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($invdtl_id, $installment);
+            $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
+            $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
 
-                $i++;
-            }
             // exit;
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -337,11 +325,10 @@ class InvoiceSchoolController extends Controller
 
             return $e->getMessage();
             exit;
-            return Redirect::to('invoice/school-program/'. $schProgId . '/detail/' . $invNum)->withError('Failed to update invoice');
+            return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to update invoice');
         }
 
-        return Redirect::to('invoice/school-program/'. $schProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully created');
-         
+        return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully created');
     }
 
     public function destroy(Request $request)
@@ -351,7 +338,7 @@ class InvoiceSchoolController extends Controller
 
         DB::beginTransaction();
         try {
-           
+
             $this->invoiceB2bRepository->deleteInvoiceB2b($invNum);
             DB::commit();
         } catch (Exception $e) {
@@ -361,14 +348,14 @@ class InvoiceSchoolController extends Controller
 
             return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to delete invoice');
         }
- 
+
         return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully deleted');
     }
 
-    protected function extract_installment($inv_id, $currency,  array $installments) 
+    protected function extract_installment($inv_id, $currency,  array $installments)
     {
-        if($currency == 'other'){
-            for($i=0; $i<count($installments['invdtl_installment_other']); $i++){
+        if ($currency == 'other') {
+            for ($i = 0; $i < count($installments['invdtl_installment_other']); $i++) {
                 $installment[] = [
                     'invdtl_installment' => $installments['invdtl_installment_other'][$i],
                     'invdtl_duedate' => $installments['invdtl_duedate_other'][$i],
@@ -378,8 +365,8 @@ class InvoiceSchoolController extends Controller
                     'invb2b_id' => $inv_id,
                 ];
             }
-        }elseif($currency == 'idr'){
-            for($i=0; $i<count($installments['invdtl_installment']); $i++){
+        } elseif ($currency == 'idr') {
+            for ($i = 0; $i < count($installments['invdtl_installment']); $i++) {
                 $installment[] = [
                     'invdtl_installment' => $installments['invdtl_installment'][$i],
                     'invdtl_duedate' => $installments['invdtl_duedate'][$i],
@@ -391,7 +378,5 @@ class InvoiceSchoolController extends Controller
         }
 
         return $installment;
-
     }
-
 }
