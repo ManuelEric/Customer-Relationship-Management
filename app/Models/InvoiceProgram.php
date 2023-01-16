@@ -57,4 +57,9 @@ class InvoiceProgram extends Model
     {
         return $this->hasMany(InvDetail::class, 'inv_id', 'inv_id');
     }
+
+    public function receipt()
+    {
+        return $this->hasMany(Receipt::class, 'inv_id', 'inv_id');
+    }
 }

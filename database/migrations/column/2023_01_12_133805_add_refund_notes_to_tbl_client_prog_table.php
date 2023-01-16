@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('tbl_client_event', function (Blueprint $table) {
-            $table->date('joined_date')->nullable()->after('status');
+        Schema::table('tbl_client_prog', function (Blueprint $table) {
+            $table->text('refund_notes')->nullable()->after('refund_date');
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('tbl_client_event', function (Blueprint $table) {
-            //
+        Schema::table('tbl_client_prog', function (Blueprint $table) {
+            $table->dropColumn('refund_notes');
         });
     }
 };

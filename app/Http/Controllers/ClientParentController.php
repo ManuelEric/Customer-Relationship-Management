@@ -115,9 +115,10 @@ class ClientParentController extends Controller
 
     public function store(StoreClientParentRequest $request)
     {
-        $qChildrenId = isset($request->queryChildId) ? $request->queryChildId : null;
-        $qClientProgId = isset($request->queryClientProgId) ? $request->queryClientProgId : null;
-        $query = isset($qChildrenId) ? "?child=".$qChildrenId.'&client_prog='.$qClientProgId : null;
+        $qChildrenId = isset($request->queryChildId) ? "?child=".$request->queryChildId : null;
+        $qClientProgId = isset($request->queryClientProgId) ? "&client_prog=".$request->queryClientProgId : null;
+        
+        $query = $qChildrenId.$qClientProgId;
 
         $parentDetails = $request->only([
             'pr_firstname',
@@ -375,7 +376,12 @@ class ClientParentController extends Controller
         }
         
         if ($query != NULL) {
-            return Redirect::to('client/student/'.$qChildrenId.'/program/'.$qClientProgId)->withSuccess("Parent Information has been added.");
+            if ($qChildrenId != NULL && $qClientProgId == NULL)
+                $link = "client/student/".$request->queryChildId."/program/create/";
+            elseif ($qChildrenId != NULL && $qClientProgId != NULL)
+                $link = 'client/student/'.$request->queryChildId.'/program/'.$request->queryClientProgId;
+
+            return Redirect::to($link)->withSuccess("Parent Information has been added.");
         }
 
         return Redirect::to('client/parent')->withSuccess('A new parent has been registered.');
@@ -459,12 +465,19 @@ class ClientParentController extends Controller
             'st_note',
         ]);
 
+
         $parentDetails['first_name'] = $request->pr_firstname;
         $parentDetails['last_name'] = $request->pr_lastname;
         $parentDetails['mail'] = $request->pr_mail;
         $parentDetails['phone'] = $request->pr_phone;
         $parentDetails['dob'] = $request->pr_dob;
         $parentDetails['insta'] = $request->pr_insta;
+        unset($parentDetails['pr_firstname']);
+        unset($parentDetails['pr_lastname']);
+        unset($parentDetails['pr_mail']);
+        unset($parentDetails['pr_phone']);
+        unset($parentDetails['pr_dob']);
+        unset($parentDetails['pr_insta']);
 
         // $parentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
         $childrenId = $request->child_id;
@@ -480,6 +493,7 @@ class ClientParentController extends Controller
             unset($parentDetails['lead_id']);
             $parentDetails['lead_id'] = $request->kol_lead_id;
         }
+        unset($parentDetails['kol_lead_id']);
 
         $studentDetails = [
             'first_name' => $request->first_name,

@@ -37,6 +37,7 @@ use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\PurchaseDetailRepositoryInterface;
 use App\Interfaces\PurchaseRequestRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
+use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\SalesTargetRepositoryInterface;
@@ -90,6 +91,7 @@ use App\Repositories\ProgramRepository;
 use App\Repositories\PurchaseDetailRepository;
 use App\Repositories\PurchaseRequestRepository;
 use App\Repositories\ReasonRepository;
+use App\Repositories\ReceiptRepository;
 use App\Repositories\ReferralRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SalesTargetRepository;
@@ -170,6 +172,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(InvoiceProgramRepositoryInterface::class, InvoiceProgramRepository::class);
         $this->app->bind(InvoiceB2bRepositoryInterface::class, InvoiceB2bRepository::class);
         $this->app->bind(InvoiceDetailRepositoryInterface::class, InvoiceDetailRepository::class);
+        $this->app->bind(ReceiptRepositoryInterface::class, ReceiptRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);

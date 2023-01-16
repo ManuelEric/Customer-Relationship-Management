@@ -63,5 +63,9 @@ class Invb2b extends Model
         return $this->hasMany(InvDetail::class, 'invb2b_id', 'invb2b_id');
     }
   
+    public function receipt()
+    {
+        return $this->hasMany(Receipt::class, 'invb2b_id', 'invb2b_id');
+    }
 
 }

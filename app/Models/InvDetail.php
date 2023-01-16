@@ -43,4 +43,9 @@ class InvDetail extends Model
         return $this->belongsTo(InvoiceProgram::class, 'inv_id', 'inv_id');
     }
 
+    public function receipt()
+    {
+        return $this->hasMany(Receipt::class, 'invdtl_id', 'invdtl_id');
+    }
+
 }
