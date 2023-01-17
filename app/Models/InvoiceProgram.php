@@ -59,7 +59,6 @@ class InvoiceProgram extends Model
             case "gbp":
                 $unit = '£';
                 break;
-
         }
 
         return $unit;
@@ -68,64 +67,63 @@ class InvoiceProgram extends Model
     protected function invoicePrice(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit().' '.$this->inv_price
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->inv_price
         );
     }
-    
+
     protected function invoiceEarlybird(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit().' '.$this->inv_earlybird
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->inv_earlybird
         );
     }
-    
+
     protected function invoiceDiscount(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit().' '.$this->inv_discount
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->inv_discount
         );
     }
 
     protected function invoiceTotalprice(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit().' '.$this->inv_totalprice
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->inv_totalprice
         );
     }
 
     protected function rate(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. ".number_format($this->curs_rate,'2',',','.')
+            get: fn ($value) => "Rp. " . number_format($this->curs_rate, '2', ',', '.')
         );
     }
 
     protected function invoicePriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. ".number_format($this->inv_price_idr,'2',',','.')
+            get: fn ($value) => "Rp. " . number_format($this->inv_price_idr, '2', ',', '.')
         );
-        
     }
 
     protected function invoiceEarlybirdIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. ".number_format($this->inv_earlybird_idr,'2',',','.')
+            get: fn ($value) => "Rp. " . number_format($this->inv_earlybird_idr, '2', ',', '.')
         );
     }
 
     protected function invoiceDiscountIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. ".number_format($this->inv_discount_idr,'2',',','.')
+            get: fn ($value) => "Rp. " . number_format($this->inv_discount_idr, '2', ',', '.')
         );
     }
-    
+
     protected function invoiceTotalpriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. ".number_format($this->inv_totalprice_idr,'2',',','.')
+            get: fn ($value) => "Rp. " . number_format($this->inv_totalprice_idr, '2', ',', '.')
         );
     }
 

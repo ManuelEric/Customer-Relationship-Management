@@ -6,7 +6,7 @@
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/school-program/status/needed') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Invoice
+            <i class="bi bi-arrow-left me-2"></i> Invoice 
         </a>
     </div>
 
@@ -56,13 +56,13 @@
                         </h6>
                     </div>
                     <div class="">
-                            @if(isset($invoiceSch) && $invoiceSch->invb2b_pm == 'full' && $status != 'edit' && count($invoiceSch->receipt) < 1)
-                                <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
+                            @if(isset($invoiceSch) && !isset($invoiceSch->receipt) && $invoiceSch->invb2b_pm == 'full' && $status != 'edit')
+                                <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt();setIdentifier('{{ $invoiceSch->invb2b_num }}')">
                                     <i class="bi bi-plus"></i> Receipt
                                 </button>
                             @endif
-                            @if(count($invoiceSch->receipt) > 0 && $status != 'edit' && isset($invoiceSch) && $invoiceSch->invb2b_pm == 'full')
-                                <a href="{{ url('receipt/school-program/'.$invoiceSch->receipt[0]->id) }}" class="btn btn-sm btn-outline-warning py-1">
+                            @if(isset($invoiceSch->receipt)  && $status != 'edit' && $invoiceSch->invb2b_pm == 'full')
+                                <a href="{{ url('receipt/school-program/'.$invoiceSch->receipt->id) }}" class="btn btn-sm btn-outline-warning py-1">
                                     <i class="bi bi-eye"></i> View Receipt
                                 </a>
                             @endif
@@ -70,7 +70,7 @@
                 </div>
 
                 <div class="card-body">
-                    @if ($errors->any())
+                    {{-- @if ($errors->any())
     <div class="alert alert-danger">
         <ul>
             @foreach ($errors->all() as $error)
@@ -78,7 +78,7 @@
             @endforeach
         </ul>
     </div>
-@endif
+@endif --}}
 
                     <form action="{{ url($status == 'edit' ? 'invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num : 'invoice/school-program/' . $schoolProgram->id . '/detail') }}" method="POST" id="invoice-form">
                         @csrf
@@ -229,10 +229,12 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="{{ route('receipt.school.store', ['invoice' => (isset($invoiceSch)) ? $invoiceSch->invb2b_num : '']) }}" method="POST" id="receipt">
+                    <form action="{{ isset($invoiceSch) ? route('receipt.school.store', ['invoice' => $invoiceSch->invb2b_num ]) : '' }}" method="POST" id="receipt">
                         @csrf
+                        {{-- <input type="hidden" name="schprog_id" value="{{ $schoolProgram->id }}"> --}}
+                        <input type="hidden" name="identifier" id="identifier">
+                        <input type="hidden" name="currency" value="{{ isset($invoiceSch->currency) ? $invoiceSch->currency : null }}">
 
-                        {{-- <div class="put"></div> --}}
                         <div class="row g-2">
                             <div class="col-md-6 receipt-other d-none">
                                 <div class="mb-1">
@@ -270,15 +272,15 @@
                                     </div>
                                 </div>
                             </div>
-                            {{-- <div class="col-md-4">
+                            <div class="col-md-4">
                                 <div class="mb-1">
                                     <label for="">
                                         Date <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="date" name="receipt" id="receipt_date"
-                                        class="form-control form-control-sm rounded" required value="">
+                                    <input type="date" name="receipt_date" value="{{ date('Y-m-d') }}" id="receipt_date"
+                                        class="form-control form-control-sm rounded">
                                 </div>
-                            </div> --}}
+                            </div>
                             <div class="col-md-12 receipt-other d-none">
                                 <div class="mb-1">
                                     <label for="">
@@ -332,7 +334,6 @@
                                     @enderror
                                 </div>
                             </div>
-                            <input type="hidden" name="select_currency_receipt" id="select_currency_receipt">
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between">
@@ -350,33 +351,67 @@
     </div>
 
     <script>
+        function setIdentifier(id)
+        {
+            $("#identifier").val(id);
+        }
+
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
             });
+
+            $("#receipt_amount_other").on('keyup', function() {
+                var val = $(this).val()
+                var currency = $("#receipt input[name=currency]").val()
+                var curs_rate = $("#current_rate").val();
+                switch (currency) {
+                    case 'usd':
+                        currency = ' Dollar';
+                        break;
+                    case 'sgd':
+                        currency = ' Singapore Dollar';
+                        break;
+                    case 'gbp':
+                        currency = ' Pound';
+                        break;
+                    default:
+                        currency = '';
+                        totprice = '-'
+                        break;
+                }  
+                $("#receipt_word_other").val(wordConverter(val) + currency)
+                $("#receipt_amount").val(val*curs_rate)
+                $("#receipt_word").val(wordConverter(val*curs_rate) + " Rupiah")
+            })
+
+            $("#receipt_amount").on('keyup', function() {
+                var val = $(this).val()
+                $("#receipt_word").val(wordConverter(val) + " Rupiah")
+            })
         });
         
         
-        function wordReceipt() {
-            let curr = $('#select_currency_receipt').val() 
-            let price;
-            if(curr == 'other'){
-                let price_other = $('#receipt_amount_other').val()
-                let kurs = $('#current_rate').val()
-                let detail = $('#currency_detail').val()
-                price = $('#receipt_amount').val(price_other*kurs)
-                $('#receipt_word_other').val(wordConverter(price_other)+ ' ' + currencyText(detail))
-                $('#receipt_word').val(wordConverter(price_other*kurs)+ ' Rupiah')
-                $('#receipt_amount').addAttr('readonly')
-            }else{
-                price = $('#receipt_amount').val()
-                $('#receipt_word').val(wordConverter(price)+ ' Rupiah')
-                $('#receipt_amount').removeAttr('readonly')
-            }
+        // function wordReceipt() {
+        //     let curr = $('#select_currency_receipt').val() 
+        //     let price;
+        //     if(curr == 'other'){
+        //         let price_other = $('#receipt_amount_other').val()
+        //         let kurs = $('#current_rate').val()
+        //         let detail = $('#currency_detail').val()
+        //         price = $('#receipt_amount').val(price_other*kurs)
+        //         $('#receipt_word_other').val(wordConverter(price_other)+ ' ' + currencyText(detail))
+        //         $('#receipt_word').val(wordConverter(price_other*kurs)+ ' Rupiah')
+        //         $('#receipt_amount').addAttr('readonly')
+        //     }else{
+        //         price = $('#receipt_amount').val()
+        //         $('#receipt_word').val(wordConverter(price)+ ' Rupiah')
+        //         $('#receipt_amount').removeAttr('readonly')
+        //     }
             
-        }
+        // }
         
         function checkCurrency() {
             let cur = $('#currency').val()
@@ -403,6 +438,7 @@
         function checkPayment() {
             let method = $('#payment_method').val()
             let cur = $('#currency').val()
+            // console.log(cur)
 
             $('.installment-card').addClass('d-none')
             if (method == 'installment') {
@@ -422,16 +458,16 @@
             if (cur == 'other') {
                 $('.receipt-other').removeClass('d-none')
                 $('.currency-icon').html(currencySymbol(detail))
-                $('input[name=select_currency_receipt]').val('other')
+                // $('input[name=select_currency_receipt]').val('other')
             } else {
-                $('input[name=select_currency_receipt]').val('idr')
+                // $('input[name=select_currency_receipt]').val('idr')
                 $('.receipt-other').addClass('d-none')
             }
 
         }
 
         function checkPaymentReceipt() {
-            let payment = $('#receipt_payment').val()
+            let payment = $('#receipt_method').val()
             if (payment == 'Cheque') {
                 $('#receipt_cheque').removeAttr('disabled')
             } else {
@@ -440,10 +476,16 @@
         }
     </script>
 
-    @if(isset($invoiceSch->currency))
+    @if(isset($invoiceSch->currency) && $invoiceSch->currency != 'idr') 
         <script>
             $(document).ready(function(){
                 $('#currency').val('other').trigger('change')
+            })
+        </script>
+    @else
+        <script>
+            $(document).ready(function(){
+                $('#currency').val('idr').trigger('change')
             })
         </script>
     @endif
@@ -472,6 +514,10 @@
         <script>
             $(document).ready(function(){
                 $('#addReceipt').modal('show'); 
+                checkReceipt();
+                
+                $("#identifier").val("{{old('identifier')}}");
+              
             })
 
         </script>

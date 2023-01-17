@@ -8,6 +8,7 @@ use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
+use App\Interfaces\ReceiptRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\Invb2b;
 use Carbon\Carbon;
@@ -26,14 +27,16 @@ class InvoiceSchoolController extends Controller
     protected ProgramRepositoryInterface $programRepository;
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
+    protected ReceiptRepositoryInterface $receiptRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
         $this->programRepository = $programRepository;
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
+        $this->receiptRepository = $receiptRepository;
     }
 
     public function index(Request $request)
@@ -127,13 +130,16 @@ class InvoiceSchoolController extends Controller
                 break;
 
             case 'idr':
+                $invoices['currency'] = 'idr';
                 unset($invoices['invb2b_price']);
                 unset($invoices['invb2b_disc']);
                 unset($invoices['invb2b_totprice']);
                 unset($invoices['invb2b_words']);
-                unset($invoices['currency']);
+                // unset($invoices['currency']);
                 break;
         }
+
+
 
         unset($invoices['invb2b_participants_other']);
         unset($invoices['invb2b_priceidr_other']);
@@ -156,15 +162,18 @@ class InvoiceSchoolController extends Controller
         $invoices['invb2b_id'] = $inv_id;
         $invoices['schprog_id'] = $schProgId;
 
-        $installment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
+        if ($invoices['invb2b_pm'] == 'installment') {
+            $installment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
+        }
         unset($installments);
 
         DB::beginTransaction();
         try {
 
             $this->invoiceB2bRepository->createInvoiceB2b($invoices);
-            $this->invoiceDetailRepository->createInvoiceDetail($installment);
-
+            if ($invoices['invb2b_pm'] == 'installment') {
+                $this->invoiceDetailRepository->createInvoiceDetail($installment);
+            }
             DB::commit();
         } catch (Exception $e) {
 
@@ -191,7 +200,6 @@ class InvoiceSchoolController extends Controller
         $school = $this->schoolRepository->getSchoolById($schoolId);
 
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-
 
         return view('pages.invoice.school-program.form')->with(
             [
@@ -299,8 +307,9 @@ class InvoiceSchoolController extends Controller
 
         $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $inv_id = $inv_b2b->invb2b_id;
-
-        $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
+        if ($invoices['invb2b_pm'] == 'installment') {
+            $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
+        }
         unset($installments);
 
         // return $installment;
@@ -310,10 +319,10 @@ class InvoiceSchoolController extends Controller
         try {
 
             $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $invoices);
-
-            $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
-            $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
-
+            if ($invoices['invb2b_pm'] == 'installment') {
+                $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
+                $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
+            }
             // exit;
             DB::commit();
         } catch (Exception $e) {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreInvoiceSchRequest;
+use App\Http\Requests\StoreReceiptRequest;
 use App\Http\Requests\StoreReceiptSchRequest;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
@@ -12,6 +13,7 @@ use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\Invb2b;
+use App\Models\Receipt;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -48,46 +50,72 @@ class ReceiptSchoolController extends Controller
         return view('pages.receipt.school-program.index');
     }
 
-    public function store(StoreReceiptSchRequest $request)
+    public function store(StoreReceiptRequest $request)
     {
+        #initialize
+        $identifier = $request->identifier; #invdtl_id
 
         $invb2b_num = $request->route('invoice');
         $receipts = $request->only([
+            'identifier',
+            'currency',
             'receipt_amount',
             'receipt_amount_idr',
+            'receipt_date',
             'receipt_words',
             'receipt_words_idr',
             'receipt_method',
             'receipt_cheque',
-            'select_currency_receipt',
         ]);
 
-        switch ($receipts['select_currency_receipt']) {
+
+        switch ($receipts['currency']) {
             case 'idr':
                 unset($receipts['receipt_amount']);
                 unset($receipts['receipt_words']);
-                break;
-
-            case 'other':
-                unset($receipts['receipt_amount_idr']);
-                unset($receipts['receipt_words_idr']);
                 break;
         }
 
         $receipts['receipt_cat'] = 'school';
 
         $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invb2b_num);
-        // return $invoice;
-        // exit;
         $schProgId = $invoice->schprog_id;
+        $sch_prog = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
+
         $invb2b_id = $invoice->invb2b_id;
 
+        # generate receipt id
+        $last_id = Receipt::whereMonth('created_at', date('m'))->max(DB::raw('substr(receipt_id, 1, 4)'));
+
+        # Use Trait Create Invoice Id
+        $receipt_id = $this->getInvoiceId($last_id, $sch_prog->prog_id);
+
+        $receipts['receipt_id'] = substr_replace($receipt_id, 'REC', 5) . substr($receipt_id, 8, strlen($receipt_id));
+
         $receipts['invb2b_id'] = $invb2b_id;
+        $invoice_payment_method = $invoice->invb2b_pm;
 
-        $receipts['receipt_id'] = substr_replace($invb2b_id, 'REC', 5) . substr($invb2b_id, 8, strlen($invb2b_id));
+        // return $receipts;
+        // exit;
 
+        if ($invoice_payment_method == "installment")
+            $receipts['invdtl_id'] = $identifier;
 
-        unset($receipts['select_currency_receipt']);
+        # validation nominal
+        # to catch if total invoice not equal to total receipt 
+        if ($invoice_payment_method == "full") {
+
+            $total_invoice = $invoice->invb2b_totpriceidr;
+            $total_receipt = $request->receipt_amount_idr;
+        } elseif ($invoice_payment_method == "installment") {
+
+            $total_invoice = $invoice->inv_detail()->where('invdtl_id', $identifier)->first()->invdtl_amountidr;
+            $total_receipt = $request->receipt_amount_idr;
+        }
+
+        if ($total_receipt < $total_invoice)
+            return Redirect::back()->withError('Do double check the amount. Make sure the amount on invoice and the amount on receipt is equal');
+
 
         DB::beginTransaction();
         try {
@@ -127,22 +155,21 @@ class ReceiptSchoolController extends Controller
 
     public function destroy(Request $request)
     {
-        $invNum = $request->route('detail');
-        $schProgId = $request->route('sch_prog');
+        $receiptId = $request->route('detail');
 
         DB::beginTransaction();
         try {
 
-            $this->invoiceB2bRepository->deleteInvoiceB2b($invNum);
+            $this->receiptRepository->deleteReceipt($receiptId);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete invoice failed : ' . $e->getMessage());
+            Log::error('Delete receipt failed : ' . $e->getMessage());
 
-            return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to delete invoice');
+            return Redirect::to('receipt/school-program/' . $receiptId)->withError('Failed to delete receipt');
         }
 
-        return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully deleted');
+        return Redirect::to('receipt/school-program')->withSuccess('Receipt successfully deleted');
     }
 }

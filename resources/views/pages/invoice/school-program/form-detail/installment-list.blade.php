@@ -17,7 +17,7 @@
                         </div>
                         <table class="table">
                             <tr>
-                                <td>Invoice ID:</td>
+                                <td>Invoice ID: {{isset($inv_dtl->receipt)}}</td>
                                 <td class="text-end">{{ $inv_dtl->invb2b_id }}</td>
                             </tr>
                             <tr>
@@ -26,32 +26,21 @@
                             </tr>
                         </table>
                         <div class="ps-1 mt-1">
-
-                            @switch($inv_dtl->invdtl_currency)
-                                @case('usd')
-                                    USD
-                                    @break
-                                
-                                @case('gbp')
-                                    GBP
-                                    @break
-                                
-                                @case('sgd')
-                                    SGD
-                                    @break
-
-                                @default
-                                    
-                            @endswitch
-                            {{ $inv_dtl->invdtl_amount > 0 ? $inv_dtl->invdtl_amount : '-' }} 
-                            | 
-                            Rp. {{ number_format($inv_dtl->invdtl_amountidr) }}
+                            {{ $inv_dtl->invdtl_amount > 0 ? $inv_dtl->invoicedtlAmount . ' | ' : '' }} 
+                             {{ $inv_dtl->invoicedtlAmountidr }}
                         </div>
                     </div> 
                     <div class="mt-2 text-end">
-                        <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" onclick="checkReceipt()">
-                            <i class="bi bi-plus"></i> Receipt
-                        </button>
+                        @if(empty($inv_dtl->receipt) && $invoiceSch->invb2b_pm == 'installment' && $status != 'edit')
+                            <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" onclick="checkReceipt();setIdentifier('{{ $inv_dtl->invdtl_id }}')">
+                                <i class="bi bi-plus"></i> Receipt
+                            </button>
+                        @endif
+                        @if(isset($inv_dtl->receipt)  && $status != 'edit' && $invoiceSch->invb2b_pm == 'installment')
+                            <a href="{{ url('receipt/school-program/'.$inv_dtl->receipt->id) }}" class="btn btn-sm btn-outline-warning py-1"  style="font-size: 11px">
+                                <i class="bi bi-eye"></i> View Receipt
+                            </a>
+                        @endif
                     </div>
                 </div>
             @endforeach

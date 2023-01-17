@@ -18,10 +18,8 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 ->leftJoin('tbl_sch', 'tbl_sch_prog.sch_id', '=', 'tbl_sch.sch_id')
                 ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
                 ->leftJoin('tbl_receipt', 'tbl_receipt.invb2b_id', '=', 'tbl_invb2b.invb2b_id')
-                // ->groupBy('tbl_receipt.invb2b_id')
-
                 ->select(
-                    'tbl_receipt.id',
+                    'tbl_receipt.id as increment_receipt',
                     'tbl_sch.sch_name as school_name',
                     'tbl_prog.prog_program as program_name',
                     'tbl_receipt.receipt_id',
@@ -29,12 +27,11 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                     'tbl_receipt.receipt_method',
                     'tbl_receipt.created_at',
                     'tbl_invb2b.invb2b_num',
-                    'tbl_receipt.receipt_amount_idr as total_price_idr'
-                    // DB::raw('SUM(tbl_receipt.receipt_amount_idr) as total_price_idr'),
+                    'tbl_invb2b.currency',
+                    'tbl_receipt.receipt_amount as total_price_other',
+                    'tbl_receipt.receipt_amount_idr as total_price_idr',
                 )
                 ->where('tbl_receipt.receipt_status', 1)
-            // ->groupBy('tbl_receipt.invb2b_id')
-            // ->sum('tbl_receipt.receipt_amount_idr')
         )->make(true);
     }
 

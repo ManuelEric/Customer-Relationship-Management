@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('receipt/client-program') }}" class="text-decoration-none text-muted">
+        <a href="{{ url('receipt/school-program') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Receipt
         </a>
     </div>
@@ -19,7 +19,8 @@
                     <h4>{{ $receiptSch->invoiceB2b->sch_prog->school->sch_name }}</h4>
                     <h6>{{ $receiptSch->invoiceB2b->sch_prog->program->prog_program }}</h6>
                     <div class="d-flex flex-wrap justify-content-center mt-3">
-                        <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1">
+                        <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1"
+                            onclick="confirmDelete('{{'receipt/school-program'}}', {{$receiptSch->id}})">
                             <i class="bi bi-trash2 me-1"></i> Delete
                         </button>
                         <a href="{{ url('receipt/school-program/1/export/pdf') }}"
@@ -57,21 +58,40 @@
                         </tr>
                         <tr>
                             <td>Receipt Date :</td>
-                            <td>{{ $receiptSch->created_at }}</td>
+                            <td>{{ date('d M Y H:i:s', strtotime($receiptSch->created_at)) }}</td>
                         </tr>
+                        @if(isset($receiptSch->invdtl_id))
+                            <tr>
+                                <td>Installment Name :</td>
+                                <td>{{ $receiptSch->invoiceInstallment->invdtl_installment }}</td>
+                            </tr>
+                        @endif
                         <tr>
-                            <td>Payment Method :</td>
+                            <td>Payment Method : </td>
                             <td>{{ $receiptSch->receipt_method }}</td>
                         </tr>
+                        @if($receiptSch->receipt_method == 'Cheque')
+                            <tr>
+                                <td>Cheque No : </td>
+                                <td>{{ $receiptSch->receipt_cheque }}</td>
+                            </tr>
+                        @endif
+                        @if ($receiptSch->invoiceB2b->currency != "idr")
+                            <tr>
+                                <td>Curs Rate :</td>
+                                <td>{{ $receiptSch->invoiceB2b->rate }}</td>
+                            </tr>
+                        @endif
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                $20 (Rp. 300.000)
+                                @if ($receiptSch->receipt_amount != null && $receiptSch->invoiceB2b->currency != "idr")
+                                    {{ $receiptSch->receipt_amount }}
+                                     ( {{ $receiptSch->receipt_amount_idr }} )
+                                @else
+                                    {{ $receiptSch->receipt_amount_idr }}
+                                @endif
                             </td>
-                        </tr>
-                        <tr>
-                            <td>Receipt ID :</td>
-                            <td>REC-12312/24124/12412</td>
                         </tr>
                     </table>
                 </div>
@@ -285,5 +305,12 @@
                 $('#receipt_cheque').attr('disabled', 'disabled')
             }
         }
+
+        $("#installment-list .detail").each(function() {
+            $(this).click(function() {
+                var link = "{{ url('/') }}/receipt/school-program/" + $(this).data('recid')
+                window.location = link
+            })
+        })
     </script>
 @endsection

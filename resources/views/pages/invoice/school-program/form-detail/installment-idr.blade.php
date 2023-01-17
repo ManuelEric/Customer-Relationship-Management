@@ -1,7 +1,7 @@
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between  align-items-center">
         <div class="">
-            Installment
+            Installment 
         </div>
         @if(empty($invoiceSch->inv_detail) || $status == 'edit')
             <button type="button" class="btn btn-sm btn-outline-primary" onclick="addInstallment()">
@@ -10,7 +10,7 @@
         @endif
     </div>
     <div class="card-body " id="installment_content">
-        @if (old('invdtl_installment') || isset($invoiceSch->inv_detail))
+        @if ((old('invdtl_installment') || isset($invoiceSch->inv_detail)) && $invoiceSch->invb2b_pm == 'installment')
         @php
             $limit = isset($invoiceSch->inv_detail) ? count($invoiceSch->inv_detail) : count(old('invdtl_installment'))
         @endphp
@@ -68,19 +68,29 @@
                 </div>
             @endfor
         @else
+        
             <div class="row g-2 installment mb-3">
                 <div class="col-md-3">
                     <label for="">Name</label>
                     <input type="text" name="invdtl_installment[]" class="form-control form-control-sm installment-name" value="Installment 1">
+                    @error('invdtl_installment.0')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
                 </div>
                 <div class="col-md-3">
                     <label for="">Due Date</label>
                     <input type="date" name="invdtl_duedate[]" class="form-control form-control-sm ">
+                    @error('invdtl_duedate.0')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
                 </div>
                 <div class="col-md-2">
                     <label for="">Percentage (%)</label>
                     <input type="text" name="invdtl_percentage[]" id="percentage_0" class="form-control form-control-sm percentage"
                         onchange="checkPercentage('0')">
+                    @error('invdtl_percentage.0')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
                 </div>
                 <div class="col-md-4">
                     <div class="d-flex justify-content-between">
@@ -96,10 +106,14 @@
                             Rp
                         </span>
                         <input type="number" name="invdtl_amountidr[]" class="form-control amount" id="amount_0" onchange="checkAmount('0')">
+                        @error('invdtl_amountidr.0')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
                     </div>
                 </div>
             </div>
         @endif
+
     </div>
 </div>
 

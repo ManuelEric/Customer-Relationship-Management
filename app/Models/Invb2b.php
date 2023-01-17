@@ -44,6 +44,76 @@ class Invb2b extends Model
         'currency',
     ];
 
+    public function getCurrencyUnit()
+    {
+        switch ($this->currency) {
+
+            case "usd":
+            default:
+                $unit = '$';
+                break;
+
+            case "sgd":
+                $unit = 'S$';
+                break;
+
+            case "gbp":
+                $unit = '£';
+                break;
+        }
+
+        return $unit;
+    }
+
+    protected function invoicePrice(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invb2b_price
+        );
+    }
+
+    protected function invoiceDiscount(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invb2b_disc
+        );
+    }
+
+    protected function invoiceTotalprice(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invb2b_totprice
+        );
+    }
+
+    protected function rate(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => "Rp. " . number_format($this->curs_rate, '2', ',', '.')
+        );
+    }
+
+    protected function invoicePriceIdr(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => "Rp. " . number_format($this->invb2b_priceidr, '2', ',', '.')
+        );
+    }
+
+    protected function invoiceDiscountIdr(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => "Rp. " . number_format($this->invb2b_discidr, '2', ',', '.')
+        );
+    }
+
+    protected function invoiceTotalpriceIdr(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => "Rp. " . number_format($this->invb2b_totpriceidr, '2', ',', '.')
+        );
+    }
+
     public function createdAt(): Attribute
     {
         return Attribute::make(
@@ -65,7 +135,7 @@ class Invb2b extends Model
 
     public function receipt()
     {
-        return $this->hasMany(Receipt::class, 'invb2b_id', 'invb2b_id');
+        return $this->hasOne(Receipt::class, 'invb2b_id', 'invb2b_id');
     }
 
     public function sch_prog()

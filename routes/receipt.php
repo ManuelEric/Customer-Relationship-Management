@@ -40,8 +40,8 @@ Route::resource('client-program', ReceiptController::class, [
     ]
 ])->parameters(['client-program' => 'receipt']);
 
-Route::prefix('client-program')->name('receipt.client-program.')->group(function() {
-    Route::get('{receipt}/export', [ReceiptController::class, 'export'])->name('export'); 
+Route::prefix('client-program')->name('receipt.client-program.')->group(function () {
+    Route::get('{receipt}/export', [ReceiptController::class, 'export'])->name('export');
 });
 
 // CORPORATE 
@@ -70,13 +70,13 @@ Route::prefix('school-program')->name('receipt.school.')->group(function () {
 //     return view('pages.receipt.school-program.index');
 // });
 
-// Route::get('school-program/1', function () {
-//     return view('pages.receipt.school-program.form');
-// });
+Route::get('school-program/1', function () {
+    return view('pages.receipt.school-program.form');
+});
 
-// Route::get('school-program/1/export/pdf', function () {
-//     return view('pages.receipt.school-program.export.receipt-pdf');
-// });
+Route::get('school-program/1/export/pdf', function () {
+    return view('pages.receipt.school-program.export.receipt-pdf');
+});
 
 // referral 
 Route::get('referral/', function () {

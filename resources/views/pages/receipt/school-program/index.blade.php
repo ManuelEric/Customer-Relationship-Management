@@ -23,14 +23,15 @@
                         <th>Invoice ID</th>
                         <th>Payment Method</th>
                         <th>Receipt Date</th>
-                        <th>Total Price</th>
+                        <th>Total Price Other</th>
+                        <th>Total Price IDR</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
                
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="8"></td>
+                        <td colspan="9"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -62,7 +63,8 @@
                 serverSide: true,
                 ajax: '',
                 columns: [{
-                        data: 'id',
+                        data: 'increment_receipt',
+                        name: 'tbl_receipt.id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
@@ -79,19 +81,56 @@
                     },
                     {
                         data: 'receipt_id',
+                        name: 'tbl_receipt.receipt_id',
                     },
                     {
                         data: 'invb2b_id',
                     },
                     {
                         data: 'receipt_method',
+                        name: 'tbl_receipt.receipt_method',
                     },
                     {
                         data: 'created_at',
+                        render: function(data, type, row) {
+                            let receipt_date = row.created_at ? moment(row
+                                .created_at).format("MMMM Do YYYY HH:mm:ss") : '-'
+                            return receipt_date
+                        }
                     },
                     {
+                        data: 'total_price_other',
+                        name: 'tbl_receipt.receipt_amount',
+                        render: function(data, type, row, meta) {
+                            var currency;
+                            var totprice = new Intl.NumberFormat().format(row.total_price_other);
+                                switch (row.currency) {
+                                    case 'usd':
+                                        currency = '$. ';
+                                    break;
+                                    case 'sgd':
+                                        currency = 'S$. ';
+                                    break;
+                                    case 'gbp':
+                                        currency = '£. ';
+                                    break;
+                                    default:
+                                        currency = '';
+                                        totprice = '-'
+                                        break;
+                                    }
+                                    return currency + totprice;   
+                        }
+                        
+                    },
+                     {
                         data: 'total_price_idr',
                         name: 'tbl_receipt.receipt_amount_idr',
+                        render: function(data, type, row, meta) {
+                            var totprice = new Intl.NumberFormat().format(row.total_price_idr);
+                                    return 'Rp. ' + totprice;   
+                        }
+                        
                     },
                     {
                         data: '',
@@ -105,7 +144,7 @@
 
             $('#receiptTable tbody').on('click', '.showReceipt ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('receipt/school-program/') }}/" + data.id;
+                window.location.href = "{{ url('receipt/school-program/') }}/" + data.increment_receipt;
             });
 
         });

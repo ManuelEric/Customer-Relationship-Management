@@ -1,14 +1,14 @@
 <div class="accordion accordion-flush shadow-sm">
     <div class="accordion-item rounded">
         <h2 class="accordion-header">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#schoolInfo">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#schoolInfo" aria-expanded="true">
                 <h6 class="m-0 p-0">
                     <i class="bi bi-person me-2"></i>
                     School Information
                 </h6>
             </button>
         </h2>
-        <div id="schoolInfo" class="accordion-collapse collapse" aria-labelledby="schoolInfo">
+        <div id="schoolInfo" class="accordion-collapse show" aria-labelledby="schoolInfo">
             <div class="accordion-body p-2">
                 <div class="card">
                     <div class="card-body">
