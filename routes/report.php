@@ -14,16 +14,21 @@ use Illuminate\Support\Facades\Route;
 */
 
 
+
+Route::get('sales', function () {
+    return view('pages.report.sales-tracking.index');
+});
+
+Route::get('event', function () {
+    return view('pages.report.event-tracking.index');
+});
+
 Route::get('invoice', function () {
     return view('pages.report.invoice.index');
 });
 
 Route::get('partnership', function () {
     return view('pages.report.partnership.index');
-});
-
-Route::get('sales', function () {
-    return view('pages.report.sales-tracking.index');
 });
 
 Route::get('unpaid', function () {

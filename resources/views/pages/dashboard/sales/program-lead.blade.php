@@ -2,6 +2,11 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
+                <div class="row justify-content-end mb-2">
+                    <div class="col-md-2">
+                        <input type="month" class="form-control form-control-sm">
+                    </div>
+                </div>
                 <div class="row align-items-center">
                     <div class="col-md-5">
                         <div class="card mb-3">
@@ -15,7 +20,7 @@
                             <div class="col">
                                 <div class="card">
                                     <div class="card-header">Lead Source</div>
-                                    <div class="card-body p-1 overflow-auto" style="max-height: 150px">
+                                    <div class="card-body p-1 overflow-auto" style="max-height: 200px">
                                         <ul class="list-group">
                                             @for ($i = 0; $i < 40; $i++)
                                                 <li
@@ -31,7 +36,7 @@
                             <div class="col">
                                 <div class="card">
                                     <div class="card-header">Conversion Lead</div>
-                                    <div class="card-body p-1 overflow-auto" style="max-height: 150px">
+                                    <div class="card-body p-1 overflow-auto" style="max-height: 200px">
                                         <ul class="list-group">
                                             @for ($i = 0; $i < 40; $i++)
                                                 <li
