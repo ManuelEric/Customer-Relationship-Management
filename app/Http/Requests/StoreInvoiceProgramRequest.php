@@ -31,20 +31,16 @@ class StoreInvoiceProgramRequest extends FormRequest
     {
         if (in_array('idr', $this->input('currency')) && $this->input('is_session') == "no") {
 
-            return $this->rupiahInvoiceWithNoSession(); 
-
+            return $this->rupiahInvoiceWithNoSession();
         } elseif (in_array('idr', $this->input('currency')) && $this->input('is_session') == "yes") {
 
             return $this->rupiahInvoiceWithYesSession();
-        
         } elseif (in_array('other', $this->input('currency')) && $this->input('is_session') == "no") {
 
             return $this->otherCurrencyInvoiceWithNoSession();
-
         } elseif (in_array('other', $this->input('currency')) && $this->input('is_session') == "yes") {
 
             return $this->otherCurrencyInvoiceWithYesSession();
-
         }
     }
 
@@ -56,7 +52,7 @@ class StoreInvoiceProgramRequest extends FormRequest
         $addQuery = $this->isMethod('POST') ? '|unique:tbl_inv,clientprog_id' : null;
 
         return [
-            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
+            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id' . $addQuery,
             'currency' => [
                 'required',
                 // function ($attribute, $value, $fail) use ($clientProgram) {
@@ -108,7 +104,7 @@ class StoreInvoiceProgramRequest extends FormRequest
         $addQuery = $this->isMethod('POST') ? '|unique:tbl_inv,clientprog_id' : null;
 
         return [
-            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
+            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id' . $addQuery,
             'currency' => [
                 'required',
                 // function ($attribute, $value, $fail) use ($clientProgram) {
@@ -170,7 +166,7 @@ class StoreInvoiceProgramRequest extends FormRequest
         $addQuery = $this->isMethod('POST') ? '|unique:tbl_inv,clientprog_id' : null;
 
         return [
-            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
+            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id' . $addQuery,
             'currency' => [
                 'required',
                 // function ($attribute, $value, $fail) use ($clientProgram) {
@@ -229,14 +225,14 @@ class StoreInvoiceProgramRequest extends FormRequest
         $currency = $this->input('currency');
 
         $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->max(DB::raw('substr(inv_id, 1, 4)'));
-            
+
         # Use Trait Create Invoice Id
         $inv_id = $this->getInvoiceId($last_id, $clientProgram->prog_id);
 
         $addQuery = $this->isMethod('POST') ? '|unique:tbl_inv,clientprog_id' : null;
 
         return [
-            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
+            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id' . $addQuery,
             'currency' => [
                 'required',
                 // function ($attribute, $value, $fail) use ($clientProgram) {
