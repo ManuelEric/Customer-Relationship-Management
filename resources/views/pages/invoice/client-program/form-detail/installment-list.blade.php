@@ -29,18 +29,19 @@
                             @if ($detail->invdtl_currency != NULL)
                             {{ strtoupper($detail->invdtl_currency) }} {{ $detail->invdtl_amount }} |  
                             @endif
-                            Rp. {{ number_format($detail->invdtl_amountidr,2,',','.') }}
+                            {{ $detail->invdtl_amountidr }}
                         </div>
                     </div>
                     <div class="mt-2 text-end">
-
-                        @if (isset($detail->receipt))
-                            <button class="btn btn-sm btn-outline-warning py-1" style="font-size: 11px">
-                                <i class="bi bi-eye"></i> View
-                            </button>
+                        @if ($detail->receipt)
+                            <a href="{{ route('receipt.client-program.show', ['receipt' => $detail->receipt->id]) }}">
+                                <button class="btn btn-sm btn-outline-warning py-1" style="font-size: 11px">
+                                    <i class="bi bi-eye"></i> View
+                                </button>
+                            </a>
                         @else
                             <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" data-bs-toggle="modal"
-                            data-bs-target="#addReceipt">
+                            data-bs-target="#addReceipt" onclick="checkReceipt();setIdentifier('Installment', '{{ $detail->invdtl_id }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif

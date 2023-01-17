@@ -25,7 +25,7 @@ return new class extends Migration
             $table->foreign('invb2b_id')->references('invb2b_id')->on('tbl_invb2b')->onUpdate('cascade')->onDelete('cascade');
 
             $table->string('receipt_method')->nullable();
-            $table->string('receipt_cheque', 50);
+            $table->string('receipt_cheque', 50)->nullable();
             $table->integer('receipt_amount')->nullable();
             $table->text('receipt_words')->nullable();
             $table->integer('receipt_amount_idr')->nullable();

@@ -132,6 +132,6 @@ class ClientProgram extends Model
 
     public function invoice()
     {
-        return $this->hasMany(InvoiceProgram::class, 'clientprog_id', 'clientprog_id');
+        return $this->hasOne(InvoiceProgram::class, 'clientprog_id', 'clientprog_id');
     }
 }
