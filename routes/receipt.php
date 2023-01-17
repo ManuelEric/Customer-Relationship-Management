@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ReceiptSchoolController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,17 +41,25 @@ Route::get('corporate-program/1/export/pdf', function () {
 });
 
 // school 
-Route::get('school-program/', function () {
-    return view('pages.receipt.school-program.index');
+
+Route::prefix('school-program')->name('receipt.school.')->group(function () {
+    Route::get('/', [ReceiptSchoolController::class, 'index'])->name('index');
+    Route::get('{detail}', [ReceiptSchoolController::class, 'show'])->name('show');
+    Route::delete('{detail}', [ReceiptSchoolController::class, 'destroy'])->name('destroy');
+    Route::post('/{invoice}', [ReceiptSchoolController::class, 'store'])->name('store');
 });
 
-Route::get('school-program/1', function () {
-    return view('pages.receipt.school-program.form');
-});
+// Route::get('school-program/', function () {
+//     return view('pages.receipt.school-program.index');
+// });
 
-Route::get('school-program/1/export/pdf', function () {
-    return view('pages.receipt.school-program.export.receipt-pdf');
-});
+// Route::get('school-program/1', function () {
+//     return view('pages.receipt.school-program.form');
+// });
+
+// Route::get('school-program/1/export/pdf', function () {
+//     return view('pages.receipt.school-program.export.receipt-pdf');
+// });
 
 // referral 
 Route::get('referral/', function () {

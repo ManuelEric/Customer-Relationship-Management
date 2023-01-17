@@ -20,7 +20,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                nathan@gmail.com
+                                  {{ $receiptSch->invoiceB2b->sch_prog->school->sch_mail ? $receiptSch->invoiceB2b->sch_prog->school->sch_mail : 'Not Available' }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -31,7 +31,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                628921412424
+                                {{ $receiptSch->invoiceB2b->sch_prog->school->sch_phone ? $receiptSch->invoiceB2b->sch_prog->school->sch_phone : 'Not Available' }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -42,9 +42,8 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                Jl. Kayu Putih Tengah No.1C, RT.9/RW.7, Pulo Gadung <br>
-                                13260 <br>
-                                Jakarta Timur DKI Jakarta
+                                 {!! $receiptSch->invoiceB2b->sch_prog->school->sch_location !!}
+                                    {{ $receiptSch->invoiceB2b->sch_prog->school->sch_city }}
                             </div>
                         </div>
                     </div>

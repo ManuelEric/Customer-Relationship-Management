@@ -16,8 +16,8 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>School Name</h4>
-                    <h6>Program Name</h6>
+                    <h4>{{ $receiptSch->invoiceB2b->sch_prog->school->sch_name }}</h4>
+                    <h6>{{ $receiptSch->invoiceB2b->sch_prog->program->prog_program }}</h6>
                     <div class="d-flex flex-wrap justify-content-center mt-3">
                         <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1">
                             <i class="bi bi-trash2 me-1"></i> Delete
@@ -53,15 +53,15 @@
                     <table class="table table-hover">
                         <tr>
                             <td width="20%">Receipt ID :</td>
-                            <td>REC-12312/24124/12412</td>
+                            <td>{{ $receiptSch->receipt_id }}</td>
                         </tr>
                         <tr>
                             <td>Receipt Date :</td>
-                            <td>12 December 2022</td>
+                            <td>{{ $receiptSch->created_at }}</td>
                         </tr>
                         <tr>
                             <td>Payment Method :</td>
-                            <td>Wire Transfer</td>
+                            <td>{{ $receiptSch->receipt_method }}</td>
                         </tr>
                         <tr>
                             <td>Amount :</td>

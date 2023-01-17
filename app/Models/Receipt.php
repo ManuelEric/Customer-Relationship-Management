@@ -11,7 +11,7 @@ class Receipt extends Model
 
     protected $table = 'tbl_receipt';
 
-    protected $fillabled = [
+    protected $fillable = [
         'receipt_id',
         'receipt_cat',
         'inv_id',

@@ -17,7 +17,7 @@
         <table class="table table-hover">
             <tr>
                 <td width="20%">Invoice ID :</td>
-                <td>INV-12312/24124/12412</td>
+                <td>{{ $receiptSch->invoiceB2b->invb2b_id }}</td>
             </tr>
             <tr>
                 <td>Price :</td>
@@ -28,7 +28,7 @@
             <tr>
                 <td>Participants :</td>
                 <td>
-                    150
+                    {{ $receiptSch->invoiceB2b->invb2b_participants }}
                 </td>
             </tr>
             <tr>

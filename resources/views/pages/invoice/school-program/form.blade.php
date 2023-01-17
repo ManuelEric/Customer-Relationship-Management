@@ -55,20 +55,22 @@
                             Invoice
                         </h6>
                     </div>
-                    @if(isset($invoiceSch) && $invoiceSch->invb2b_pm == 'full')
-                        <div class="">
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
-                                <i class="bi bi-plus"></i> Receipt
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning py-1">
-                                <i class="bi bi-eye"></i> View Receipt
-                            </button>
+                    <div class="">
+                            @if(isset($invoiceSch) && $invoiceSch->invb2b_pm == 'full' && $status != 'edit' && count($invoiceSch->receipt) < 1)
+                                <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
+                                    <i class="bi bi-plus"></i> Receipt
+                                </button>
+                            @endif
+                            @if(count($invoiceSch->receipt) > 0 && $status != 'edit' && isset($invoiceSch) && $invoiceSch->invb2b_pm == 'full')
+                                <a href="{{ url('receipt/school-program/'.$invoiceSch->receipt[0]->id) }}" class="btn btn-sm btn-outline-warning py-1">
+                                    <i class="bi bi-eye"></i> View Receipt
+                                </a>
+                            @endif
                         </div>
-                    @endif
                 </div>
 
                 <div class="card-body">
-                    {{-- @if ($errors->any())
+                    @if ($errors->any())
     <div class="alert alert-danger">
         <ul>
             @foreach ($errors->all() as $error)
@@ -76,7 +78,7 @@
             @endforeach
         </ul>
     </div>
-@endif --}}
+@endif
 
                     <form action="{{ url($status == 'edit' ? 'invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num : 'invoice/school-program/' . $schoolProgram->id . '/detail') }}" method="POST" id="invoice-form">
                         @csrf
@@ -227,11 +229,12 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="#" method="POST" id="receipt">
+                    <form action="{{ route('receipt.school.store', ['invoice' => (isset($invoiceSch)) ? $invoiceSch->invb2b_num : '']) }}" method="POST" id="receipt">
                         @csrf
-                        <div class="put"></div>
+
+                        {{-- <div class="put"></div> --}}
                         <div class="row g-2">
-                            <div class="col-md-3 receipt-other d-none">
+                            <div class="col-md-6 receipt-other d-none">
                                 <div class="mb-1">
                                     <label for="">
                                         Amount <sup class="text-danger">*</sup>
@@ -240,12 +243,16 @@
                                         <span class="input-group-text currency-icon" id="basic-addon1">
                                             $
                                         </span>
-                                        <input type="text" name="receipt" id="receipt_amount_other"
-                                            class="form-control" required value="">
+                                        <input type="number" name="receipt_amount" id="receipt_amount_other"
+                                            oninput="wordReceipt()"
+                                            class="form-control" value="">
+                                        @error('receipt_amount')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <div class="mb-1">
                                     <label for="">
                                         Amount <sup class="text-danger">*</sup>
@@ -254,12 +261,16 @@
                                         <span class="input-group-text" id="basic-addon1">
                                             Rp
                                         </span>
-                                        <input type="text" name="receipt" id="receipt_amount"
-                                            class="form-control" required value="">
+                                        <input type="number" name="receipt_amount_idr" id="receipt_amount"
+                                            oninput="wordReceipt()"
+                                            class="form-control" value="">
+                                        @error('receipt_amount_idr')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            {{-- <div class="col-md-4">
                                 <div class="mb-1">
                                     <label for="">
                                         Date <sup class="text-danger">*</sup>
@@ -267,14 +278,18 @@
                                     <input type="date" name="receipt" id="receipt_date"
                                         class="form-control form-control-sm rounded" required value="">
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-md-12 receipt-other d-none">
                                 <div class="mb-1">
                                     <label for="">
                                         Word <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_word_other"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
+                                    <input type="text" name="receipt_words" id="receipt_word_other"
+                                        class="form-control form-control-sm rounded" value="" readonly>
+                                    @error('receipt_words')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -282,8 +297,11 @@
                                     <label for="">
                                         Word <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_word"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
+                                    <input type="text" name="receipt_words_idr" id="receipt_word"
+                                        class="form-control form-control-sm rounded" value="" readonly>
+                                    @error('receipt_words_idr')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -291,12 +309,15 @@
                                     <label for="">
                                         Payment Method <sup class="text-danger">*</sup>
                                     </label>
-                                    <select name="" class="modal-select w-100" id="receipt_payment"
+                                    <select name="receipt_method" class="modal-select w-100" id="receipt_method"
                                         onchange="checkPaymentReceipt()">
                                         <option value="Wire Transfer">Wire Transfer</option>
                                         <option value="Cash">Cash</option>
                                         <option value="Cheque">Cheque</option>
                                     </select>
+                                    @error('receipt_method')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -304,17 +325,21 @@
                                     <label for="">
                                         Cheque No <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_cheque"
-                                        class="form-control form-control-sm rounded" required value="" disabled>
+                                    <input type="text" name="receipt_cheque" id="receipt_cheque"
+                                        class="form-control form-control-sm rounded" value="" disabled>
+                                    @error('receipt_cheque')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
+                            <input type="hidden" name="select_currency_receipt" id="select_currency_receipt">
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between">
                             <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
                                 <i class="bi bi-x-square me-1"></i>
                                 Cancel</a>
-                            <button type="submit" class="btn btn-primary btn-sm">
+                            <button type="submit" value="receipt" class="btn btn-primary btn-sm">
                                 <i class="bi bi-save2 me-1"></i>
                                 Save</button>
                         </div>
@@ -332,6 +357,26 @@
                 allowClear: true
             });
         });
+        
+        
+        function wordReceipt() {
+            let curr = $('#select_currency_receipt').val() 
+            let price;
+            if(curr == 'other'){
+                let price_other = $('#receipt_amount_other').val()
+                let kurs = $('#current_rate').val()
+                let detail = $('#currency_detail').val()
+                price = $('#receipt_amount').val(price_other*kurs)
+                $('#receipt_word_other').val(wordConverter(price_other)+ ' ' + currencyText(detail))
+                $('#receipt_word').val(wordConverter(price_other*kurs)+ ' Rupiah')
+                $('#receipt_amount').addAttr('readonly')
+            }else{
+                price = $('#receipt_amount').val()
+                $('#receipt_word').val(wordConverter(price)+ ' Rupiah')
+                $('#receipt_amount').removeAttr('readonly')
+            }
+            
+        }
         
         function checkCurrency() {
             let cur = $('#currency').val()
@@ -372,12 +417,14 @@
         function checkReceipt() {
             let cur = $('#currency').val()
             let detail = $('#currency_detail').val()
-
+            
             $('#addReceipt').modal('show')
             if (cur == 'other') {
                 $('.receipt-other').removeClass('d-none')
                 $('.currency-icon').html(currencySymbol(detail))
+                $('input[name=select_currency_receipt]').val('other')
             } else {
+                $('input[name=select_currency_receipt]').val('idr')
                 $('.receipt-other').addClass('d-none')
             }
 
@@ -405,6 +452,36 @@
         <script>
             $(document).ready(function(){
                 $('#payment_method').val('{{$invoiceSch->invb2b_pm}}').trigger('change')
+            })
+
+        </script>
+    @endif
+
+
+    {{-- receipt --}}
+
+    @if(
+        $errors->has('receipt_amount') | 
+        $errors->has('receipt_amount_idr') | 
+        $errors->has('receipt_words') | 
+        $errors->has('receipt_words_idr') |
+        $errors->has('receipt_method') |
+        $errors->has('receipt_cheque')
+        )
+                
+        <script>
+            $(document).ready(function(){
+                $('#addReceipt').modal('show'); 
+            })
+
+        </script>
+
+    @endif
+
+    @if(!empty(old('receipt_method')))
+        <script>
+            $(document).ready(function(){
+                $('#receipt_method').val("{{old('receipt_method')}}").trigger('change')
             })
 
         </script>

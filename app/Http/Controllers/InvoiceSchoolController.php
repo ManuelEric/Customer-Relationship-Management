@@ -77,9 +77,6 @@ class InvoiceSchoolController extends Controller
     public function store(StoreInvoiceSchRequest $request)
     {
 
-        // TODO: Validation Installment
-
-
         $schProgId = $request->route('sch_prog');
         $invoices = $request->only([
             'select_currency',
@@ -194,6 +191,7 @@ class InvoiceSchoolController extends Controller
         $school = $this->schoolRepository->getSchoolById($schoolId);
 
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+
 
         return view('pages.invoice.school-program.form')->with(
             [
