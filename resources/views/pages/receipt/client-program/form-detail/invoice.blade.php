@@ -7,9 +7,11 @@
             </h6>
         </div>
         <div class="">
-            <button class="btn btn-sm btn-outline-warning py-1">
-                <i class="bi bi-eye"></i> View Invoice
-            </button>
+            <a href="{{ route('invoice.program.show', ['client_program' => $client_prog->clientprog_id]) }}">
+                <button class="btn btn-sm btn-outline-warning py-1">
+                    <i class="bi bi-eye"></i> View Invoice
+                </button>
+            </a>
         </div>
     </div>
 
@@ -17,69 +19,116 @@
         <table class="table table-hover">
             <tr>
                 <td width="20%">Invoice ID :</td>
-                <td>INV-12312/24124/12412</td>
+                <td>{{ $receipt->invoiceProgram->inv_id }}</td>
             </tr>
+            @if ($receipt->invoiceProgram->inv_category == "other")
+            <tr>
+                <td>Curs Rate :</td>
+                <td>{{ $receipt->invoiceProgram->rate }}</td>
+            </tr>
+            @endif
             <tr>
                 <td>Price :</td>
                 <td>
-                    $20 (Rp. 300.000)
+                    @if ($receipt->invoiceProgram->inv_price != NULL)
+                        {{ $receipt->invoiceProgram->invoicePrice }}
+                        ( {{ $receipt->invoiceProgram->invoice_price_idr }} )
+                    @else
+                        {{ $receipt->invoiceProgram->invoice_price_idr }}
+                    @endif
                 </td>
             </tr>
+            @if ($receipt->invoiceProgram->session != 0)
             <tr>
                 <td>Session :</td>
                 <td>
-                    3x
+                    {{ $receipt->invoiceProgram->session }}
                 </td>
             </tr>
+            @endif
+            @if ($receipt->invoiceProgram->duration != 0)
             <tr>
                 <td>Duration :</td>
                 <td>
-                    60 Minutes
+                    {{ $receipt->invoiceProgram->duration }}
                 </td>
             </tr>
+            @endif
             <tr>
                 <td>Early Bird :</td>
                 <td>
-                    $20 (Rp. 300.000)
+                    @if ($receipt->invoiceProgram->inv_earlybird != NULL)
+                        {{ $receipt->invoiceProgram->invoice_earlybird }}
+                        ( {{ $receipt->invoiceProgram->invoice_earlybird_idr }} )
+                    @else
+                        {{ $receipt->invoiceProgram->invoice_earlybird_idr }}
+                    @endif
                 </td>
             </tr>
             <tr>
                 <td>Discount Bird :</td>
                 <td>
-                    $20 (Rp. 300.000)
+                    @if ($receipt->invoiceProgram->inv_discount != NULL)
+                        {{ $receipt->invoiceProgram->invoice_discount }}
+                        ( {{ $receipt->invoiceProgram->invoice_discount_idr }} )
+                    @else
+                        {{ $receipt->invoiceProgram->invoice_discount_idr }}
+                    @endif
                 </td>
             </tr>
             <tr>
                 <td>Total Price :</td>
                 <td>
-                    $20 (Rp. 300.000)
+                    @if ($receipt->invoiceProgram->inv_totalprice != NULL)
+                        {{ $receipt->invoiceProgram->invoice_totalprice }}
+                        ( {{ $receipt->invoiceProgram->invoice_totalprice_idr }} )
+                    @else
+                        {{ $receipt->invoiceProgram->invoice_totalprice_idr }}
+                    @endif
                 </td>
             </tr>
         </table>
 
         {{-- IF INSTALLMENT EXIST  --}}
         <div class="mt-3">
-            Installment List
-            <table class="table table-bordered table-hover">
-                <thead class="text-center">
-                    <tr>
-                        <th>No</th>
-                        <th>Name</th>
-                        <th>Due Date</th>
-                        <th>Percentage</th>
-                        <th>Amount</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <tr>
-                        <td>No</td>
-                        <td>Name</td>
-                        <td>Due Date</td>
-                        <td>Percentage</td>
-                        <td>Amount</td>
-                    </tr>
-                </tbody>
-            </table>
+            @if ($receipt->invoiceProgram->invoiceDetail->count() > 0)
+                Installment List
+                <table class="table table-bordered table-hover" id="installment-list">
+                    <thead class="text-center">
+                        <tr>
+                            <th>No</th>
+                            <th>Name</th>
+                            <th>Due Date</th>
+                            <th>Percentage</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach ($receipt->invoiceProgram->invoiceDetail as $detail)
+                            <tr style="cursor:pointer"
+                                @if (isset($detail->receipt) && $detail->receipt->id == $receipt->id)
+                                    class="bg-success text-light detail" data-recid="{{ $detail->receipt->id }}"
+                                @elseif (isset($detail->receipt))
+                                    class="detail" data-recid="{{ $detail->receipt->id }}"
+                                @endif
+                                >
+                                <td>{{ $loop->iteration }} </td>
+                                <td>{{ $detail->invdtl_installment }}</td>
+                                <td>{{ $detail->invdtl_duedate }}</td>
+                                <td>{{ $detail->invdtl_percentage }}%</td>
+                                <td>
+                                    @if ($detail->invdtl_amount != NULL)
+                                        {{ $detail->invoicedtl_amount }}
+                                        ( {{ $detail->invoicedtl_amountidr }} )
+                                    @else
+                                        {{ $detail->invoicedtl_amountidr }}
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
     </div>
 </div>

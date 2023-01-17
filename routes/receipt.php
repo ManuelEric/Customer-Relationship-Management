@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ReceiptController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReceiptSchoolController;
 
@@ -15,16 +16,32 @@ use App\Http\Controllers\ReceiptSchoolController;
 */
 
 // CLIENT 
-Route::get('client-program/', function () {
-    return view('pages.receipt.client-program.index');
-});
+// Route::get('client-program/', function () {
+//     return view('pages.receipt.client-program.index');
+// });
 
-Route::get('client-program/1', function () {
-    return view('pages.receipt.client-program.form');
-});
+// Route::get('client-program/1', function () {
+//     return view('pages.receipt.client-program.form');
+// });
 
-Route::get('client-program/1/export/pdf', function () {
-    return view('pages.receipt.client-program.export.receipt-pdf');
+// Route::get('client-program/1/export/pdf', function () {
+//     return view('pages.receipt.client-program.export.receipt-pdf');
+// });
+
+Route::resource('client-program', ReceiptController::class, [
+    'names' => [
+        'index' => 'receipt.client-program',
+        'store' => 'receipt.client-program.store',
+        'create' => 'receipt.client-program.create',
+        'show' => 'receipt.client-program.show',
+        'edit' => 'receipt.client-program.edit',
+        'update' => 'receipt.client-program.update',
+        'destroy' => 'receipt.client-program.destroy'
+    ]
+])->parameters(['client-program' => 'receipt']);
+
+Route::prefix('client-program')->name('receipt.client-program.')->group(function() {
+    Route::get('{receipt}/export', [ReceiptController::class, 'export'])->name('export'); 
 });
 
 // CORPORATE 

@@ -14,13 +14,13 @@
     <div class="card rounded">
         <ul class="nav nav-tabs mb-3">
             <li class="nav-item">
-                <a class="nav-link " aria-current="page" href="#">Receipt List</a>
+                <a class="nav-link {{ Request::get('s') == 'list' ? "active" : null }}" aria-current="page" href="{{ route('receipt.client-program') }}?s=list">Receipt List</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Refund Request</a>
+                <a class="nav-link {{ Request::get('s') == 'refund-request' ? "active" : null }}" href="{{ route('receipt.client-program') }}?s=refund-request">Refund Request</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Refund List</a>
+                <a class="nav-link {{ Request::get('s') == 'refund-list' ? "active" : null }}" href="{{ route('receipt.client-program') }}?s=refund-list">Refund List</a>
             </li>
         </ul>
         <div class="card-body">
@@ -85,77 +85,52 @@
                 fixedColumns: {
                     left: 2,
                     right: 1
-                }
+                },
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'client_fullname',
+                    },
+                    {
+                        data: 'program_name',
+                    },
+                    {
+                        data: 'receipt_id',
+                    },
+                    {
+                        data: 'inv_id',
+                    },
+                    {
+                        data: 'receipt_method',
+                    },
+                    {
+                        data: 'created_at',
+                        render: function(data, type, row) {
+                            let receipt_date = row.created_at ? moment(row
+                                .created_at).format("MMMM Do YYYY HH:mm:ss") : '-'
+                            return receipt_date
+                        }
+                    },
+                    {
+                        data: 'receipt_amount_idr'
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return '<a href="{{ url('receipt/client-program/') }}/' + data + '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
+                        }
+                    }
+                ]
             })
-            // var table = $('#programTable').DataTable({
-            //     dom: 'Bfrtip',
-            //     lengthMenu: [
-            //         [10, 25, 50, 100, -1],
-            //         ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-            //     ],
-            //     buttons: [
-            //         'pageLength', {
-            //             extend: 'excel',
-            //             text: 'Export to Excel',
-            //         }
-            //     ],
-            //     scrollX: true,
-            //     fixedColumns: {
-            //         left: 2,
-            //         right: 1
-            //     },
-            //     processing: true,
-            //     serverSide: true,
-            //     ajax: '',
-            //     columns: [{
-            //             data: 'event_id',
-            //             className: 'text-center',
-            //             render: function(data, type, row, meta) {
-            //                 return meta.row + meta.settings._iDisplayStart + 1;
-            //             }
-            //         },
-            //         {
-            //             data: 'event_title',
-            //         },
-            //         {
-            //             data: 'event_location',
-            //         },
-            //         {
-            //             data: 'event_startdate',
-            //             render: function(data, type, row) {
-            //                 let event_startdate = row.event_startdate ? moment(row
-            //                     .event_startdate).format("MMMM Do YYYY HH:mm:ss") : '-'
-            //                 return event_startdate
-            //             }
-            //         },
-            //         {
-            //             data: 'event_enddate',
-            //             render: function(data, type, row) {
-            //                 let event_enddate = row.event_enddate ? moment(row
-            //                     .event_enddate).format("MMMM Do YYYY HH:mm:ss") : '-'
-            //                 return event_enddate
-            //             }
-            //         },
-            //         {
-            //             data: '',
-            //             className: 'text-center',
-            //             defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning showEvent"><i class="bi bi-eye"></i></button>' +
-            //                 '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteEvent"><i class="bi bi-trash2"></i></button>'
-            //         }
-            //     ]
-            // });
-
-            // realtimeData(table)
-
-            // $('#programTable tbody').on('click', '.showEvent ', function() {
-            //     var data = table.row($(this).parents('tr')).data();
-            //     window.location.href = "{{ url('master/event') }}/" + data.event_id;
-            // });
-
-            // $('#programTable tbody').on('click', '.deleteEvent ', function() {
-            //     var data = table.row($(this).parents('tr')).data();
-            //     confirmDelete('master/event', data.event_id)
-            // });
 
         });
     </script>

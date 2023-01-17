@@ -49,6 +49,10 @@
                             {{ $status == 'edit' ? 'Back' : 'Edit' }}
                         </a>
 
+                        <button class="btn btn-sm btn-outline-info rounded mx-1">
+                            <i class="bi bi-printer me-1"></i> Print
+                        </button>
+
                         <button class="btn btn-sm btn-outline-danger rounded mx-1" onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
                             <i class="bi bi-trash2 me-1"></i> Delete
                         </button>
@@ -74,15 +78,17 @@
                         </h6>
                     </div>
                     <div class="">
-                        @if (isset($invoice) && count($invoice->receipt) == 0 && $invoice->inv_paymentmethod == "Full Payment")
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
+                        @if (!isset($invoice) && $invoice->inv_paymentmethod == "Full Payment")
+                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
-                        @if (count($invoice->receipt) > 0 && $invoice->inv_paymentmethod == "Full Payment")
-                            <button class="btn btn-sm btn-outline-warning py-1">
-                                <i class="bi bi-eye"></i> View Receipt
-                            </button>
+                        @if (isset($invoice->receipt) && $invoice->inv_paymentmethod == "Full Payment")
+                            <a href="{{ route('receipt.client-program.show', ['receipt' => $invoice->receipt->id]) }}">
+                                <button class="btn btn-sm btn-outline-warning py-1">
+                                    <i class="bi bi-eye"></i> View Receipt
+                                </button>
+                            </a>
                         @endif
                     </div>
                 </div>
@@ -118,27 +124,27 @@
                                 @enderror
                             </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
-                                <label for="">Currency Detail <sup class="text-danger">*</sup></label>
+                                <label for="">Currency Detail <sup class="text-danger">*</sup></label> {{ old('currency') }}
                                 <select class="select w-100" name="currency[]" id="currency_detail" {{ $disabled !== null ? $disabled : 'onchange="checkCurrencyDetail()"' }}>
                                     <option data-placeholder="true"></option>
                                     <option value="usd"
                                         @if (isset($invoice->currency) && $invoice->currency == "usd")
                                             {{ "selected" }}
-                                        @elseif (old('currency') !== null && in_array('usd', old('currency')))
+                                        @elseif (old('currency') !== null && in_array('usd', (array) old('currency')))
                                             {{ "selected" }}
                                         @endif
                                             >USD</option>
                                     <option value="sgd"
                                         @if (isset($invoice->currency) && $invoice->currency == "sgd")
                                             {{ "selected" }}
-                                        @elseif (old('currency') !== null && in_array('sgd', old('currency')))
+                                        @elseif (old('currency') !== null && in_array('sgd', (array) old('currency')))
                                             {{ "selected" }}
                                         @endif
                                             >SGD</option>
                                     <option value="gbp"
                                         @if (isset($invoice->currency) && $invoice->currency == "gbp")
                                             {{ "selected" }}
-                                        @elseif (old('currency') !== null && in_array('gbp', old('currency')))
+                                        @elseif (old('currency') !== null && in_array('gbp', (array) old('currency')))
                                             {{ "selected" }}
                                         @endif
                                             >GBP</option>
@@ -294,8 +300,12 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="#" method="POST" id="receipt">
+                    <form action="{{ route('receipt.client-program.store') }}" method="POST" id="receipt">
                         @csrf
+                        <input type="hidden" name="clientprog_id" value="{{ $clientProg->clientprog_id }}">
+                        <input type="hidden" name="identifier" id="identifier">
+                        <input type="hidden" name="paymethod" id="paymethod">
+                        <input type="hidden" name="currency" value="{{ isset($invoice->currency) ? $invoice->currency : null }}">
                         <div class="put"></div>
                         <div class="row g-2">
                             <div class="col-md-3 receipt-other d-none">
@@ -307,8 +317,8 @@
                                         <span class="input-group-text currency-icon" id="basic-addon1">
                                             $
                                         </span>
-                                        <input type="text" name="receipt" id="receipt_amount_other"
-                                            class="form-control" required value="">
+                                        <input type="text" name="receipt_amount" id="receipt_amount_other"
+                                            class="form-control" value="">
                                     </div>
                                 </div>
                             </div>
@@ -321,8 +331,8 @@
                                         <span class="input-group-text" id="basic-addon1">
                                             Rp
                                         </span>
-                                        <input type="text" name="receipt" id="receipt_amount"
-                                            class="form-control" required value="">
+                                        <input type="text" name="receipt_amount_idr" id="receipt_amount"
+                                            class="form-control" value="">
                                     </div>
                                 </div>
                             </div>
@@ -331,8 +341,8 @@
                                     <label for="">
                                         Date <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="date" name="receipt" id="receipt_date"
-                                        class="form-control form-control-sm rounded" required value="">
+                                    <input type="date" name="receipt_date" value="{{ date('Y-m-d') }}" id="receipt_date"
+                                        class="form-control form-control-sm rounded">
                                 </div>
                             </div>
                             <div class="col-md-12 receipt-other d-none">
@@ -340,8 +350,8 @@
                                     <label for="">
                                         Word <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_word_other"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
+                                    <input type="text" name="receipt_words" id="receipt_word_other"
+                                        class="form-control form-control-sm rounded" value="" readonly>
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -349,8 +359,8 @@
                                     <label for="">
                                         Word <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_word"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
+                                    <input type="text" name="receipt_words_idr" id="receipt_word"
+                                        class="form-control form-control-sm rounded" value="" readonly>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -358,7 +368,7 @@
                                     <label for="">
                                         Payment Method <sup class="text-danger">*</sup>
                                     </label>
-                                    <select name="" class="modal-select w-100" id="receipt_payment"
+                                    <select name="receipt_method" class="modal-select w-100" id="receipt_payment"
                                         onchange="checkPaymentReceipt()">
                                         <option value="Wire Transfer">Wire Transfer</option>
                                         <option value="Cash">Cash</option>
@@ -371,8 +381,8 @@
                                     <label for="">
                                         Cheque No <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_cheque"
-                                        class="form-control form-control-sm rounded" required value="" disabled>
+                                    <input type="text" name="receipt_cheque" id="receipt_cheque"
+                                        class="form-control form-control-sm rounded" value="" disabled>
                                 </div>
                             </div>
                         </div>
@@ -392,7 +402,43 @@
     </div>
 
     <script>
+        function setIdentifier(paymethod, id)
+        {
+            $("#identifier").val(id);
+            $("#paymethod").val(paymethod);
+        }
+
         $(document).ready(function() {
+
+            $("#receipt_amount_other").on('keyup', function() {
+                var val = $(this).val()
+                var currency = $("#receipt input[name=currency]").val()
+                var curs_rate = $("#current_rate").val();
+                switch (currency) {
+                    case 'usd':
+                        currency = ' Dollar';
+                        break;
+                    case 'sgd':
+                        currency = ' Singapore Dollar';
+                        break;
+                    case 'gbp':
+                        currency = ' Pound';
+                        break;
+                    default:
+                        currency = '';
+                        totprice = '-'
+                        break;
+                }  
+                $("#receipt_word_other").val(wordConverter(val) + currency)
+                $("#receipt_amount").val(val*curs_rate)
+                $("#receipt_word").val(wordConverter(val*curs_rate) + " Rupiah")
+            })
+
+            $("#receipt_amount").on('keyup', function() {
+                var val = $(this).val()
+                $("#receipt_word").val(wordConverter(val) + " Rupiah")
+            })
+
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
                 placeholder: "Select value",
@@ -440,9 +486,9 @@
             @endif
 
             // old
-            @if (old('currency') !== null && in_array('idr', old('currency'))) 
+            @if (old('currency') !== null && in_array('idr', (array) old('currency'))) 
                 $("#currency").val('idr').trigger('change')
-            @elseif (old('currency') !== null && in_array('other', old('currency')))
+            @elseif (old('currency') !== null && in_array('other', (array) old('currency')))
                 $("#currency").val('other').trigger('change')
             @endif
 

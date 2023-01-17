@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Invb2b;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -33,6 +34,42 @@ class InvDetail extends Model
         'invdtl_currency'
     ];
 
+    public function getCurrencyUnit()
+    {
+        switch ($this->invdtl_currency) {
+
+            case "usd":
+            default:
+                $unit = '$';
+                break;
+
+            case "sgd":
+                $unit = 'S$';
+                break;
+
+            case "gbp":
+                $unit = '£';
+                break;
+
+        }
+
+        return $unit;
+    }
+
+    protected function invoicedtlAmount(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getCurrencyUnit().' '.$this->invdtl_amount
+        );
+    }
+
+    protected function invoicedtlAmountidr(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => "Rp. ".number_format($this->invdtl_amountidr,'2',',','.')
+        );
+    }
+
     public function inv_b2b()
     {
         return $this->belongsTo(Invb2b::class, 'invb2b_id', 'invb2b_id');
@@ -45,7 +82,7 @@ class InvDetail extends Model
 
     public function receipt()
     {
-        return $this->hasMany(Receipt::class, 'invdtl_id', 'invdtl_id');
+        return $this->hasOne(Receipt::class, 'invdtl_id', 'invdtl_id');
     }
 
 }
