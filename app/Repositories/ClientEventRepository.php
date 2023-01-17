@@ -30,7 +30,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     WHEN tbl_lead.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", tbl_events.event_title)
                     ELSE tbl_lead.main_lead
                 END) AS event_name'),
-                DB::raw('CONCAT(tbl_client.first_name," ",tbl_client.last_name) as client_name')
+                DB::raw('CONCAT(tbl_client.first_name," ",COALESCE(tbl_client.last_name)) as client_name')
             )
             )->filterColumn('client_name', function($query, $keyword){
                 $sql = 'CONCAT(tbl_client.first_name," ",tbl_client.last_name) like ?';

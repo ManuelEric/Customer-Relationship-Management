@@ -31,8 +31,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
                         ->select([
                             'tbl_inv.clientprog_id',
-                            DB::raw('CONCAT(first_name, " ", last_name) as client_fullname'),
-                            DB::raw('CONCAT(prog_program, " - ", tbl_main_prog.prog_name, " / ", tbl_sub_prog.sub_prog_name) as program_name'),
+                            DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
+                            DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
                             'inv_id',
                             'inv_paymentmethod',
                             'tbl_inv.created_at',
@@ -66,8 +66,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
                         ->select([
                             'tbl_inv.clientprog_id',
-                            DB::raw('CONCAT(first_name, " ", last_name) as client_fullname'),
-                            DB::raw('CONCAT(prog_program, " - ", tbl_main_prog.prog_name, " / ", tbl_sub_prog.sub_prog_name) as program_name'),
+                            DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
+                            DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
                             'inv_id',
                             'inv_paymentmethod',
                             'tbl_inv.created_at',

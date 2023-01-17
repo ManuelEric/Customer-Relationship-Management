@@ -78,7 +78,7 @@
                         </h6>
                     </div>
                     <div class="">
-                        @if (isset($invoice) && $invoice->inv_paymentmethod == "Full Payment")
+                        @if ($invoice === NULL && isset($invoice->receipt))
                             <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>

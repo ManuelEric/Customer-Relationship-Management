@@ -25,7 +25,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'tbl_prog.prog_program as program_name',
                     'tbl_sch_prog.success_date',
                     'users.id as pic_id',
-                    DB::raw('CONCAT(users.first_name," ",users.last_name) as pic_name'))->
+                    DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name'))->
                 where('tbl_sch_prog.status', 1)->
                 whereNull('tbl_invb2b.schprog_id')
             )->filterColumn('pic_name', function($query, $keyword){

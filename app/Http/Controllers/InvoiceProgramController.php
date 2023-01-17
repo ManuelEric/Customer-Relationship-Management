@@ -229,6 +229,7 @@ class InvoiceProgramController extends Controller
             [
                 'status' => 'create',
                 'clientProg' => $clientProg,
+                'invoice' => null,
             ]
         );
     }
