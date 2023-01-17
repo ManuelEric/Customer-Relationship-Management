@@ -20,7 +20,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                nathan@gmail.com
+                                {{ $clientProg->client->mail }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -31,7 +31,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                628921412424
+                                {{ $clientProg->client->phone }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -42,9 +42,9 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                Jl. Kayu Putih Tengah No.1C, RT.9/RW.7, Pulo Gadung <br>
-                                13260 <br>
-                                Jakarta Timur DKI Jakarta
+                                {!! $clientProg->client->address !!}
+                                {{ $clientProg->client->postal_code }} <br>
+                                {{ $clientProg->client->city }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -55,7 +55,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                ACS Jakarta
+                                {{ $clientProg->client->school->sch_name }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -66,7 +66,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                2024
+                                {{ $clientProg->client->graduation_year }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -77,7 +77,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                High
+                                {{ $clientProg->client->st_levelinterest }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -88,7 +88,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                Website
+                                {{ $clientProg->client->lead_source }}
                             </div>
                         </div>
                     </div>
@@ -111,6 +111,7 @@
             <div class="accordion-body p-2">
                 <div class="card">
                     <div class="card-body">
+                        @foreach($clientProg->client->parents as $parent)
                         <div class="row mb-2 g-1">
                             <div class="col-md-4 d-flex justify-content-between">
                                 <label>
@@ -119,7 +120,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                Bambang Wijanarko
+                                {{ $parent->full_name }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -130,7 +131,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                parent@gmail.com
+                                {{ $parent->mail }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -141,9 +142,10 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                628235230523
+                                {{ $parent->phone }}
                             </div>
                         </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
