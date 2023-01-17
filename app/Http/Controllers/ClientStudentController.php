@@ -117,11 +117,11 @@ class ClientStudentController extends Controller
             'st_levelinterest',
             'graduation_year',
             'st_abryear',
-            'st_abrcountry',
+            // 'st_abrcountry',
             'st_note',
         ]);
 
-        $studentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
+        // $studentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
         $parentId = $request->pr_id;
 
         # set lead_id based on lead_id & kol_lead_id
@@ -438,11 +438,11 @@ class ClientStudentController extends Controller
             'st_levelinterest',
             'graduation_year',
             'st_abryear',
-            'st_abrcountry',
+            // 'st_abrcountry',
             'st_note',
         ]);
 
-        $studentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
+        // $studentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
         $parentId = $request->pr_id;
 
         # set lead_id based on lead_id & kol_lead_id

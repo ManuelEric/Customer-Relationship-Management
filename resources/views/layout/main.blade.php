@@ -300,7 +300,7 @@
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('receipt/client-program*') ? 'active' : '' }}"
-                                        href="{{ url('receipt/client-program/') }}">Client
+                                        href="{{ url('receipt/client-program?s=list') }}">Client
                                         Program</a>
                                 </li>
                                 <li class="nav-item"> <a
