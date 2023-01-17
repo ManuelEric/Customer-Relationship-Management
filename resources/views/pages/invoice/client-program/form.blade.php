@@ -14,10 +14,6 @@
         </a>
     </div>
 
-    @if($errors->any())
-        {{ implode('', $errors->all('<div>:message</div>')) }}
-    @endif
-
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
@@ -103,7 +99,7 @@
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label for="">Currency <sup class="text-danger">*</sup></label>
-                                <select id="currency" name="currency[]" class="select w-100" onchange="checkCurrency()" {{ $disabled }}>
+                                <select id="currency" name="currency" class="select w-100" onchange="checkCurrency()" {{ $disabled }}>
                                     <option value="idr"    
                                     @if (($clientProg->program->prog_payment == "session" OR $clientProg->program->prog_payment == "idr") && !isset($invoice))
                                         {{ "selected" }}
@@ -125,7 +121,7 @@
                             </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
                                 <label for="">Currency Detail <sup class="text-danger">*</sup></label> {{ old('currency') }}
-                                <select class="select w-100" name="currency[]" id="currency_detail" {{ $disabled !== null ? $disabled : 'onchange="checkCurrencyDetail()"' }}>
+                                <select class="select w-100" name="currency_detail" id="currency_detail" {{ $disabled !== null ? $disabled : 'onchange="checkCurrencyDetail()"' }}>
                                     <option data-placeholder="true"></option>
                                     <option value="usd"
                                         @if (isset($invoice->currency) && $invoice->currency == "usd")

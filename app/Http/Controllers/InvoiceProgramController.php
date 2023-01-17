@@ -59,9 +59,13 @@ class InvoiceProgramController extends Controller
         $clientProgId = $request->clientprog_id;
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientProgId);
 
+        $raw_currency = [];
+        $raw_currency[0] = $request->currency;
+        $raw_currency[1] = $request->currency_detail;
+
         # fetching currency till get the currency
         $currency = null;
-        foreach ($request->currency as $key => $val) {
+        foreach ($raw_currency as $key => $val) {
             if ($val != NULL)
                 $currency = $val != "other" ? $val : null;
         }
