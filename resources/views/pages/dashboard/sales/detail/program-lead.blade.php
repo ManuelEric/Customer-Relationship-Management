@@ -1,81 +1,38 @@
-<div class="row">
+<div class="row mt-3">
     <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="row justify-content-end mb-2">
-                    <div class="col-md-2">
-                        <input type="month" class="form-control form-control-sm">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-body text-center">
+                        <h5>Conversion Leads</h5>
+                        <canvas id="leadSource" class="mb-2"></canvas>
+                        <canvas id="programLead"></canvas>
                     </div>
                 </div>
-                <div class="row align-items-center">
-                    <div class="col-md-5">
-                        <div class="card mb-3">
+            </div>
+            <div class="col-md-8">
+                <div class="row justify-content-center align-items-center g-3">
+                    <div class="col-md-4">
+                        <div class="card">
                             <div class="card-body text-center">
-                                <h5>Overall Conversion Leads</h5>
-                                <canvas id="leadSource" class="mb-2"></canvas>
-                                <canvas id="programLead"></canvas>
-                            </div>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col">
-                                <div class="card">
-                                    <div class="card-header">Lead Source</div>
-                                    <div class="card-body p-1 overflow-auto" style="max-height: 200px">
-                                        <ul class="list-group">
-                                            @for ($i = 0; $i < 40; $i++)
-                                                <li
-                                                    class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <div class="">Whatshapp</div>
-                                                    <span class="badge badge-primary">12</span>
-                                                </li>
-                                            @endfor
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="card">
-                                    <div class="card-header">Conversion Lead</div>
-                                    <div class="card-body p-1 overflow-auto" style="max-height: 200px">
-                                        <ul class="list-group">
-                                            @for ($i = 0; $i < 40; $i++)
-                                                <li
-                                                    class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <div class="">Whatshapp</div>
-                                                    <span class="badge badge-primary">12</span>
-                                                </li>
-                                            @endfor
-                                        </ul>
-                                    </div>
-                                </div>
+                                <h6 class="text-muted">Admissions Mentoring</h6>
+                                <canvas id="admissionsLead"></canvas>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-7">
-                        <div class="row justify-content-center align-items-center g-3">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-body text-center">
-                                        <h6 class="text-muted">Admissions Mentoring</h6>
-                                        <canvas id="admissionsLead"></canvas>
-                                    </div>
-                                </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted">Academic & Test Preparation</h6>
+                                <canvas id="academicLead"></canvas>
                             </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-body text-center">
-                                        <h6 class="text-muted">Academic & Test Preparation</h6>
-                                        <canvas id="academicLead"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-body text-center">
-                                        <h6 class="text-muted">Career Exploration</h6>
-                                        <canvas id="careerLead"></canvas>
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted">Career Exploration</h6>
+                                <canvas id="careerLead"></canvas>
                             </div>
                         </div>
                     </div>

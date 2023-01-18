@@ -15,7 +15,13 @@
     </div>
 
     @if ($errors->any())
-        {{ implode('', $errors->all('<div>:message</div>')) }}
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
     @endif
 
     <div class="row">
@@ -63,7 +69,6 @@
 
             @include('pages.invoice.client-program.form-detail.client')
 
-
             @if ($status == 'view' && isset($invoice->invoiceDetail))
                 @include('pages.invoice.client-program.form-detail.installment-list')
             @endif
@@ -79,14 +84,9 @@
                         </h6>
                     </div>
                     <div class="">
-<<<<<<< HEAD
                         @if (isset($invoice) && $invoice->inv_paymentmethod == 'Full Payment')
                             <button class="btn btn-sm btn-outline-primary py-1"
                                 onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}')">
-=======
-                        @if (isset($invoice) && $invoice->inv_paymentmethod == "Full Payment")
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}')">
->>>>>>> ccebeea55a9f5b33724c4c03072c2bf3f04e6440
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -128,9 +128,9 @@
                                         {{ 'selected' }} @endif>
                                         Other Currency</option>
                                 </select>
-                                @error('currency')
+                                {{-- @error('currency')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
                                 <label for="">Currency Detail <sup class="text-danger">*</sup></label>
@@ -161,9 +161,9 @@
                                 <input type="number" name="curs_rate" id="current_rate"
                                     value="{{ isset($invoice->curs_rate) ? $invoice->curs_rate : old('curs_rate') }}"
                                     {{ $disabled }} class="form-control form-control-sm rounded">
-                                @error('curs_rate')
+                                {{-- @error('curs_rate')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
 
                             <div class="col-md-3 mb-3">
@@ -174,9 +174,9 @@
                                     <option value="yes">Yes</option>
                                     <option value="no">No</option>
                                 </select>
-                                @error('is_session')
+                                {{-- @error('is_session')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
 
                             {{-- SESSION  --}}
@@ -229,9 +229,9 @@
                                             {{ 'selected' }} @endif>
                                         Installment</option>
                                 </select>
-                                @error('inv_paymentmethod')
+                                {{-- @error('inv_paymentmethod')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
                             <div class="col-md-7">
                                 <div class="row">
@@ -240,18 +240,18 @@
                                         <input type="date" name="invoice_date" id=""
                                             value="{{ date('Y-m-d') }}" readonly {{ $disabled }}
                                             class='form-control form-control-sm rounded'>
-                                        @error('invoice_date')
+                                        {{-- @error('invoice_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
-                                        @enderror
+                                        @enderror --}}
                                     </div>
                                     <div class="col-md-6 mb-3 invoice d-none">
                                         <label for="">Due Date <sup class="text-danger">*</sup></label>
                                         <input type="date" name="inv_duedate" id=""
                                             value="{{ isset($invoice->inv_duedate) ? $invoice->inv_duedate : old('inv_duedate') }}"
                                             {{ $disabled }} class='form-control form-control-sm rounded'>
-                                        @error('inv_duedate')
+                                        {{-- @error('inv_duedate')
                                             <small class="text-danger fw-light">{{ $message }}</small>
-                                        @enderror
+                                        @enderror --}}
                                     </div>
                                 </div>
                             </div>
@@ -269,16 +269,16 @@
                             <div class="col-md-12 mb-3 invoice d-none">
                                 <label for="">Notes</label>
                                 <textarea name="inv_notes" id="" {{ $disabled }}>{{ isset($invoice->inv_notes) ? $invoice->inv_notes : old('inv_notes') }}</textarea>
-                                @error('inv_notes')
+                                {{-- @error('inv_notes')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
                             <div class="col-md-12 mb-3 invoice d-none">
                                 <label for="">Terms & Condition</label>
                                 <textarea name="inv_tnc" id="" {{ $disabled }}>{{ isset($invoice->inv_tnc) ? $invoice->inv_tnc : old('inv_tnc') }}</textarea>
-                                @error('inv_tnc')
+                                {{-- @error('inv_tnc')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
                         </div>
 

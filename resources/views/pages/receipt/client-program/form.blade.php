@@ -21,20 +21,14 @@
                         @php
                             $programName = explode('-', $client_prog->program_name);
                         @endphp
-                        @for ($i = 0; $i < count($programName) ; $i++)
+                        @for ($i = 0; $i < count($programName); $i++)
                             <span
-                                @if ($i > 0 )
-                                    style="font-size:.8em;color:blue"    
-                                @endif
-                                >{{ $programName[$i] }}</span>
+                                @if ($i > 0) style="font-size:.8em;color:blue" @endif>{{ $programName[$i] }}</span>
                         @endfor
                     </h6>
                     <div class="d-flex flex-wrap justify-content-center mt-3">
-                        <a href="#" class="btn btn-sm btn-outline-warning rounded mx-1 my-1">
-                            <i class="bi bi-x me-1"></i>
-                            Refund
-                        </a>
-                        <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1" onclick="confirmDelete('receipt/client-program/', '{{ $receipt->id }}')">
+                        <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1"
+                            onclick="confirmDelete('receipt/client-program/', '{{ $receipt->id }}')">
                             <i class="bi bi-trash2 me-1"></i> Delete
                         </button>
                         <a href="{{ url('receipt/client-program/1/export/pdf') }}"
@@ -48,6 +42,8 @@
                     </div>
                 </div>
             </div>
+
+            @include('pages.receipt.client-program.form-detail.refund')
 
             @include('pages.receipt.client-program.form-detail.client')
 
@@ -75,10 +71,10 @@
                             <td>{{ date('d M Y H:i:s', strtotime($receipt->created_at)) }}</td>
                         </tr>
                         @if (isset($receipt->invoiceInstallment))
-                        <tr>
-                            <td>Installment Name :</td>
-                            <td>{{ $receipt->invoiceInstallment->invdtl_installment }}</td>
-                        </tr>
+                            <tr>
+                                <td>Installment Name :</td>
+                                <td>{{ $receipt->invoiceInstallment->invdtl_installment }}</td>
+                            </tr>
                         @endif
                         <tr>
                             <td>Payment Method :</td>
@@ -87,7 +83,7 @@
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                @if ($receipt->receipt_amount != NULL)
+                                @if ($receipt->receipt_amount != null)
                                     {{ $receipt->receipt_amount }}
                                     ( {{ $receipt->receipt_amount_idr }} )
                                 @else

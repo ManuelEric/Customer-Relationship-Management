@@ -243,35 +243,35 @@ class StoreInvoiceProgramRequest extends FormRequest
                 //         $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
                 // }
             ],
-            'is_session' => [
-                function ($attribute, $value, $fail) use ($clientProgram) {
-                    if ($clientProgram->program->prog_payment == "session" && $value == "no")
-                        $fail('Is session has to be "yes" based on master program session');
-                }
-            ],
-            'inv_price_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_earlybird_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_discount_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_totalprice_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_words_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_paymentmethod' => 'required|in:full,installment',
-            'invoice_date' => 'required',
-            'inv_duedate' => 'required',
-            'inv_notes' => 'nullable',
-            'inv_tnc' => 'nullable',
+            // 'is_session' => [
+            //     function ($attribute, $value, $fail) use ($clientProgram) {
+            //         if ($clientProgram->program->prog_payment == "session" && $value == "no")
+            //             $fail('Is session has to be "yes" based on master program session');
+            //     }
+            // ],
+            // 'inv_price_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
+            // 'inv_earlybird_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
+            // 'inv_discount_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
+            // 'inv_totalprice_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
+            // 'inv_words_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
+            // 'inv_paymentmethod' => 'required|in:full,installment',
+            // 'invoice_date' => 'required',
+            // 'inv_duedate' => 'required',
+            // 'inv_notes' => 'nullable',
+            // 'inv_tnc' => 'nullable',
 
             # installment validation
-            'invdtl_installment.*' => [
-                'required_if:inv_paymentmethod,installment',
-                'distinct',
-                // Rule::unique('tbl_invdtl', 'invdtl_installment')
-                //     ->where(function ($query) use ($inv_id) {
-                //         return $query->where('inv_id', $inv_id);
-                // })
-            ],
-            'invdtl_duedate.*' => 'required_if:inv_paymentmethod,installment|max:inv_duedate',
-            'invdtl_percentage.*' => 'required_if:inv_paymentmethod,installment',
-            'invdtl_amountidr.*' => 'required_if:inv_paymentmethod,installment',
+            // 'invdtl_installment.*' => [
+            //     'required_if:inv_paymentmethod,installment',
+            //     'distinct',
+            //     // Rule::unique('tbl_invdtl', 'invdtl_installment')
+            //     //     ->where(function ($query) use ($inv_id) {
+            //     //         return $query->where('inv_id', $inv_id);
+            //     // })
+            // ],
+            // 'invdtl_duedate.*' => 'required_if:inv_paymentmethod,installment|max:inv_duedate',
+            // 'invdtl_percentage.*' => 'required_if:inv_paymentmethod,installment',
+            // 'invdtl_amountidr.*' => 'required_if:inv_paymentmethod,installment',
         ];
     }
 }

@@ -34,6 +34,7 @@
                 </div>
             </div>
 
+            @include('pages.receipt.school-program.form-detail.refund')
             @include('pages.receipt.school-program.form-detail.client')
 
         </div>
