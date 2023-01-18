@@ -82,10 +82,10 @@ class StoreInvoiceSchRequest extends FormRequest
             'invb2b_wordsidr' => 'required',
             'invb2b_date' => 'required|date|before_or_equal:invb2b_duedate',
             'invb2b_duedate' => 'required|date|after_or_equal:invb2b_date',
-            'invb2b_pm' => 'required|in:full,installment',
+            'invb2b_pm' => 'required|in:Full Payment,Installment',
             'invb2b_notes' => 'nullable',
             'invb2b_tnc' => 'nullable',
-            'invdtl_installment.*' => 'required_if:invb2b_pm,installment|distinct',
+            'invdtl_installment.*' => 'required_if:invb2b_pm,Installment|distinct',
 
             // 'invdtl_installment.*' => [Rule::when('invdtl_installment', 'required', function ($input) {
             //     return $this->input('select_currency') == 'idr' && $this->input('invb2b_pm') == 'installment';
@@ -98,9 +98,9 @@ class StoreInvoiceSchRequest extends FormRequest
             // })],
             // 'invdtl_duedate.*' => 'required_unless:invb2b_pm,full|required_if:select_currency,idr|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
             // 'invdtl_duedate_other.*' => 'required_unless:invb2b_pm,full|required_if:select_currency,other|required_with:invdtl_pm|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
-            'invdtl_duedate.*' => 'required_if:invb2b_pm,installment|nullable|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date',
-            'invdtl_percentage.*' => 'required_if:invb2b_pm,installment',
-            'invdtl_amountidr.*' => 'required_if:invb2b_pm,installment',
+            'invdtl_duedate.*' => 'required_if:invb2b_pm,Installment|nullable|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date',
+            'invdtl_percentage.*' => 'required_if:invb2b_pm,Installment',
+            'invdtl_amountidr.*' => 'required_if:invb2b_pm,Installment',
             // 'date', 'before_or_equal:invb2b_duedate', 'after_or_equal:invb2b_date'
 
 
@@ -125,7 +125,7 @@ class StoreInvoiceSchRequest extends FormRequest
             'invb2b_wordsidr_other' => 'required',
             'invb2b_date' => 'required|date|before_or_equal:invb2b_duedate',
             'invb2b_duedate' => 'required|date|after_or_equal:invb2b_date',
-            'invb2b_pm' => 'required|in:full,installment',
+            'invb2b_pm' => 'required|in:Full Payment,Installment',
             'invb2b_notes' => 'nullable',
             'invb2b_tnc' => 'nullable',
             'curs_rate' => 'integer|nullable',
@@ -136,12 +136,12 @@ class StoreInvoiceSchRequest extends FormRequest
             // 'invdtl_duedate.*' => 'required_unless:invb2b_pm,installment|required_if:select_currency,idr|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
             // 'invdtl_duedate_other.*' => 'required_unless:invb2b_pm,full|required_if:select_currency,other|required_with:invdtl_pm|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
 
-            'invdtl_installment_other.*' => 'required_if:invb2b_pm,installment|distinct',
+            'invdtl_installment_other.*' => 'required_if:invb2b_pm,Installment|distinct',
 
-            'invdtl_duedate_other.*' => 'required_if:invb2b_pm,installment|nullable|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date',
-            'invdtl_percentage_other.*' => 'required_if:invb2b_pm,installment',
-            'invdtl_amount_other.*' => 'required_if:invb2b_pm,installment',
-            'invdtl_amountidr_other.*' => 'required_if:invb2b_pm,installment',
+            'invdtl_duedate_other.*' => 'required_if:invb2b_pm,Installment|nullable|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date',
+            'invdtl_percentage_other.*' => 'required_if:invb2b_pm,Installment',
+            'invdtl_amount_other.*' => 'required_if:invb2b_pm,Installment',
+            'invdtl_amountidr_other.*' => 'required_if:invb2b_pm,Installment',
 
 
         ];

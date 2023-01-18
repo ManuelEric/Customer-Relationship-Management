@@ -10,7 +10,7 @@
         @endif
     </div>
     <div class="card-body " id="installment_content_other">
-         @if (old('invdtl_installment') || isset($invoiceSch->inv_detail))
+         @if (old('invdtl_installment') || isset($invoiceSch->inv_detail)  && isset($invoiceSch) && $invoiceSch->invb2b_pm == 'Installment')
         @php
             $limit = isset($invoiceSch->inv_detail) ? count($invoiceSch->inv_detail) : count(old('invdtl_installment'))
         @endphp

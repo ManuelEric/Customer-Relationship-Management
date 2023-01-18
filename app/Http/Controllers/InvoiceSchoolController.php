@@ -162,7 +162,7 @@ class InvoiceSchoolController extends Controller
         $invoices['invb2b_id'] = $inv_id;
         $invoices['schprog_id'] = $schProgId;
 
-        if ($invoices['invb2b_pm'] == 'installment') {
+        if ($invoices['invb2b_pm'] == 'Installment') {
             $installment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
         }
         unset($installments);
@@ -171,7 +171,7 @@ class InvoiceSchoolController extends Controller
         try {
 
             $this->invoiceB2bRepository->createInvoiceB2b($invoices);
-            if ($invoices['invb2b_pm'] == 'installment') {
+            if ($invoices['invb2b_pm'] == 'Installment') {
                 $this->invoiceDetailRepository->createInvoiceDetail($installment);
             }
             DB::commit();
@@ -307,7 +307,7 @@ class InvoiceSchoolController extends Controller
 
         $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $inv_id = $inv_b2b->invb2b_id;
-        if ($invoices['invb2b_pm'] == 'installment') {
+        if ($invoices['invb2b_pm'] == 'Installment') {
             $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
         }
         unset($installments);
@@ -319,7 +319,7 @@ class InvoiceSchoolController extends Controller
         try {
 
             $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $invoices);
-            if ($invoices['invb2b_pm'] == 'installment') {
+            if ($invoices['invb2b_pm'] == 'Installment') {
                 $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
                 $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
             }
@@ -357,6 +357,19 @@ class InvoiceSchoolController extends Controller
         }
 
         return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully deleted');
+    }
+
+    public function export(Request $request)
+    {
+        $invNum = $request->route('invoice');
+        $currency = $request->route('currency');
+
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+
+        return view('pages.invoice.school-program.export.invoice-pdf')->with([
+            'invoiceSch' => $invoiceSch,
+            'currency' => $currency,
+        ]);
     }
 
     protected function extract_installment($inv_id, $currency,  array $installments)

@@ -31,12 +31,12 @@
                         </div>
                     </div> 
                     <div class="mt-2 text-end">
-                        @if(empty($inv_dtl->receipt) && $invoiceSch->invb2b_pm == 'installment' && $status != 'edit')
+                        @if(empty($inv_dtl->receipt) && $invoiceSch->invb2b_pm == 'Installment' && $status != 'edit')
                             <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" onclick="checkReceipt();setIdentifier('{{ $inv_dtl->invdtl_id }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
-                        @if(isset($inv_dtl->receipt)  && $status != 'edit' && $invoiceSch->invb2b_pm == 'installment')
+                        @if(isset($inv_dtl->receipt)  && $status != 'edit' && $invoiceSch->invb2b_pm == 'Installment')
                             <a href="{{ url('receipt/school-program/'.$inv_dtl->receipt->id) }}" class="btn btn-sm btn-outline-warning py-1"  style="font-size: 11px">
                                 <i class="bi bi-eye"></i> View Receipt
                             </a>

@@ -23,14 +23,18 @@
                             onclick="confirmDelete('{{'receipt/school-program'}}', {{$receiptSch->id}})">
                             <i class="bi bi-trash2 me-1"></i> Delete
                         </button>
-                        <a href="{{ url('receipt/school-program/1/export/pdf') }}"
-                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Print Others
-                        </a>
-                        <a href="{{ url('receipt/school-program/1/export/pdf') }}"
-                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Print IDR
-                        </a>
+                         @if (isset($receiptSch))
+                            @if($receiptSch->invoiceB2b->currency != 'idr')
+                                <a href="{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}"
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                    <i class="bi bi-printer me-1"></i> Print Others
+                                </a>
+                            @endif
+                            <a href="{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}"
+                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                <i class="bi bi-printer me-1"></i> Print IDR
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -274,7 +278,7 @@
             let method = $('#payment_method').val()
 
             $('.installment-card').addClass('d-none')
-            if (method == 'installment') {
+            if (method == 'Installment') {
                 if (cur == 'idr') {
                     $('.installment-idr').removeClass('d-none')
                 } else {

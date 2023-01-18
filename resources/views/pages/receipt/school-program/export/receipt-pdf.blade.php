@@ -82,9 +82,9 @@
                                     Received from :
                                 </td>
                                 <td>
-                                    Gabriella Anna Santoso
+                                    {{ $receiptSch->invoiceB2b->sch_prog->school->sch_name }}
                                     <br>
-                                    DKI Jakarta
+                                    {{ $receiptSch->invoiceB2b->sch_prog->school->sch_city }}
                                 </td>
                             </tr>
                         </table>
@@ -96,7 +96,7 @@
             <table>
                 <tr>
                     <td>
-                        Receipt No. 0013/REC-JEI/SATPRIV/XII/22
+                        Receipt No. {{ $receiptSch->receipt_id }}
                     </td>
                 </tr>
             </table>
@@ -104,13 +104,17 @@
             <table width="100%" class="table-detail" style="padding:8px 5px;">
                 <tr align="center">
                     <th width="35%">Payment Method</th>
-                    <th width="35%">Cheque No.</th>
+                    @if($receiptSch->receipt_method == 'Cheque')
+                        <th width="35%">Cheque No.</th>
+                    @endif
                     <th width="30%">Amount</th>
                 </tr>
                 <tr align="center">
-                    <td>Payment Method</td>
-                    <td>Cheque No.</td>
-                    <td>Amount</td>
+                    <td>{{ $receiptSch->receipt_method }}</td>
+                    @if($receiptSch->receipt_method == 'Cheque')
+                        <td>{{ $receiptSch->receipt_cheque }}</td>
+                    @endif
+                    <td>{{ $currency == 'other' ? $receiptSch->receipt_amount : $receiptSch->receipt_amount_idr }}</td>
                 </tr>
             </table>
             <br>
@@ -127,7 +131,7 @@
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
                             <p>
-                                <strong> Admissions Mentoring: Ultimate Package </strong>
+                                <strong> {{ (($receiptSch->invoiceB2b->sch_prog->program->prog_sub != '-')) ? $receiptSch->invoiceB2b->sch_prog->program->prog_sub . ': ' . $receiptSch->invoiceB2b->sch_prog->program->prog_program : $receiptSch->invoiceB2b->sch_prog->program->prog_program }} </strong>
                             </p>
                         </div>
 
@@ -141,7 +145,7 @@
                         <div style="height:80px;">
                             <p>
                                 <strong>
-                                    $8,150
+                                    {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoicePrice : $receiptSch->invoiceB2b->invoicePriceIdr }}
                                 </strong>
                             </p>
                         </div>
@@ -150,16 +154,13 @@
                         <div style="height:80px;">
                             <p>
                                 <strong>
-                                    $8,150
+                                    {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceSubTotalprice : $receiptSch->invoiceB2b->invoiceSubTotalpriceIdr }}
                                 </strong>
                             </p>
                         </div>
                         <div style="margin-top:5px;">
                             <p>
-                                <strong> - $50</strong>
-                            </p>
-                            <p>
-                                <strong> - $100</strong>
+                                <strong> - {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceDiscount : $receiptSch->invoiceB2b->invoiceDiscountIdr }}</strong>
                             </p>
                         </div>
                     </td>
@@ -167,7 +168,7 @@
                 <tr>
                     <td colspan="3" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
-                        <b>$8,000</b>
+                        <b>{{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceTotalprice : $receiptSch->invoiceB2b->invoiceTotalpriceIdr }}</b>
                     </td>
                 </tr>
             </table>
@@ -175,7 +176,7 @@
             <table>
                 <tr>
                     <td>
-                        <b style="letter-spacing:0.7px;"><i>Total Amount : Eight thousand dollars</i></b>
+                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{ $currency == 'other' ? $receiptSch->invoiceB2b->invb2b_words : $receiptSch->invoiceB2b->invb2b_wordsidr }}</i></b>
                     </td>
                 </tr>
             </table>

@@ -17,11 +17,16 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             Invb2b::leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
                 ->leftJoin('tbl_sch', 'tbl_sch_prog.sch_id', '=', 'tbl_sch.sch_id')
                 ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
+                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                 ->leftJoin('tbl_receipt', 'tbl_receipt.invb2b_id', '=', 'tbl_invb2b.invb2b_id')
                 ->select(
                     'tbl_receipt.id as increment_receipt',
                     'tbl_sch.sch_name as school_name',
-                    'tbl_prog.prog_program as program_name',
+                    // 'tbl_prog.prog_program as program_name',
+                    DB::raw('(CASE
+                        WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                        ELSE tbl_prog.prog_program
+                    END) AS program_name'),
                     'tbl_receipt.receipt_id',
                     'tbl_receipt.invb2b_id',
                     'tbl_receipt.receipt_method',

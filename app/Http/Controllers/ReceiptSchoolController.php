@@ -98,16 +98,16 @@ class ReceiptSchoolController extends Controller
         // return $receipts;
         // exit;
 
-        if ($invoice_payment_method == "installment")
+        if ($invoice_payment_method == "Installment")
             $receipts['invdtl_id'] = $identifier;
 
         # validation nominal
         # to catch if total invoice not equal to total receipt 
-        if ($invoice_payment_method == "full") {
+        if ($invoice_payment_method == "Full Payment") {
 
             $total_invoice = $invoice->invb2b_totpriceidr;
             $total_receipt = $request->receipt_amount_idr;
-        } elseif ($invoice_payment_method == "installment") {
+        } elseif ($invoice_payment_method == "Installment") {
 
             $total_invoice = $invoice->inv_detail()->where('invdtl_id', $identifier)->first()->invdtl_amountidr;
             $total_receipt = $request->receipt_amount_idr;
@@ -171,5 +171,18 @@ class ReceiptSchoolController extends Controller
         }
 
         return Redirect::to('receipt/school-program')->withSuccess('Receipt successfully deleted');
+    }
+
+    public function export(Request $request)
+    {
+        $receipt_id = $request->route('receipt');
+        $currency = $request->route('currency');
+
+        $receiptSch = $this->receiptRepository->getReceiptById($receipt_id);
+
+        return view('pages.receipt.school-program.export.receipt-pdf')->with([
+            'receiptSch' => $receiptSch,
+            'currency' => $currency,
+        ]);
     }
 }

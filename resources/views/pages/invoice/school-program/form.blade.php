@@ -33,7 +33,21 @@
                             <button class="btn btn-sm btn-outline-danger rounded mx-1"
                                 onclick="confirmDelete('{{'invoice/school-program/' . $schoolProgram->id . '/detail'}}', {{$invoiceSch->invb2b_num}})">
                                 <i class="bi bi-trash2 me-1"></i> Delete
-                            </button>
+                            </button>    
+                        @endif
+                    </div>
+                    <div class="d-flex justify-content-center mt-2">
+                        @if (isset($invoiceSch))
+                            @if($invoiceSch->currency != 'idr')
+                                <a href="{{  route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}"
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                    <i class="bi bi-printer me-1"></i> Print Others
+                                </a>
+                            @endif
+                            <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}"
+                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                <i class="bi bi-printer me-1"></i> Print IDR
+                            </a>
                         @endif
                     </div>
                 </div>
@@ -41,7 +55,7 @@
 
             @include('pages.invoice.school-program.form-detail.client')
             
-            @if(isset($invoiceSch) && $invoiceSch->invb2b_pm == 'installment')
+            @if(isset($invoiceSch) && $invoiceSch->invb2b_pm == 'Installment')
                 @include('pages.invoice.school-program.form-detail.installment-list')
             @endif
         </div>
@@ -56,12 +70,12 @@
                         </h6>
                     </div>
                     <div class="">
-                            @if(isset($invoiceSch) && !isset($invoiceSch->receipt) && $invoiceSch->invb2b_pm == 'full' && $status != 'edit')
+                            @if(isset($invoiceSch) && !isset($invoiceSch->receipt) && $invoiceSch->invb2b_pm == 'Full Payment' && $status != 'edit')
                                 <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt();setIdentifier('{{ $invoiceSch->invb2b_num }}')">
                                     <i class="bi bi-plus"></i> Receipt
                                 </button>
                             @endif
-                            @if(isset($invoiceSch->receipt)  && $status != 'edit' && $invoiceSch->invb2b_pm == 'full')
+                            @if(isset($invoiceSch->receipt)  && $status != 'edit' && $invoiceSch->invb2b_pm == 'Full Payment')
                                 <a href="{{ url('receipt/school-program/'.$invoiceSch->receipt->id) }}" class="btn btn-sm btn-outline-warning py-1">
                                     <i class="bi bi-eye"></i> View Receipt
                                 </a>
@@ -145,8 +159,8 @@
                                 <label for="">Payment Method</label>
                                 <select name="invb2b_pm" id="payment_method" class="select w-100" {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }} onchange="checkPayment()">
                                     <option data-placeholder="true"></option>
-                                        <option value="full">Full Payment</option>
-                                        <option value="installment">Installment</option>
+                                        <option value="Full Payment">Full Payment</option>
+                                        <option value="Installment">Installment</option>
                                 </select>
                                 @error('invb2b_pm')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -441,7 +455,7 @@
             // console.log(cur)
 
             $('.installment-card').addClass('d-none')
-            if (method == 'installment') {
+            if (method == 'Installment') {
                 if (cur == 'idr') {
                     $('.installment-idr').removeClass('d-none')
                 } else if(cur == 'other') {
