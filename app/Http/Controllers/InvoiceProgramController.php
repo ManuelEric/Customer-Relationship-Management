@@ -89,7 +89,6 @@ class InvoiceProgramController extends Controller
                 'inv_tnc'
             ]);
             $param = "idr";
-
         } elseif (in_array('idr', $request->currency) && $request->is_session == "yes") {
 
             $invoiceDetails = [
@@ -110,7 +109,6 @@ class InvoiceProgramController extends Controller
                 'inv_tnc' => $request->inv_tnc
             ];
             $param = "idr";
-
         } elseif (in_array('other', $request->currency) && $request->is_session == "no") {
 
             $invoiceDetails = [
@@ -135,7 +133,6 @@ class InvoiceProgramController extends Controller
                 'inv_tnc' => $request->inv_tnc
             ];
             $param = "other";
-
         } elseif (in_array('other', $request->currency) && $request->is_session == "yes") {
 
             $invoiceDetails = [
@@ -162,7 +159,6 @@ class InvoiceProgramController extends Controller
                 'inv_tnc' => $request->inv_tnc
             ];
             $param = "other";
-
         }
 
         $invoiceDetails['inv_category'] = $invoiceDetails['is_session'] == "yes" ? "session" : $invoiceDetails['currency'][0];
@@ -172,12 +168,12 @@ class InvoiceProgramController extends Controller
 
         DB::beginTransaction();
         try {
-            
+
             $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->max(DB::raw('substr(inv_id, 1, 4)'));
-            
+
             # Use Trait Create Invoice Id
             $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id);
-            
+
             $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 0] + $invoiceDetails);
 
             # add installment details
@@ -189,7 +185,7 @@ class InvoiceProgramController extends Controller
                 # and using param to fetch data based on rupiah or other currency
                 $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment__other);
 
-                for ($i = 0 ; $i < $limit ; $i++) {
+                for ($i = 0; $i < $limit; $i++) {
 
                     $installmentDetails[$i] = [
                         'inv_id' => $inv_id,
@@ -206,27 +202,24 @@ class InvoiceProgramController extends Controller
                     if ($param == "other")
                         $installmentDetails[$i]['invdtl_amount'] = $request->invdtl_amount__other[$i];
                 }
-                
+
                 $this->invoiceDetailRepository->createInvoiceDetail($installmentDetails);
-            } 
+            }
 
             DB::commit();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Store invoice program failed : ' . $e->getMessage());
-            return Redirect::to('invoice/client-program/create?prog='.$request->clientprog_id)->withError('Failed to store invoice program');
-
+            return Redirect::to('invoice/client-program/create?prog=' . $request->clientprog_id)->withError('Failed to store invoice program');
         }
 
         return Redirect::to('invoice/client-program?s=list')->withSuccess('Invoice has been created');
-
     }
 
     public function create(Request $request)
     {
-        if (!isset($request->prog) OR !$clientProg = $this->clientProgramRepository->getClientProgramById($request->prog)){
+        if (!isset($request->prog) or !$clientProg = $this->clientProgramRepository->getClientProgramById($request->prog)) {
             return Redirect::to('invoice/client-program?s=needed');
         }
 
@@ -242,7 +235,7 @@ class InvoiceProgramController extends Controller
     public function update(StoreInvoiceProgramRequest $request)
     {
         $clientProgId = $request->clientprog_id;
-        
+
         $invoice = $this->invoiceProgramRepository->getInvoiceByClientProgId($clientProgId);
         $inv_id = $invoice->inv_id;
 
@@ -271,7 +264,6 @@ class InvoiceProgramController extends Controller
                 'inv_tnc'
             ]);
             $param = "idr";
-
         } elseif (in_array('idr', $request->currency) && $request->is_session == "yes") {
 
             $invoiceDetails = [
@@ -292,7 +284,6 @@ class InvoiceProgramController extends Controller
                 'inv_tnc' => $request->inv_tnc
             ];
             $param = "idr";
-
         } elseif (in_array('other', $request->currency) && $request->is_session == "no") {
 
             $invoiceDetails = [
@@ -317,7 +308,6 @@ class InvoiceProgramController extends Controller
                 'inv_tnc' => $request->inv_tnc
             ];
             $param = "other";
-
         } elseif (in_array('other', $request->currency) && $request->is_session == "yes") {
 
             $invoiceDetails = [
@@ -344,7 +334,6 @@ class InvoiceProgramController extends Controller
                 'inv_tnc' => $request->inv_tnc
             ];
             $param = "other";
-
         }
 
         $invoiceDetails['inv_category'] = $invoiceDetails['is_session'] == "yes" ? "session" : $invoiceDetails['currency'][0];
@@ -365,7 +354,7 @@ class InvoiceProgramController extends Controller
                 # and using param to fetch data based on rupiah or other currency
                 $limit = $param == "idr" ? count($request->invdtl_installment) : count($request->invdtl_installment__other);
 
-                for ($i = 0 ; $i < $limit ; $i++) {
+                for ($i = 0; $i < $limit; $i++) {
 
                     $installmentDetails[$i] = [
                         'inv_id' => $inv_id,
@@ -381,20 +370,16 @@ class InvoiceProgramController extends Controller
 
                     if ($param == "other")
                         $installmentDetails[$i]['invdtl_amount'] = $request->invdtl_amount__other[$i];
-                        
                 }
 
                 $this->invoiceDetailRepository->updateInvoiceDetailByInvId($inv_id, $installmentDetails);
-                
-            } 
+            }
             DB::commit();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Update invoice program failed : ' . $e->getMessage());
-            return Redirect::to('invoice/client-program/'.$request->clientprog_id.'/edit')->withError('Failed to update invoice program');
-
+            return Redirect::to('invoice/client-program/' . $request->clientprog_id . '/edit')->withError('Failed to update invoice program');
         }
 
         return Redirect::to('invoice/client-program?s=list')->withSuccess('Invoice has been updated');
@@ -423,13 +408,11 @@ class InvoiceProgramController extends Controller
 
             $this->invoiceProgramRepository->deleteInvoiceByClientProgId($clientProgId);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete invoice program failed : ' . $e->getMessage());
-            return Redirect::to('invoice/client-program/'.$clientProgId)->withError('Failed to delete invoice program');
-
+            return Redirect::to('invoice/client-program/' . $clientProgId)->withError('Failed to delete invoice program');
         }
 
         return Redirect::to('invoice/client-program?s=needed')->withSuccess('Invoice has been deleted');

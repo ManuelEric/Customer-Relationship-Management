@@ -4,8 +4,7 @@
 
 @section('content')
 
-    @include('pages.dashboard.sales.client-status')
-    @include('pages.dashboard.sales.client-program')
-    @include('pages.dashboard.sales.program-lead')
+    {{-- Sales --}}
+    @include('pages.dashboard.sales.index')
 
 @endsection

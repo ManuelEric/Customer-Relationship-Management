@@ -19,7 +19,10 @@
                         <input type="date" name="" id="" class="form-control form-control-sm rounded">
                     </div>
                     <div class="text-center">
-                        <button class="btn btn-sm btn-outline-primary">Submit</button>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-search me-1"></i>
+                            Submit
+                        </button>
                     </div>
                 </div>
             </div>
