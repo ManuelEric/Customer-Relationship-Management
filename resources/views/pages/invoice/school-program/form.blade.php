@@ -85,15 +85,7 @@
                 </div>
 
                 <div class="card-body">
-                    {{-- @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif --}}
+     
 
                     <form action="{{ url($status == 'edit' ? 'invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num : 'invoice/school-program/' . $schoolProgram->id . '/detail') }}" method="POST" id="invoice-form">
                         @csrf
@@ -245,7 +237,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
     {{-- Add Receipt  --}}
     <div class="modal fade" id="addReceipt" data-bs-backdrop="static" data-bs-keyboard="false"
