@@ -52,7 +52,6 @@ Route::prefix('client-program')->name('invoice.program.')->group(function () {
 });
 
 
-
 // PARTNER 
 Route::get('corporate-program/create', function () {
     return view('pages.invoice.corporate-program.form', ['status' => 'create']);

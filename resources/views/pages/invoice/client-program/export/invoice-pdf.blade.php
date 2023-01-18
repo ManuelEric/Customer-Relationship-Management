@@ -4,11 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice : INV/123/2425/12312/23 - PDF</title>
+    <title>Invoice : {{ $clientProg->invoice->inv_id }} - PDF</title>
     {{-- <link rel="icon" href="#" type="image/gif" sizes="16x16"> --}}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
+        /* @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'); */
+        @import url('{{ public_path("dashboard-template/css/googleapisfont.css") }}');
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: 'Poppins', sans-serif;
         }
@@ -47,10 +52,10 @@
     </style>
 </head>
 
-<body style="padding: 0; margin:0">
-    <div style="width: 100%; height:1100px; padding:0; margin:0;">
-        <img src="{{ asset('img/pdf/header.png') }}" width="100%">
-        <img src="{{ asset('img/pdf/confidential.png') }}" width="85%"
+<body style="padding: 0; margin:0; height: 100vh">
+    <div style="width: 100%; height:1059px; padding:0; margin:0;">
+        <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
+        <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
             <h4
@@ -64,20 +69,20 @@
                         <td width="60%">
                             <table width="100%" style="padding:0px; margin-left:-10px;">
                                 <tr>
-                                    <td width="15%" valign="top">From : </td>
-                                    <td width="85%"><b>PT. Jawara Edukasih Indonesia</b><br>
-                                        Jl Jeruk Kembar Blok Q9 No. 15 <br>
-                                        Srengseng, Kembangan <br>
-                                        DKI Jakarta
+                                    <td width="15%" valign="top">From: </td>
+                                    <td width="85%"><b>{{ $companyDetail['name'] }}</b><br>
+                                        {{ $companyDetail['address'] }} <br>
+                                        {{ $companyDetail['address_dtl'] }} <br>
+                                        {{ $companyDetail['city'] }}
                                         <br><br>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td valign="top">To : </td>
                                     <td><b>
-                                            Rainier Owen Harsono
+                                            {{ $clientProg->client->parents[0]->full_name }}
                                         </b><br>
-                                        Malang Jawa Timur
+                                        {{ strip_tags($clientProg->client->parents[0]->address) }}
                                         <br>
                                     </td>
                                 </tr>
@@ -93,9 +98,9 @@
                                         Due Date<br>
                                     </td>
                                     <td>
-                                        : &nbsp; INV-/12124/21412/12<br>
-                                        : &nbsp; 09 Desember 2022 <br>
-                                        : &nbsp; 15 Desember 2022 <br>
+                                        : &nbsp; {{ $clientProg->invoice->inv_id }}<br>
+                                        : &nbsp; {{ $clientProg->invoice->created_at }} <br>
+                                        : &nbsp; {{ $clientProg->invoice->inv_duedate }} <br>
                                     </td>
                                 </tr>
                             </table>
@@ -108,12 +113,12 @@
             <table>
                 <tr>
                     <td>
-                        Please process payment to PT Jawara Edukasih Indonesia for the following services rendered :
+                        Please process payment to {{ $companyDetail['name'] }} for the following services rendered :
                     </td>
                 </tr>
             </table>
 
-            @if ($is_session)
+            @if ($clientProg->invoice->inv_category == "session")
                 {{-- SESSION  --}}
                 <table width="100%" class="table-detail" style="padding:8px 5px;">
                     <tr align="center">
@@ -129,12 +134,10 @@
                         <td valign="top" style="padding-bottom:10px;">
                             <div style="height:80px;">
                                 <p>
-                                    <strong> Admissions Mentoring: Ultimate Package </strong>
+                                    <strong> {{ $clientProg->invoice_program_name }} </strong>
                                 </p>
                                 <p>
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis provident dolorum
-                                    dicta
-                                    hic debitis omnis placeat ratione
+                                    {{ strip_tags($clientProg->invoice->inv_notes) }}
                                 </p>
                             </div>
 
@@ -148,28 +151,33 @@
                             <div style="height:80px;">
                                 <p>
                                     <strong>
-                                        Rp. 500.000
+                                        {{ $clientProg->invoice->invoice_price_idr }}
                                     </strong>
                                 </p>
                             </div>
                         </td>
                         <td valign="top" align="center">
-                            <p>3x</p>
+                            <p>{{ $clientProg->invoice->session }}x</p>
                         </td>
                         <td valign="top" align="center">
-                            <p>30 Min/Session</p>
+                            <p>{{ $clientProg->invoice->duration }} Min/Session</p>
                         </td>
                         <td valign="top" align="center">
                             <div style="height:80px;">
                                 <p>
                                     <strong>
-                                        Rp. 750.000
+                                        @php
+                                            $session = $clientProg->invoice->session;
+                                            $duration = $clientProg->invoice->duration;
+                                            $total_session = ($duration * $session) / 60 # hours;
+                                        @endphp
+                                        Rp. {{ number_format($clientProg->invoice->inv_totalprice_idr * $total_session, '2', ',', '.') }}
                                     </strong>
                                 </p>
                             </div>
                             <div style="margin-top:5px;">
                                 <p>
-                                    <strong> - Rp. 50.000</strong>
+                                    <strong> - {{ $clientProg->invoice->invoice_discount_idr }}</strong>
                                 </p>
                             </div>
                         </td>
@@ -177,7 +185,7 @@
                     <tr>
                         <td colspan="5" align="right"><b>Total</b></td>
                         <td valign="middle" align="center">
-                            <b>Rp. 700.000</b>
+                            <b>Rp. {{ number_format(($clientProg->invoice->inv_totalprice_idr * $total_session) - $clientProg->invoice->inv_discount_idr, '2', ',','.') }}</b>
                         </td>
                     </tr>
                 </table>
@@ -195,11 +203,12 @@
                         <td valign="top" style="padding-bottom:10px;">
                             <div style="height:80px;">
                                 <p>
-                                    <strong> Admissions Mentoring: Ultimate Package </strong>
+                                    <strong> {{ $clientProg->invoice_program_name }} </strong>
                                 </p>
                                 <p>
-                                    USD 5,400 (IDR 80,460,000) for Yeriel Abinawa Handoyo. <br>
-                                    USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo.
+                                    {{-- USD 5,400 (IDR 80,460,000) for Yeriel Abinawa Handoyo. <br>
+                                    USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo. --}}
+                                    {{ strip_tags($clientProg->invoice->inv_notes) }}
                                 </p>
                             </div>
 
@@ -216,7 +225,7 @@
                             <div style="height:80px;">
                                 <p>
                                     <strong>
-                                        $8,150
+                                        {{ $clientProg->invoice->invoice_price_idr }}
                                     </strong>
                                 </p>
                             </div>
@@ -225,16 +234,16 @@
                             <div style="height:80px;">
                                 <p>
                                     <strong>
-                                        $8,150
+                                        {{ $clientProg->invoice->invoice_price_idr }}
                                     </strong>
                                 </p>
                             </div>
                             <div style="margin-top:5px;">
                                 <p>
-                                    <strong> - $50</strong>
+                                    <strong> - {{ $clientProg->invoice->invoice_earlybird_idr }}</strong>
                                 </p>
                                 <p>
-                                    <strong> - $100</strong>
+                                    <strong> - {{ $clientProg->invoice->invoice_discount_idr }}</strong>
                                 </p>
                             </div>
                         </td>
@@ -242,7 +251,7 @@
                     <tr>
                         <td colspan="3" align="right"><b>Total</b></td>
                         <td valign="middle" align="center">
-                            <b>$8,000</b>
+                            <b>{{ $clientProg->invoice->invoice_totalprice_idr }}</b>
                         </td>
                     </tr>
                 </table>
@@ -251,23 +260,24 @@
             <table>
                 <tr>
                     <td>
-                        <b style="letter-spacing:0.7px;"><i>Total Amount : Eight thousand dollars</i></b>
+                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{ $clientProg->invoice->inv_words_idr }}</i></b>
                         <br><br>
 
                         {{-- IF INSTALLMENT EXIST --}}
-                        Terms of Payment :
+                        {{-- Terms of Payment :
                         <div style="margin-left:2px;">
                             - Installment 1 40% on 05 December 2022 : $3,260 <br>
                             - Installment 2 20% on 05 February 2023 : $1,630 <br>
                             - Installment 3 20% on 05 April 2023 : $1,630
-                        </div>
+                            {!! $clientProg->invoice->inv_tnc !!}
+                        </div> --}}
 
 
                         {{-- IF TERMS & CONDITION EXIST  --}}
                         <br>
                         Terms & Conditions :
                         <div style="margin-left:2px;">
-
+                            {!! $clientProg->invoice->inv_tnc !!}
                         </div>
                     </td>
                 </tr>
@@ -297,7 +307,7 @@
                         </table>
                     </td>
                     <td width="40%" align="center" valign="top">
-                        PT. Jawara Edukasih Indonesia
+                        {{ $companyDetail['name'] }}
                         <br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director
@@ -305,8 +315,8 @@
                 </tr>
             </table>
         </div>
-        <img src="{{ asset('img/pdf/footer.png') }}" width="100%">
     </div>
+    <img src="{{ public_path('img/pdf/footer.webp') }}" style="position:relative;" width="100%">
 </body>
 
 </html>

@@ -14,13 +14,16 @@
     <div class="card rounded">
         <ul class="nav nav-tabs mb-3">
             <li class="nav-item">
-                <a class="nav-link {{ Request::get('s') == 'list' ? "active" : null }}" aria-current="page" href="{{ route('receipt.client-program') }}?s=list">Receipt List</a>
+                <a class="nav-link {{ Request::get('s') == 'list' ? 'active' : null }}" aria-current="page"
+                    href="{{ route('receipt.client-program') }}?s=list">Receipt List</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ Request::get('s') == 'refund-request' ? "active" : null }}" href="{{ route('receipt.client-program') }}?s=refund-request">Refund Request</a>
+                <a class="nav-link {{ Request::get('s') == 'refund-request' ? 'active' : null }}"
+                    href="{{ route('receipt.client-program') }}?s=refund-request">Refund Request</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ Request::get('s') == 'refund-list' ? "active" : null }}" href="{{ route('receipt.client-program') }}?s=refund-list">Refund List</a>
+                <a class="nav-link {{ Request::get('s') == 'refund-list' ? 'active' : null }}"
+                    href="{{ route('receipt.client-program') }}?s=refund-list">Refund List</a>
             </li>
         </ul>
         <div class="card-body">
@@ -38,25 +41,6 @@
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @for ($i = 0; $i < 5; $i++)
-                        <tr>
-                            <td>#</td>
-                            <td>Client Name</td>
-                            <td>Program Name</td>
-                            <td>Receipt ID</td>
-                            <td>Invoice ID</td>
-                            <td>Payment Method</td>
-                            <td>Receipt Date</td>
-                            <td>Total Price</td>
-                            <td class="text-center">
-                                <a href="{{ url('receipt/client-program/1') }}" class="btn btn-sm btn-outline-warning">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    @endfor
-                </tbody>
                 <tfoot class="bg-light text-white">
                     <tr>
                         <td colspan="7"></td>
@@ -126,7 +110,8 @@
                         data: 'id',
                         className: 'text-center',
                         render: function(data, type, row) {
-                            return '<a href="{{ url('receipt/client-program/') }}/' + data + '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
+                            return '<a href="{{ url('receipt/client-program/') }}/' + data +
+                                '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
                         }
                     }
                 ]

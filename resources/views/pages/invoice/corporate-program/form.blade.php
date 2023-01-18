@@ -37,6 +37,7 @@
                 </div>
             </div>
 
+            @include('pages.invoice.corporate-program.detail.refund')
             @include('pages.invoice.corporate-program.form-detail.client')
 
             @include('pages.invoice.corporate-program.form-detail.installment-list')
@@ -152,8 +153,8 @@
         </div>
     </div>
 
-        {{-- Add Receipt  --}}
-        <div class="modal fade" id="addReceipt" data-bs-backdrop="static" data-bs-keyboard="false"
+    {{-- Add Receipt  --}}
+    <div class="modal fade" id="addReceipt" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -191,8 +192,8 @@
                                         <span class="input-group-text" id="basic-addon1">
                                             Rp
                                         </span>
-                                        <input type="text" name="receipt" id="receipt_amount"
-                                            class="form-control" required value="">
+                                        <input type="text" name="receipt" id="receipt_amount" class="form-control"
+                                            required value="">
                                     </div>
                                 </div>
                             </div>
@@ -269,7 +270,7 @@
                 allowClear: true
             });
         });
-        
+
         function checkCurrency() {
             let cur = $('#currency').val()
             $('.invoice-currency').addClass('d-none')

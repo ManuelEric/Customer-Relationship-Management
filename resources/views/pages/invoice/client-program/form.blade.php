@@ -4,9 +4,9 @@
 
 @section('content')
 
-@php
-    $disabled = isset($status) && $status == "view" ? "disabled" : null
-@endphp
+    @php
+        $disabled = isset($status) && $status == 'view' ? 'disabled' : null;
+    @endphp
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/client-program?s=needed') }}" class="text-decoration-none text-muted">
@@ -14,9 +14,15 @@
         </a>
     </div>
 
-    @if($errors->any())
-        {{ implode('', $errors->all('<div>:message</div>')) }}
-    @endif
+    {{-- @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif --}}
 
     <div class="row">
         <div class="col-md-4">
@@ -28,38 +34,40 @@
                         @php
                             $programName = explode('-', $clientProg->program_name);
                         @endphp
-                        @for ($i = 0; $i < count($programName) ; $i++)
+                        @for ($i = 0; $i < count($programName); $i++)
                             <span
-                                @if ($i > 0 )
-                                    style="font-size:.8em;color:blue"    
-                                @endif
-                                >{{ $programName[$i] }}</span>
+                                @if ($i > 0) style="font-size:.8em;color:blue" @endif>{{ $programName[$i] }}</span>
                         @endfor
                     </h6>
                     @if (isset($invoice))
-                    <div class="d-flex justify-content-center mt-3">
-                        {{-- <a href="{{ url('program/client/1') }}" class="btn btn-sm btn-outline-info rounded mx-1"
+                        <div class="d-flex justify-content-center mt-3">
+                            {{-- <a href="{{ url('program/client/1') }}" class="btn btn-sm btn-outline-info rounded mx-1"
                             target="_blank">
                             <i class="bi bi-eye me-1"></i> More
                         </a> --}}
 
-                        <a href="{{ $status == 'edit' ? url('invoice/client-program/'.$clientProg->clientprog_id) : url('invoice/client-program/'.$clientProg->clientprog_id.'/edit') }}"
-                            class="btn btn-sm btn-outline-warning rounded mx-1">
-                            <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
-                            {{ $status == 'edit' ? 'Back' : 'Edit' }}
+                            <a href="{{ $status == 'edit' ? url('invoice/client-program/' . $clientProg->clientprog_id) : url('invoice/client-program/' . $clientProg->clientprog_id . '/edit') }}"
+                                class="btn btn-sm btn-outline-warning rounded mx-1">
+                                <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
+                                {{ $status == 'edit' ? 'Back' : 'Edit' }}
+                            </a>
+
+                        <a href="#export" id="print">
+                            <button class="btn btn-sm btn-outline-info rounded mx-1">
+                                <i class="bi bi-printer me-1"></i> Print
+                            </button>
                         </a>
 
-                        <button class="btn btn-sm btn-outline-info rounded mx-1">
-                            <i class="bi bi-printer me-1"></i> Print
-                        </button>
-
-                        <button class="btn btn-sm btn-outline-danger rounded mx-1" onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
-                            <i class="bi bi-trash2 me-1"></i> Delete
-                        </button>
-                    </div>
+                            <button class="btn btn-sm btn-outline-danger rounded mx-1"
+                                onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
+                                <i class="bi bi-trash2 me-1"></i> Delete
+                            </button>
+                        </div>
                     @endif
                 </div>
             </div>
+
+            @include('pages.invoice.client-program.detail.refund')
 
             @include('pages.invoice.client-program.form-detail.client')
 
@@ -74,16 +82,16 @@
                     <div class="py-2">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-person me-2"></i>
-                            Invoice {{ isset($invoice) ? " : ".$invoice->inv_id : null }}
+                            Invoice {{ isset($invoice) ? ' : ' . $invoice->inv_id : null }}
                         </h6>
                     </div>
                     <div class="">
-                        @if (!isset($invoice) && $invoice->inv_paymentmethod == "Full Payment")
+                        @if ($invoice === NULL && isset($invoice->receipt))
                             <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
-                        @if (isset($invoice->receipt) && $invoice->inv_paymentmethod == "Full Payment")
+                        @if (isset($invoice->receipt) && $invoice->inv_paymentmethod == 'Full Payment')
                             <a href="{{ route('receipt.client-program.show', ['receipt' => $invoice->receipt->id]) }}">
                                 <button class="btn btn-sm btn-outline-warning py-1">
                                     <i class="bi bi-eye"></i> View Receipt
@@ -94,7 +102,9 @@
                 </div>
 
                 <div class="card-body">
-                    <form action="{{ isset($invoice) ? route('invoice.program.update', ['client_program' => $clientProg->clientprog_id]) : route('invoice.program.store') }}" method="POST" id="invoice-form">
+                    <form
+                        action="{{ isset($invoice) ? route('invoice.program.update', ['client_program' => $clientProg->clientprog_id]) : route('invoice.program.store') }}"
+                        method="POST" id="invoice-form">
                         @csrf
                         @if (isset($invoice))
                             @method('PUT')
@@ -103,7 +113,7 @@
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label for="">Currency <sup class="text-danger">*</sup></label>
-                                <select id="currency" name="currency[]" class="select w-100" onchange="checkCurrency()" {{ $disabled }}>
+                                <select id="currency" name="currency" class="select w-100" onchange="checkCurrency()" {{ $disabled }}>
                                     <option value="idr"    
                                     @if (($clientProg->program->prog_payment == "session" OR $clientProg->program->prog_payment == "idr") && !isset($invoice))
                                         {{ "selected" }}
@@ -112,64 +122,60 @@
                                     @endif
                                         >IDR</option>
                                     <option value="other"
-                                    @if (($clientProg->program->prog_payment != "session" && $clientProg->program->prog_payment != "idr") && !isset($invoice))
-                                        {{ "selected" }}
-                                    @elseif (isset($invoice) && $invoice->inv_category == "other")
-                                        {{ "selected" }}
-                                    @endif
-                                        >Other Currency</option>
+                                        @if ($clientProg->program->prog_payment != 'session' &&
+                                            $clientProg->program->prog_payment != 'idr' &&
+                                            !isset($invoice)) {{ 'selected' }}
+                                    @elseif (isset($invoice) && $invoice->inv_category == 'other')
+                                        {{ 'selected' }} @endif>
+                                        Other Currency</option>
                                 </select>
-                                @error('currency')
+                                {{-- @error('currency')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
                                 <label for="">Currency Detail <sup class="text-danger">*</sup></label> {{ old('currency') }}
-                                <select class="select w-100" name="currency[]" id="currency_detail" {{ $disabled !== null ? $disabled : 'onchange="checkCurrencyDetail()"' }}>
+                                <select class="select w-100" name="currency_detail" id="currency_detail" {{ $disabled !== null ? $disabled : 'onchange="checkCurrencyDetail()"' }}>
                                     <option data-placeholder="true"></option>
                                     <option value="usd"
-                                        @if (isset($invoice->currency) && $invoice->currency == "usd")
-                                            {{ "selected" }}
+                                        @if (isset($invoice->currency) && $invoice->currency == 'usd') {{ 'selected' }}
                                         @elseif (old('currency') !== null && in_array('usd', (array) old('currency')))
-                                            {{ "selected" }}
-                                        @endif
-                                            >USD</option>
+                                            {{ 'selected' }} @endif>
+                                        USD</option>
                                     <option value="sgd"
-                                        @if (isset($invoice->currency) && $invoice->currency == "sgd")
-                                            {{ "selected" }}
+                                        @if (isset($invoice->currency) && $invoice->currency == 'sgd') {{ 'selected' }}
                                         @elseif (old('currency') !== null && in_array('sgd', (array) old('currency')))
-                                            {{ "selected" }}
-                                        @endif
-                                            >SGD</option>
+                                            {{ 'selected' }} @endif>
+                                        SGD</option>
                                     <option value="gbp"
-                                        @if (isset($invoice->currency) && $invoice->currency == "gbp")
-                                            {{ "selected" }}
+                                        @if (isset($invoice->currency) && $invoice->currency == 'gbp') {{ 'selected' }}
                                         @elseif (old('currency') !== null && in_array('gbp', (array) old('currency')))
-                                            {{ "selected" }}
-                                        @endif
-                                            >GBP</option>
+                                            {{ 'selected' }} @endif>
+                                        GBP</option>
                                 </select>
                             </div>
 
                             <div class="col-md-3  mb-3 currency-detail d-none">
                                 <label for="">Current Rate to IDR <sup class="text-danger">*</sup></label>
-                                <input type="number" name="curs_rate" id="current_rate" value="{{ isset($invoice->curs_rate) ? $invoice->curs_rate : old('curs_rate') }}" {{ $disabled }}
-                                    class="form-control form-control-sm rounded">
-                                @error('curs_rate')
+                                <input type="number" name="curs_rate" id="current_rate"
+                                    value="{{ isset($invoice->curs_rate) ? $invoice->curs_rate : old('curs_rate') }}"
+                                    {{ $disabled }} class="form-control form-control-sm rounded">
+                                {{-- @error('curs_rate')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
 
                             <div class="col-md-3 mb-3">
                                 <label for="">Is Session? <sup class="text-danger">*</sup></label>
-                                <select name="is_session" id="session" class="select w-100" onchange="checkSession()" {{ $disabled }}>
+                                <select name="is_session" id="session" class="select w-100" onchange="checkSession()"
+                                    {{ $disabled }}>
                                     <option data-placeholder="true"></option>
                                     <option value="yes">Yes</option>
                                     <option value="no">No</option>
                                 </select>
-                                @error('is_session')
+                                {{-- @error('is_session')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
 
                             {{-- SESSION  --}}
@@ -200,48 +206,51 @@
                             </div>
 
                             <div class="col-md-12">
-                                <input type="hidden" name="" id="total_idr" value="{{ isset($invoice->inv_totalprice_idr) ? $invoice->inv_totalprice_idr : null }}">
-                                <input type="hidden" name="" id="total_other" value="{{ isset($invoice->inv_totalprice) ? $invoice->inv_totalprice : null }}">
+                                <input type="hidden" name="" id="total_idr"
+                                    value="{{ isset($invoice->inv_totalprice_idr) ? $invoice->inv_totalprice_idr : null }}">
+                                <input type="hidden" name="" id="total_other"
+                                    value="{{ isset($invoice->inv_totalprice) ? $invoice->inv_totalprice : null }}">
                             </div>
 
                             <div class="col-md-5 mb-3 invoice d-none">
                                 <label for="">Payment Method <sup class="text-danger">*</sup></label>
-                                <select name="inv_paymentmethod" id="payment_method" class="select w-100" onchange="checkPayment()" {{ $disabled }}>
+                                <select name="inv_paymentmethod" id="payment_method" class="select w-100"
+                                    onchange="checkPayment()" {{ $disabled }}>
                                     <option data-placeholder="true"></option>
-                                    <option value="full" 
-                                        @if (isset($invoice->inv_paymentmethod) && $invoice->inv_paymentmethod == "Full Payment")
-                                            {{ "selected" }}
+                                    <option value="full"
+                                        @if (isset($invoice->inv_paymentmethod) && $invoice->inv_paymentmethod == 'Full Payment') {{ 'selected' }}
                                         @elseif (old('inv_paymentmethod') !== null && old('inv_paymentmethod') == 'full')
-                                            {{ "selected" }}
-                                        @endif>Full Payment</option>
-                                    <option value="installment" 
-                                        @if (isset($invoice->inv_paymentmethod) && $invoice->inv_paymentmethod == "Installment")
-                                            {{ "selected" }}
+                                            {{ 'selected' }} @endif>
+                                        Full Payment</option>
+                                    <option value="installment"
+                                        @if (isset($invoice->inv_paymentmethod) && $invoice->inv_paymentmethod == 'Installment') {{ 'selected' }}
                                         @elseif (old('inv_paymentmethod') !== null && old('inv_paymentmethod') == 'installment')
-                                            {{ "selected" }}
-                                        @endif>Installment</option>
+                                            {{ 'selected' }} @endif>
+                                        Installment</option>
                                 </select>
-                                @error('inv_paymentmethod')
+                                {{-- @error('inv_paymentmethod')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
                             <div class="col-md-7">
                                 <div class="row">
                                     <div class="col-md-6 mb-3 invoice d-none">
                                         <label for="">Created Date <sup class="text-danger">*</sup></label>
-                                        <input type="date" name="invoice_date" id="" value="{{ date('Y-m-d') }}" readonly {{ $disabled }}
+                                        <input type="date" name="invoice_date" id=""
+                                            value="{{ date('Y-m-d') }}" readonly {{ $disabled }}
                                             class='form-control form-control-sm rounded'>
-                                        @error('invoice_date')
+                                        {{-- @error('invoice_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
-                                        @enderror
+                                        @enderror --}}
                                     </div>
                                     <div class="col-md-6 mb-3 invoice d-none">
                                         <label for="">Due Date <sup class="text-danger">*</sup></label>
-                                        <input type="date" name="inv_duedate" id="" value="{{ isset($invoice->inv_duedate) ? $invoice->inv_duedate : old('inv_duedate') }}" {{ $disabled }}
-                                            class='form-control form-control-sm rounded'>
-                                        @error('inv_duedate')
+                                        <input type="date" name="inv_duedate" id=""
+                                            value="{{ isset($invoice->inv_duedate) ? $invoice->inv_duedate : old('inv_duedate') }}"
+                                            {{ $disabled }} class='form-control form-control-sm rounded'>
+                                        {{-- @error('inv_duedate')
                                             <small class="text-danger fw-light">{{ $message }}</small>
-                                        @enderror
+                                        @enderror --}}
                                     </div>
                                 </div>
                             </div>
@@ -259,25 +268,25 @@
                             <div class="col-md-12 mb-3 invoice d-none">
                                 <label for="">Notes</label>
                                 <textarea name="inv_notes" id="" {{ $disabled }}>{{ isset($invoice->inv_notes) ? $invoice->inv_notes : old('inv_notes') }}</textarea>
-                                @error('inv_notes')
+                                {{-- @error('inv_notes')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
                             <div class="col-md-12 mb-3 invoice d-none">
                                 <label for="">Terms & Condition</label>
                                 <textarea name="inv_tnc" id="" {{ $disabled }}>{{ isset($invoice->inv_tnc) ? $invoice->inv_tnc : old('inv_tnc') }}</textarea>
-                                @error('inv_tnc')
+                                {{-- @error('inv_tnc')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
+                                @enderror --}}
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-end">
-                            @if ($status != "view")
+                            @if ($status != 'view')
                                 <button class="btn btn-primary" type="button" id="submit-form">
                                     <i class="bi bi-receipt"></i>
                                     <small>
-                                        {{ isset($invoice) ? 'Update' : 'Create'}} Invoice
+                                        {{ isset($invoice) ? 'Update' : 'Create' }} Invoice
                                     </small>
                                 </button>
                             @endif
@@ -305,7 +314,8 @@
                         <input type="hidden" name="clientprog_id" value="{{ $clientProg->clientprog_id }}">
                         <input type="hidden" name="identifier" id="identifier">
                         <input type="hidden" name="paymethod" id="paymethod">
-                        <input type="hidden" name="currency" value="{{ isset($invoice->currency) ? $invoice->currency : null }}">
+                        <input type="hidden" name="currency"
+                            value="{{ isset($invoice->currency) ? $invoice->currency : null }}">
                         <div class="put"></div>
                         <div class="row g-2">
                             <div class="col-md-3 receipt-other d-none">
@@ -341,8 +351,8 @@
                                     <label for="">
                                         Date <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="date" name="receipt_date" value="{{ date('Y-m-d') }}" id="receipt_date"
-                                        class="form-control form-control-sm rounded">
+                                    <input type="date" name="receipt_date" value="{{ date('Y-m-d') }}"
+                                        id="receipt_date" class="form-control form-control-sm rounded">
                                 </div>
                             </div>
                             <div class="col-md-12 receipt-other d-none">
@@ -402,8 +412,7 @@
     </div>
 
     <script>
-        function setIdentifier(paymethod, id)
-        {
+        function setIdentifier(paymethod, id) {
             $("#identifier").val(id);
             $("#paymethod").val(paymethod);
         }
@@ -428,10 +437,10 @@
                         currency = '';
                         totprice = '-'
                         break;
-                }  
+                }
                 $("#receipt_word_other").val(wordConverter(val) + currency)
-                $("#receipt_amount").val(val*curs_rate)
-                $("#receipt_word").val(wordConverter(val*curs_rate) + " Rupiah")
+                $("#receipt_amount").val(val * curs_rate)
+                $("#receipt_word").val(wordConverter(val * curs_rate) + " Rupiah")
             })
 
             $("#receipt_amount").on('keyup', function() {
@@ -445,55 +454,56 @@
                 allowClear: true
             });
 
-            @if (($clientProg->program->prog_payment == "idr" || $clientProg->program->prog_payment == "session") && !isset($invoice)) 
+            @if (($clientProg->program->prog_payment == 'idr' || $clientProg->program->prog_payment == 'session') &&
+                !isset($invoice))
                 $("#currency").val('idr').trigger('change')
-            @elseif (isset($invoice) && $invoice->inv_category == "idr")
+            @elseif (isset($invoice) && $invoice->inv_category == 'idr')
                 $("#currency").val('idr').trigger('change')
             @else
                 $("#currency").val('other').trigger('change')
             @endif
 
             @switch (strtolower($clientProg->program->prog_payment))
-                @case("usd")
-                    $("#currency_detail").val("usd").trigger('change')
+                @case('usd')
+                $("#currency_detail").val("usd").trigger('change')
                 @break
 
-                @case("sgd")
-                    $("#currency_detail").val("sgd").trigger('change')
+                @case('sgd')
+                $("#currency_detail").val("sgd").trigger('change')
                 @break
 
-                @case("gbp")
-                    $("#currency_detail").val("gbp").trigger('change')
+                @case('gbp')
+                $("#currency_detail").val("gbp").trigger('change')
                 @break
             @endswitch
 
             @if (isset($invoice))
-                @if (isset($invoice->inv_paymentmethod) && $invoice->inv_paymentmethod == "Full Payment")
+                @if (isset($invoice->inv_paymentmethod) && $invoice->inv_paymentmethod == 'Full Payment')
                     $("#payment_method").val('full').trigger('change')
-                @elseif (old('inv_paymentmethod') == "Full Payment")
+                @elseif (old('inv_paymentmethod') == 'Full Payment')
                     $("#payment_method").val('full').trigger('change')
                 @else
                     $("#payment_method").val('installment').trigger('change')
                 @endif
             @endif
 
-            @if ($clientProg->program->prog_payment == "session" && !isset($invoice))
+            @if ($clientProg->program->prog_payment == 'session' && !isset($invoice))
                 $("#session").val('yes').trigger('change')
-            @elseif (isset($invoice) && $invoice->inv_category == "session")
+            @elseif (isset($invoice) && $invoice->inv_category == 'session')
                 $("#session").val('yes').trigger('change')
             @else
-                $("#session").val('no').trigger('change')    
+                $("#session").val('no').trigger('change')
             @endif
 
             // old
-            @if (old('currency') !== null && in_array('idr', (array) old('currency'))) 
+            @if (old('currency') !== null && in_array('idr', (array) old('currency')))
                 $("#currency").val('idr').trigger('change')
             @elseif (old('currency') !== null && in_array('other', (array) old('currency')))
                 $("#currency").val('other').trigger('change')
             @endif
 
 
-            @if (old('is_session') == "yes")
+            @if (old('is_session') == 'yes')
                 $("#session").val('yes').trigger('change')
             @else
                 $("#session").val('no').trigger('change')
@@ -591,6 +601,30 @@
             @if (old('inv_paymentmethod'))
                 $("#payment_method").val("{{ old('inv_paymentmethod') }}").trigger('change');
             @endif
+
+            $("#print").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        responseType: 'arraybuffer'
+                    })
+                    .then(response => {
+                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+            })
         })
 
         $("#submit-form").click(function(e) {
@@ -603,9 +637,10 @@
                 $('.percentage').each(function() {
                     tot_percent += parseInt($(this).val())
                 })
-    
+
                 if (tot_percent < 100) {
-                    notification('error', 'Installment amount is not right. Please double check before create invoice')
+                    notification('error',
+                        'Installment amount is not right. Please double check before create invoice')
                     return;
                 }
 
@@ -615,9 +650,10 @@
                 $('.percentage-other').each(function() {
                     tot_percent += parseInt($(this).val())
                 })
-    
+
                 if (tot_percent < 100) {
-                    notification('error', 'Installment amount is not right. Please double check before create invoice')
+                    notification('error',
+                        'Installment amount is not right. Please double check before create invoice')
                     return;
                 }
 
@@ -625,7 +661,8 @@
 
 
             $("#invoice-form").submit()
-        })
 
+            
+        })
     </script>
 @endsection

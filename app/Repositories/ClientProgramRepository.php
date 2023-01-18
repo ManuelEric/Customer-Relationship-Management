@@ -120,7 +120,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     public function getAllMentorTutorOnClientProgram()
     {
         return ClientMentor::leftJoin('users', 'users.id', '=', 'tbl_client_mentor.user_id')->distinct('user_id')
-            ->select('users.id', DB::raw('CONCAT(users.first_name, " ", users.last_name) as fullname'))->get();
+            ->select('users.id', DB::raw('CONCAT(users.first_name, " ", COALESCE(users.last_name, "")) as fullname'))->get();
     }
 
     public function getAllPICOnClientProgram()
