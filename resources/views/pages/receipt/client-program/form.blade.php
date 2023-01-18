@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('receipt/client-program') }}" class="text-decoration-none text-muted">
+        <a href="{{ url('receipt/client-program?s=list') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Receipt
         </a>
     </div>
@@ -37,13 +37,9 @@
                         <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1" onclick="confirmDelete('receipt/client-program/', '{{ $receipt->id }}')">
                             <i class="bi bi-trash2 me-1"></i> Delete
                         </button>
-                        <a href="{{ url('receipt/client-program/1/export/pdf') }}"
+                        <a href="#export-idr" id="print"
                             class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Print Others
-                        </a>
-                        <a href="{{ url('receipt/client-program/1/export/pdf') }}"
-                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Print IDR
+                            <i class="bi bi-printer me-1"></i> Print
                         </a>
                     </div>
                 </div>
@@ -111,6 +107,30 @@
                 placeholder: "Select value",
                 allowClear: true
             });
+
+            $("#print").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('receipt.client-program.export', ['receipt' => $receipt->id]) }}', {
+                        responseType: 'arraybuffer'
+                    })
+                    .then(response => {
+                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Receipt in Rupiah has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the receipt')
+                        swal.close()
+                    })
+            })
         });
 
         function checkCurrency() {

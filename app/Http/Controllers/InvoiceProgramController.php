@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use PDF;
 
 class InvoiceProgramController extends Controller
 {
@@ -434,8 +435,26 @@ class InvoiceProgramController extends Controller
         return Redirect::to('invoice/client-program?s=needed')->withSuccess('Invoice has been deleted');
     }
 
-    public function export()
+    public function export(Request $request)
     {
-        return view('pages.invoice.client-program.export.invoice-pdf', ['is_session' => true]);
+        $clientprog_id = $request->route('client_program');
+        $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
+        $invoice_id = $clientProg->invoice->inv_id;
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $pdf = PDF::loadView('pages.invoice.client-program.export.invoice-pdf', ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+        return $pdf->download($invoice_id.".pdf");
+
+        // return view('pages.invoice.client-program.export.invoice-pdf')->with(
+        //     [
+        //         'clientProg' => $clientProg, 'companyDetail' => $companyDetail, 'is_session' => true
+        //     ]
+        // );
     }
 }

@@ -79,6 +79,13 @@ class ClientProgram extends Model
             get: fn ($value) => $this->program->prog_program. ' - ' .$this->program->prog_main,
         );
     }
+    
+    protected function invoiceProgramName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->program->prog_main. ': ' .$this->program->prog_program,
+        );
+    }
 
     public function client()
     {

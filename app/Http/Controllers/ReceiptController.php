@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use PDF;
 
 class ReceiptController extends Controller
 {
@@ -116,11 +117,45 @@ class ReceiptController extends Controller
 
     public function destroy(Request $request)
     {
+        $receiptId = $request->route('receipt');
 
+        DB::beginTransaction();
+        try {
+
+            $this->receiptRepository->deleteReceipt($receiptId);
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete receipt failed : ' . $e->getMessage());
+            return Redirect::back()->withError('Failed to delete receipt');
+
+        }
+
+        return Redirect::to('receipt/client-program?s=list')->withSuccess('Receipt has been deleted');
     }
 
-    public function export()
+    public function export(Request $request)
     {
-        return view('pages.receipt.client-program.export.receipt-pdf');
+        $receiptId = $request->route('receipt');
+        $receipt = $this->receiptRepository->getReceiptById($receiptId);
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        // $pdf = PDF::loadView('pages.receipt.client-program.export.receipt-pdf', ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
+        // return $pdf->download($receipt->receipt_id.".pdf");
+
+        return view('pages.receipt.client-program.export.receipt-pdf')->with(
+            [
+                'receipt' => $receipt,
+                'companyDetail' => $companyDetail
+            ]
+        );
     }
 }
