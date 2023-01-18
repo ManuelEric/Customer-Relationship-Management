@@ -148,14 +148,14 @@ class ReceiptController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        // $pdf = PDF::loadView('pages.receipt.client-program.export.receipt-pdf', ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
-        // return $pdf->download($receipt->receipt_id.".pdf");
+        $pdf = PDF::loadView('pages.receipt.client-program.export.receipt-pdf', ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
+        return $pdf->download($receipt->receipt_id.".pdf");
 
-        return view('pages.receipt.client-program.export.receipt-pdf')->with(
-            [
-                'receipt' => $receipt,
-                'companyDetail' => $companyDetail
-            ]
-        );
+        // return view('pages.receipt.client-program.export.receipt-pdf')->with(
+        //     [
+        //         'receipt' => $receipt,
+        //         'companyDetail' => $companyDetail
+        //     ]
+        // );
     }
 }
