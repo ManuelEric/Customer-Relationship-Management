@@ -71,4 +71,14 @@ class School extends Model
     {
         return $this->belongsToMany(Curriculum::class, 'tbl_sch_curriculum', 'sch_id', 'curriculum_id')->withTimestamps();
     }
+
+    public function internal_pic_when_visit()
+    {
+        return $this->belongsToMany(User::class, 'tbl_sch_visit', 'sch_id', 'id')->withTimestamps();
+    }
+
+    public function external_pic_when_visit()
+    {
+        return $this->belongsToMany(SchoolDetail::class, 'tbl_sch_visit', 'sch_id', 'schdetail_id')->withTimestamps();
+    }
 }

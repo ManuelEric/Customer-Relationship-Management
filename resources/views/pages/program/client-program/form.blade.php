@@ -44,7 +44,9 @@
                     @endif
                 </div>
             </div>
-            @include('pages.program.client-program.detail.refund')
+            @if (isset($clientProgram->invoice->refund) || isset($clientProgram->invoice->invoiceDetail->refund))
+                @include('pages.program.client-program.detail.refund')
+            @endif
 
             @include('pages.program.client-program.detail.client')
 
@@ -349,7 +351,7 @@
 
                                     <div class="col-md-12 mt-2 program-detail" id="refund_notes">
                                         <label for="">Refund Notes</label>
-                                        <textarea name="refund_notes" id=""></textarea>
+                                        <textarea name="refund_notes" id="">{{ isset($clientProgram->refund_notes) ? $clientProgram->refund_notes : old('refund_notes') }}</textarea>
                                     </div>
                                 </div>
                             </div>

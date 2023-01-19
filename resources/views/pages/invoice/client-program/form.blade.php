@@ -51,12 +51,22 @@
                                 <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
                                 {{ $status == 'edit' ? 'Back' : 'Edit' }}
                             </a>
-
+                    
                         <a href="#export" id="print">
                             <button class="btn btn-sm btn-outline-info rounded mx-1">
                                 <i class="bi bi-printer me-1"></i> Print
                             </button>
                         </a>
+
+                        @if (isset($invoice) && $invoice->currency != "idr")
+
+                            <a href="#export" id="print-other">
+                                <button class="btn btn-sm btn-outline-info rounded mx-1">
+                                    <i class="bi bi-printer me-1"></i> Print Foreign
+                                </button>
+                            </a>
+
+                        @endif
 
                             <button class="btn btn-sm btn-outline-danger rounded mx-1"
                                 onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
@@ -608,10 +618,38 @@
                 Swal.showLoading()                
                 axios
                     .get('{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
-                        responseType: 'arraybuffer'
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'idr'
+                        }
                     })
                     .then(response => {
-                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+            })
+
+            $("#print-other").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'other'
+                        }
+                    })
+                    .then(response => {
 
                         let blob = new Blob([response.data], { type: 'application/pdf' }),
                             url = window.URL.createObjectURL(blob)

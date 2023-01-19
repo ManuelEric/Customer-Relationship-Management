@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
 use App\Models\Lead;
 use App\Models\Program;
 use App\Models\User;
@@ -11,6 +13,9 @@ use Illuminate\Validation\Rule;
 
 class StoreClientProgramRequest extends FormRequest
 {
+
+    private ClientRepositoryInterface $clientRepository;
+    private ProgramRepositoryInterface $programRepository;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -21,7 +26,7 @@ class StoreClientProgramRequest extends FormRequest
         return true;
     }
 
-    public function __construct()
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository)
     {
         $this->admission_prog_id = Program::whereHas('main_prog', function($query) {
                                         $query->where('prog_name', 'Admissions Mentoring');
@@ -34,7 +39,9 @@ class StoreClientProgramRequest extends FormRequest
                                     })->orWhereHas('sub_prog', function ($query) {
                                         $query->where('sub_prog_name', 'like', '%Tutoring%');
                                     })->pluck('prog_id')->toArray();
-
+                                    
+        $this->clientRepository = $clientRepository;
+        $this->programRepository = $programRepository;
     }
 
     /**
@@ -58,6 +65,9 @@ class StoreClientProgramRequest extends FormRequest
         $satact_prog_id = Program::whereHas('sub_prog', function ($query) {
                                 $query->where('sub_prog_name', 'like', '%SAT%')->orWhere('sub_prog_name', 'like', '%ACT%');
                             })->pluck('prog_id')->toArray();
+
+        $student = $this->clientRepository->getClientById($this->route('student'));
+        $isMentee = $student->roles()->where('role_name', 'like', '%mentee%')->count();
 
 
         if ($this->input('status') === null) {
@@ -89,9 +99,36 @@ class StoreClientProgramRequest extends FormRequest
             case 0:
 
                 if (in_array($this->input('prog_id'), $admission_prog_id))
-                    $rules = $this->store_admission_pending();
+                    $rules = $this->store_admission_pending($isMentee);
                 elseif (in_array($this->input('prog_id'), $tutoring_prog_id))
-                    $rules = $this->store_tutoring_pending();
+                    $rules = $this->store_tutoring_pending($isMentee);
+                else {
+                    $rules = [
+                        'prog_id' => [
+                            'required',
+                            'exists:tbl_prog,prog_id',
+                            function ($attribute, $value, $fail) use ($isMentee) {
+                                $program = $this->programRepository->getProgramById($value);
+                                if ($program->prog_scope == "mentee" && $isMentee == 0)
+                                    $fail("This program is for mentee only");
+                            }
+                        ],
+                        'lead_id' => 'required',
+                        'first_discuss_date' => 'required|date',
+                        'meeting_notes' => 'nullable',
+                        'status' => 'required|in:0,1,2,3',
+                        'empl_id' => [
+                            'required', 'required',
+                            function ($attribute, $value, $fail) {
+                                if (!User::with('roles')->whereHas('roles', function ($q) {
+                                    $q->where('role_name', 'Employee');
+                                })->find($value)) {
+                                    $fail('The submitted pic was invalid employee');
+                                }
+                            },
+                        ]
+                    ];
+                }
 
                 break;
 
@@ -100,7 +137,7 @@ class StoreClientProgramRequest extends FormRequest
                 
                 if (in_array($this->input('prog_id'), $admission_prog_id)) {
 
-                    $rules = $this->store_admission_success();
+                    $rules = $this->store_admission_success($isMentee);
 
                     $rules['status'] = [
                         'required',
@@ -119,9 +156,9 @@ class StoreClientProgramRequest extends FormRequest
                     ];
 
                 } elseif (in_array($this->input('prog_id'), $tutoring_prog_id))
-                    $rules = $this->store_tutoring_success();
+                    $rules = $this->store_tutoring_success($isMentee);
                 elseif (in_array($this->input('prog_id'), $satact_prog_id))
-                    $rules = $this->store_satact_success();
+                    $rules = $this->store_satact_success($isMentee);
 
                 
                 break;
@@ -207,10 +244,18 @@ class StoreClientProgramRequest extends FormRequest
         return $rules;
     }
 
-    public function store_admission_pending()
+    public function store_admission_pending($isMentee)
     {
         return [
-            'prog_id' => 'required|exists:tbl_prog,prog_id',
+            'prog_id' => [
+                'required',
+                'exists:tbl_prog,prog_id',
+                function ($attribute, $value, $fail) use ($isMentee) {
+                    $program = $this->programRepository->getProgramById($value);
+                    if ($program->prog_scope == "mentee" && $isMentee == 0)
+                        $fail("This program is for mentee only");
+                }
+            ],
             'lead_id' => 'required',
             'clientevent_id' => 'required_if:lead_id,LS004',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
@@ -243,10 +288,18 @@ class StoreClientProgramRequest extends FormRequest
         
     }
 
-    public function store_admission_success()
+    public function store_admission_success($isMentee)
     {
         return [
-            'prog_id' => 'required|exists:tbl_prog,prog_id',
+            'prog_id' => [
+                'required', 
+                'exists:tbl_prog,prog_id',
+                function ($attribute, $value, $fail) use ($isMentee) {
+                    $program = $this->programRepository->getProgramById($value);
+                    if ($program->prog_scope == "mentee" && $isMentee == 0)
+                        $fail("This program is for mentee only");
+                }
+            ],
             'lead_id' => 'required',
             'clientevent_id' => 'required_if:lead_id,LS004',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
@@ -314,10 +367,18 @@ class StoreClientProgramRequest extends FormRequest
         ];
     }
 
-    public function store_tutoring_pending()
+    public function store_tutoring_pending($isMentee)
     {
         return [
-            'prog_id' => 'required|exists:tbl_prog,prog_id',
+            'prog_id' => [
+                'required',
+                'exists:tbl_prog,prog_id',
+                function ($attribute, $value, $fail) use ($isMentee) {
+                    $program = $this->programRepository->getProgramById($value);
+                    if ($program->prog_scope == "mentee" && $isMentee == 0)
+                        $fail("This program is for mentee only");
+                }
+            ],
             'lead_id' => 'required',
             'clientevent_id' => 'required_if:lead_id,LS004',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
@@ -348,10 +409,18 @@ class StoreClientProgramRequest extends FormRequest
         ];
     }
 
-    public function store_tutoring_success()
+    public function store_tutoring_success($isMentee)
     {
         return [
-            'prog_id' => 'required|exists:tbl_prog,prog_id',
+            'prog_id' => [
+                'required',
+                'exists:tbl_prog,prog_id',
+                function ($attribute, $value, $fail) use ($isMentee) {
+                    $program = $this->programRepository->getProgramById($value);
+                    if ($program->prog_scope == "mentee" && $isMentee == 0)
+                        $fail("This program is for mentee only");
+                }
+            ],
             'lead_id' => 'required',
             'clientevent_id' => 'required_if:lead_id,LS004',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
@@ -398,10 +467,18 @@ class StoreClientProgramRequest extends FormRequest
         ];
     }
 
-    public function store_satact_success()
+    public function store_satact_success($isMentee)
     {
         return [
-            'prog_id' => 'required|exists:tbl_prog,prog_id',
+            'prog_id' => [
+                'required', 
+                'exists:tbl_prog,prog_id',
+                function ($attribute, $value, $fail) use ($isMentee) {
+                    $program = $this->programRepository->getProgramById($value);
+                    if ($program->prog_scope == "mentee" && $isMentee == 0)
+                        $fail("This program is for mentee only");
+                }
+            ],
             'lead_id' => 'required',
             'clientevent_id' => 'required_if:lead_id,LS004',
             'eduf_lead_id' => 'required_if:lead_id,LS018',

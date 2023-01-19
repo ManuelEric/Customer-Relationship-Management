@@ -141,6 +141,13 @@ class ReceiptController extends Controller
         $receiptId = $request->route('receipt');
         $receipt = $this->receiptRepository->getReceiptById($receiptId);
 
+        $type = $request->get('type');
+
+        if ($type == "idr")
+            $view = 'pages.receipt.client-program.export.receipt-pdf';
+        else
+            $view = 'pages.receipt.client-program.export.receipt-pdf-foreign';
+
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
@@ -148,7 +155,7 @@ class ReceiptController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView('pages.receipt.client-program.export.receipt-pdf', ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
+        $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
         return $pdf->download($receipt->receipt_id.".pdf");
 
         // return view('pages.receipt.client-program.export.receipt-pdf')->with(

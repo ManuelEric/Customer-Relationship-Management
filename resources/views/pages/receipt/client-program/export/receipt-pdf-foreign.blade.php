@@ -116,7 +116,7 @@
                 <tr align="center">
                     <td>{{ $receipt->receipt_method }}</td>
                     <td>{{ $receipt->receipt_cheque }}</td>
-                    <td>{{ $receipt->receipt_amount_idr }}</td>
+                    <td>{{ $receipt->receipt_amount }}</td>
                 </tr>
             </table>
             <br>
@@ -147,9 +147,9 @@
                             <p>
                                 <strong>
                                     @if ($receipt->invoiceProgram->inv_paymentmethod == "Installment")
-                                        {{ $receipt->invoiceInstallment->invoicedtl_amountidr }}
+                                        {{ $receipt->invoiceInstallment->invoicedtl_amount }}
                                     @else
-                                    {{ $receipt->invoiceProgram->invoice_price_idr }}
+                                    {{ $receipt->invoiceProgram->invoice_price }}
                                     @endif
                                 </strong>
                             </p>
@@ -160,9 +160,9 @@
                             <p>
                                 <strong>
                                     @if ($receipt->invoiceProgram->inv_paymentmethod == "Installment")
-                                        {{ $receipt->invoiceInstallment->invoicedtl_amountidr }}
+                                        {{ $receipt->invoiceInstallment->invoicedtl_amount }}
                                     @else
-                                        {{ $receipt->invoiceProgram->invoice_price_idr }}
+                                        {{ $receipt->invoiceProgram->invoice_price }}
                                     @endif
                                 </strong>
                             </p>
@@ -172,8 +172,8 @@
                 <tr>
                     <td colspan="3" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
-                        <b>  
-                            {{ $receipt->receipt_amount_idr }}
+                        <b>
+                            {{ $receipt->receipt_amount }}
                         </b>
                     </td>
                 </tr>
@@ -182,7 +182,7 @@
             <table>
                 <tr>
                     <td>
-                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{ $receipt->receipt_words_idr }}</i></b>
+                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{ $receipt->receipt_words }}</i></b>
                     </td>
                 </tr>
             </table>

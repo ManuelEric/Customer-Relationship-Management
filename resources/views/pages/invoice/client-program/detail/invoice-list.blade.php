@@ -64,6 +64,10 @@
                             },
                             {
                                 data: 'created_at',
+                                render: function(data, type, row) {
+                                    
+                                    return moment(data).format('YYYY-MM-DD')
+                                }
                             },
                             {
                                 data: 'inv_duedate',

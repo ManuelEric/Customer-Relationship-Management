@@ -152,7 +152,7 @@
                             <div style="height:80px;">
                                 <p>
                                     <strong>
-                                        {{ $clientProg->invoice->invoice_price_idr }}
+                                        {{ $clientProg->invoice->invoice_price }}
                                     </strong>
                                 </p>
                             </div>
@@ -178,7 +178,7 @@
                             </div>
                             <div style="margin-top:5px;">
                                 <p>
-                                    <strong> - {{ $clientProg->invoice->invoice_discount_idr }}</strong>
+                                    <strong> - {{ $clientProg->invoice->invoice_discount }}</strong>
                                 </p>
                             </div>
                         </td>
@@ -186,7 +186,8 @@
                     <tr>
                         <td colspan="5" align="right"><b>Total</b></td>
                         <td valign="middle" align="center">
-                            <b>Rp. {{ number_format(($clientProg->invoice->inv_totalprice_idr * $total_session) - $clientProg->invoice->inv_discount_idr, '2', ',','.') }}</b>
+                            {{-- <b>Rp. {{ number_format(($clientProg->invoice->inv_totalprice_idr * $total_session) - $clientProg->invoice->inv_discount_idr, '2', ',','.') }}</b> --}}
+                            <b>{{ $clientProg->invoice->invoice_totalprice }}</b>
                         </td>
                     </tr>
                 </table>
@@ -226,7 +227,7 @@
                             <div style="height:80px;">
                                 <p>
                                     <strong>
-                                        {{ $clientProg->invoice->invoice_price_idr }}
+                                        {{ $clientProg->invoice->invoice_price }}
                                     </strong>
                                 </p>
                             </div>
@@ -235,16 +236,16 @@
                             <div style="height:80px;">
                                 <p>
                                     <strong>
-                                        {{ $clientProg->invoice->invoice_price_idr }}
+                                        {{ $clientProg->invoice->invoice_price }}
                                     </strong>
                                 </p>
                             </div>
                             <div style="margin-top:5px;">
                                 <p>
-                                    <strong> - {{ $clientProg->invoice->invoice_earlybird_idr }}</strong>
+                                    <strong> - {{ $clientProg->invoice->invoice_earlybird }}</strong>
                                 </p>
                                 <p>
-                                    <strong> - {{ $clientProg->invoice->invoice_discount_idr }}</strong>
+                                    <strong> - {{ $clientProg->invoice->invoice_discount }}</strong>
                                 </p>
                             </div>
                         </td>
@@ -252,7 +253,7 @@
                     <tr>
                         <td colspan="3" align="right"><b>Total</b></td>
                         <td valign="middle" align="center">
-                            <b>{{ $clientProg->invoice->invoice_totalprice_idr }}</b>
+                            <b>{{ $clientProg->invoice->invoice_totalprice }}</b>
                         </td>
                     </tr>
                 </table>
@@ -261,7 +262,7 @@
             <table>
                 <tr>
                     <td>
-                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{ $clientProg->invoice->inv_words_idr }}</i></b>
+                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{ $clientProg->invoice->inv_words }}</i></b>
                         <br><br>
 
                         {{-- IF INSTALLMENT EXIST --}}
@@ -269,7 +270,7 @@
                             Terms of Payment :
                             <div style="margin-left:2px;">
                                 @foreach ($clientProg->invoice->invoiceDetail as $detail)
-                                    {{ $detail->invdtl_installment.' '.$detail->invdtl_percentage.'% on '.date('d F Y', strtotime($detail->invdtl_duedate)).' : '.$detail->invoicedtl_amountidr }}
+                                    {{ $detail->invdtl_installment.' '.$detail->invdtl_percentage.'% on '.date('d F Y', strtotime($detail->invdtl_duedate)).' : '.$detail->invoicedtl_amount }}
                                     <br>
                                 {{-- - Installment 1 40% on 05 December 2022 : $3,260 <br>
                                 - Installment 2 20% on 05 February 2023 : $1,630 <br>

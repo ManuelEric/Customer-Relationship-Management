@@ -35,6 +35,12 @@
                             class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                             <i class="bi bi-printer me-1"></i> Print
                         </a>
+                        @if (isset($client_prog->invoice->currency) && $client_prog->invoice->currency != "idr")
+                            <a href="#export-idr" id="print-other"
+                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                <i class="bi bi-printer me-1"></i> Print Foreign
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -110,10 +116,38 @@
                 Swal.showLoading()                
                 axios
                     .get('{{ route('receipt.client-program.export', ['receipt' => $receipt->id]) }}', {
-                        responseType: 'arraybuffer'
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'idr'
+                        }
                     })
                     .then(response => {
-                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Receipt in Rupiah has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the receipt')
+                        swal.close()
+                    })
+            })
+
+            $("#print-other").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('receipt.client-program.export', ['receipt' => $receipt->id]) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'other'
+                        }
+                    })
+                    .then(response => {
 
                         let blob = new Blob([response.data], { type: 'application/pdf' }),
                             url = window.URL.createObjectURL(blob)

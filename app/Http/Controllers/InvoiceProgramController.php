@@ -424,6 +424,13 @@ class InvoiceProgramController extends Controller
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
         $invoice_id = $clientProg->invoice->inv_id;
 
+        $type = $request->get('type');
+
+        if ($type == "idr")
+            $view = 'pages.invoice.client-program.export.invoice-pdf';
+        else
+            $view = 'pages.invoice.client-program.export.invoice-pdf-foreign';
+
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
@@ -431,7 +438,7 @@ class InvoiceProgramController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView('pages.invoice.client-program.export.invoice-pdf', ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+        $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
         return $pdf->download($invoice_id.".pdf");
 
         // return view('pages.invoice.client-program.export.invoice-pdf')->with(
