@@ -606,7 +606,7 @@
 
                 Swal.showLoading()                
                 axios
-                    .get('{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}', {
+                    .get('{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}', {
                         responseType: 'arraybuffer'
                     })
                     .then(response => {
