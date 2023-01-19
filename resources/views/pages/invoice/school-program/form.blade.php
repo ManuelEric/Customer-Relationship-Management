@@ -580,6 +580,7 @@
                 $("#print_other").on('click', function(e) {
                 e.preventDefault();
 
+                @if (isset($invoiceSch))
                 Swal.showLoading()                
                 axios
                     .get('{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}', {
@@ -624,6 +625,8 @@
                         swal.close()
                     })
                 })
+
+                @endif
             })
 
              $("#submit-form").click(function(e) {

@@ -370,10 +370,10 @@ class InvoiceSchoolController extends Controller
         $invoice_id = $invoiceSch->invb2b_id;
 
 
-        return view('pages.invoice.school-program.export.invoice-pdf')->with([
-            'invoiceSch' => $invoiceSch,
-            'currency' => $currency,
-        ]);
+        // return view('pages.invoice.school-program.export.invoice-pdf')->with([
+        //     'invoiceSch' => $invoiceSch,
+        //     'currency' => $currency,
+        // ]);
 
         // $companyDetail = [
         //     'name' => env('ALLIN_COMPANY'),

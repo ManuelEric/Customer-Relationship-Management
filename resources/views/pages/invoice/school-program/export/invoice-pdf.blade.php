@@ -7,8 +7,14 @@
     <title>Invoice : {{ $invoiceSch->invb2b_id }} - PDF</title>
     {{-- <link rel="icon" href="#" type="image/gif" sizes="16x16"> --}}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
+        /* @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'); */
+        @import url('{{ public_path("dashboard-template/css/googleapisfont.css") }}');
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+        }
         body {
             font-family: 'Poppins', sans-serif;
         }
@@ -48,10 +54,10 @@
 </head>
 
 <body style="padding: 0; margin:0">
-    <div style="width: 100%; height:1100px; padding:0; margin:0;">
-        {{-- <img src="{{ public_path('img/pdf/header.webp') }}" width="100%"> --}}
-        {{-- <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%" --}}
-            {{-- style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;"> --}}
+    <div style="width: 100%; height:1059px; padding:0; margin:0;">
+        <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
+        <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
+            style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
             <h4
                 style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:18px; margin-bottom:10px; ">
@@ -161,7 +167,7 @@
                         </p>
                     </td>
                     <td valign="top" align="center">
-                        <div style="height:80px;">
+                        <div style="height:80px;width: 150px;">
                             <p>
                                 <strong>
                                      {{ $currency == 'other' ? $invoiceSch->invoiceSubTotalprice :  $invoiceSch->invoiceSubTotalpriceIdr }}
@@ -247,8 +253,8 @@
                 </tr>
             </table>
         </div>
-        <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%">
     </div>
+    <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%">
 </body>
 
 </html>
