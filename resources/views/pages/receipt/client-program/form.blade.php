@@ -44,8 +44,8 @@
                     </div>
                 </div>
             </div>
-
-            @include('pages.receipt.client-program.form-detail.refund')
+{{-- 
+            @include('pages.receipt.client-program.form-detail.refund') --}}
 
             @include('pages.receipt.client-program.form-detail.client')
 
