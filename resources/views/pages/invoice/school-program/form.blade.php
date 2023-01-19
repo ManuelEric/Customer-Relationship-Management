@@ -39,12 +39,16 @@
                     <div class="d-flex justify-content-center mt-2">
                         @if (isset($invoiceSch))
                             @if($invoiceSch->currency != 'idr')
-                                <a href="{{  route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}"
+                                {{-- <a href="{{  route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" 
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                    <i class="bi bi-printer me-1"></i> Print Others
+                                </a> --}}
+                                <a href="#export" id="print_other"
                                     class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                                     <i class="bi bi-printer me-1"></i> Print Others
                                 </a>
                             @endif
-                            <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}"
+                            <a href="#export" id="print_idr"
                                 class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                                 <i class="bi bi-printer me-1"></i> Print IDR
                             </a>
@@ -53,7 +57,12 @@
                 </div>
             </div>
 
-            @include('pages.invoice.school-program.detail.refund')
+            @if(isset($invoiceSch->receipt))
+                @if($invoiceSch->receipt->receipt_status == '2')
+                    @include('pages.invoice.school-program.detail.refund')
+                @endif
+            @endif
+
             @include('pages.invoice.school-program.form-detail.client')
             
             @if(isset($invoiceSch) && $invoiceSch->invb2b_pm == 'Installment')
@@ -495,6 +504,8 @@
                 $('#receipt_cheque').attr('disabled', 'disabled')
             }
         }
+
+        
     </script>
 
     @if(isset($invoiceSch->currency) && $invoiceSch->currency != 'idr') 
@@ -565,6 +576,54 @@
                 @if(!empty(old('select_currency')) )
                     $('#currency').val("{{old('select_currency')}}").trigger('change')
                 @endif
+
+                $("#print_other").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}', {
+                        responseType: 'arraybuffer'
+                    })
+                    .then(response => {
+                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+                })
+
+                $("#print_idr").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}', {
+                        responseType: 'arraybuffer'
+                    })
+                    .then(response => {
+                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+                })
             })
 
              $("#submit-form").click(function(e) {

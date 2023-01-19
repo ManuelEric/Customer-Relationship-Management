@@ -11,12 +11,14 @@ use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\Invb2b;
+use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use PDF;
 
 
 class InvoiceSchoolController extends Controller
@@ -365,11 +367,30 @@ class InvoiceSchoolController extends Controller
         $currency = $request->route('currency');
 
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_id = $invoiceSch->invb2b_id;
+
 
         return view('pages.invoice.school-program.export.invoice-pdf')->with([
             'invoiceSch' => $invoiceSch,
             'currency' => $currency,
         ]);
+
+        // $companyDetail = [
+        //     'name' => env('ALLIN_COMPANY'),
+        //     'address' => env('ALLIN_ADDRESS'),
+        //     'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+        //     'city' => env('ALLIN_CITY')
+        // ];
+
+        $pdf = PDF::loadView(
+            'pages.invoice.school-program.export.invoice-pdf',
+            [
+                'invoiceSch' => $invoiceSch,
+                'currency' => $currency,
+                // 'companyDetail' => $companyDetail
+            ]
+        );
+        return $pdf->download($invoice_id . ".pdf");
     }
 
     protected function extract_installment($inv_id, $currency,  array $installments)

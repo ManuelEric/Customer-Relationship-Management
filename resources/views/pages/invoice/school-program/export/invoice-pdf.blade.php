@@ -49,9 +49,9 @@
 
 <body style="padding: 0; margin:0">
     <div style="width: 100%; height:1100px; padding:0; margin:0;">
-        <img src="{{ asset('img/pdf/header.png') }}" width="100%">
-        <img src="{{ asset('img/pdf/confidential.png') }}" width="85%"
-            style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
+        {{-- <img src="{{ public_path('img/pdf/header.webp') }}" width="100%"> --}}
+        {{-- <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%" --}}
+            {{-- style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;"> --}}
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
             <h4
                 style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:18px; margin-bottom:10px; ">
@@ -192,17 +192,25 @@
                         <br><br>
 
                         {{-- IF INSTALLMENT EXIST --}}
-                        Terms of Payment :
-                        <div style="margin-left:2px;">
-                        </div>
+                        @if(count($invoiceSch->inv_detail) > 0)
+                            Terms of Payment :
+                            <div style="margin-left:2px;">
+                                @foreach ($invoiceSch->inv_detail as $installment)
+                                    {{ $installment->invdtl_installment  . '  (' . $installment->invdtl_percentage .'%) ' . date("d F Y", strtotime($installment->invdtl_duedate)) }} {{$currency == 'other' ? $installment->invoicedtlAmount : $installment->invoicedtlAmountIdr}}
+                                    <br>  
+                                @endforeach
+                            </div>
+                        @endif
 
 
                         {{-- IF TERMS & CONDITION EXIST  --}}
-                        <br>
-                        Terms & Conditions :
-                        <div style="margin-left:2px;">
-                           {!! $invoiceSch->invb2b_tnc !!}
-                        </div>
+                        @if(isset($invoiceSch->invb2b_tnc))
+                            <br>
+                            Terms & Conditions :
+                            <div style="margin-left:2px;">
+                                {!! $invoiceSch->invb2b_tnc !!}
+                            </div>
+                        @endif
                     </td>
                 </tr>
             </table>
@@ -239,7 +247,7 @@
                 </tr>
             </table>
         </div>
-        <img src="{{ asset('img/pdf/footer.png') }}" width="100%">
+        <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%">
     </div>
 </body>
 
