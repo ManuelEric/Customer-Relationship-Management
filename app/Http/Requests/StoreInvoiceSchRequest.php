@@ -18,7 +18,7 @@ class StoreInvoiceSchRequest extends FormRequest
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
 
     public function __construct(InvoiceB2bRepositoryInterface $invoiceB2bRepository)
-    {      
+    {
         $this->invoiceB2bRepository = $invoiceB2bRepository;
     }
 
@@ -48,7 +48,16 @@ class StoreInvoiceSchRequest extends FormRequest
             'invb2b_duedate' => 'Invoice due date',
             'invb2b_pm' => 'Payment Method',
             'invb2b_notes' => 'Notes',
-            'invb2b_tnc' => 'Terms & Condition'
+            'invb2b_tnc' => 'Terms & Condition',
+            'invdtl_installment.*' => 'Installment Name',
+            'invdtl_installment_other.*' => 'Installment Name',
+            'invdtl_duedate.*' => 'Installment Due Date',
+            'invdtl_duedate_other.*' => 'Installment Due Date',
+            'invdtl_percentage.*' => 'Installment Percentage',
+            'invdtl_percentage_other.*' => 'Installment Percentage',
+            'invdtl_amountidr.*' => 'Installment Amount',
+            'invdtl_amount_other.*' => 'Installment Amount',
+            'invdtl_amountidr_other.*' => 'Installment Amount',
         ];
     }
 
@@ -59,53 +68,25 @@ class StoreInvoiceSchRequest extends FormRequest
      */
     public function rules()
     {
-        return $this->isMethod('POST') ? $this->store() : $this->update();
-
-
+        // return $this->isMethod('POST') ? $this->store() : $this->update();
+        return $this->input('select_currency') == 'idr' ? $this->idr() : $this->other();
     }
 
-    protected function store()
+    protected function idr()
     {
         return [
-            'invb2b_price' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_priceidr_other' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_priceidr' => 'required_if:select_currency,idr|integer|nullable',
-            'invb2b_participants' => 'required_if:select_currency,idr|integer|nullable',
-            'invb2b_participants_other' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_disc' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_discidr_other' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_discidr' => 'required_if:select_currency,idr|integer|nullable',
-            'invb2b_totprice' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_totpriceidr_other' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_totpriceidr' => 'required_if:select_currency,idr|integer|nullable',
-            'invb2b_words' => 'required_if:select_currency,other|nullable',
-            'invb2b_wordsidr_other' => 'required_if:select_currency,other|nullable',
-            'invb2b_wordsidr' => 'required_if:select_currency,idr|nullable',
+            'invb2b_priceidr' => 'required|integer',
+            'invb2b_participants' => 'required|integer',
+            'invb2b_discidr' => 'required|integer',
+            'invb2b_totpriceidr' => 'required|integer',
+            'invb2b_wordsidr' => 'required',
             'invb2b_date' => 'required|date|before_or_equal:invb2b_duedate',
             'invb2b_duedate' => 'required|date|after_or_equal:invb2b_date',
-            'invb2b_pm' => 'required|in:full,installment',
+            'invb2b_pm' => 'required|in:Full Payment,Installment',
             'invb2b_notes' => 'nullable',
             'invb2b_tnc' => 'nullable',
-            'curs_rate' => 'required_if:select_currency,other|integer|nullable',
-            'currency' => 'required_if:select_currency,other|in:gbp,usd,sgd|nullable',
-            'invdtl_installment.*' => function ($attribute, $value, $fail) {
-                if($this->input('select_currency') == 'idr'){
-                    if ($this->input('invb2b_pm') === 'installment') {
-                        if($value == null){
-                            $fail('The '.$attribute.' is required.');
-                        }
-                    }
-                }
-            },
-            'invdtl_installment_other.*' => function ($attribute, $value, $fail) {
-                if($this->input('select_currency') == 'other'){
-                    if ($this->input('invb2b_pm') === 'installment') {
-                        if($value == null){
-                            $fail('The '.$attribute.' is required.');
-                        }
-                    }
-                }
-            },
+            'invdtl_installment.*' => 'required_if:invb2b_pm,Installment|distinct',
+
             // 'invdtl_installment.*' => [Rule::when('invdtl_installment', 'required', function ($input) {
             //     return $this->input('select_currency') == 'idr' && $this->input('invb2b_pm') == 'installment';
             // })],
@@ -117,101 +98,52 @@ class StoreInvoiceSchRequest extends FormRequest
             // })],
             // 'invdtl_duedate.*' => 'required_unless:invb2b_pm,full|required_if:select_currency,idr|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
             // 'invdtl_duedate_other.*' => 'required_unless:invb2b_pm,full|required_if:select_currency,other|required_with:invdtl_pm|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
-            'invdtl_duedate.*' =>  [function ($attribute, $value, $fail) {
-                if($this->input('select_currency') == 'idr'){
-                    if ($this->input('invb2b_pm') == 'installment') {
-                        if($value == null){
-                            $fail('The '.$attribute.' is required.');
-                        }
-                    }
-                }
-            }, 'date','before_or_equal:invb2b_duedate','after_or_equal:invb2b_date'],
+            'invdtl_duedate.*' => 'required_if:invb2b_pm,Installment|nullable|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date',
+            'invdtl_percentage.*' => 'required_if:invb2b_pm,Installment',
+            'invdtl_amountidr.*' => 'required_if:invb2b_pm,Installment',
+            // 'date', 'before_or_equal:invb2b_duedate', 'after_or_equal:invb2b_date'
 
-            'invdtl_duedate_other.*' => [function ($attribute, $value, $fail) {
-                if($this->input('select_currency') == 'other'){
-                    if ($this->input('invb2b_pm') == 'installment') {
-                        if($value == null){
-                            $fail('The '.$attribute.' is required.');
-                        }
-                    }
-                }
-            }, 'date','before_or_equal:invb2b_duedate','after_or_equal:invb2b_date'],
-            
-      
+
+            // 'date', 'before_or_equal:invb2b_duedate', 'after_or_equal:invb2b_date'
+
+
         ];
-
     }
 
-    protected function update()
+    protected function other()
     {
-        $invb2b_num = $this->route('detail');
-        $invoiceB2b = $this->invoiceB2bRepository->getInvoiceB2bById($invb2b_num);
+
         return [
-            'invb2b_price' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_priceidr_other' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_priceidr' => 'required_if:select_currency,idr|integer|nullable',
-            'invb2b_participants' => 'required_if:select_currency,idr|integer|nullable',
-            'invb2b_participants_other' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_disc' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_discidr_other' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_discidr' => 'required_if:select_currency,idr|integer|nullable',
-            'invb2b_totprice' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_totpriceidr_other' => 'required_if:select_currency,other|integer|nullable',
-            'invb2b_totpriceidr' => 'required_if:select_currency,idr|integer|nullable',
-            'invb2b_words' => 'required_if:select_currency,other|nullable',
-            'invb2b_wordsidr_other' => 'required_if:select_currency,other|nullable',
-            'invb2b_wordsidr' => 'required_if:select_currency,idr|nullable',
+            'invb2b_price' => 'required|integer',
+            'invb2b_priceidr_other' => 'required|integer',
+            'invb2b_participants_other' => 'required|integer',
+            'invb2b_disc' => 'required|integer',
+            'invb2b_discidr_other' => 'required|integer',
+            'invb2b_totprice' => 'required|integer',
+            'invb2b_totpriceidr_other' => 'required|integer',
+            'invb2b_words' => 'required',
+            'invb2b_wordsidr_other' => 'required',
             'invb2b_date' => 'required|date|before_or_equal:invb2b_duedate',
             'invb2b_duedate' => 'required|date|after_or_equal:invb2b_date',
-            'invb2b_pm' => 'required|in:full,installment',
+            'invb2b_pm' => 'required|in:Full Payment,Installment',
             'invb2b_notes' => 'nullable',
             'invb2b_tnc' => 'nullable',
-            'curs_rate' => 'required_if:select_currency,other|integer|nullable',
-            'currency' => 'required_if:select_currency,other|in:gbp,usd,sgd|nullable',
+            'curs_rate' => 'integer|nullable',
+            'currency' => 'in:gbp,usd,sgd|nullable',
             // 'invdtl_installment.*' => 'required_if:invb2b_pm,installment|nullable',
             // 'invdtl_installment.*' => ['required_if:invb2b_pm,installment','nullable', Rule::unique('tbl_invdtl', 'invdtl_installment')->where(fn ($query) => $query->where('invb2b_id', $invoiceB2b->invb2b_id))],
             // 'invdtl_installment_other.*' => 'required_if:invb2b_pm,installment|nullable',
             // 'invdtl_duedate.*' => 'required_unless:invb2b_pm,installment|required_if:select_currency,idr|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
             // 'invdtl_duedate_other.*' => 'required_unless:invb2b_pm,full|required_if:select_currency,other|required_with:invdtl_pm|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date|nullable',
-            'invdtl_installment.*' => function ($attribute, $value, $fail) {
-                if($this->input('select_currency') == 'idr'){
-                    if ($this->input('invb2b_pm') === 'installment') {
-                        if($value == null){
-                            $fail('The '.$attribute.' is required.');
-                        }
-                    }
-                }
-            },
-            'invdtl_installment_other.*' => function ($attribute, $value, $fail) {
-                if($this->input('select_currency') == 'other'){
-                    if ($this->input('invb2b_pm') === 'installment') {
-                        if($value == null){
-                            $fail('The '.$attribute.' is required.');
-                        }
-                    }
-                }
-            },
-            'invdtl_duedate.*' =>  [function ($attribute, $value, $fail) {
-                if($this->input('select_currency') == 'idr'){
-                    if ($this->input('invb2b_pm') == 'installment') {
-                        if($value == null){
-                            $fail('The '.$attribute.' is required.');
-                        }
-                    }
-                }
-            }, 'date','before_or_equal:invb2b_duedate','after_or_equal:invb2b_date'],
 
-            'invdtl_duedate_other.*' => [function ($attribute, $value, $fail) {
-                if($this->input('select_currency') == 'other'){
-                    if ($this->input('invb2b_pm') == 'installment') {
-                        if($value == null){
-                            $fail('The '.$attribute.' is required.');
-                        }
-                    }
-                }
-            }, 'date','before_or_equal:invb2b_duedate','after_or_equal:invb2b_date'],
+            'invdtl_installment_other.*' => 'required_if:invb2b_pm,Installment|distinct',
 
-      
+            'invdtl_duedate_other.*' => 'required_if:invb2b_pm,Installment|nullable|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date',
+            'invdtl_percentage_other.*' => 'required_if:invb2b_pm,Installment',
+            'invdtl_amount_other.*' => 'required_if:invb2b_pm,Installment',
+            'invdtl_amountidr_other.*' => 'required_if:invb2b_pm,Installment',
+
+
         ];
     }
 }

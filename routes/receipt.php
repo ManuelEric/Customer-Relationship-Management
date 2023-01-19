@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ReceiptController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ReceiptSchoolController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,8 +40,8 @@ Route::resource('client-program', ReceiptController::class, [
     ]
 ])->parameters(['client-program' => 'receipt']);
 
-Route::prefix('client-program')->name('receipt.client-program.')->group(function() {
-    Route::get('{receipt}/export', [ReceiptController::class, 'export'])->name('export'); 
+Route::prefix('client-program')->name('receipt.client-program.')->group(function () {
+    Route::get('{receipt}/export', [ReceiptController::class, 'export'])->name('export');
 });
 
 // CORPORATE 
@@ -57,9 +58,18 @@ Route::get('corporate-program/1/export/pdf', function () {
 });
 
 // school 
-Route::get('school-program/', function () {
-    return view('pages.receipt.school-program.index');
+
+Route::prefix('school-program')->name('receipt.school.')->group(function () {
+    Route::get('/', [ReceiptSchoolController::class, 'index'])->name('index');
+    Route::get('{detail}', [ReceiptSchoolController::class, 'show'])->name('show');
+    Route::delete('{detail}', [ReceiptSchoolController::class, 'destroy'])->name('destroy');
+    Route::post('/{invoice}', [ReceiptSchoolController::class, 'store'])->name('store');
+    Route::get('{receipt}/export/{currency}', [ReceiptSchoolController::class, 'export'])->name('export');
 });
+
+// Route::get('school-program/', function () {
+//     return view('pages.receipt.school-program.index');
+// });
 
 Route::get('school-program/1', function () {
     return view('pages.receipt.school-program.form');
