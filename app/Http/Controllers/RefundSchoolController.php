@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreInvoiceSchRequest;
-use App\Http\Requests\StoreReceiptRequest;
-use App\Http\Requests\StoreReceiptSchRequest;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
@@ -13,9 +10,7 @@ use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
-use App\Models\Invb2b;
 use App\Models\Receipt;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +20,7 @@ use PDF;
 
 
 
-class ReceiptSchoolController extends Controller
+class RefundSchoolController extends Controller
 {
     use CreateInvoiceIdTrait;
     protected SchoolRepositoryInterface $schoolRepository;
@@ -47,15 +42,15 @@ class ReceiptSchoolController extends Controller
         $this->refundRepository = $refundRepository;
     }
 
-    public function index(Request $request)
-    {
-        if ($request->ajax()) {
-            return $this->receiptRepository->getAllReceiptSchDataTables();
-        }
-        return view('pages.receipt.school-program.index');
-    }
+    // public function index(Request $request)
+    // {
+    //     if ($request->ajax()) {
+    //         return $this->receiptRepository->getAllReceiptSchDataTables();
+    //     }
+    //     return view('pages.receipt.school-program.index');
+    // }
 
-    public function store(StoreReceiptRequest $request)
+    public function store(Request $request)
     {
         #initialize
         $identifier = $request->identifier; #invdtl_id
@@ -143,20 +138,11 @@ class ReceiptSchoolController extends Controller
 
     public function show(Request $request)
     {
-        $receiptId = $request->route('detail');
+        if ($request->ajax()) {
+            $increment_receipt = $request->get('increment_receipt');
 
-        $receiptSch = $this->receiptRepository->getReceiptById($receiptId);
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($receiptSch->invb2b_id);
-
-
-        return view('pages.receipt.school-program.form')->with(
-            [
-
-                'receiptSch' => $receiptSch,
-                'invoiceSch' => $invoiceSch,
-                'status' => 'show',
-            ]
-        );
+            return $this->receiptRepository->getReceiptById($increment_receipt);
+        }
     }
 
 
@@ -178,28 +164,5 @@ class ReceiptSchoolController extends Controller
         }
 
         return Redirect::to('receipt/school-program')->withSuccess('Receipt successfully deleted');
-    }
-
-    public function export(Request $request)
-    {
-        $receipt_id = $request->route('receipt');
-        $currency = $request->route('currency');
-
-        $receiptSch = $this->receiptRepository->getReceiptById($receipt_id);
-
-        $companyDetail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
-        ];
-
-        $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receiptSch, 'currency' => $currency, 'companyDetail' => $companyDetail]);
-        return $pdf->download($receiptSch->receipt_id . ".pdf");
-
-        // return view('pages.receipt.school-program.export.receipt-pdf')->with([
-        //     'receiptSch' => $receiptSch,
-        //     'currency' => $currency,
-        // ]);
     }
 }

@@ -58,14 +58,26 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     END) AS program_name'),
                     'tbl_invb2b.schprog_id',
                     'tbl_invb2b.invb2b_id',
+                    'tbl_invb2b.invb2b_status',
                     'tbl_invb2b.invb2b_pm',
                     'tbl_invb2b.created_at',
                     'tbl_invb2b.invb2b_duedate',
                     'tbl_invb2b.currency',
                     'tbl_invb2b.invb2b_totpriceidr',
                     'tbl_invb2b.invb2b_totprice',
-                )->where('tbl_sch_prog.status', 1)
+                )->where('tbl_sch_prog.status', 1)->where('tbl_invb2b.invb2b_status', 1)
+
         )->make(true);
+    }
+
+    public function getInvoiceB2bBySchProg($schprog_id)
+    {
+        return Invb2b::where('schprog_id', $schprog_id)->first();
+    }
+
+    public function getInvoiceB2bByInvId($invb2b_id)
+    {
+        return Invb2b::where('invb2b_id', $invb2b_id)->get();
     }
 
     public function getInvoiceB2bById($invb2b_num)

@@ -54,6 +54,7 @@
                             <option value="0">Pending</option>
                             <option value="1">Success</option>
                             <option value="2">Denied</option>
+                            <option value="3">Refund</option>
                         </select>
                     </div>
                     <div class="col-md-12 mb-2">
@@ -161,6 +162,10 @@
                                 case 2:
                                     return "-"
                                     break;
+
+                                case 3:
+                                    return "-"
+                                    break;
                             }
                         }
                     },
@@ -177,6 +182,10 @@
                                     break;
                                 
                                 case 2:
+                                    return "-"
+                                    break;
+
+                                case 3:
                                     return "-"
                                     break;
                             }
@@ -196,6 +205,10 @@
                                 
                                 case 2:
                                     return "Denied"
+                                    break;
+                                
+                                case 3:
+                                    return "Refund"
                                     break;
                             }
                         }

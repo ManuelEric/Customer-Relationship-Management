@@ -33,12 +33,24 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="">Total Price</label>
-                            <input type="number" name="" id=""
+                            <input type="number" name="" id="" value="{{ $receiptSch->invoiceB2b->invb2b_totpriceidr }}" readonly
                                 class="form-control form-control-sm rounded">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="">Total Paid</label>
                             <input type="number" name="" id=""
+                                @if(count($receiptSch->invoiceB2b->inv_detail)>0)
+                                    @foreach ($receiptSch->invoiceB2b->inv_detail as $installment)
+                                        @php
+                                            $totalInstallment = 0;
+                                            $totalInstallment += $installment->invdtl_amountidr;
+                                        @endphp
+                                    @endforeach
+                                    value="{{ $totalInstallment }}"
+                                @else
+                                    value="{{ $receiptSch->receipt_amount_idr }}"
+                                @endif
+                                readonly
                                 class="form-control form-control-sm rounded">
                         </div>
 

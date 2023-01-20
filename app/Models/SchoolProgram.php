@@ -37,6 +37,8 @@ class SchoolProgram extends Model
         'start_program_date',
         'success_date',
         'reason_id',
+        'refund_date',
+        'refund_notes',
         'denied_date',
         'empl_id',
     ];
