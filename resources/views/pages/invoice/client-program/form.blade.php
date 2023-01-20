@@ -75,6 +75,12 @@
                                 <i class="bi bi-trash2 me-1"></i> Delete
                             </button>
                         </div>
+                        <div class="d-flex justify-content-center mt-3">
+                            <button class="btn btn-sm btn-outline-warning rounded mx-1"
+                                onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
+                                <i class="bi bi-pen me-1"></i> Request ACC
+                            </button>
+                        </div>
                     @endif
                 </div>
             </div>
