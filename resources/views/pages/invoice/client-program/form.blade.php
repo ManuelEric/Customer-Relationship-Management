@@ -14,7 +14,7 @@
         </a>
     </div>
 
-    {{-- @if ($errors->any())
+    @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
                 @foreach ($errors->all() as $error)
@@ -22,7 +22,7 @@
                 @endforeach
             </ul>
         </div>
-    @endif --}}
+    @endif
 
     <div class="row">
         <div class="col-md-4">
@@ -46,11 +46,13 @@
                             <i class="bi bi-eye me-1"></i> More
                         </a> --}}
 
+                        @if (!isset($invoice->refund))
                             <a href="{{ $status == 'edit' ? url('invoice/client-program/' . $clientProg->clientprog_id) : url('invoice/client-program/' . $clientProg->clientprog_id . '/edit') }}"
                                 class="btn btn-sm btn-outline-warning rounded mx-1">
                                 <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
                                 {{ $status == 'edit' ? 'Back' : 'Edit' }}
                             </a>
+                        @endif
                     
                         <a href="#export" id="print">
                             <button class="btn btn-sm btn-outline-info rounded mx-1">
@@ -77,7 +79,9 @@
                 </div>
             </div>
 
-            @include('pages.invoice.client-program.detail.refund')
+            @if (isset($invoice->receipt))
+                @include('pages.invoice.client-program.detail.refund')
+            @endif
 
             @include('pages.invoice.client-program.form-detail.client')
 

@@ -14,7 +14,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
 
     public function getAllReceiptSchDataTables()
     {
-        return datatables::eloquent(
+        return Datatables::eloquent(
             Invb2b::leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
                 ->leftJoin('tbl_sch', 'tbl_sch_prog.sch_id', '=', 'tbl_sch.sch_id')
                 ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
@@ -64,9 +64,10 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                     $q->where('receipt_status', 1);
                 })
                 ->when($status == "refund-request", function ($q) {
-                    $q->where('receipt_status', 2);
+                    $q->where('tbl_client_prog.status', 3);
                 })
                 ->select([
+                    'tbl_client_prog.clientprog_id',
                     'tbl_inv.clientprog_id',
                     'tbl_receipt.id',
                     'tbl_receipt.receipt_id',

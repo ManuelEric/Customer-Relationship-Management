@@ -26,6 +26,7 @@
                     <h4>{{ $student->fullname }}</h4>
                     @if (!request()->is('program/client/create*'))
                         <div class="mt-3 d-flex justify-content-center">
+                            @if (!isset($clientProgram->invoice->refund))
                             <a href="{{ $disabled
                                 ? route('student.program.edit', ['student' => $student->id, 'program' => $clientProgram->clientprog_id])
                                 : route('student.show', ['student' => $student->id]) }}"
@@ -33,6 +34,7 @@
                                 <i class="bi {{ $disabled ? 'bi-pencil' : 'bi-arrow-left' }} me-1"></i>
                                 {{ $disabled ? 'Edit' : 'Back' }}
                             </a>
+                            @endif
 
                             @if (isset($clientProgram))
                                 <button type="button" class="btn btn-sm btn-outline-danger rounded mx-1"
@@ -44,7 +46,7 @@
                     @endif
                 </div>
             </div>
-            @if (isset($clientProgram->invoice->refund) || isset($clientProgram->invoice->invoiceDetail->refund))
+            @if (isset($clientProgram->invoice->refund))
                 @include('pages.program.client-program.detail.refund')
             @endif
 
@@ -65,6 +67,7 @@
                         </h6>
                     </div>
                 </div>
+                
                 <div class="card-body">
                     <form
                         action="{{ isset($clientProgram)

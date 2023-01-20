@@ -29,7 +29,7 @@
                             @if ($detail->invdtl_currency != NULL)
                             {{ strtoupper($detail->invdtl_currency) }} {{ $detail->invdtl_amount }} |  
                             @endif
-                            {{ $detail->invdtl_amountidr }}
+                            {{ $detail->invoicedtl_amountidr }}
                         </div>
                     </div>
                     <div class="mt-2 text-end">
@@ -40,10 +40,12 @@
                                 </button>
                             </a>
                         @else
+                            @if (!isset($invoice->refund))
                             <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" data-bs-toggle="modal"
                             data-bs-target="#addReceipt" onclick="checkReceipt();setIdentifier('Installment', '{{ $detail->invdtl_id }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
+                            @endif
                         @endif
                     </div>
                 </div>
