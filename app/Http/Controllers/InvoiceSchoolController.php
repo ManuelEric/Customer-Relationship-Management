@@ -203,6 +203,8 @@ class InvoiceSchoolController extends Controller
 
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
+
+
         return view('pages.invoice.school-program.form')->with(
             [
                 'schoolProgram' => $schoolProgram,

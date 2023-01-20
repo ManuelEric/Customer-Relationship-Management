@@ -52,117 +52,86 @@ class RefundSchoolController extends Controller
 
     public function store(Request $request)
     {
-        #initialize
-        $identifier = $request->identifier; #invdtl_id
+        // TODO: validasi
 
         $invb2b_num = $request->route('invoice');
-        $receipts = $request->only([
-            'identifier',
-            'currency',
-            'receipt_amount',
-            'receipt_amount_idr',
-            'receipt_date',
-            'receipt_words',
-            'receipt_words_idr',
-            'receipt_method',
-            'receipt_cheque',
-        ]);
-
-
-        switch ($receipts['currency']) {
-            case 'idr':
-                unset($receipts['receipt_amount']);
-                unset($receipts['receipt_words']);
-                break;
-        }
-
-        $receipts['receipt_cat'] = 'school';
 
         $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invb2b_num);
-        $schProgId = $invoice->schprog_id;
-        $sch_prog = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
 
         $invb2b_id = $invoice->invb2b_id;
 
-        # generate receipt id
-        $last_id = Receipt::whereMonth('created_at', date('m'))->max(DB::raw('substr(receipt_id, 1, 4)'));
+        $schprog_id = $invoice->schprog_id;
 
-        # Use Trait Create Invoice Id
-        $receipt_id = $this->getInvoiceId($last_id, $sch_prog->prog_id);
+        $refunds = $request->only([
+            'total_payment',
+            'percentage_payment',
+            'refunded_amount',
+            'refunded_tax_amount',
+            'refunded_tax_percentage',
+            'total_refunded',
+        ]);
 
-        $receipts['receipt_id'] = substr_replace($receipt_id, 'REC', 5) . substr($receipt_id, 8, strlen($receipt_id));
+        $refunds['invb2b_id'] = $invb2b_id;
+        $refunds['status'] = 1;
 
-        $receipts['invb2b_id'] = $invb2b_id;
-        $invoice_payment_method = $invoice->invb2b_pm;
+        $updateInvoice['invb2b_status'] = 2;
+        $updateReceipt['receipt_status'] = 2;
 
-        // return $receipts;
+        // return $refunds;
         // exit;
-
-        if ($invoice_payment_method == "Installment")
-            $receipts['invdtl_id'] = $identifier;
-
-        # validation nominal
-        # to catch if total invoice not equal to total receipt 
-        if ($invoice_payment_method == "Full Payment") {
-
-            $total_invoice = $invoice->invb2b_totpriceidr;
-            $total_receipt = $request->receipt_amount_idr;
-        } elseif ($invoice_payment_method == "Installment") {
-
-            $total_invoice = $invoice->inv_detail()->where('invdtl_id', $identifier)->first()->invdtl_amountidr;
-            $total_receipt = $request->receipt_amount_idr;
-        }
-
-        if ($total_receipt < $total_invoice)
-            return Redirect::back()->withError('Do double check the amount. Make sure the amount on invoice and the amount on receipt is equal');
-
 
         DB::beginTransaction();
         try {
 
-            $this->receiptRepository->createReceipt($receipts);
+            $this->refundRepository->createRefund($refunds);
+            $this->invoiceB2bRepository->updateInvoiceB2b($invb2b_num, $updateInvoice);
+            $this->receiptRepository->updateReceiptByInvoiceIdentifier('B2B', $invb2b_id, $updateReceipt);
 
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Create receipt failed : ' . $e->getMessage());
+            Log::error('Create refund failed : ' . $e->getMessage());
 
             return $e->getMessage();
             exit;
-            return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invb2b_num)->withError('Failed to create a new receipt');
+            return Redirect::to('invoice/school-program/' . $schprog_id . '/detail/' . $invb2b_num)->withError('Failed to create a new refund');
         }
 
-        return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invb2b_num)->withSuccess('Receipt successfully created');
-    }
-
-    public function show(Request $request)
-    {
-        if ($request->ajax()) {
-            $increment_receipt = $request->get('increment_receipt');
-
-            return $this->receiptRepository->getReceiptById($increment_receipt);
-        }
+        return Redirect::to('invoice/school-program/' . $schprog_id . '/detail/' . $invb2b_num)->withSuccess('Refund successfully created');
     }
 
 
     public function destroy(Request $request)
     {
-        $receiptId = $request->route('detail');
+        $refundId = $request->route('refund');
+        $invb2b_num = $request->route('invoice');
+
+        $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invb2b_num);
+
+        $invb2b_id = $invoice->invb2b_id;
+
+        $schprog_id = $invoice->schprog_id;
+
+        $updateInvoice['invb2b_status'] = 1;
+        $updateReceipt['receipt_status'] = 1;
 
         DB::beginTransaction();
         try {
 
-            $this->receiptRepository->deleteReceipt($receiptId);
+            $this->refundRepository->deleteRefund($refundId);
+            $this->invoiceB2bRepository->updateInvoiceB2b($invb2b_num, $updateInvoice);
+            $this->receiptRepository->updateReceiptByInvoiceIdentifier('B2B', $invb2b_id, $updateReceipt);
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Delete receipt failed : ' . $e->getMessage());
+            Log::error('Delete refund failed : ' . $e->getMessage());
 
-            return Redirect::to('receipt/school-program/' . $receiptId)->withError('Failed to delete receipt');
+            return Redirect::to('invoice/school-program/' . $schprog_id . '/detail/' . $invb2b_num)->withError('Failed to delete a new refund');
         }
 
-        return Redirect::to('receipt/school-program')->withSuccess('Receipt successfully deleted');
+        return Redirect::to('invoice/school-program/' . $schprog_id . '/detail/' . $invb2b_num)->withSuccess('Refund successfully canceled');
     }
 }

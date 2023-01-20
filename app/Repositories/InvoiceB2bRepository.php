@@ -65,7 +65,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'tbl_invb2b.currency',
                     'tbl_invb2b.invb2b_totpriceidr',
                     'tbl_invb2b.invb2b_totprice',
-                )->where('tbl_sch_prog.status', 1)->where('tbl_invb2b.invb2b_status', 1)
+                )
+                ->whereIn('tbl_sch_prog.status', [1, 3])
+            // ->where('tbl_invb2b.invb2b_status', 1)
 
         )->make(true);
     }

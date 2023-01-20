@@ -223,10 +223,8 @@ class StoreSchoolProgramRequest extends FormRequest
             } else {
                 $hasReceipt = null;
             }
-        }
 
 
-        if ($this->isMethod('PUT')) {
             $rules = [
                 'status' =>
                 [
@@ -251,20 +249,7 @@ class StoreSchoolProgramRequest extends FormRequest
             ];
         }
 
-
-        if ($sch_id) {
-            $rules = [
-                'sch_id' => [
-                    'required',
-                    function ($attribute, $value, $fail) use ($sch_id) {
-                        if (!School::find($sch_id))
-                            $fail('The school is required');
-                    },
-                ]
-            ];
-        }
-
-        $rules = [
+        $rules += [
             'prog_id' => 'required|exists:tbl_prog,prog_id',
             'first_discuss' => 'required|date',
             'empl_id' => [
@@ -285,7 +270,17 @@ class StoreSchoolProgramRequest extends FormRequest
             'refund_notes' => 'nullable',
         ];
 
-
+        if ($sch_id) {
+            $rules += [
+                'sch_id' => [
+                    'required',
+                    function ($attribute, $value, $fail) use ($sch_id) {
+                        if (!School::find($sch_id))
+                            $fail('The school is required');
+                    },
+                ]
+            ];
+        }
 
         return $rules;
     }

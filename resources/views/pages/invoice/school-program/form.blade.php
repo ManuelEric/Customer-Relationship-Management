@@ -57,9 +57,11 @@
                 </div>
             </div>
 
-            @if(isset($invoiceSch->receipt))
-                @if($invoiceSch->receipt->receipt_status == '2')
-                    @include('pages.invoice.school-program.detail.refund')
+            @if(isset($invoiceSch))
+                @if($invoiceSch->sch_prog->status == 3)
+                    @if(isset($invoiceSch->receipt))
+                        @include('pages.invoice.school-program.detail.refund')
+                    @endif                    
                 @endif
             @endif
 
