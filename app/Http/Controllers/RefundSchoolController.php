@@ -10,6 +10,7 @@ use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
+use App\Http\Requests\StoreRefundRequest;
 use App\Models\Receipt;
 use Exception;
 use Illuminate\Http\Request;
@@ -50,7 +51,7 @@ class RefundSchoolController extends Controller
     //     return view('pages.receipt.school-program.index');
     // }
 
-    public function store(Request $request)
+    public function store(StoreRefundRequest $request)
     {
         // TODO: validasi
 

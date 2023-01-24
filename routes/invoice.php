@@ -123,6 +123,7 @@ Route::prefix('school-program')->name('invoice-sch.')->group(function () {
     Route::resource('{sch_prog}/detail', InvoiceSchoolController::class)->except(['index']);
     Route::get('status/{status}', [InvoiceSchoolController::class, 'index'])->name('index');
     Route::get('{invoice}/export/{currency}', [InvoiceSchoolController::class, 'export'])->name('export');
+    Route::get('{invoice}/sendInvoice/{currency}', [InvoiceSchoolController::class, 'sendInvoice'])->name('sendInvoice');
     Route::post('{invoice}/refund', [RefundSchoolController::class, 'store'])->name('refund');
     Route::delete('{invoice}/refund/{refund}', [RefundSchoolController::class, 'destroy'])->name('refund.destroy');
 });

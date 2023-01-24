@@ -43,14 +43,16 @@
                                     class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                                     <i class="bi bi-printer me-1"></i> Print Others
                                 </a> --}}
-                                <a href="#export" id="print_other"
+                                <a href="{{  route('invoice-sch.sendInvoice', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" 
+                                {{-- id="print_other" --}}
                                     class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                                    <i class="bi bi-printer me-1"></i> Print Others
+                                    <i class="bi bi-printer me-1"></i> Send Invoice Others
                                 </a>
                             @endif
-                            <a href="#export" id="print_idr"
+                            <a href="{{  route('invoice-sch.sendInvoice', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" 
+                            {{-- id="print_idr" --}}
                                 class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                                <i class="bi bi-printer me-1"></i> Print IDR
+                                <i class="bi bi-printer me-1"></i> Send Invoice IDR
                             </a>
                         @endif
                     </div>

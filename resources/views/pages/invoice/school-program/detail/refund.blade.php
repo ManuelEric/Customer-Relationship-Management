@@ -31,8 +31,8 @@
         @if($invoiceSch->invb2b_status == 2)
             <div class="card-footer d-flex justify-content-between">
                 <h6 class="m-0 p-0">Total Refund</h6>
-                <h6 class="m-0 p-0">{{ number_format($invoiceSch->refund->total_refunded) }}</h6>
-            </div>
+                <h6 class="m-0 p-0">Rp. {{ number_format($invoiceSch->refund->total_refunded) }}</h6>
+            </div> 
         @endif
     {{-- @endif --}}
 </div>
@@ -48,14 +48,26 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                {{-- @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif --}}
                 <form action="{{ isset($invoiceSch) ? route('invoice-sch.refund', ['invoice' => $invoiceSch->invb2b_num]) : '' }}" method="POST">
                     @csrf
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="">Total Price </label>
-                            <input type="number" name="" id="" 
+                            <input type="number" name="total_price" id="" 
                             value="{{ $invoiceSch->invb2b_totpriceidr }}" readonly
                                 class="form-control form-control-sm rounded">
+                                @error('total_price')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="">Total Paid</label>
@@ -81,36 +93,54 @@
                                 @endif
                                 readonly
                                 class="form-control form-control-sm rounded">
+                                @error('total_payment')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="">Percentage Refund</label>
-                            <input type="number" name="percentage_payment" id="percentage_refund"
+                            <input type="number" step="any" min="0" max="100"  name="percentage_payment" id="percentage_refund"
                                 class="form-control form-control-sm rounded percentage">
+                            @error('percentage_payment')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="col-md-8 mb-3">
                             <label for="">Refund Nominal</label>
                             <input type="number" name="refunded_amount" id="refund_nominal"
                                 class="form-control form-control-sm rounded">
+                            @error('refunded_amount')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="">Percentage Tax</label>
-                            <input type="number" name="refunded_tax_percentage" id="percentage_tax"
+                            <input type="number" step="any" min="0" max="100" name="refunded_tax_percentage" id="percentage_tax"
                                 class="form-control form-control-sm rounded">
+                            @error('refunded_tax_percentage')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="col-md-8 mb-3">
                             <label for="">Tax Nominal</label>
                             <input type="number" name="refunded_tax_amount" id="tax_nominal"
                                 class="form-control form-control-sm rounded">
+                            @error('refunded_tax_amount')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="col-md-12 mb-3">
                             <label for="">Total Refund</label>
                             <input type="number" name="total_refunded" id="total_refund"
                                 class="form-control form-control-sm rounded">
+                            @error('total_refunded')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
                         <hr>
                         <div class="text-center d-flex justify-content-between">
@@ -150,6 +180,21 @@
         </div>
     </div>
 </div>
+
+@if( $errors->has('total_price') | 
+        $errors->has('total_paid') | 
+        $errors->has('percentage_payment') | 
+        $errors->has('refunded_amount') | 
+        $errors->has('refunded_tax_percentage') |
+        $errors->has('refunded_tax_amount') |
+        $errors->has('total_refunded'))
+        
+        <script>
+            $(document).ready(function(){
+                $('#refund').modal('show'); 
+            })
+        </script>
+@endif
 
 <script>
     $("#percentage_refund").on('keyup', function() {
@@ -210,4 +255,41 @@
             notification('error', 'Percentage is more than 100')
         }
      })
+
+    $("#refund_nominal").on('keyup', function() {
+        var val = $(this).val()
+        let max = $('#total_paid').val()
+        let percent = $('#percentage_tax').val()
+        
+        if (isNaN(val))
+        val = 0
+        
+        if (parseInt(val) <= parseInt(max)) {
+            $("#percentage_refund").val(null)
+            let percent_tax = $('#percentage_tax').val()
+            // let nominal_refund = $('#refund_nominal').val()
+            let total_tax = (percent_tax / 100) * val
+            let total_refund = total_tax > 0 ? val - total_tax : val
+            
+            $('#tax_nominal').val(total_tax)
+            $('#total_refund').val(total_refund)
+            
+            
+        } else if(val == 0 || val == ''){
+            $('#tax_nominal').val(null)
+            $('#total_refund').val(null)
+        }else {
+            $(this).val()
+            $('#tax_nominal').val(null)
+            $('#total_refund').val(null)
+            $('#refund_nominal').val(null)
+            notification('error', 'Refund nominal is more than total paid')
+        }
+        
+          
+     })
+
+    $("refund_nominal").change(function(){
+        $("#percentage_refund").val(null)
+    });
 </script>

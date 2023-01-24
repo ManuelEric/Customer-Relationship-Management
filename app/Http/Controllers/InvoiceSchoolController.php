@@ -17,6 +17,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use PDF;
 
@@ -393,6 +394,38 @@ class InvoiceSchoolController extends Controller
             ]
         );
         return $pdf->download($invoice_id . ".pdf");
+    }
+
+    public function sendInvoice(Request $request)
+    {
+        $invNum = $request->route('invoice');
+        $currency = $request->route('currency');
+
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_id = $invoiceSch->invb2b_id;
+
+        $data["email"] = "test@gmail.com";
+        $data["title"] = "Invoice";
+        $data["body"] = "This is test mail with pdf attachment";
+
+        $pdf = PDF::loadView(
+            'pages.invoice.school-program.export.invoice-pdf',
+            [
+                'invoiceSch' => $invoiceSch,
+                'currency' => $currency,
+                // 'companyDetail' => $companyDetail
+            ]
+        );
+
+
+        Mail::send('pages.invoice.school-program.export.mail.invoice-mail', $data, function ($message) use ($data, $pdf, $invoice_id) {
+            $message->to($data["email"])
+                ->subject($data["title"]);
+
+            $message->attach($pdf->download($invoice_id . ".pdf"));
+        });
+
+        echo "Mail send successfully !!";
     }
 
     protected function extract_installment($inv_id, $currency,  array $installments)
