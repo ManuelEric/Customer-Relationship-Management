@@ -38,9 +38,11 @@ class InvoiceProgram extends Model
         'inv_duedate',
         'inv_notes',
         'inv_tnc',
+        'inv_status',
         'curs_rate',
         'currency',
-        'inv_status'
+        'attachment',
+        'send_to_client',
     ];
 
     public function getCurrencyUnit()
