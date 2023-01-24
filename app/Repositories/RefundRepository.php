@@ -17,6 +17,7 @@ class RefundRepository implements RefundRepositoryInterface
         return Refund::find($refundId);
     }
 
+
     public function createRefund(array $refundDetails)
     {
         return Refund::create($refundDetails);
@@ -27,8 +28,13 @@ class RefundRepository implements RefundRepositoryInterface
         return Refund::whereId($refundId)->update($newDetails);
     }
 
-    public function deleteRefund($refundId)
+    public function deleteRefundByRefundId($refundId)
     {
         return Refund::whereId($refundId)->delete();
+    }
+
+    public function deleteRefund($invoiceId)
+    {
+        return Refund::where('inv_id', $invoiceId)->delete();
     }
 }

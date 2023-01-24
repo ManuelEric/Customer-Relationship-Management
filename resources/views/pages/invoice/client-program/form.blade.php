@@ -14,7 +14,7 @@
         </a>
     </div>
 
-    {{-- @if ($errors->any())
+    @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
                 @foreach ($errors->all() as $error)
@@ -22,7 +22,7 @@
                 @endforeach
             </ul>
         </div>
-    @endif --}}
+    @endif
 
     <div class="row">
         <div class="col-md-4">
@@ -46,11 +46,13 @@
                             <i class="bi bi-eye me-1"></i> More
                         </a> --}}
 
+                        @if (!isset($invoice->refund))
                             <a href="{{ $status == 'edit' ? url('invoice/client-program/' . $clientProg->clientprog_id) : url('invoice/client-program/' . $clientProg->clientprog_id . '/edit') }}"
                                 class="btn btn-sm btn-outline-warning rounded mx-1">
                                 <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
                                 {{ $status == 'edit' ? 'Back' : 'Edit' }}
                             </a>
+                        @endif
                     
                         <a href="#export" id="print">
                             <button class="btn btn-sm btn-outline-info rounded mx-1">
@@ -73,11 +75,41 @@
                                 <i class="bi bi-trash2 me-1"></i> Delete
                             </button>
                         </div>
+
+                        @if (!isset($invoice->refund) && isset($invoice) && $invoice->attachment == NULL)
+                        <div class="d-flex justify-content-center mt-3">
+                            <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
+                                <i class="bi bi-pen me-1"></i> Request Sign
+                            </button>
+
+                            
+                                @if (isset($invoice) && $invoice->currency != "idr")
+                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="request-acc-other">
+                                        <i class="bi bi-printer me-1"></i> Request Sign Foreign
+                                    </button>
+                                @endif
+                        </div>
+                        @else
+                        <div class="d-flex justify-content-center mt-3">
+                            <a href="{{ route('invoice.program.download', ['client_program' => $clientProg->clientprog_id]) }}">
+                                <button class="btn btn-sm btn-outline-success rounded mx-1">
+                                    <i class="bi bi-download me-1"></i>
+                                    Download
+                                </button>
+                            </a>
+                            <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client">
+                                <i class="bi bi-printer me-1"></i> Send Invoice to Client
+                            </button>
+                        </div>
+                        @endif
+                        
                     @endif
                 </div>
             </div>
 
-            @include('pages.invoice.client-program.detail.refund')
+            @if (isset($invoice->receipt))
+                @include('pages.invoice.client-program.detail.refund')
+            @endif
 
             @include('pages.invoice.client-program.form-detail.client')
 
@@ -611,6 +643,64 @@
             @if (old('inv_paymentmethod'))
                 $("#payment_method").val("{{ old('inv_paymentmethod') }}").trigger('change');
             @endif
+
+            $("#request-acc").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'idr'
+                        }
+                    })
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+            })
+
+            $("#request-acc-other").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'other'
+                        }
+                    })
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+            })
+
+            $("#send-inv-client").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+
+                axios
+                    .get('{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id]) }}')
+                    .then(response => { 
+                        swal.close()
+                        notification('success', 'Invoice has been send to client')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                        swal.close()
+                    })
+            })
 
             $("#print").on('click', function(e) {
                 e.preventDefault();

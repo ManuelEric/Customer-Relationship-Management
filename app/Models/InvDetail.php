@@ -85,9 +85,4 @@ class InvDetail extends Model
         return $this->hasOne(Receipt::class, 'invdtl_id', 'invdtl_id');
     }
 
-    public function refund()
-    {
-        return $this->hasOne(Refund::class, 'invdtl_id', 'invdtl_id');
-    }
-
 }

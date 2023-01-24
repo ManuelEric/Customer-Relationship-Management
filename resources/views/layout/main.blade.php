@@ -219,13 +219,13 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ Request::is('program/*') ? 'text-primary' : '' }}"
+                        <a class="nav-link {{ Request::is('*/program/*') || Request::is('program/*') ? 'text-primary' : '' }}"
                             data-bs-toggle="collapse" href="#program" aria-expanded="false" aria-controls="program">
                             <i class="bi bi-calendar2-event mx-2"></i>
                             <span class="menu-title">Program</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="collapse {{ Request::is('program/*') ? 'show' : 'hide' }}" id="program">
+                        <div class="collapse {{ Request::is('*/program/*') || Request::is('program/*') ? 'show' : 'hide' }}" id="program">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('program/referral*') ? 'active' : '' }}"
@@ -237,7 +237,7 @@
                                         Event</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('program/client*') ? 'active' : '' }}"
+                                    <a class="nav-link {{ Request::is('*/program/*') || Request::is('program/*') ? 'active' : '' }}"
                                         href="{{ url('program/client') }}">Client
                                         Program</a>
                                 </li>

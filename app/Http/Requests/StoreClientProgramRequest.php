@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Models\Lead;
@@ -16,6 +17,7 @@ class StoreClientProgramRequest extends FormRequest
 
     private ClientRepositoryInterface $clientRepository;
     private ProgramRepositoryInterface $programRepository;
+    private ClientProgramRepositoryInterface $clientProgramRepository;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,7 +28,7 @@ class StoreClientProgramRequest extends FormRequest
         return true;
     }
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, ClientProgramRepositoryInterface $clientProgramRepository)
     {
         $this->admission_prog_id = Program::whereHas('main_prog', function($query) {
                                         $query->where('prog_name', 'Admissions Mentoring');
@@ -42,6 +44,7 @@ class StoreClientProgramRequest extends FormRequest
                                     
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
+        $this->clientProgramRepository = $clientProgramRepository;
     }
 
     /**
@@ -69,6 +72,9 @@ class StoreClientProgramRequest extends FormRequest
         $student = $this->clientRepository->getClientById($this->route('student'));
         $isMentee = $student->roles()->where('role_name', 'like', '%mentee%')->count();
 
+        $clientProg = $this->clientProgramRepository->getClientProgramById($this->route('program'));
+        $hasInvoice = $clientProg->invoice()->count();
+        $hasReceipt = $clientProg->invoice->receipt()->count();
 
         if ($this->input('status') === null) {
 
@@ -142,15 +148,18 @@ class StoreClientProgramRequest extends FormRequest
                     $rules['status'] = [
                         'required',
                         'in:0,1,2,3',
-                        function ($attribute, $value, $fail) {
+                        function ($attribute, $value, $fail) use ($clientProg) {
                             $studentId = $this->route('student');
                             $student = UserClient::find($studentId);
 
-                            if (($student->mail == NULL || $student->mail == '') && ($student->phone == NULL || $studnet->phone == ''))
-                                $fail('Not able change status to success. Please complete student\'s email and phone number.');
+                            if (($student->mail == NULL || $student->mail == '') && ($student->phone == NULL || $student->phone == ''))
+                                $fail('Not able to change status to success. Please complete student\'s email and phone number.');
     
                             if ($student->parents()->count() == 0)
-                                $fail('Not able change status to success. Please complete the parent\'s information');
+                                $fail('Not able to change status to success. Please complete the parent\'s information');
+
+                            if ($clientProg->status == 3) 
+                                $fail('Not able to change status to success. This activities has marked as "refunded" ');
     
                         }
                     ];
@@ -166,7 +175,15 @@ class StoreClientProgramRequest extends FormRequest
             # failed
             case 2:
                 $rules = [
-                    'prog_id' => 'required|exists:tbl_prog,prog_id',
+                    'prog_id' => [
+                        'required',
+                        'exists:tbl_prog,prog_id',
+                        function ($attribute, $value, $fail) use ($isMentee) {
+                            $program = $this->programRepository->getProgramById($value);
+                            if ($program->prog_scope == "mentee" && $isMentee == 0)
+                                $fail("This program is for mentee only");
+                        }
+                    ],
                     'lead_id' => 'required',
                     'clientevent_id' => 'required_if:lead_id,LS004',
                     'eduf_lead_id' => 'required_if:lead_id,LS018',
@@ -202,7 +219,15 @@ class StoreClientProgramRequest extends FormRequest
             # refund
             case 3:
                 $rules = [
-                    'prog_id' => 'required|exists:tbl_prog,prog_id',
+                    'prog_id' => [
+                        'required',
+                        'exists:tbl_prog,prog_id',
+                        function ($attribute, $value, $fail) use ($isMentee) {
+                            $program = $this->programRepository->getProgramById($value);
+                            if ($program->prog_scope == "mentee" && $isMentee == 0)
+                                $fail("This program is for mentee only");
+                        }
+                    ],
                     'lead_id' => 'required',
                     'clientevent_id' => 'required_if:lead_id,LS004',
                     'eduf_lead_id' => 'required_if:lead_id,LS018',
@@ -218,7 +243,15 @@ class StoreClientProgramRequest extends FormRequest
                     'partner_id' => 'required_if:lead_id,LS015',
                     'first_discuss_date' => 'required|date',
                     'meeting_notes' => 'nullable',
-                    'status' => 'required|in:0,1,2,3',
+                    'status' => [
+                        'required',
+                        'in:0,1,2,3',
+                        function ($attribute, $value, $fail) use ($hasInvoice, $hasReceipt) {
+
+                            if ((int)$hasInvoice > 0 && (int)$hasReceipt == 0) 
+                                $fail("Looks like this program has not been paid");
+                        }
+                    ],
                     'empl_id' => [
                         'required', 'required',
                         function ($attribute, $value, $fail) {

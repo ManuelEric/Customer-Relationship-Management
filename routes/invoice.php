@@ -3,6 +3,7 @@
 use App\Http\Controllers\InvoiceProgramController;
 use App\Http\Controllers\InvoiceSchoolController;
 use App\Http\Controllers\RefundSchoolController;
+use App\Http\Controllers\RefundController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,6 +51,13 @@ Route::resource('client-program', InvoiceProgramController::class, [
 ]);
 Route::prefix('client-program')->name('invoice.program.')->group(function () {
     Route::get('{client_program}/export', [InvoiceProgramController::class, 'export'])->name('export');
+    Route::post('{client_program}/refund', [RefundController::class, 'store'])->name('refund');
+    Route::delete('{client_program}/refund', [RefundController::class, 'destroy'])->name('destroy');
+    Route::get('{client_program}/request_sign', [InvoiceProgramController::class, 'requestSign'])->name('request_sign');
+    Route::get('{client_program}/upload', [InvoiceProgramController::class, 'createSignedAttachment'])->name('create_signed_document');
+    Route::post('{client_program}/upload', [InvoiceProgramController::class, 'storeSignedAttachment'])->name('upload_signed_document');
+    Route::get('{client_program}/send', [InvoiceProgramController::class, 'sendToClient'])->name('send_to_client');
+    Route::get('{client_program}/attachment/download', [InvoiceProgramController::class, 'download'])->name('download');
 });
 
 
