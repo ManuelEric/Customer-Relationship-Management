@@ -141,7 +141,7 @@ class SchoolProgramController extends Controller
         try {
             # insert into reason
             if ($request->input('reason_id') == 'other' || $request->input('reason_refund_id') == 'other') {
-                $this->reasonRepository->createReason($reason);
+                // $this->reasonRepository->createReason($reason);
                 $reason_created = $this->reasonRepository->createReason($reason);
                 $reason_id = $reason_created->reason_id;
                 $schoolPrograms['reason_id'] = $reason_id;
@@ -322,16 +322,21 @@ class SchoolProgramController extends Controller
             }
 
             unset($schoolPrograms['other_reason_refund']);
+            unset($schoolPrograms['other_reason']);
+            unset($schoolPrograms['reason_refund_id']);
             unset($schoolPrograms['reason_refund_id']);
         }
 
         if ($request->input('status') == '3') {
-            if ($request->input('reason_refund_id') == 'other')
+            if ($request->input('reason_refund_id') == 'other_reason_refund')
                 $reason['reason_name'] = $request->input('other_reason_refund');
             else {
                 $schoolPrograms['reason_id'] = $request->input('reason_refund_id');
             }
+            unset($schoolPrograms['other_reason_refund']);
+            unset($schoolPrograms['reason_refund_id']);
             unset($schoolPrograms['other_reason']);
+            unset($schoolPrograms['reason_refund_id']);
         }
 
         DB::beginTransaction();
@@ -340,19 +345,10 @@ class SchoolProgramController extends Controller
         try {
 
             # update reason school program
-            if ($schoolPrograms['status'] == 2) {
-                if ($request->input('reason_id') == 'other') {
-
-                    $reason_created = $this->reasonRepository->createReason($reason);
-                    $reason_id = $reason_created->reason_id;
-                    $schoolPrograms['reason_id'] = $reason_id;
-                }
-            }
-
-            # update reason school program
-            if ($schoolPrograms['status'] == 3) {
-                if ($request->input('reason_refund_id') == 'other') {
-
+            if ($schoolPrograms['status'] == 2 || $schoolPrograms['status'] == 3) {
+                // return $request->input('reason_refund_id');
+                // exit;
+                if ($request->input('reason_id') == 'other' || $request->input('reason_refund_id') == 'other_reason_refund') {
                     $reason_created = $this->reasonRepository->createReason($reason);
                     $reason_id = $reason_created->reason_id;
                     $schoolPrograms['reason_id'] = $reason_id;

@@ -163,6 +163,7 @@
                                             <option value="0">Pending</option>
                                             <option value="1">Success</option>
                                             <option value="2">Denied</option>
+                                            <option value="3">Refund</option>
                                         </select>
                                         @error('status')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -188,6 +189,74 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
+
+
+                                    {{-- Refund --}}
+                                    <div class="col-md-6 refund_status d-none my-2">
+                                    
+                                            <label>Reason <sup class="text-danger">*</sup> </label>
+                                            <div class="classReasonRefund">
+                                                <select name="reason_refund_id" class="select w-100"
+                                                    style="display: none !important; width:100% !important" id="selectReasonRefund"
+                                                    onchange="otherOption($(this).val())"
+                                                    {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
+                                                    <option data-placeholder="true"></option>
+                                                         @if(isset($partnerProgram->reason_id) || isset($edit))
+                                                            @if(isset($edit))    
+                                                                @foreach ($reasons as $reason)
+                                                                    <option value="{{ $reason->reason_id }}" {{ $partnerProgram->reason_id == $reason->reason_id ? 'selected' : ''}}>
+                                                                        {{ $reason->reason_name }}
+                                                                    </option>
+                                                                @endforeach
+                                                                <option value="other_reason_refund">
+                                                                    Other option
+                                                                </option>
+                                                            @else
+                                                                   <option value="{{ $partnerProgram->reason_id }}" selected>
+                                                                        {{ $partnerProgram->reason->reason_name }}
+                                                                    </option>          
+                                                            @endif
+                                                        @elseif(empty($partnerProgram))
+                                                            @foreach ($reasons as $reason)
+                                                                <option value="{{ $reason->reason_id }}" {{ old('reason_refund_id') == $reason->reason_id ? "selected" : "" }}>
+                                                                    {{ $reason->reason_name }}
+                                                                </option>
+                                                            @endforeach
+                                                            <option value="other_reason_refund">
+                                                                Other option
+                                                            </option>
+                                                        @endif
+                                                </select>
+                                                    @error('reason_refund_id')
+                                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                                    @enderror
+                                                    @error('other_reason_refund')
+                                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                                    @enderror
+                                                
+                                            </div>
+                                                
+                                            <div class="d-flex align-items-center d-none" id="inputReasonRefund">
+                                                <input type="text" name="other_reason_refund"
+                                                    class="form-control form-control-sm rounded">
+                                                <div class="float-end cursor-pointer" onclick="resetOption()">
+                                                    <b>
+                                                        <i class="bi bi-x text-danger"></i>
+                                                    </b>
+                                                </div>
+                                            </div>
+        
+                                    </div>
+                                    <div class="col-md-12 refund_status d-none my-2">
+                                        <label for="">
+                                        Refund  Notes
+                                        </label>
+                                        <textarea name="refund_notes" id="" class="w-100"  {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                            {{ isset($schoolProgram->refund_notes) ? $schoolProgram->refund_notes :  old('refund_notes') }}
+                                        </textarea>
+                                    </div>  
+
+                                    {{-- Denied --}}
                                     <div class="col-md-6 denied_status d-none my-2">
                                     
                                             <label>Reason <sup class="text-danger">*</sup> </label>
@@ -398,11 +467,18 @@
             if (status == '0') {
                 $('.denied_status').addClass('d-none')
                 $('.success_status').addClass('d-none')
+                $('.refund_status').addClass('d-none')
             } else if (status == '1') {
                 $('.denied_status').addClass('d-none')
+                $('.refund_status').addClass('d-none')
                 $('.success_status').removeClass('d-none')
             } else if (status == '2') {
                 $('.denied_status').removeClass('d-none')
+                $('.success_status').addClass('d-none')
+                $('.refund_status').addClass('d-none')
+            } else if (status == '3'){
+                $('.refund_status').removeClass('d-none')
+                $('.denied_status').addClass('d-none')
                 $('.success_status').addClass('d-none')
             }
         }
@@ -495,6 +571,23 @@
         </script>
 
     @endif
+
+    @if(
+        $errors->has('denied_date') || 
+        $errors->has('reason_id') ||
+        $errors->has('other_reason')
+        )
+        
+        <script>
+            $(document).ready(function(){
+                $('#approach_status').val('2').trigger('change')
+            })
+
+        </script>
+
+
+    @endif
+
 
     @if(
         $errors->has('denied_date') || 

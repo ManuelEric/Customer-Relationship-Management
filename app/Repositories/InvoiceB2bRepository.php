@@ -77,6 +77,11 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         return Invb2b::where('schprog_id', $schprog_id)->first();
     }
 
+    public function getInvoiceB2bByPartnerProg($partnerprog_id)
+    {
+        return Invb2b::where('partnerprog_id', $partnerprog_id)->first();
+    }
+
     public function getInvoiceB2bByInvId($invb2b_id)
     {
         return Invb2b::where('invb2b_id', $invb2b_id)->get();
