@@ -4,7 +4,7 @@
             <div class="card-body">
                 <div class="row justify-content-end mb-2">
                     <div class="col-md-2">
-                        <input type="month" class="form-control form-control-sm">
+                        <input type="month" class="form-control form-control-sm" value="{{ date('Y-m') }}">
                     </div>
                 </div>
                 <div class="row ">
@@ -15,6 +15,9 @@
                             </div>
                         </div>
                         <div class="card">
+                            <div class="card-header">
+                                Successful Program
+                            </div>
                             <div class="card-body overflow-auto" style="height: 350px">
                                 <ul class="list-group">
                                     @for ($i = 0; $i < 30; $i++)
@@ -49,23 +52,43 @@
                                                                         <table class="table">
                                                                             <tr>
                                                                                 <td>Total Inital Consultation</td>
-                                                                                <td class="text-end">50</td>
+                                                                                <td class="text-end">
+                                                                                    <span class="badge badge-info">
+                                                                                        50
+                                                                                    </span>
+                                                                                </td>
                                                                             </tr>
                                                                             <tr>
                                                                                 <td>Success Program</td>
-                                                                                <td class="text-end">14</td>
+                                                                                <td class="text-end">
+                                                                                    <span class="badge badge-info">
+                                                                                        50
+                                                                                    </span>
+                                                                                </td>
                                                                             </tr>
                                                                             <tr>
                                                                                 <td>Initial Assessment Making</td>
-                                                                                <td class="text-end">3 Days</td>
+                                                                                <td class="text-end">
+                                                                                    <span class="badge badge-info">
+                                                                                        3 Days
+                                                                                    </span>
+                                                                                </td>
                                                                             </tr>
                                                                             <tr>
                                                                                 <td>Conversion Time Progess</td>
-                                                                                <td class="text-end">14 Days</td>
+                                                                                <td class="text-end">
+                                                                                    <span class="badge badge-info">
+                                                                                        14 Days
+                                                                                    </span>
+                                                                                </td>
                                                                             </tr>
                                                                             <tr>
                                                                                 <td>Success Percentage</td>
-                                                                                <td class="text-end">20%</td>
+                                                                                <td class="text-end">
+                                                                                    <span class="badge badge-info">
+                                                                                        20%
+                                                                                    </span>
+                                                                                </td>
                                                                             </tr>
                                                                         </table>
                                                                     </div>
@@ -116,6 +139,33 @@
 </div>
 
 <script>
+    // percentage 
+    let lbl_client_prog = [{
+        formatter: (value, ctx) => {
+            let datasets = ctx.chart.data.datasets;
+            if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
+                let sum = datasets[0].data.reduce((a, b) => a + b, 0);
+                let percentage = Math.round((value / sum) * 100) + '%';
+                return percentage;
+            } else {
+                return percentage;
+            }
+        },
+        color: '#fff',
+        font: {
+            size: 11
+        },
+        padding: {
+            left: 8,
+            right: 8,
+            top: 3,
+            bottom: 1
+        },
+        anchor: 'end',
+        borderRadius: 10,
+        backgroundColor: '#192e54',
+    }]
+
     // Overall 
     const all = document.getElementById('clientProgram');
 
@@ -136,6 +186,7 @@
                 borderRadius: 10,
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             scales: {
                 y: {
@@ -143,6 +194,7 @@
                 }
             },
             plugins: {
+                datalabels: lbl_client_prog[0],
                 title: {
                     display: true,
                     text: 'Client Program Status',
@@ -166,7 +218,7 @@
         data: {
             labels: ['Pending', 'Failed', 'Success', 'Refund'],
             datasets: [{
-                label: '',
+                label: 'Client Program',
                 data: [12, 19, 3, 5],
                 backgroundColor: [
                     '#fd7e14',
@@ -176,6 +228,7 @@
                 ],
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             plugins: {
                 title: {
@@ -192,7 +245,8 @@
                     labels: {
                         boxWidth: 10,
                     }
-                }
+                },
+                datalabels: lbl_client_prog[0]
             }
         }
     });
@@ -215,8 +269,10 @@
                 ],
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             plugins: {
+                datalabels: lbl_client_prog[0],
                 title: {
                     display: true,
                     text: 'Academic & Test Preparation',
@@ -254,8 +310,10 @@
                 ],
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             plugins: {
+                datalabels: lbl_client_prog[0],
                 title: {
                     display: true,
                     text: 'Career Exploration',
@@ -285,11 +343,13 @@
                 label: '',
                 data: [12, 19, 10],
                 borderWidth: 1,
-                borderRadius: 5,
+                borderRadius: 0,
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             plugins: {
+                datalabels: lbl_client_prog[0],
                 title: {
                     display: true,
                     text: 'Initial Consultation',
@@ -300,9 +360,13 @@
                 },
                 legend: {
                     display: true,
+                    position: 'bottom',
                     labels: {
                         boxWidth: 15,
-                    }
+                        font: {
+                            size: 11
+                        }
+                    },
                 }
             }
         }

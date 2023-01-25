@@ -143,7 +143,7 @@
 
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('master/edufair*') ? 'active' : '' }}"
-                                        href="{{ url('master/edufair') }}">Edufair</a>
+                                        href="{{ url('master/edufair') }}">External Edufair</a>
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('master/purchase*') ? 'active' : '' }}"
