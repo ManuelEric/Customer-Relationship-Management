@@ -55,8 +55,8 @@
 
 <body style="padding: 0; margin:0">
     <div style="width: 100%; height:1059px; padding:0; margin:0;">
-        <img src="{{ public_path('img/pdf/header.png') }}" width="100%">
-        <img src="{{ public_path('img/pdf/confidential.png') }}" width="85%"
+        <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
+        <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
             <h4
@@ -122,8 +122,8 @@
             <table width="100%" class="table-detail" style="padding:8px 5px;">
                 <tr align="center">
                     <th width="5%">No</th>
-                    <th width="55%">Description</th>
-                    <th width="15%">Price</th>
+                    <th width="45%">Description</th>
+                    <th width="25%">Price</th>
                     <th width="10%">Participants</th>
                     <th width="15%">Total</th>
                 </tr>
@@ -254,7 +254,7 @@
             </table>
         </div>
     </div>
-    <img src="{{ public_path('img/pdf/footer.png') }}" width="100%">
+    <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%">
 </body>
 
 </html>

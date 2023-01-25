@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
@@ -91,4 +91,11 @@ class SchoolProgram extends Model
     {
         return $this->belongsToMany(User::class, 'tbl_agenda_speaker', 'sch_prog_id', 'empl_id')->using(AgendaSpeaker::class);
     }
+
+    // protected function programName(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($value) => $this->program->prog_program . ' - ' . $this->program->prog_main,
+    //     );
+    // }
 }

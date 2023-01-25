@@ -7,8 +7,6 @@
     <title>Document</title>
 </head>
 <body>
-    Hi, Techsolutionstuff <br/>
-    This is Test Mail.<br />
-    Thank you...!!
+    Here you can find the invoice
 </body>
 </html>

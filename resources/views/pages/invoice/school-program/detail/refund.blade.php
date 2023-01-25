@@ -4,12 +4,26 @@
     </div>
     <div class="card-body">
         @if(isset($invoiceSch))
-            @if($invoiceSch->sch_prog->status == 3)
+            @if($invoiceSch->sch_prog->status == 3 && isset($invoiceSch->refund))
+                <p style="font-size: 1em">
+                    with detail: <br>
+                    <ul style="font-size: 1em">
+                        <li>Total Paid : {{ $invoiceSch->refund->total_paid_str }}</li>
+                        <li>Refund Amount : {{ $invoiceSch->refund->refund_amount_str.' ('.$invoiceSch->refund->percentage_refund.'%)' }}</li>
+                        <li>Tax : {{ $invoiceSch->refund->tax_amount_str.' ('.$invoiceSch->refund->tax_percentage.'%)' }}</li>
+                    </ul>
+                </p>
                 {!! $invoiceSch->sch_prog->refund_notes !!}
+                <br>
             @endif
         @endif
-        <br>
-         @if(isset($invoiceSch))
+        @if(isset($invoiceSch))
+            @if($invoiceSch->sch_prog->status == 3 && $invoiceSch->invb2b_status == 1)
+                <div class="mt-3 d-flex justify-content-center">
+                {!! $invoiceSch->sch_prog->refund_notes !!}
+            </div>
+                @endif
+
             <div class="mt-3 d-flex justify-content-center">
                 @if($invoiceSch->sch_prog->status == 3 && $invoiceSch->invb2b_status == 1)
                     <button class="btn btn-sm btn-primary rounded mx-1" data-bs-toggle="modal" data-bs-target="#refund">
@@ -31,7 +45,7 @@
         @if($invoiceSch->invb2b_status == 2)
             <div class="card-footer d-flex justify-content-between">
                 <h6 class="m-0 p-0">Total Refund</h6>
-                <h6 class="m-0 p-0">Rp. {{ number_format($invoiceSch->refund->total_refunded) }}</h6>
+                <h6 class="m-0 p-0">{{ $invoiceSch->refund->total_refunded_str }}</h6>
             </div> 
         @endif
     {{-- @endif --}}
@@ -62,10 +76,10 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="">Total Price </label>
-                            <input type="number" name="total_price" id="" 
+                            <input type="number" name="total_payment" id="" 
                             value="{{ $invoiceSch->invb2b_totpriceidr }}" readonly
                                 class="form-control form-control-sm rounded">
-                                @error('total_price')
+                                @error('total_payment')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                         </div>
@@ -74,62 +88,47 @@
                             @php
                                 $totalInstallment = 0;
                             @endphp
-                            <input type="number" name="total_payment" id="total_paid"
-                                @if(count($invoiceSch->inv_detail)>0)
-                                    @foreach ($invoiceSch->inv_detail as $installment)
-                                        @php
-                                            $clearNumberFormat = filter_var($installment->receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
-                                            $clearDecimal = substr($clearNumberFormat, 0, -2);
-                                            $totalInstallment += $clearDecimal;
-                                        @endphp
-                                    @endforeach
-                                    value="{{ $totalInstallment }}"
-                                @else
-                                        @php
-                                            $clearNumberFormat = filter_var($invoiceSch->receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
-                                            $receiptAmountIdr = substr($clearNumberFormat, 0, -2);
-                                        @endphp
-                                    value="{{ $receiptAmountIdr }}"
-                                @endif
+                            <input type="number" name="total_paid" id="total_paid"
+                                value="{{ $invoiceSch->receipt()->sum('receipt_amount_idr') }}"
                                 readonly
                                 class="form-control form-control-sm rounded">
-                                @error('total_payment')
+                                @error('total_paid')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="">Percentage Refund</label>
-                            <input type="number" step="any" min="0" max="100"  name="percentage_payment" id="percentage_refund"
+                            <input type="number" step="any" min="0" max="100"  name="percentage_refund" id="percentage_refund"
                                 class="form-control form-control-sm rounded percentage">
-                            @error('percentage_payment')
+                            @error('percentage_refund')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
 
                         <div class="col-md-8 mb-3">
                             <label for="">Refund Nominal</label>
-                            <input type="number" name="refunded_amount" id="refund_nominal"
+                            <input type="number" name="refund_amount" id="refund_nominal" oninput="inputRefund();"
                                 class="form-control form-control-sm rounded">
-                            @error('refunded_amount')
+                            @error('refund_amount')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
 
                         <div class="col-md-4 mb-3">
                             <label for="">Percentage Tax</label>
-                            <input type="number" step="any" min="0" max="100" name="refunded_tax_percentage" id="percentage_tax"
+                            <input type="number" step="any" min="0" max="100" name="tax_percentage" id="percentage_tax"
                                 class="form-control form-control-sm rounded">
-                            @error('refunded_tax_percentage')
+                            @error('tax_percentage')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
 
                         <div class="col-md-8 mb-3">
                             <label for="">Tax Nominal</label>
-                            <input type="number" name="refunded_tax_amount" id="tax_nominal"
+                            <input type="number" name="tax_amount" id="tax_nominal"
                                 class="form-control form-control-sm rounded">
-                            @error('refunded_tax_amount')
+                            @error('tax_amount')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
@@ -223,6 +222,7 @@
         } else {
             $(this).val()
             $('#refund_nominal').val(null)
+            $('#percentage_refund').val(null)
             notification('error', 'Percentage is more than 100')
         }
 
@@ -265,7 +265,7 @@
         val = 0
         
         if (parseInt(val) <= parseInt(max)) {
-            $("#percentage_refund").val(null)
+            // $("#percentage_refund").val(null)
             let percent_tax = $('#percentage_tax').val()
             // let nominal_refund = $('#refund_nominal').val()
             let total_tax = (percent_tax / 100) * val
@@ -289,7 +289,8 @@
           
      })
 
-    $("refund_nominal").change(function(){
+
+    function inputRefund(){
         $("#percentage_refund").val(null)
-    });
+    }
 </script>

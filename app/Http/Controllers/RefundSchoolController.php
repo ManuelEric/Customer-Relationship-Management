@@ -65,11 +65,12 @@ class RefundSchoolController extends Controller
 
         $refunds = $request->only([
             'total_payment',
-            'percentage_payment',
-            'refunded_amount',
-            'refunded_tax_amount',
-            'refunded_tax_percentage',
-            'total_refunded',
+            'total_paid',
+            'percentage_refund',
+            'refund_amount',
+            'tax_percentage',
+            'tax_amount',
+            'total_refunded'
         ]);
 
         $refunds['invb2b_id'] = $invb2b_id;
@@ -120,7 +121,7 @@ class RefundSchoolController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->refundRepository->deleteRefund($refundId);
+            $this->refundRepository->deleteRefundByRefundId($refundId);
             $this->invoiceB2bRepository->updateInvoiceB2b($invb2b_num, $updateInvoice);
             $this->receiptRepository->updateReceiptByInvoiceIdentifier('B2B', $invb2b_id, $updateReceipt);
 

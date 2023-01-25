@@ -37,12 +37,12 @@ class StoreRefundSchoolRequest extends FormRequest
         $total_paid = $invoice->receipt()->sum('receipt_amount_idr');
 
         return [
-            'total_price' => 'required|numeric|in:' . $total_payment,
-            'total_payment' => 'required|numeric|in:' . $total_paid,
-            'percentage_payment' => 'nullable|numeric|max:100',
-            'refunded_amount' => 'required|numeric',
-            'refunded_tax_percentage' => 'nullable|numeric|max:100',
-            'refunded_tax_amount' => 'nullable|numeric',
+            'total_payment' => 'required|numeric|in:' . $total_payment,
+            'total_paid' => 'required|numeric|in:' . $total_paid,
+            'percentage_refund' => 'nullable|numeric|max:100',
+            'refund_amount' => 'required|numeric',
+            'tax_percentage' => 'nullable|numeric|max:100',
+            'tax_amount' => 'nullable|numeric',
             'total_refunded' => 'required|numeric|lte:total_paid',
 
         ];

@@ -10,6 +10,8 @@ use App\Models\User;
 use Arcanedev\Support\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
+use function Ramsey\Uuid\v1;
+
 class StoreSchoolProgramRequest extends FormRequest
 {
 
@@ -112,29 +114,43 @@ class StoreSchoolProgramRequest extends FormRequest
             'notes' => 'nullable',
             'notes_detail' => 'nullable',
         ];
-
-        if ($sch_id) {
-            $rules = [
-                'sch_id' => [
-                    'required',
-                    function ($attribute, $value, $fail) use ($sch_id) {
-                        if (!School::find($sch_id))
-                            $fail('The school is required');
-                    },
-                ]
-            ];
-            return $rules;
-        }
     }
 
     protected function success()
     {
         $sch_id = $this->route('school');
 
-        return [
+        if ($this->isMethod('PUT')) {
+            $schprog_id = $this->route('detail');
+
+            $invoice = $this->invoiceB2bRepository->getInvoiceB2bBySchProg($schprog_id);
+
+
+            $rules = [
+                'status' =>
+                [
+                    'required', 'in:0,1,2,3',
+                    function ($attribute, $value, $fail) use ($invoice) {
+                        if (isset($invoice->refund)) {
+                            $fail('Not able to change status to success. This activities has marked as "refunded"');
+                        }
+                    }
+                ]
+
+            ];
+        } else {
+            $rules = [
+                'status' =>
+                [
+                    'required', 'in:0,1,2,3',
+                ]
+
+            ];
+        }
+
+        $rules += [
             'prog_id' => 'required|exists:tbl_prog,prog_id',
             'first_discuss' => 'required|date',
-            'status' => 'required|in:0,1,2,3',
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
@@ -157,23 +173,12 @@ class StoreSchoolProgramRequest extends FormRequest
             'success_date' => 'required|date',
         ];
 
-        if ($sch_id) {
-            $rules = [
-                'sch_id' => [
-                    'required',
-                    function ($attribute, $value, $fail) use ($sch_id) {
-                        if (!School::find($sch_id))
-                            $fail('The school is required');
-                    },
-                ]
-            ];
-            return $rules;
-        }
+
+        return $rules;
     }
 
     protected function denied()
     {
-        $sch_id = $this->route('school');
 
         return [
             'prog_id' => 'required|exists:tbl_prog,prog_id',
@@ -196,19 +201,6 @@ class StoreSchoolProgramRequest extends FormRequest
             'other_reason' => 'required_if:reason_id,other|nullable|unique:tbl_reason,reason_name',
 
         ];
-
-        if ($sch_id) {
-            $rules = [
-                'sch_id' => [
-                    'required',
-                    function ($attribute, $value, $fail) use ($sch_id) {
-                        if (!School::find($sch_id))
-                            $fail('The school is required');
-                    },
-                ]
-            ];
-            return $rules;
-        }
     }
 
     protected function refund()
@@ -231,9 +223,9 @@ class StoreSchoolProgramRequest extends FormRequest
                     'required', 'in:0,1,2,3',
                     function ($attribute, $value, $fail) use ($hasInvoice, $hasReceipt) {
                         if (!isset($hasInvoice)) {
-                            $fail('The status cannot change to refund, if invoice have not been made');
+                            $fail('Looks like this program has not been paid');
                         } else if (isset($hasInvoice)  && !isset($hasReceipt)) {
-                            $fail('The status cannot change to refund, if receipt have not been made');
+                            $fail('Looks like this program has not been paid');
                         }
                     }
                 ]
@@ -269,18 +261,6 @@ class StoreSchoolProgramRequest extends FormRequest
             'refund_date' => 'required|date',
             'refund_notes' => 'nullable',
         ];
-
-        if ($sch_id) {
-            $rules += [
-                'sch_id' => [
-                    'required',
-                    function ($attribute, $value, $fail) use ($sch_id) {
-                        if (!School::find($sch_id))
-                            $fail('The school is required');
-                    },
-                ]
-            ];
-        }
 
         return $rules;
     }

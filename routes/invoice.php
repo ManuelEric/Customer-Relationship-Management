@@ -131,7 +131,11 @@ Route::prefix('school-program')->name('invoice-sch.')->group(function () {
     Route::resource('{sch_prog}/detail', InvoiceSchoolController::class)->except(['index']);
     Route::get('status/{status}', [InvoiceSchoolController::class, 'index'])->name('index');
     Route::get('{invoice}/export/{currency}', [InvoiceSchoolController::class, 'export'])->name('export');
-    Route::get('{invoice}/sendInvoice/{currency}', [InvoiceSchoolController::class, 'sendInvoice'])->name('sendInvoice');
+    Route::get('{invoice}/request_sign/{currency}', [InvoiceSchoolController::class, 'requestSign'])->name('request_sign');
+    Route::get('{invoice}/upload', [InvoiceSchoolController::class, 'createSignedAttachment'])->name('create_signed_document');
+    Route::post('{invoice}/upload', [InvoiceSchoolController::class, 'storeSignedAttachment'])->name('upload_signed_document');
     Route::post('{invoice}/refund', [RefundSchoolController::class, 'store'])->name('refund');
+    Route::get('{invoice}/send', [InvoiceSchoolController::class, 'sendToClient'])->name('send_to_client');
+    Route::get('{invoice}/attachment/download', [InvoiceSchoolController::class, 'download'])->name('download');
     Route::delete('{invoice}/refund/{refund}', [RefundSchoolController::class, 'destroy'])->name('refund.destroy');
 });
