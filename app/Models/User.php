@@ -151,4 +151,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(UserType::class, 'tbl_user_type_detail', 'user_id', 'user_type_id')->using(UserTypeDetail::class);
     }
+
+    public function pic_school_visit()
+    {
+        return $this->belongsToMany(School::class, 'tbl_sch_visit', 'id', 'sch_id')->withTimestamps();
+    }
 }

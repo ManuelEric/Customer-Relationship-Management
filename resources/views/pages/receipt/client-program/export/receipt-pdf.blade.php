@@ -4,11 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice : INV/123/2425/12312/23 - PDF</title>
+    <title>Receipt : {{ $receipt->receipt_id }} - PDF</title>
     {{-- <link rel="icon" href="#" type="image/gif" sizes="16x16"> --}}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
+        /* @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'); */
+        @import url('{{ public_path("dashboard-template/css/googleapisfont.css") }}');
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+        }
         body {
             font-family: 'Poppins', sans-serif;
         }
@@ -50,9 +56,9 @@
 </head>
 
 <body style="padding: 0; margin:0">
-    <div style="width: 100%; height:1100px; padding:0; margin:0;">
-        <img src="{{ asset('img/pdf/header.png') }}" width="100%">
-        <img src="{{ asset('img/pdf/confidential.png') }}" width="85%"
+    <div style="width: 100%; height:1059px; padding:0; margin:0;">
+        <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
+        <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
             <h4 style="">
@@ -65,10 +71,10 @@
                         <table width="100%" style="padding:0px; margin-left:-10px;">
                             <tr>
                                 <td width="15%" valign="top">From : </td>
-                                <td width="85%"><b>PT. Jawara Edukasih Indonesia</b><br>
-                                    Jl Jeruk Kembar Blok Q9 No. 15 <br>
-                                    Srengseng, Kembangan <br>
-                                    DKI Jakarta
+                                <td width="85%"><b>{{ $companyDetail['name'] }}</b><br>
+                                    {{ $companyDetail['address'] }}<br>
+                                    {{ $companyDetail['address_dtl'] }} <br>
+                                    {{ $companyDetail['city'] }}
                                     <br><br>
                                 </td>
                             </tr>
@@ -82,9 +88,9 @@
                                     Received from :
                                 </td>
                                 <td>
-                                    Gabriella Anna Santoso
+                                    {{ $receipt->invoiceProgram->clientProg->client->parents[0]->full_name }}
                                     <br>
-                                    DKI Jakarta
+                                    {{ $receipt->invoiceProgram->clientProg->client->parents[0]->city }}
                                 </td>
                             </tr>
                         </table>
@@ -96,7 +102,7 @@
             <table>
                 <tr>
                     <td>
-                        Receipt No. 0013/REC-JEI/SATPRIV/XII/22
+                        Receipt No. {{ $receipt->receipt_id }}
                     </td>
                 </tr>
             </table>
@@ -108,9 +114,9 @@
                     <th width="30%">Amount</th>
                 </tr>
                 <tr align="center">
-                    <td>Payment Method</td>
-                    <td>Cheque No.</td>
-                    <td>Amount</td>
+                    <td>{{ $receipt->receipt_method }}</td>
+                    <td>{{ $receipt->receipt_cheque }}</td>
+                    <td>{{ $receipt->receipt_amount_idr }}</td>
                 </tr>
             </table>
             <br>
@@ -127,21 +133,24 @@
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
                             <p>
-                                <strong> Admissions Mentoring: Ultimate Package </strong>
+                                <strong> {{ $receipt->invoiceProgram->clientProg->invoice_program_name }} </strong>
                             </p>
-                        </div>
-
-                        <div style="margin-top:5px;">
+                            @if ($receipt->invoiceProgram->inv_paymentmethod == "Installment")
                             <p>
-                                <strong> Discount</strong>
+                                {{ $receipt->invoiceInstallment->invdtl_installment }} ( {{ $receipt->invoiceInstallment->invdtl_percentage }}% )
                             </p>
+                            @endif
                         </div>
                     </td>
                     <td valign="top" align="center">
                         <div style="height:80px;">
                             <p>
                                 <strong>
-                                    $8,150
+                                    @if ($receipt->invoiceProgram->inv_paymentmethod == "Installment")
+                                        {{ $receipt->invoiceInstallment->invoicedtl_amountidr }}
+                                    @else
+                                    {{ $receipt->invoiceProgram->invoice_price_idr }}
+                                    @endif
                                 </strong>
                             </p>
                         </div>
@@ -150,16 +159,12 @@
                         <div style="height:80px;">
                             <p>
                                 <strong>
-                                    $8,150
+                                    @if ($receipt->invoiceProgram->inv_paymentmethod == "Installment")
+                                        {{ $receipt->invoiceInstallment->invoicedtl_amountidr }}
+                                    @else
+                                        {{ $receipt->invoiceProgram->invoice_price_idr }}
+                                    @endif
                                 </strong>
-                            </p>
-                        </div>
-                        <div style="margin-top:5px;">
-                            <p>
-                                <strong> - $50</strong>
-                            </p>
-                            <p>
-                                <strong> - $100</strong>
                             </p>
                         </div>
                     </td>
@@ -167,7 +172,9 @@
                 <tr>
                     <td colspan="3" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
-                        <b>$8,000</b>
+                        <b>  
+                            {{ $receipt->receipt_amount_idr }}
+                        </b>
                     </td>
                 </tr>
             </table>
@@ -175,7 +182,7 @@
             <table>
                 <tr>
                     <td>
-                        <b style="letter-spacing:0.7px;"><i>Total Amount : Eight thousand dollars</i></b>
+                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{ $receipt->receipt_words_idr }}</i></b>
                     </td>
                 </tr>
             </table>
@@ -202,8 +209,8 @@
                 </tr>
             </table>
         </div>
-        <img src="{{ asset('img/pdf/footer.png') }}" width="100%">
     </div>
+    <img src="{{ public_path('img/pdf/footer.webp') }}" style="position:relative;" width="100%">
 </body>
 
 </html>

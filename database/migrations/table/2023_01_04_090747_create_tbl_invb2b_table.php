@@ -16,13 +16,13 @@ return new class extends Migration
         Schema::create('tbl_invb2b', function (Blueprint $table) {
             $table->id('invb2b_num');
             $table->char('invb2b_id', 50)->collation('utf8mb4_general_ci')->unique();
-           
+
             $table->unsignedBigInteger('schprog_id')->nullable();
             $table->foreign('schprog_id')->references('id')->on('tbl_sch_prog')->onUpdate('cascade')->onDelete('cascade');
-           
+
             $table->unsignedBigInteger('partnerprog_id')->nullable();
             $table->foreign('partnerprog_id')->references('id')->on('tbl_partner_prog')->onUpdate('cascade')->onDelete('cascade');
-           
+
             $table->integer('invb2b_price')->nullable();
             $table->integer('invb2b_priceidr')->nullable();
             $table->integer('invb2b_participants');

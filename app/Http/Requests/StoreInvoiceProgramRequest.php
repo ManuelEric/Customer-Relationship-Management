@@ -29,22 +29,31 @@ class StoreInvoiceProgramRequest extends FormRequest
      */
     public function rules()
     {
-        if (in_array('idr', $this->input('currency')) && $this->input('is_session') == "no") {
 
-            return $this->rupiahInvoiceWithNoSession();
-        } elseif (in_array('idr', $this->input('currency')) && $this->input('is_session') == "yes") {
+        $currency = [];
+        $currency[0] = $this->input('currency');
+        $currency[1] = $this->input('currency_detail');
 
-            return $this->rupiahInvoiceWithYesSession();
-        } elseif (in_array('other', $this->input('currency')) && $this->input('is_session') == "no") {
+        if (in_array('idr', $currency) && $this->input('is_session') == "no") {
 
-            return $this->otherCurrencyInvoiceWithNoSession();
-        } elseif (in_array('other', $this->input('currency')) && $this->input('is_session') == "yes") {
+            return $this->rupiahInvoiceWithNoSession($currency); 
 
-            return $this->otherCurrencyInvoiceWithYesSession();
+        } elseif (in_array('idr', $currency) && $this->input('is_session') == "yes") {
+
+            return $this->rupiahInvoiceWithYesSession($currency);
+        
+        } elseif (in_array('other', $currency) && $this->input('is_session') == "no") {
+
+            return $this->otherCurrencyInvoiceWithNoSession($currency);
+
+        } elseif (in_array('other', $currency) && $this->input('is_session') == "yes") {
+
+            return $this->otherCurrencyInvoiceWithYesSession($currency);
+
         }
     }
 
-    protected function rupiahInvoiceWithYesSession()
+    protected function rupiahInvoiceWithYesSession($currency)
     {
         $clientProgId = $this->input('clientprog_id');
         $clientProgram = ClientProgram::find($clientProgId);
@@ -69,12 +78,12 @@ class StoreInvoiceProgramRequest extends FormRequest
                         $fail('Is session has to be "yes" based on master program session');
                 }
             ],
-            'session__si' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'duration__si' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_price_idr__si' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_discount_idr__si' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_totalprice_idr__si' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_words_idr__si' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
+            'session__si' => Rule::requiredIf(in_array('idr', $currency)),
+            'duration__si' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_price_idr__si' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_discount_idr__si' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_totalprice_idr__si' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_words_idr__si' => Rule::requiredIf(in_array('idr', $currency)),
             'inv_paymentmethod' => 'required|in:full,installment',
             'invoice_date' => 'required',
             'inv_duedate' => 'required',
@@ -96,7 +105,7 @@ class StoreInvoiceProgramRequest extends FormRequest
         ];
     }
 
-    protected function otherCurrencyInvoiceWithYesSession()
+    protected function otherCurrencyInvoiceWithYesSession($currency)
     {
         $clientProgId = $this->input('clientprog_id');
         $clientProgram = ClientProgram::find($clientProgId);
@@ -125,18 +134,18 @@ class StoreInvoiceProgramRequest extends FormRequest
                 }
             ],
             'curs_rate' => 'required',
-            'inv_price__so' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            'session__so' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            'duration__so' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            // 'inv_earlybird__so' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            'inv_discount__so' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            'inv_totalprice__so' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            'inv_words__so' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            'inv_price_idr__so' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            // 'inv_earlybird_idr__so' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_discount_idr__so' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_totalprice_idr__so' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_words_idr__so' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
+            'inv_price__so' => Rule::requiredIf(in_array('other', $currency)),
+            'session__so' => Rule::requiredIf(in_array('other', $currency)),
+            'duration__so' => Rule::requiredIf(in_array('other', $currency)),
+            // 'inv_earlybird__so' => Rule::requiredIf(in_array('other', $currency)),
+            'inv_discount__so' => Rule::requiredIf(in_array('other', $currency)),
+            'inv_totalprice__so' => Rule::requiredIf(in_array('other', $currency)),
+            'inv_words__so' => Rule::requiredIf(in_array('other', $currency)),
+            'inv_price_idr__so' => Rule::requiredIf(in_array('idr', $currency)),
+            // 'inv_earlybird_idr__so' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_discount_idr__so' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_totalprice_idr__so' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_words_idr__so' => Rule::requiredIf(in_array('idr', $currency)),
             'inv_paymentmethod' => 'required|in:full,installment',
             'invoice_date' => 'required',
             'inv_duedate' => 'required',
@@ -158,7 +167,7 @@ class StoreInvoiceProgramRequest extends FormRequest
         ];
     }
 
-    protected function otherCurrencyInvoiceWithNoSession()
+    protected function otherCurrencyInvoiceWithNoSession($currency)
     {
         $clientProgId = $this->input('clientprog_id');
         $clientProgram = ClientProgram::find($clientProgId);
@@ -187,16 +196,16 @@ class StoreInvoiceProgramRequest extends FormRequest
                 }
             ],
             'curs_rate' => 'required',
-            'inv_price__nso' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            'inv_earlybird__nso' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            'inv_discount__nso' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            'inv_totalprice__nso' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            'inv_words__nso' => Rule::requiredIf(in_array('other', $this->input('currency'))),
-            'inv_price_idr__nso' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_earlybird_idr__nso' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_discount_idr__nso' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_totalprice_idr__nso' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            'inv_words_idr__nso' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
+            'inv_price__nso' => Rule::requiredIf(in_array('other', $currency)),
+            'inv_earlybird__nso' => Rule::requiredIf(in_array('other', $currency)),
+            'inv_discount__nso' => Rule::requiredIf(in_array('other', $currency)),
+            'inv_totalprice__nso' => Rule::requiredIf(in_array('other', $currency)),
+            'inv_words__nso' => Rule::requiredIf(in_array('other', $currency)),
+            'inv_price_idr__nso' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_earlybird_idr__nso' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_discount_idr__nso' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_totalprice_idr__nso' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_words_idr__nso' => Rule::requiredIf(in_array('idr', $currency)),
             'inv_paymentmethod' => 'required|in:full,installment',
             'invoice_date' => 'required',
             'inv_duedate' => 'required',
@@ -218,11 +227,10 @@ class StoreInvoiceProgramRequest extends FormRequest
         ];
     }
 
-    protected function rupiahInvoiceWithNoSession()
+    protected function rupiahInvoiceWithNoSession($currency)
     {
         $clientProgId = $this->input('clientprog_id');
         $clientProgram = ClientProgram::find($clientProgId);
-        $currency = $this->input('currency');
 
         $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->max(DB::raw('substr(inv_id, 1, 4)'));
 
@@ -232,33 +240,24 @@ class StoreInvoiceProgramRequest extends FormRequest
         $addQuery = $this->isMethod('POST') ? '|unique:tbl_inv,clientprog_id' : null;
 
         return [
-            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id' . $addQuery,
-            'currency' => [
-                'required',
-                // function ($attribute, $value, $fail) use ($clientProgram) {
-                //     if ($index = array_search('other', $value) !== false)
-                //         unset($value[$index]);
-
-                //     if ($value[0] != $clientProgram->program->prog_payment)
-                //         $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
-                // }
+            'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
+            'currency' => 'required',
+            'is_session' => [
+                function ($attribute, $value, $fail) use ($clientProgram) {
+                    if ($clientProgram->program->prog_payment == "session" && $value == "no")
+                        $fail('Is session has to be "yes" based on master program session');
+                }
             ],
-            // 'is_session' => [
-            //     function ($attribute, $value, $fail) use ($clientProgram) {
-            //         if ($clientProgram->program->prog_payment == "session" && $value == "no")
-            //             $fail('Is session has to be "yes" based on master program session');
-            //     }
-            // ],
-            // 'inv_price_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            // 'inv_earlybird_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            // 'inv_discount_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            // 'inv_totalprice_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            // 'inv_words_idr' => Rule::requiredIf(in_array('idr', $this->input('currency'))),
-            // 'inv_paymentmethod' => 'required|in:full,installment',
-            // 'invoice_date' => 'required',
-            // 'inv_duedate' => 'required',
-            // 'inv_notes' => 'nullable',
-            // 'inv_tnc' => 'nullable',
+            'inv_price_idr' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_earlybird_idr' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_discount_idr' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_totalprice_idr' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_words_idr' => Rule::requiredIf(in_array('idr', $currency)),
+            'inv_paymentmethod' => 'required|in:full,installment',
+            'invoice_date' => 'required',
+            'inv_duedate' => 'required',
+            'inv_notes' => 'nullable',
+            'inv_tnc' => 'nullable',
 
             # installment validation
             // 'invdtl_installment.*' => [

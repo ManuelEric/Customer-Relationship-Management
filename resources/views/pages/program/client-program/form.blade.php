@@ -26,6 +26,7 @@
                     <h4>{{ $student->fullname }}</h4>
                     @if (!request()->is('program/client/create*'))
                         <div class="mt-3 d-flex justify-content-center">
+                            @if (!isset($clientProgram->invoice->refund))
                             <a href="{{ $disabled
                                 ? route('student.program.edit', ['student' => $student->id, 'program' => $clientProgram->clientprog_id])
                                 : route('student.show', ['student' => $student->id]) }}"
@@ -33,6 +34,7 @@
                                 <i class="bi {{ $disabled ? 'bi-pencil' : 'bi-arrow-left' }} me-1"></i>
                                 {{ $disabled ? 'Edit' : 'Back' }}
                             </a>
+                            @endif
 
                             @if (isset($clientProgram))
                                 <button type="button" class="btn btn-sm btn-outline-danger rounded mx-1"
@@ -44,7 +46,9 @@
                     @endif
                 </div>
             </div>
-            @include('pages.program.client-program.detail.refund')
+            @if (isset($clientProgram->invoice->refund))
+                @include('pages.program.client-program.detail.refund')
+            @endif
 
             @include('pages.program.client-program.detail.client')
 
@@ -63,6 +67,7 @@
                         </h6>
                     </div>
                 </div>
+                
                 <div class="card-body">
                     <form
                         action="{{ isset($clientProgram)
@@ -349,7 +354,7 @@
 
                                     <div class="col-md-12 mt-2 program-detail" id="refund_notes">
                                         <label for="">Refund Notes</label>
-                                        <textarea name="refund_notes" id=""></textarea>
+                                        <textarea name="refund_notes" id="">{{ isset($clientProgram->refund_notes) ? $clientProgram->refund_notes : old('refund_notes') }}</textarea>
                                     </div>
                                 </div>
                             </div>

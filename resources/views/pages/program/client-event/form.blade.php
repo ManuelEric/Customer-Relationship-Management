@@ -304,6 +304,23 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-12 mb-2 program">
+                                <label>Event Name <sup class="text-danger">*</sup></label>
+                                <select name="event_id" class="select w-100" id="eventName" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
+                                    <option data-placeholder="true"></option>
+                                    @if (isset($events) && count($events) > 0)
+                                        @foreach ($events as $event)
+                                            <option value="{{ $event->event_id }}"
+                                                {{ old('event_id') == $event->event_id ? "selected" : null }}>
+                                                {{ $event->event_title }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                                @error('event_id')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
                             <div class="col-md-6 mb-2">
                                 <label>Conversion Lead <sup class="text-danger">*</sup></label>
                                 <select name="lead_id" id="leadSource" class="select w-100" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
@@ -321,23 +338,6 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>                    
-                            <div class="col-md-6 mb-2 program">
-                                <label>Event Name <sup class="text-danger">*</sup></label>
-                                <select name="event_id" class="select w-100" id="eventName" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
-                                    <option data-placeholder="true"></option>
-                                    @if (isset($events) && count($events) > 0)
-                                        @foreach ($events as $event)
-                                            <option value="{{ $event->event_id }}"
-                                                {{ old('event_id') == $event->event_id ? "selected" : null }}>
-                                                {{ $event->event_title }}
-                                            </option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                                @error('event_id')
-                                    <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror
-                            </div>
                             <div class="col-md-6 mb-2 edufair d-none">
                                 <label>Edufair Name <sup class="text-danger">*</sup></label>
                                 <select name="eduf_id" class="select w-100" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
@@ -381,8 +381,7 @@
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label>Joined Date <sup class="text-danger">*</sup></label>
-                                <input type="date" name="joined_date" 
-                                    value="{{ (isset($clientEvent)) ? $clientEvent->joined_date : old('joined_date') }}"      
+                                <input type="date" name="joined_date" value="{{ date('Y-m-d') }}" readonly      
                                     class="form-control form-control-sm rounded" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
                                 @error('joined_date')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -530,19 +529,19 @@
             var lead = $(this).select2().find(":selected").data('lead')
             if (lead.includes('All-In Event')) {
 
-                $(".program").removeClass("d-none")
+                // $(".program").removeClass("d-none")
                 $(".edufair").addClass("d-none")
                 $(".kol").addClass("d-none")
 
             } else if (lead.includes('External Edufair')) {
 
-                $(".program").addClass("d-none")
+                // $(".program").addClass("d-none")
                 $(".edufair").removeClass("d-none")
                 $(".kol").addClass("d-none")
 
             } else  if (lead.includes('KOL')) {
 
-                $(".program").addClass("d-none")
+                // $(".program").addClass("d-none")
                 $(".edufair").addClass("d-none")
                 $(".kol").removeClass("d-none")
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\InvoiceProgramController;
 use App\Http\Controllers\InvoiceSchoolController;
+use App\Http\Controllers\RefundController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -47,10 +48,16 @@ Route::resource('client-program', InvoiceProgramController::class, [
         'destroy' => 'invoice.program.destroy',
     ]
 ]);
-Route::prefix('client-program')->name('invoice.program.')->group(function() {
+Route::prefix('client-program')->name('invoice.program.')->group(function () {
     Route::get('{client_program}/export', [InvoiceProgramController::class, 'export'])->name('export');
+    Route::post('{client_program}/refund', [RefundController::class, 'store'])->name('refund');
+    Route::delete('{client_program}/refund', [RefundController::class, 'destroy'])->name('destroy');
+    Route::get('{client_program}/request_sign', [InvoiceProgramController::class, 'requestSign'])->name('request_sign');
+    Route::get('{client_program}/upload', [InvoiceProgramController::class, 'createSignedAttachment'])->name('create_signed_document');
+    Route::post('{client_program}/upload', [InvoiceProgramController::class, 'storeSignedAttachment'])->name('upload_signed_document');
+    Route::get('{client_program}/send', [InvoiceProgramController::class, 'sendToClient'])->name('send_to_client');
+    Route::get('{client_program}/attachment/download', [InvoiceProgramController::class, 'download'])->name('download');
 });
-
 
 
 // PARTNER 
@@ -89,9 +96,9 @@ Route::get('school-program/1/edit', function () {
     return view('pages.invoice.school-program.form', ['status' => 'edit']);
 });
 
-Route::get('school-program/1/export/pdf', function () {
-    return view('pages.invoice.school-program.export.invoice-pdf');
-});
+// Route::get('school-program/1/export/pdf', function () {
+//     return view('pages.invoice.school-program.export.invoice-pdf');
+// });
 
 // Route::get('school-program/status/{status?}', function ($status = null) {
 //     return view('pages.invoice.school-program.index', ['status' => $status]);
@@ -122,4 +129,5 @@ Route::get('referral/status/{status?}', function ($status = null) {
 Route::prefix('school-program')->name('invoice-sch.')->group(function () {
     Route::resource('{sch_prog}/detail', InvoiceSchoolController::class)->except(['index']);
     Route::get('status/{status}', [InvoiceSchoolController::class, 'index'])->name('index');
+    Route::get('{invoice}/export/{currency}', [InvoiceSchoolController::class, 'export'])->name('export');
 });

@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('receipt/client-program') }}" class="text-decoration-none text-muted">
+        <a href="{{ url('receipt/school-program') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Receipt
         </a>
     </div>
@@ -16,20 +16,25 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>School Name</h4>
-                    <h6>Program Name</h6>
+                    <h4>{{ $receiptSch->invoiceB2b->sch_prog->school->sch_name }}</h4>
+                    <h6>{{ $receiptSch->invoiceB2b->sch_prog->program->prog_program }}</h6>
                     <div class="d-flex flex-wrap justify-content-center mt-3">
-                        <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1">
+                        <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1"
+                            onclick="confirmDelete('{{'receipt/school-program'}}', {{$receiptSch->id}})">
                             <i class="bi bi-trash2 me-1"></i> Delete
                         </button>
-                        <a href="{{ url('receipt/school-program/1/export/pdf') }}"
-                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Print Others
-                        </a>
-                        <a href="{{ url('receipt/school-program/1/export/pdf') }}"
-                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Print IDR
-                        </a>
+                         @if (isset($receiptSch))
+                            @if($receiptSch->invoiceB2b->currency != 'idr')
+                                <a href="{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}"
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                    <i class="bi bi-printer me-1"></i> Print Others
+                                </a>
+                            @endif
+                            <a href="{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}"
+                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                <i class="bi bi-printer me-1"></i> Print IDR
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -54,25 +59,44 @@
                     <table class="table table-hover">
                         <tr>
                             <td width="20%">Receipt ID :</td>
-                            <td>REC-12312/24124/12412</td>
+                            <td>{{ $receiptSch->receipt_id }}</td>
                         </tr>
                         <tr>
                             <td>Receipt Date :</td>
-                            <td>12 December 2022</td>
+                            <td>{{ date('d M Y H:i:s', strtotime($receiptSch->created_at)) }}</td>
                         </tr>
+                        @if(isset($receiptSch->invdtl_id))
+                            <tr>
+                                <td>Installment Name :</td>
+                                <td>{{ $receiptSch->invoiceInstallment->invdtl_installment }}</td>
+                            </tr>
+                        @endif
                         <tr>
-                            <td>Payment Method :</td>
-                            <td>Wire Transfer</td>
+                            <td>Payment Method : </td>
+                            <td>{{ $receiptSch->receipt_method }}</td>
                         </tr>
+                        @if($receiptSch->receipt_method == 'Cheque')
+                            <tr>
+                                <td>Cheque No : </td>
+                                <td>{{ $receiptSch->receipt_cheque }}</td>
+                            </tr>
+                        @endif
+                        @if ($receiptSch->invoiceB2b->currency != "idr")
+                            <tr>
+                                <td>Curs Rate :</td>
+                                <td>{{ $receiptSch->invoiceB2b->rate }}</td>
+                            </tr>
+                        @endif
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                $20 (Rp. 300.000)
+                                @if ($receiptSch->receipt_amount != null && $receiptSch->invoiceB2b->currency != "idr")
+                                    {{ $receiptSch->receipt_amount }}
+                                     ( {{ $receiptSch->receipt_amount_idr }} )
+                                @else
+                                    {{ $receiptSch->receipt_amount_idr }}
+                                @endif
                             </td>
-                        </tr>
-                        <tr>
-                            <td>Receipt ID :</td>
-                            <td>REC-12312/24124/12412</td>
                         </tr>
                     </table>
                 </div>
@@ -255,7 +279,7 @@
             let method = $('#payment_method').val()
 
             $('.installment-card').addClass('d-none')
-            if (method == 'installment') {
+            if (method == 'Installment') {
                 if (cur == 'idr') {
                     $('.installment-idr').removeClass('d-none')
                 } else {
@@ -286,5 +310,12 @@
                 $('#receipt_cheque').attr('disabled', 'disabled')
             }
         }
+
+        $("#installment-list .detail").each(function() {
+            $(this).click(function() {
+                var link = "{{ url('/') }}/receipt/school-program/" + $(this).data('recid')
+                window.location = link
+            })
+        })
     </script>
 @endsection

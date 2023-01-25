@@ -103,7 +103,7 @@ class ClientRepository implements ClientRepositoryInterface
             })
             ->addColumn('updated_at', function ($data) { return date('d M Y H:i:s', strtotime($data->updated_at)); })
             ->orderColumn('full_name', function ($query, $order) {
-                $query->orderBy(DB::raw('CONCAT(first_name, " ", last_name)'), $order);
+                $query->orderBy(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), $order);
             })
             ->rawColumns(['address'])
             ->make(true);

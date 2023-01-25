@@ -46,26 +46,70 @@
                             <i class="bi bi-eye me-1"></i> More
                         </a> --}}
 
+                        @if (!isset($invoice->refund))
                             <a href="{{ $status == 'edit' ? url('invoice/client-program/' . $clientProg->clientprog_id) : url('invoice/client-program/' . $clientProg->clientprog_id . '/edit') }}"
                                 class="btn btn-sm btn-outline-warning rounded mx-1">
                                 <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
                                 {{ $status == 'edit' ? 'Back' : 'Edit' }}
                             </a>
-
+                        @endif
+                    
+                        <a href="#export" id="print">
                             <button class="btn btn-sm btn-outline-info rounded mx-1">
                                 <i class="bi bi-printer me-1"></i> Print
                             </button>
+                        </a>
+
+                        @if (isset($invoice) && $invoice->currency != "idr")
+
+                            <a href="#export" id="print-other">
+                                <button class="btn btn-sm btn-outline-info rounded mx-1">
+                                    <i class="bi bi-printer me-1"></i> Print Foreign
+                                </button>
+                            </a>
+
+                        @endif
 
                             <button class="btn btn-sm btn-outline-danger rounded mx-1"
                                 onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
                                 <i class="bi bi-trash2 me-1"></i> Delete
                             </button>
                         </div>
+
+                        @if (!isset($invoice->refund) && isset($invoice) && $invoice->attachment == NULL)
+                        <div class="d-flex justify-content-center mt-3">
+                            <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
+                                <i class="bi bi-pen me-1"></i> Request Sign
+                            </button>
+
+                            
+                                @if (isset($invoice) && $invoice->currency != "idr")
+                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="request-acc-other">
+                                        <i class="bi bi-printer me-1"></i> Request Sign Foreign
+                                    </button>
+                                @endif
+                        </div>
+                        @else
+                        <div class="d-flex justify-content-center mt-3">
+                            <a href="{{ route('invoice.program.download', ['client_program' => $clientProg->clientprog_id]) }}">
+                                <button class="btn btn-sm btn-outline-success rounded mx-1">
+                                    <i class="bi bi-download me-1"></i>
+                                    Download
+                                </button>
+                            </a>
+                            <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client">
+                                <i class="bi bi-printer me-1"></i> Send Invoice to Client
+                            </button>
+                        </div>
+                        @endif
+                        
                     @endif
                 </div>
             </div>
 
-            @include('pages.invoice.client-program.detail.refund')
+            @if (isset($invoice->receipt))
+                @include('pages.invoice.client-program.detail.refund')
+            @endif
 
             @include('pages.invoice.client-program.form-detail.client')
 
@@ -84,9 +128,8 @@
                         </h6>
                     </div>
                     <div class="">
-                        @if (isset($invoice) && $invoice->inv_paymentmethod == 'Full Payment')
-                            <button class="btn btn-sm btn-outline-primary py-1"
-                                onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}')">
+                        @if ($invoice === NULL && isset($invoice->receipt))
+                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -112,14 +155,14 @@
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label for="">Currency <sup class="text-danger">*</sup></label>
-                                <select id="currency" name="currency[]" class="select w-100" onchange="checkCurrency()"
-                                    {{ $disabled }}>
-                                    <option value="idr"
-                                        @if (($clientProg->program->prog_payment == 'session' or $clientProg->program->prog_payment == 'idr') &&
-                                            !isset($invoice)) {{ 'selected' }}
-                                    @elseif (isset($invoice) && $invoice->inv_category == 'idr')
-                                        {{ 'selected' }} @endif>
-                                        IDR</option>
+                                <select id="currency" name="currency" class="select w-100" onchange="checkCurrency()" {{ $disabled }}>
+                                    <option value="idr"    
+                                    @if (($clientProg->program->prog_payment == "session" OR $clientProg->program->prog_payment == "idr") && !isset($invoice))
+                                        {{ "selected" }}
+                                    @elseif (isset($invoice) && $invoice->inv_category == "idr")
+                                        {{ "selected" }}
+                                    @endif
+                                        >IDR</option>
                                     <option value="other"
                                         @if ($clientProg->program->prog_payment != 'session' &&
                                             $clientProg->program->prog_payment != 'idr' &&
@@ -133,10 +176,8 @@
                                 @enderror --}}
                             </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
-                                <label for="">Currency Detail <sup class="text-danger">*</sup></label>
-                                {{ old('currency') }}
-                                <select class="select w-100" name="currency[]" id="currency_detail"
-                                    {{ $disabled !== null ? $disabled : 'onchange="checkCurrencyDetail()"' }}>
+                                <label for="">Currency Detail <sup class="text-danger">*</sup></label> {{ old('currency') }}
+                                <select class="select w-100" name="currency_detail" id="currency_detail" {{ $disabled !== null ? $disabled : 'onchange="checkCurrencyDetail()"' }}>
                                     <option data-placeholder="true"></option>
                                     <option value="usd"
                                         @if (isset($invoice->currency) && $invoice->currency == 'usd') {{ 'selected' }}
@@ -602,6 +643,116 @@
             @if (old('inv_paymentmethod'))
                 $("#payment_method").val("{{ old('inv_paymentmethod') }}").trigger('change');
             @endif
+
+            $("#request-acc").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'idr'
+                        }
+                    })
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+            })
+
+            $("#request-acc-other").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'other'
+                        }
+                    })
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+            })
+
+            $("#send-inv-client").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+
+                axios
+                    .get('{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id]) }}')
+                    .then(response => { 
+                        swal.close()
+                        notification('success', 'Invoice has been send to client')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                        swal.close()
+                    })
+            })
+
+            $("#print").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'idr'
+                        }
+                    })
+                    .then(response => {
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+            })
+
+            $("#print-other").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'other'
+                        }
+                    })
+                    .then(response => {
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+            })
         })
 
         $("#submit-form").click(function(e) {
@@ -638,6 +789,8 @@
 
 
             $("#invoice-form").submit()
+
+            
         })
     </script>
 @endsection

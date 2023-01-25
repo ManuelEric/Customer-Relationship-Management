@@ -6,7 +6,7 @@
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/school-program/status/needed') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Invoice
+            <i class="bi bi-arrow-left me-2"></i> Invoice 
         </a>
     </div>
 
@@ -33,16 +33,39 @@
                             <button class="btn btn-sm btn-outline-danger rounded mx-1"
                                 onclick="confirmDelete('{{ 'invoice/school-program/' . $schoolProgram->id . '/detail' }}', {{ $invoiceSch->invb2b_num }})">
                                 <i class="bi bi-trash2 me-1"></i> Delete
-                            </button>
+                            </button>    
+                        @endif
+                    </div>
+                    <div class="d-flex justify-content-center mt-2">
+                        @if (isset($invoiceSch))
+                            @if($invoiceSch->currency != 'idr')
+                                {{-- <a href="{{  route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" 
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                    <i class="bi bi-printer me-1"></i> Print Others
+                                </a> --}}
+                                <a href="#export" id="print_other"
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                    <i class="bi bi-printer me-1"></i> Print Others
+                                </a>
+                            @endif
+                            <a href="#export" id="print_idr"
+                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                <i class="bi bi-printer me-1"></i> Print IDR
+                            </a>
                         @endif
                     </div>
                 </div>
             </div>
 
-            @include('pages.invoice.school-program.detail.refund')
-            @include('pages.invoice.school-program.form-detail.client')
+            @if(isset($invoiceSch->receipt))
+                @if($invoiceSch->receipt->receipt_status == '2')
+                    @include('pages.invoice.school-program.detail.refund')
+                @endif
+            @endif
 
-            @if (isset($invoiceSch) && $invoiceSch->invb2b_pm == 'installment')
+            @include('pages.invoice.school-program.form-detail.client')
+            
+            @if(isset($invoiceSch) && $invoiceSch->invb2b_pm == 'Installment')
                 @include('pages.invoice.school-program.form-detail.installment-list')
             @endif
         </div>
@@ -56,32 +79,24 @@
                             Invoice
                         </h6>
                     </div>
-                    @if (isset($invoiceSch) && $invoiceSch->invb2b_pm == 'full')
-                        <div class="">
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
-                                <i class="bi bi-plus"></i> Receipt
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning py-1">
-                                <i class="bi bi-eye"></i> View Receipt
-                            </button>
+                    <div class="">
+                            @if(isset($invoiceSch) && !isset($invoiceSch->receipt) && $invoiceSch->invb2b_pm == 'Full Payment' && $status != 'edit')
+                                <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt();setIdentifier('{{ $invoiceSch->invb2b_num }}')">
+                                    <i class="bi bi-plus"></i> Receipt
+                                </button>
+                            @endif
+                            @if(isset($invoiceSch->receipt)  && $status != 'edit' && $invoiceSch->invb2b_pm == 'Full Payment')
+                                <a href="{{ url('receipt/school-program/'.$invoiceSch->receipt->id) }}" class="btn btn-sm btn-outline-warning py-1">
+                                    <i class="bi bi-eye"></i> View Receipt
+                                </a>
+                            @endif
                         </div>
-                    @endif
                 </div>
 
                 <div class="card-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+     
 
-                    <form
-                        action="{{ url($status == 'edit' ? 'invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num : 'invoice/school-program/' . $schoolProgram->id . '/detail') }}"
-                        method="POST">
+                    <form action="{{ url($status == 'edit' ? 'invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num : 'invoice/school-program/' . $schoolProgram->id . '/detail') }}" method="POST" id="invoice-form">
                         @csrf
                         @if ($status == 'edit')
                             @method('put')
@@ -148,9 +163,9 @@
                             </div>
 
                             <div class="col-md-12">
-                                <input type="hidden" name="" id="total_idr">
-                                <input type="hidden" name="" id="total_other">
-
+                                <input type="hidden" name="" id="total_idr" value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totpriceidr : null }}">
+                                <input type="hidden" name="" id="total_other" value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totprice : null }}">
+                                    
                             </div>
 
                             <div class="col-md-5 mb-3">
@@ -159,8 +174,8 @@
                                     {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}
                                     onchange="checkPayment()">
                                     <option data-placeholder="true"></option>
-                                    <option value="full">Full Payment</option>
-                                    <option value="installment">Installment</option>
+                                        <option value="Full Payment">Full Payment</option>
+                                        <option value="Installment">Installment</option>
                                 </select>
                                 @error('invb2b_pm')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -190,15 +205,17 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="col-md-12">
-                                {{-- IDR  --}}
-                                <div class="installment-card d-none installment-idr">
-                                    @include('pages.invoice.school-program.form-detail.installment-idr')
-                                </div>
-
-                                <div class="installment-card d-none installment-other">
-                                    @include('pages.invoice.school-program.form-detail.installment-other')
+                            
+                                <div class="col-md-12">
+                                    {{-- IDR  --}}
+                                    <div class="installment-card installment-idr d-none">
+                                        @include('pages.invoice.school-program.form-detail.installment-idr')
+                                    </div>
+                                    
+                                    <div class="installment-card installment-other d-none">
+                                        @include('pages.invoice.school-program.form-detail.installment-other')
+                                    </div>
+                                    
                                 </div>
 
                             </div>
@@ -219,7 +236,7 @@
                             </div>
                             @if (empty($invoiceSch) || $status == 'edit')
                                 <div class="mt-3 text-end">
-                                    <button type="submit" class="btn btn-sm btn-primary rounded">
+                                    <button type="submit" class="btn btn-sm btn-primary rounded" id="submit-form">
                                         <i class="bi bi-save2 me-2"></i> Submit
                                     </button>
                                 </div>
@@ -229,7 +246,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
     {{-- Add Receipt  --}}
     <div class="modal fade" id="addReceipt" data-bs-backdrop="static" data-bs-keyboard="false"
@@ -243,11 +259,14 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="#" method="POST" id="receipt">
+                    <form action="{{ isset($invoiceSch) ? route('receipt.school.store', ['invoice' => $invoiceSch->invb2b_num ]) : '' }}" method="POST" id="receipt">
                         @csrf
-                        <div class="put"></div>
+                        {{-- <input type="hidden" name="schprog_id" value="{{ $schoolProgram->id }}"> --}}
+                        <input type="hidden" name="identifier" id="identifier">
+                        <input type="hidden" name="currency" value="{{ isset($invoiceSch->currency) ? $invoiceSch->currency : null }}">
+
                         <div class="row g-2">
-                            <div class="col-md-3 receipt-other d-none">
+                            <div class="col-md-6 receipt-other d-none">
                                 <div class="mb-1">
                                     <label for="">
                                         Amount <sup class="text-danger">*</sup>
@@ -256,12 +275,16 @@
                                         <span class="input-group-text currency-icon" id="basic-addon1">
                                             $
                                         </span>
-                                        <input type="text" name="receipt" id="receipt_amount_other"
-                                            class="form-control" required value="">
+                                        <input type="number" name="receipt_amount" id="receipt_amount_other"
+                                            oninput="wordReceipt()"
+                                            class="form-control" value="">
+                                        @error('receipt_amount')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <div class="mb-1">
                                     <label for="">
                                         Amount <sup class="text-danger">*</sup>
@@ -270,8 +293,12 @@
                                         <span class="input-group-text" id="basic-addon1">
                                             Rp
                                         </span>
-                                        <input type="text" name="receipt" id="receipt_amount" class="form-control"
-                                            required value="">
+                                        <input type="number" name="receipt_amount_idr" id="receipt_amount"
+                                            oninput="wordReceipt()"
+                                            class="form-control" value="">
+                                        @error('receipt_amount_idr')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -280,8 +307,8 @@
                                     <label for="">
                                         Date <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="date" name="receipt" id="receipt_date"
-                                        class="form-control form-control-sm rounded" required value="">
+                                    <input type="date" name="receipt_date" value="{{ date('Y-m-d') }}" id="receipt_date"
+                                        class="form-control form-control-sm rounded">
                                 </div>
                             </div>
                             <div class="col-md-12 receipt-other d-none">
@@ -289,8 +316,12 @@
                                     <label for="">
                                         Word <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_word_other"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
+                                    <input type="text" name="receipt_words" id="receipt_word_other"
+                                        class="form-control form-control-sm rounded" value="" readonly>
+                                    @error('receipt_words')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -298,8 +329,11 @@
                                     <label for="">
                                         Word <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_word"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
+                                    <input type="text" name="receipt_words_idr" id="receipt_word"
+                                        class="form-control form-control-sm rounded" value="" readonly>
+                                    @error('receipt_words_idr')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -307,12 +341,15 @@
                                     <label for="">
                                         Payment Method <sup class="text-danger">*</sup>
                                     </label>
-                                    <select name="" class="modal-select w-100" id="receipt_payment"
+                                    <select name="receipt_method" class="modal-select w-100" id="receipt_method"
                                         onchange="checkPaymentReceipt()">
                                         <option value="Wire Transfer">Wire Transfer</option>
                                         <option value="Cash">Cash</option>
                                         <option value="Cheque">Cheque</option>
                                     </select>
+                                    @error('receipt_method')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -320,8 +357,11 @@
                                     <label for="">
                                         Cheque No <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_cheque"
-                                        class="form-control form-control-sm rounded" required value="" disabled>
+                                    <input type="text" name="receipt_cheque" id="receipt_cheque"
+                                        class="form-control form-control-sm rounded" value="" disabled>
+                                    @error('receipt_cheque')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -330,7 +370,7 @@
                             <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
                                 <i class="bi bi-x-square me-1"></i>
                                 Cancel</a>
-                            <button type="submit" class="btn btn-primary btn-sm">
+                            <button type="submit" value="receipt" class="btn btn-primary btn-sm">
                                 <i class="bi bi-save2 me-1"></i>
                                 Save</button>
                         </div>
@@ -341,16 +381,72 @@
     </div>
 
     <script>
+        function setIdentifier(id)
+        {
+            $("#identifier").val(id);
+        }
+
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
             });
-        });
 
+            $("#receipt_amount_other").on('keyup', function() {
+                var val = $(this).val()
+                var currency = $("#receipt input[name=currency]").val()
+                var curs_rate = $("#current_rate").val();
+                switch (currency) {
+                    case 'usd':
+                        currency = ' Dollar';
+                        break;
+                    case 'sgd':
+                        currency = ' Singapore Dollar';
+                        break;
+                    case 'gbp':
+                        currency = ' Pound';
+                        break;
+                    default:
+                        currency = '';
+                        totprice = '-'
+                        break;
+                }  
+                $("#receipt_word_other").val(wordConverter(val) + currency)
+                $("#receipt_amount").val(val*curs_rate)
+                $("#receipt_word").val(wordConverter(val*curs_rate) + " Rupiah")
+            })
+
+            $("#receipt_amount").on('keyup', function() {
+                var val = $(this).val()
+                $("#receipt_word").val(wordConverter(val) + " Rupiah")
+            })
+        });
+        
+        
+        // function wordReceipt() {
+        //     let curr = $('#select_currency_receipt').val() 
+        //     let price;
+        //     if(curr == 'other'){
+        //         let price_other = $('#receipt_amount_other').val()
+        //         let kurs = $('#current_rate').val()
+        //         let detail = $('#currency_detail').val()
+        //         price = $('#receipt_amount').val(price_other*kurs)
+        //         $('#receipt_word_other').val(wordConverter(price_other)+ ' ' + currencyText(detail))
+        //         $('#receipt_word').val(wordConverter(price_other*kurs)+ ' Rupiah')
+        //         $('#receipt_amount').addAttr('readonly')
+        //     }else{
+        //         price = $('#receipt_amount').val()
+        //         $('#receipt_word').val(wordConverter(price)+ ' Rupiah')
+        //         $('#receipt_amount').removeAttr('readonly')
+        //     }
+            
+        // }
+        
         function checkCurrency() {
             let cur = $('#currency').val()
+            checkPayment();
+            // console.log()
             $('.invoice-currency').addClass('d-none')
             if (cur == 'other') {
                 $('.invoice-other').removeClass('d-none')
@@ -370,14 +466,15 @@
         }
 
         function checkPayment() {
-            let cur = $('#currency').val()
             let method = $('#payment_method').val()
+            let cur = $('#currency').val()
+            // console.log(cur)
 
             $('.installment-card').addClass('d-none')
-            if (method == 'installment') {
+            if (method == 'Installment') {
                 if (cur == 'idr') {
                     $('.installment-idr').removeClass('d-none')
-                } else {
+                } else if(cur == 'other') {
                     $('.installment-other').removeClass('d-none')
                 }
             }
@@ -386,31 +483,41 @@
         function checkReceipt() {
             let cur = $('#currency').val()
             let detail = $('#currency_detail').val()
-
+            
             $('#addReceipt').modal('show')
             if (cur == 'other') {
                 $('.receipt-other').removeClass('d-none')
                 $('.currency-icon').html(currencySymbol(detail))
+                // $('input[name=select_currency_receipt]').val('other')
             } else {
+                // $('input[name=select_currency_receipt]').val('idr')
                 $('.receipt-other').addClass('d-none')
             }
 
         }
 
         function checkPaymentReceipt() {
-            let payment = $('#receipt_payment').val()
+            let payment = $('#receipt_method').val()
             if (payment == 'Cheque') {
                 $('#receipt_cheque').removeAttr('disabled')
             } else {
                 $('#receipt_cheque').attr('disabled', 'disabled')
             }
         }
+
+        
     </script>
 
-    @if (isset($invoiceSch->currency))
+    @if(isset($invoiceSch->currency) && $invoiceSch->currency != 'idr') 
         <script>
             $(document).ready(function() {
                 $('#currency').val('other').trigger('change')
+            })
+        </script>
+    @else
+        <script>
+            $(document).ready(function(){
+                $('#currency').val('idr').trigger('change')
             })
         </script>
     @endif
@@ -423,19 +530,139 @@
         </script>
     @endif
 
-    @if (!empty(old('invb2b_pm')))
+
+    {{-- receipt --}}
+
+    @if(
+        $errors->has('receipt_amount') | 
+        $errors->has('receipt_amount_idr') | 
+        $errors->has('receipt_words') | 
+        $errors->has('receipt_words_idr') |
+        $errors->has('receipt_method') |
+        $errors->has('receipt_cheque')
+        )
+                
         <script>
-            $(document).ready(function() {
-                $('#payment_method').val("{{ old('invb2b_pm') }}").trigger('change')
+            $(document).ready(function(){
+                $('#addReceipt').modal('show'); 
+                checkReceipt();
+                
+                $("#identifier").val("{{old('identifier')}}");
+              
+            })
+        </script>
+
+    @endif
+
+    @if(!empty(old('receipt_method')))
+        <script>
+            $(document).ready(function(){
+                $('#receipt_method').val("{{old('receipt_method')}}").trigger('change')
             })
         </script>
     @endif
 
-    @if (!empty(old('select_currency')))
+    @if(!empty(old('invb2b_pm')))
         <script>
-            $(document).ready(function() {
-                $('#currency').val("{{ old('select_currency') }}").trigger('change')
+            $(document).ready(function(){
+                $('#payment_method').val("{{old('invb2b_pm')}}").trigger('change')
             })
+
         </script>
     @endif
+
+        <script>
+            $(document).ready(function(){
+                @if(!empty(old('select_currency')) )
+                    $('#currency').val("{{old('select_currency')}}").trigger('change')
+                @endif
+
+                $("#print_other").on('click', function(e) {
+                e.preventDefault();
+
+                @if (isset($invoiceSch))
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}', {
+                        responseType: 'arraybuffer'
+                    })
+                    .then(response => {
+                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+                })
+
+                $("#print_idr").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}', {
+                        responseType: 'arraybuffer'
+                    })
+                    .then(response => {
+                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+                })
+
+                @endif
+            })
+
+             $("#submit-form").click(function(e) {
+            e.preventDefault();
+
+            var currency = $("#currency").val()
+            if (currency == "idr") {
+
+                var tot_percent = 0;
+                $('.percentage').each(function() {
+                    tot_percent += parseInt($(this).val())
+                })
+    
+                if (tot_percent < 100) {
+                    notification('error', 'Installment amount is not right. Please double check before create invoice')
+                    return;
+                }
+
+            } else if (currency == "other") {
+
+                var tot_percent = 0;
+                $('.percentage-other').each(function() {
+                    tot_percent += parseInt($(this).val())
+                })
+    
+                if (tot_percent < 100) {
+                    notification('error', 'Installment amount is not right. Please double check before create invoice')
+                    return;
+                }
+
+            }
+
+
+            $("#invoice-form").submit()
+        })
+        </script>
+    
+        
 @endsection

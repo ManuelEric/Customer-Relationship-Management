@@ -274,14 +274,14 @@
                 }
             })
 
-            if (status == true) {
-                var icon = "success"
-            } else {
-                var icon = "error"
-            }
+            // if (status == true) {
+            //     var icon = "success"
+            // } else {
+            //     var icon = "error"
+            // }
 
             Toast.fire({
-                icon: icon,
+                icon: status,
                 title: message
             })
         }

@@ -160,11 +160,14 @@ class ClientEventController extends Controller
             $clientEvents['lead_id'] = $request->kol_lead_id;
             
         }
+        # LS018 = external edufair
         else if($request->lead_id != 'LS018' && $request->lead_id != 'kol'){
             
             $clientEvents['eduf_id'] = null;
             
-        }else if($request->lead_id != "kol" && $request->lead_id == 'LS018'){
+        }
+        # LS018 = external edufair
+        else if($request->lead_id != "kol" && $request->lead_id == 'LS018'){
             
             $clientEvents['event_id'] = null;
 

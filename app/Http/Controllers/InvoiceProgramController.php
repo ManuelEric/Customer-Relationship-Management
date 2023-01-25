@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAttachmentRequest;
 use App\Http\Requests\StoreInvoiceProgramRequest;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
@@ -10,10 +11,14 @@ use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Models\InvoiceProgram;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
+use PDF;
 
 class InvoiceProgramController extends Controller
 {
@@ -59,9 +64,13 @@ class InvoiceProgramController extends Controller
         $clientProgId = $request->clientprog_id;
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientProgId);
 
+        $raw_currency = [];
+        $raw_currency[0] = $request->currency;
+        $raw_currency[1] = $request->currency_detail;
+
         # fetching currency till get the currency
         $currency = null;
-        foreach ($request->currency as $key => $val) {
+        foreach ($raw_currency as $key => $val) {
             if ($val != NULL)
                 $currency = $val != "other" ? $val : null;
         }
@@ -222,6 +231,7 @@ class InvoiceProgramController extends Controller
             [
                 'status' => 'create',
                 'clientProg' => $clientProg,
+                'invoice' => null,
             ]
         );
     }
@@ -412,8 +422,178 @@ class InvoiceProgramController extends Controller
         return Redirect::to('invoice/client-program?s=needed')->withSuccess('Invoice has been deleted');
     }
 
-    public function export()
+    public function export(Request $request)
     {
-        return view('pages.invoice.client-program.export.invoice-pdf', ['is_session' => true]);
+        $clientprog_id = $request->route('client_program');
+        $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
+        $invoice_id = $clientProg->invoice->inv_id;
+
+        $type = $request->get('type');
+
+        if ($type == "idr")
+            $view = 'pages.invoice.client-program.export.invoice-pdf';
+        else
+            $view = 'pages.invoice.client-program.export.invoice-pdf-foreign';
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+        return $pdf->download($invoice_id.".pdf");
+
+        // return view('pages.invoice.client-program.export.invoice-pdf')->with(
+        //     [
+        //         'clientProg' => $clientProg, 'companyDetail' => $companyDetail, 'is_session' => true
+        //     ]
+        // );
+    }
+
+    public function requestSign(Request $request)
+    {
+        $clientprog_id = $request->route('client_program');
+        $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
+        $invoice_id = $clientProg->invoice->inv_id;
+
+        $type = $request->get('type');
+
+        if ($type == "idr")
+            $view = 'pages.invoice.client-program.export.invoice-pdf';
+        else
+            $view = 'pages.invoice.client-program.export.invoice-pdf-foreign';
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $data['email'] = env('DIRECTOR_EMAIL');
+        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['title'] = "Request Sign of Invoice Number : ".$invoice_id;
+        $data['param'] = [
+            'clientprog_id' => $clientprog_id
+        ];
+
+        try {
+
+            $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+            
+            Mail::send('pages.invoice.client-program.mail.view', $data, function($message) use ($data, $pdf, $invoice_id) {
+                $message->to($data['email'], $data['recipient'])
+                        ->subject($data['title'])
+                        ->attachData($pdf->output(), $invoice_id.'.pdf');
+            });
+        
+        } catch (Exception $e) {
+
+            Log::info('Failed to request sign invoice : ' . $e->getMessage());
+            return false;
+
+        }
+
+        return true;
+
+    }
+
+    public function createSignedAttachment(Request $request)
+    {
+        if (Session::token() != $request->get('token')) {
+            return "Your session token is expired";
+        }
+
+        $clientprog_id = $request->route('client_program');
+        $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
+
+        return view('pages.invoice.client-program.upload.view')->with(
+            [
+                'clientProg' => $clientProg,
+            ]
+        );
+    }
+
+    public function storeSignedAttachment(StoreAttachmentRequest $request)
+    {
+        $invoice_id = $request->invoice_id;
+        $attachmentDetails = $request->only([
+            'signed_attachment',
+        ]);
+
+        $file_format = $request->file('signed_attachment')->getClientOriginalExtension();
+
+        DB::beginTransaction();
+        try {
+
+            # proses store attachment here
+            if (!$request->hasFile('signed_attachment')) {
+                throw new Exception('Please upload your file');
+            }
+
+            $file_name = str_replace('/', '_', $invoice_id);
+            $file_format = $request->file('signed_attachment')->getClientOriginalExtension();
+            $file_path = $request->file('signed_attachment')->storeAs('public/uploaded_file/invoice/', $file_name . '.' . $file_format);
+
+            unset($attachmentDetails['signed_attachment']);
+            $attachmentDetails['attachment'] = $file_name . '.' . $file_format;
+            $this->invoiceProgramRepository->updateInvoice($invoice_id, $attachmentDetails);
+            
+
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::info('Upload signed attachment invoice failed : ' . $e->getMessage());
+            return false;
+
+        }
+
+        return true;
+    }
+
+    public function download(Request $request)
+    {
+        $clientprog_id = $request->client_program;
+        $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
+        $invoice = $clientProg->invoice;
+
+        // return storage_path('app/public/uploaded_file/invoice/'.$invoice->attachment);
+        return response()->download(storage_path('app/public/uploaded_file/invoice/'.$invoice->attachment));
+    }
+
+    public function sendToClient(Request $request)
+    {
+        $clientprog_id = $request->client_program;
+        $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
+        $invoice = $clientProg->invoice;
+        $invoice_id = $invoice->inv_id;
+
+        $data['email'] = env('DIRECTOR_EMAIL');
+        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['title'] = "ALL-In Eduspace | Invoice of program : ".$clientProg->program_name;
+        $data['param'] = [
+            'clientprog_id' => $clientprog_id
+        ];
+
+        try {
+
+            Mail::send('pages.invoice.client-program.mail.client-view', $data, function($message) use ($data, $invoice) {
+                $message->to($data['email'], $data['recipient'])
+                        ->subject($data['title'])
+                        ->attach(storage_path('app/public/uploaded_file/invoice/'.$invoice->attachment));
+            });
+
+        } catch (Exception $e) {
+            
+            Log::info('Failed to send invoice to client : ' . $e->getMessage());
+            return false;
+
+        }
+
+        return true;
     }
 }

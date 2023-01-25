@@ -44,7 +44,7 @@ class SchoolProgram extends Model
     // public static function whereSchoolProgramId($id)
     // {
     //     if (is_array($id) && empty($id)) return new Collection;
-        
+
     //     $instance = new static;
 
     //     return $instance->newQuery()->where('id', $id)->first();
@@ -70,6 +70,11 @@ class SchoolProgram extends Model
         return $this->belongsTo(Reason::class, 'reason_id', 'reason_id');
     }
 
+    public function invoiceB2b()
+    {
+        return $this->belongsTo(Invb2b::class, 'schprog_id', 'id');
+    }
+
     public function school_speaker()
     {
         return $this->belongsToMany(SchoolDetail::class, 'tbl_agenda_speaker', 'sch_prog_id', 'sch_pic_id')->using(AgendaSpeaker::class);
@@ -84,5 +89,4 @@ class SchoolProgram extends Model
     {
         return $this->belongsToMany(User::class, 'tbl_agenda_speaker', 'sch_prog_id', 'empl_id')->using(AgendaSpeaker::class);
     }
-
 }

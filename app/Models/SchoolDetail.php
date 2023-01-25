@@ -40,4 +40,9 @@ class SchoolDetail extends Model
     {
         return $this->belongsToMany(SchoolProg::class, 'tbl_agenda_speaker', 'sch_pic_id', 'sch_prog_id')->using(AgendaSpeaker::class);
     }
+
+    public function pic_school_visit()
+    {
+        return $this->belongsToMany(School::class, 'tbl_sch_visit', 'schdetail_id', 'sch_id')->withTimestamps();
+    }
 }

@@ -571,7 +571,8 @@ class ClientProgramController extends Controller
 
                 # when program status is refund
             case 3:
-                $clientProgramDetails['refund_date'] = $request->failed_date;
+                $clientProgramDetails['refund_date'] = $request->refund_date;
+                $clientProgramDetails['refund_notes'] = $request->refund_notes;
                 $clientProgramDetails['reason_id'] = $request->reason_id;
                 $clientProgramDetails['other_reason'] = $request->other_reason;
                 break;
