@@ -131,3 +131,8 @@ Route::prefix('school-program')->name('invoice-sch.')->group(function () {
     Route::get('status/{status}', [InvoiceSchoolController::class, 'index'])->name('index');
     Route::get('{invoice}/export/{currency}', [InvoiceSchoolController::class, 'export'])->name('export');
 });
+
+
+Route::get('refund/status/{status?}', function ($status = null) {
+    return view('pages.invoice.refund.index', ['status' => $status]);
+});

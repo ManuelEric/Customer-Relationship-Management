@@ -13,7 +13,11 @@
 
         <div class="row">
             <div class="col-md-6">
-                <canvas id="revenue_chart"></canvas>
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="revenue_chart"></canvas>
+                    </div>
+                </div>
             </div>
             <div class="col-md-6">
                 <div class="card">

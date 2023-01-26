@@ -225,7 +225,8 @@
                             <span class="menu-title">Program</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="collapse {{ Request::is('*/program/*') || Request::is('program/*') ? 'show' : 'hide' }}" id="program">
+                        <div class="collapse {{ Request::is('*/program/*') || Request::is('program/*') ? 'show' : 'hide' }}"
+                            id="program">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('program/referral*') ? 'active' : '' }}"
@@ -284,6 +285,12 @@
                                         class="nav-link {{ Request::is('invoice/referral*') ? 'active' : '' }}"
                                         href="{{ url('invoice/referral/status/needed') }}">
                                         Referral
+                                    </a>
+                                </li>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('invoice/refund*') ? 'active' : '' }}"
+                                        href="{{ url('invoice/refund/status/needed') }}">
+                                        Refund
                                     </a>
                                 </li>
                             </ul>
