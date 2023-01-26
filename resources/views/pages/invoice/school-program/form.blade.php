@@ -414,6 +414,7 @@
         </div>
     </div>
 
+
     <script>
         function setIdentifier(id)
         {
@@ -667,10 +668,12 @@
                 $("#send-inv-client").on('click', function(e) {
                     e.preventDefault()
                     Swal.showLoading()
-
+                    // var attachment = "{{ route('invoice-sch.download', ['invoice' => $invoiceSch->invb2b_num]) }}";
+                    // var link = 'https://api.whatsapp.com/send?phone=6285159825532&text=Test%20123%20%0Alink%20download%20';
                     axios
                         .get('{{ route('invoice-sch.send_to_client', ['invoice' => $invoiceSch->invb2b_num]) }}')
-                        .then(response => { 
+                        .then(response => {
+                            // window.open(link + attachment) 
                             swal.close()
                             notification('success', 'Invoice has been send to client')
                         })
@@ -724,7 +727,7 @@
                 
             @endif
 
-             $("#submit-form").click(function(e) {
+            $("#submit-form").click(function(e) {
             e.preventDefault();
 
             var currency = $("#currency").val()

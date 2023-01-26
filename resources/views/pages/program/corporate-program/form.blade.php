@@ -189,6 +189,16 @@
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
+                                     <div class="col-md-6 refund_status d-none">
+                                    <small>Refund Date <sup class="text-danger">*</sup> </small>
+                                    <input type="date" name="refund_date" id=""
+                                        class="form-control form-control-sm rounded"
+                                        value="{{ isset($partnerProgram->refund_date) ? $partnerProgram->refund_date :  old('refund_date') }}"
+                                        {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
+                                    @error('refund_date')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
 
 
                                     {{-- Refund --}}
@@ -247,7 +257,7 @@
                                             </div>
         
                                     </div>
-                                    <div class="col-md-12 refund_status d-none my-2">
+                                    <div class="col-md-12 refund_status d-none my-3">
                                         <label for="">
                                         Refund  Notes
                                         </label>
@@ -589,20 +599,13 @@
     @endif
 
 
-    @if(
-        $errors->has('denied_date') || 
-        $errors->has('reason_id') ||
-        $errors->has('other_reason')
-        )
-        
+    @if($errors->has('refund_date') || $errors->has('reason_refund_id') || $errors->has('other_reason_refund'))
         <script>
             $(document).ready(function(){
-                $('#approach_status').val('2').trigger('change')
+                $('#approach_status').val('3').trigger('change')
             })
 
         </script>
-
-
     @endif
 
     @if($errors->has('notes_reason'))

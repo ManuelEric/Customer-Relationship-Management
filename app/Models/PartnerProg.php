@@ -32,6 +32,8 @@ class PartnerProg extends Model
         'total_fee',
         'success_date',
         'denied_date',
+        'refund_date',
+        'refund_notes',
         'empl_id',
     ];
 
@@ -65,4 +67,8 @@ class PartnerProg extends Model
         return $this->belongsTo(Reason::class, 'reason_id', 'reason_id');
     }
 
+    public function corp()
+    {
+        return $this->belongsTo(Corporate::class, 'corp_id', 'corp_id');
+    }
 }

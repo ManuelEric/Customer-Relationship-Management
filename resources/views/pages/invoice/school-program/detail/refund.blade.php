@@ -62,15 +62,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                {{-- @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif --}}
+
                 <form action="{{ isset($invoiceSch) ? route('invoice-sch.refund', ['invoice' => $invoiceSch->invb2b_num]) : '' }}" method="POST">
                     @csrf
                     <div class="row">

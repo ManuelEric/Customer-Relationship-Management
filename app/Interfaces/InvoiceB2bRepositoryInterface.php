@@ -6,6 +6,8 @@ interface InvoiceB2bRepositoryInterface
 {
     public function getAllInvoiceNeededSchDataTables();
     public function getAllInvoiceSchDataTables();
+    public function getAllInvoiceNeededCorpDataTables();
+    public function getAllInvoiceCorpDataTables();
     public function getInvoiceB2bByInvId($invb2b_id);
     public function getInvoiceB2bBySchProg($schprog_id);
     public function getInvoiceB2bByPartnerProg($partnerprog_id);

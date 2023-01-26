@@ -12,7 +12,7 @@ class Corporate extends Model
 
     protected $table = 'tbl_corp';
     protected $primaryKey = 'corp_id';
-    
+
     public $incrementing = false;
 
     /**
@@ -40,7 +40,7 @@ class Corporate extends Model
     public static function whereCorpId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
-        
+
         $instance = new static;
 
         return $instance->newQuery()->where('corp_id', $id)->first();
@@ -64,5 +64,10 @@ class Corporate extends Model
     public function clientProgram()
     {
         return $this->hasMany(ClientProgram::class, 'partner_id', 'corp_id');
+    }
+
+    public function partnerProgram()
+    {
+        return $this->hasMany(partnerProg::class, 'corp_id', 'corp_id');
     }
 }

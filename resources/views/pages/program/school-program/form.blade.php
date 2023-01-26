@@ -643,7 +643,7 @@
 
     @endif
 
-    @if($errors->has('refund_date'))
+    @if($errors->has('refund_date') || $errors->has('reason_refund_id') || $errors->has('other_reason_refund'))
         <script>
             $(document).ready(function(){
                 $('#approach_status').val('3').trigger('change')
