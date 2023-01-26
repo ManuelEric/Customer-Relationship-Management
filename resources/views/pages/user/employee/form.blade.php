@@ -10,39 +10,64 @@
         </a>
     </div>
 
-
+    @if($errors->any())
+        {{ implode('', $errors->all('<div>:message</div>')) }}
+    @endif  
     <div class="row">
         <div class="col-md-3 mb-3">
             <div class="card rounded mb-3">
                 <div class="card-body">
                     <img src="{{ asset('img/mentee.jpg') }}" class="w-100">
-                    <h4 class="text-center">Add Employee</h4>
+                    <h4 class="text-center">
+                        {{ isset($user) ? "Edit" : "Add" }}
+                        {{ ucfirst(Request::route('user_role')) }}</h4>
 
                     <div class="text-center mt-2">
-                        <button class="btn btn-sm btn-success">
-                            <i class="bi bi-check"></i>
-                            Activate</button>
-                        <button class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-x"></i>
-                            Deactivate</button>
+                        @if (isset($user))
+                            <button @class([
+                                'btn btn-sm btn-success',
+                                'd-none' => $user->active == 1,
+                            ]) id="activate-user">
+                                <i class="bi bi-check"></i>
+                                Activate</button>
+                                
+                            <button @class([
+                                'btn btn-sm btn-outline-danger',
+                                'd-none' => $user->active == 0,
+                            ]) id="deactivate-user">
+                                <i class="bi bi-x"></i>
+                                Deactivate</button>
+                        @endif
                     </div>
                 </div>
             </div>
+            @if (isset($user) && count($user->user_type) > 0)
             <div class="card rounded mb-3">
                 <div class="card-header">
                     <h5 class="p-0 m-0">Employee Type</h5>
                 </div>
                 <div class="card-body">
                     <div class="list-group">
-                        <div class="list-group-item">
-                            Probation
-                            <div class="">
-                                20 April 2022 - 25 July 2024
+                        @foreach ($user->user_type as $type)
+                            <div @class([
+                                'list-group-item',
+                                'bg-success text-light' => $type->pivot->status == 1
+                            ])>
+                                {{ $type->type_name }}
+                                <div class="">
+                                    {{ date('d M Y', strtotime($type->pivot->start_date)) }}
+                                    @if ($type->pivot->end_date != NULL)
+                                    -
+                                    {{ date('d M Y', strtotime($type->pivot->end_date)) }}
+                                    @endif
+                                </div>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
+            @endif
+            @if (isset($user) && $user->roles()->where('role_name', 'mentor')->count() > 0)
             <div class="card rounded mb-3">
                 <div class="card-header">
                     <h5 class="p-0 m-0">Mentees</h5>
@@ -51,6 +76,7 @@
                     <h2>24</h2>
                 </div>
             </div>
+            @endif
         </div>
         <div class="col-md-9">
             <div class="card rounded mb-3">
@@ -58,12 +84,15 @@
                     <h4 class="m-0 p-0">Employee Detail</h4>
                 </div>
                 <div class="card-body">
-                    <form action="">
+                    <form action="{{ isset($user) ? route('user.update', ['user_role' => Request::route('user_role'), 'user' => $user->id]) : route('user.store', ['user_role' => Request::route('user_role')]) }}" method="POST" enctype="multipart/form-data" id="user-form">
                         @csrf
+                        @if (isset($user))
+                            @method('PUT')
+                        @endif
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="">First Name</label>
-                                <input type="text" name="first_name" id=""
+                                <label for="">First Name <sup class="text-danger">*</sup></label>
+                                <input type="text" name="first_name" value="{{ isset($user->first_name) ? $user->first_name : old('first_name') }}"
                                     class="form-control form-control-sm rounded">
                                 @error('first_name')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -71,47 +100,47 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="">Last Name</label>
-                                <input type="text" name="last_name" id=""
+                                <input type="text" name="last_name" value="{{ isset($user->last_name) ? $user->last_name : old('first_name') }}"
                                     class="form-control form-control-sm rounded">
                                 @error('last_name')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="">Email</label>
-                                <input type="email" name="email" id=""
+                                <label for="">Email <sup class="text-danger">*</sup></label>
+                                <input type="email" name="email" value="{{ isset($user->email) ? $user->email : old('email') }}"
                                     class="form-control form-control-sm rounded">
                                 @error('email')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="">Phone Number</label>
-                                <input type="text" name="phone_number" id=""
+                                <label for="">Phone Number <sup class="text-danger">*</sup></label>
+                                <input type="text" name="phone" value="{{ isset($user->phone) ? $user->phone : old('phone') }}"
                                     class="form-control form-control-sm rounded">
-                                @error('phone_number')
+                                @error('phone')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="">Emergency Contact</label>
-                                <input type="text" name="emergency_contact" id=""
+                                <label for="">Emergency Contact <sup class="text-danger">*</sup></label>
+                                <input type="text" name="emergency_contact" value="{{ isset($user->emergency_contact) ? $user->emergency_contact : old('emergency_contact') }}"
                                     class="form-control form-control-sm rounded">
                                 @error('emergency_contact')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="">Date of Birth</label>
-                                <input type="date" name="dob" id=""
+                                <label for="">Date of Birth <sup class="text-danger">*</sup></label>
+                                <input type="date" name="datebirth" value="{{ isset($user->datebirth) ? $user->datebirth : old('datebirth') }}" 
                                     class="form-control form-control-sm rounded">
-                                @error('dob')
+                                @error('datebirth')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                             <div class="col-md-12 mb-3">
-                                <label for="">Address</label>
-                                <textarea name="address" id=""></textarea>
+                                <label for="">Address <sup class="text-danger">*</sup></label>
+                                <textarea name="address">{{ isset($user->address) ? $user->address : old('address') }}</textarea>
                                 @error('address')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -125,13 +154,14 @@
                             <div class="col-md-12 mb-3">
                                 @include('pages.user.employee.form-detail.attachment')
                             </div>
-                            <div class="col-md-12 text-end">
-                                <button type="submit" class="btn btn-sm btn-primary">
-                                    <i class="bi bi-save me-2"></i> Submit
-                                </button>
-                            </div>
+                            
                         </div>
                     </form>
+                    <div class="col-md-12 text-end">
+                        <button type="submit" form="user-form" class="btn btn-sm btn-primary">
+                            <i class="bi bi-save me-2"></i> Submit
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -139,5 +169,139 @@
     </div>
 
 
-    <script></script>
+    <script type="text/javascript">
+        @if (isset($user))
+        $("#deactivate-user").on('click', function() {
+            changeStatus('deactivate')
+        })
+
+        $("#activate-user").on('click', function() {
+            changeStatus('activate')
+        })
+
+        function changeStatus(status)
+        {
+            var message = "Are you sure want to " + status + " this user?"
+            if (confirm(message)) {
+                Swal.showLoading()
+                
+                axios.post('{{ route('user.update.status', ['user_role' => Request::route('user_role'), 'user' => $user->id]) }}', {
+                        _token: '{{ csrf_token() }}',
+                        params: {
+                            new_status: status
+                        },
+                    })
+                    .then((response) => {
+
+                        Swal.close()
+                        notification('success', response.data.message)
+                        switch(status) {
+                            case "activate":
+                                $("#activate-user").addClass('d-none')
+                                $("#deactivate-user").removeClass('d-none')
+                                break;
+
+                            case "deactivate":
+                                $("#activate-user").removeClass('d-none')
+                                $("#deactivate-user").addClass('d-none')
+                                break;
+                        }
+
+                    }, (error) => {
+                        Swal.close()
+                        notification('error', response.data.message)
+                    });
+
+            }
+        }
+        @endif
+
+        @if (isset($user))
+        // curriculum vitae button
+        $(".curriculum-vitae-container .download").on('click', function() {
+            window.open("{{ route('user.file.download', ['user_role' => Request::route('user_role'), 'user' => $user->id, 'filetype' => 'CV']) }}", '_blank');
+        })
+
+        $(".curriculum-vitae-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".curriculum-vitae-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // ktp button
+        $(".ktp-container .download").on('click', function() {
+            window.open("{{ route('user.file.download', ['user_role' => Request::route('user_role'), 'user' => $user->id, 'filetype' => 'ID']) }}", '_blank');
+        })
+
+        $(".ktp-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".ktp-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // tax button
+        $(".tax-container .download").on('click', function() {
+            window.open("{{ route('user.file.download', ['user_role' => Request::route('user_role'), 'user' => $user->id, 'filetype' => 'TX']) }}", '_blank');
+        })
+
+        $(".tax-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".tax-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // hi button
+        $(".hi-container .download").on('click', function() {
+            window.open("{{ route('user.file.download', ['user_role' => Request::route('user_role'), 'user' => $user->id, 'filetype' => 'HI']) }}", '_blank');
+        })
+
+        $(".hi-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".hi-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // ei button
+        $(".ei-container .download").on('click', function() {
+            window.open("{{ route('user.file.download', ['user_role' => Request::route('user_role'), 'user' => $user->id, 'filetype' => 'EI']) }}", '_blank');
+        })
+
+        $(".ei-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".ei-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+        @endif
+
+    </script>
 @endsection

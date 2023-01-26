@@ -44,6 +44,14 @@ return [
             'throw' => false,
         ],
 
+        'public_file_user' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/uploaded_file/user'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
         'uploaded_file_finance' => [
             'driver' => 'local',
             'root' => storage_path('app/public/uploaded_file/finance'),
