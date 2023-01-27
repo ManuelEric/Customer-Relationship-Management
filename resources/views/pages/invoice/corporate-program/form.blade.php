@@ -30,7 +30,8 @@
                                 {{ $status == 'edit' ? 'Back' : 'Edit' }}
                             </a>
 
-                            <button class="btn btn-sm btn-outline-danger rounded mx-1">
+                            <button class="btn btn-sm btn-outline-danger rounded mx-1"
+                                 onclick="confirmDelete('{{ 'invoice/corporate-program/' . $invoicePartner->partnerprog_id . '/detail' }}', {{ $invoicePartner->invb2b_num }})">
                                 <i class="bi bi-trash2 me-1"></i> Delete
                             </button>
                         @endif

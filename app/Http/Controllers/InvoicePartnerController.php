@@ -344,26 +344,26 @@ class InvoicePartnerController extends Controller
         return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully updated');
     }
 
-    // public function destroy(Request $request)
-    // {
-    //     $invNum = $request->route('detail');
-    //     $schProgId = $request->route('sch_prog');
+    public function destroy(Request $request)
+    {
+        $invNum = $request->route('detail');
+        $partnerProgId = $request->route('corp_prog');
 
-    //     DB::beginTransaction();
-    //     try {
+        DB::beginTransaction();
+        try {
 
-    //         $this->invoiceB2bRepository->deleteInvoiceB2b($invNum);
-    //         DB::commit();
-    //     } catch (Exception $e) {
+            $this->invoiceB2bRepository->deleteInvoiceB2b($invNum);
+            DB::commit();
+        } catch (Exception $e) {
 
-    //         DB::rollBack();
-    //         Log::error('Delete invoice failed : ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Delete invoice failed : ' . $e->getMessage());
 
-    //         return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to delete invoice');
-    //     }
+            return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/' . $invNum)->withError('Failed to delete invoice');
+        }
 
-    //     return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully deleted');
-    // }
+        return Redirect::to('invoice/corporate-program/status/list')->withSuccess('Invoice successfully deleted');
+    }
 
     // public function export(Request $request)
     // {
