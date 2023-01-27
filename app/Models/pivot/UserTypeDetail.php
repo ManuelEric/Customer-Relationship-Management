@@ -2,12 +2,10 @@
 
 namespace App\Models\pivot;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class UserTypeDetail extends Pivot
 {
-    use HasFactory;
 
     protected $table = 'tbl_user_type_detail';
 
@@ -19,8 +17,10 @@ class UserTypeDetail extends Pivot
     protected $fillable = [
         'user_type_id',
         'user_id', 
+        'department_id',
         'start_date',
         'end_date',
-        'status'
+        'status',
+        'deactivated_at',
     ];
 }

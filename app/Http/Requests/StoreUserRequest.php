@@ -1,0 +1,119 @@
+<?php
+
+namespace App\Http\Requests;
+
+use App\Interfaces\UserRepositoryInterface;
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreUserRequest extends FormRequest
+{
+    private UserRepositoryInterface $userRepository;
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, mixed>
+     */
+    public function rules()
+    {
+        return $this->isMethod('POST') ? $this->store() : $this->update();
+    }
+
+    protected function store()
+    {
+        return [
+            'first_name' => 'required',
+            'last_name' => 'nullable',
+            'email' => 'required|email',
+            'phone' => 'required',
+            'emergency_contact' => 'required',
+            'datebirth' => 'required',
+            'address' => 'required',
+
+            'graduated_from.*' => 'required',
+            'degree.*' => 'required',
+            'major.*' => 'required',
+
+            'role.*' => 'required|in:1,2,4',
+            'department' => 'required',
+            'position' => 'required',
+            'hiredate' => 'required',
+            'type' => 'required|exists:tbl_user_type,id',
+            'start_period' => 'required',
+            'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
+
+            'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
+            'bankname' => 'required',
+            'bankacc' => 'required',
+            'nik' => 'required',
+            'idcard' => 'required|mimes:pdf|max:5000',
+            'npwp' => 'required',
+            'tax' => 'required|mimes:pdf|max:5000',
+            'health_insurance' => 'required|mimes:pdf|max:5000',
+            'empl_insurance' => 'required|mimes:pdf|max:5000'
+
+        ];
+    }
+
+    protected function update()
+    {
+        $rules = [
+            'first_name' => 'required',
+            'last_name' => 'nullable',
+            'email' => 'required|email',
+            'phone' => 'required',
+            'emergency_contact' => 'required',
+            'datebirth' => 'required',
+            'address' => 'required',
+
+            'graduated_from.*' => 'required',
+            'degree.*' => 'required',
+            'major.*' => 'required',
+
+            'role.*' => 'required|in:1,2,4',
+            'department' => 'required',
+            'position' => 'required',
+            'hiredate' => 'required',
+            'type' => 'required|exists:tbl_user_type,id',
+            'start_period' => 'required',
+            'end_period' => 'required_unless:type,1', # 1 is type : Full-Time
+
+            'curriculum_vitae' => 'nullable|mimes:pdf|max:5000',
+            'bankname' => 'required',
+            'bankacc' => 'required',
+            'nik' => 'required',
+            'npwp' => 'required',
+
+        ];
+
+        $userId = $this->route('user');
+        $user = $this->userRepository->getUserById($userId);
+
+        if ($user->idcard == null)
+            $rules['idcard'] = 'required|mimes:pdf|max:5000';
+
+        if ($user->tax == null)
+            $rules['tax'] = 'required|mimes:pdf|max:5000';
+
+        if ($user->health_insurance == null)
+            $rules['health_insurance'] = 'required|mimes:pdf|max:5000';
+        
+        if ($user->empl_insurance == null)
+            $rules['empl_insurance'] = 'required|mimes:pdf|max:5000';
+
+        return $rules;
+    }
+}

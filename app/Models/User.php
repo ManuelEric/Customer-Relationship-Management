@@ -7,7 +7,9 @@ namespace App\Models;
 use App\Models\pivot\AgendaSpeaker;
 use App\Models\pivot\AssetReturned;
 use App\Models\pivot\AssetUsed;
+use App\Models\pivot\UserRole;
 use App\Models\pivot\UserTypeDetail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -86,10 +88,24 @@ class User extends Authenticatable
         return $instance->newQuery()->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ['%'.$name.'%'])->first();
     }
 
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->first_name.' '.$this->last_name,
+        );
+    }
+
     # relation
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->withPivot('tutor_subject', 'feehours', 'feesession');
+        return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withPivot(
+            [
+                'extended_id',
+                'tutor_subject', 
+                'feehours', 
+                'feesession'
+            ]
+        )->withTimestamps();
     }
 
     public function position()
@@ -100,7 +116,7 @@ class User extends Authenticatable
     public function educations()
     {
         return $this->belongsToMany(University::class, 'tbl_user_educations', 'user_id', 'univ_id')
-                    ->withPivot('major_id')
+                    ->withPivot('major_id', 'degree', 'graduation_date')->withTimestamps()
                     ->join('tbl_major', 'major_id', '=', 'tbl_major.id');
     }
 
@@ -149,7 +165,7 @@ class User extends Authenticatable
 
     public function user_type()
     {
-        return $this->belongsToMany(UserType::class, 'tbl_user_type_detail', 'user_id', 'user_type_id')->using(UserTypeDetail::class);
+        return $this->belongsToMany(UserType::class, 'tbl_user_type_detail', 'user_id', 'user_type_id')->using(UserTypeDetail::class)->withPivot('id', 'department_id', 'start_date', 'end_date', 'status', 'deactivated_at')->withTimestamps();
     }
 
     public function pic_school_visit()

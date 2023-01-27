@@ -31,6 +31,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('import:mentor')->hourly();
         // $schedule->command('import:editor')->hourly();
         
+        // $schedule->command('deactivated:user')->daily();
     }
 
     /**

@@ -73,8 +73,8 @@ class StoreClientProgramRequest extends FormRequest
         $isMentee = $student->roles()->where('role_name', 'like', '%mentee%')->count();
 
         $clientProg = $this->clientProgramRepository->getClientProgramById($this->route('program'));
-        $hasInvoice = $clientProg->invoice()->count();
-        $hasReceipt = $clientProg->invoice->receipt()->count();
+        $hasInvoice = isset($clientProg->invoice) ? $clientProg->invoice()->count() : 0;
+        $hasReceipt = isset($clientProg->receipt) ? $clientProg->invoice->receipt()->count() : 0;
 
         if ($this->input('status') === null) {
 
@@ -158,7 +158,7 @@ class StoreClientProgramRequest extends FormRequest
                             if ($student->parents()->count() == 0)
                                 $fail('Not able to change status to success. Please complete the parent\'s information');
 
-                            if ($clientProg->status == 3) 
+                            if (isset($clientProg) && $clientProg->status == 3) 
                                 $fail('Not able to change status to success. This activities has marked as "refunded" ');
     
                         }

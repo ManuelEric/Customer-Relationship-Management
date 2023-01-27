@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,21 +17,23 @@ use Illuminate\Support\Facades\Route;
 
 // User 
 
-Route::get('employee', function () {
-    return view('pages.user.employee.index');
-});
-Route::get('mentor', function () {
-    return view('pages.user.employee.index');
-});
-Route::get('editor', function () {
-    return view('pages.user.employee.index');
-});
-Route::get('tutor', function () {
-    return view('pages.user.employee.index');
-});
-
-Route::get('employee/create', function () {
-    return view('pages.user.employee.form');
+Route::resource('{user_role}', UserController::class, [
+    'names' => [
+        'index' => 'user.index',
+        'store' => 'user.store',
+        'create' => 'user.create',
+        'show' => 'user.show',
+        'update' => 'user.update',
+        'edit' => 'user.edit',
+        'destroy' => 'user.destroy',
+    ]
+])->parameters([
+    '{user_role}' => 'user'
+]);
+Route::prefix('{user_role}/{user}')->name('user.')->group(function() {
+    Route::get('download/{filetype}', [UserController::class, 'download'])->name('file.download');
+    Route::post('update/status', [UserController::class, 'changeStatus'])->name('update.status');
+    Route::delete('{user_type}', [UserController::class, 'destroyUserType'])->name('type.destroy');
 });
 
 Route::resource('volunteer', VolunteerController::class);

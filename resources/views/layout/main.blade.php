@@ -332,7 +332,7 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#users" aria-expanded="false"
+                        <a class="nav-link {{ Request::is('user*') ? 'text-primary' : '' }}" data-bs-toggle="collapse" href="#users" aria-expanded="false"
                             aria-controls="users">
                             <i class="bi bi-person-workspace mx-2"></i>
                             <span class="menu-title">Users</span>
@@ -340,9 +340,9 @@
                         </a>
                         <div class="collapse {{ Request::is('user*') ? 'show' : 'hide' }}" id="users">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('user/employee') }}">Employee</a>
+                                <li class="nav-item"> <a class="nav-link {{ Request::is('user/*') && !Request::is('user/volunteer*') ? 'active' : '' }}" href="{{ url('user/employee') }}">Employee</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('user/volunteer') }}">Volunteer
+                                <li class="nav-item"> <a class="nav-link {{ Request::is('user/volunteer*') ? 'active' : '' }}" href="{{ url('user/volunteer') }}">Volunteer
                                     </a>
                                 </li>
                             </ul>

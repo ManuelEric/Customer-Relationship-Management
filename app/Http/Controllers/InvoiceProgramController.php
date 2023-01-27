@@ -581,6 +581,12 @@ class InvoiceProgramController extends Controller
                     ->subject($data['title'])
                     ->attach(storage_path('app/public/uploaded_file/invoice/' . $invoice->attachment));
             });
+
+            # update status send to client
+            $newDetails['send_to_client'] = 'sent';
+            $this->invoiceProgramRepository->updateInvoice($invoice_id, $newDetails);
+
+
         } catch (Exception $e) {
 
             Log::info('Failed to send invoice to client : ' . $e->getMessage());

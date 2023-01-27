@@ -22,7 +22,7 @@ class UniversityRepository implements UniversityRepositoryInterface
 
     public function getAllUniversities()
     {
-        return University::orderBy('univ_name', 'asc')->get();
+        return University::whereNotNull('univ_name')->orderBy('univ_name', 'asc')->get();
     }
 
     public function getAllUniversitiesByCountries(array $countries)
@@ -62,7 +62,7 @@ class UniversityRepository implements UniversityRepositoryInterface
 
     public function getCountryNameFromUniversity()
     {
-        return University::select('univ_country')->groupBy('univ_country')->get();
+        return University::whereNotNull('univ_country')->select('univ_country')->groupBy('univ_country')->get();
     }
 
     public function deleteUniversity($universityId)

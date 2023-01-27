@@ -54,6 +54,7 @@ use App\Interfaces\UniversityEventRepositoryInterface;
 use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\UserTypeRepositoryInterface;
 use App\Interfaces\VendorRepositoryInterface;
 use App\Interfaces\VendorTypeRepositoryInterface;
 use App\Interfaces\VolunteerRepositoryInterface;
@@ -109,6 +110,7 @@ use App\Repositories\UniversityEventRepository;
 use App\Repositories\UniversityPicRepository;
 use App\Repositories\UniversityRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\UserTypeRepository;
 use App\Repositories\VendorRepository;
 use App\Repositories\VendorTypeRepository;
 use App\Repositories\VolunteerRepository;
@@ -176,6 +178,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(InvoiceDetailRepositoryInterface::class, InvoiceDetailRepository::class);
         $this->app->bind(ReceiptRepositoryInterface::class, ReceiptRepository::class);
         $this->app->bind(RefundRepositoryInterface::class, RefundRepository::class);
+        $this->app->bind(UserTypeRepositoryInterface::class, UserTypeRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
