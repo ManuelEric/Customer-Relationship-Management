@@ -25,6 +25,8 @@ class UserRepository implements UserRepositoryInterface
             ->select([
                 'users.id as id',
                 'extended_id',
+                'first_name',
+                'last_name',
                 DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
                 'email',
                 'phone',
@@ -145,6 +147,11 @@ class UserRepository implements UserRepositoryInterface
     public function updateExtendedId($newDetails)
     {
         
+    }
+
+    public function deleteUserType($userTypeId)
+    {
+        return UserTypeDetail::destroy($userTypeId);
     }
 
     public function getUserRoles($userId, $roleName)

@@ -295,21 +295,27 @@ class UserController extends Controller
                 
             }
             $user->roles()->sync($roleDetails);
+            
+            # validate
+            # in order to avoid double data
+            if ($user->user_type()->wherePivot('user_type_id', 2)->wherePivot('department_id', 3)->wherePivot('start_date', '2022-12-01')->wherePivot('end_date', '2023-01-01')->count() == 0)
+            {
 
-            # deactivate the latest active type
-            $activeType = $user->user_type()->where('tbl_user_type_detail.status', 1)->whereNull('deactivated_at')->pluck('tbl_user_type_detail.user_type_id')->toArray();
-            foreach ($activeType as $key => $value) {
-    
-                $user->user_type()->updateExistingPivot($activeType[$key], ['status' => 0, 'deactivated_at' => Carbon::now()]);
+                # deactivate the latest active type
+                $activeType = $user->user_type()->where('tbl_user_type_detail.status', 1)->whereNull('deactivated_at')->pluck('tbl_user_type_detail.user_type_id')->toArray();
+                foreach ($activeType as $key => $value) {
+        
+                    $user->user_type()->updateExistingPivot($activeType[$key], ['status' => 0, 'deactivated_at' => Carbon::now()]);
+                }
+            
+                # store new user type to tbl_user_type
+                $user->user_type()->syncWithoutDetaching([[
+                    'user_type_id' => $request->type, 
+                    'department_id' => $request->department,
+                    'start_date' => $request->start_period,
+                    'end_date' => $request->type == 1 ? null : $request->end_period,
+                ]]);
             }
-
-            # store new user type to tbl_user_type
-            $user->user_type()->syncWithoutDetaching([[
-                'user_type_id' => $request->type, 
-                'department_id' => $request->department,
-                'start_date' => $request->start_period,
-                'end_date' => $request->type == 1 ? null : $request->end_period,
-            ]]);
 
             # upload curriculum vitae
             $CV_file_path = $user->cv;
@@ -371,7 +377,7 @@ class UserController extends Controller
 
         }
 
-        return Redirect::to('user/'.$request->route('user_role').'/'.$userId.'/edit')->withSuccess($request->route('user_role').' has been updated');
+        return Redirect::to('user/'.$request->route('user_role').'/'.$userId.'/edit')->withSuccess(ucfirst($request->route('user_role')).' has been updated');
     }
 
     public function edit(Request $request) 
@@ -430,5 +436,27 @@ class UserController extends Controller
         }
         
         return response($file)->header('Content-Type', 'application/pdf');
+    }
+
+    public function destroyUserType(Request $request)
+    {
+        $userId = $request->route('user');
+        $userTypeId = $request->route('user_type');
+
+        DB::beginTransaction();
+        try {
+
+            $this->userRepository->deleteUserType($userTypeId);
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Delete user type failed : ' . $e->getMessage());
+            return Redirect::back()->withError('Failed to delete user type');
+
+        }
+
+        return Redirect::to('user/'.$request->route('user_role').'/'.$userId.'/edit')->withSuccess(ucfirst($request->route('user_role')).' has been updated');
     }
 }

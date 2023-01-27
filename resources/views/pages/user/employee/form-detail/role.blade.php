@@ -42,8 +42,8 @@
             <div class="col-3 mb-3">
                 @php
                 $departmentId = [];
-                if (isset($user))
-                    $departmentId = $user->user_type()->where('tbl_user_type_detail.status', 1)->first()->pivot->department_id
+                if ($typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first()) 
+                    $departmentId = $typeInfo->pivot->department_id
                 @endphp
                 <label for="">Department <sup class="text-danger">*</sup></label>
                 <select name="department" id="" class="select w-100">
@@ -100,7 +100,7 @@
 
             <div class="col-md-3 period start-period">
                 <label for="">Start Period <sup class="text-danger">*</sup></label>
-                <input type="date" name="start_period" id="" class="form-control form-control-sm rounded" value="{{ isset($user->user_type) ? $user->user_type()->where('tbl_user_type_detail.status', 1)->first()->pivot->start_date : old('start_period') }}">
+                <input type="date" name="start_period" id="" class="form-control form-control-sm rounded" value="{{ isset($typeInfo) ? $typeInfo->pivot->start_date : old('start_period') }}">
                 @error('start_period')
                     <small class="text-danger fw-light">{{ $message }}</small>
                 @enderror
@@ -108,7 +108,7 @@
 
             <div class="col-md-3 period end-period">
                 <label for="">End Period <sup class="text-danger">*</sup></label>
-                <input type="date" name="end_period" id="" class="form-control form-control-sm rounded" value="{{ isset($user->user_type) ? $user->user_type()->where('tbl_user_type_detail.status', 1)->first()->pivot->end_date : old('end_period') }}">
+                <input type="date" name="end_period" id="" class="form-control form-control-sm rounded" value="{{ isset($typeInfo) ? $typeInfo->pivot->end_date : old('end_period') }}">
                 @error('end_period')
                     <small class="text-danger fw-light">{{ $message }}</small>
                 @enderror

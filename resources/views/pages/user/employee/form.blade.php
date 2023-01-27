@@ -50,15 +50,23 @@
                     <div class="list-group">
                         @foreach ($user->user_type as $type)
                             <div @class([
+                                'd-flex justify-content-between align-items-center',
                                 'list-group-item',
                                 'bg-success text-light' => $type->pivot->status == 1
                             ])>
-                                {{ $type->type_name }}
-                                <div class="">
-                                    {{ date('d M Y', strtotime($type->pivot->start_date)) }}
-                                    @if ($type->pivot->end_date != NULL)
-                                    -
-                                    {{ date('d M Y', strtotime($type->pivot->end_date)) }}
+                                <div>
+                                    {{ $type->type_name }}
+                                    <div class="">
+                                        {{ date('d M Y', strtotime($type->pivot->start_date)) }}
+                                        @if ($type->pivot->end_date != NULL)
+                                        -
+                                        {{ date('d M Y', strtotime($type->pivot->end_date)) }}
+                                        @endif
+                                    </div>
+                                </div>
+                                <div>
+                                    @if ($type->pivot->status == 1)
+                                    <button onclick="confirmDelete('{{ 'user/'.Request::route('user_role').'/'.Request::route('user') }}', '{{ $type->pivot->id }}')" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                     @endif
                                 </div>
                             </div>
@@ -73,7 +81,7 @@
                     <h5 class="p-0 m-0">Mentees</h5>
                 </div>
                 <div class="card-body text-center">
-                    <h2>24</h2>
+                    <h2>{{ $user->mentorClient()->wherePivot('status', 1)->count() }}</h2>
                 </div>
             </div>
             @endif

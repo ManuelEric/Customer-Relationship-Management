@@ -89,7 +89,7 @@
                                 <select name="prog_id" id="program_name" class="select w-100"
                                     onchange="changeProgramStatus()" {{ $disabled }}>
                                     <option data-placeholder="true"></option>
-                                    @forelse ($programs as $program)
+                                    @foreach ($programs as $program)
                                         <option data-pmentor="{{ $program->prog_mentor }}"
                                             data-mprog="{{ $program->main_prog->prog_name }}"
                                             data-sprog="{{ isset($program->sub_prog->sub_prog_name) ? $program->sub_prog->sub_prog_name : null }}"
@@ -99,9 +99,7 @@
                                                 {{ 'selected' }} @endif>
                                             {{ $program->prog_sub != '-' ? $program->prog_sub . ' - ' : '' }}
                                             {{ $program->prog_program }}</option>
-                                    @empty
-                                        <option>There's no data</option>
-                                    @endforelse
+                                    @endforeach
                                 </select>
                                 @error('prog_id')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -147,15 +145,13 @@
                                         <select name="clientevent_id" id="event_id" class="select w-100"
                                             {{ $disabled }}>
                                             <option data-placeholder="true"></option>
-                                            @forelse ($clientEvents as $clientEvent)
+                                            @foreach ($clientEvents as $clientEvent)
                                                 <option value="{{ $clientEvent->clientevent_id }}"
                                                     @if (old('clientevent_id') == $clientEvent->clientevent_id) {{ 'selected' }}
                                                     @elseif (isset($clientProgram->clientevent_id) && $clientProgram->clientevent_id == $clientEvent->clientevent_id)
                                                         {{ 'selected' }} @endif>
                                                     {{ $clientEvent->event->event_title }}</option>
-                                            @empty
-                                                <option>There's no data</option>
-                                            @endforelse
+                                            @endforeach
                                         </select>
                                         @error('event_id')
                                             <small class="text-danger fw-light">{{ $message }}</small>
