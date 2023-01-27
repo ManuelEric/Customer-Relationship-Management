@@ -227,7 +227,6 @@ class SchoolProgramController extends Controller
         # retrieve speaker data
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerBySchoolProgram($sch_progId);
 
-
         return view('pages.program.school-program.form')->with(
             [
                 'employees' => $employees,

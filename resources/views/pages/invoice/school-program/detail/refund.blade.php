@@ -3,51 +3,47 @@
         <h6 class="m-0 p-0">Refund</h6>
     </div>
     <div class="card-body">
-        @if(isset($invoiceSch))
-            @if($invoiceSch->sch_prog->status == 3 && isset($invoiceSch->refund))
-                <p style="font-size: 1em">
-                    with detail: <br>
-                    <ul style="font-size: 1em">
-                        <li>Total Paid : {{ $invoiceSch->refund->total_paid_str }}</li>
-                        <li>Refund Amount : {{ $invoiceSch->refund->refund_amount_str.' ('.$invoiceSch->refund->percentage_refund.'%)' }}</li>
-                        <li>Tax : {{ $invoiceSch->refund->tax_amount_str.' ('.$invoiceSch->refund->tax_percentage.'%)' }}</li>
-                    </ul>
-                </p>
-                {!! $invoiceSch->sch_prog->refund_notes !!}
-                <br>
-            @endif
+        @if (isset($invoiceSch->refund))
+            <b style="font-size: 1.5em">Total refund : {{ $invoiceSch->refund->total_refunded_str }}</b>
+            <hr>
+            <p style="font-size: 1em">
+                with detail: <br>
+                <ul style="font-size: 1em">
+                    <li>Total Paid : {{ $invoiceSch->refund->total_paid_str }}</li>
+                    <li>Refund Amount : {{ $invoiceSch->refund->refund_amount_str.' ('.$invoiceSch->refund->percentage_refund.'%)' }}</li>
+                    <li>Tax : {{ $invoiceSch->refund->tax_amount_str.' ('.$invoiceSch->refund->tax_percentage.'%)' }}</li>
+                </ul>
+            </p>
+        @else
+            <p>
+                Reason : {{ $invoiceSch->sch_prog->reason->reason_name }}
+            </p>
+            {!! isset($invoiceSch->sch_prog->refund_notes) ? $invoiceSch->sch_prog->refund_notes : 'If the client wasn\'t going to continue the program. You can click the button below'!!}
         @endif
-        @if(isset($invoiceSch))
-            @if($invoiceSch->sch_prog->status == 3 && $invoiceSch->invb2b_status == 1)
-                <div class="mt-3 d-flex justify-content-center">
-                {!! $invoiceSch->sch_prog->refund_notes !!}
-            </div>
-                @endif
-
-            <div class="mt-3 d-flex justify-content-center">
-                @if($invoiceSch->sch_prog->status == 3 && $invoiceSch->invb2b_status == 1)
-                    <button class="btn btn-sm btn-primary rounded mx-1" data-bs-toggle="modal" data-bs-target="#refund">
-                        <i class="bi bi-x me-1"></i>
-                        Refund
-                    </button>
-                @endif
-            @if($invoiceSch->sch_prog->status == 3 && $invoiceSch->invb2b_status == 2)
-                <button class="btn btn-sm btn-outline-danger rounded mx-1" data-bs-toggle="modal"
-                    data-bs-target="#cancel_refund">
-                    <i class="bi bi-x me-1"></i>
-                    Cancel Refund
-                </button>
+        <br>
+        <div class="mt-2 d-flex justify-content-center">
+            
+            @if (isset($invoiceSch->refund))
+            <button class="btn btn-sm btn-outline-danger rounded mx-1" data-bs-toggle="modal"
+                data-bs-target="#cancel_refund">
+                <i class="bi bi-x me-1"></i>
+                Cancel Refund
+            </button>
+            @else
+            <button class="btn btn-sm btn-primary rounded mx-1" data-bs-toggle="modal" data-bs-target="#refund">
+                <i class="bi bi-wallet me-1"></i>
+                Refund
+            </button>
             @endif
-            </div>
-        @endif
+        </div>
     </div>
     {{-- @if(isset($invoiceSch)) --}}
-        @if($invoiceSch->invb2b_status == 2)
+        {{-- @if($invoiceSch->invb2b_status == 2)
             <div class="card-footer d-flex justify-content-between">
                 <h6 class="m-0 p-0">Total Refund</h6>
                 <h6 class="m-0 p-0">{{ $invoiceSch->refund->total_refunded_str }}</h6>
             </div> 
-        @endif
+        @endif --}}
     {{-- @endif --}}
 </div>
 

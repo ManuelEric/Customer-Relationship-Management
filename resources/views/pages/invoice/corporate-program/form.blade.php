@@ -17,7 +17,7 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $partnerProgram->corp->corp_name }}</h4>
-                    <h6>{{ $partnerProgram->program->prog_program }}</h6>
+                    <h6>{{ $partnerProgram->program->sub_prog ? $partnerProgram->program->sub_prog->sub_prog_name.' - ':''}}{{ $partnerProgram->program->prog_program }}</h6>
                     <div class="d-flex justify-content-center mt-3">
                         <a href="{{ url('program/corporate/1') }}" class="btn btn-sm btn-outline-info rounded mx-1"
                             target="_blank">

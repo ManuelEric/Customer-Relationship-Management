@@ -71,4 +71,9 @@ class PartnerProg extends Model
     {
         return $this->belongsTo(Corporate::class, 'corp_id', 'corp_id');
     }
+
+    public function invoiceB2b()
+    {
+        return $this->belongsTo(Invb2b::class, 'id', 'partnerprog_id');
+    }
 }

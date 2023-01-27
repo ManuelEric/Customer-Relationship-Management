@@ -74,7 +74,7 @@ class SchoolProgram extends Model
 
     public function invoiceB2b()
     {
-        return $this->belongsTo(Invb2b::class, 'schprog_id', 'id');
+        return $this->belongsTo(Invb2b::class, 'id', 'schprog_id');
     }
 
     public function school_speaker()

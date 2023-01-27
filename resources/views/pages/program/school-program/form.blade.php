@@ -17,7 +17,7 @@
                 <div class="card-body text-center">
                     <h4>{{ $school->sch_name }}</h4>
                     @if(isset($schoolProgram))
-                        <h6>{{ $schoolProgram->program->prog_program }}</h6>
+                        <h6>{{  $schoolProgram->program->sub_prog ? $schoolProgram->program->sub_prog->sub_prog_name.' - ':''}}{{ $schoolProgram->program->prog_program }}</h6>
                     @endif
                     @if (isset($schoolProgram))
                         <div class="mt-3 d-flex justify-content-center">
@@ -42,7 +42,17 @@
                    
                 </div>
             </div>
+
+            
             @include('pages.program.school-program.detail.school')
+
+            {{-- Refund detail --}}
+            @if(isset($schoolProgram))
+                @if($schoolProgram->status == 3)
+                    @include('pages.program.school-program.detail.refund')
+                @endif
+            @endif
+
             @if(isset($schoolProgram) &&  $schoolProgram->status == 1 && empty($edit))
                 @include('pages.program.school-program.detail.speaker')
             @endif
