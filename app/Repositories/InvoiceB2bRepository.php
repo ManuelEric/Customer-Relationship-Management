@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Models\Invb2b;
+use App\Models\PartnerProg;
 use App\Models\SchoolProgram;
 use DataTables;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 {
 
+    // School Program
     public function getAllInvoiceNeededSchDataTables()
     {
         return datatables::eloquent(
@@ -58,14 +60,98 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     END) AS program_name'),
                     'tbl_invb2b.schprog_id',
                     'tbl_invb2b.invb2b_id',
+                    'tbl_invb2b.invb2b_status',
                     'tbl_invb2b.invb2b_pm',
                     'tbl_invb2b.created_at',
                     'tbl_invb2b.invb2b_duedate',
                     'tbl_invb2b.currency',
                     'tbl_invb2b.invb2b_totpriceidr',
                     'tbl_invb2b.invb2b_totprice',
-                )->where('tbl_sch_prog.status', 1)
+                )
+                ->whereIn('tbl_sch_prog.status', [1, 3])
+            // ->where('tbl_invb2b.invb2b_status', 1)
+
         )->make(true);
+    }
+
+    // Partner Program
+    public function getAllInvoiceNeededCorpDataTables()
+    {
+        return datatables::eloquent(
+            PartnerProg::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
+                ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_partner_prog.prog_id')
+                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                ->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')
+                ->leftJoin('tbl_invb2b', 'tbl_invb2b.partnerprog_id', '=', 'tbl_partner_prog.id')
+                ->select(
+                    'tbl_partner_prog.id',
+                    'tbl_corp.corp_id',
+                    'tbl_corp.corp_name as partner_name',
+                    // 'tbl_prog.prog_program as program_name',
+                    DB::raw('(CASE
+                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                            ELSE tbl_prog.prog_program
+                    END) AS program_name'),
+                    'tbl_partner_prog.success_date',
+                    'users.id as pic_id',
+                    DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
+                )->where('tbl_partner_prog.status', 1)->whereNull('tbl_invb2b.partnerprog_id')
+        )->filterColumn(
+            'pic_name',
+            function (
+                $query,
+                $keyword
+            ) {
+                $sql = 'CONCAT(users.first_name," ",users.last_name) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            }
+        )->make(true);
+    }
+
+    public function getAllInvoiceCorpDataTables()
+    {
+        return datatables::eloquent(
+            Invb2b::leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
+                ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
+                ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_partner_prog.prog_id')
+                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                ->select(
+                    'tbl_invb2b.invb2b_num',
+                    'tbl_corp.corp_name',
+                    // 'tbl_prog.prog_program as program_name',
+                    DB::raw('(CASE
+                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                            ELSE tbl_prog.prog_program
+                    END) AS program_name'),
+                    'tbl_invb2b.partnerprog_id',
+                    'tbl_invb2b.invb2b_id',
+                    'tbl_invb2b.invb2b_status',
+                    'tbl_invb2b.invb2b_pm',
+                    'tbl_invb2b.created_at',
+                    'tbl_invb2b.invb2b_duedate',
+                    'tbl_invb2b.currency',
+                    'tbl_invb2b.invb2b_totpriceidr',
+                    'tbl_invb2b.invb2b_totprice',
+                )
+                ->whereIn('tbl_partner_prog.status', [1, 3])
+            // ->where('tbl_invb2b.invb2b_status', 1)
+
+        )->make(true);
+    }
+
+    public function getInvoiceB2bBySchProg($schprog_id)
+    {
+        return Invb2b::where('schprog_id', $schprog_id)->first();
+    }
+
+    public function getInvoiceB2bByPartnerProg($partnerprog_id)
+    {
+        return Invb2b::where('partnerprog_id', $partnerprog_id)->first();
+    }
+
+    public function getInvoiceB2bByInvId($invb2b_id)
+    {
+        return Invb2b::where('invb2b_id', $invb2b_id)->get();
     }
 
     public function getInvoiceB2bById($invb2b_num)

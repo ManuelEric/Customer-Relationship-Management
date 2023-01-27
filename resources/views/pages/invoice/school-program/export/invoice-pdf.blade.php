@@ -122,8 +122,8 @@
             <table width="100%" class="table-detail" style="padding:8px 5px;">
                 <tr align="center">
                     <th width="5%">No</th>
-                    <th width="55%">Description</th>
-                    <th width="15%">Price</th>
+                    <th width="45%">Description</th>
+                    <th width="25%">Price</th>
                     <th width="10%">Participants</th>
                     <th width="15%">Total</th>
                 </tr>

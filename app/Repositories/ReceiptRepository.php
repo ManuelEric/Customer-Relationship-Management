@@ -55,55 +55,55 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             case "refund-request":
             default:
                 $query = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
-                ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-                ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-                ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-                ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
-                ->when($status == "list", function ($q) {
-                    $q->where('receipt_status', 1);
-                })
-                ->when($status == "refund-request", function ($q) {
-                    $q->where('tbl_client_prog.status', 3);
-                })
-                ->select([
-                    'tbl_client_prog.clientprog_id',
-                    'tbl_inv.clientprog_id',
-                    'tbl_receipt.id',
-                    'tbl_receipt.receipt_id',
-                    'tbl_receipt.created_at',
-                    DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
-                    DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
-                    'tbl_inv.inv_id',
-                    'tbl_receipt.receipt_method',
-                    'tbl_inv.created_at',
-                    'tbl_inv.inv_duedate',
-                    'tbl_receipt.receipt_amount_idr',
-                    DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
-                ]);
+                    ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
+                    ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+                    ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+                    ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                    ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+                    ->when($status == "list", function ($q) {
+                        $q->where('receipt_status', 1);
+                    })
+                    ->when($status == "refund-request", function ($q) {
+                        $q->where('tbl_client_prog.status', 3);
+                    })
+                    ->select([
+                        'tbl_client_prog.clientprog_id',
+                        'tbl_inv.clientprog_id',
+                        'tbl_receipt.id',
+                        'tbl_receipt.receipt_id',
+                        'tbl_receipt.created_at',
+                        DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
+                        DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                        'tbl_inv.inv_id',
+                        'tbl_receipt.receipt_method',
+                        'tbl_inv.created_at',
+                        'tbl_inv.inv_duedate',
+                        'tbl_receipt.receipt_amount_idr',
+                        DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
+                    ]);
                 break;
 
             case "refund-list":
                 $query = Refund::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
-                ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-                ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-                ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-                ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
-                ->select([
-                    'tbl_inv.clientprog_id',
-                    'tbl_receipt.id',
-                    'tbl_receipt.receipt_id',
-                    'tbl_receipt.created_at',
-                    DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
-                    DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
-                    'tbl_inv.inv_id',
-                    'tbl_receipt.receipt_method',
-                    'tbl_inv.created_at',
-                    'tbl_inv.inv_duedate',
-                    'tbl_receipt.receipt_amount_idr',
-                    DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
-                ]);
+                    ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
+                    ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+                    ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+                    ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                    ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+                    ->select([
+                        'tbl_inv.clientprog_id',
+                        'tbl_receipt.id',
+                        'tbl_receipt.receipt_id',
+                        'tbl_receipt.created_at',
+                        DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
+                        DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                        'tbl_inv.inv_id',
+                        'tbl_receipt.receipt_method',
+                        'tbl_inv.created_at',
+                        'tbl_inv.inv_duedate',
+                        'tbl_receipt.receipt_amount_idr',
+                        DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
+                    ]);
                 break;
         }
 
@@ -129,6 +129,17 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     public function updateReceipt($receiptId, array $newDetails)
     {
         return Receipt::whereId($receiptId)->update($newDetails);
+    }
+
+    public function updateReceiptByInvoiceIdentifier($invoiceType, $identifier, array $newDetails)
+    {
+        return Receipt::when($invoiceType == "Program", function ($query) use ($identifier, $newDetails) {
+            $query->where('inv_id', $identifier)->update($newDetails);
+        })->when($invoiceType == "Installment", function ($query) use ($identifier, $newDetails) {
+            $query->where('invdtl_id', $identifier)->update($newDetails);
+        })->when($invoiceType == "B2B", function ($query) use ($identifier, $newDetails) {
+            $query->where('invb2b_id', $identifier)->update($newDetails);
+        });
     }
 
     public function deleteReceipt($receiptId)

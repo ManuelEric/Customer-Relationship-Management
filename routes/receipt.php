@@ -3,6 +3,7 @@
 use App\Http\Controllers\ReceiptController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReceiptSchoolController;
+use App\Http\Controllers\RefundSchoolController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +66,7 @@ Route::prefix('school-program')->name('receipt.school.')->group(function () {
     Route::delete('{detail}', [ReceiptSchoolController::class, 'destroy'])->name('destroy');
     Route::post('/{invoice}', [ReceiptSchoolController::class, 'store'])->name('store');
     Route::get('{receipt}/export/{currency}', [ReceiptSchoolController::class, 'export'])->name('export');
+    Route::get('{receipt}/refund', [RefundSchoolController::class, 'refund'])->name('refund');
 });
 
 // Route::get('school-program/', function () {

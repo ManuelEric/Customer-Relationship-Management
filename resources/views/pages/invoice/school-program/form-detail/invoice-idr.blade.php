@@ -14,10 +14,10 @@
                          oninput="checkInvoiceIDR()" 
                          value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_priceidr : old('invb2b_priceidr') }}"
                          {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
-                     @error('invb2b_priceidr')
-                        <small class="text-danger fw-light">{{ $message }}</small>
-                     @enderror
                  </div>
+                @error('invb2b_priceidr')
+                    <small class="text-danger fw-light">{{ $message }}</small>
+                @enderror
              </div>
              <div class="col-md-4 mb-3">
                  <label for="">Participants</label>
@@ -28,11 +28,11 @@
                          {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                          <span class="input-group-text" id="basic-addon1">
                              Person
-                            </span>
-                        @error('invb2b_participants')
-                               <small class="text-danger fw-light">{{ $message }}</small>
-                        @enderror
+                            </span>                      
                  </div>
+                    @error('invb2b_participants')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
              </div>
              <div class="col-md-4 mb-3">
                  <label for="">Discount</label>
@@ -44,10 +44,10 @@
                          oninput="checkInvoiceIDR()"
                          value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_discidr : old('invb2b_discidr') }}"
                          {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
-                        @error('invb2b_discidr')
-                            <small class="text-danger fw-light">{{ $message }}</small>
-                        @enderror
                  </div>
+                    @error('invb2b_discidr')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
              </div>
              <div class="col-md-4 mb-3">
                  <label for="">Total Price</label>
@@ -58,10 +58,10 @@
                      <input type="number" name="invb2b_totpriceidr" id="invoice_idr_total" class="form-control"
                      value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totpriceidr : old('invb2b_totpriceidr') }}"
                      {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
-                     @error('invb2b_totpriceidr')
-                        <small class="text-danger fw-light">{{ $message }}</small>
-                     @enderror
                  </div>
+                @error('invb2b_totpriceidr')
+                    <small class="text-danger fw-light">{{ $message }}</small>
+                @enderror
              </div>
              <div class="col-md-8 mb-3">
                  <label for="">Words</label>

@@ -42,6 +42,8 @@ class Invb2b extends Model
         'invb2b_status',
         'curs_rate',
         'currency',
+        'attachment',
+        'send_to_client',
     ];
 
     public function getCurrencyUnit()

@@ -25,12 +25,16 @@
                         </button>
                          @if (isset($receiptSch))
                             @if($receiptSch->invoiceB2b->currency != 'idr')
-                                <a href="{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}"
+                                {{-- <a href="{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}"
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                    <i class="bi bi-printer me-1"></i> Print Others
+                                </a> --}}
+                                <a href="#export" id="print_other"
                                     class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                                     <i class="bi bi-printer me-1"></i> Print Others
                                 </a>
                             @endif
-                            <a href="{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}"
+                            <a href="#export" id="print_idr"
                                 class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                                 <i class="bi bi-printer me-1"></i> Print IDR
                             </a>
@@ -39,7 +43,7 @@
                 </div>
             </div>
 
-            @include('pages.receipt.school-program.form-detail.refund')
+            {{-- @include('pages.receipt.school-program.form-detail.refund') --}}
             @include('pages.receipt.school-program.form-detail.client')
 
         </div>
@@ -222,6 +226,54 @@
                 placeholder: "Select value",
                 allowClear: true
             });
+
+            $("#print_other").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}', {
+                        responseType: 'arraybuffer'
+                    })
+                    .then(response => {
+                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+                })
+
+            $("#print_idr").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}', {
+                        responseType: 'arraybuffer'
+                    })
+                    .then(response => {
+                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+                })
         });
 
         function checkCurrency() {

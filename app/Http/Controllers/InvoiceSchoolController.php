@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreInvoiceSchRequest;
+use App\Http\Requests\StoreAttachmentB2bRequest;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
@@ -17,7 +18,9 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
 use PDF;
 
 
@@ -203,6 +206,8 @@ class InvoiceSchoolController extends Controller
 
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
+
+
         return view('pages.invoice.school-program.form')->with(
             [
                 'schoolProgram' => $schoolProgram,
@@ -370,10 +375,10 @@ class InvoiceSchoolController extends Controller
         $invoice_id = $invoiceSch->invb2b_id;
 
 
-        // return view('pages.invoice.school-program.export.invoice-pdf')->with([
-        //     'invoiceSch' => $invoiceSch,
-        //     'currency' => $currency,
-        // ]);
+        return view('pages.invoice.school-program.export.invoice-pdf')->with([
+            'invoiceSch' => $invoiceSch,
+            'currency' => $currency,
+        ]);
 
         // $companyDetail = [
         //     'name' => env('ALLIN_COMPANY'),
@@ -391,6 +396,154 @@ class InvoiceSchoolController extends Controller
             ]
         );
         return $pdf->download($invoice_id . ".pdf");
+    }
+
+    public function requestSign(Request $request)
+    {
+
+        $invNum = $request->route('invoice');
+        $currency = $request->route('currency');
+
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_id = $invoiceSch->invb2b_id;
+        $invoice_num = $invoiceSch->invb2b_num;
+
+        // $type = $request->get('type');
+        // return $link;
+        // exit;
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $data['email'] = 'test@gmail.com';
+        $data['recipient'] = 'test name';
+        $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
+        $data['param'] = [
+            'invb2b_num' => $invoice_num
+        ];
+
+        try {
+
+            $pdf = PDF::loadView('pages.invoice.school-program.export.invoice-pdf', [
+                'invoiceSch' => $invoiceSch,
+                'currency' => $currency,
+                'companyDetail' => $companyDetail
+            ]);
+
+            Mail::send('pages.invoice.school-program.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
+                $message->to($data['email'], $data['recipient'])
+                    ->subject($data['title'])
+                    ->attachData($pdf->output(), $invoice_id . '.pdf');
+            });
+        } catch (Exception $e) {
+
+            Log::info('Failed to request sign invoice : ' . $e->getMessage());
+            return $e->getMessage();
+        }
+
+        return true;
+    }
+
+    public function createSignedAttachment(Request $request)
+    {
+        if (Session::token() != $request->get('token')) {
+            return "Your session token is expired";
+        }
+
+        $invNum = $request->route('invoice');
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+
+        return view('pages.invoice.school-program.upload.view')->with(
+            [
+                'invoiceSch' => $invoiceSch,
+            ]
+        );
+    }
+
+    public function storeSignedAttachment(StoreAttachmentB2bRequest $request)
+    {
+        $invoice_id = $request->invoice_id;
+        $invNum = $request->route('invoice');
+
+        $attachmentDetails = $request->only([
+            'signed_attachment',
+        ]);
+
+        $file_format = $request->file('signed_attachment')->getClientOriginalExtension();
+
+        DB::beginTransaction();
+        try {
+
+            # proses store attachment here
+            if (!$request->hasFile('signed_attachment')) {
+                throw new Exception('Please upload your file');
+            }
+
+            $file_name = str_replace('/', '_', $invoice_id);
+            $file_format = $request->file('signed_attachment')->getClientOriginalExtension();
+            $file_path = $request->file('signed_attachment')->storeAs('public/uploaded_file/invoice/', $file_name . '.' . $file_format);
+
+            unset($attachmentDetails['signed_attachment']);
+            $attachmentDetails['attachment'] = $file_name . '.' . $file_format;
+            $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $attachmentDetails);
+
+
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::info('Upload signed attachment invoice failed : ' . $e->getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    public function download(Request $request)
+    {
+        $invNum = $request->route('invoice');
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+
+        return response()->download(storage_path('app/public/uploaded_file/invoice/' . $invoiceSch->attachment));
+    }
+
+    public function sendToClient(Request $request)
+    {
+        $invNum = $request->route('invoice');
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_id = $invoiceSch->invb2b_id;
+        $program_name = $invoiceSch->sch_prog->program->prog_program;
+
+
+        if ($invoiceSch->sch_prog->program->sub_prog_id > 0) {
+            $program_name = $invoiceSch->sch_prog->program->prog_sub . ' - ' . $invoiceSch->sch_prog->program->prog_program;
+        }
+
+        $data['email'] = 'test@gmail.com';
+        $data['recipient'] = 'Test Name';
+        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
+        $data['param'] = [
+            'invb2b_num' => $invNum
+        ];
+
+        try {
+
+            Mail::send('pages.invoice.school-program.mail.client-view', $data, function ($message) use ($data, $invoiceSch) {
+                $message->to($data['email'], $data['recipient'])
+                    ->subject($data['title'])
+                    ->attach(storage_path('app/public/uploaded_file/invoice/' . $invoiceSch->attachment));
+            });
+        } catch (Exception $e) {
+
+            Log::info('Failed to send invoice to client : ' . $e->getMessage());
+            return false;
+        }
+
+        return true;
     }
 
     protected function extract_installment($inv_id, $currency,  array $installments)

@@ -21,7 +21,7 @@ class StoreRefundRequest extends FormRequest
 
     public function __construct(ClientProgramRepositoryInterface $clientProgramRepository)
     {
-        $this->clientProgramRepository = $clientProgramRepository;   
+        $this->clientProgramRepository = $clientProgramRepository;
     }
 
     /**
@@ -31,14 +31,15 @@ class StoreRefundRequest extends FormRequest
      */
     public function rules()
     {
+
         $clientprog_id = $this->route('client_program');
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
         $total_payment = $clientProg->invoice->inv_totalprice_idr;
         $total_paid = $clientProg->invoice->receipt()->sum('receipt_amount_idr');
 
         return [
-            'total_payment' => 'required|integer|in:'.$total_payment,
-            'total_paid' => 'required|integer|in:'.$total_paid,
+            'total_payment' => 'required|integer|in:' . $total_payment,
+            'total_paid' => 'required|integer|in:' . $total_paid,
             'percentage_refund' => 'required',
             'refund_amount' => 'required',
             'tax_percentage' => 'required',

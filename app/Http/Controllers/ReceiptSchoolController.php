@@ -11,6 +11,7 @@ use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
+use App\Interfaces\RefundRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\Invb2b;
 use App\Models\Receipt;
@@ -20,6 +21,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use PDF;
+
 
 
 class ReceiptSchoolController extends Controller
@@ -31,8 +34,9 @@ class ReceiptSchoolController extends Controller
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
+    protected RefundRepositoryInterface $refundRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
@@ -40,6 +44,7 @@ class ReceiptSchoolController extends Controller
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->receiptRepository = $receiptRepository;
+        $this->refundRepository = $refundRepository;
     }
 
     public function index(Request $request)
@@ -141,12 +146,14 @@ class ReceiptSchoolController extends Controller
         $receiptId = $request->route('detail');
 
         $receiptSch = $this->receiptRepository->getReceiptById($receiptId);
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($receiptSch->invb2b_id);
 
 
         return view('pages.receipt.school-program.form')->with(
             [
 
                 'receiptSch' => $receiptSch,
+                'invoiceSch' => $invoiceSch,
                 'status' => 'show',
             ]
         );
@@ -180,9 +187,19 @@ class ReceiptSchoolController extends Controller
 
         $receiptSch = $this->receiptRepository->getReceiptById($receipt_id);
 
-        return view('pages.receipt.school-program.export.receipt-pdf')->with([
-            'receiptSch' => $receiptSch,
-            'currency' => $currency,
-        ]);
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receiptSch, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+        return $pdf->download($receiptSch->receipt_id . ".pdf");
+
+        // return view('pages.receipt.school-program.export.receipt-pdf')->with([
+        //     'receiptSch' => $receiptSch,
+        //     'currency' => $currency,
+        // ]);
     }
 }

@@ -17,7 +17,7 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $school->sch_name }}</h4>
-                    <h6>{{ $schoolProgram->program->prog_program }}</h6>
+                    <h6>{{ $schoolProgram->program->sub_prog ? $schoolProgram->program->sub_prog->sub_prog_name.' - ':''}}{{ $schoolProgram->program->prog_program }}</h6>
                     <div class="d-flex justify-content-center mt-3">
                         <a href="{{ url('program/school/' . strtolower($school->sch_id) . '/detail/' . $schoolProgram->id) }}"
                             class="btn btn-sm btn-outline-info rounded mx-1" target="_blank">
@@ -36,30 +36,64 @@
                             </button>    
                         @endif
                     </div>
-                    <div class="d-flex justify-content-center mt-2">
-                        @if (isset($invoiceSch))
+                    @if (isset($invoiceSch))
+                        <div class="d-flex justify-content-center mt-2">
                             @if($invoiceSch->currency != 'idr')
                                 {{-- <a href="{{  route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" 
                                     class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                                     <i class="bi bi-printer me-1"></i> Print Others
                                 </a> --}}
-                                <a href="#export" id="print_other"
+                                {{-- {{  route('invoice-sch.request_sign', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }} --}}
+                                <a href="#export" id="print_other" 
+                                {{-- id="print_other" --}}
                                     class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                                     <i class="bi bi-printer me-1"></i> Print Others
                                 </a>
                             @endif
-                            <a href="#export" id="print_idr"
+                            {{-- {{  route('invoice-sch.request_sign', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }} --}}
+                            <a href="#export" id="print_idr" 
+                            {{-- id="print_idr" --}}
                                 class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                                 <i class="bi bi-printer me-1"></i> Print IDR
                             </a>
+                        </div>
+
+                             @if (!isset($invoiceSch->refund) && isset($invoiceSch) && $invoiceSch->attachment == NULL)
+                                <div class="d-flex justify-content-center mt-2">
+                                    <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
+                                        <i class="bi bi-pen me-1"></i> Request Sign
+                                    </button>
+
+                                    
+                                        @if (isset($invoiceSch) && $invoiceSch->currency != "idr")
+                                            <button class="btn btn-sm btn-outline-info rounded mx-1" id="request-acc-other">
+                                                <i class="bi bi-printer me-1"></i> Request Sign Foreign
+                                            </button>
+                                        @endif
+                                </div>
+                            @else
+                                <div class="d-flex justify-content-center mt-2">
+                                    <a href="{{ route('invoice-sch.download', ['invoice' => $invoiceSch->invb2b_num]) }}">
+                                        <button class="btn btn-sm btn-outline-success rounded mx-1">
+                                            <i class="bi bi-download me-1"></i>
+                                            Download
+                                        </button>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client">
+                                        <i class="bi bi-printer me-1"></i> Send Invoice to Client
+                                    </button>
+                                </div>
+                            @endif
                         @endif
-                    </div>
+                    {{-- </div> --}}
                 </div>
             </div>
 
-            @if(isset($invoiceSch->receipt))
-                @if($invoiceSch->receipt->receipt_status == '2')
-                    @include('pages.invoice.school-program.detail.refund')
+            @if(isset($invoiceSch))
+                @if($invoiceSch->sch_prog->status == 3)
+                    @if(isset($invoiceSch->receipt))
+                        @include('pages.invoice.school-program.detail.refund')
+                    @endif                    
                 @endif
             @endif
 
@@ -380,6 +414,7 @@
         </div>
     </div>
 
+
     <script>
         function setIdentifier(id)
         {
@@ -629,7 +664,70 @@
                 @endif
             })
 
-             $("#submit-form").click(function(e) {
+            @if (isset($invoiceSch))
+                $("#send-inv-client").on('click', function(e) {
+                    e.preventDefault()
+                    Swal.showLoading()
+                    // var attachment = "{{ route('invoice-sch.download', ['invoice' => $invoiceSch->invb2b_num]) }}";
+                    // var link = 'https://api.whatsapp.com/send?phone=6285159825532&text=Test%20123%20%0Alink%20download%20';
+                    axios
+                        .get('{{ route('invoice-sch.send_to_client', ['invoice' => $invoiceSch->invb2b_num]) }}')
+                        .then(response => {
+                            // window.open(link + attachment) 
+                            swal.close()
+                            notification('success', 'Invoice has been send to client')
+                        })
+                        .catch(error => {
+                            notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                            swal.close()
+                        })
+                })
+
+                $("#request-acc").on('click', function(e) {
+                    e.preventDefault();
+
+                    Swal.showLoading()                
+                    axios
+                        .get('{{  route('invoice-sch.request_sign', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}', {
+                            responseType: 'arraybuffer',
+                            params: {
+                                type: 'idr'
+                            }
+                        })
+                        .then(response => {
+                            swal.close()
+                            notification('success', 'Sign has been requested')
+                        })
+                        .catch(error => {
+                            notification('error', 'Something went wrong while send email')
+                            swal.close()
+                        })
+                })
+
+                $("#request-acc-other").on('click', function(e) {
+                    e.preventDefault();
+
+                    Swal.showLoading()                
+                    axios
+                        .get('{{  route('invoice-sch.request_sign', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}', {
+                            responseType: 'arraybuffer',
+                            params: {
+                                type: 'other'
+                            }
+                        })
+                        .then(response => {
+                            swal.close()
+                            notification('success', 'Sign has been requested')
+                        })
+                        .catch(error => {
+                            notification('error', 'Something went wrong while send email')
+                            swal.close()
+                        })
+                })
+                
+            @endif
+
+            $("#submit-form").click(function(e) {
             e.preventDefault();
 
             var currency = $("#currency").val()

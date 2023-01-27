@@ -11,7 +11,7 @@ use DataTables;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 
-class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface 
+class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
 {
     public function getAllSpeakerByMonthAndYear($month, $year): JsonResponse
     {
@@ -24,19 +24,16 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
     public function getAllSpeakerByEvent($eventId)
     {
         return Agenda::where('event_id', $eventId)->get();
-        
     }
 
     public function getAllSpeakerBySchoolProgram($schProgId)
     {
         return Agenda::where('sch_prog_id', $schProgId)->get();
-        
     }
 
     public function getAllSpeakerByPartnerProgram($partnerProgId)
     {
-        return Agenda::where('partner_prog_id', $partnerProgId)->get();
-        
+        return AgendaSpeaker::where('partner_prog_id', $partnerProgId)->get();
     }
 
     public function getAllSpeakerByEventAndMonthAndYear($eventId, $month, $year): JsonResponse
@@ -46,7 +43,6 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
 
     public function getAgendaSpeakerById($agendaId)
     {
-
     }
 
     public function deleteAgendaSpeaker($agendaId)
@@ -60,11 +56,11 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
             case "Event":
                 return $this->createEventSpeaker($identifier, $agendaDetails);
                 break;
-                
+
             case "School-Program":
                 return $this->createSchoolProgramSpeaker($identifier, $agendaDetails);
                 break;
-            
+
             case "Partner-Program":
                 return $this->createPartnerProgramSpeaker($identifier, $agendaDetails);
                 break;
@@ -83,9 +79,9 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
         $agendaDetails['created_at'] = Carbon::now();
         $agendaDetails['updated_at'] = Carbon::now();
         $event = Event::whereEventId($identifier);
-        
-        switch($agendaDetails['speaker_type']) {
-            
+
+        switch ($agendaDetails['speaker_type']) {
+
             case "school":
                 return $event->school_speaker()->attach($agendaDetails['school_speaker'], $agendaDetails);
                 break;
@@ -109,53 +105,49 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
 
     # school program speaker below
     public function createSchoolProgramSpeaker($identifier, $agendaDetails)
-    {   
+    {
 
-       
-        switch($agendaDetails['speaker_type']) {
+
+        switch ($agendaDetails['speaker_type']) {
 
             case "school":
                 $agendaDetails['sch_pic_id'] = $agendaDetails['school_speaker'];
                 break;
-            
+
             case "partner":
                 $agendaDetails['partner_pic_id'] = $agendaDetails['partner_speaker'];
                 break;
-            
+
             case "internal":
                 $agendaDetails['empl_id'] = $agendaDetails['allin_speaker'];
                 break;
         }
-        
-  
-        return AgendaSpeaker::create($agendaDetails);
-        
 
+
+        return AgendaSpeaker::create($agendaDetails);
     }
 
     # school program speaker below
     public function createPartnerProgramSpeaker($identifier, $agendaDetails)
-    {   
+    {
 
-       
-        switch($agendaDetails['speaker_type']) {
+
+        switch ($agendaDetails['speaker_type']) {
 
             case "school":
                 $agendaDetails['sch_pic_id'] = $agendaDetails['school_speaker'];
                 break;
-            
+
             case "partner":
                 $agendaDetails['partner_pic_id'] = $agendaDetails['partner_speaker'];
                 break;
-            
+
             case "internal":
                 $agendaDetails['empl_id'] = $agendaDetails['allin_speaker'];
                 break;
         }
-        
-  
-        return AgendaSpeaker::create($agendaDetails);
-        
 
+
+        return AgendaSpeaker::create($agendaDetails);
     }
-}   
+}
