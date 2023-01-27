@@ -342,7 +342,7 @@ class InvoiceSchoolController extends Controller
             return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to update invoice');
         }
 
-        return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully created');
+        return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully updated');
     }
 
     public function destroy(Request $request)

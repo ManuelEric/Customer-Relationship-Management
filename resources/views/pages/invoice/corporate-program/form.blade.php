@@ -24,7 +24,7 @@
                             <i class="bi bi-eye me-1"></i> More
                         </a>
                         @if (isset($invoicePartner))
-                            <a href="{{ $status == 'edit' ? route('invoice-corp.detail.edit', ['corp_prog' => $invoicePartner->partnerprog_id, 'detail' => $invoicePartner->invb2b_num]) : route('invoice-corp.detail.show', ['corp_prog' => $invoicePartner->partnerprog_id, 'detail' => $invoicePartner->invb2b_num]) }}"
+                            <a href="{{ $status == 'edit' ? route('invoice-corp.detail.show', ['corp_prog' => $invoicePartner->partnerprog_id, 'detail' => $invoicePartner->invb2b_num]) : route('invoice-corp.detail.edit', ['corp_prog' => $invoicePartner->partnerprog_id, 'detail' => $invoicePartner->invb2b_num]) }}"
                                 class="btn btn-sm btn-outline-warning rounded mx-1">
                                 <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
                                 {{ $status == 'edit' ? 'Back' : 'Edit' }}
@@ -109,7 +109,7 @@
                                 <label for="">Current Rate to IDR</label>
                                 <input type="number" name="curs_rate" id="current_rate"
                                     class="form-control form-control-sm rounded"
-                                    value="{{ isset($invoiceSch) ? $invoiceSch->curs_rate : old('curs_rate') }}"
+                                    value="{{ isset($invoicePartner) ? $invoicePartner->curs_rate : old('curs_rate') }}"
                                     {{ $status == 'edit' ? '' : 'disabled' }}>
                                 @error('curs_rate')
                                     <small class="text-danger fw-light">{{ $message }}</small>

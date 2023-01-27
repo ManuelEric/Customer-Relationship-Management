@@ -212,139 +212,137 @@ class InvoicePartnerController extends Controller
         return view('pages.invoice.corporate-program.form')->with(
             [
                 'partnerProgram' => $partnerProgram,
-                // 'school' => $school,
                 'invoicePartner' => $invoicePartner,
                 'status' => 'show',
             ]
         );
     }
 
-    // public function edit(Request $request)
-    // {
-    //     $invNum = $request->route('detail');
-    //     $schProgId = $request->route('sch_prog');
+    public function edit(Request $request)
+    {
+        $invNum = $request->route('detail');
+        $partnerProgId = $request->route('corp_prog');
 
-    //     $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
+        $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partnerProgId);
 
-    //     $schoolId = $schoolProgram->sch_id;
+        // $partnerId = $partnerProgram->sch_id;
 
-    //     $school = $this->schoolRepository->getSchoolById($schoolId);
+        // $school = $this->schoolRepository->getSchoolById($partnerId);
 
-    //     $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
-    //     return view('pages.invoice.school-program.form')->with(
-    //         [
-    //             'status' => 'edit',
-    //             'schoolProgram' => $schoolProgram,
-    //             'school' => $school,
-    //             'invoiceSch' => $invoiceSch,
-    //         ]
-    //     );
-    // }
+        return view('pages.invoice.corporate-program.form')->with(
+            [
+                'status' => 'edit',
+                'partnerProgram' => $partnerProgram,
+                'invoicePartner' => $invoicePartner,
+            ]
+        );
+    }
 
-    // public function update(StoreInvoiceSchRequest $request)
-    // {
+    public function update(StoreInvoiceSchRequest $request)
+    {
 
-    //     $schProgId = $request->route('sch_prog');
-    //     $invNum = $request->route('detail');
+        $partnerProgId = $request->route('corp_prog');
+        $invNum = $request->route('detail');
 
-    //     $invoices = $request->only([
-    //         'select_currency',
-    //         'currency',
-    //         'curs_rate',
-    //         'invb2b_priceidr',
-    //         'invb2b_priceidr_other',
-    //         'invb2b_price',
-    //         'invb2b_totpriceidr',
-    //         'invb2b_totpriceidr_other',
-    //         'invb2b_totprice',
-    //         'invb2b_participants',
-    //         'invb2b_participants_other',
-    //         'invb2b_discidr',
-    //         'invb2b_discidr_other',
-    //         'invb2b_disc',
-    //         'invb2b_wordsidr',
-    //         'invb2b_wordsidr_other',
-    //         'invb2b_words',
-    //         'invb2b_pm',
-    //         'invb2b_date',
-    //         'invb2b_duedate',
-    //         'invb2b_notes',
-    //         'invb2b_tnc',
-    //     ]);
+        $invoices = $request->only([
+            'select_currency',
+            'currency',
+            'curs_rate',
+            'invb2b_priceidr',
+            'invb2b_priceidr_other',
+            'invb2b_price',
+            'invb2b_totpriceidr',
+            'invb2b_totpriceidr_other',
+            'invb2b_totprice',
+            'invb2b_participants',
+            'invb2b_participants_other',
+            'invb2b_discidr',
+            'invb2b_discidr_other',
+            'invb2b_disc',
+            'invb2b_wordsidr',
+            'invb2b_wordsidr_other',
+            'invb2b_words',
+            'invb2b_pm',
+            'invb2b_date',
+            'invb2b_duedate',
+            'invb2b_notes',
+            'invb2b_tnc',
+        ]);
 
-    //     $installments = $request->only(
-    //         [
-    //             'invdtl_installment',
-    //             'invdtl_duedate',
-    //             'invdtl_percentage',
-    //             'invdtl_installment_other',
-    //             'invdtl_duedate_other',
-    //             'invdtl_percentage_other',
-    //             'invdtl_amount',
-    //             'invdtl_amountidr',
-    //             'invdtl_amountidr_other',
-    //         ]
-    //     );
+        $installments = $request->only(
+            [
+                'invdtl_installment',
+                'invdtl_duedate',
+                'invdtl_percentage',
+                'invdtl_installment_other',
+                'invdtl_duedate_other',
+                'invdtl_percentage_other',
+                'invdtl_amount',
+                'invdtl_amountidr',
+                'invdtl_amountidr_other',
+            ]
+        );
 
-    //     switch ($invoices['select_currency']) {
-    //         case 'other':
-    //             $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other'];
-    //             $invoices['invb2b_discidr'] = $invoices['invb2b_discidr_other'];
-    //             $invoices['invb2b_participants'] = $invoices['invb2b_participants_other'];
-    //             $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other'];
-    //             $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other'];
-    //             break;
+        switch ($invoices['select_currency']) {
+            case 'other':
+                $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other'];
+                $invoices['invb2b_discidr'] = $invoices['invb2b_discidr_other'];
+                $invoices['invb2b_participants'] = $invoices['invb2b_participants_other'];
+                $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other'];
+                $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other'];
+                break;
 
-    //         case 'idr':
-    //             unset($invoices['invb2b_price']);
-    //             unset($invoices['invb2b_disc']);
-    //             unset($invoices['invb2b_totprice']);
-    //             unset($invoices['invb2b_words']);
-    //             unset($invoices['currency']);
-    //             break;
-    //     }
+            case 'idr':
+                unset($invoices['invb2b_price']);
+                unset($invoices['invb2b_disc']);
+                unset($invoices['invb2b_totprice']);
+                unset($invoices['invb2b_words']);
+                unset($invoices['currency']);
+                break;
+        }
 
-    //     unset($invoices['invb2b_participants_other']);
-    //     unset($invoices['invb2b_priceidr_other']);
-    //     unset($invoices['invb2b_discidr_other']);
-    //     unset($invoices['invb2b_totpriceidr_other']);
-    //     unset($invoices['invb2b_wordsidr_other']);
+        unset($invoices['invb2b_participants_other']);
+        unset($invoices['invb2b_priceidr_other']);
+        unset($invoices['invb2b_discidr_other']);
+        unset($invoices['invb2b_totpriceidr_other']);
+        unset($invoices['invb2b_wordsidr_other']);
 
-    //     $invoices['schprog_id'] = $schProgId;
+        $invoices['schprog_id'] = $partnerProgId;
 
-    //     $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-    //     $inv_id = $inv_b2b->invb2b_id;
-    //     if ($invoices['invb2b_pm'] == 'Installment') {
-    //         $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
-    //     }
-    //     unset($installments);
+        $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $inv_id = $inv_b2b->invb2b_id;
+        if ($invoices['invb2b_pm'] == 'Installment') {
+            $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
+        }
+        unset($installments);
 
-    //     // return $installment;
-    //     // exit;
+        // return $installment;
+        // exit;
 
-    //     DB::beginTransaction();
-    //     try {
+        DB::beginTransaction();
+        try {
 
-    //         $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $invoices);
-    //         if ($invoices['invb2b_pm'] == 'Installment') {
-    //             $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
-    //             $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
-    //         }
-    //         // exit;
-    //         DB::commit();
-    //     } catch (Exception $e) {
+            $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $invoices);
+            if ($invoices['invb2b_pm'] == 'Installment') {
+                $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
+                $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
+            }
+            // exit;
+            DB::commit();
+        } catch (Exception $e) {
 
-    //         DB::rollBack();
-    //         Log::error('Update invoice failed : ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Update invoice failed : ' . $e->getMessage());
 
-    //         return $e->getMessage();
-    //         exit;
-    //         return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to update invoice');
-    //     }
+            return $e->getMessage();
+            exit;
+            return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/' . $invNum)->withError('Failed to update invoice');
+        }
 
-    //     return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully created');
-    // }
+        return Redirect::to('invoice/corporate-program/' . $partnerProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully updated');
+    }
 
     // public function destroy(Request $request)
     // {
