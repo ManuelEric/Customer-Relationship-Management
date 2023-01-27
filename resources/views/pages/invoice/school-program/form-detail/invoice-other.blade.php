@@ -14,10 +14,10 @@
                         oninput="checkInvoiceOther()"
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_price : old('invb2b_price') }}"
                         {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                </div>
                     @error('invb2b_price')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
-                </div>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text" id="basic-addon1">
                         Rp
@@ -26,10 +26,10 @@
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_priceidr : old('invb2b_priceidr_other') }}"
                         readonly
                         {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                </div>
                     @error('invb2b_priceidr_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
-                </div>
             </div>
             <div class="col-md-4 mb-3">
                 <label for="">Participants</label>
@@ -41,10 +41,10 @@
                         <span class="input-group-text" id="basic-addon1">
                             Person
                         </span>
+                </div>
                     @error('invb2b_participants_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
-                </div>
             </div>
             <div class="col-md-4 mb-3">
                 <label for="">Discount</label>
@@ -56,10 +56,10 @@
                         oninput="checkInvoiceOther()"
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_disc : old('invb2b_price') }}"
                         {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                </div>
                     @error('invb2b_disc')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
-                </div>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text" id="basic-addon1">
                         Rp
@@ -68,10 +68,10 @@
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_discidr : old('invb2b_discidr_other') }}"
                         readonly
                         {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                </div>
                     @error('invb2b_discidr_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
-                </div>
             </div>
             <div class="col-md-4 mb-3">
                 <label for="">Total Price</label>
@@ -82,10 +82,10 @@
                     <input type="number" name="invb2b_totprice" id="invoice_other_total" class="form-control"
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totprice : old('invb2b_totprice') }}"
                         {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                </div>
                     @error('invb2b_totprice')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
-                </div>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text" id="basic-addon1">
                         Rp
@@ -94,10 +94,10 @@
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totpriceidr : old('invb2b_totpriceidr_other') }}"
                         readonly
                         {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                </div>
                     @error('invb2b_totpriceidr_other')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
-                </div>
             </div>
             <div class="col-md-8 mb-3">
                 <label for="">Words</label>

@@ -89,12 +89,8 @@
                 </div>
             </div>
 
-            @if(isset($invoiceSch))
-                @if($invoiceSch->sch_prog->status == 3)
-                    @if(isset($invoiceSch->receipt))
-                        @include('pages.invoice.school-program.detail.refund')
-                    @endif                    
-                @endif
+            @if(isset($invoiceSch) && $invoiceSch->sch_prog->status == 3 && isset($invoiceSch->receipt))
+                @include('pages.invoice.school-program.detail.refund')
             @endif
 
             @include('pages.invoice.school-program.form-detail.client')
@@ -606,11 +602,18 @@
         </script>
     @endif
 
+    @if(!empty(old('select_currency')))
         <script>
             $(document).ready(function(){
-                @if(!empty(old('select_currency')) )
-                    $('#currency').val("{{old('select_currency')}}").trigger('change')
-                @endif
+                $('#currency').val("{{old('select_currency')}}").trigger('change')
+            })
+
+        </script>
+    @endif
+
+        <script>
+            $(document).ready(function(){
+             
 
                 $("#print_other").on('click', function(e) {
                 e.preventDefault();

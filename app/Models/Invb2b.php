@@ -164,4 +164,9 @@ class Invb2b extends Model
     {
         return $this->hasOne(SchoolProgram::class, 'id', 'schprog_id');
     }
+
+    public function partner_prog()
+    {
+        return $this->hasOne(PartnerProg::class, 'id', 'partnerprog_id');
+    }
 }
