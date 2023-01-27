@@ -247,7 +247,7 @@
                                             $
                                         </span>
                                         <input type="number" name="receipt_amount" id="receipt_amount_other"
-                                            class="form-control" required value="">
+                                            class="form-control" value="">
                                         @error('receipt_amount')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror

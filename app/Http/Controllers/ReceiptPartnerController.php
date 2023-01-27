@@ -50,9 +50,9 @@ class ReceiptPartnerController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            return $this->receiptRepository->getAllReceiptSchDataTables();
+            return $this->receiptRepository->getAllReceiptCorpDataTables();
         }
-        return view('pages.receipt.school-program.index');
+        return view('pages.receipt.corporate-program.index');
     }
 
     public function store(StoreReceiptRequest $request)
