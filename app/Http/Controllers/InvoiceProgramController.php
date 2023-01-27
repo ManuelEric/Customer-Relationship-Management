@@ -443,7 +443,7 @@ class InvoiceProgramController extends Controller
         ];
 
         $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
-        return $pdf->download($invoice_id.".pdf");
+        return $pdf->download($invoice_id . ".pdf");
 
         // return view('pages.invoice.client-program.export.invoice-pdf')->with(
         //     [
@@ -474,7 +474,7 @@ class InvoiceProgramController extends Controller
 
         $data['email'] = env('DIRECTOR_EMAIL');
         $data['recipient'] = env('DIRECTOR_NAME');
-        $data['title'] = "Request Sign of Invoice Number : ".$invoice_id;
+        $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
             'clientprog_id' => $clientprog_id
         ];
@@ -482,29 +482,26 @@ class InvoiceProgramController extends Controller
         try {
 
             $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
-            
-            Mail::send('pages.invoice.client-program.mail.view', $data, function($message) use ($data, $pdf, $invoice_id) {
+
+            Mail::send('pages.invoice.client-program.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
                 $message->to($data['email'], $data['recipient'])
-                        ->subject($data['title'])
-                        ->attachData($pdf->output(), $invoice_id.'.pdf');
+                    ->subject($data['title'])
+                    ->attachData($pdf->output(), $invoice_id . '.pdf');
             });
-        
         } catch (Exception $e) {
 
             Log::info('Failed to request sign invoice : ' . $e->getMessage());
             return false;
-
         }
 
         return true;
-
     }
 
     public function createSignedAttachment(Request $request)
     {
-        if (Session::token() != $request->get('token')) {
-            return "Your session token is expired";
-        }
+        // if (Session::token() != $request->get('token')) {
+        //     return "Your session token is expired";
+        // }
 
         $clientprog_id = $request->route('client_program');
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
@@ -540,16 +537,14 @@ class InvoiceProgramController extends Controller
             unset($attachmentDetails['signed_attachment']);
             $attachmentDetails['attachment'] = $file_name . '.' . $file_format;
             $this->invoiceProgramRepository->updateInvoice($invoice_id, $attachmentDetails);
-            
+
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::info('Upload signed attachment invoice failed : ' . $e->getMessage());
             return false;
-
         }
 
         return true;
@@ -562,7 +557,7 @@ class InvoiceProgramController extends Controller
         $invoice = $clientProg->invoice;
 
         // return storage_path('app/public/uploaded_file/invoice/'.$invoice->attachment);
-        return response()->download(storage_path('app/public/uploaded_file/invoice/'.$invoice->attachment));
+        return response()->download(storage_path('app/public/uploaded_file/invoice/' . $invoice->attachment));
     }
 
     public function sendToClient(Request $request)
@@ -574,24 +569,28 @@ class InvoiceProgramController extends Controller
 
         $data['email'] = env('DIRECTOR_EMAIL');
         $data['recipient'] = env('DIRECTOR_NAME');
-        $data['title'] = "ALL-In Eduspace | Invoice of program : ".$clientProg->program_name;
+        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $clientProg->program_name;
         $data['param'] = [
             'clientprog_id' => $clientprog_id
         ];
 
         try {
 
-            Mail::send('pages.invoice.client-program.mail.client-view', $data, function($message) use ($data, $invoice) {
+            Mail::send('pages.invoice.client-program.mail.client-view', $data, function ($message) use ($data, $invoice) {
                 $message->to($data['email'], $data['recipient'])
-                        ->subject($data['title'])
-                        ->attach(storage_path('app/public/uploaded_file/invoice/'.$invoice->attachment));
+                    ->subject($data['title'])
+                    ->attach(storage_path('app/public/uploaded_file/invoice/' . $invoice->attachment));
             });
 
+            # update status send to client
+            $newDetails['send_to_client'] = 'sent';
+            $this->invoiceProgramRepository->updateInvoice($invoice_id, $newDetails);
+
+
         } catch (Exception $e) {
-            
+
             Log::info('Failed to send invoice to client : ' . $e->getMessage());
             return false;
-
         }
 
         return true;

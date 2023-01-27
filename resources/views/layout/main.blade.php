@@ -143,7 +143,7 @@
 
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('master/edufair*') ? 'active' : '' }}"
-                                        href="{{ url('master/edufair') }}">Edufair</a>
+                                        href="{{ url('master/edufair') }}">External Edufair</a>
                                 </li>
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('master/purchase*') ? 'active' : '' }}"
@@ -225,7 +225,8 @@
                             <span class="menu-title">Program</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="collapse {{ Request::is('*/program/*') || Request::is('program/*') ? 'show' : 'hide' }}" id="program">
+                        <div class="collapse {{ Request::is('*/program/*') || Request::is('program/*') ? 'show' : 'hide' }}"
+                            id="program">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('program/referral*') ? 'active' : '' }}"
@@ -286,6 +287,12 @@
                                         Referral
                                     </a>
                                 </li>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('invoice/refund*') ? 'active' : '' }}"
+                                        href="{{ url('invoice/refund/status/needed') }}">
+                                        Refund
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </li>
@@ -325,7 +332,7 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#users" aria-expanded="false"
+                        <a class="nav-link {{ Request::is('user*') ? 'text-primary' : '' }}" data-bs-toggle="collapse" href="#users" aria-expanded="false"
                             aria-controls="users">
                             <i class="bi bi-person-workspace mx-2"></i>
                             <span class="menu-title">Users</span>
@@ -333,9 +340,9 @@
                         </a>
                         <div class="collapse {{ Request::is('user*') ? 'show' : 'hide' }}" id="users">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('user/employee') }}">Employee</a>
+                                <li class="nav-item"> <a class="nav-link {{ Request::is('user/*') && !Request::is('user/volunteer*') ? 'active' : '' }}" href="{{ url('user/employee') }}">Employee</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link" href="{{ url('user/volunteer') }}">Volunteer
+                                <li class="nav-item"> <a class="nav-link {{ Request::is('user/volunteer*') ? 'active' : '' }}" href="{{ url('user/volunteer') }}">Volunteer
                                     </a>
                                 </li>
                             </ul>

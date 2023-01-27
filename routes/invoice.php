@@ -153,3 +153,8 @@ Route::prefix('corporate-program')->name('invoice-corp.')->group(function () {
     // Route::get('{invoice}/attachment/download', [InvoiceSchoolController::class, 'download'])->name('download');
     // Route::delete('{invoice}/refund/{refund}', [RefundSchoolController::class, 'destroy'])->name('refund.destroy');
 });
+
+
+Route::get('refund/status/{status?}', function ($status = null) {
+    return view('pages.invoice.refund.index', ['status' => $status]);
+});

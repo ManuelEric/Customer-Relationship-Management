@@ -3,11 +3,69 @@
 namespace App\Repositories;
 
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\pivot\UserTypeDetail;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use DataTables;
+use Exception;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserRepository implements UserRepositoryInterface 
 {
+
+    public function getAllUsersByRoleDataTables($role)
+    {
+        return DataTables::eloquent(
+            User::leftJoin('tbl_position', 'tbl_position.id', '=', 'users.position_id')->
+            whereHas('roles', function ($query) use ($role) {
+                $query->where('role_name', $role);
+            })
+            ->select([
+                'users.id as id',
+                'extended_id',
+                'first_name',
+                'last_name',
+                DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
+                'email',
+                'phone',
+                'tbl_position.position_name',
+                DB::raw('(SELECT GROUP_CONCAT(tbl_user_educations.graduation_date SEPARATOR ", ") FROM tbl_user_educations
+                WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) as graduation_date_group'),
+                DB::raw('(SELECT GROUP_CONCAT(tbl_major.name SEPARATOR ", ") FROM tbl_user_educations
+                LEFT JOIN tbl_major ON tbl_major.id = tbl_user_educations.major_id
+                WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) as major_group'),
+                'datebirth',
+                'nik',
+                'npwp',
+                'bankacc',
+                'emergency_contact',
+                'address',
+                'active',
+
+            ])
+            ->orderBy('extended_id', 'asc')
+        )
+        ->filterColumn('full_name', function ($query, $keyword) {
+            $sql = 'CONCAT(first_name, " ", COALESCE(last_name, "")) like ?';
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+        })
+        ->filterColumn('graduation_date_group', function ($query, $keyword) {
+            $sql = '(SELECT GROUP_CONCAT(tbl_user_educations.graduation_date SEPARATOR ", ") FROM tbl_user_educations
+            WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) like ?';
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+        })
+        ->filterColumn('major_group', function ($query, $keyword) {
+            $sql = '(SELECT GROUP_CONCAT(tbl_major.name SEPARATOR ", ") FROM tbl_user_educations
+            LEFT JOIN tbl_major ON tbl_major.id = tbl_user_educations.major_id
+            WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) like ?';
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+        })
+        ->rawColumns(['address'])
+        ->make(true);
+    }
+
     public function getAllUsers()
     {
         return User::all();
@@ -64,9 +122,36 @@ class UserRepository implements UserRepositoryInterface
         return User::find($userId)->update($newDetails);
     }
 
+    public function updateStatusUser($userId, $newStatus)
+    {
+        # update status users
+        $user = User::find($userId)->update(['active' => $newStatus]);
+        
+        # update status user type detail
+        switch ($newStatus) {
+
+            case 0: # deactivate
+                return UserTypeDetail::where('user_id', $userId)->where('status', 1)->update([
+                    'status' => 0,
+                ]);
+                break;
+
+            case 1: # activate
+                return UserTypeDetail::where('user_id', $userId)->where('status', 0)->whereNull('deactivated_at')->update([
+                    'status' => 1,
+                ]);
+                break;
+        }
+    }
+
     public function updateExtendedId($newDetails)
     {
         
+    }
+
+    public function deleteUserType($userTypeId)
+    {
+        return UserTypeDetail::destroy($userTypeId);
     }
 
     public function getUserRoles($userId, $roleName)

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\pivot\UserRole;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,10 +37,10 @@ class Department extends Model
     }
 
     # relation
-    public function user()
-    {
-        return $this->hasOne(User::class, 'department_id', 'id');
-    }
+    // public function user_roles()
+    // {
+    //     return $this->hasMany(UserRole::class, 'department_id', 'id');
+    // }
 
     public function purchase_request()
     {

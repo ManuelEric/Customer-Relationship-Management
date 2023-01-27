@@ -20,7 +20,7 @@ return new class extends Migration
             c.st_grade,
             r.reason_name as reason,
             CONCAT(c.first_name, " ", COALESCE(c.last_name, "")) as fullname,
-            CONCAT(p.prog_program, " - ", mp.prog_name) as program_name,
+            CONCAT(p.prog_program COLLATE utf8mb4_unicode_ci, " - ", mp.prog_name COLLATE utf8mb4_unicode_ci) as program_name,
             (CASE WHEN cp.status = 0 THEN "Pending"
                 WHEN cp.status = 1 THEN "Success"
                 WHEN cp.status = 2 THEN "Failed"
@@ -34,11 +34,11 @@ return new class extends Migration
                 ELSE cl.main_lead
             END) AS lead_source,
             (CASE 
-                WHEN cpl.main_lead = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead)
-                WHEN cpl.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", edl.title)
-                WHEN cpl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title)
-                WHEN cpl.main_lead = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name)
-                ELSE cpl.main_lead
+                WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT("KOL - ", cpl.sub_lead COLLATE utf8mb4_unicode_ci)
+                WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN CONCAT("External Edufair - ", edl.title COLLATE utf8mb4_unicode_ci)
+                WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Event" THEN CONCAT("All-In Event - ", e.event_title COLLATE utf8mb4_unicode_ci)
+                WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
+                ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
             END) AS conversion_lead,
             (SELECT GROUP_CONCAT(CONCAT(squ.first_name, " ", squ.last_name)) FROM tbl_client_mentor sqcm
                     LEFT JOIN users squ ON squ.id = sqcm.user_id

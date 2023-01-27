@@ -84,30 +84,39 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 break;
 
             case "refund-list":
-                $query = Refund::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
-                    ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-                    ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-                    ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-                    ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-                    ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
-                    ->select([
-                        'tbl_inv.clientprog_id',
-                        'tbl_receipt.id',
-                        'tbl_receipt.receipt_id',
-                        'tbl_receipt.created_at',
-                        DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
-                        DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
-                        'tbl_inv.inv_id',
-                        'tbl_receipt.receipt_method',
-                        'tbl_inv.created_at',
-                        'tbl_inv.inv_duedate',
-                        'tbl_receipt.receipt_amount_idr',
-                        DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
-                    ]);
+                $query = Refund::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_refund.inv_id')
+                ->leftJoin('tbl_receipt', 'tbl_receipt.inv_id', '=', 'tbl_inv.inv_id')
+                ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
+                ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+                ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+                ->select([
+                    'tbl_inv.clientprog_id',
+                    'tbl_receipt.id',
+                    'tbl_receipt.receipt_id',
+                    'tbl_receipt.created_at',
+                    DB::raw('CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, "")) as client_fullname'),
+                    DB::raw('CONCAT(prog_program COLLATE utf8mb4_unicode_ci, " - ", COALESCE(tbl_main_prog.prog_name COLLATE utf8mb4_unicode_ci, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name COLLATE utf8mb4_unicode_ci, "")) as program_name'),
+                    'tbl_inv.inv_id',
+                    'tbl_receipt.receipt_method',
+                    'tbl_inv.created_at',
+                    'tbl_inv.inv_duedate',
+                    'tbl_receipt.receipt_amount_idr',
+                    DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
+                ]);
                 break;
         }
 
-        return DataTables::eloquent($query)->make(true);
+        return DataTables::eloquent($query)
+            ->filterColumn('client_fullname', function($query, $keyword) {
+                $sql = 'CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, "")) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->filterColumn('program_name', function($query, $keyword) {
+                $sql = 'CONCAT(prog_program COLLATE utf8mb4_unicode_ci, " - ", COALESCE(tbl_main_prog.prog_name COLLATE utf8mb4_unicode_ci, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name COLLATE utf8mb4_unicode_ci, "")) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })->make(true);
     }
 
     public function getReceiptByInvoiceIdentifier($invoiceType, $identifier)

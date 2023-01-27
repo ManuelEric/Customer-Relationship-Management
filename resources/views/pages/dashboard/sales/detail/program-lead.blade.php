@@ -43,6 +43,35 @@
 </div>
 
 <script>
+    // percentage 
+    let lbl_prog_lead = [{
+        formatter: (value, ctx) => {
+            let datasets = ctx.chart.data.datasets;
+            if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
+                let sum = datasets[0].data.reduce((a, b) => a + b, 0);
+                let percentage = Math.round((value / sum) * 100) + '%';
+                return percentage;
+            } else {
+                return percentage;
+            }
+        },
+        color: '#000',
+        font: {
+            size: 11
+        },
+        padding: {
+            left: 4,
+            right: 4,
+            top: 3,
+            bottom: 1
+        },
+        anchor: 'center',
+        borderRadius: 10,
+        backgroundColor: '#fff',
+    }]
+
+
+    // Overall Lead 
     const lead = document.getElementById('leadSource');
 
     new Chart(lead, {
@@ -56,6 +85,7 @@
                 borderRadius: 20,
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             indexAxis: 'y',
             scales: {
@@ -64,6 +94,7 @@
                 }
             },
             plugins: {
+                datalabels: lbl_prog_lead[0],
                 title: {
                     display: true,
                     text: 'Lead Source',
@@ -92,6 +123,7 @@
                 borderRadius: 20,
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             indexAxis: 'y',
             scales: {
@@ -100,6 +132,7 @@
                 }
             },
             plugins: {
+                datalabels: lbl_prog_lead[0],
                 title: {
                     display: true,
                     text: 'Conversion Leads',
@@ -119,18 +152,20 @@
     const admLead = document.getElementById('admissionsLead');
 
     new Chart(admLead, {
-        type: 'polarArea',
+        type: 'pie',
         data: {
             labels: ['Whatshapp', 'Instagram', 'KOL - @ads', 'Edufair: Lorem'],
             datasets: [{
                 label: '',
                 data: [12, 19, 3, 5],
                 borderWidth: 1,
-                borderRadius: 10,
+                borderRadius: 3,
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             plugins: {
+                datalabels: lbl_prog_lead[0],
                 legend: {
                     display: true,
                     position: 'bottom',
@@ -146,18 +181,20 @@
     const acadLead = document.getElementById('academicLead');
 
     new Chart(acadLead, {
-        type: 'polarArea',
+        type: 'pie',
         data: {
             labels: ['Whatshapp', 'Instagram', 'KOL - @ads', 'Edufair: Lorem'],
             datasets: [{
                 label: '',
                 data: [12, 19, 3, 5],
                 borderWidth: 1,
-                borderRadius: 10,
+                borderRadius: 3,
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             plugins: {
+                datalabels: lbl_prog_lead[0],
                 legend: {
                     display: true,
                     position: 'bottom',
@@ -173,18 +210,20 @@
     const careerLead = document.getElementById('careerLead');
 
     new Chart(careerLead, {
-        type: 'polarArea',
+        type: 'pie',
         data: {
             labels: ['Whatshapp', 'Instagram', 'KOL - @ads', 'Edufair: Lorem'],
             datasets: [{
                 label: '',
                 data: [12, 19, 3, 5],
                 borderWidth: 1,
-                borderRadius: 10,
+                borderRadius: 3,
             }]
         },
+        plugins: [ChartDataLabels],
         options: {
             plugins: {
+                datalabels: lbl_prog_lead[0],
                 legend: {
                     display: true,
                     position: 'bottom',
@@ -192,7 +231,7 @@
                         boxWidth: 10,
                     }
                 }
-            }
+            },
         }
     });
 </script>
