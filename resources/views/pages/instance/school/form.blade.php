@@ -49,44 +49,49 @@
                             </h6>
                         </div>
                         <div class="">
-                            <a href="{{ url('program/school/'. strtolower($school->sch_id)) .'/detail/create' }}"
+                            <a href="{{ url('program/school/' . strtolower($school->sch_id)) . '/detail/create' }}"
                                 class="btn btn-sm btn-outline-primary rounded mx-1">
                                 <i class="bi bi-plus"></i>
                             </a>
                         </div>
                     </div>
-                    <div class="list-group list-group-flush">
-                        @if (count($schoolPrograms)==0)
-                        <div class="list-group-item text-center py-3">
-                            No Program Yet
-                        </div>
-                        @endif
-                        @foreach ($schoolPrograms as $schoolProgram)
-                            <div class="list-group-item">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="text-start">
-                                        <div class="">
-                                            {{ $schoolProgram->program->prog_program }}
-                                        </div>
-                                        <small>
-                                            @if ($schoolProgram->status == 0)
-                                                Pending
-                                            @elseif ($schoolProgram->status == 1)
-                                                Success
-                                            @elseif ($schoolProgram->status == 2)
-                                                Denied
-                                            @endif
-                                        </small>
-                                    </div>
-                                    <a href="{{ url('program/school/'. strtolower($school->sch_id) .'/detail/'. $schoolProgram->id) }}" class="fs-6 text-warning">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                </div>
+                    <div class="card-body p-2">
+                        @if (count($schoolPrograms) == 0)
+                            <div class="list-group-item text-center py-3">
+                                No Program Yet
                             </div>
-                        @endforeach
+                        @endif
+                        <ul class="list-group">
+                            @foreach ($schoolPrograms as $schoolProgram)
+                                <li class="list-group-item">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="text-start">
+                                            <div class="" style="margin-bottom: -5px">
+                                                {{ $schoolProgram->program->prog_program }}
+                                            </div>
+                                            <small>
+                                                @if ($schoolProgram->status == 0)
+                                                    Pending
+                                                @elseif ($schoolProgram->status == 1)
+                                                    Success
+                                                @elseif ($schoolProgram->status == 2)
+                                                    Denied
+                                                @endif
+                                            </small>
+                                        </div>
+                                        <a href="{{ url('program/school/' . strtolower($school->sch_id) . '/detail/' . $schoolProgram->id) }}"
+                                            class="fs-6 text-warning">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
             @endif
+
+            @include('pages.instance.school.detail.school-visit')
         </div>
         <div class="col-md-8">
             <div class="card mb-3">
@@ -215,7 +220,7 @@
                                         <option data-placeholder="true"></option>
                                         @foreach ($curriculums as $curriculum)
                                             <option value="{{ $curriculum->id }}"
-                                                {{ (isset($school->curriculum) && in_array($curriculum->id, $school->curriculum->pluck('id')->toArray())) || (old('sch_curriculum') !== NULL) && in_array($curriculum->name, old('sch_curriculum')) ? 'selected' : null }}>
+                                                {{ (isset($school->curriculum) && in_array($curriculum->id, $school->curriculum->pluck('id')->toArray())) || (old('sch_curriculum') !== null && in_array($curriculum->name, old('sch_curriculum'))) ? 'selected' : null }}>
                                                 {{ $curriculum->name }}</option>
                                         @endforeach
                                     </select>
