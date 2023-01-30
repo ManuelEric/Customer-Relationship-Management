@@ -16,8 +16,8 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>Partner Name</h4>
-                    <h6>Program Name</h6>
+                    <h4>{{ $receiptPartner->invoiceB2b->partner_prog->corp->corp_name }}</h4>
+                    <h6>{{ $receiptPartner->invoiceB2b->partner_prog->program->prog_program }}</h6>
                     <div class="d-flex flex-wrap justify-content-center mt-3">
                         <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1">
                             <i class="bi bi-trash2 me-1"></i> Delete
@@ -34,7 +34,7 @@
                 </div>
             </div>
 
-            @include('pages.receipt.corporate-program.form-detail.refund')
+            {{-- @include('pages.receipt.corporate-program.form-detail.refund') --}}
             @include('pages.receipt.corporate-program.form-detail.client')
 
         </div>
@@ -54,25 +54,44 @@
                     <table class="table table-hover">
                         <tr>
                             <td width="20%">Receipt ID :</td>
-                            <td>REC-12312/24124/12412</td>
+                            <td>{{ $receiptPartner->receipt_id }}</td>
                         </tr>
                         <tr>
                             <td>Receipt Date :</td>
-                            <td>12 December 2022</td>
+                            <td>{{ date('d M Y H:i:s', strtotime($receiptPartner->created_at)) }}</td>
                         </tr>
+                        @if(isset($receiptPartner->invdtl_id))
+                            <tr>
+                                <td>Installment Name :</td>
+                                <td>{{ $receiptPartner->invoiceInstallment->invdtl_installment }}</td>
+                            </tr>
+                        @endif
                         <tr>
                             <td>Payment Method :</td>
-                            <td>Wire Transfer</td>
+                            <td>{{ $receiptPartner->receipt_method }}</td>
                         </tr>
+                         @if($receiptPartner->receipt_method == 'Cheque')
+                            <tr>
+                                <td>Cheque No : </td>
+                                <td>{{ $receiptPartner->receipt_cheque }}</td>
+                            </tr>
+                        @endif
+                        @if ($receiptPartner->invoiceB2b->currency != "idr")
+                            <tr>
+                                <td>Curs Rate :</td>
+                                <td>{{ $receiptPartner->invoiceB2b->rate }}</td>
+                            </tr>
+                        @endif
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                $20 (Rp. 300.000)
+                                 @if ($receiptPartner->receipt_amount != null && $receiptPartner->invoiceB2b->currency != "idr")
+                                    {{ $receiptPartner->receipt_amount }}
+                                     ( {{ $receiptPartner->receipt_amount_idr }} )
+                                @else
+                                    {{ $receiptPartner->receipt_amount_idr }}
+                                @endif
                             </td>
-                        </tr>
-                        <tr>
-                            <td>Receipt ID :</td>
-                            <td>REC-12312/24124/12412</td>
                         </tr>
                     </table>
                 </div>
