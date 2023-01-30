@@ -87,6 +87,9 @@ class ReceiptPartnerController extends Controller
         $partnerProgId = $invoice->partnerprog_id;
         $partner_prog = $this->partnerProgramRepository->getPartnerProgramById($partnerProgId);
 
+        // return $invoice->inv_detail();
+        // exit;
+
         $invb2b_id = $invoice->invb2b_id;
 
         # generate receipt id

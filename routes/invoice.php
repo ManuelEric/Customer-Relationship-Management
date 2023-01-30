@@ -3,6 +3,7 @@
 use App\Http\Controllers\InvoiceProgramController;
 use App\Http\Controllers\InvoiceSchoolController;
 use App\Http\Controllers\RefundSchoolController;
+use App\Http\Controllers\RefundPartnerController;
 use App\Http\Controllers\InvoicePartnerController;
 use App\Http\Controllers\RefundController;
 use Illuminate\Support\Facades\Route;
@@ -148,10 +149,10 @@ Route::prefix('corporate-program')->name('invoice-corp.')->group(function () {
     // Route::get('{invoice}/request_sign/{currency}', [InvoiceSchoolController::class, 'requestSign'])->name('request_sign');
     // Route::get('{invoice}/upload', [InvoiceSchoolController::class, 'createSignedAttachment'])->name('create_signed_document');
     // Route::post('{invoice}/upload', [InvoiceSchoolController::class, 'storeSignedAttachment'])->name('upload_signed_document');
-    // Route::post('{invoice}/refund', [RefundSchoolController::class, 'store'])->name('refund');
     // Route::get('{invoice}/send', [InvoiceSchoolController::class, 'sendToClient'])->name('send_to_client');
     // Route::get('{invoice}/attachment/download', [InvoiceSchoolController::class, 'download'])->name('download');
-    // Route::delete('{invoice}/refund/{refund}', [RefundSchoolController::class, 'destroy'])->name('refund.destroy');
+    Route::post('{invoice}/refund', [RefundPartnerController::class, 'store'])->name('refund');
+    Route::delete('{invoice}/refund/{refund}', [RefundPartnerController::class, 'destroy'])->name('refund.destroy');
 });
 
 

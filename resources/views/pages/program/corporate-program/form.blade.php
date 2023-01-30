@@ -46,7 +46,7 @@
             {{-- Refund detail --}}
             @if(isset($partnerProgram))
                 @if($partnerProgram->status == 3)
-                    @include('pages.program.school-program.detail.refund')
+                    @include('pages.program.corporate-program.detail.refund')
                 @endif
             @endif
 
@@ -269,8 +269,8 @@
                                         <label for="">
                                         Refund  Notes
                                         </label>
-                                        <textarea name="refund_notes" id="" class="w-100"  {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
-                                            {{ isset($schoolProgram->refund_notes) ? $schoolProgram->refund_notes :  old('refund_notes') }}
+                                        <textarea name="refund_notes" id="" class="w-100"  {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
+                                            {{ isset($partnerProgram->refund_notes) ? $partnerProgram->refund_notes :  old('refund_notes') }}
                                         </textarea>
                                     </div>  
 

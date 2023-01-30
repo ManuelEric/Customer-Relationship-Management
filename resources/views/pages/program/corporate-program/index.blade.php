@@ -161,6 +161,10 @@
                                 case 2:
                                     return "-"
                                     break;
+                                
+                                case 3:
+                                    return "-"
+                                    break;
                             }
                         }
                     },
@@ -177,6 +181,10 @@
                                     break;
                                 
                                 case 2:
+                                    return "-"
+                                    break;
+
+                                case 3:
                                     return "-"
                                     break;
                             }
@@ -196,6 +204,10 @@
                                 
                                 case 2:
                                     return "Denied"
+                                    break;
+
+                                case 3:
+                                    return "Refund"
                                     break;
                             }
                         }

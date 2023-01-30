@@ -8,6 +8,8 @@
     <script src="{{ asset('dashboard-template/js/template.js') }}"></script>
     <script src="{{ asset('dashboard-template/js/settings.js') }}"></script>
     <script src="{{ asset('dashboard-template/js/jquery.cookie.js') }}" type="text/javascript"></script>
+
+    <script src="{{ asset('assets/dist/pspdfkit.js')}}"></script>
 @endsection
 
 @section('body')

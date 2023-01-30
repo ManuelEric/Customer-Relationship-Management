@@ -17,7 +17,7 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $receiptPartner->invoiceB2b->partner_prog->corp->corp_name }}</h4>
-                    <h6>{{ $receiptPartner->invoiceB2b->partner_prog->program->prog_program }}</h6>
+                    <h6>{{ $receiptPartner->invoiceB2b->partner_prog->program->sub_prog ? $receiptPartner->invoiceB2b->partner_prog->program->sub_prog->sub_prog_name.' - ' : '' }} {{$receiptPartner->invoiceB2b->partner_prog->program->prog_program}}</h6>
                     <div class="d-flex flex-wrap justify-content-center mt-3">
                         <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1">
                             <i class="bi bi-trash2 me-1"></i> Delete
@@ -305,5 +305,12 @@
                 $('#receipt_cheque').attr('disabled', 'disabled')
             }
         }
+
+         $("#installment-list .detail").each(function() {
+            $(this).click(function() {
+                var link = "{{ url('/') }}/receipt/corporate-program/" + $(this).data('recid')
+                window.location = link
+            })
+        })
     </script>
 @endsection

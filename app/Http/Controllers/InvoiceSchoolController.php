@@ -523,7 +523,8 @@ class InvoiceSchoolController extends Controller
             $program_name = $invoiceSch->sch_prog->program->prog_sub . ' - ' . $invoiceSch->sch_prog->program->prog_program;
         }
 
-        $data['email'] = 'test@gmail.com';
+        $data['email'] = $invoiceSch->sch_prog->user->email;
+        $data['cc'] = ['test1@example.com', 'test2@example.com'];
         $data['recipient'] = 'Test Name';
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
         $data['param'] = [
@@ -534,6 +535,7 @@ class InvoiceSchoolController extends Controller
 
             Mail::send('pages.invoice.school-program.mail.client-view', $data, function ($message) use ($data, $invoiceSch) {
                 $message->to($data['email'], $data['recipient'])
+                    ->cc($data['cc'])
                     ->subject($data['title'])
                     ->attach(storage_path('app/public/uploaded_file/invoice/' . $invoiceSch->attachment));
             });

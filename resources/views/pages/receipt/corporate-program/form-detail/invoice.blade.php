@@ -71,7 +71,7 @@
         <div class="mt-3">
             @if($receiptPartner->invoiceB2b->inv_detail->count() > 0)
                 Installment List
-                <table class="table table-bordered table-hover">
+                <table class="table table-bordered table-hover" id="installment-list">
                     <thead class="text-center">
                         <tr>
                             <th>No</th>

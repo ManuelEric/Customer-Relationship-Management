@@ -349,6 +349,11 @@
     </div>
 
     <script>
+        function setIdentifier(id)
+        {
+            $("#identifier").val(id);
+        }
+        
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
