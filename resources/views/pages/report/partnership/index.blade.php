@@ -29,101 +29,61 @@
                     <h6 class="p-0 m-0">Partnership Detail</h6>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div class="">
-                            Total School Visit
-                        </div>
-                        <div class="text-end">
-                            134
-                        </div>
-                    </div>
-                    <hr class="my-1">
-                    <div class="d-flex justify-content-between">
-                        <div class="">
-                            Total Partner Program
-                        </div>
-                        <div class="text-end">
-                            134
+                    <div class="card mb-1 bg-danger text-white">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <strong class="">
+                                Total School Visit
+                            </strong>
+                            <h5 class="text-end m-0 badge bg-white text-dark">
+                                134
+                            </h5>
                         </div>
                     </div>
-                    <hr class="my-1">
-                    <div class="d-flex justify-content-between" onclick="showHideDetail('school')" style="cursor: pointer">
-                        <div class="">
-                            Total New School
-                        </div>
-                        <div class="text-end">
-                            20
-                        </div>
-                    </div>
-                    <hr class="my-1">
-                    <div class="d-flex justify-content-between" onclick="showHideDetail('partner')" style="cursor: pointer">
-                        <div class="">
-                            Total New Partner
-                        </div>
-                        <div class="text-end">
-                            13
+                    <div class="card mb-1 bg-danger text-white">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <strong class="">
+                                Total Partner Program
+                            </strong>
+                            <h5 class="text-end m-0 badge bg-white text-dark">
+                                134
+                            </h5>
                         </div>
                     </div>
-                    <hr class="my-1">
-                    <div class="d-flex justify-content-between" onclick="showHideDetail('univ')" style="cursor: pointer">
-                        <div class="">
-                            Total New University
-                        </div>
-                        <div class="text-end">
-                            13
-                        </div>
+                    <div class="card mb-1 bg-danger text-white">
+                        <a href="#school"
+                            class="card-body d-flex justify-content-between align-items-center text-decoration-none text-white">
+                            <strong class="">
+                                Total New School
+                            </strong>
+                            <h5 class="text-end m-0 badge bg-white text-dark">
+                                20
+                            </h5>
+                        </a>
                     </div>
-                </div>
-            </div>
+                    <div class="card mb-1 bg-danger text-white">
+                        <a href="#partner"
+                            class="card-body d-flex justify-content-between align-items-center text-decoration-none text-white">
 
-            {{-- School  --}}
-            <div class="card mb-3 new-detail d-none" id="school">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="p-0 m-0">New School</h6>
-                    <i class="bi bi-x text-danger" style="cursor: pointer" onclick="showHideDetail('school')"></i>
-                </div>
-                <div class="card-body overflow-auto" style="height: 150px">
-                    <ul class="list-group p-0">
-                        @for ($i = 0; $i < 30; $i++)
-                            <li class="list-group-item p-1">
-                                School Name
-                            </li>
-                        @endfor
-                    </ul>
-                </div>
-            </div>
+                            <strong class="">
+                                Total New Partner
+                            </strong>
+                            <h5 class="text-end m-0 badge bg-white text-dark">
+                                13
+                            </h5>
+                        </a>
+                    </div>
+                    <div class="card mb-1 bg-danger text-white">
+                        <a href="#university"
+                            class="card-body d-flex justify-content-between align-items-center text-decoration-none text-white">
 
-            {{-- Partner  --}}
-            <div class="card mb-3 new-detail d-none" id="partner">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="p-0 m-0">New Partner</h6>
-                    <i class="bi bi-x text-danger" style="cursor: pointer" onclick="showHideDetail('partner')"></i>
-                </div>
-                <div class="card-body overflow-auto" style="height: 150px">
-                    <ul class="list-group p-0">
-                        @for ($i = 0; $i < 30; $i++)
-                            <li class="list-group-item p-1">
-                                Partner Name
-                            </li>
-                        @endfor
-                    </ul>
-                </div>
-            </div>
-
-            {{-- University  --}}
-            <div class="card mb-3 new-detail d-none" id="univ">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="p-0 m-0">New University</h6>
-                    <i class="bi bi-x text-danger" style="cursor: pointer" onclick="showHideDetail('univ')"></i>
-                </div>
-                <div class="card-body overflow-auto" style="height: 150px">
-                    <ul class="list-group p-0">
-                        @for ($i = 0; $i < 30; $i++)
-                            <li class="list-group-item p-1">
-                                University Name
-                            </li>
-                        @endfor
-                    </ul>
+                            <strong class="">
+                                Total New University
+                            </strong>
+                            <h5 class="text-end m-0 badge bg-white text-dark">
+                                13
+                            </h5>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -173,7 +133,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">Partner Program</h6>
                     <div class="">
@@ -219,6 +179,114 @@
                             </tfoot>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <div class="card mb-3" id="school">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="p-0 m-0">New School</h6>
+                    <div class="">
+                        <button class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-file-earmark-excel me-1"></i> Print
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="volunteerTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th>School Name</th>
+                                    <th>Email</th>
+                                    <th>Phone Number</th>
+                                    <th>Address</th>
+                                    <th>Created at</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <td class="text-center">1</td>
+                                <td>School Name</td>
+                                <td>Email</td>
+                                <td>Phone Number</td>
+                                <td>Address</td>
+                                <td>Created at</td>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card mb-3" id="partner">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="p-0 m-0">New Partner</h6>
+                    <div class="">
+                        <button class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-file-earmark-excel me-1"></i> Print
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="volunteerTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th>Partner Name</th>
+                                    <th>Email</th>
+                                    <th>Phone Number</th>
+                                    <th>Address</th>
+                                    <th>Created at</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <td class="text-center">1</td>
+                                <td>Partner Name</td>
+                                <td>Email</td>
+                                <td>Phone Number</td>
+                                <td>Address</td>
+                                <td>Created at</td>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card mb-3" id="university">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="p-0 m-0">New University</h6>
+                    <div class="">
+                        <button class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-file-earmark-excel me-1"></i> Print
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="volunteerTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th>University Name</th>
+                                    <th>Email</th>
+                                    <th>Phone Number</th>
+                                    <th>Address</th>
+                                    <th>Created at</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <td class="text-center">1</td>
+                                <td>University Name</td>
+                                <td>Email</td>
+                                <td>Phone Number</td>
+                                <td>Address</td>
+                                <td>Created at</td>
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
         </div>

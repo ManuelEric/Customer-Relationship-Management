@@ -40,6 +40,14 @@ use Illuminate\Support\Facades\Route;
 //     return view('pages.invoice.client-program.index', ['status' => $status]);
 // });
 
+Route::get('view/b2c/1', function () {
+    return view('pages.invoice.view-pdf');
+});
+
+Route::get('sign/b2c/1', function () {
+    return view('pages.invoice.sign-pdf');
+});
+
 Route::resource('client-program', InvoiceProgramController::class, [
     'names' => [
         'index' => 'invoice.program.index',
