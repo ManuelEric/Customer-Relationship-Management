@@ -8,6 +8,7 @@ use App\Http\Controllers\CorporatePicController;
 use App\Http\Controllers\PartnerAgreementController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\SchoolProgramController;
+use App\Http\Controllers\SchoolVisitController;
 use App\Http\Controllers\UniversityPicController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,7 +21,9 @@ Route::resource('school', SchoolController::class);
 Route::prefix('school')->name('school.')->group(function() {
     Route::resource('{school}/detail', SchoolDetailController::class);
     Route::resource('{school}/program', SchoolDetailController::class);
-    
+    Route::post('{school}/visit', [SchoolVisitController::class, 'store'])->name('visit.store');
+    Route::put('{school}/visit/{visit}', [SchoolVisitController::class, 'update'])->name('visit.update');
+    Route::delete('{school}/visit/{visit}', [SchoolVisitController::class, 'destroy'])->name('visit.destroy');
 });
 
 Route::resource('corporate', CorporateController::class);

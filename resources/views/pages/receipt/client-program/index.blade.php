@@ -12,7 +12,7 @@
 
 
     <div class="card rounded">
-        <ul class="nav nav-tabs mb-3">
+        {{-- <ul class="nav nav-tabs mb-3">
             <li class="nav-item">
                 <a class="nav-link {{ Request::get('s') == 'list' ? 'active' : null }}" aria-current="page"
                     href="{{ route('receipt.client-program') }}?s=list">Receipt List</a>
@@ -25,7 +25,7 @@
                 <a class="nav-link {{ Request::get('s') == 'refund-list' ? 'active' : null }}"
                     href="{{ route('receipt.client-program') }}?s=refund-list">Refund List</a>
             </li>
-        </ul>
+        </ul> --}}
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
                 <thead class="bg-dark text-white">

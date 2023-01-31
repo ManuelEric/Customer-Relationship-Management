@@ -74,7 +74,7 @@ class StoreClientProgramRequest extends FormRequest
 
         $clientProg = $this->clientProgramRepository->getClientProgramById($this->route('program'));
         $hasInvoice = isset($clientProg->invoice) ? $clientProg->invoice()->count() : 0;
-        $hasReceipt = isset($clientProg->receipt) ? $clientProg->invoice->receipt()->count() : 0;
+        $hasReceipt = isset($clientProg->invoice->receipt) ? $clientProg->invoice->receipt()->count() : 0;
 
         if ($this->input('status') === null) {
 

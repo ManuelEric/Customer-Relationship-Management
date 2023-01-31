@@ -309,7 +309,7 @@
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item"> <a
                                         class="nav-link {{ Request::is('receipt/client-program*') ? 'active' : '' }}"
-                                        href="{{ url('receipt/client-program?s=list') }}">Client
+                                        href="{{ url('receipt/client-program') }}">Client
                                         Program</a>
                                 </li>
                                 <li class="nav-item"> <a
@@ -351,7 +351,10 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#report" aria-expanded="false"
+                        <a @class([
+                            'nav-link',
+                            'text-primary' => Request::is('report*')
+                        ]) data-bs-toggle="collapse" href="#report" aria-expanded="false"
                             aria-controls="report">
                             <i class="bi bi-printer mx-2"></i>
                             <span class="menu-title">Report</span>
@@ -360,7 +363,10 @@
                         <div class="collapse {{ Request::is('report*') ? 'show' : 'hide' }}" id="report">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url('report/sales') }}">Sales
+                                    <a @class([
+                                        'nav-link',
+                                        'active' => Request::is('report*')
+                                    ]) href="{{ url('report/sales') }}">Sales
                                         Tracking</a>
                                 </li>
                                 <li class="nav-item">

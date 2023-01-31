@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\SchoolVisit;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -72,13 +73,9 @@ class School extends Model
         return $this->belongsToMany(Curriculum::class, 'tbl_sch_curriculum', 'sch_id', 'curriculum_id')->withTimestamps();
     }
 
-    public function internal_pic_when_visit()
+    public function visit()
     {
-        return $this->belongsToMany(User::class, 'tbl_sch_visit', 'sch_id', 'id')->withTimestamps();
+        return $this->hasMany(SchoolVisit::class, 'sch_id', 'sch_id');
     }
-
-    public function external_pic_when_visit()
-    {
-        return $this->belongsToMany(SchoolDetail::class, 'tbl_sch_visit', 'sch_id', 'schdetail_id')->withTimestamps();
-    }
+    
 }

@@ -66,8 +66,7 @@ class InvoiceProgramController extends Controller
 
         $raw_currency = [];
         $raw_currency[0] = $request->currency;
-        $raw_currency[1] = $request->currency_detail;
-
+        $raw_currency[1] = $request->currency != "idr" ? $request->currency_detail : null;
         # fetching currency till get the currency
         $currency = null;
         foreach ($raw_currency as $key => $val) {
@@ -75,7 +74,7 @@ class InvoiceProgramController extends Controller
                 $currency = $val != "other" ? $val : null;
         }
 
-        if (in_array('idr', $request->currency) && $request->is_session == "no") {
+        if (in_array('idr', $raw_currency) && $request->is_session == "no") {
 
             $invoiceDetails = $request->only([
                 'clientprog_id',
@@ -93,7 +92,7 @@ class InvoiceProgramController extends Controller
                 'inv_tnc'
             ]);
             $param = "idr";
-        } elseif (in_array('idr', $request->currency) && $request->is_session == "yes") {
+        } elseif (in_array('idr', $raw_currency) && $request->is_session == "yes") {
 
             $invoiceDetails = [
                 'clientprog_id' => $request->clientprog_id,
@@ -113,7 +112,7 @@ class InvoiceProgramController extends Controller
                 'inv_tnc' => $request->inv_tnc
             ];
             $param = "idr";
-        } elseif (in_array('other', $request->currency) && $request->is_session == "no") {
+        } elseif (in_array('other', $raw_currency) && $request->is_session == "no") {
 
             $invoiceDetails = [
                 'clientprog_id' => $request->clientprog_id,
@@ -137,7 +136,7 @@ class InvoiceProgramController extends Controller
                 'inv_tnc' => $request->inv_tnc
             ];
             $param = "other";
-        } elseif (in_array('other', $request->currency) && $request->is_session == "yes") {
+        } elseif (in_array('other', $raw_currency) && $request->is_session == "yes") {
 
             $invoiceDetails = [
                 'clientprog_id' => $request->clientprog_id,
@@ -165,7 +164,7 @@ class InvoiceProgramController extends Controller
             $param = "other";
         }
 
-        $invoiceDetails['inv_category'] = $invoiceDetails['is_session'] == "yes" ? "session" : $invoiceDetails['currency'][0];
+        $invoiceDetails['inv_category'] = $invoiceDetails['is_session'] == "yes" ? "session" : $param;
         $invoiceDetails['session'] = isset($invoiceDetails['session']) && $invoiceDetails['session'] != 0 ? $invoiceDetails['session'] : 0;
         $invoiceDetails['currency'] = $currency;
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';

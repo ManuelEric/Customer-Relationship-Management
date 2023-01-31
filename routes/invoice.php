@@ -59,6 +59,7 @@ Route::resource('client-program', InvoiceProgramController::class, [
         'destroy' => 'invoice.program.destroy',
     ]
 ]);
+
 Route::prefix('client-program')->name('invoice.program.')->group(function () {
     Route::get('{client_program}/export', [InvoiceProgramController::class, 'export'])->name('export');
     Route::post('{client_program}/refund', [RefundController::class, 'store'])->name('refund');
@@ -163,7 +164,4 @@ Route::prefix('corporate-program')->name('invoice-corp.')->group(function () {
     Route::delete('{invoice}/refund/{refund}', [RefundPartnerController::class, 'destroy'])->name('refund.destroy');
 });
 
-
-Route::get('refund/status/{status?}', function ($status = null) {
-    return view('pages.invoice.refund.index', ['status' => $status]);
-});
+Route::get('refund/status/{status}', [RefundController::class, 'index'])->name('refund.index');

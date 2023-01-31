@@ -81,13 +81,12 @@
                             <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
                                 <i class="bi bi-pen me-1"></i> Request Sign
                             </button>
-
                             
-                                @if (isset($invoice) && $invoice->currency != "idr")
-                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="request-acc-other">
-                                        <i class="bi bi-printer me-1"></i> Request Sign Foreign
-                                    </button>
-                                @endif
+                            @if (isset($invoice) && $invoice->currency != "idr")
+                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="request-acc-other">
+                                    <i class="bi bi-printer me-1"></i> Request Sign Foreign
+                                </button>
+                            @endif
                         </div>
                         @else
                         <div class="d-flex justify-content-center mt-3">
@@ -107,7 +106,7 @@
                 </div>
             </div>
 
-            @if (isset($invoice->receipt))
+            @if (isset($invoice->receipt) && $clientProg->status == 3)
                 @include('pages.invoice.client-program.detail.refund')
             @endif
 
@@ -128,7 +127,8 @@
                         </h6>
                     </div>
                     <div class="">
-                        @if ($invoice === NULL && isset($invoice->receipt))
+                        {{-- @if ($invoice === NULL && isset($invoice->receipt)) --}}
+                        @if (isset($invoice) && $invoice->inv_paymentmethod == "Full Payment" && !isset($invoice->receipt))
                             <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
@@ -171,9 +171,9 @@
                                         {{ 'selected' }} @endif>
                                         Other Currency</option>
                                 </select>
-                                {{-- @error('currency')
+                                @error('currency')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror --}}
+                                @enderror
                             </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
                                 <label for="">Currency Detail <sup class="text-danger">*</sup></label> {{ old('currency') }}
@@ -181,17 +181,17 @@
                                     <option data-placeholder="true"></option>
                                     <option value="usd"
                                         @if (isset($invoice->currency) && $invoice->currency == 'usd') {{ 'selected' }}
-                                        @elseif (old('currency') !== null && in_array('usd', (array) old('currency')))
+                                        @elseif (old('currency') !== null && in_array('usd', (array) old('currency_detail')))
                                             {{ 'selected' }} @endif>
                                         USD</option>
                                     <option value="sgd"
                                         @if (isset($invoice->currency) && $invoice->currency == 'sgd') {{ 'selected' }}
-                                        @elseif (old('currency') !== null && in_array('sgd', (array) old('currency')))
+                                        @elseif (old('currency') !== null && in_array('sgd', (array) old('currency_detail')))
                                             {{ 'selected' }} @endif>
                                         SGD</option>
                                     <option value="gbp"
                                         @if (isset($invoice->currency) && $invoice->currency == 'gbp') {{ 'selected' }}
-                                        @elseif (old('currency') !== null && in_array('gbp', (array) old('currency')))
+                                        @elseif (old('currency') !== null && in_array('gbp', (array) old('currency_detail')))
                                             {{ 'selected' }} @endif>
                                         GBP</option>
                                 </select>
@@ -496,8 +496,7 @@
                 allowClear: true
             });
 
-            @if (($clientProg->program->prog_payment == 'idr' || $clientProg->program->prog_payment == 'session') &&
-                !isset($invoice))
+            @if (($clientProg->program->prog_payment == 'idr' || $clientProg->program->prog_payment == 'session') && !isset($invoice))
                 $("#currency").val('idr').trigger('change')
             @elseif (isset($invoice) && $invoice->inv_category == 'idr')
                 $("#currency").val('idr').trigger('change')
