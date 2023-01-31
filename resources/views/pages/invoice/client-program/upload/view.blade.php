@@ -16,8 +16,8 @@
                         <hr>
                         <div class="row justify-content-between align-items-center">
                             <div class="col-md-6">
-                                <h6 class="m-0 p-0">Students/Partner/School Name</h6>
-                                <p class="m-0 p-0">Program Name</p>
+                                <h6 class="m-0 p-0">{{ $clientProg->client->full_name }}</h6>
+                                <p class="m-0 p-0">{{ $clientProg->program_name }}</p>
                             </div>
                             <div class="col-md-4">
                                 <table>
@@ -53,17 +53,44 @@
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
-                                        <button type="submit">Upload</button>
+                                        &nbsp;
+                                        <button type="submit" class="btn btn-info">Upload</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
+                        <div id="pspdfkit" style="height: 100vh"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    
+<script src="{{ asset('assets/package/dist/pspdfkit.js') }}"></script>
+    <script>
+        PSPDFKit.load({
+            container: "#pspdfkit",
+              document: "{{ asset('storage/uploaded_file/invoice/0009_INV-JEI_ACTP_I_23.pdf') }}" // Add the path to your document here.
+        })
+        .then(async (instance) => {
+            console.log("PSPDFKit loaded", instance);
+            (async () => {
+                const pagesAnnotations = await Promise.all(
+                    Array.from({ length: instance.totalPageCount }).map((_, pageIndex) =>
+                        instance.getAnnotations(pageIndex)
+                    )
+                );
+                const annotationIds = pagesAnnotations.flatMap(pageAnnotations =>
+                    pageAnnotations.map(annotation => annotation.id).toArray()
+                );
+                console.log(annotationIds)
+                await instance.delete(annotationIds)
+            })();
+        })
+        .catch(function(error) {
+            console.error(error.message);
+        });
+    </script>
     <script type="text/javascript">
         $("form#form-upload-attachment").submit(function(e) {
             e.preventDefault()

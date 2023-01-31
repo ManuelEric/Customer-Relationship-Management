@@ -48,6 +48,7 @@ use App\Interfaces\SchoolEventRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramAttachRepositoryInterface;
+use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityEventRepositoryInterface;
@@ -104,6 +105,7 @@ use App\Repositories\SchoolEventRepository;
 use App\Repositories\SchoolRepository;
 use App\Repositories\SchoolProgramRepository;
 use App\Repositories\SchoolProgramAttachRepository;
+use App\Repositories\SchoolVisitRepository;
 use App\Repositories\SubProgRepository;
 use App\Repositories\TagRepository;
 use App\Repositories\UniversityEventRepository;
@@ -179,6 +181,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ReceiptRepositoryInterface::class, ReceiptRepository::class);
         $this->app->bind(RefundRepositoryInterface::class, RefundRepository::class);
         $this->app->bind(UserTypeRepositoryInterface::class, UserTypeRepository::class);
+        $this->app->bind(SchoolVisitRepositoryInterface::class, SchoolVisitRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);

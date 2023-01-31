@@ -36,25 +36,25 @@
                     <div class="row g-2">
                         <div class="col-md-3 text-center">
                             <div class="border p-2 shadow-sm rounded text-warning">
-                                <h3>10</h3>
+                                <h3>{{ $countClientProgram['pending'] }}</h3>
                                 <h6 class="m-0 p-0">Pending</h6>
                             </div>
                         </div>
                         <div class="col-md-3 text-center">
                             <div class="border p-2 shadow-sm rounded text-danger">
-                                <h3>10</h3>
+                                <h3>{{ $countClientProgram['failed'] }}</h3>
                                 <h6 class="m-0 p-0">Failed</h6>
                             </div>
                         </div>
                         <div class="col-md-3 text-center">
                             <div class="border p-2 shadow-sm rounded text-info">
-                                <h3>10</h3>
+                                <h3>{{ $countClientProgram['refund'] }}</h3>
                                 <h6 class="m-0 p-0">Refund</h6>
                             </div>
                         </div>
                         <div class="col-md-3 text-center">
                             <div class="border p-2 shadow-sm rounded text-success">
-                                <h3>10</h3>
+                                <h3>{{ $countClientProgram['success'] }}</h3>
                                 <h6 class="m-0 p-0">Success</h6>
                             </div>
                         </div>
@@ -67,6 +67,7 @@
                     <h6 class="p-0 m-0">Client Program</h6>
                 </div>
                 <div class="card-body">
+                    @if ($countClientProgram['pending'] > 0)
                     <table class="table mb-3">
                         <thead>
                             <tr class="bg-warning text-center">
@@ -80,27 +81,125 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($clientProgramDetail['pending'] as $key => $val)
+                            @php
+                                $total = 0;
+                            @endphp
                             <tr valign="middle">
-                                <td>1</td>
-                                <td>Admissions Mentoring</td>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $key }}</td>
                                 <td>
-                                    <table class="table table-hover table-bordered">
-                                        <tr>
-                                            <td>Admissions Mentoring: Ultimate Package</td>
-                                            <td class="text-center">12</td>
-                                        </tr>
-                                    </table>
+                                    @foreach ($val as $key2 => $detail)
+                                        @php
+                                            $total += count($detail);
+                                        @endphp
+                                        <table class="table table-hover table-bordered">
+                                            <tr>
+                                                <td style="width:92%">{{ $key }}: {{ $key2 }}</td>
+                                                <td class="text-center">{{ count($detail) }}</td>
+                                            </tr>
+                                        </table>
+                                    @endforeach
                                 </td>
                                 <td class="text-center">
-                                    <strong>12</strong>
+                                    <strong>{{ $total }}</strong>
                                 </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
-
+                    @endif
+                    
+                    @if ($countClientProgram['failed'] > 0)
                     <table class="table mb-3">
                         <thead>
-                            <tr class="bg-success text-white text-center">
+                            <tr class="bg-danger text-center">
+                                <th colspan="4">Failed</th>
+                            </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Main Program</th>
+                                <th>Program Name</th>
+                                <th class="text-center">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($clientProgramDetail['failed'] as $key => $val)
+                            @php
+                                $total = 0;
+                            @endphp
+                            <tr valign="middle">
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $key }}</td>
+                                <td>
+                                    @foreach ($val as $key2 => $detail)
+                                        @php
+                                            $total += count($detail);
+                                        @endphp
+                                        <table class="table table-hover table-bordered">
+                                            <tr>
+                                                <td style="width:92%">{{ $key }}: {{ $key2 }}</td>
+                                                <td class="text-center">{{ count($detail) }}</td>
+                                            </tr>
+                                        </table>
+                                    @endforeach
+                                </td>
+                                <td class="text-center">
+                                    <strong>{{ $total }}</strong>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @endif
+                    
+                    @if ($countClientProgram['refund'] > 0)
+                    <table class="table mb-3">
+                        <thead>
+                            <tr class="bg-info text-center">
+                                <th colspan="4">Refund</th>
+                            </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Main Program</th>
+                                <th>Program Name</th>
+                                <th class="text-center">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($clientProgramDetail['refund'] as $key => $val)
+                            @php
+                                $total = 0;
+                            @endphp
+                            <tr valign="middle">
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $key }}</td>
+                                <td>
+                                    @foreach ($val as $key2 => $detail)
+                                        @php
+                                            $total += count($detail);
+                                        @endphp
+                                        <table class="table table-hover table-bordered">
+                                            <tr>
+                                                <td style="width:92%">{{ $key }}: {{ $key2 }}</td>
+                                                <td class="text-center">{{ count($detail) }}</td>
+                                            </tr>
+                                        </table>
+                                    @endforeach
+                                </td>
+                                <td class="text-center">
+                                    <strong>{{ $total }}</strong>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @endif
+
+                    @if ($countClientProgram['success'] > 0)
+                    <table class="table mb-3">
+                        <thead>
+                            <tr class="bg-success text-center">
                                 <th colspan="4">Success</th>
                             </tr>
                             <tr>
@@ -111,23 +210,34 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($clientProgramDetail['success'] as $key => $val)
+                            @php
+                                $total = 0;
+                            @endphp
                             <tr valign="middle">
-                                <td>1</td>
-                                <td>Admissions Mentoring</td>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $key }}</td>
                                 <td>
-                                    <table class="table table-hover table-bordered">
-                                        <tr>
-                                            <td>Admissions Mentoring: Ultimate Package</td>
-                                            <td class="text-center">12</td>
-                                        </tr>
-                                    </table>
+                                    @foreach ($val as $key2 => $detail)
+                                        @php
+                                            $total += count($detail);
+                                        @endphp
+                                        <table class="table table-hover table-bordered">
+                                            <tr>
+                                                <td style="width:92%">{{ $key }}: {{ $key2 }}</td>
+                                                <td class="text-center">{{ count($detail) }}</td>
+                                            </tr>
+                                        </table>
+                                    @endforeach
                                 </td>
                                 <td class="text-center">
-                                    <strong>12</strong>
+                                    <strong>{{ $total }}</strong>
                                 </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
+                    @endif
                 </div>
             </div>
 
@@ -136,24 +246,30 @@
                     <h6 class="p-0 m-0">Initial Assessment Progress</h6>
                 </div>
                 <div class="card-body">
+                    @if (isset($initAssessmentProgress))
                     <table class="table mb-3">
                         <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Program Name</th>
-                                <th>Initial Assessment Making</th>
-                                <th>Converted</th>
+                                <th class="text-center">Initial Assessment<br>Making</th>
+                                <th class="text-center">Converted</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#</td>
-                                <td>Program Name</td>
-                                <td>Initial Assessment Making</td>
-                                <td>Converted</td>
-                            </tr>
+                            @foreach ($initAssessmentProgress as $detail)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $detail->program_name_st }}</td>
+                                    <td class="text-center">{{ (int) $detail->initialMaking }} day</td>
+                                    <td class="text-center">{{ (int) $detail->converted }} day</td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
+                    @else
+                        No Data
+                    @endif
                 </div>
             </div>
 
@@ -168,12 +284,14 @@
                                 <strong>Lead Source</strong>
                             </div>
                             <ul class="list-group">
+                                @foreach ($leadSource as $detail)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div class="">
-                                        Referral
+                                        {{ $detail->lead_source }}
                                     </div>
-                                    <span class="badge bg-primary rounded-pill">14</span>
+                                    <span class="badge bg-primary rounded-pill">{{ $detail->lead_source_count }}</span>
                                 </li>
+                                @endforeach
                             </ul>
                         </div>
                         <div class="col-md-6">
@@ -181,12 +299,14 @@
                                 <strong>Conversion Lead</strong>
                             </div>
                             <ul class="list-group">
+                                @foreach ($conversionLead as $detail)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div class="">
-                                        Referral
+                                        {{ $detail->conversion_lead }}
                                     </div>
-                                    <span class="badge bg-primary rounded-pill">14</span>
+                                    <span class="badge bg-primary rounded-pill">{{ $detail->conversion_lead_count }}</span>
                                 </li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>

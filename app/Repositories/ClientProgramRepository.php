@@ -361,4 +361,124 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     {
         return ClientProgram::where('clientprog_id', $clientProgramId)->delete();
     }
+
+    private function getStatusId($status)
+    {
+        switch ($status) {
+
+            case "Pending":
+                $statusId = 0;
+                break;
+
+            case "Failed":
+                $statusId = 2;
+                break;
+
+            case "Refund":
+                $statusId = 3;
+                break;
+
+            case "Success":
+                $statusId = 1;
+                break;
+
+        }
+        return $statusId;
+    }
+
+    # sales tracking
+    public function getCountProgramByStatus($status)
+    {
+        $statusId = $this->getStatusId($status);
+        return ClientProgram::where('status', $statusId)->count();
+    }
+
+    public function getSummaryProgramByStatus($status)
+    {
+        $statusId = $this->getStatusId($status);
+
+        $clientPrograms = ClientProgram::where('status', $statusId)->get();
+
+        $no = 0;
+        $data = [];
+        foreach ($clientPrograms as $mainProg) {
+            
+            $data[$mainProg->program->main_prog->prog_name][$mainProg->program->prog_program][] = $no++;
+        }
+
+        return $data;
+    }
+
+    public function getInitAssessmentProgress()
+    {
+        return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+            ->select([
+                DB::raw('AVG(DATEDIFF(assessmentsent_date, initconsult_date)) as initialMaking'),
+                DB::raw('CONCAT(tbl_main_prog.prog_name, ": ", tbl_prog.prog_program) as program_name_st'),
+                DB::raw('AVG(DATEDIFF(success_date, assessmentsent_date)) as converted'),
+            ])
+            ->whereHas('program', function ($query) {
+                $query->whereHas('main_prog', function ($query2) {
+                    $query2->where('prog_name', 'like', '%Admissions Mentoring%');
+                })->whereHas('sub_prog', function ($query2) {
+                    $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                });
+            })
+            ->where('status', 1)
+            ->groupBy('program_name_st')
+            ->get();
+    }
+
+    public function getLeadSource()
+    {
+        return ClientProgram::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+            ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client.lead_id')
+            ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client.eduf_id')
+            ->leftJoin('tbl_events', 'tbl_events.event_id', 'tbl_client.event_id')
+            ->select([
+                DB::raw('(CASE 
+                    WHEN tbl_lead.main_lead = "KOL" THEN CONCAT("KOL: ", tbl_lead.sub_lead)
+                    WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT("External Edufair: ", tbl_eduf_lead.title)
+                    WHEN tbl_lead.main_lead = "All-In Event" THEN CONCAT("All-In Event: ", tbl_events.event_title)
+                    ELSE tbl_lead.main_lead
+                END) AS lead_source'),
+                DB::raw('COUNT((CASE 
+                    WHEN tbl_lead.main_lead = "KOL" THEN CONCAT("KOL: ", tbl_lead.sub_lead)
+                    WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT("External Edufair: ", tbl_eduf_lead.title)
+                    WHEN tbl_lead.main_lead = "All-In Event" THEN CONCAT("All-In Event: ", tbl_events.event_title)
+                    ELSE tbl_lead.main_lead
+                END)) AS lead_source_count'),
+            ])
+            ->where('tbl_client_prog.status', 1)
+            ->groupBy('lead_source')
+            ->get();
+    }
+
+    public function getConversionLead()
+    {
+        return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_prog.lead_id')
+            ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_prog.eduf_lead_id')
+            ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_prog.partner_id')
+            ->leftJoin('tbl_client_event', 'tbl_client_event.clientevent_id', '=', 'tbl_client_prog.clientevent_id')
+            ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
+            ->select([
+                DB::raw('(CASE 
+                    WHEN tbl_lead.main_lead = "KOL" THEN CONCAT("KOL: ", tbl_lead.sub_lead)
+                    WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT("External Edufair: ", tbl_eduf_lead.title)
+                    WHEN tbl_lead.main_lead = "All-In Event" THEN CONCAT("All-In Event: ", tbl_events.event_title)
+                    ELSE tbl_lead.main_lead
+                END) AS conversion_lead'),
+                DB::raw('COUNT((CASE 
+                    WHEN tbl_lead.main_lead = "KOL" THEN CONCAT("KOL: ", tbl_lead.sub_lead)
+                    WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT("External Edufair: ", tbl_eduf_lead.title)
+                    WHEN tbl_lead.main_lead = "All-In Event" THEN CONCAT("All-In Event: ", tbl_events.event_title)
+                    ELSE tbl_lead.main_lead
+                END)) AS conversion_lead_count'),
+            ])
+            ->where('tbl_client_prog.status', 1)
+            ->groupBy('conversion_lead')
+            ->get();
+    }
 }

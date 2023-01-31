@@ -155,6 +155,4 @@ Route::prefix('corporate-program')->name('invoice-corp.')->group(function () {
 });
 
 
-Route::get('refund/status/{status?}', function ($status = null) {
-    return view('pages.invoice.refund.index', ['status' => $status]);
-});
+Route::get('refund/status/{status}', [RefundController::class, 'index'])->name('refund.index');

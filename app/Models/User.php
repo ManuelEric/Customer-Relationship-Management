@@ -170,6 +170,6 @@ class User extends Authenticatable
 
     public function pic_school_visit()
     {
-        return $this->belongsToMany(School::class, 'tbl_sch_visit', 'id', 'sch_id')->withTimestamps();
+        return $this->hasMany(SchoolVisit::class, 'internal_pic', 'id');
     }
 }

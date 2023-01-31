@@ -28,11 +28,9 @@ class ReceiptController extends Controller
     
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $status = $request->get('s');
-            return $this->receiptRepository->getAllReceiptByStatusDataTables($status);
-        }
-
+        if ($request->ajax()) 
+            return $this->receiptRepository->getAllReceiptByStatusDataTables();
+        
         return view('pages.receipt.client-program.index');
     }
 

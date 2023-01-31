@@ -15,11 +15,17 @@
         <div class="card-body">
             <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="{{ url('invoice/refund/status/needed') }}">Refund
+                    <a @class([
+                        'nav-link',
+                        'active' => Request::route('status') == "needed"
+                    ]) aria-current="page" href="{{ url('invoice/refund/status/needed') }}">Refund
                         Needed</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url('invoice/refund/status/list') }}">Refund List</a>
+                    <a @class([
+                        'nav-link',
+                        'active' => Request::route('status') == "list"
+                    ]) href="{{ url('invoice/refund/status/list') }}">Refund List</a>
                 </li>
             </ul>
             @if ($status == 'needed')

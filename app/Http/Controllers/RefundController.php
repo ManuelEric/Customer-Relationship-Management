@@ -21,6 +21,16 @@ class RefundController extends Controller
         $this->refundRepository = $refundRepository;
         $this->clientProgramRepository = $clientProgramRepository;
     }
+
+    public function index(Request $request)
+    {
+        $status =  $request->route('status');
+        // return $this->refundRepository->getAllRefundDataTables($status);
+        if ($request->ajax())
+            return $this->refundRepository->getAllRefundDataTables($status);
+
+        return view('pages.invoice.refund.index', ['status' => $status]);
+    }
     
     public function store(StoreRefundRequest $request)
     {

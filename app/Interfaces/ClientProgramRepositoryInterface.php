@@ -13,4 +13,11 @@ interface ClientProgramRepositoryInterface
     public function createClientProgram(array $clientProgramDetails);
     public function updateClientProgram($clientProgramId, array $clientProgramDetails);
     public function deleteClientProgram($clientProgramId);
+
+    # sales tracking
+    public function getCountProgramByStatus($status);
+    public function getSummaryProgramByStatus($status);
+    public function getInitAssessmentProgress();
+    public function getConversionLead();
+    public function getLeadSource();
 }

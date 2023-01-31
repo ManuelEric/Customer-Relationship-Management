@@ -43,6 +43,7 @@ class SchoolDetail extends Model
 
     public function pic_school_visit()
     {
-        return $this->belongsToMany(School::class, 'tbl_sch_visit', 'schdetail_id', 'sch_id')->withTimestamps();
+        return $this->belongsTo(SchoolDetail::class, 'school_pic', 'schdetail_id');
     }
+
 }

@@ -11,6 +11,7 @@ use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
+use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\School;
 use Exception;
@@ -33,8 +34,9 @@ class SchoolController extends Controller
     protected UserRepositoryInterface $userRepository;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+    protected SchoolVisitRepositoryInterface $schoolVisitRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, UserRepositoryInterface $userRepository, SchoolDetailRepositoryInterface $schoolDetailRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, UserRepositoryInterface $userRepository, SchoolDetailRepositoryInterface $schoolDetailRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, SchoolVisitRepositoryInterface $schoolVisitRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->curriculumRepository = $curriculumRepository;
@@ -44,6 +46,7 @@ class SchoolController extends Controller
         $this->schoolDetailRepository = $schoolDetailRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
+        $this->schoolVisitRepository = $schoolVisitRepository;
     }
 
     public function index(Request $request)
@@ -132,12 +135,16 @@ class SchoolController extends Controller
         # retrieve School Program data by schoolId
         $schoolPrograms = $this->schoolProgramRepository->getAllSchoolProgramsBySchoolId($schoolId);
 
+        # school visit data
+        $schoolVisits = $this->schoolVisitRepository->getSchoolVisitBySchoolId($schoolId);
+
         return view('pages.instance.school.form')->with(
             [
                 'school' => $school,
                 'curriculums' => $curriculums,
                 'programs' => $programs,
                 'schoolPrograms' => $schoolPrograms,
+                'schoolVisits' => $schoolVisits,
                 'leads' => $leads,
                 'employees' => $employees,
                 'details' => $schoolDetails
