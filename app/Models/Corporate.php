@@ -66,6 +66,11 @@ class Corporate extends Model
         return $this->hasMany(ClientProgram::class, 'partner_id', 'corp_id');
     }
 
+    public function clientEvent()
+    {
+        return $this->hasMany(ClientEvent::class, 'partner_id', 'corp_id');
+    }
+
     public function partnerProgram()
     {
         return $this->hasMany(partnerProg::class, 'corp_id', 'corp_id');

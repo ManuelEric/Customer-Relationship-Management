@@ -19,10 +19,11 @@ class ClientEvent extends Model
      */
     protected $fillable = [
         'client_id',
-        'event_id', 
-        'eduf_id', 
-        'lead_id', 
-        'joined_date', 
+        'event_id',
+        'eduf_id',
+        'lead_id',
+        'partner_id',
+        'joined_date',
         'status',
     ];
 
@@ -36,8 +37,23 @@ class ClientEvent extends Model
         return $this->hasOne(ClientProgram::class, 'clientevent_id', 'clientevent_id');
     }
 
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id', 'id');
+    }
+
     public function edufLead()
     {
         return $this->belongsTo(EdufLead::class, 'eduf_id', 'id');
+    }
+
+    public function lead()
+    {
+        return $this->belongsTo(Lead::class, 'lead_id', 'lead_id');
+    }
+
+    public function partner()
+    {
+        return $this->belongsTo(Corporate::class, 'partner_id', 'corp_id');
     }
 }

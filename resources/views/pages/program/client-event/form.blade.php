@@ -379,6 +379,24 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
+                            <div class="col-md-6 mb-2 partner d-none">
+                                <label>Partner Name <sup class="text-danger">*</sup></label>
+                                <select name="partner_id" id="partner_id" class="select w-100" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
+                                    <option data-placeholder="true"></option>
+                                    @forelse ($partners as $partner)
+                                        <option value="{{ $partner->corp_id }}" 
+                                            @if(old('partner_id') == $partner->corp_id) {{ 'selected' }}
+                                            @elseif(isset($clientEvent) && $clientEvent->partner_id == $partner->corp_id) {{'selected'}}
+                                            @endif>
+                                            {{ $partner->corp_name }} </option>
+                                    @empty
+                                        <option>There's no data</option>
+                                    @endforelse
+                                </select>
+                                @error('partner_id')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
                             <div class="col-md-6 mb-2">
                                 <label>Joined Date <sup class="text-danger">*</sup></label>
                                 <input type="date" name="joined_date" value="{{ date('Y-m-d') }}" readonly      
@@ -532,18 +550,29 @@
                 // $(".program").removeClass("d-none")
                 $(".edufair").addClass("d-none")
                 $(".kol").addClass("d-none")
+                $(".partner").addClass("d-none")
+
 
             } else if (lead.includes('External Edufair')) {
 
                 // $(".program").addClass("d-none")
                 $(".edufair").removeClass("d-none")
                 $(".kol").addClass("d-none")
+                $(".partner").addClass("d-none")
 
             } else  if (lead.includes('KOL')) {
 
                 // $(".program").addClass("d-none")
                 $(".edufair").addClass("d-none")
                 $(".kol").removeClass("d-none")
+                $(".partner").addClass("d-none")
+
+            } else  if (lead.includes('All-In Partners')) {
+
+                // $(".program").addClass("d-none")
+                $(".edufair").addClass("d-none")
+                $(".kol").addClass("d-none")
+                $(".partner").removeClass("d-none")
 
             }
         })

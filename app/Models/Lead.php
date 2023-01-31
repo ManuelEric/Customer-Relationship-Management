@@ -27,7 +27,7 @@ class Lead extends Model
     public static function whereLeadId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
-        
+
         $instance = new static;
 
         return $instance->newQuery()->where('lead_id', $id)->first();
@@ -36,6 +36,11 @@ class Lead extends Model
     public function client()
     {
         return $this->hasMany(UserClient::class, 'lead_id', 'lead_id');
+    }
+
+    public function clientEvent()
+    {
+        return $this->hasMany(ClientEvent::class, 'lead_id', 'lead_id');
     }
 
     public function clientProgram()

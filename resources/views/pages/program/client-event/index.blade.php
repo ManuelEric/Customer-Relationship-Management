@@ -109,10 +109,11 @@
                     },
                     {
                         data: 'event_name',
+                        name: 'tbl_events.event_title'
                     },
                     {
-                        data: 'main_lead',
-                        name: 'tbl_lead.main_lead'
+                        data: 'conversion_lead',
+                        // name: 'tbl_lead.main_lead'
                     },
                     {
                         data: 'joined_date',

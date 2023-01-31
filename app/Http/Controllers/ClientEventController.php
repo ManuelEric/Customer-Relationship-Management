@@ -8,6 +8,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
@@ -29,6 +30,7 @@ class ClientEventController extends Controller
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
+    protected CorporateRepositoryInterface $corporateRepository;
     protected EdufLeadRepositoryInterface $edufLeadRepository;
     protected EventRepositoryInterface $eventRepository;
     protected LeadRepositoryInterface $leadRepository;
@@ -38,24 +40,24 @@ class ClientEventController extends Controller
 
     public function __construct(
         CurriculumRepositoryInterface $curriculumRepository,
-        ClientRepositoryInterface $clientRepository, 
+        ClientRepositoryInterface $clientRepository,
         ClientEventRepositoryInterface $clientEventRepository,
-        EdufLeadRepositoryInterface $edufLeadRepository, 
+        CorporateRepositoryInterface $corporateRepository,
+        EdufLeadRepositoryInterface $edufLeadRepository,
         EventRepositoryInterface $eventRepository,
         LeadRepositoryInterface $leadRepository,
         SchoolRepositoryInterface $schoolRepository,
         SchoolCurriculumRepositoryInterface $schoolCurriculumRepository,
-        )
-    {
+    ) {
         $this->curriculumRepository = $curriculumRepository;
         $this->clientRepository = $clientRepository;
         $this->clientEventRepository = $clientEventRepository;
+        $this->corporateRepository = $corporateRepository;
         $this->edufLeadRepository = $edufLeadRepository;
         $this->eventRepository = $eventRepository;
         $this->leadRepository = $leadRepository;
         $this->schoolRepository = $schoolRepository;
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
-
     }
 
     public function index(Request $request)
@@ -65,7 +67,7 @@ class ClientEventController extends Controller
             return $this->clientEventRepository->getAllClientEventDataTables();
         }
 
-        return view('pages.program.client-event.index'); 
+        return view('pages.program.client-event.index');
     }
 
     public function create()
@@ -77,6 +79,7 @@ class ClientEventController extends Controller
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $schools = $this->schoolRepository->getAllSchools();
+        $partners = $this->corporateRepository->getAllCorporate();
 
         return view('pages.program.client-event.form')->with(
             [
@@ -87,6 +90,7 @@ class ClientEventController extends Controller
                 'kols' => $kols,
                 'leads' => $leads,
                 'schools' => $schools,
+                'partners' => $partners,
             ]
         );
     }
@@ -100,14 +104,15 @@ class ClientEventController extends Controller
             'event_id',
             'lead_id',
             'eduf_id',
+            'partner_id',
             'status',
             'joined_date'
         ]);
 
         // Client not existing
-        if($request->existing_client == 0){
-            
-           
+        if ($request->existing_client == 0) {
+
+
             // Client as student or teacher
             $clientDetails = $request->only([
                 'first_name',
@@ -120,6 +125,7 @@ class ClientEventController extends Controller
                 'st_grade',
                 'lead_id',
                 'eduf_id',
+                'partner_id',
                 'kol_lead_id',
                 'event_id',
                 'graduation_year',
@@ -127,8 +133,8 @@ class ClientEventController extends Controller
                 'st_password'
             ]);
 
-             // Client as parent
-             if($request->status_client == 'Parent'){
+            // Client as parent
+            if ($request->status_client == 'Parent') {
                 $clientDetails = $request->only([
                     'first_name',
                     'last_name',
@@ -138,12 +144,11 @@ class ClientEventController extends Controller
                     'state',
                     'lead_id',
                     'eduf_id',
+                    'partner_id',
                     'kol_lead_id',
                     'event_id',
                 ]);
             }
-
-
         }
 
         # set lead_id based on lead_id & kol_lead_id
@@ -156,25 +161,27 @@ class ClientEventController extends Controller
 
             unset($clientEvents['lead_id']);
             $clientEvents['eduf_id'] = null;
-            $clientEvents['event_id'] = null;
+            $clientEvents['partner_id'] = null;
             $clientEvents['lead_id'] = $request->kol_lead_id;
-            
-        }
-        # LS018 = external edufair
-        else if($request->lead_id != 'LS018' && $request->lead_id != 'kol'){
-            
-            $clientEvents['eduf_id'] = null;
-            
-        }
-        # LS018 = external edufair
-        else if($request->lead_id != "kol" && $request->lead_id == 'LS018'){
-            
-            $clientEvents['event_id'] = null;
 
+            # LS015 = partner
+        } else if ($request->lead_id == 'LS015') {
+            $clientEvents['eduf_id'] = null;
+        }
+        # LS018 = external edufair
+        else if ($request->lead_id != 'LS018' && $request->lead_id != 'kol') {
+
+            $clientEvents['eduf_id'] = null;
+            $clientEvents['partner_id'] = null;
+        }
+        # LS018 = external edufair
+        else if ($request->lead_id != "kol" && $request->lead_id == 'LS018') {
+
+            $clientEvents['partner_id'] = null;
         }
 
         DB::beginTransaction();
-        
+
         try {
 
             # case 1
@@ -188,14 +195,14 @@ class ClientEventController extends Controller
                     'sch_type',
                     'sch_score',
                 ]);
-    
+
                 $last_id = School::max('sch_id');
                 $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
                 $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
 
                 if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
                     throw new Exception('Failed to store new school', 1);
-                
+
                 # insert school curriculum
                 if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
                     throw new Exception('Failed to store school curriculum', 1);
@@ -207,39 +214,37 @@ class ClientEventController extends Controller
                 # create index sch_id to student details
                 # filled with a new school id that was inserted before
                 $clientDetails['sch_id'] = $school->sch_id;
-
             }
 
             // Case 2
             // Create new client
             // When client not existing
-            if($request->existing_client == 0){
+            if ($request->existing_client == 0) {
 
                 switch ($request->status_client) {
                     case 'Mentee':
-                        if(!$clientCreated = $this->clientRepository->createClient('Mentee', $clientDetails))
+                        if (!$clientCreated = $this->clientRepository->createClient('Mentee', $clientDetails))
                             throw new Exception('Failed to store new client', 2);
                         break;
-                            
+
                     case 'Parent':
-                        if(!$clientCreated = $this->clientRepository->createClient('Parent', $clientDetails))    
+                        if (!$clientCreated = $this->clientRepository->createClient('Parent', $clientDetails))
                             throw new Exception('Failed to store new client', 2);
                         break;
-                        
+
                     case 'Teacher/Counsellor':
-                        if(!$clientCreated = $this->clientRepository->createClient('Teacher/Counselor', $clientDetails))
+                        if (!$clientCreated = $this->clientRepository->createClient('Teacher/Counselor', $clientDetails))
                             throw new Exception('Failed to store new client', 2);
                         break;
                 }
-                
+
                 $clientEvents['client_id'] = $clientCreated->id;
-                
             }
-            
+
             // Case 3
             // Create client event
             # insert into client event
-            if(!$this->clientEventRepository->createClientEvent($clientEvents))
+            if (!$this->clientEventRepository->createClientEvent($clientEvents))
                 throw new Exception('Failed to store new client event', 3);
 
 
@@ -260,16 +265,15 @@ class ClientEventController extends Controller
                 case 3:
                     Log::error('Store client event failed : ' . $e->getMessage());
                     break;
-                }
+            }
 
             Log::error('Store a new client event failed : ' . $e->getMessage());
             // return $e->getMessage();
             // exit;
             return Redirect::to('program/event/create')->withError('Failed to create client event');
         }
-        
-        return Redirect::to('program/event')->withSuccess('Client event successfully created');
 
+        return Redirect::to('program/event')->withSuccess('Client event successfully created');
     }
 
     public function show(Request $request)
@@ -284,6 +288,7 @@ class ClientEventController extends Controller
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $schools = $this->schoolRepository->getAllSchools();
+        $partners = $this->corporateRepository->getAllCorporate();
 
         return view('pages.program.client-event.form')->with(
             [
@@ -295,6 +300,7 @@ class ClientEventController extends Controller
                 'kols' => $kols,
                 'leads' => $leads,
                 'schools' => $schools,
+                'partners' => $partners,
             ]
         );
     }
@@ -312,6 +318,7 @@ class ClientEventController extends Controller
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $schools = $this->schoolRepository->getAllSchools();
+        $partners = $this->corporateRepository->getAllCorporate();
 
         return view('pages.program.client-event.form')->with(
             [
@@ -324,9 +331,9 @@ class ClientEventController extends Controller
                 'kols' => $kols,
                 'leads' => $leads,
                 'schools' => $schools,
+                'partners' => $partners,
             ]
         );
-
     }
 
     public function update(StoreClientEventRequest $request)
@@ -338,6 +345,7 @@ class ClientEventController extends Controller
             'event_id',
             'lead_id',
             'eduf_id',
+            'partner_id',
             'status',
             'joined_date'
         ]);
@@ -352,22 +360,22 @@ class ClientEventController extends Controller
 
             unset($clientEvent['lead_id']);
             $clientEvent['eduf_id'] = null;
-            $clientEvent['event_id'] = null;
+            $clientEvent['partner_id'] = null;
             $clientEvent['lead_id'] = $request->kol_lead_id;
-            
-        }else if($request->lead_id != 'LS018' && $request->lead_id != 'kol'){
-            
-            $clientEvent['eduf_id'] = null;
-            
-        }else if($request->lead_id == 'LS018' && $request->lead_id != 'kol'){
-            
-            $clientEvent['event_id'] = null;
+        } else if ($request->lead_id == 'LS015') {
+            $clientEvents['eduf_id'] = null;
+        } else if ($request->lead_id != 'LS018' && $request->lead_id != 'kol') {
 
+            $clientEvent['eduf_id'] = null;
+            $clientEvent['partner_id'] = null;
+        } else if ($request->lead_id == 'LS018' && $request->lead_id != 'kol') {
+
+            $clientEvent['partner_id'] = null;
         }
 
         DB::beginTransaction();
         try {
-           
+
             $this->clientEventRepository->updateClientEvent($clientevent_id, $clientEvent);
             DB::commit();
         } catch (Exception $e) {
@@ -377,9 +385,8 @@ class ClientEventController extends Controller
 
             return Redirect::to('program/event/' . $clientevent_id)->withError('Failed to update client event');
         }
- 
-        return Redirect::to('program/event')->withSuccess('Client event successfully updated');
 
+        return Redirect::to('program/event')->withSuccess('Client event successfully updated');
     }
 
     public function destroy(Request $request)
@@ -388,7 +395,7 @@ class ClientEventController extends Controller
 
         DB::beginTransaction();
         try {
-           
+
             $this->clientEventRepository->deleteClientEvent($clientevent_id);
             DB::commit();
         } catch (Exception $e) {
@@ -398,7 +405,30 @@ class ClientEventController extends Controller
 
             return Redirect::to('program/event/' . $clientevent_id)->withError('Failed to delete client event');
         }
- 
+
         return Redirect::to('program/event')->withSuccess('Client event successfully deleted');
+    }
+
+    public function report(Request $request)
+    {
+        $eventId = null;
+        if ($request->get('event_id') != null) {
+            $eventId = $request->get('event_id');
+        }
+
+        $events = $this->eventRepository->getAllEvents();
+        $clientEvents = $this->clientEventRepository->getAllClientEvents($eventId);
+        $clients = $this->clientEventRepository->getAllClientEventsGroupByRoles($eventId);
+        $conversionLeads = $this->clientEventRepository->getConversionLead($eventId);
+
+
+        return view('pages.report.event-tracking.index')->with(
+            [
+                'clientEvents' => $clientEvents,
+                'clients' => $clients,
+                'events' => $events,
+                'conversionLeads' => $conversionLeads,
+            ]
+        );
     }
 }

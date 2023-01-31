@@ -410,6 +410,7 @@
         </div>
     </div>
 
+    <div id="pspdfkit" style="height: 100vh"></div>
 
     <script>
         function setIdentifier(id)
@@ -643,25 +644,20 @@
                 $("#print_idr").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()                
-                axios
-                    .get('{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}', {
-                        responseType: 'arraybuffer'
+                PSPDFKit.load({
+                container: "#pspdfkit",
+                document: "{{ asset('storage/uploaded_file/invoice/'.$invoiceSch->attachment) }}" // Add the path to your document here.
                     })
-                    .then(response => {
-                        console.log(response)
+                    .then(async (instance) => {
+                         const annotations = await instance.getAnnotations(0);
+                            const annotation = annotations.get(0);
+                            await instance.delete(annotation);
 
-                        let blob = new Blob([response.data], { type: 'application/pdf' }),
-                            url = window.URL.createObjectURL(blob)
-
-                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
-                        swal.close()
-                        notification('success', 'Invoice has been exported')
+                        console.log("PSPDFKit loaded", instance);
                     })
-                    .catch(error => {
-                        notification('error', 'Something went wrong while exporting the invoice')
-                        swal.close()
-                    })
+                    .catch(function(error) {
+                        console.error(error.message);
+                    });
                 })
 
                 @endif
