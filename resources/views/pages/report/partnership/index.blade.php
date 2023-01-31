@@ -131,7 +131,7 @@
         <div class="col-md-9">
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="p-0 m-0">School Visit</h6>
+                    <h6 class="p-0 m-0">School Program</h6>
                     <div class="">
                         <button class="btn btn-sm btn-outline-info">
                             <i class="bi bi-file-earmark-excel me-1"></i> Print
@@ -197,13 +197,19 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <td class="text-center">1</td>
-                                <td>Partner Name</td>
-                                <td>Program Name</td>
-                                <td>Program Date</td>
-                                <td>Participants</td>
-                                <td>Amount</td>
-                                <td>PIC</td>
+                                @forelse ($partnerPrograms as $partnerProgram)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $partnerProgram->corp->corp_name }}</td>
+                                    <td>{{ $partnerProgram->program->sub_prog ? $partnerProgram->program->sub_prog->sub_prog_name.' - ':'' }}{{ $partnerProgram->program->prog_program }}</td>
+                                    <td>{{ $partnerProgram->start_date }}</td>
+                                    <td>{{ $partnerProgram->participants }}</td>
+                                    <td>{{ $partnerProgram->total_fee }}</td>
+                                    <td>{{ $partnerProgram->user->first_name }} {{ $partnerProgram->user->last_name }}</td>
+                                </tr>
+                                @empty
+                                    <td colspan="7">Not partner program yet</td>
+                                @endforelse
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -213,7 +219,6 @@
                             </tfoot>
                         </table>
                     </div>
-
                 </div>
             </div>
         </div>

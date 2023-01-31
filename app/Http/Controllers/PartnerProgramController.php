@@ -398,4 +398,16 @@ class PartnerProgramController extends Controller
 
         return Redirect::to('program/corporate/')->withSuccess('Partner program successfully deleted');
     }
+
+    public function report(Request $request)
+    {
+        $partnerProgId = null;
+        $partnerPrograms = $this->partnerProgramRepository->getReportPartnerPrograms($partnerProgId);
+
+        return view('pages.report.partnership.index')->with(
+            [
+                'partnerPrograms' => $partnerPrograms,
+            ]
+        );
+    }
 }

@@ -166,6 +166,12 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
         return PartnerProg::where('corp_id', $corpId)->orderBy('id', 'asc')->get();
     }
 
+    public function getReportPartnerPrograms($success_date = null)
+    {
+        return PartnerProg::where('status', 1)->get();
+        // ->where('created_at');
+    }
+
     public function getPartnerProgramById($partnerProgId)
     {
         return PartnerProg::find($partnerProgId);

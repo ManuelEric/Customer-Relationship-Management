@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClientEventController;
+use App\Http\Controllers\PartnerProgramController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,9 +32,11 @@ Route::get('invoice', function () {
     return view('pages.report.invoice.index');
 });
 
-Route::get('partnership', function () {
-    return view('pages.report.partnership.index');
-});
+// Route::get('partnership', function () {
+//     return view('pages.report.partnership.index');
+// });
+
+Route::get('partnership', [PartnerProgramController::class, 'report'])->name('report.partnership.index');
 
 Route::get('unpaid', function () {
     return view('pages.report.unpaid-payment.index');
