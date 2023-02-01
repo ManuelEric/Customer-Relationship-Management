@@ -3,28 +3,39 @@
 @section('title', 'Sales Tracking - Bigdata Platform')
 
 @section('content')
+    @if (Request::get('start') && Request::get('end'))
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-success">
+                Sales tracking report between <u>{{ date('d F Y', strtotime(Request::get('start'))) }}</u> and <u>{{ date('d F Y', strtotime(Request::get('end'))) }}</u>
+            </div>
+        </div>
+    </div>
+    @endif
     <div class="row">
         <div class="col-md-3">
             <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="p-0 m-0">Period</h6>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label>Start Date</label>
-                        <input type="date" name="" id="" class="form-control form-control-sm rounded">
+                <form action="" id="filterForm">
+                    <div class="card-header">
+                        <h6 class="p-0 m-0">Period</h6>
                     </div>
-                    <div class="mb-3">
-                        <label>End Date</label>
-                        <input type="date" name="" id="" class="form-control form-control-sm rounded">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label>Start Date</label>
+                            <input type="date" name="start" class="form-control form-control-sm rounded">
+                        </div>
+                        <div class="mb-3">
+                            <label>End Date</label>
+                            <input type="date" name="end" class="form-control form-control-sm rounded">
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-search me-1"></i>
+                                Submit
+                            </button>
+                        </div>
                     </div>
-                    <div class="text-center">
-                        <button class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-search me-1"></i>
-                            Submit
-                        </button>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
         <div class="col-md-9">
@@ -328,17 +339,18 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($averageConversionSuccessful as $detail)
                             <tr>
-                                <td>#</td>
-                                <td>Program Name</td>
-                                <td>Average Time</td>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $detail->program_name_st }}</td>
+                                <td>{{ (int) $detail->average_time }} days</td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-
 
 @endsection

@@ -387,17 +387,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     }
 
     # sales tracking
-    public function getCountProgramByStatus($status)
+    public function getCountProgramByStatus($status, array $dateDetails)
     {
         $statusId = $this->getStatusId($status);
-        return ClientProgram::where('status', $statusId)->count();
+        return ClientProgram::where('status', $statusId)->whereBetween('created_at', [$dateDetails['startDate'], $dateDetails['endDate']])->count();
     }
 
-    public function getSummaryProgramByStatus($status)
+    public function getSummaryProgramByStatus($status, array $dateDetails)
     {
         $statusId = $this->getStatusId($status);
 
-        $clientPrograms = ClientProgram::where('status', $statusId)->get();
+        $clientPrograms = ClientProgram::where('status', $statusId)->whereBetween('created_at', [$dateDetails['startDate'], $dateDetails['endDate']])->get();
 
         $no = 0;
         $data = [];
@@ -409,7 +409,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return $data;
     }
 
-    public function getInitAssessmentProgress()
+    public function getInitAssessmentProgress($dateDetails)
     {
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
@@ -426,11 +426,12 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 });
             })
             ->where('status', 1)
+            ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('program_name_st')
             ->get();
     }
 
-    public function getLeadSource()
+    public function getLeadSource($dateDetails)
     {
         return ClientProgram::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
             ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client.lead_id')
@@ -451,11 +452,12 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 END)) AS lead_source_count'),
             ])
             ->where('tbl_client_prog.status', 1)
+            ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('lead_source')
             ->get();
     }
 
-    public function getConversionLead()
+    public function getConversionLead($dateDetails)
     {
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_prog.lead_id')
@@ -478,7 +480,29 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 END)) AS conversion_lead_count'),
             ])
             ->where('tbl_client_prog.status', 1)
+            ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('conversion_lead')
+            ->get();
+    }
+
+    public function getConversionTimeSuccessfulPrograms($dateDetails)
+    {
+        return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+            ->select([
+                DB::raw('CONCAT(tbl_main_prog.prog_name, ": ", tbl_prog.prog_program) as program_name_st'),
+                DB::raw('AVG(DATEDIFF(success_date, first_discuss_date)) as average_time'),
+            ])
+            ->whereHas('program', function ($query) {
+                $query->whereHas('main_prog', function ($query2) {
+                    $query2->where('prog_name', 'like', '%Admissions Mentoring%');
+                })->whereHas('sub_prog', function ($query2) {
+                    $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                });
+            })
+            ->where('status', 1)
+            ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->groupBy('program_name_st')
             ->get();
     }
 }
