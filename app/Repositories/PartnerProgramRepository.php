@@ -6,6 +6,8 @@ use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Models\PartnerProg;
 use DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
+
 
 class PartnerProgramRepository implements PartnerProgramRepositoryInterface
 {
@@ -166,12 +168,6 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
         return PartnerProg::where('corp_id', $corpId)->orderBy('id', 'asc')->get();
     }
 
-    public function getReportPartnerPrograms($success_date = null)
-    {
-        return PartnerProg::where('status', 1)->get();
-        // ->where('created_at');
-    }
-
     public function getPartnerProgramById($partnerProgId)
     {
         return PartnerProg::find($partnerProgId);
@@ -190,5 +186,32 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
     public function updatePartnerProgram($partnerProgId, array $newPrograms)
     {
         return PartnerProg::find($partnerProgId)->update($newPrograms);
+    }
+
+    public function getReportPartnerPrograms($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+
+        if (isset($start_date) && isset($end_date)) {
+            return PartnerProg::where('status', 1)
+                ->whereDate('success_date', '>=', $start_date)
+                ->whereDate('success_date', '<=', $end_date)
+
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return PartnerProg::where('status', 1)
+                ->whereDate('success_date', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return PartnerProg::where('status', 1)
+                ->whereDate('success_date', '<=', $end_date)
+                ->get();
+        } else {
+            return PartnerProg::where('status', 1)
+                ->whereBetween('success_date', [$firstDay, $lastDay])
+                ->get();
+        }
     }
 }

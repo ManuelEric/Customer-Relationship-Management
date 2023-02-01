@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\School;
+use Carbon\Carbon;
 use App\Models\SchoolDetail;
 use DataTables;
 
@@ -17,11 +18,11 @@ class SchoolRepository implements SchoolRepositoryInterface
                 $no = 1;
                 $curriculums = '';
                 foreach ($data->curriculum as $curriculum) {
-                    if ($no == 1) 
+                    if ($no == 1)
                         $curriculums = $curriculum->name;
-                    else 
-                        $curriculums .= ', '.$curriculum->name;
-                    
+                    else
+                        $curriculums .= ', ' . $curriculum->name;
+
                     $no++;
                 }
                 return $curriculums;
@@ -123,5 +124,26 @@ class SchoolRepository implements SchoolRepositoryInterface
                 'schdetail_phone' => null
             ]
         );
+    }
+
+    public function getReportNewSchool($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        if (isset($start_date) && isset($end_date)) {
+            return School::whereDate('created_at', '>=', $start_date)
+                ->whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return School::whereDate('created_at', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return School::whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else {
+            return School::whereBetween('created_at', [$firstDay, $lastDay])
+                ->get();
+        }
     }
 }

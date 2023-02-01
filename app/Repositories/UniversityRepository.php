@@ -6,6 +6,7 @@ use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\CountryTranslations;
 use App\Models\University;
 use App\Models\v1\University as V1University;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use DataTables;
 use Illuminate\Database\Eloquent\Collection;
@@ -14,7 +15,7 @@ class UniversityRepository implements UniversityRepositoryInterface
 {
     public function getAllUniversitiesDataTables()
     {
-        return Datatables::eloquent(University::leftJoin('tbl_tag', function($join) {
+        return Datatables::eloquent(University::leftJoin('tbl_tag', function ($join) {
             $join->on('tbl_univ.tag', '=', 'tbl_tag.id');
         })->select('tbl_univ.*', 'tbl_tag.name as tag_name'))
             ->make(true);
@@ -33,7 +34,7 @@ class UniversityRepository implements UniversityRepositoryInterface
     public function getAllUniversitiesByTag(array $tags)
     {
         $universities = University::whereIn('tag', $tags)->get();
-        
+
         if (in_array('7', $tags)) {
             $tags = ['1', '2', '3', '4', '5', '6'];
             $other_universities = University::whereNotIn('tag', $tags)->orWhereNull('tag')->get();
@@ -89,5 +90,26 @@ class UniversityRepository implements UniversityRepositoryInterface
     public function getAllUniversitiesFromCRM()
     {
         return V1University::all();
+    }
+
+    public function getReportNewUniversity($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        if (isset($start_date) && isset($end_date)) {
+            return University::whereDate('created_at', '>=', $start_date)
+                ->whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return University::whereDate('created_at', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return University::whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else {
+            return University::whereBetween('created_at', [$firstDay, $lastDay])
+                ->get();
+        }
     }
 }

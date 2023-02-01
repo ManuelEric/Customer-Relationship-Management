@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface SchoolRepositoryInterface 
+interface SchoolRepositoryInterface
 {
     public function getAllSchoolDataTables();
     public function getAllSchools();
@@ -12,4 +12,5 @@ interface SchoolRepositoryInterface
     public function updateSchool($schoolId, array $schoolDetails);
     public function cleaningSchool();
     public function cleaningSchoolDetail();
+    public function getReportNewSchool($start_date, $end_date);
 }

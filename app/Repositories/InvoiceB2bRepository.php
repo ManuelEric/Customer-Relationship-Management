@@ -6,6 +6,7 @@ use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Models\Invb2b;
 use App\Models\PartnerProg;
 use App\Models\SchoolProgram;
+use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -172,5 +173,26 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
     public function updateInvoiceB2b($invb2b_num, array $newInvoices)
     {
         return Invb2b::find($invb2b_num)->update($newInvoices);
+    }
+
+    public function getReportInvoiceB2b($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        if (isset($start_date) && isset($end_date)) {
+            return Invb2b::whereDate('created_at', '>=', $start_date)
+                ->whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return Invb2b::whereDate('created_at', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return Invb2b::whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else {
+            return Invb2b::whereBetween('created_at', [$firstDay, $lastDay])
+                ->get();
+        }
     }
 }

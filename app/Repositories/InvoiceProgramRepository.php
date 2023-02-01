@@ -6,14 +6,15 @@ use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Models\ClientProgram;
 use App\Models\InvoiceProgram;
 use App\Models\ViewClientProgram;
+use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
-class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface 
+class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 {
     public function getAllInvoiceProgramDataTables($status)
     {
-        switch($status) {
+        switch ($status) {
 
             case "needed":
                 $query = ViewClientProgram::when($status == "needed", function ($q) {
@@ -25,20 +26,20 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
             case "list":
                 $query = InvoiceProgram::leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-                        ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-                        ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-                        ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-                        ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
-                        ->select([
-                            'tbl_inv.clientprog_id',
-                            DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
-                            DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
-                            'inv_id',
-                            'inv_paymentmethod',
-                            'tbl_inv.created_at',
-                            'inv_duedate',
-                            'inv_totalprice_idr',
-                        ]);
+                    ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+                    ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+                    ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                    ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+                    ->select([
+                        'tbl_inv.clientprog_id',
+                        DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
+                        DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                        'inv_id',
+                        'inv_paymentmethod',
+                        'tbl_inv.created_at',
+                        'inv_duedate',
+                        'inv_totalprice_idr',
+                    ]);
                 break;
 
             case "reminder":
@@ -60,27 +61,26 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 //         ])
                 //         ->orderBy('date_difference', 'asc');
                 $query = InvoiceProgram::leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-                        ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-                        ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-                        ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-                        ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
-                        ->select([
-                            'tbl_inv.clientprog_id',
-                            DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
-                            DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
-                            'inv_id',
-                            'inv_paymentmethod',
-                            'tbl_inv.created_at',
-                            'inv_duedate',
-                            'inv_totalprice_idr',
-                            DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
-                        ])
-                        ->where(DB::raw('DATEDIFF(inv_duedate, now())'), '<=', 7)
-                        ->orderBy('date_difference', 'asc');
+                    ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+                    ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+                    ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                    ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+                    ->select([
+                        'tbl_inv.clientprog_id',
+                        DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
+                        DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                        'inv_id',
+                        'inv_paymentmethod',
+                        'tbl_inv.created_at',
+                        'inv_duedate',
+                        'inv_totalprice_idr',
+                        DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
+                    ])
+                    ->where(DB::raw('DATEDIFF(inv_duedate, now())'), '<=', 7)
+                    ->orderBy('date_difference', 'asc');
                 break;
-
         }
-        
+
 
         return DataTables::eloquent($query)->make(true);
     }
@@ -107,4 +107,24 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         return InvoiceProgram::where('clientprog_id', $clientProgId)->delete();
     }
 
+    public function getReportInvoiceB2c($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        if (isset($start_date) && isset($end_date)) {
+            return InvoiceProgram::whereDate('created_at', '>=', $start_date)
+                ->whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return InvoiceProgram::whereDate('created_at', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return InvoiceProgram::whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else {
+            return InvoiceProgram::whereBetween('created_at', [$firstDay, $lastDay])
+                ->get();
+        }
+    }
 }

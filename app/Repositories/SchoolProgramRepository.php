@@ -193,4 +193,30 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
     {
         return SchoolProgram::find($schoolProgramId)->update($newPrograms);
     }
+
+    public function getReportSchoolPrograms($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        if (isset($start_date) && isset($end_date)) {
+            return SchoolProgram::where('status', 1)
+                ->whereDate('success_date', '>=', $start_date)
+                ->whereDate('success_date', '<=', $end_date)
+
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return SchoolProgram::where('status', 1)
+                ->whereDate('success_date', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return SchoolProgram::where('status', 1)
+                ->whereDate('success_date', '<=', $end_date)
+                ->get();
+        } else {
+            return SchoolProgram::where('status', 1)
+                ->whereBetween('success_date', [$firstDay, $lastDay])
+                ->get();
+        }
+    }
 }

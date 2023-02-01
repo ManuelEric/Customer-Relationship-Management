@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\PartnerProgramController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SalesTrackingController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,18 +25,20 @@ Route::get('sales', [SalesTrackingController::class, 'index'])->name('report.sal
 //     return view('pages.report.event-tracking.index');
 // });
 
-Route::get('event', [ClientEventController::class, 'report'])->name('report.client.event.index');
+Route::get('event', [ReportController::class, 'event'])->name('report.client.event');
 
 
-Route::get('invoice', function () {
-    return view('pages.report.invoice.index');
-});
+// Route::get('invoice', function () {
+//     return view('pages.report.invoice.index');
+// });
 
 // Route::get('partnership', function () {
 //     return view('pages.report.partnership.index');
 // });
 
-Route::get('partnership', [PartnerProgramController::class, 'report'])->name('report.partnership.index');
+Route::get('partnership', [ReportController::class, 'partnership'])->name('report.partnership');
+
+Route::get('invoice', [ReportController::class, 'invoice_receipt'])->name('report.invoice');
 
 Route::get('unpaid', function () {
     return view('pages.report.unpaid-payment.index');

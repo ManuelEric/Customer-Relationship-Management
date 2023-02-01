@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Models\Corporate;
+use Carbon\Carbon;
 use DataTables;
 
 class CorporateRepository implements CorporateRepositoryInterface
@@ -93,5 +94,26 @@ class CorporateRepository implements CorporateRepositoryInterface
                 'corp_password' => null
             ]
         );
+    }
+
+    public function getReportNewPartner($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        if (isset($start_date) && isset($end_date)) {
+            return Corporate::whereDate('created_at', '>=', $start_date)
+                ->whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return Corporate::whereDate('created_at', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return Corporate::whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else {
+            return Corporate::whereBetween('created_at', [$firstDay, $lastDay])
+                ->get();
+        }
     }
 }

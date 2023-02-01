@@ -6,6 +6,7 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Models\Invb2b;
 use App\Models\Receipt;
 use App\Models\Refund;
+use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -148,5 +149,26 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     public function deleteReceipt($receiptId)
     {
         return Receipt::whereId($receiptId)->delete();
+    }
+
+    public function getReportReceipt($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        if (isset($start_date) && isset($end_date)) {
+            return Receipt::whereDate('created_at', '>=', $start_date)
+                ->whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return Receipt::whereDate('created_at', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return Receipt::whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else {
+            return Receipt::whereBetween('created_at', [$firstDay, $lastDay])
+                ->get();
+        }
     }
 }

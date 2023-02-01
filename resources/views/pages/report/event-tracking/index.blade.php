@@ -10,7 +10,7 @@
                     <h6 class="p-0 m-0">Client Event</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('report.client.event.index') }}" method="GET">
+                    <form action="{{ route('report.client.event') }}" method="GET">
                         {{-- @csrf --}}
                         <div class="mb-3">
                             <label>Event Name</label>

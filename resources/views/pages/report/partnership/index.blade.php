@@ -10,17 +10,19 @@
                     <h6 class="p-0 m-0">Period</h6>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <label>Start Date</label>
-                        <input type="date" name="" id="" class="form-control form-control-sm rounded">
-                    </div>
-                    <div class="mb-3">
-                        <label>End Date</label>
-                        <input type="date" name="" id="" class="form-control form-control-sm rounded">
-                    </div>
-                    <div class="text-center">
-                        <button class="btn btn-sm btn-outline-primary">Submit</button>
-                    </div>
+                    <form action="">
+                        <div class="mb-3">
+                            <label>Start Date</label>
+                            <input type="date" name="start_date" id="" class="form-control form-control-sm rounded">
+                        </div>
+                        <div class="mb-3">
+                            <label>End Date</label>
+                            <input type="date" name="end_date" id="" class="form-control form-control-sm rounded">
+                        </div>
+                        <div class="text-center">
+                            <button class="btn btn-sm btn-outline-primary">Submit</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -42,10 +44,20 @@
                     <div class="card mb-1 bg-danger text-white">
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <strong class="">
+                                Total School Program
+                            </strong>
+                            <h5 class="text-end m-0 badge bg-white text-dark">
+                                {{ count($schoolPrograms) }}
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="card mb-1 bg-danger text-white">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <strong class="">
                                 Total Partner Program
                             </strong>
                             <h5 class="text-end m-0 badge bg-white text-dark">
-                                134
+                                {{ count($partnerPrograms) }}
                             </h5>
                         </div>
                     </div>
@@ -56,7 +68,7 @@
                                 Total New School
                             </strong>
                             <h5 class="text-end m-0 badge bg-white text-dark">
-                                20
+                                {{ count($schools) }}
                             </h5>
                         </a>
                     </div>
@@ -68,7 +80,7 @@
                                 Total New Partner
                             </strong>
                             <h5 class="text-end m-0 badge bg-white text-dark">
-                                13
+                                {{ count($partners) }}
                             </h5>
                         </a>
                     </div>
@@ -80,7 +92,7 @@
                                 Total New University
                             </strong>
                             <h5 class="text-end m-0 badge bg-white text-dark">
-                                13
+                                {{ count($universities) }}
                             </h5>
                         </a>
                     </div>
@@ -113,18 +125,24 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <td class="text-center">1</td>
-                                <td>School Name</td>
-                                <td>Program Name</td>
-                                <td>Program Date</td>
-                                <td>Participants</td>
-                                <td>Amount</td>
-                                <td>PIC</td>
+                                @forelse ($schoolPrograms as $schoolProgram)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $schoolProgram->school->sch_name }}</td>
+                                    <td>{{ $schoolProgram->program->sub_prog ? $schoolProgram->program->sub_prog->sub_prog_name.' - ':'' }}{{ $schoolProgram->program->prog_program }}</td>
+                                    <td>{{ $schoolProgram->success_date }}</td>
+                                    <td>{{ $schoolProgram->participants }}</td>
+                                    <td>Rp. {{ number_format($schoolProgram->total_fee) }}</td>
+                                    <td>{{ $schoolProgram->user->first_name }} {{ $schoolProgram->user->last_name }}</td>
+                                </tr>
+                                @empty
+                                    <td colspan="7" class="text-center">Not yet school program</td>
+                                @endforelse
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <th colspan="5">Total Amount</th>
-                                    <th colspan="2" class="text-center">Rp. 230.000.000</th>
+                                    <th colspan="2" class="text-center">Rp. {{ number_format($schoolPrograms->sum('total_fee')) }}</th>
                                 </tr>
                             </tfoot>
                         </table>
@@ -162,19 +180,19 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $partnerProgram->corp->corp_name }}</td>
                                     <td>{{ $partnerProgram->program->sub_prog ? $partnerProgram->program->sub_prog->sub_prog_name.' - ':'' }}{{ $partnerProgram->program->prog_program }}</td>
-                                    <td>{{ $partnerProgram->start_date }}</td>
+                                    <td>{{ $partnerProgram->success_date }}</td>
                                     <td>{{ $partnerProgram->participants }}</td>
-                                    <td>{{ $partnerProgram->total_fee }}</td>
+                                    <td>Rp. {{ number_format($partnerProgram->total_fee) }}</td>
                                     <td>{{ $partnerProgram->user->first_name }} {{ $partnerProgram->user->last_name }}</td>
                                 </tr>
                                 @empty
-                                    <td colspan="7">Not partner program yet</td>
+                                    <td colspan="7" class="text-center">Not yet partner program</td>
                                 @endforelse
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <th colspan="5">Total Amount</th>
-                                    <th colspan="2" class="text-center">Rp. 230.000.000</th>
+                                    <th colspan="2" class="text-center">Rp. {{ number_format($partnerPrograms->sum('total_fee')) }}</th>
                                 </tr>
                             </tfoot>
                         </table>
@@ -205,12 +223,18 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <td class="text-center">1</td>
-                                <td>School Name</td>
-                                <td>Email</td>
-                                <td>Phone Number</td>
-                                <td>Address</td>
-                                <td>Created at</td>
+                                @forelse ($schools as $school)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $school->sch_name }}</td>
+                                        <td>{{ $school->sch_mail }}</td>
+                                        <td>{{ $school->sch_phone }}</td>
+                                        <td>{{ $school->sch_location }}</td>
+                                        <td>{{ $school->created_at }}</td>
+                                    </tr>
+                                @empty
+                                    <td colspan="6" class="text-center">Not yet new school</td>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -241,12 +265,18 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <td class="text-center">1</td>
-                                <td>Partner Name</td>
-                                <td>Email</td>
-                                <td>Phone Number</td>
-                                <td>Address</td>
-                                <td>Created at</td>
+                                @forelse ($partners as $partner)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $partner->corp_name }}</td>
+                                        <td>{{ $partner->corp_mail }}</td>
+                                        <td>{{ $partner->corp_phone }}</td>
+                                        <td>{{ $partner->corp_address }}</td>
+                                        <td>{{ $partner->created_at }}</td>
+                                    </tr>
+                                @empty
+                                    <td colspan="6" class="text-center">Not yet new partner</td>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -277,12 +307,18 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <td class="text-center">1</td>
-                                <td>University Name</td>
-                                <td>Email</td>
-                                <td>Phone Number</td>
-                                <td>Address</td>
-                                <td>Created at</td>
+                                @forelse ($universities as $university)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $university->univ_name }}</td>
+                                        <td>{{ $university->univ_mail }}</td>
+                                        <td>{{ $university->univ_phone }}</td>
+                                        <td>{{ $university->univ_address }}</td>
+                                        <td>{{ $university->created_at }}</td>
+                                    </tr>
+                                @empty
+                                    <td colspan="6" class="text-center">Not yet new university</td>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

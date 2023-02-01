@@ -12,4 +12,5 @@ interface ReceiptRepositoryInterface
     public function updateReceipt($receiptId, array $newDetails);
     public function updateReceiptByInvoiceIdentifier($invoiceType, $identifier, array $newDetails);
     public function deleteReceipt($receiptId);
+    public function getReportReceipt($start_date, $end_date);
 }

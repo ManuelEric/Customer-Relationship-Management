@@ -17,7 +17,7 @@
                 <div class="card-body text-center">
                     <h4>{{ $partner->corp_name }}</h4>
                     @if(isset($partnerProgram))
-                        <h6>{{ $partnerProgram->program->sub_prog ? $partnerProgram->program->sub_prog->sub_prog_name.' - ': 'ss'}}{{ $partnerProgram->program->prog_program }}</h6>
+                        <h6>{{ $partnerProgram->program->sub_prog ? $partnerProgram->program->sub_prog->sub_prog_name.' - ': ''}}{{ $partnerProgram->program->prog_program }}</h6>
                     @endif
                     @if (isset($partnerProgram))
                         <div class="mt-3 d-flex justify-content-center">

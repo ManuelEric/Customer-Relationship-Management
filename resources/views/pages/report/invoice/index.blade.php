@@ -10,17 +10,19 @@
                     <h6 class="p-0 m-0">Period</h6>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <label>Start Date</label>
-                        <input type="date" name="" id="" class="form-control form-control-sm rounded">
-                    </div>
-                    <div class="mb-3">
-                        <label>End Date</label>
-                        <input type="date" name="" id="" class="form-control form-control-sm rounded">
-                    </div>
-                    <div class="text-center">
-                        <button class="btn btn-sm btn-outline-primary">Submit</button>
-                    </div>
+                    <form action="">
+                        <div class="mb-3">
+                            <label>Start Date</label>
+                            <input type="date" name="start_date" id="" class="form-control form-control-sm rounded">
+                        </div>
+                        <div class="mb-3">
+                            <label>End Date</label>
+                            <input type="date" name="end_date" id="" class="form-control form-control-sm rounded">
+                        </div>
+                        <div class="text-center">
+                            <button class="btn btn-sm btn-outline-primary">Submit</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -30,14 +32,14 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
-                        <strong>Total Invoice (24)</strong>
+                        <strong>Total Invoice ({{count($invoices)}})</strong>
                         <div class="text-end">
-                            Rp. 123.000.000
+                           Rp. {{ number_format($totalInvoice, '2', ',', '.') }}
                         </div>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between">
-                        <strong>Total Receipt (12)</strong>
+                        <strong>Total Receipt ({{count($receipts)}})</strong>
                         <div class="text-end">
                             Rp. 123.000.000
                         </div>
@@ -72,26 +74,46 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="text-center">1</td>
-                                    <td>0001/INV-JEI/STP/II/23</td>
-                                    <td>Client/Partner/School Name</td>
-                                    <td>Program Name</td>
-                                    <td>Full Payment</td>
-                                    <td>-</td>
-                                    <td>23 January 2022</td>
-                                    <td>Rp. 23.000.000</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">2</td>
-                                    <td>0001/INV-JEI/STP/II/23</td>
-                                    <td>Client/Partner/School Name</td>
-                                    <td>Program Name</td>
-                                    <td>Installment</td>
-                                    <td>Installment 1</td>
-                                    <td>23 January 2022</td>
-                                    <td>Rp. 23.000.000</td>
-                                </tr>
+                                @forelse ($invoices as $invoice)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ isset($invoice->inv_id) ? $invoice->inv_id : $invoice->invb2b_id}}</td>
+                                        
+                                        {{-- Client Name --}}
+                                        @if(isset($invoice->clientprog_id))
+                                            <td>{{ $invoice->clientprog->client->first_name }} {{ $invoice->clientprog->client->last_name }}</td>
+                                        @elseif(isset($invoice->schprog_id))
+                                            <td>{{ $invoice->sch_prog->school->sch_name }}</td>
+                                        @elseif(isset($invoice->partnerprog_id))
+                                            <td>{{ $invoice->partner_prog->corp->corp_name }}</td>
+                                        @endif
+
+                                        {{-- Program Name --}}
+                                        @if(isset($invoice->clientprog_id))
+                                            <td>{{ $invoice->clientprog->program->sub_prog ? $invoice->clientprog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->clientprog->program->prog_program }}</td>
+                                        @elseif(isset($invoice->schprog_id))
+                                            <td>{{ $invoice->sch_prog->program->sub_prog ? $invoice->sch_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->sch_prog->program->prog_program }}</td>
+                                        @elseif(isset($invoice->partnerprog_id))
+                                            <td>{{ $invoice->partner_prog->program->sub_prog ? $invoice->partner_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->partner_prog->program->prog_program }}</td>
+                                        @endif 
+
+                                        {{-- Method --}}
+                                        <td>{{ isset($invoice->inv_id) ? $invoice->inv_paymentmethod : $invoice->invb2b_pm }}</td>
+                                        
+                                        {{-- Installment --}}
+                                        <td>Installment</td>
+                                        
+                                        {{-- Due date --}}
+                                        <td>{{ isset($invoice->inv_id) ? $invoice->inv_duedate : $invoice->invb2b_duedate }}</td>
+
+                                        {{-- Amount --}}
+                                        <td>{{ ($invoice->currency == 'idr') ? $invoice->invoiceTotalpriceIdr : $invoice->invoiceTotalprice }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="8" class="text-center">Not yet invoice</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                             <tfoot class="bg-light text-white">
                                 <tr>
@@ -128,26 +150,50 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="text-center">1</td>
-                                    <td>0001/INV-JEI/STP/II/23</td>
-                                    <td>Client/Partner/School Name</td>
-                                    <td>Program Name</td>
-                                    <td>Full Payment</td>
-                                    <td>-</td>
-                                    <td>23 January 2023</td>
-                                    <td>Rp. 23.000.000</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-center">2</td>
-                                    <td>0001/INV-JEI/STP/II/23</td>
-                                    <td>Client/Partner/School Name</td>
-                                    <td>Program Name</td>
-                                    <td>Installment</td>
-                                    <td>Installment 1</td>
-                                    <td>23 January 2023</td>
-                                    <td>Rp. 23.000.000</td>
-                                </tr>
+                                @forelse ($receipts as $receipt)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $receipt->receipt_id }}</td>
+                                        
+                                        {{-- Client Name --}}
+                                        @if(isset($receipt->inv_id))
+                                            <td>{{ $receipt->invoiceProgram->clientprog->client->first_name }} {{ $receipt->invoiceProgram->clientprog->client->last_name }}</td>
+                                        @elseif(isset($receipt->invb2b_id))
+                                            @if(isset($receipt->invoiceB2b->schprog_id))
+                                                <td>{{ $receipt->invoiceB2b->sch_prog->school->sch_name }}</td>
+                                            @elseif(isset($receipt->invoiceB2b->partnerprog_id))
+                                                <td>{{ $receipt->invoiceB2b->partner_prog->corp->corp_name }}</td>
+                                            @endif
+                                        @endif
+
+                                        {{-- Program Name --}}
+                                        @if(isset($receipt->inv_id))
+                                            <td>{{ $receipt->invoiceProgram->clientprog->program->sub_prog ? $receipt->invoiceProgram->clientprog->program->sub_prog->sub_prog_name.' - ':''}}{{ $receipt->invoiceProgram->clientprog->program->prog_program }}</td>
+                                        @elseif(isset($receipt->invb2b_id))
+                                            @if($receipt->invoiceB2b->schprog_id))
+                                                <td>{{ $receipt->invoiceB2b->sch_prog->program->sub_prog ? $receipt->invoiceB2b->sch_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $receipt->invoiceB2b->sch_prog->program->prog_program }}</td>
+                                            @elseif((isset($receipt->invoiceB2b->partnerprog_id)))
+                                                <td>{{ $receipt->invoiceB2b->partner_prog->program->sub_prog ? $receipt->invoiceB2b->partner_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $receipt->invoiceB2b->partner_prog->program->prog_program }}</td>
+                                            @endif
+                                        @endif 
+
+                                        {{-- Method --}}
+                                        <td>{{ $receipt->receipt_method }}</td>
+                                        
+                                        {{-- Installment --}}
+                                        <td>Installment</td>
+                                        
+                                        {{-- Paid date --}}
+                                        <td>{{ $receipt->created_at }}</td>
+
+                                        {{-- Amount --}}
+                                        <td>{{ $receipt->receipt_amount_idr }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="8" class="text-center">Not yet invoice</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                             <tfoot class="bg-light text-white">
                                 <tr>

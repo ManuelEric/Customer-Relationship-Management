@@ -89,7 +89,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     'tbl_roles.role_name',
                     DB::raw('count(role_id) as count_role')
                 )
-                ->groupBy('role_id')
+                ->groupBy('role_name')
                 ->get();
         }
     }
