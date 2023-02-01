@@ -89,69 +89,12 @@
                         </ul>
                     </div>
                 </div>
-
-                <div class="card mb-3">
-                    <div class="card-header d-flex align-items-center justify-content-between">
-                        <div class="">
-                            <h6 class="m-0 p-0">
-                                <i class="bi bi-calendar me-2"></i>
-                                Visit
-                            </h6>
-                        </div>
-                        <div class="">
-                            <a href="{{ url('program/school/'. strtolower($school->sch_id)) .'/detail/create' }}"
-                                class="btn btn-sm btn-outline-primary rounded mx-1">
-                                <i class="bi bi-plus"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        @forelse ($schoolVisits as $schoolVisit)
-                            <div class="list-group-item">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex flex-column text-start">
-                                        <div class="pb-2">
-                                            {{ date('D, d M Y', strtotime($schoolVisit->visit_date)) }}
-                                        </div>
-                                        <small>
-                                            School PIC : <b>{{ $schoolVisit->pic_from_school->schdetail_fullname }}</b>
-                                        </small>
-                                        <small>
-                                            ALL-In PIC : <b>{{ $schoolVisit->pic_from_allin->fullname }}</b>
-                                        </small>
-                                        <small class="border-top mt-2 pt-2">
-                                            Notes : {{ $schoolVisit->notes }}
-                                        </small>
-                                    </div>
-                                    @if ($schoolVisit->status == "waiting")
-                                        <div class="d-flex ">
-                                            <div>
-                                                <form action="{{ route('school.visit.update', ['school' => $school->sch_id, 'visit' => $schoolVisit->id]) }}" method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <a style="text-decoration: none" title="Mark as visited" href="javascript:void(0)" class="fs-6 text-success">
-                                                        <button type="submit" class="border-0 bg-white">
-                                                            <i class="bi bi-calendar-check text-success"></i>
-                                                        </button>
-                                                    </a>
-                                                </form>
-                                            </div>
-                                            <a href="javascript:void(0)" title="Cancel" onclick="confirmDelete('instance/school/{{ $school->sch_id }}/visit', '{{ $schoolVisit->id }}')" class="fs-6 text-danger">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        @empty
-                            <div class="list-group-item">There's no schedule visit</div>
-
-                        @endforelse
-                    </div>
-                </div>
+                
+                @include('pages.instance.school.detail.school-visit')
+                
             @endif
 
-            @include('pages.instance.school.detail.school-visit')
+            
         </div>
         <div class="col-md-8">
             <div class="card mb-3">

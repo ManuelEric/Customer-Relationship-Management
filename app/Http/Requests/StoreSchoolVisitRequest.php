@@ -25,7 +25,6 @@ class StoreSchoolVisitRequest extends FormRequest
     public function rules()
     {
         return [
-            'school' => 'required|exists:tbl_sch,sch_id',
             'internal_pic' => [
                 'required',
                 function ($attribute, $value, $fail) {
@@ -39,7 +38,7 @@ class StoreSchoolVisitRequest extends FormRequest
             'school_pic' => 'required|exists:tbl_schdetail,schdetail_id',
             'visit_date' => 'required',
             'notes' => 'nullable',
-            'status' => 'in:waiting,visited',
+            'status' => 'nullable|in:waiting,visited',
         ];
     }
 }
