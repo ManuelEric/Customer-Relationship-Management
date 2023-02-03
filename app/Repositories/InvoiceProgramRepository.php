@@ -159,7 +159,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 'tbl_inv.inv_duedate',
                 'tbl_receipt.receipt_id',
                 'tbl_receipt.receipt_amount_idr',
-                'tbl_receipt.created_at',
+                'tbl_receipt.created_at as paid_date',
                 'tbl_invdtl.invdtl_installment',
             );
 

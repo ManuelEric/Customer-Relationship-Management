@@ -129,7 +129,7 @@
                                        
                                         {{-- Paid Date --}}
                                         @if(isset($invoice->receipt_id))
-                                            <td>{{ $invoice->receipt->created_at }}</td>
+                                            <td>{{ date('M d, Y H:i:s', strtotime($invoice->paid_date)) }}</td>
                                         @else
                                             <td class="text-center">-</td>
                                         @endif
