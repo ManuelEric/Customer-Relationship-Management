@@ -230,19 +230,28 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 'tbl_receipt.receipt_amount_idr',
                 'tbl_receipt.created_at as paid_date',
                 'tbl_invdtl.invdtl_installment',
+                'tbl_invdtl.invdtl_id',
             );
 
         if (isset($start_date) && isset($end_date)) {
             return $invoiceB2b->whereBetween('invb2b_duedate', [$start_date, $end_date])
+                ->orderBy('invb2b_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
                 ->get();
         } else if (isset($start_date) && !isset($end_date)) {
             return $invoiceB2b->whereDate('invb2b_duedate', '>=', $start_date)
+                ->orderBy('invb2b_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
                 ->get();
         } else if (!isset($start_date) && isset($end_date)) {
             return $invoiceB2b->whereDate('invb2b_duedate', '<=', $end_date)
+                ->orderBy('invb2b_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
                 ->get();
         } else {
             return $invoiceB2b->whereBetween('invb2b_duedate', [$firstDay, $lastDay])
+                ->orderBy('invb2b_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
                 ->get();
         }
     }

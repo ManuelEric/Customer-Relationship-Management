@@ -161,19 +161,28 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 'tbl_receipt.receipt_amount_idr',
                 'tbl_receipt.created_at as paid_date',
                 'tbl_invdtl.invdtl_installment',
+                'tbl_invdtl.invdtl_id',
             );
 
         if (isset($start_date) && isset($end_date)) {
             return $invoiceB2c->whereBetween('inv_duedate', [$start_date, $end_date])
+                ->orderBy('inv_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
                 ->get();
         } else if (isset($start_date) && !isset($end_date)) {
             return $invoiceB2c->whereDate('inv_duedate', '>=', $start_date)
+                ->orderBy('inv_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
                 ->get();
         } else if (!isset($start_date) && isset($end_date)) {
             return $invoiceB2c->whereDate('inv_duedate', '<=', $end_date)
+                ->orderBy('inv_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
                 ->get();
         } else {
             return $invoiceB2c->whereBetween('inv_duedate', [$firstDay, $lastDay])
+                ->orderBy('inv_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
                 ->get();
         }
     }
