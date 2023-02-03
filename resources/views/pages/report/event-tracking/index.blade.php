@@ -46,8 +46,7 @@
                                 <span class="badge badge-info">{{ $client->count_role }}</span>
                             </li>
                         @empty
-                            Not client yet
-                            
+                            <li class="text-center">Not yet Client</li> 
                         @endforelse
                     </ul>
                 </div>
@@ -60,14 +59,14 @@
                 </div>
                 <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
                     <ul class="list-group">
-                        @foreach ($conversionLeads as $conversionLead)
+                        @forelse ($conversionLeads as $conversionLead)
                             <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
                                 <div class="">{{ $conversionLead->conversion_lead }}</div>
                                 <span class="badge badge-warning">{{ $conversionLead->count_conversionLead }}</span>
                             </li>
-                        @endforeach
-                        {{-- @for ($i = 0; $i < 20; $i++)
-                        @endfor --}}
+                        @empty
+                            <li class="text-center">Not yet conversion lead</li>
+                        @endforelse
                     </ul>
                 </div>
             </div>
@@ -125,8 +124,8 @@
                                         </td>
                                         <td>{{ $clientEvent->joined_date }}</td>
                                 @empty
-                                        <td>
-                                            Not event yet
+                                        <td colspan="8" class="text-center">
+                                            Not yet event
                                         </td>
                                     </tr>
                                 @endforelse

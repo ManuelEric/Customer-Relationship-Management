@@ -40,6 +40,8 @@ Route::get('partnership', [ReportController::class, 'partnership'])->name('repor
 
 Route::get('invoice', [ReportController::class, 'invoice_receipt'])->name('report.invoice');
 
-Route::get('unpaid', function () {
-    return view('pages.report.unpaid-payment.index');
-});
+Route::get('unpaid', [ReportController::class, 'unpaid_payment'])->name('report.unpaid');
+
+// Route::get('unpaid', function () {
+//     return view('pages.report.unpaid-payment.index');
+// });

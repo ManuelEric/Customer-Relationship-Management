@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Models\InvDetail;
+use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -48,5 +49,26 @@ class InvoiceDetailRepository implements InvoiceDetailRepositoryInterface
         }
         // InvDetail::where('invdtl_id', $invdtl_id)->update($installments);
 
+    }
+
+    public function getReportUnpaidInvoiceDetail($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        if (isset($start_date) && isset($end_date)) {
+            return InvDetail::whereDate('invdtl_duedate', '>=', $start_date)
+                ->whereDate('invdtl_duedate', '<=', $end_date)
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return InvDetail::whereDate('invdtl_duedate', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return InvDetail::whereDate('invdtl_duedate', '<=', $end_date)
+                ->get();
+        } else {
+            return InvDetail::whereBetween('invdtl_duedate', [$firstDay, $lastDay])
+                ->get();
+        }
     }
 }

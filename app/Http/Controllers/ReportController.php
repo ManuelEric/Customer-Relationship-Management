@@ -14,9 +14,8 @@ use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\SchoolVisitRepositoryInterface;
-
+use App\Interfaces\InvoiceDetailRepositoryInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 
 class ReportController extends Controller
 {
@@ -31,6 +30,7 @@ class ReportController extends Controller
     protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
     protected SchoolVisitRepositoryInterface $schoolVisitRepository;
+    protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
 
     public function __construct(
         ClientEventRepositoryInterface $clientEventRepository,
@@ -43,7 +43,8 @@ class ReportController extends Controller
         InvoiceB2bRepositoryInterface $invoiceB2bRepository,
         InvoiceProgramRepositoryInterface $invoiceProgramRepository,
         ReceiptRepositoryInterface $receiptRepository,
-        SchoolVisitRepositoryInterface $schoolVisitRepository
+        SchoolVisitRepositoryInterface $schoolVisitRepository,
+        InvoiceDetailRepositoryInterface $invoiceDetailRepository
     ) {
         $this->clientEventRepository = $clientEventRepository;
         $this->eventRepository = $eventRepository;
@@ -56,6 +57,7 @@ class ReportController extends Controller
         $this->invoiceProgramRepository = $invoiceProgramRepository;
         $this->receiptRepository = $receiptRepository;
         $this->schoolVisitRepository = $schoolVisitRepository;
+        $this->invoiceDetailRepository = $invoiceDetailRepository;
     }
 
     public function event(Request $request)
@@ -85,19 +87,14 @@ class ReportController extends Controller
         $start_date = null;
         $end_date = null;
 
-        if ($request->get('start_date') != null) {
-            $start_date = $request->get('start_date');
-        } else if ($request->get('end_date') != null) {
-            $end_date = $request->get('end_date');
-        } else if ($request->get('start_date') != null && $request->get('end_date') != null) {
-            $start_date = $request->get('start_date');
-            $end_date = $request->get('end_date');
-        }
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
 
 
         $partnerPrograms = $this->partnerProgramRepository->getReportPartnerPrograms($start_date, $end_date);
         $schoolPrograms = $this->schoolProgramRepository->getReportSchoolPrograms($start_date, $end_date);
         $schools = $this->schoolRepository->getReportNewSchool($start_date, $end_date);
+        $schoolVisits = $this->schoolVisitRepository->getReportSchoolVisit($start_date, $end_date);
         $partners = $this->corporateRepository->getReportNewPartner($start_date, $end_date);
         $universities = $this->universityRepository->getReportNewUniversity($start_date, $end_date);
 
@@ -106,6 +103,7 @@ class ReportController extends Controller
                 'partnerPrograms' => $partnerPrograms,
                 'schoolPrograms' => $schoolPrograms,
                 'schools' => $schools,
+                'schoolVisits' => $schoolVisits,
                 'partners' => $partners,
                 'universities' => $universities,
             ]
@@ -117,40 +115,72 @@ class ReportController extends Controller
         $start_date = null;
         $end_date = null;
 
-        if ($request->get('start_date') != null) {
-            $start_date = $request->get('start_date');
-        } else if ($request->get('end_date') != null) {
-            $end_date = $request->get('end_date');
-        } else if ($request->get('start_date') != null && $request->get('end_date') != null) {
-            $start_date = $request->get('start_date');
-            $end_date = $request->get('end_date');
-        }
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
 
-        $invoiceB2b = $this->invoiceB2bRepository->getReportInvoiceB2b($start_date, $end_date);
-        $invoiceB2c = $this->invoiceProgramRepository->getReportInvoiceB2c($start_date, $end_date);
+        $invoiceB2b = $this->invoiceB2bRepository->getReportInvoiceB2b($start_date, $end_date, 'created_at');
+        $invoiceB2c = $this->invoiceProgramRepository->getReportInvoiceB2c($start_date, $end_date, 'created_at');
         $invoices = $invoiceB2c->merge($invoiceB2b);
         $receipts = $this->receiptRepository->getReportReceipt($start_date, $end_date);
 
-        $totalInvoice = 0;
-        $totalInvB2b = 0;
-        $totalInvB2c = 0;
-
-        foreach ($invoices as $invoice) {
-            if (isset($invoice->inv_id)) {
-                $totalInvB2c += $invoice->inv_totalprice_idr;
-            } else {
-                $totalInvB2b += $invoice->invb2b_totpriceidr;
-            }
+        $totalReceipt = 0;
+        foreach ($receipts as $receipt) {
+            $totalReceipt += (int)filter_var($receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
         }
 
-        $totalInvoice = $totalInvB2b + $totalInvB2c;
-
+        if ($totalReceipt > 0) {
+            $totalReceipt = substr($totalReceipt, 0, -2);
+        }
 
         return view('pages.report.invoice.index')->with(
             [
                 'invoices' => $invoices,
-                'totalInvoice' => $totalInvoice,
+                'totalReceipt' => $totalReceipt,
                 'receipts' => $receipts,
+            ]
+        );
+    }
+
+    public function unpaid_payment(Request $request)
+    {
+        $start_date = null;
+        $end_date = null;
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
+
+
+        $invoiceB2b = $this->invoiceB2bRepository->getReportUnpaidInvoiceB2b($start_date, $end_date);
+        $invoiceB2c = $this->invoiceProgramRepository->getReportUnpaidInvoiceB2c($start_date, $end_date);
+        $collection = collect($invoiceB2b);
+        $invoiceMerge = $collection->merge($invoiceB2c);
+        $invoices = $invoiceMerge->all();
+
+        $invoiceB2bReport = $this->invoiceB2bRepository->getReportInvoiceB2b($start_date, $end_date, 'invb2b_duedate');
+        $invoiceB2cReport = $this->invoiceProgramRepository->getReportInvoiceB2c($start_date, $end_date, 'inv_duedate');
+
+        $totalAmount = $invoiceB2bReport->sum('invb2b_totpriceidr') + $invoiceB2cReport->sum('inv_totalprice_idr');
+
+        $totalReceipt = 0;
+        $totalPaid = 0;
+        $remaining = 0;
+        foreach ($invoices as $invoice) {
+            if (isset($invoice->receipt_id)) {
+                $totalReceipt += (int)filter_var($invoice->receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
+            }
+        }
+
+        if ($totalReceipt > 0) {
+            $totalPaid = substr($totalReceipt, 0, -2);
+            $remaining = $totalAmount - $totalPaid;
+        }
+
+
+        return view('pages.report.unpaid-payment.index')->with(
+            [
+                'invoices' => $invoices,
+                'totalAmount' => $totalAmount,
+                'totalPaid' => $totalPaid,
+                'remaining' => $remaining
             ]
         );
     }

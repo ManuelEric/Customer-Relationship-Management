@@ -175,23 +175,74 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         return Invb2b::find($invb2b_num)->update($newInvoices);
     }
 
-    public function getReportInvoiceB2b($start_date = null, $end_date = null)
+    public function getReportInvoiceB2b($start_date = null, $end_date = null, $whereBy)
     {
         $firstDay = Carbon::now()->startOfMonth()->toDateString();
         $lastDay = Carbon::now()->endOfMonth()->toDateString();
 
         if (isset($start_date) && isset($end_date)) {
-            return Invb2b::whereDate('created_at', '>=', $start_date)
-                ->whereDate('created_at', '<=', $end_date)
+            return Invb2b::whereDate($whereBy, '>=', $start_date)
+                ->whereDate($whereBy, '<=', $end_date)
                 ->get();
         } else if (isset($start_date) && !isset($end_date)) {
-            return Invb2b::whereDate('created_at', '>=', $start_date)
+            return Invb2b::whereDate($whereBy, '>=', $start_date)
                 ->get();
         } else if (!isset($start_date) && isset($end_date)) {
-            return Invb2b::whereDate('created_at', '<=', $end_date)
+            return Invb2b::whereDate($whereBy, '<=', $end_date)
                 ->get();
         } else {
-            return Invb2b::whereBetween('created_at', [$firstDay, $lastDay])
+            return Invb2b::whereBetween($whereBy, [$firstDay, $lastDay])
+                ->get();
+        }
+    }
+
+
+    public function getReportUnpaidInvoiceB2b($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        $invoiceB2b = Invb2b::leftJoin('tbl_invdtl', 'tbl_invdtl.invb2b_id', '=', 'tbl_invb2b.invb2b_id')
+            ->leftJoin(
+                'tbl_receipt',
+                DB::raw('(CASE
+                        WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN 
+                            tbl_receipt.invb2b_id 
+                        WHEN tbl_invb2b.invb2b_pm = "Installment" THEN 
+                                tbl_receipt.invdtl_id
+                        ELSE null
+                    END )'),
+                DB::raw('CASE
+                        WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN 
+                            tbl_invb2b.invb2b_id 
+                        WHEN tbl_invb2b.invb2b_pm = "Installment" THEN 
+                                tbl_invdtl.invdtl_id
+                        ELSE null
+                    END')
+            )
+
+            ->select(
+                'tbl_invb2b.invb2b_id',
+                'tbl_invb2b.schprog_id',
+                'tbl_invb2b.partnerprog_id',
+                'tbl_invb2b.invb2b_duedate',
+                'tbl_receipt.receipt_id',
+                'tbl_receipt.receipt_amount_idr',
+                'tbl_receipt.created_at',
+                'tbl_invdtl.invdtl_installment',
+            );
+
+        if (isset($start_date) && isset($end_date)) {
+            return $invoiceB2b->whereBetween('invb2b_duedate', [$start_date, $end_date])
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return $invoiceB2b->whereDate('invb2b_duedate', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return $invoiceB2b->whereDate('invb2b_duedate', '<=', $end_date)
+                ->get();
+        } else {
+            return $invoiceB2b->whereBetween('invb2b_duedate', [$firstDay, $lastDay])
                 ->get();
         }
     }

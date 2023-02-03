@@ -240,7 +240,7 @@
                                         Event</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('*/program/*') || Request::is('program/*') ? 'active' : '' }}"
+                                    <a class="nav-link {{ Request::is('program/client*') ? 'active' : '' }}"
                                         href="{{ url('program/client') }}">Client
                                         Program</a>
                                 </li>
@@ -365,24 +365,24 @@
                                 <li class="nav-item">
                                     <a @class([
                                         'nav-link',
-                                        'active' => Request::is('report*')
+                                        'active' => Request::is('report/sales*')
                                     ]) href="{{ url('report/sales') }}">Sales
                                         Tracking</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url('report/event') }}">Event Tracking</a>
+                                    <a class="nav-link {{ Request::is('report/event*') ? 'active' : '' }}" href="{{ url('report/event') }}">Event Tracking</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url('report/partnership') }}">
+                                    <a class="nav-link {{ Request::is('report/partnership*') ? 'active' : '' }}" href="{{ url('report/partnership') }}">
                                         Partnership
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url('report/invoice') }}">Invoice &
+                                    <a class="nav-link {{ Request::is('report/invoice*') ? 'active' : '' }}" href="{{ url('report/invoice') }}">Invoice &
                                         Receipt</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url('report/unpaid') }}">Unpaid Payment</a>
+                                    <a class="nav-link {{ Request::is('report/unpaid*') ? 'active' : '' }}" href="{{ url('report/unpaid') }}">Unpaid Payment</a>
                                 </li>
                             </ul>
                         </div>

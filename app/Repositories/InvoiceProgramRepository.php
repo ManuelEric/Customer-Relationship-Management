@@ -107,23 +107,73 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         return InvoiceProgram::where('clientprog_id', $clientProgId)->delete();
     }
 
-    public function getReportInvoiceB2c($start_date = null, $end_date = null)
+    public function getReportInvoiceB2c($start_date = null, $end_date = null, $whereBy)
     {
         $firstDay = Carbon::now()->startOfMonth()->toDateString();
         $lastDay = Carbon::now()->endOfMonth()->toDateString();
 
         if (isset($start_date) && isset($end_date)) {
-            return InvoiceProgram::whereDate('created_at', '>=', $start_date)
-                ->whereDate('created_at', '<=', $end_date)
+            return InvoiceProgram::whereDate($whereBy, '>=', $start_date)
+                ->whereDate($whereBy, '<=', $end_date)
                 ->get();
         } else if (isset($start_date) && !isset($end_date)) {
-            return InvoiceProgram::whereDate('created_at', '>=', $start_date)
+            return InvoiceProgram::whereDate($whereBy, '>=', $start_date)
                 ->get();
         } else if (!isset($start_date) && isset($end_date)) {
-            return InvoiceProgram::whereDate('created_at', '<=', $end_date)
+            return InvoiceProgram::whereDate($whereBy, '<=', $end_date)
                 ->get();
         } else {
-            return InvoiceProgram::whereBetween('created_at', [$firstDay, $lastDay])
+            return InvoiceProgram::whereBetween($whereBy, [$firstDay, $lastDay])
+                ->get();
+        }
+    }
+
+
+    public function getReportUnpaidInvoiceB2c($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        $invoiceB2c = InvoiceProgram::leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')
+            ->leftJoin(
+                'tbl_receipt',
+                DB::raw('(CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                            tbl_receipt.inv_id 
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                tbl_receipt.invdtl_id
+                        ELSE null
+                    END )'),
+                DB::raw('CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                            tbl_inv.inv_id 
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                tbl_invdtl.invdtl_id
+                        ELSE null
+                    END')
+            )
+
+            ->select(
+                'tbl_inv.inv_id',
+                'tbl_inv.clientprog_id',
+                'tbl_inv.inv_duedate',
+                'tbl_receipt.receipt_id',
+                'tbl_receipt.receipt_amount_idr',
+                'tbl_receipt.created_at',
+                'tbl_invdtl.invdtl_installment',
+            );
+
+        if (isset($start_date) && isset($end_date)) {
+            return $invoiceB2c->whereBetween('inv_duedate', [$start_date, $end_date])
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return $invoiceB2c->whereDate('inv_duedate', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return $invoiceB2c->whereDate('inv_duedate', '<=', $end_date)
+                ->get();
+        } else {
+            return $invoiceB2c->whereBetween('inv_duedate', [$firstDay, $lastDay])
                 ->get();
         }
     }

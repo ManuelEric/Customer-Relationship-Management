@@ -34,14 +34,15 @@
                     <div class="d-flex justify-content-between">
                         <strong>Total Invoice ({{count($invoices)}})</strong>
                         <div class="text-end">
-                           Rp. {{ number_format($totalInvoice, '2', ',', '.') }}
+                           Rp. {{ number_format($invoices->sum('inv_totalprice_idr')+$invoices->sum('invb2b_totpriceidr'), '2', ',', '.') }}
                         </div>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between">
                         <strong>Total Receipt ({{count($receipts)}})</strong>
                         <div class="text-end">
-                            Rp. 123.000.000
+                                Rp. {{ number_format($totalReceipt, '2', ',', '.') }}
+                           
                         </div>
                     </div>
                 </div>
@@ -66,6 +67,7 @@
                                     <th>#</th>
                                     <th>Invoice ID</th>
                                     <th>Client/Partner/School Name</th>
+                                    <th>Type</th>
                                     <th>Program Name</th>
                                     <th>Method</th>
                                     <th>Installment</th>
@@ -88,6 +90,9 @@
                                             <td>{{ $invoice->partner_prog->corp->corp_name }}</td>
                                         @endif
 
+                                        {{-- Type --}}
+                                        <td>{{ isset($invoice->inv_id) ? 'B2C' : 'B2B' }}</td>
+
                                         {{-- Program Name --}}
                                         @if(isset($invoice->clientprog_id))
                                             <td>{{ $invoice->clientprog->program->sub_prog ? $invoice->clientprog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->clientprog->program->prog_program }}</td>
@@ -101,17 +106,31 @@
                                         <td>{{ isset($invoice->inv_id) ? $invoice->inv_paymentmethod : $invoice->invb2b_pm }}</td>
                                         
                                         {{-- Installment --}}
-                                        <td>Installment</td>
+                                        <td class="text-center">
+                                            @if(isset($invoice->inv_id))
+                                                @if(count($invoice->invoiceDetail) > 0)
+                                                    {{ count($invoice->invoiceDetail) }}
+                                                @else
+                                                    -
+                                                @endif
+                                            @elseif(isset($invoice->invb2b_id))
+                                                @if(count($invoice->inv_detail) > 0)
+                                                    {{ count($invoice->inv_detail) }}
+                                                @else
+                                                    -
+                                                @endif
+                                            @endif
+                                        </td>
                                         
                                         {{-- Due date --}}
                                         <td>{{ isset($invoice->inv_id) ? $invoice->inv_duedate : $invoice->invb2b_duedate }}</td>
 
                                         {{-- Amount --}}
-                                        <td>{{ ($invoice->currency == 'idr') ? $invoice->invoiceTotalpriceIdr : $invoice->invoiceTotalprice }}</td>
+                                        <td>{{ $invoice->invoiceTotalpriceIdr }}</td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center">Not yet invoice</td>
+                                        <td colspan="9" class="text-center">Not yet invoice</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -142,6 +161,7 @@
                                     <th>#</th>
                                     <th>Receipt ID</th>
                                     <th>Client/Partner/School Name</th>
+                                    <th>Type</th>
                                     <th>Program Name</th>
                                     <th>Method</th>
                                     <th>Installment</th>
@@ -166,11 +186,14 @@
                                             @endif
                                         @endif
 
+                                        {{-- Type --}}
+                                        <td>{{ $receipt->inv_id ? 'B2C' : 'B2B'}}</td>
+
                                         {{-- Program Name --}}
                                         @if(isset($receipt->inv_id))
                                             <td>{{ $receipt->invoiceProgram->clientprog->program->sub_prog ? $receipt->invoiceProgram->clientprog->program->sub_prog->sub_prog_name.' - ':''}}{{ $receipt->invoiceProgram->clientprog->program->prog_program }}</td>
                                         @elseif(isset($receipt->invb2b_id))
-                                            @if($receipt->invoiceB2b->schprog_id))
+                                            @if(isset($receipt->invoiceB2b->schprog_id))
                                                 <td>{{ $receipt->invoiceB2b->sch_prog->program->sub_prog ? $receipt->invoiceB2b->sch_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $receipt->invoiceB2b->sch_prog->program->prog_program }}</td>
                                             @elseif((isset($receipt->invoiceB2b->partnerprog_id)))
                                                 <td>{{ $receipt->invoiceB2b->partner_prog->program->sub_prog ? $receipt->invoiceB2b->partner_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $receipt->invoiceB2b->partner_prog->program->prog_program }}</td>
@@ -181,7 +204,9 @@
                                         <td>{{ $receipt->receipt_method }}</td>
                                         
                                         {{-- Installment --}}
-                                        <td>Installment</td>
+                                        <td class="text-center">
+                                            {{ isset($receipt->invoiceInstallment) ?  $receipt->invoiceInstallment->invdtl_installment : '-' }}
+                                        </td>
                                         
                                         {{-- Paid date --}}
                                         <td>{{ $receipt->created_at }}</td>
@@ -191,7 +216,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center">Not yet invoice</td>
+                                        <td colspan="9" class="text-center">Not yet invoice</td>
                                     </tr>
                                 @endforelse
                             </tbody>

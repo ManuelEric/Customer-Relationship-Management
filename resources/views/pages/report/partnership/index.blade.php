@@ -37,7 +37,7 @@
                                 Total School Visit
                             </strong>
                             <h5 class="text-end m-0 badge bg-white text-dark">
-                                134
+                                {{ count($schoolVisits) }}
                             </h5>
                         </div>
                     </div>
@@ -200,6 +200,54 @@
                 </div>
             </div>
 
+            <div class="card mb-3" id="school_visit">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="p-0 m-0">School Visit</h6>
+                    <div class="">
+                        <button class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-file-earmark-excel me-1"></i> Print
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="volunteerTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th>School Name</th>
+                                    <th>Email</th>
+                                    <th>Phone Number</th>
+                                    <th>Address</th>
+                                    <th>Internal PIC</th>
+                                    <th>School PIC</th>
+                                    <th>Visit Date</th>
+                                    <th>Created at</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($schoolVisits as $schoolVisit)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $schoolVisit->school->sch_name }}</td>
+                                        <td>{{ $schoolVisit->school->sch_mail }}</td>
+                                        <td>{{ $schoolVisit->school->sch_phone }}</td>
+                                        <td>{!! $schoolVisit->school->sch_location !!}</td>
+                                        <td>{{ $schoolVisit->pic_from_allin->first_name }} {{ $schoolVisit->pic_from_allin->last_name }}</td>
+                                        <td>{{ $schoolVisit->pic_from_school->schdetail_fullname }}</td>
+                                        <td>{{ $schoolVisit->visit_date }}</td>
+                                        <td>{{ $schoolVisit->created_at }}</td>
+                                    </tr>
+                                @empty
+                                    <td colspan="9" class="text-center">Not yet school visit</td>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
             <div class="card mb-3" id="school">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">New School</h6>
@@ -229,7 +277,7 @@
                                         <td>{{ $school->sch_name }}</td>
                                         <td>{{ $school->sch_mail }}</td>
                                         <td>{{ $school->sch_phone }}</td>
-                                        <td>{{ $school->sch_location }}</td>
+                                        <td>{!! $school->sch_location !!}</td>
                                         <td>{{ $school->created_at }}</td>
                                     </tr>
                                 @empty
