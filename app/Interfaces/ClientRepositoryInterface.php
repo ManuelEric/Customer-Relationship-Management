@@ -14,6 +14,7 @@ interface ClientRepositoryInterface
     public function deleteClient($clientId);
     public function createClient($role, array $clientDetails);
     public function addRole($clientId, $role);
+    public function removeRole($clientId, $role);
     public function getParentsByStudentId($studentId);
     public function createClientRelation($parentId, $studentId);
     public function createManyClientRelation($parentId, array $studentId);
@@ -24,4 +25,7 @@ interface ClientRepositoryInterface
     public function updateClient($clientId, array $newDetails);
     public function updateActiveStatus($clientId, $newStatus);
     public function checkAllProgramStatus($clientId);
+    # dashboard
+    public function getCountTotalClientByStatus($status, $month = null);
+    public function getMenteesBirthdayMonthly($month);
 }

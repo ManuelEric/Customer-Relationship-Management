@@ -52,7 +52,7 @@
 
             @include('pages.program.client-program.detail.client')
 
-            @if (isset($clientProgram))
+            @if (isset($clientProgram) && $clientProgram->status == 0)
                 @include('pages.program.client-program.detail.plan-followup')
             @endif
         </div>

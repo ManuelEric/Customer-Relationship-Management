@@ -98,7 +98,10 @@
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('dashboard') }}">
+                        <a @class([
+                            'nav-link',
+                            'text-primary' => Request::is('dashboard')
+                        ]) href="{{ url('dashboard') }}">
                             <i class="bi bi-speedometer2 mx-2"></i>
                             <span class="menu-title">Dashboard</span>
                         </a>

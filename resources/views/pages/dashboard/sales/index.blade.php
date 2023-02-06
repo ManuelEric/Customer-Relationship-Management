@@ -18,7 +18,7 @@
         <option value="employee">Employee Name</option>
     </select>
 </div>
-<section id="client-program" class="dashboard-sales">
+{{-- <section id="client-program" class="dashboard-sales">
     @include('pages.dashboard.sales.detail.client-program')
 </section>
 <section id="sales-target" class="dashboard-sales d-none">
@@ -29,4 +29,4 @@
 </section>
 <section id="client-event" class="dashboard-sales d-none">
     @include('pages.dashboard.sales.detail.client-event')
-</section>
+</section> --}}

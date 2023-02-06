@@ -674,7 +674,7 @@ class ClientStudentController extends Controller
         return response()->json(
             [
                 'success' => true,
-                'message' => "Active status has been updated",
+                'message' => "Status has been updated",
             ]
         );
     }

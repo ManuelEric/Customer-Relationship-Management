@@ -34,6 +34,7 @@ class ClientRepository implements ClientRepositoryInterface
         return Datatables::eloquent(UserClient::query())->make(true);
     }
 
+    # unused
     public function getAllClientByRoleAndStatusDataTablesOld($roleName, $statusClient)
     {
         return Datatables::eloquent(UserClient::whereHas('roles', function ($query) use ($roleName) {
@@ -166,8 +167,21 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllClientByRole($roleName) # mentee, parent, teacher
     {
-        return UserClient::whereHas('roles', function ($query) use ($roleName) {
-            $query->where('role_name', $roleName);
+        return UserClient::when($roleName == "alumni", function($query) {
+            $query->whereHas('clientProgram', function ($q2) {
+                $q2->whereIn('prog_running_status', [2]);
+            })->withCount([
+                'clientProgram as client_program_count' => function ($query) {
+                    $query->whereIn('prog_running_status', [0, 1, 2]);   
+                },
+                'clientProgram as client_program_finish_count' => function ($query) {
+                    $query->where('prog_running_status', 2);
+                }
+            ])->havingRaw('client_program_count = client_program_finish_count');
+        }, function ($query) use ($roleName) {
+            $query->whereHas('roles', function ($query2) use ($roleName) {
+                $query2->where('role_name', $roleName);
+            });
         })->get();
     }
 
@@ -218,6 +232,16 @@ class ClientRepository implements ClientRepositoryInterface
         $client = UserClient::find($clientId);
         if ($client->roles()->where('tbl_roles.id', 5)->count() == 0) {
             $client->roles()->attach($roleId);
+        }
+        return $client;
+    }
+
+    public function removeRole($clientId, $role)
+    {
+        $roleId = $this->roleRepository->getRoleByName($role);
+        $client = UserClient::find($clientId);
+        if ($client->roles()->where('tbl_roles.id', 5)->count() > 0) {
+            $client->roles()->detach($roleId);
         }
         return $client;
     }
@@ -290,5 +314,22 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $client = UserClient::find($clientId);
         return $client->clientProgram()->where('status', 1)->whereNot('prog_running_status', 2)->count() == 0 ? "completed" : "notyet";
+    }
+
+    # dashboard
+    public function getCountTotalClientByStatus($status, $month = null)
+    {
+        return Client::where('st_statuscli', $status)->when($month, function($query) use ($month) {
+            $query->whereMonth('created_at', $month);
+        })->whereHas('roles', function($query) {
+            $query->where('role_name', 'Student');
+        })->count();
+    }
+
+    public function getMenteesBirthdayMonthly($month)
+    {
+        return Client::whereMonth('dob', $month)->whereHas('roles', function($query) {
+            $query->where('role_name', 'Student');
+        })->where('st_statusact', 1)->get();
     }
 }

@@ -17,8 +17,8 @@ class ClientMenteeController extends Controller
     
     public function index(Request $request)
     {
-    //     $status = $request->get('st');
-    //     return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Mentee', $status);
+        // $status = $request->get('st');
+        // return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Mentee', $status);
         if ($request->ajax()) {
 
             $status = $request->get('st');

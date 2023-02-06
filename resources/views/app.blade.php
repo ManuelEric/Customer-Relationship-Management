@@ -211,7 +211,7 @@
                 allowOutsideClick: false,
             })
             Swal.showLoading();
-            this.closest('form').submit();
+            // this.closest('form').submit();
         })
     </script>
 
@@ -261,7 +261,6 @@
     <!-- Notification by Jquery/Axios -->
     <script>
         function notification(status, message) {
-
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'bottom-end',

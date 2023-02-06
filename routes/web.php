@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolDetailController;
 use App\Http\Controllers\VolunteerController;
@@ -25,9 +26,7 @@ Route::get('login', function () {
     return view('auth.login');
 });
 
-Route::get('dashboard', function () {
-    return view('pages.dashboard.index');
-});
+Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
 
 // User 
 Route::resource('user/volunteer', VolunteerController::class);
