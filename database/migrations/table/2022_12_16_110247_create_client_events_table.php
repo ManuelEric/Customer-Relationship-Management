@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('clientevent_id')->autoIncrement();
             
             $table->unsignedBigInteger('client_id');
-            $table->foreign('client_id')->references('id')->on('tbl_client')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreign('client_id')->references('id')->on('tbl_client')->onUpdate('cascade')->onDelete('cascsade');
 
             $table->char('event_id', 11)->collation('utf8mb4_general_ci');
             $table->foreign('event_id')->references('event_id')->on('tbl_events')->onUpdate('cascade')->onDelete('restrict');

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('tbl_client_prog', function (Blueprint $table) {
             $table->unsignedBigInteger('clientprog_id')->autoIncrement();
             $table->unsignedBigInteger('client_id');
-            $table->foreign('client_id')->references('id')->on('tbl_client')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreign('client_id')->references('id')->on('tbl_client')->onUpdate('cascade')->onDelete('cascade');
 
             $table->char('prog_id', 11)->collation('utf8mb4_general_ci');
             $table->foreign('prog_id')->references('prog_id')->on('tbl_prog')->onUpdate('cascade')->onDelete('restrict');

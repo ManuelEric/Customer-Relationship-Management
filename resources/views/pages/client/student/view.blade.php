@@ -381,12 +381,12 @@
                 .then(function(response) {
                     console.log(response)
                     Swal.close()
-                    notification(response.data.success, response.data.message)
+                    notification("success", response.data.message)
                 })
                 .catch(function(error) {
                     // handle error
                     Swal.close()
-                    notification(error.response.data.success, error.response.data.message)
+                    notification("error", error.response.data.message)
                 })
         })
     </script>

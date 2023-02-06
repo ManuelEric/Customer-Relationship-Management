@@ -218,6 +218,8 @@ class ClientProgramController extends Controller
 
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
+        if ($student->st_statusact != 1) 
+            return Redirect::back()->withError('The student is no longer active');
 
         $status = $request->status;
         $progId = $request->prog_id;
@@ -589,6 +591,12 @@ class ClientProgramController extends Controller
                     # then change status client to potential
                 case 0: # pending
 
+                    # if he/she has already join admission mentoring program
+                    # remove role mentee
+                    if (in_array($progId, $this->admission_prog_list)) {
+                        $this->clientRepository->removeRole($studentId, 'Mentee');
+                    }
+
                     $this->clientRepository->updateClient($studentId, ['st_statuscli' => 1]);
                     break;
 
@@ -615,6 +623,16 @@ class ClientProgramController extends Controller
                             $this->clientRepository->updateClient($studentId, ['st_statuscli' => 3]);
                     }
 
+                    break;
+
+                case 2: # failed
+                case 3: # refund
+                
+                    # if he/she has already join admission mentoring program
+                    # remove role mentee
+                    if (in_array($progId, $this->admission_prog_list)) {
+                        $this->clientRepository->removeRole($studentId, 'Mentee');
+                    }
                     break;
             }
             DB::commit();

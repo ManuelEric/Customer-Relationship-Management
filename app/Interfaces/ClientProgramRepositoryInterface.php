@@ -15,9 +15,10 @@ interface ClientProgramRepositoryInterface
     public function deleteClientProgram($clientProgramId);
 
     # sales tracking
-    public function getCountProgramByStatus($status);
-    public function getSummaryProgramByStatus($status);
-    public function getInitAssessmentProgress();
-    public function getConversionLead();
-    public function getLeadSource();
+    public function getCountProgramByStatus($status, array $dateDetails);
+    public function getSummaryProgramByStatus($status, array $dateDetails);
+    public function getInitAssessmentProgress($dateDetails);
+    public function getConversionLead($dateDetails);
+    public function getLeadSource($dateDetails);
+    public function getConversionTimeSuccessfulPrograms($dateDetails);
 }

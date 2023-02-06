@@ -47,6 +47,39 @@ class FollowupController extends Controller
         return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withSuccess('Follow Up plan has been created');
     }
 
+    public function update(Request $request)
+    {
+        $followupId = $request->route('followup');
+        $notes = $request->new_notes;
+
+        $newDetails['status'] = 0;
+
+        if ($request->mark == "true") {
+
+            $newDetails['status'] = 1;
+            $newDetails['notes'] = $notes;
+
+        }
+
+        DB::beginTransaction();
+        try {
+
+            
+            $this->followupRepository->updateFollowup($followupId, $newDetails);
+                
+            DB::commit();           
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Store followup plan failed : ' . $e->getMessage());
+            return response()->json(['success' => false]);
+
+        }
+
+        return response()->json(['success' => true]);
+    }
+
     public function destroy(Request $request)
     {
         $studentId = $request->route('student');

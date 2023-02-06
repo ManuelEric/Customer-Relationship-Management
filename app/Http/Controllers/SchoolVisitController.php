@@ -25,18 +25,19 @@ class SchoolVisitController extends Controller
         $schoolId = $request->route('school');
 
         $visitDetails = $request->only([
-            'school',
             'internal_pic',
             'school_pic',
             'visit_date',
             'notes',
-            'status',
         ]);
+
+        # default status
+        $visitDetails['status'] = 'waiting';
 
         DB::beginTransaction();
         try {
 
-            $this->schoolVisitRepository->createSchoolVisit($visitDetails);
+            $this->schoolVisitRepository->createSchoolVisit(['sch_id' => $schoolId] + $visitDetails);
             DB::commit();
 
         } catch (Exception $e) {
