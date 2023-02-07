@@ -14,11 +14,14 @@
             <div class="nav-link sales client-event">Client Event</div>
         </li>
     </ul>
-    <select name="" id="" class="select w-25">
-        <option value="employee">Employee Name</option>
+    <select name="" id="cp_employee" class="select w-25">
+        <option value="all">All</option>
+        @foreach ($employees as $employee)
+            <option value="{{ $employee->uuid }}" @selected($employee->uuid == Request::get('quser'))>{{ $employee->full_name }}</option>
+        @endforeach
     </select>
 </div>
-{{-- <section id="client-program" class="dashboard-sales">
+<section id="client-program" class="dashboard-sales">
     @include('pages.dashboard.sales.detail.client-program')
 </section>
 <section id="sales-target" class="dashboard-sales d-none">
@@ -29,4 +32,4 @@
 </section>
 <section id="client-event" class="dashboard-sales d-none">
     @include('pages.dashboard.sales.detail.client-event')
-</section> --}}
+</section>

@@ -71,6 +71,11 @@ class UserRepository implements UserRepositoryInterface
         return User::all();
     }
 
+    public function getAllUsersWithoutUUID()
+    {
+        return User::whereNull('uuid')->get();
+    }
+
     public function getAllUsersByRole($role)
     {
         return User::whereHas('roles', function ($query) use ($role) {

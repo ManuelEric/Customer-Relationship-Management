@@ -74,13 +74,20 @@
     // Overall Lead 
     const lead = document.getElementById('leadSource');
 
+    const dataset_leadsource_label = [];
+    const dataset_leadsource = [];
+    @foreach ($leadSource as $source)
+        dataset_leadsource_label.push('{{ $source->lead_source }}')
+        dataset_leadsource.push('{{ $source->lead_source_count }}')
+    @endforeach
+
     new Chart(lead, {
         type: 'bar',
         data: {
-            labels: ['Whatshapp', 'Instagram', 'KOL - @ads', 'Edufair: Lorem'],
+            labels: dataset_leadsource_label,
             datasets: [{
                 label: '',
-                data: [12, 19, 3, 5],
+                data: dataset_leadsource,
                 borderWidth: 1,
                 borderRadius: 20,
             }]
@@ -112,13 +119,20 @@
 
     const progLead = document.getElementById('programLead');
 
+    const dataset_conversion_label = [];
+    const dataset_conversion = [];
+    @foreach ($conversionLeads as $source)
+        dataset_conversion_label.push('{{ $source->conversion_lead }}')
+        dataset_conversion.push('{{ $source->conversion_lead_count }}')
+    @endforeach
+
     new Chart(progLead, {
         type: 'bar',
         data: {
-            labels: ['Whatshapp', 'Instagram', 'KOL - @ads', 'Edufair: Lorem'],
+            labels: dataset_conversion_label,
             datasets: [{
                 label: '',
-                data: [12, 19, 3, 5],
+                data: dataset_conversion,
                 borderWidth: 1,
                 borderRadius: 20,
             }]
@@ -151,13 +165,20 @@
     // Admissions Program 
     const admLead = document.getElementById('admissionsLead');
 
+    const dataset_admconversion_label = [];
+    const dataset_admconversion = [];
+    @foreach ($adminssionMentoringConvLead as $source)
+        dataset_admconversion_label.push('{{ $source->conversion_lead }}')
+        dataset_admconversion.push('{{ $source->conversion_lead_count }}')
+    @endforeach
+
     new Chart(admLead, {
         type: 'pie',
         data: {
-            labels: ['Whatshapp', 'Instagram', 'KOL - @ads', 'Edufair: Lorem'],
+            labels: dataset_admconversion_label,
             datasets: [{
                 label: '',
-                data: [12, 19, 3, 5],
+                data: dataset_admconversion,
                 borderWidth: 1,
                 borderRadius: 3,
             }]
@@ -180,13 +201,20 @@
     // Academic Program 
     const acadLead = document.getElementById('academicLead');
 
+    const dataset_acaconversion_label = [];
+    const dataset_acaconversion = [];
+    @foreach ($academicTestPrepConvLead as $source)
+        dataset_acaconversion_label.push('{{ $source->conversion_lead }}')
+        dataset_acaconversion.push('{{ $source->conversion_lead_count }}')
+    @endforeach
+
     new Chart(acadLead, {
         type: 'pie',
         data: {
-            labels: ['Whatshapp', 'Instagram', 'KOL - @ads', 'Edufair: Lorem'],
+            labels: dataset_acaconversion_label,
             datasets: [{
                 label: '',
-                data: [12, 19, 3, 5],
+                data: dataset_acaconversion,
                 borderWidth: 1,
                 borderRadius: 3,
             }]
@@ -209,13 +237,20 @@
     // Career Program 
     const careerLead = document.getElementById('careerLead');
 
+    const dataset_carconversion_label = [];
+    const dataset_carconversion = [];
+    @foreach ($careerExplorationConvLead as $source)
+        dataset_carconversion_label.push('{{ $source->conversion_lead }}')
+        dataset_carconversion.push('{{ $source->conversion_lead_count }}')
+    @endforeach
+
     new Chart(careerLead, {
         type: 'pie',
         data: {
-            labels: ['Whatshapp', 'Instagram', 'KOL - @ads', 'Edufair: Lorem'],
+            labels: dataset_carconversion_label,
             datasets: [{
                 label: '',
-                data: [12, 19, 3, 5],
+                data: dataset_carconversion,
                 borderWidth: 1,
                 borderRadius: 3,
             }]

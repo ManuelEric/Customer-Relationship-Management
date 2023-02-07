@@ -4,10 +4,14 @@ namespace App\Repositories;
 
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Models\ClientProgram;
+use App\Models\InvoiceProgram;
 use App\Models\pivot\ClientMentor;
 use App\Models\Reason;
+use App\Models\Receipt;
+use App\Models\User;
 use App\Models\ViewClientProgram;
 use DataTables;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ClientProgramRepository implements ClientProgramRepositoryInterface 
@@ -409,7 +413,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return $data;
     }
 
-    public function getInitAssessmentProgress($dateDetails)
+    public function getInitAssessmentProgress($dateDetails) # startDate, endDate
     {
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
@@ -457,7 +461,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->get();
     }
 
-    public function getConversionLead($dateDetails)
+    public function getConversionLead($dateDetails, $program = null)
     {
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_prog.lead_id')
@@ -479,6 +483,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     ELSE tbl_lead.main_lead
                 END)) AS conversion_lead_count'),
             ])
+            ->when($program, function($query) use ($program) {
+                $query->whereHas('program', function ($query) use ($program) {
+                    $query->whereHas('main_prog', function ($query2) use ($program) {
+                        $query2->where('prog_name', 'like', '%'.$program.'%');
+                    })->whereHas('sub_prog', function ($query2) use ($program) {
+                        $query2->where('sub_prog_name', 'like', '%'.$program.'%');
+                    });
+                });
+            })
             ->where('tbl_client_prog.status', 1)
             ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('conversion_lead')
@@ -504,5 +517,141 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('program_name_st')
             ->get();
+    }
+
+    # dashboard
+    public function getClientProgramGroupByStatusAndUserArray($cp_filter)
+    {
+        $userId = $this->getUser($cp_filter);
+
+        $query = ClientProgram::
+                when($cp_filter['program'], function ($q) use ($cp_filter) {
+                    $q->whereHas('program', function ($q2) use ($cp_filter) {
+                        $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('prog_name', $cp_filter['program']);
+                        })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('sub_prog_name', $cp_filter['program']);
+                        });
+                    });
+                })->
+                when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+                    $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
+                })->
+                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                    $q->where('empl_id', $userId);
+                })->get();
+
+        $data[0] = $query->where('status', 0)->count(); # pending
+        $data[1] = $query->where('status', 2)->count(); # failed
+        $data[2] = $query->where('status', 1)->count(); # success
+        $data[3] = $query->where('status', 3)->count(); # refund
+     
+        return $data;
+    }
+
+    public function getInitialConsultationInformation($cp_filter)
+    {
+        $userId = $this->getUser($cp_filter);
+
+        $query = ClientProgram::
+                when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+                    $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
+                })->
+                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                    $q->where('empl_id', $userId);
+                })->get();
+                
+        $data[0] = $query->where('status', 0)->where('initconsult_date', '>', Carbon::now())->count(); # soon
+        $data[1] = $query->where('status', 0)->where('initconsult_date', '<', Carbon::now())->count(); # already
+        $data[2] = $query->where('status', 1)->whereNotNull('success_date')->count(); # success
+        
+        return $data;
+    }
+
+    public function getInitialMaking($dateDetails)
+    {
+        # average value of initial consult and assessment sent date
+        return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+            ->select([
+                DB::raw('AVG(DATEDIFF(assessmentsent_date, initconsult_date)) as initialMaking'),
+            ])
+            ->whereHas('program', function ($query) {
+                $query->whereHas('main_prog', function ($query2) {
+                    $query2->where('prog_name', 'like', '%Admissions Mentoring%');
+                })->whereHas('sub_prog', function ($query2) {
+                    $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                });
+            })
+            ->where('status', 1)
+            ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->groupBy('tbl_main_prog.id')
+            ->first();
+    }
+
+    public function getConversionTimeProgress($dateDetails)
+    {
+        # average value of success date and assessment sent date
+        return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+            ->select([
+                DB::raw('AVG(DATEDIFF(success_date, assessmentsent_date)) as conversionTime'),
+            ])
+            ->whereHas('program', function ($query) {
+                $query->whereHas('main_prog', function ($query2) {
+                    $query2->where('prog_name', 'like', '%Admissions Mentoring%');
+                })->whereHas('sub_prog', function ($query2) {
+                    $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                });
+            })
+            ->where('status', 1)
+            ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->groupBy('tbl_main_prog.id')
+            ->first();
+    }
+
+    public function getSuccessProgramByMonth($cp_filter)
+    {
+        return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+            ->select([
+                DB::raw('CONCAT(tbl_main_prog.prog_name, ": ", tbl_prog.prog_program) as program_name_st'),
+                DB::raw('COUNT(*) as total_client_per_program')
+            ])
+            ->where('status', 1)
+            ->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))
+            ->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])))
+            ->groupBy('program_name_st')
+            ->get();
+    }
+
+    public function getTotalRevenueByProgramAndMonth($cp_filter)
+    {
+        return InvoiceProgram::whereHas('clientprog', function ($query) use ($cp_filter) {
+            $query->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))
+                ->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])))
+                ->when($cp_filter['program'], function ($q) use ($cp_filter) {
+                    $q->whereHas('program', function ($q2) use ($cp_filter) {
+                        $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('prog_name', $cp_filter['program']);
+                        })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('sub_prog_name', $cp_filter['program']);
+                        });
+                    });
+                });
+        })->sum('inv_totalprice_idr');
+    }
+
+    # 
+
+    private function getUser($cp_filter)
+    {
+        $userId = null;
+        if (isset($cp_filter['quuid']) && $uuid = $cp_filter['quuid']) {
+            $user = User::where('uuid', $uuid)->first();
+            $userId = $user->id;
+        }
+
+        return $userId;
     }
 }

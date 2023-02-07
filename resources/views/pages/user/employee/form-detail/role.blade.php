@@ -42,7 +42,7 @@
             <div class="col-3 mb-3">
                 @php
                 $departmentId = [];
-                if ($typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first()) 
+                if (isset($user) && $typeInfo = $user->user_type()->where('tbl_user_type_detail.status', 1)->first()) 
                     $departmentId = $typeInfo->pivot->department_id
                 @endphp
                 <label for="">Department <sup class="text-danger">*</sup></label>
@@ -124,7 +124,7 @@
             $("#employeeType").select2().val("{{ old('type') }}").trigger('change')
         @endif
 
-        @if ($employeeType = $user->user_type()->where('tbl_user_type_detail.status', 1)->first())
+        @if (isset($user) && $employeeType = $user->user_type()->where('tbl_user_type_detail.status', 1)->first())
             $("#employeeType").select2().val("{{ $employeeType->pivot->user_type_id }}").trigger('change')
         @endif
 

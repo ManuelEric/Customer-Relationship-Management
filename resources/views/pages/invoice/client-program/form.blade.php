@@ -35,8 +35,14 @@
                             $programName = explode('-', $clientProg->program_name);
                         @endphp
                         @for ($i = 0; $i < count($programName); $i++)
-                            <span
+                            @if ($i > 0)
+                            <a href="{{ route('student.program.show', ['student' => $clientProg->client->id, 'program' => $clientProg->clientprog_id]) }}">
+                            @endif
+                            <span 
                                 @if ($i > 0) style="font-size:.8em;color:blue" @endif>{{ $programName[$i] }}</span>
+                            @if ($i > 0)
+                            </a>
+                            @endif
                         @endfor
                     </h6>
                     @if (isset($invoice))
