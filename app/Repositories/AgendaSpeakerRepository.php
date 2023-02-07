@@ -10,6 +10,8 @@ use App\Models\SchoolProgram;
 use DataTables;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Stmt\Switch_;
 
 class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
 {
@@ -19,6 +21,62 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
         # year (ex: 2016, 2017, etc)
         $agenda = AgendaSpeaker::whereMonth('event_startdate', $month)->whereYear('event_startdate', $year)->whereMonth('event_enddate', $month)->whereYear('event_enddate', $year)->get();
         return response()->json($agenda);
+    }
+
+    public function getAllSpeakerDashboard($type, $date = null)
+    {
+        $agendaSpeaker =  AgendaSpeaker::leftJoin('tbl_sch_prog', 'tbl_agenda_speaker.sch_prog_id', '=', 'tbl_sch_prog.id')
+            ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_agenda_speaker.partner_prog_id')
+            ->leftJoin(
+                'tbl_prog',
+                'tbl_prog.prog_id',
+                DB::raw('CASE
+                        WHEN tbl_agenda_speaker.sch_prog_id > 0 THEN 
+                            tbl_sch_prog.prog_id 
+                        WHEN tbl_agenda_speaker.partner_prog_id > 0 THEN 
+                            tbl_partner_prog.prog_id
+                        ELSE null
+                    END')
+            )
+            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_agenda_speaker.event_id')
+            ->leftJoin('tbl_schdetail', 'tbl_schdetail.schdetail_id', '=', 'tbl_agenda_speaker.sch_pic_id')
+            ->leftJoin('tbl_univ_pic', 'tbl_univ_pic.id', '=', 'tbl_agenda_speaker.univ_pic_id')
+            ->leftJoin('tbl_corp_pic', 'tbl_corp_pic.id', '=', 'tbl_agenda_speaker.partner_pic_id')
+            ->leftJoin('users', 'users.id', '=', 'tbl_agenda_speaker.empl_id')
+
+            ->select(
+                DB::raw(
+                    '(CASE
+                        WHEN tbl_agenda_speaker.event_id is not null THEN tbl_events.event_title
+                        WHEN tbl_agenda_speaker.sch_prog_id > 0 OR tbl_agenda_speaker.partner_prog_id > 0
+                            THEN 
+                                (CASE
+                                WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                                    ELSE tbl_prog.prog_program
+                                END) 
+                        
+                    END) AS event_name'
+                ),
+                DB::raw('(CASE
+                        WHEN tbl_agenda_speaker.sch_pic_id > 0 THEN tbl_schdetail.schdetail_fullname
+                        WHEN tbl_agenda_speaker.partner_pic_id > 0 THEN tbl_corp_pic.pic_name
+                        WHEN tbl_agenda_speaker.univ_pic_id > 0 THEN tbl_univ_pic.name
+                        WHEN tbl_agenda_speaker.empl_id > 0 THEN CONCAT(users.first_name," ",users.last_name)
+                        ELSE null
+                    END) AS speaker_name'),
+                'tbl_agenda_speaker.start_time',
+                'tbl_agenda_speaker.end_time',
+            );
+
+        switch ($type) {
+            case "all":
+                return $agendaSpeaker->get();
+                break;
+            case "byDate":
+                return $agendaSpeaker->whereDate('tbl_agenda_speaker.start_time', $date)->get();
+                break;
+        }
     }
 
     public function getAllSpeakerByEvent($eventId)

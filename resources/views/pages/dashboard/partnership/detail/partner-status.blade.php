@@ -72,17 +72,16 @@
                 var result = response.data.data
                 var html = ""
                 var no = 1;
-                // result.forEach(function(item, index, arr) {
-                // })
+
                 swal.close()
                 data.partner.new = result.newPartner
                 data.school.new = result.newSchool
                 data.university.new = result.newUniversity
                 data.agreement.total = result.totalAgreement
 
-                $('#tot_partner').html(data.partner.total + '<sup class="text-primary">(' + data.partner.new + ' New)</sup>')
-                $('#tot_school').html(data.school.total + '<sup class="text-primary">(' + data.school.new + ' New)</sup>')
-                $('#tot_univ').html(data.university.total + '<sup class="text-primary">(' + data.university.new + ' New)</sup>')
+                $('#tot_partner').html(data.partner.total + (!!data.partner.new ? '<sup class="text-primary">(' + data.partner.new + ' New)</sup>' : ''))
+                $('#tot_school').html(data.school.total + (!!data.school.new ? '<sup class="text-primary">(' + data.school.new + ' New)</sup>' : ''))
+                $('#tot_univ').html(data.university.total + (!!data.university.new ? '<sup class="text-primary">(' + data.university.new + ' New)</sup>' : ''))
                 $('#tot_agreement').html(data.agreement.total)
             }, (error) => {
                 console.log(error)

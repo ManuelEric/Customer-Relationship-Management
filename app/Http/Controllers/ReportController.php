@@ -16,9 +16,6 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use Illuminate\Http\Request;
-use App\Exports\reportExport;
-use App\Exports\ReportExport as ExportsReportExport;
-use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
@@ -187,32 +184,4 @@ class ReportController extends Controller
             ]
         );
     }
-
-    public function export(Request $request) 
-    {
-        $eventId = null;
-        if ($request->get('event_id') != null) {
-            $eventId = $request->get('event_id');
-        }
-
-        $clientEvents = $this->clientEventRepository->getReportClientEvents($eventId);
-        
-        $heading = [
-            'Client Name',
-            'Email',
-            'Phone Number',
-            'School Name',
-            'Grade',
-            'Conversion Lead',
-            'Joined At'
-        ];
-
-        $export = new ReportExport([
-                $heading,
-                $clientEvents
-            ]);
-
-        return Excel::download($export, 'event-tracking.xlsx');
-    }
-
 }

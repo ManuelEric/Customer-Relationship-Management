@@ -115,7 +115,7 @@
 
         // Axios here ... 
         let data = {
-            'partner': [20, 10, 2, 4],
+            'partner': [20, 4, 2, 10],
             'school': [12, 5, 9, 1],
             'referral': [5, 10],
         }

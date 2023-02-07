@@ -17,11 +17,11 @@ class PartnerAgreementRepository implements PartnerAgreementRepositoryInterface
 
     public function getCountTotalPartnerAgreementByMonthly($monthYear)
     {
-        $year = date('Y',strtotime($monthYear));
-        $month = date('m',strtotime($monthYear));
-        
-        return PartnerAgreement::whereYear('created_at', '=', $year)
-              ->whereMonth('created_at', '=', $month)->count();
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return PartnerAgreement::whereYear('end_date', '=', $year)
+            ->whereMonth('end_date', '=', $month)->count();
     }
 
     public function getPartnerAgreementById($partnerAgreementId)

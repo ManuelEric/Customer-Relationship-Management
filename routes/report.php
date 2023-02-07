@@ -37,7 +37,6 @@ Route::get('event', [ReportController::class, 'event'])->name('report.client.eve
 // });
 
 Route::get('partnership', [ReportController::class, 'partnership'])->name('report.partnership');
-Route::get('partnership/export', [ReportController::class, 'export'])->name('report.partnership.export');
 
 Route::get('invoice', [ReportController::class, 'invoice_receipt'])->name('report.invoice');
 

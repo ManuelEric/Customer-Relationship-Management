@@ -8,6 +8,7 @@ use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\PartnerAgreementRepositoryInterface;
+use App\Interfaces\AgendaSpeakerRepositoryInterface;
 
 
 use Illuminate\Http\Request;
@@ -20,11 +21,10 @@ class DashboardController extends Controller
     protected SchoolRepositoryInterface $schoolRepository;
     protected UniversityRepositoryInterface $universityRepository;
     protected PartnerAgreementRepositoryInterface $partnerAgreementRepository;
+    protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
 
 
-
-
-    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->followupRepository = $followupRepository;
@@ -32,11 +32,11 @@ class DashboardController extends Controller
         $this->schoolRepository = $schoolRepository;
         $this->universityRepository = $universityRepository;
         $this->partnerAgreementRepository = $partnerAgreementRepository;
-
+        $this->agendaSpeakerRepository = $agendaSpeakerRepository;
     }
 
     public function index(Request $request)
-    {   
+    {
         // return $this->indexSales($request);
         return $this->indexPartnership($request);
     }
@@ -69,7 +69,9 @@ class DashboardController extends Controller
         );
     }
 
-    public function indexPartnership($request){
+    public function indexPartnership($request)
+    {
+        $date = null;
 
         $totalPartner = $this->corporateRepository->getAllCorporate()->count();
         $totalSchool = $this->schoolRepository->getAllSchools()->count();
@@ -78,6 +80,7 @@ class DashboardController extends Controller
         $newPartner = $this->corporateRepository->getCountTotalCorporateByMonthly(date('Y-m'));
         $newSchool = $this->schoolRepository->getCountTotalSchoolByMonthly(date('Y-m'));
         $newUniversity = $this->universityRepository->getCountTotalUniversityByMonthly(date('Y-m'));
+        $speakers = $this->agendaSpeakerRepository->getAllSpeakerDashboard('all', $date);
 
         return view('pages.dashboard.index')->with(
             [
@@ -87,10 +90,9 @@ class DashboardController extends Controller
                 'totalAgreement' => $totalAgreement,
                 'newPartner' => $newPartner,
                 'newSchool' => $newSchool,
-                'newUniversity' => $newUniversity
+                'newUniversity' => $newUniversity,
+                'speakers' => $speakers
             ]
         );
-
     }
-
 }

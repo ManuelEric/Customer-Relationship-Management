@@ -25,3 +25,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('mentee/birthday/{month}', [SalesDashboardController::class, 'getMenteesBirthdayByMonth']);
 
 Route::get('partner/total/{month}', [PartnerDashboardController::class, 'getTotalByMonth']);
+Route::get('partner/agenda/{date}', [PartnerDashboardController::class, 'getSpeakerByDate']);
