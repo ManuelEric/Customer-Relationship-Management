@@ -15,6 +15,15 @@ class PartnerAgreementRepository implements PartnerAgreementRepositoryInterface
         return PartnerAgreement::where('corp_id', $corpId)->orderBy('id', 'asc')->get();
     }
 
+    public function getCountTotalPartnerAgreementByMonthly($monthYear)
+    {
+        $year = date('Y',strtotime($monthYear));
+        $month = date('m',strtotime($monthYear));
+        
+        return PartnerAgreement::whereYear('created_at', '=', $year)
+              ->whereMonth('created_at', '=', $month)->count();
+    }
+
     public function getPartnerAgreementById($partnerAgreementId)
     {
         return PartnerAgreement::find($partnerAgreementId);

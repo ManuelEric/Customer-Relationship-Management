@@ -6,6 +6,7 @@ interface CorporateRepositoryInterface
 {
     public function getAllCorporateDataTables();
     public function getAllCorporate();
+    public function getCountTotalCorporateByMonthly($monthYear);
     public function getCorporateById($corporateId);
     public function deleteCorporate($corporateId);
     public function createCorporate(array $corporateDetails);

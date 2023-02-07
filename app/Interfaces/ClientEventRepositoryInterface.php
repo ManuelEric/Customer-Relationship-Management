@@ -5,8 +5,8 @@ namespace App\Interfaces;
 interface ClientEventRepositoryInterface
 {
     public function getAllClientEventDataTables();
-    public function getAllClientEvents($eventId);
-    public function getAllClientEventsGroupByRoles($eventId);
+    public function getReportClientEvents($eventId);
+    public function getReportClientEventsGroupByRoles($eventId);
     public function getConversionLead($eventId);
     public function getAllClientEventByClientId($clientId);
     public function getClientEventById($clientEventId);

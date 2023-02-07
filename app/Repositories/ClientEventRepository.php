@@ -59,16 +59,37 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         return ClientEvent::where('client_id', $clientId)->get();
     }
 
-    public function getAllClientEvents($eventId = null)
+    public function getReportClientEvents($eventId = null)
     {
+        $clientEvent = ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+            ->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_client.sch_id')
+            ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
+            ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_event.lead_id')
+            ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
+            ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
+            ->select(
+                DB::raw('CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) as client_name'),
+                'tbl_client.mail',
+                'tbl_client.phone',
+                'tbl_sch.sch_name',
+                'tbl_client.st_grade',
+                DB::raw('(CASE
+                    WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
+                    WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)
+                    WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
+                    ELSE tbl_lead.main_lead
+                END) AS conversion_lead'),
+                'tbl_client_event.joined_date',
+            );
+
         if (isset($eventId)) {
-            return ClientEvent::where('event_id', $eventId)->get();
+            return $clientEvent->where('tbl_client_event.event_id', $eventId)->get();
         } else {
-            return ClientEvent::all();
+            return $clientEvent->get();
         }
     }
 
-    public function getAllClientEventsGroupByRoles($eventId = null)
+    public function getReportClientEventsGroupByRoles($eventId = null)
     {
         if (isset($eventId)) {
             return ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')

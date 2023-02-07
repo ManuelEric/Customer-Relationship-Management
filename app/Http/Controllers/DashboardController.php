@@ -4,22 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
+use App\Interfaces\CorporateRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\UniversityRepositoryInterface;
+use App\Interfaces\PartnerAgreementRepositoryInterface;
+
+
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     protected ClientRepositoryInterface $clientRepository;
     protected FollowupRepositoryInterface $followupRepository;
+    protected CorporateRepositoryInterface $corporateRepository;
+    protected SchoolRepositoryInterface $schoolRepository;
+    protected UniversityRepositoryInterface $universityRepository;
+    protected PartnerAgreementRepositoryInterface $partnerAgreementRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository)
+
+
+
+    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->followupRepository = $followupRepository;
+        $this->corporateRepository = $corporateRepository;
+        $this->schoolRepository = $schoolRepository;
+        $this->universityRepository = $universityRepository;
+        $this->partnerAgreementRepository = $partnerAgreementRepository;
+
     }
 
     public function index(Request $request)
     {   
-        return $this->indexSales($request);
+        // return $this->indexSales($request);
+        return $this->indexPartnership($request);
     }
 
     # sales dashboard
@@ -48,6 +67,30 @@ class DashboardController extends Controller
                 'menteesBirthday' => $menteesBirthday
             ]
         );
+    }
+
+    public function indexPartnership($request){
+
+        $totalPartner = $this->corporateRepository->getAllCorporate()->count();
+        $totalSchool = $this->schoolRepository->getAllSchools()->count();
+        $totalUniversity = $this->universityRepository->getAllUniversities()->count();
+        $totalAgreement = $this->partnerAgreementRepository->getCountTotalPartnerAgreementByMonthly(date('Y-m'));
+        $newPartner = $this->corporateRepository->getCountTotalCorporateByMonthly(date('Y-m'));
+        $newSchool = $this->schoolRepository->getCountTotalSchoolByMonthly(date('Y-m'));
+        $newUniversity = $this->universityRepository->getCountTotalUniversityByMonthly(date('Y-m'));
+
+        return view('pages.dashboard.index')->with(
+            [
+                'totalPartner' => $totalPartner,
+                'totalSchool' => $totalSchool,
+                'totalUniversity' => $totalUniversity,
+                'totalAgreement' => $totalAgreement,
+                'newPartner' => $newPartner,
+                'newSchool' => $newSchool,
+                'newUniversity' => $newUniversity
+            ]
+        );
+
     }
 
 }

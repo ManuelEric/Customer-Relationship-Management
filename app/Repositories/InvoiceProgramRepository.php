@@ -112,6 +112,26 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         $firstDay = Carbon::now()->startOfMonth()->toDateString();
         $lastDay = Carbon::now()->endOfMonth()->toDateString();
 
+        // $invb2c = InvoiceProgram::leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
+        //     ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+        //     ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+        //     ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+        //     ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+        //     ->select(
+        //         'tbl_inv.inv_id',
+        //         DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_name'),
+        //          DB::raw('(CASE
+        //             WHEN tbl_inv.id > 0 THEN "B2C"
+        //         END) AS type'),
+        //         DB::raw('(CASE
+        //             WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+        //             ELSE tbl_prog.prog_program
+        //         END) AS program_name'),
+        //         'tbl_inv.inv_paymentmethod',
+        //         'tbl_inv.inv_duedate',
+        //         'tbl_inv.inv_totalprice_idr',
+        //     );
+
         if (isset($start_date) && isset($end_date)) {
             return InvoiceProgram::whereDate($whereBy, '>=', $start_date)
                 ->whereDate($whereBy, '<=', $end_date)

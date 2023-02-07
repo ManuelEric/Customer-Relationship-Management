@@ -18,6 +18,15 @@ class CorporateRepository implements CorporateRepositoryInterface
     {
         return Corporate::orderBy('corp_name', 'asc')->get();
     }
+    public function getCountTotalCorporateByMonthly($monthYear)
+    {
+        $year = date('Y',strtotime($monthYear));
+        $month = date('m',strtotime($monthYear));
+        
+
+        return Corporate::whereYear('created_at', '=', $year)
+              ->whereMonth('created_at', '=', $month)->count();
+    }
 
     public function getCorporateById($corporateId)
     {

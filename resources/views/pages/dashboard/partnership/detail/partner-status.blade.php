@@ -12,7 +12,7 @@
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="m-0 p-0">Total Partner</h5>
                         <h4 class="m-0 p-0" id="tot_partner">
-                            130<sup class="text-primary">(4 New)</sup>
+                            {{ $totalPartner }}<sup class="text-primary">({{$newPartner}} New)</sup>
                         </h4>
                     </div>
                 </div>
@@ -21,8 +21,8 @@
                 <div class="card rounded border h-100">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="m-0 p-0">Total School</h5>
-                        <h4 class="m-0 p-0">
-                            130<sup class="text-primary">(4 New)</sup>
+                        <h4 class="m-0 p-0" id="tot_school">
+                            {{ $totalSchool }}<sup class="text-primary">({{$newSchool}} New)</sup>
                         </h4>
                     </div>
                 </div>
@@ -31,8 +31,8 @@
                 <div class="card rounded border h-100">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="m-0 p-0">Total Univeristy</h5>
-                        <h4 class="m-0 p-0">
-                            130<sup class="text-primary">(4 New)</sup>
+                        <h4 class="m-0 p-0" id="tot_univ">
+                            {{ $totalUniversity }}<sup class="text-primary">({{$newUniversity}} New)</sup>
                         </h4>
                     </div>
                 </div>
@@ -44,8 +44,8 @@
                             <h6 class="m-0 p-0">Partner Agreement</h6>
                             <small>Need to be extended</small>
                         </div>
-                        <h4 class="m-0 p-0 text-danger">
-                            10
+                        <h4 class="m-0 p-0 text-danger" id="tot_agreement">
+                            {{ $totalAgreement }}
                         </h4>
                     </div>
                 </div>
@@ -57,17 +57,44 @@
 <script>
     function checkPartnerStatusbyMonth() {
         let month = $('#partner_status_month').val()
+      
+        let data = ({
+            'partner': { 'total': {{$totalPartner}}, 'new': {{$newPartner}}},
+            'school': { 'total': {{$totalSchool}}, 'new': {{$newSchool}}},       
+            'university': { 'total': {{$totalUniversity}}, 'new': {{$newUniversity}}},       
+            'agreement': { 'total': {{$totalAgreement}} }       
+        });
+        Swal.showLoading()
 
         // Axios here...
-        let data = {
-            'partner': {
-                'total': 110,
-                'new': 5
-            }
-        }
+        axios.get('{{ url("api/partner/total/") }}/' + month)
+            .then((response) => {
+                var result = response.data.data
+                var html = ""
+                var no = 1;
+                // result.forEach(function(item, index, arr) {
+                // })
+                swal.close()
+                data.partner.new = result.newPartner
+                data.school.new = result.newSchool
+                data.university.new = result.newUniversity
+                data.agreement.total = result.totalAgreement
 
-        $('#tot_partner').html(data.partner.total + '<sup class="text-primary">(' + data.partner.new + ' New)</sup>')
+                $('#tot_partner').html(data.partner.total + '<sup class="text-primary">(' + data.partner.new + ' New)</sup>')
+                $('#tot_school').html(data.school.total + '<sup class="text-primary">(' + data.school.new + ' New)</sup>')
+                $('#tot_univ').html(data.university.total + '<sup class="text-primary">(' + data.university.new + ' New)</sup>')
+                $('#tot_agreement').html(data.agreement.total)
+            }, (error) => {
+                console.log(error)
+                swal.close()
+            })
+            
+    
+
     }
 
     checkPartnerStatusbyMonth()
+
+
+        
 </script>

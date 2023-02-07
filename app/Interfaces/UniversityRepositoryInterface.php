@@ -6,6 +6,7 @@ interface UniversityRepositoryInterface
 {
     public function getAllUniversitiesDataTables();
     public function getAllUniversities();
+    public function getCountTotalUniversityByMonthly($monthYear);
     public function getAllUniversitiesByCountries(array $countries);
     public function getAllUniversitiesByTag(array $tags);
     public function getUniversityById($universityId);

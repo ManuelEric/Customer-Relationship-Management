@@ -180,18 +180,42 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         $firstDay = Carbon::now()->startOfMonth()->toDateString();
         $lastDay = Carbon::now()->endOfMonth()->toDateString();
 
+        // $invb2b = Invb2b::leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+        //     ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
+        //     ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
+        //     ->leftJoin('tbl_sch', 'tbl_sch_prog.sch_id', '=', 'tbl_sch.sch_id')
+        //     ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
+        //     ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+        //     ->select(
+        //         'tbl_invb2b.invb2b_id',
+        //         DB::raw('(CASE
+        //             WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch.sch_name
+        //             WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_corp.corp_name
+        //         END) AS client_name'),
+        //          DB::raw('(CASE
+        //             WHEN tbl_invb2b.invb2b_num > 0 THEN "B2B"
+        //         END) AS type'),
+        //         DB::raw('(CASE
+        //             WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+        //             ELSE tbl_prog.prog_program
+        //         END) AS program_name'),
+        //         'tbl_invb2b.invb2b_pm',
+        //         'tbl_invb2b.invb2b_duedate',
+        //         'tbl_invb2b.invb2b_totpriceidr',
+        //     );
+
         if (isset($start_date) && isset($end_date)) {
-            return Invb2b::whereDate($whereBy, '>=', $start_date)
-                ->whereDate($whereBy, '<=', $end_date)
+            return Invb2b::whereDate('tbl_invb2b.'.$whereBy, '>=', $start_date)
+                ->whereDate('tbl_invb2b.'.$whereBy, '<=', $end_date)
                 ->get();
         } else if (isset($start_date) && !isset($end_date)) {
-            return Invb2b::whereDate($whereBy, '>=', $start_date)
+            return Invb2b::whereDate('tbl_invb2b.'.$whereBy, '>=', $start_date)
                 ->get();
         } else if (!isset($start_date) && isset($end_date)) {
-            return Invb2b::whereDate($whereBy, '<=', $end_date)
+            return Invb2b::whereDate('tbl_invb2b.'.$whereBy, '<=', $end_date)
                 ->get();
         } else {
-            return Invb2b::whereBetween($whereBy, [$firstDay, $lastDay])
+            return Invb2b::whereBetween('tbl_invb2b.'.$whereBy, [$firstDay, $lastDay])
                 ->get();
         }
     }

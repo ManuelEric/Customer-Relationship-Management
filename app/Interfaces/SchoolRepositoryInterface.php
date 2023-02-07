@@ -6,6 +6,7 @@ interface SchoolRepositoryInterface
 {
     public function getAllSchoolDataTables();
     public function getAllSchools();
+    public function getCountTotalSchoolByMonthly($monthYear);
     public function getSchoolById($schoolId);
     public function deleteSchool($schoolId);
     public function createSchool(array $schoolDetails);

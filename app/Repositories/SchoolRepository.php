@@ -40,6 +40,15 @@ class SchoolRepository implements SchoolRepositoryInterface
         return School::orderBy('sch_id', 'asc')->get();
     }
 
+    public function getCountTotalSchoolByMonthly($monthYear)
+    {
+        $year = date('Y',strtotime($monthYear));
+        $month = date('m',strtotime($monthYear));
+        
+        return School::whereYear('created_at', '=', $year)
+              ->whereMonth('created_at', '=', $month)->count();
+    }
+
     public function getSchoolById($schoolId)
     {
         return School::whereSchoolId($schoolId);

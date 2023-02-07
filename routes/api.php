@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\v1\SalesDashboardController;
+use App\Http\Controllers\Api\v1\PartnerDashboardController;
 use App\Http\Controllers\UniversityController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -22,3 +23,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 # dashboard sales
 Route::get('mentee/birthday/{month}', [SalesDashboardController::class, 'getMenteesBirthdayByMonth']);
+
+Route::get('partner/total/{month}', [PartnerDashboardController::class, 'getTotalByMonth']);

@@ -211,7 +211,7 @@
                 allowOutsideClick: false,
             })
             Swal.showLoading();
-            // this.closest('form').submit();
+            this.closest('form').submit();
         })
     </script>
 
