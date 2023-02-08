@@ -26,3 +26,5 @@ Route::get('mentee/birthday/{month}', [SalesDashboardController::class, 'getMent
 
 Route::get('partner/total/{month}', [PartnerDashboardController::class, 'getTotalByMonth']);
 Route::get('partner/agenda/{date}', [PartnerDashboardController::class, 'getSpeakerByDate']);
+Route::get('partner/partnership-program/{month}', [PartnerDashboardController::class, 'getPartnershipProgramByMonth']);
+Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [PartnerDashboardController::class, 'getPartnershipProgramDetailByMonth']);

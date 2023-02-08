@@ -6,6 +6,8 @@ interface SchoolProgramRepositoryInterface
 {
     public function getAllSchoolProgramsDataTables(array $filter);
     public function getAllSchoolProgramsBySchoolId($schoolId);
+    public function getAllSchoolProgramByStatusAndMonth($status, $monthYear);
+    public function getStatusSchoolProgramByMonthly($monthYear);
     public function getSchoolProgramById($schoolProgramId);
     public function deleteSchoolProgram($schoolProgramId);
     public function createSchoolProgram(array $schoolPrograms);

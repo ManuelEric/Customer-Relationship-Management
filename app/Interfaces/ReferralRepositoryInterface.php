@@ -2,9 +2,11 @@
 
 namespace App\Interfaces;
 
-interface ReferralRepositoryInterface 
+interface ReferralRepositoryInterface
 {
     public function getAllReferralDataTables();
+    public function getAllReferralByTypeAndMonth($type, $monthYear);
+    public function getReferralTypeByMonthly($monthYear);
     public function getReferralById($referralId);
     public function createReferral(array $referralDetails);
     public function updateReferral($referralId, array $newDetails);

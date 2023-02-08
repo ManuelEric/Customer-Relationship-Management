@@ -9,6 +9,10 @@ use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\PartnerAgreementRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
+use App\Interfaces\PartnerProgramRepositoryInterface;
+use App\Interfaces\SchoolProgramRepositoryInterface;
+use App\Interfaces\ReferralRepositoryInterface;
+
 
 
 use Illuminate\Http\Request;
@@ -22,9 +26,12 @@ class DashboardController extends Controller
     protected UniversityRepositoryInterface $universityRepository;
     protected PartnerAgreementRepositoryInterface $partnerAgreementRepository;
     protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
+    protected PartnerProgramRepositoryInterface $partnerProgramRepository;
+    protected SchoolProgramRepositoryInterface $schoolProgramRepository;
+    protected ReferralRepositoryInterface $referralRepository;
 
 
-    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->followupRepository = $followupRepository;
@@ -33,6 +40,9 @@ class DashboardController extends Controller
         $this->universityRepository = $universityRepository;
         $this->partnerAgreementRepository = $partnerAgreementRepository;
         $this->agendaSpeakerRepository = $agendaSpeakerRepository;
+        $this->partnerProgramRepository = $partnerProgramRepository;
+        $this->schoolProgramRepository = $schoolProgramRepository;
+        $this->referralRepository = $referralRepository;
     }
 
     public function index(Request $request)
@@ -81,6 +91,8 @@ class DashboardController extends Controller
         $newSchool = $this->schoolRepository->getCountTotalSchoolByMonthly(date('Y-m'));
         $newUniversity = $this->universityRepository->getCountTotalUniversityByMonthly(date('Y-m'));
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerDashboard('all', $date);
+        $partnerPrograms = $this->partnerProgramRepository->getAllPartnerProgramByStatusAndMonth(0, date('Y-m'));
+
 
         return view('pages.dashboard.index')->with(
             [
@@ -91,7 +103,8 @@ class DashboardController extends Controller
                 'newPartner' => $newPartner,
                 'newSchool' => $newSchool,
                 'newUniversity' => $newUniversity,
-                'speakers' => $speakers
+                'speakers' => $speakers,
+                'partnerPrograms' => $partnerPrograms,
             ]
         );
     }

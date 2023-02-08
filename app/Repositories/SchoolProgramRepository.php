@@ -174,6 +174,39 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
         return SchoolProgram::where('sch_id', $schoolId)->orderBy('id', 'asc')->get();
     }
 
+    public function getAllSchoolProgramByStatusAndMonth($status, $monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return SchoolProgram::leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')
+            ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
+            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->select(
+                'tbl_sch.sch_name as school_name',
+                DB::raw('(CASE
+                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                            ELSE tbl_prog.prog_program
+                        END) AS program_name')
+            )
+            ->whereYear('tbl_sch_prog.created_at', '=', $year)
+            ->whereMonth('tbl_sch_prog.created_at', '=', $month)
+            ->where('tbl_sch_prog.status', $status)
+            ->get();
+    }
+
+    public function getStatusSchoolProgramByMonthly($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return SchoolProgram::select('status', DB::raw('sum(total_fee) as total_fee'), DB::raw('count(*) as count_status'))
+            ->whereYear('created_at', '=', $year)
+            ->whereMonth('created_at', '=', $month)
+            ->groupBy('status')
+            ->get();
+    }
+
     public function getSchoolProgramById($schoolProgramId)
     {
         return SchoolProgram::find($schoolProgramId);
@@ -219,5 +252,4 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                 ->get();
         }
     }
-
 }
