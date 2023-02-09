@@ -10,5 +10,5 @@ interface FollowupRepositoryInterface
     public function deleteFollowup($followupId);
 
     # dashboard
-    public function getAllFollowupWithin($days);
+    public function getAllFollowupWithin($days, $filter = null);
 }

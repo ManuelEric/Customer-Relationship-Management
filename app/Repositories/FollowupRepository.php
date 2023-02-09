@@ -32,13 +32,17 @@ class FollowupRepository implements FollowupRepositoryInterface
     # dashboard
     # getting follow up data 
     # within next 7 days
-    public function getAllFollowupWithin($days)
+    public function getAllFollowupWithin($days, $filter = null)
     {
         $today = date('Y-m-d');
         $lastday = date('Y-m-d', strtotime('+'.$days.' days'));
 
         $data = [];
-        if ($followup = FollowUp::whereBetween('followup_date', [$today, $lastday])->orderBy('followup_date', 'asc')->get()) {
+        if ($followup = FollowUp::when($filter, function($query) use ($filter) {
+            $query->whereMonth('followup_date', date('m', strtotime($filter)))->whereYear('followup_date', date('Y', strtotime($filter)));
+        }, function ($query) use ($today, $lastday) {
+            $query->whereBetween('followup_date', [$today, $lastday]);
+        })->orderBy('followup_date', 'asc')->get()) {
 
             foreach ($followup as $detail) 
             {

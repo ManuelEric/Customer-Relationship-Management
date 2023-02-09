@@ -80,6 +80,14 @@ class UserController extends Controller
         $user_id_with_label = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
         $userDetails['extended_id'] = $user_id_with_label;
 
+        # when generated user id with label is exists on database
+        # then generate a new one
+        if ($this->userRepository->getUserByExtendedId($user_id_with_label)) {
+            $user_id_without_label = $this->remove_primarykey_label($user_id_with_label, 5);
+            $user_id_with_label = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
+            $userDetails['extended_id'] = $user_id_with_label;
+        }
+
         DB::beginTransaction();
         try {
 

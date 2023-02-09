@@ -20,12 +20,14 @@
                             </div>
                             <div class="card-body overflow-auto" style="height: 350px">
                                 <ul class="list-group">
-                                    @for ($i = 0; $i < 30; $i++)
+                                    @forelse ($allSuccessProgramByMonth as $detail)
                                         <li class="list-group-item d-flex justify-content-between">
-                                            <div class="">Program Name</div>
-                                            <span class="badge badge-primary">34</span>
+                                            <div class="">{{ $detail->program_name_st }}</div>
+                                            <span class="badge badge-primary">{{ $detail->total_client_per_program }}</span>
                                         </li>
-                                    @endfor
+                                    @empty
+                                        There's no success program
+                                    @endforelse
                                 </ul>
                             </div>
                         </div>
@@ -51,10 +53,10 @@
                                                                     <div class="card-body">
                                                                         <table class="table">
                                                                             <tr>
-                                                                                <td>Total Inital Consultation</td>
+                                                                                <td>Total Initial Consultation</td>
                                                                                 <td class="text-end">
                                                                                     <span class="badge badge-info">
-                                                                                        50
+                                                                                        {{ $totalInitialConsultation }}
                                                                                     </span>
                                                                                 </td>
                                                                             </tr>
@@ -62,7 +64,7 @@
                                                                                 <td>Success Program</td>
                                                                                 <td class="text-end">
                                                                                     <span class="badge badge-info">
-                                                                                        50
+                                                                                        {{ $successProgram }}
                                                                                     </span>
                                                                                 </td>
                                                                             </tr>
@@ -70,7 +72,7 @@
                                                                                 <td>Initial Assessment Making</td>
                                                                                 <td class="text-end">
                                                                                     <span class="badge badge-info">
-                                                                                        3 Days
+                                                                                        {{ isset($initialAssessmentMaking) ? (int)$initialAssessmentMaking->initialMaking : 0 }} Days
                                                                                     </span>
                                                                                 </td>
                                                                             </tr>
@@ -78,7 +80,7 @@
                                                                                 <td>Conversion Time Progess</td>
                                                                                 <td class="text-end">
                                                                                     <span class="badge badge-info">
-                                                                                        14 Days
+                                                                                        {{ isset($conversionTimeProgress) ? (int)$conversionTimeProgress->conversionTime : 0 }} Days
                                                                                     </span>
                                                                                 </td>
                                                                             </tr>
@@ -86,7 +88,7 @@
                                                                                 <td>Success Percentage</td>
                                                                                 <td class="text-end">
                                                                                     <span class="badge badge-info">
-                                                                                        20%
+                                                                                        {{ $successPercentage }}%
                                                                                     </span>
                                                                                 </td>
                                                                             </tr>
@@ -98,7 +100,7 @@
                                                     </div>
                                                     <div class="card-header d-flex justify-content-between">
                                                         <div>Total :</div>
-                                                        <div>Rp. 123.231.321</div>
+                                                        <div>Rp. {{ number_format($totalRevenueAdmissionMentoring,'2',',','.') }}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -114,7 +116,7 @@
                                     </div>
                                     <div class="card-header d-flex justify-content-between">
                                         <div>Total :</div>
-                                        <div>Rp. 123.231.321</div>
+                                        <div>Rp. {{ number_format($totalRevenueAcadTestPrepByMonth,'2',',','.') }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -125,7 +127,7 @@
                                     </div>
                                     <div class="card-header d-flex justify-content-between">
                                         <div>Total :</div>
-                                        <div>Rp. 123.231.321</div>
+                                        <div>Rp. {{ number_format($totalRevenueCareerExplorationByMonth,'2',',','.') }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -145,10 +147,12 @@
             let datasets = ctx.chart.data.datasets;
             if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
                 let sum = datasets[0].data.reduce((a, b) => a + b, 0);
-                let percentage = Math.round((value / sum) * 100) + '%';
-                return percentage;
+                let percentage = Math.round((value / sum) * 100);
+                if (isNaN(percentage))
+                    percentage = 0
+                return percentage + '%';
             } else {
-                return percentage;
+                return percentage + '%';
             }
         },
         color: '#fff',
@@ -166,8 +170,15 @@
         backgroundColor: '#192e54',
     }]
 
+
     // Overall 
     const all = document.getElementById('clientProgram');
+
+    // create a dataset for clientprogram by status
+    var dataset_programstatus = new Array()
+    @foreach ($clientProgramGroupByStatus as $key => $val)
+        dataset_programstatus.push({{ (int)$val }})
+    @endforeach
 
     new Chart(all, {
         type: 'bar',
@@ -175,7 +186,7 @@
             labels: ['Pending', 'Failed', 'Success', 'Refund'],
             datasets: [{
                 label: '',
-                data: [12, 19, 3, 5],
+                data: dataset_programstatus,
                 backgroundColor: [
                     '#fd7e14',
                     '#dc3545',
@@ -213,13 +224,19 @@
     // Admissions Program 
     const adm = document.getElementById('admissionsProgram');
 
+    // create a dataset for admission mentoring by status
+    var dataset_admentoring = new Array()
+    @foreach ($admissionsMentoring as $key => $val)
+        dataset_admentoring.push({{ (int)$val }})
+    @endforeach
+
     new Chart(adm, {
         type: 'doughnut',
         data: {
             labels: ['Pending', 'Failed', 'Success', 'Refund'],
             datasets: [{
                 label: 'Client Program',
-                data: [12, 19, 3, 5],
+                data: dataset_admentoring,
                 backgroundColor: [
                     '#fd7e14',
                     '#dc3545',
@@ -254,13 +271,19 @@
     // Academic Program 
     const acad = document.getElementById('academicProgram');
 
+    // create a dataset for admission mentoring by status
+    var dataset_acadtestprep = new Array()
+    @foreach ($academicTestPrep as $key => $val)
+        dataset_acadtestprep.push({{ (int)$val }})
+    @endforeach
+
     new Chart(acad, {
         type: 'doughnut',
         data: {
             labels: ['Pending', 'Failed', 'Success', 'Refund'],
             datasets: [{
                 label: '',
-                data: [12, 19, 3, 5],
+                data: dataset_acadtestprep,
                 backgroundColor: [
                     '#fd7e14',
                     '#dc3545',
@@ -295,13 +318,19 @@
     // Career Program 
     const career = document.getElementById('careerProgram');
 
+    // create a dataset for admission mentoring by status
+    var dataset_careerexploration = new Array()
+    @foreach ($careerExploration as $key => $val)
+        dataset_careerexploration.push({{ (int)$val }})
+    @endforeach
+
     new Chart(career, {
         type: 'doughnut',
         data: {
             labels: ['Pending', 'Failed', 'Success', 'Refund'],
             datasets: [{
                 label: '',
-                data: [12, 19, 3, 5],
+                data: dataset_careerexploration,
                 backgroundColor: [
                     '#fd7e14',
                     '#dc3545',
@@ -335,13 +364,19 @@
 
     const ic = document.getElementById('ic_consult');
 
+    // create a dataset for initial consultation
+    var dataset_initconsult = new Array()
+    @foreach ($initialConsultation as $key => $val)
+        dataset_initconsult.push({{ (int)$val }})
+    @endforeach
+
     new Chart(ic, {
         type: 'pie',
         data: {
             labels: ['Soon', 'Already', 'Success'],
             datasets: [{
                 label: '',
-                data: [12, 19, 10],
+                data: dataset_initconsult,
                 borderWidth: 1,
                 borderRadius: 0,
             }]

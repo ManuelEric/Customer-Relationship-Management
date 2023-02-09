@@ -6,6 +6,7 @@ interface UserRepositoryInterface
 {
     public function getAllUsersByRoleDataTables($role);
     public function getAllUsers();
+    public function getAllUsersWithoutUUID();
     public function getAllUsersByRole($role);
     public function getUserById($userId);
     public function getUserByExtendedId($extendedId);

@@ -5,13 +5,13 @@
                 <div class="row g-1">
                     <div class="col-md-6">
                         <select name="" id="period" class="select w-100" onchange="checkPeriod()">
-                            <option value="all">All</option>
-                            <option value="monthly">Monthly</option>
+                            <option value="all" @selected($filter_bymonth == null)>All</option>
+                            <option value="monthly" @selected($filter_bymonth != null)>Monthly</option>
                         </select>
                     </div>
                     <div class="col-md-6 text-end d-none" id="monthly" onchange="checkMonthly()">
                         <input type="month" name="" id="client_status_month"
-                            class="form-control form-control-sm" value="{{ date('Y-m') }}">
+                            class="form-control form-control-sm" value="{{ isset($filter_bymonth) ? $filter_bymonth : date('Y-m') }}">
                     </div>
                 </div>
             </div>
@@ -30,10 +30,12 @@
                 <button type="button" class="btn btn-sm btn-info position-relative ms-3 pe-3" style="font-size: 11px"
                     data-bs-toggle="modal" data-bs-target="#birthday">
                     Mentee's Birthday
+                    @if (isset($menteesBirthday) && $menteesBirthday->count() > 0)
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                         style="font-size: 11px">
                         {{ $menteesBirthday->count() }}
                     </span>
+                    @endif
                 </button>
             </div>
 
@@ -278,6 +280,10 @@
 
 <script src="http://www.datejs.com/build/date.js" type="text/javascript"></script>
 <script>
+    @if ($filter_bymonth != null)
+        $('#monthly').removeClass('d-none')
+    @endif
+
     function checkPeriod() {
         let period = $('#period').val()
         if (period == 'monthly') {
@@ -296,7 +302,15 @@
 
     function checkClientStatus(month = null) {
         // Axios here... 
-        alert(month)
+        if (month != null)
+            location.href = "?month=" + month
+        else { // month == All
+            let url = window.location.href
+            let urlObj = new URL(url)
+            urlObj.search = ''
+            const result = urlObj.toString()
+            window.location = result
+        }
     }
 
     function marked(i) {
@@ -384,16 +398,15 @@
     $("#menteesBirthdayMonth").on('change', function() {
 
         var date = $(this).val()
-        var month = date.split('-')[1]
         
-        axios.get('{{ url("api/mentee/birthday/") }}/' + month)
+        axios.get('{{ url("api/mentee/birthday/") }}/' + date)
             .then((response) => {
+                console.log(response)
                 var data = response.data.data
                 var html = ""
                 var no = 1;
                 data.forEach(function(item, index, arr) {
-                    var dob = new Date(item['dob']);
-                    var dob_str = dob.toString("ddd, dd MMMM yyyy")
+                    var dob_str = moment(item['dob']).format('ddd, DD MMM yyyy')
 
                     html += "<tr class='text-center'>" +
                                 "<td>" + no++ + "</td>" +

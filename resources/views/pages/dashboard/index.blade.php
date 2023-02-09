@@ -20,4 +20,19 @@
             $('.nav-link.' + type + '.' + tab).addClass('active')
         }
     </script>
+    <script type="text/javascript">
+        $("#cp_employee").on('change', function() {
+            if ($(this).val() != "all") {
+
+                const searchParams = new URLSearchParams({'quser': $(this).val()})
+                location.href = "?" + searchParams
+            } else {
+                let url = window.location.href
+                let urlObj = new URL(url)
+                urlObj.search = ''
+                const result = urlObj.toString()
+                window.location = result
+            }
+        })
+    </script>
 @endsection
