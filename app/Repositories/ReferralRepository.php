@@ -59,7 +59,7 @@ class ReferralRepository implements ReferralRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        return Referral::select('referral_type', DB::raw('COUNT(*) as count_referral_type'))
+        return Referral::select('referral_type', 'revenue', DB::raw('COUNT(*) as count_referral_type'))
             ->whereYear('created_at', '=', $year)
             ->whereMonth('created_at', '=', $month)
             ->groupBy('referral_type')

@@ -12,6 +12,7 @@ use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
+use App\Interfaces\InvoiceB2bRepositoryInterface;
 
 
 class PartnerDashboardController extends Controller
@@ -24,9 +25,10 @@ class PartnerDashboardController extends Controller
     protected PartnerProgramRepositoryInterface $partnerProgramRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
     protected ReferralRepositoryInterface $referralRepository;
+    protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
 
 
-    public function __construct(CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository)
+    public function __construct(CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository)
     {
         $this->corporateRepository = $corporateRepository;
         $this->schoolRepository = $schoolRepository;
@@ -36,6 +38,7 @@ class PartnerDashboardController extends Controller
         $this->partnerProgramRepository = $partnerProgramRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
         $this->referralRepository = $referralRepository;
+        $this->invoiceB2bRepository = $invoiceB2bRepository;
     }
 
 
@@ -93,10 +96,16 @@ class PartnerDashboardController extends Controller
     {
         $monthYear = $request->route('month');
 
+        $totalPartnership = $this->invoiceB2bRepository->getTotalPartnershipProgram($monthYear);
+        $totalPartnerProgram = $totalPartnership->where('type', 'partner_prog')->sum('invb2b_totpriceidr');
+        $totalSchoolProgram = $totalPartnership->where('type', 'sch_prog')->sum('invb2b_totpriceidr');
+
         $data = [
             'statusSchoolPrograms' => $this->schoolProgramRepository->getStatusSchoolProgramByMonthly($monthYear),
             'statusPartnerPrograms' => $this->partnerProgramRepository->getStatusPartnerProgramByMonthly($monthYear),
-            'referralTypes' => $this->referralRepository->getReferralTypeByMonthly($monthYear)
+            'referralTypes' => $this->referralRepository->getReferralTypeByMonthly($monthYear),
+            'totalPartnerProgram' => $totalPartnerProgram,
+            'totalSchoolProgram' => $totalSchoolProgram,
         ];
 
         if ($data) {

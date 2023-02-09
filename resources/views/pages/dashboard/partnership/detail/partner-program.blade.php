@@ -51,7 +51,7 @@
                     </div>
                     <div class="card-header d-flex justify-content-between">
                         <h6 class="m-0 p-0">Total</h6>
-                        <h6 class="m-0 p-0">Rp. 123.000.000</h6>
+                        <h6 class="m-0 p-0" id="tot_referral"></h6>
                     </div>
                 </div>
             </div>
@@ -136,7 +136,7 @@
                 var result = response.data.data
                 var html = ""
                 var no = 1;
-                var total_fee = 0;
+                var totalReferral = 0;
 
                 swal.close()
 
@@ -148,7 +148,6 @@
                             break;
                         case 1:
                             data['school'][1] = item['count_status'];
-                            total_fee = item['total_fee'];
                             break;
                         case 2:
                             data['school'][2] = item['count_status'];
@@ -163,10 +162,8 @@
                  
                 })
 
-                $('#tot_school_program').html(rupiah(total_fee))
+                $('#tot_school_program').html(rupiah(result.totalSchoolProgram))
                 
-                total_fee = 0;
-
                 result.statusPartnerPrograms.forEach(function (item, index, arr) {
                   
                     switch (item['status']) {                        
@@ -175,7 +172,6 @@
                             break;
                         case 1:
                             data['partner'][1] = item['count_status'];
-                            total_fee = item['total_fee'];
                             break;
                         case 2:
                             data['partner'][2] = item['count_status'];
@@ -189,7 +185,7 @@
                     }
                 })
 
-                $('#tot_partner_program').html(rupiah(total_fee))
+                $('#tot_partner_program').html(rupiah(result.totalPartnerProgram))
 
                 result.referralTypes.forEach(function (item, index, arr) {
                     switch (item['referral_type']) {
@@ -199,11 +195,15 @@
                             break;
                         case 'Out':
                             data['referral'][1] = item['count_referral_type'];
+                            totalReferral += item['revenue'];
                             break;
                         default:
                             break;
                     }
                 })
+
+                $('#tot_referral').html(rupiah(totalReferral))
+
 
             }, (error) => {
                 console.log(error)

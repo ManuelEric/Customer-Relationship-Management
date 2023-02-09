@@ -205,17 +205,17 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         //     );
 
         if (isset($start_date) && isset($end_date)) {
-            return Invb2b::whereDate('tbl_invb2b.'.$whereBy, '>=', $start_date)
-                ->whereDate('tbl_invb2b.'.$whereBy, '<=', $end_date)
+            return Invb2b::whereDate('tbl_invb2b.' . $whereBy, '>=', $start_date)
+                ->whereDate('tbl_invb2b.' . $whereBy, '<=', $end_date)
                 ->get();
         } else if (isset($start_date) && !isset($end_date)) {
-            return Invb2b::whereDate('tbl_invb2b.'.$whereBy, '>=', $start_date)
+            return Invb2b::whereDate('tbl_invb2b.' . $whereBy, '>=', $start_date)
                 ->get();
         } else if (!isset($start_date) && isset($end_date)) {
-            return Invb2b::whereDate('tbl_invb2b.'.$whereBy, '<=', $end_date)
+            return Invb2b::whereDate('tbl_invb2b.' . $whereBy, '<=', $end_date)
                 ->get();
         } else {
-            return Invb2b::whereBetween('tbl_invb2b.'.$whereBy, [$firstDay, $lastDay])
+            return Invb2b::whereBetween('tbl_invb2b.' . $whereBy, [$firstDay, $lastDay])
                 ->get();
         }
     }
@@ -278,5 +278,27 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 ->orderBy('invdtl_id', 'asc')
                 ->get();
         }
+    }
+
+    public function getTotalPartnershipProgram($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        $schProg = Invb2b::leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+            ->select(DB::raw("'sch_prog' as 'type'"), 'tbl_invb2b.invb2b_totpriceidr')
+            ->where('tbl_sch_prog.status', '1')
+            ->whereYear('tbl_sch_prog.created_at', '=', $year)
+            ->whereMonth('tbl_sch_prog.created_at', '=', $month);
+
+        $partnerProg = Invb2b::leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
+            ->select(DB::raw("'partner_prog' as 'type'"), 'tbl_invb2b.invb2b_totpriceidr')
+            ->where('tbl_partner_prog.status', '1')
+            ->whereYear('tbl_partner_prog.created_at', '=', $year)
+            ->whereMonth('tbl_partner_prog.created_at', '=', $month)
+            ->union($schProg)
+            ->get();
+
+        return $partnerProg;
     }
 }
