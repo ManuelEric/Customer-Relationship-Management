@@ -594,4 +594,17 @@ class InvoiceProgramController extends Controller
 
         return true;
     }
+
+    public function upload(Request $request)
+    {
+        $pdfFile = $request->file('pdfFile');
+        $name = $request->file('pdfFile')->getClientOriginalName();
+        // $destination = public_path('attachment/');
+
+        if ($pdfFile->storeAs('public/uploaded_file/invoice/', $name)) {
+            return response()->json(['status' => 'success']);
+        } else {
+            return response()->json(['status' => 'error']);
+        }
+    }
 }
