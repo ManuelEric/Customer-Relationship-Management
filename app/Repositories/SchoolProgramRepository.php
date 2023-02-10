@@ -13,7 +13,6 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
 
     public function getAllSchoolProgramsDataTables($filter = null)
     {
-        // TODO: Filter by status refund
 
         return Datatables::eloquent(
             SchoolProgram::leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->leftJoin('users', 'users.id', '=', 'tbl_sch_prog.empl_id')->select(
@@ -251,5 +250,74 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                 ->whereBetween('success_date', [$firstDay, $lastDay])
                 ->get();
         }
+    }
+
+    public function getTotalSchoolProgramComparison($startYear, $endYear)
+    {
+        $start = SchoolProgram::select(DB::raw("'start' as 'type'"), DB::raw('count(id) as count'), DB::raw('sum(total_fee) as total_fee'))
+            ->where('status', 1)
+            ->whereYear('success_date', $startYear);
+
+        $end = SchoolProgram::select(DB::raw("'end' as 'type'"), DB::raw('count(id) as count'), DB::raw('sum(total_fee) as total_fee'))
+            ->where('status', 1)
+            ->whereYear('success_date', $endYear)
+            ->union($start)
+            ->get();
+
+        return $end;
+    }
+
+    public function getSchoolProgramComparisonStart($startYear)
+    {
+        return SchoolProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
+            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->select(
+                'tbl_sch_prog.prog_id',
+                DB::raw('(CASE
+                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                            ELSE tbl_prog.prog_program
+                        END) AS program_name'),
+                DB::raw("'School Program' as type"),
+                DB::raw('SUM(participants) as participants'),
+                DB::raw('DATE_FORMAT(success_date, "%Y") as year'),
+                DB::raw("SUM(total_fee) as total"),
+            )
+            ->where('status', 1)
+            ->whereYear('success_date', '=', $startYear)
+            ->groupBy('prog_id')
+            ->get();
+    }
+
+    public function getSchoolProgramComparisonEnd($endYear)
+    {
+        return SchoolProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
+            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->select([
+                'tbl_prog.prog_id',
+                DB::raw('(CASE
+                WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                ELSE tbl_prog.prog_program
+            END) AS program_name'),
+                DB::raw("'School Program' as type"),
+                DB::raw('SUM(participants) as participants'),
+                DB::raw('DATE_FORMAT(success_date, "%Y") as year'),
+                DB::raw("SUM(total_fee) as total"),
+
+            ])
+            ->where('status', 1)
+            ->whereYear('success_date', '=', $endYear)
+            ->groupBy('prog_id')
+
+            ->get();
+    }
+
+    public function getSchoolProgramComparison($startYear, $endYear)
+    {
+        $start = $this->getSchoolProgramComparisonStart($startYear);
+        $end = $this->getSchoolProgramComparisonEnd($endYear);
+
+        $collection = collect($start);
+
+        return $collection->merge($end);
     }
 }

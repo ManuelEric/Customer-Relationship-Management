@@ -28,3 +28,4 @@ Route::get('partner/total/{month}', [PartnerDashboardController::class, 'getTota
 Route::get('partner/agenda/{date}', [PartnerDashboardController::class, 'getSpeakerByDate']);
 Route::get('partner/partnership-program/{month}', [PartnerDashboardController::class, 'getPartnershipProgramByMonth']);
 Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [PartnerDashboardController::class, 'getPartnershipProgramDetailByMonth']);
+Route::get('partner/partnership-program/program-comparison/{start_year}/{end_year}', [PartnerDashboardController::class, 'getProgramComparison']);

@@ -90,8 +90,11 @@
             let datasets = ctx.chart.data.datasets;
             if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
                 let sum = datasets[0].data.reduce((a, b) => a + b, 0);
-                let percentage = Math.round((value / sum) * 100) + '%';
-                return percentage;
+                let percentage = Math.round((value / sum) * 100);
+                if(isNaN(percentage))
+                    return 0;
+                else 
+                    return percentage + "%";
             } else {
                 return percentage;
             }

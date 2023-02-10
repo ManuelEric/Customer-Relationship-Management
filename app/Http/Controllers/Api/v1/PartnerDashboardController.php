@@ -177,4 +177,65 @@ class PartnerDashboardController extends Controller
 
         return response()->json($response);
     }
+
+    public function getProgramComparison(Request $request)
+    {
+        $startYear = $request->route('start_year');
+        $endYear = $request->route('end_year');
+
+        $schoolProgramMerge = $this->schoolProgramRepository->getSchoolProgramComparison($startYear, $endYear);
+        $partnerProgramMerge = $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear);
+        $referralMerge = $this->referralRepository->getReferralComparison($startYear, $endYear);
+
+        $schoolProgramComparison = $this->mappingProgramComparison($schoolProgramMerge);
+        $partnerProgramComparison = $this->mappingProgramComparison($partnerProgramMerge);
+        $referrals = $this->mappingProgramComparison($referralMerge);
+
+        $programComparisons = $this->mergeProgramComparison($schoolProgramComparison, $partnerProgramComparison, $referrals);
+
+        $data = [
+            'programComparisons' => $programComparisons,
+            'partnerPrograms' => $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear),
+            'totalSch' => $this->schoolProgramRepository->getTotalSchoolProgramComparison($startYear, $endYear),
+            'totalPartner' => $this->partnerProgramRepository->getTotalPartnerProgramComparison($startYear, $endYear),
+        ];
+
+        if ($data) {
+            $response = [
+                'success' => true,
+                'data' => $data
+            ];
+        } else {
+            $response = [
+                'success' => false,
+                'data' => null
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    protected function mappingProgramComparison($data)
+    {
+        return $data->mapToGroups(function ($item, $key) {
+            return [
+                $item['program_name'] => [
+                    'type' => $item['type'],
+                    'year' => $item['year'],
+
+                    $item['year'] =>
+                    [
+                        'participants' => $item['participants'],
+                        'total' => $item['total'],
+                    ]
+                ],
+            ];
+        });
+    }
+
+    protected function mergeProgramComparison($schoolProgram, $partnerProgram, $referral)
+    {
+        $collection = collect($schoolProgram);
+        return $collection->merge($partnerProgram)->merge($referral);
+    }
 }

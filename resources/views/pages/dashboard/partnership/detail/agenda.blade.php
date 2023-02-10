@@ -34,7 +34,23 @@
 
                         </h6>
                     </div>
-                    <div class="card-body overflow-auto d-none" id="speaker_list" style="height: 370px">
+                    <div class="card-body overflow-auto {{!isset($speakerToday) ? 'd-none' : ''}}" id="speaker_list" style="height: 370px">
+                        @foreach ($speakerToday as $speaker)
+                            
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="">
+                                        {{ $speaker->speaker_name }} <br>
+                                        <small>
+                                            {{ $speaker->event_name }}
+                                        </small>
+                                    </div>
+                                    <div class="">
+                                        {{ date("H.i", strtotime($speaker->start_time)) }} - {{ date("M d, Y H.i", strtotime($speaker->end_time)) }}
+                                    </div>
+                                </li>
+                            </ul>
+                        @endforeach
                     </div>
                 </div>
             </div>

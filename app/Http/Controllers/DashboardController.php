@@ -182,9 +182,25 @@ class DashboardController extends Controller
         $newSchool = $this->schoolRepository->getCountTotalSchoolByMonthly(date('Y-m'));
         $newUniversity = $this->universityRepository->getCountTotalUniversityByMonthly(date('Y-m'));
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerDashboard('all', $date);
-        $partnerPrograms = $this->partnerProgramRepository->getAllPartnerProgramByStatusAndMonth(0, date('Y-m'));
+        $speakerToday = $this->agendaSpeakerRepository->getAllSpeakerDashboard('byDate', date('Y-m-d'));
+        $partnerPrograms = $this->partnerProgramRepository->getAllPartnerProgramByStatusAndMonth(0, date('Y-m')); # display default partnership program (status pending)
 
+        // Program Comparison
+        $startYear = date('Y') - 1;
+        $endYear = date('Y');
 
+        $schoolProgramMerge = $this->schoolProgramRepository->getSchoolProgramComparison($startYear, $endYear);
+        $partnerProgramMerge = $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear);
+        $referralMerge = $this->referralRepository->getReferralComparison($startYear, $endYear);
+
+        $schoolProgramComparison = $this->mappingProgramComparison($schoolProgramMerge);
+        $partnerProgramComparison = $this->mappingProgramComparison($partnerProgramMerge);
+        $referrals = $this->mappingProgramComparison($referralMerge);
+
+        $programComparisons = $this->mergeProgramComparison($schoolProgramComparison, $partnerProgramComparison, $referrals);
+
+        // return $speakerToday;
+        // exit;
         return view('pages.dashboard.index')->with(
             [
                 'totalPartner' => $totalPartner,
@@ -195,8 +211,34 @@ class DashboardController extends Controller
                 'newSchool' => $newSchool,
                 'newUniversity' => $newUniversity,
                 'speakers' => $speakers,
+                'speakerToday' => $speakerToday,
                 'partnerPrograms' => $partnerPrograms,
+                'programComparisons' => $programComparisons
             ]
         );
+    }
+
+    protected function mappingProgramComparison($data)
+    {
+        return $data->mapToGroups(function ($item, $key) {
+            return [
+                $item['program_name'] => [
+                    'type' => $item['type'],
+                    'year' => $item['year'],
+
+                    $item['year'] =>
+                    [
+                        'participants' => $item['participants'],
+                        'total' => $item['total'],
+                    ]
+                ],
+            ];
+        });
+    }
+
+    protected function mergeProgramComparison($schoolProgram, $partnerProgram, $referral)
+    {
+        $collection = collect($schoolProgram);
+        return $collection->merge($partnerProgram)->merge($referral);
     }
 }
