@@ -181,11 +181,15 @@ class DashboardController extends Controller
         $newPartner = $this->corporateRepository->getCountTotalCorporateByMonthly(date('Y-m'));
         $newSchool = $this->schoolRepository->getCountTotalSchoolByMonthly(date('Y-m'));
         $newUniversity = $this->universityRepository->getCountTotalUniversityByMonthly(date('Y-m'));
+
+        // Tab Agenda
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerDashboard('all', $date);
         $speakerToday = $this->agendaSpeakerRepository->getAllSpeakerDashboard('byDate', date('Y-m-d'));
+
+        // Tab Partnership
         $partnerPrograms = $this->partnerProgramRepository->getAllPartnerProgramByStatusAndMonth(0, date('Y-m')); # display default partnership program (status pending)
 
-        // Program Comparison
+        // Tab Program Comparison
         $startYear = date('Y') - 1;
         $endYear = date('Y');
 
@@ -193,14 +197,10 @@ class DashboardController extends Controller
         $partnerProgramMerge = $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear);
         $referralMerge = $this->referralRepository->getReferralComparison($startYear, $endYear);
 
-        $schoolProgramComparison = $this->mappingProgramComparison($schoolProgramMerge);
-        $partnerProgramComparison = $this->mappingProgramComparison($partnerProgramMerge);
-        $referrals = $this->mappingProgramComparison($referralMerge);
+        $programComparisonMerge = $this->mergeProgramComparison($schoolProgramMerge, $partnerProgramMerge, $referralMerge);
 
-        $programComparisons = $this->mergeProgramComparison($schoolProgramComparison, $partnerProgramComparison, $referrals);
+        $programComparisons = $this->mappingProgramComparison($programComparisonMerge);
 
-        // return $speakerToday;
-        // exit;
         return view('pages.dashboard.index')->with(
             [
                 'totalPartner' => $totalPartner,
@@ -222,7 +222,8 @@ class DashboardController extends Controller
     {
         return $data->mapToGroups(function ($item, $key) {
             return [
-                $item['program_name'] => [
+                $item['program_name'] . ' - ' . $item['type'] => [
+                    'program_name' => $item['program_name'],
                     'type' => $item['type'],
                     'year' => $item['year'],
 

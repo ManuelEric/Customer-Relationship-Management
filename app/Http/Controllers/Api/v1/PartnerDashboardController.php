@@ -187,11 +187,9 @@ class PartnerDashboardController extends Controller
         $partnerProgramMerge = $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear);
         $referralMerge = $this->referralRepository->getReferralComparison($startYear, $endYear);
 
-        $schoolProgramComparison = $this->mappingProgramComparison($schoolProgramMerge);
-        $partnerProgramComparison = $this->mappingProgramComparison($partnerProgramMerge);
-        $referrals = $this->mappingProgramComparison($referralMerge);
+        $programComparisonMerge = $this->mergeProgramComparison($schoolProgramMerge, $partnerProgramMerge, $referralMerge);
 
-        $programComparisons = $this->mergeProgramComparison($schoolProgramComparison, $partnerProgramComparison, $referrals);
+        $programComparisons = $this->mappingProgramComparison($programComparisonMerge);
 
         $data = [
             'programComparisons' => $programComparisons,
@@ -219,7 +217,8 @@ class PartnerDashboardController extends Controller
     {
         return $data->mapToGroups(function ($item, $key) {
             return [
-                $item['program_name'] => [
+                $item['program_name'] . ' - ' . $item['type'] => [
+                    'program_name' => $item['program_name'],
                     'type' => $item['type'],
                     'year' => $item['year'],
 

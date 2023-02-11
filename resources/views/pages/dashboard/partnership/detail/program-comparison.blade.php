@@ -159,7 +159,7 @@
                                 @foreach ($programComparisons as $key => $programComparison)
                                     <tr class="text-center">
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $key }}</td>
+                                        <td>{{ $programComparison[0]['program_name'] }}</td>
                                         <td>{{ $programComparison[0]['type'] }}</td>
                                         @if(count($programComparison) > 1)
                                             @foreach ($programComparison as $yearData)
@@ -286,7 +286,7 @@
                     const [key, value] = entry;
                     html = "<tr class='text-center'>";
                     html += "<td>" + no + "</td>";
-                    html += "<td>" + key + "</td>";
+                    html += "<td>" + value[0]['program_name'] + "</td>";
                     html += "<td>" + value[0]['type'] + "</td>";
                         if(value.length > 1){
                             Object.entries(value).forEach(entry => {
