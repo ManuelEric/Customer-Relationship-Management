@@ -28,7 +28,7 @@
                 <button class="btn btn-danger btn-sm" onclick="clearPage()">Clear Page</button>
             </div>
             <div class="tool">
-                <button class="btn btn-light btn-sm" onclick="savePDF('save','filename.pdf','{{ url('api/upload') }}')"><i
+                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ str_replace('/', '_', $invoice->invb2b_id) }}.pdf','{{ isset($invoice->schprog_id) ? url('api/invoice-sch/'.$invoice->invb2b_num.'/upload') : '' }}')"><i
                         class="fa fa-save me-2"></i>
                     Save</button>
             </div>
@@ -39,15 +39,15 @@
 @endsection
 @section('script')
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset('document.pdf') }}", {
+        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$file_name.'.pdf') }}", {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },
             ready() {
                 console.log("Plugin initialized successfully");
             },
-            scale: 1.8,
-            pageImageCompression: "MEDIUM", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
+            scale: 1.7,
+            pageImageCompression: "SLOW", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
         });
     </script>
     <script src="{{ asset('js/pdf-annotation/script-pdf.js') }}"></script>

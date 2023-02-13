@@ -9,6 +9,6 @@
 <body>
     Please sign the document that has been attached to this email<br>
     <br>
-    Click <a href="{{ route('invoice-sch.create_signed_document', ['invoice' => $param['invb2b_num']]) }}?token={{ csrf_token() }}">here</a> to upload the signed document
+    Click <a href="{{ route('invoice-sch.sign_document', ['invoice' => $param['invb2b_num']]) }}?token={{ csrf_token() }}">here</a> to upload the signed document
 </body>
 </html>

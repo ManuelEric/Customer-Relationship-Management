@@ -58,7 +58,7 @@
                             </a>
                         </div>
 
-                             @if (!isset($invoiceSch->refund) && isset($invoiceSch) && $invoiceSch->attachment == NULL)
+                             @if (!isset($invoiceSch->refund) && isset($invoiceSch) && $invoiceSch->sign_status == 'not yet')
                                 <div class="d-flex justify-content-center mt-2">
                                     <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
                                         <i class="bi bi-pen me-1"></i> Request Sign
@@ -644,20 +644,24 @@
                 $("#print_idr").on('click', function(e) {
                 e.preventDefault();
 
-                PSPDFKit.load({
-                container: "#pspdfkit",
-                document: "{{ asset('storage/uploaded_file/invoice/'.$invoiceSch->attachment) }}" // Add the path to your document here.
+                 axios
+                    .get('{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}', {
+                        responseType: 'arraybuffer'
                     })
-                    .then(async (instance) => {
-                         const annotations = await instance.getAnnotations(0);
-                            const annotation = annotations.get(0);
-                            await instance.delete(annotation);
+                    .then(response => {
+                        console.log(response)
 
-                        console.log("PSPDFKit loaded", instance);
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
                     })
-                    .catch(function(error) {
-                        console.error(error.message);
-                    });
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
                 })
 
                 @endif

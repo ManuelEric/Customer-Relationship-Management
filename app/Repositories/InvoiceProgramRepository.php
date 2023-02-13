@@ -206,4 +206,17 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 ->get();
         }
     }
+
+    public function getTotalInvoiceNeeded($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return ViewClientProgram::doesntHave('invoice')
+            ->select(DB::raw('COUNT(clientprog_id) as count_invoice_needed'))
+            ->where('status', 1)
+            ->whereYear('success_date', '=', $year)
+            ->whereMonth('success_date', '=', $month)
+            ->get();
+    }
 }

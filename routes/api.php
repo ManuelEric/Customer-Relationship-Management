@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\v1\SalesDashboardController;
 use App\Http\Controllers\Api\v1\PartnerDashboardController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\InvoiceProgramController;
+use App\Http\Controllers\InvoiceSchoolController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,3 +33,4 @@ Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [Partne
 Route::get('partner/partnership-program/program-comparison/{start_year}/{end_year}', [PartnerDashboardController::class, 'getProgramComparison']);
 
 Route::post('/upload', [InvoiceProgramController::class, 'upload']);
+Route::post('invoice-sch/{invoice}/upload', [InvoiceSchoolController::class, 'upload']);

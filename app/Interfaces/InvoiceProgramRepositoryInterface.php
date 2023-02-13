@@ -11,4 +11,5 @@ interface InvoiceProgramRepositoryInterface
     public function deleteInvoiceByClientProgId($clientProgId);
     public function getReportInvoiceB2c($start_date, $end_date, $whereBy);
     public function getReportUnpaidInvoiceB2c($start_date, $end_date);
+    public function getTotalInvoiceNeeded($monthYear);
 }

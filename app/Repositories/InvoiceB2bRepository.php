@@ -301,4 +301,28 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
         return $partnerProg;
     }
+
+    public function getTotalInvoiceNeeded($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        $schProg  = SchoolProgram::leftJoin('tbl_invb2b', 'tbl_invb2b.schprog_id', '=', 'tbl_sch_prog.id')
+            ->select(DB::raw("count('tbl_sch_prog.id') as count_invoice_needed"))
+            ->where('tbl_sch_prog.status', 1)
+            ->whereYear('tbl_sch_prog.success_date', '=', $year)
+            ->whereMonth('tbl_sch_prog.success_date', '=', $month)
+            ->whereNull('tbl_invb2b.schprog_id')
+            ->get();
+
+        $partnerProg  = PartnerProg::leftJoin('tbl_invb2b', 'tbl_invb2b.partnerprog_id', '=', 'tbl_partner_prog.id')
+            ->select(DB::raw("count('tbl_partner_prog.id') as count_invoice_needed"))
+            ->where('tbl_partner_prog.status', 1)->whereNull('tbl_invb2b.partnerprog_id')
+            ->whereYear('tbl_partner_prog.success_date', '=', $year)
+            ->whereMonth('tbl_partner_prog.success_date', '=', $month)
+            ->get();
+
+        $collection = collect($schProg);
+        return $collection->merge($partnerProg);
+    }
 }

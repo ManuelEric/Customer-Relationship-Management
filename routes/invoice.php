@@ -143,13 +143,18 @@ Route::prefix('school-program')->name('invoice-sch.')->group(function () {
     Route::get('status/{status}', [InvoiceSchoolController::class, 'index'])->name('index');
     Route::get('{invoice}/export/{currency}', [InvoiceSchoolController::class, 'export'])->name('export');
     Route::get('{invoice}/request_sign/{currency}', [InvoiceSchoolController::class, 'requestSign'])->name('request_sign');
-    Route::get('{invoice}/upload', [InvoiceSchoolController::class, 'createSignedAttachment'])->name('create_signed_document');
-    Route::post('{invoice}/upload', [InvoiceSchoolController::class, 'storeSignedAttachment'])->name('upload_signed_document');
-    Route::post('{invoice}/refund', [RefundSchoolController::class, 'store'])->name('refund');
+    // Route::get('{invoice}/upload', [InvoiceSchoolController::class, 'createSignedAttachment'])->name('create_signed_document');
+    Route::get('{invoice}/sign', [InvoiceSchoolController::class, 'signAttachment'])->name('sign_document');
+    // Route::post('{invoice}/upload', [InvoiceSchoolController::class, 'storeSignedAttachment'])->name('upload_signed_document');
     Route::get('{invoice}/send', [InvoiceSchoolController::class, 'sendToClient'])->name('send_to_client');
+    Route::post('{invoice}/refund', [RefundSchoolController::class, 'store'])->name('refund');
     Route::get('{invoice}/attachment/download', [InvoiceSchoolController::class, 'download'])->name('download');
     Route::delete('{invoice}/refund/{refund}', [RefundSchoolController::class, 'destroy'])->name('refund.destroy');
 });
+
+// Route::get('sign/b2c/1', function () {
+//     return view('pages.invoice.sign-pdf');
+// });
 
 Route::prefix('corporate-program')->name('invoice-corp.')->group(function () {
     Route::resource('{corp_prog}/detail', InvoicePartnerController::class)->except(['index']);

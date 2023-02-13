@@ -34,7 +34,22 @@ var PDFAnnotate = function (container_id, url, options = {}) {
 				canvas.className = 'pdf-canvas';
 				canvas.height = viewport.height;
 				canvas.width = viewport.width;
+				
 				context = canvas.getContext('2d');
+
+				// Increase the resolution of the canvas
+
+				if (window.devicePixelRatio > 1) {
+					var canvasWidth = canvas.width;
+					var canvasHeight = canvas.height;
+
+					canvas.width = canvasWidth * window.devicePixelRatio;
+					canvas.height = canvasHeight * window.devicePixelRatio;
+					canvas.style.width = canvasWidth + "px";
+					canvas.style.height = canvasHeight + "px";
+
+					context.scale(window.devicePixelRatio, window.devicePixelRatio);
+				}
 
 				var renderContext = {
 					canvasContext: context,
