@@ -282,6 +282,8 @@
                 
                 $('#tbl_comparison').empty()
 
+                // console.log(result.programComparisons)
+
                 Object.entries(result.programComparisons).forEach(entry => {
                     const [key, value] = entry;
                     html = "<tr class='text-center'>";
@@ -294,7 +296,6 @@
                                 html += "<td>" + (value['year'] === start ? value[start]['participants'] + ' (' + rupiah(value[start]['total']) + ')' : value[end]['participants'] + ' (' + rupiah(value[end]['total']) + ')') + "</td>"
                             })
                         }else{
-                            console.log(value[0])
                             html += "<td>" + (value[0]['year'] === start ? value[0][start]['participants'] + ' (' + rupiah(value[0][start]['total']) + ')' : '-' ) + "</td>";
                             html += "<td>" + (value[0]['year'] === end ? value[0][end]['participants'] + ' (' + rupiah(value[0][end]['total']) + ')' : '-' ) + "</td>";
                         }

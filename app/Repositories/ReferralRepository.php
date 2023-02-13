@@ -85,7 +85,7 @@ class ReferralRepository implements ReferralRepositoryInterface
         return Referral::destroy($referralId);
     }
 
-    public function getReferralComparisonStart($startYear)
+    public function getReferralComparison($startYear, $endYear)
     {
         return Referral::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_referral.prog_id')
             ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
@@ -112,51 +112,16 @@ class ReferralRepository implements ReferralRepositoryInterface
                 DB::raw('DATE_FORMAT(ref_date, "%Y") as year'),
                 DB::raw("SUM(revenue) as total"),
             )
-            ->whereYear('ref_date', '=', $startYear)
+            ->whereYear(
+                'ref_date',
+                '=',
+                DB::raw('(case year(ref_date)
+                                when ' . $startYear . ' then ' . $startYear . '
+                                when ' . $endYear . ' then ' . $endYear . '
+                            end)')
+            )
             ->groupBy('prog_id')
+            ->groupBy(DB::raw('year(ref_date)'))
             ->get();
-    }
-
-    public function getReferralComparisonEnd($endYear)
-    {
-        return Referral::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_referral.prog_id')
-            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-            ->select([
-                'tbl_prog.prog_id',
-                DB::raw(
-                    'CASE tbl_referral.referral_type
-                        WHEN "Out" THEN tbl_referral.additional_prog_name
-                        WHEN "In" 
-                            THEN 
-                                (CASE
-                                WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                                    ELSE tbl_prog.prog_program
-                                END) 
-                    END AS program_name'
-                ),
-                DB::raw(
-                    'CASE tbl_referral.referral_type
-                        WHEN "Out" THEN "Referral Out"
-                        WHEN "In" THEN "Referral In"
-                    END AS type'
-                ),
-                DB::raw('SUM(number_of_student) as participants'),
-                DB::raw('DATE_FORMAT(ref_date, "%Y") as year'),
-                DB::raw("SUM(revenue) as total"),
-
-            ])
-            ->whereYear('ref_date', '=', $endYear)
-            ->groupBy('prog_id')
-
-            ->get();
-    }
-
-    public function getReferralComparison($startYear, $endYear)
-    {
-        $start = $this->getReferralComparisonStart($startYear);
-        $end = $this->getReferralComparisonEnd($endYear);
-
-        $collection = collect($start);
-        return $collection->merge($end);
     }
 }

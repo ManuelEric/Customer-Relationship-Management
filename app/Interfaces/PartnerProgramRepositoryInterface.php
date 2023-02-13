@@ -17,7 +17,5 @@ interface PartnerProgramRepositoryInterface
     public function createPartnerProgram(array $partnerPrograms);
     public function updatePartnerProgram($partnerProgId, array $partnerPrograms);
     public function getTotalPartnerProgramComparison($startYear, $endYear);
-    public function getPartnerProgramComparisonStart($startYear);
-    public function getPartnerProgramComparisonEnd($endYear);
     public function getPartnerProgramComparison($startYear, $endYear);
 }

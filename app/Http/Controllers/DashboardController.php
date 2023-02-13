@@ -13,6 +13,8 @@ use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
+use App\Interfaces\InvoiceB2bRepositoryInterface;
+use App\Interfaces\InvoiceProgramRepositoryInterface;
 
 
 
@@ -33,9 +35,11 @@ class DashboardController extends Controller
     protected ReferralRepositoryInterface $referralRepository;
     protected ClientProgramRepositoryInterface $clientProgramRepository;
     protected UserRepositoryInterface $userRepository;
+    protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+    protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
 
 
-    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->followupRepository = $followupRepository;
@@ -49,12 +53,15 @@ class DashboardController extends Controller
         $this->referralRepository = $referralRepository;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->userRepository = $userRepository;
+        $this->invoiceB2bRepository = $invoiceB2bRepository;
+        $this->invoiceProgramRepository = $invoiceProgramRepository;
     }
 
     public function index(Request $request)
     {
         // return $this->indexSales($request);
         return $this->indexPartnership($request);
+        // return $this->indexFinance($request);
     }
 
     # sales dashboard
@@ -193,11 +200,11 @@ class DashboardController extends Controller
         $startYear = date('Y') - 1;
         $endYear = date('Y');
 
-        $schoolProgramMerge = $this->schoolProgramRepository->getSchoolProgramComparison($startYear, $endYear);
-        $partnerProgramMerge = $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear);
-        $referralMerge = $this->referralRepository->getReferralComparison($startYear, $endYear);
+        $schoolProgramComparison = $this->schoolProgramRepository->getSchoolProgramComparison($startYear, $endYear);
+        $partnerProgramComparison = $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear);
+        $referralComparison = $this->referralRepository->getReferralComparison($startYear, $endYear);
 
-        $programComparisonMerge = $this->mergeProgramComparison($schoolProgramMerge, $partnerProgramMerge, $referralMerge);
+        $programComparisonMerge = $this->mergeProgramComparison($schoolProgramComparison, $partnerProgramComparison, $referralComparison);
 
         $programComparisons = $this->mappingProgramComparison($programComparisonMerge);
 
@@ -241,5 +248,18 @@ class DashboardController extends Controller
     {
         $collection = collect($schoolProgram);
         return $collection->merge($partnerProgram)->merge($referral);
+    }
+
+    public function indexFinance()
+    {
+        $totalInvoiceNeededB2b = $this->invoiceB2bRepository->getTotalInvoiceNeeded(date('Y-m'))->sum('count_invoice_needed');
+        $totalInvoiceNeededB2c = $this->invoiceProgramRepository->getTotalInvoiceNeeded(date('Y-m'));
+        // return $totalInvoiceNeededB2c;
+        // exit;
+        return view('pages.dashboard.index')->with(
+            [
+                'totalInvoiceNeeded' => $totalInvoiceNeededB2b,
+            ]
+        );
     }
 }

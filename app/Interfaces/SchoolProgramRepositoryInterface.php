@@ -14,7 +14,5 @@ interface SchoolProgramRepositoryInterface
     public function updateSchoolProgram($schoolProgramId, array $schoolPrograms);
     public function getReportSchoolPrograms($start_date, $end_date);
     public function getTotalSchoolProgramComparison($startYear, $endYear);
-    public function getSchoolProgramComparisonStart($startYear);
-    public function getSchoolProgramComparisonEnd($endYear);
     public function getSchoolProgramComparison($startYear, $endYear);
 }

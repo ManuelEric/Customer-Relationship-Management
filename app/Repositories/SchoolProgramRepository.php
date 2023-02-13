@@ -267,7 +267,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
         return $end;
     }
 
-    public function getSchoolProgramComparisonStart($startYear)
+    public function getSchoolProgramComparison($startYear, $endYear)
     {
         return SchoolProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
             ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
@@ -283,41 +283,17 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                 DB::raw("SUM(total_fee) as total"),
             )
             ->where('status', 1)
-            ->whereYear('success_date', '=', $startYear)
+            // ->whereYear('success_date', '=', $startYear)
+            ->whereYear(
+                'success_date',
+                '=',
+                DB::raw('(case year(success_date)
+                                when ' . $startYear . ' then ' . $startYear . '
+                                when ' . $endYear . ' then ' . $endYear . '
+                            end)')
+            )
             ->groupBy('prog_id')
+            ->groupBy(DB::raw('year(success_date)'))
             ->get();
-    }
-
-    public function getSchoolProgramComparisonEnd($endYear)
-    {
-        return SchoolProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
-            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-            ->select([
-                'tbl_prog.prog_id',
-                DB::raw('(CASE
-                WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                ELSE tbl_prog.prog_program
-            END) AS program_name'),
-                DB::raw("'School Program' as type"),
-                DB::raw('SUM(participants) as participants'),
-                DB::raw('DATE_FORMAT(success_date, "%Y") as year'),
-                DB::raw("SUM(total_fee) as total"),
-
-            ])
-            ->where('status', 1)
-            ->whereYear('success_date', '=', $endYear)
-            ->groupBy('prog_id')
-
-            ->get();
-    }
-
-    public function getSchoolProgramComparison($startYear, $endYear)
-    {
-        $start = $this->getSchoolProgramComparisonStart($startYear);
-        $end = $this->getSchoolProgramComparisonEnd($endYear);
-
-        $collection = collect($start);
-
-        return $collection->merge($end);
     }
 }

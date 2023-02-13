@@ -11,7 +11,5 @@ interface ReferralRepositoryInterface
     public function createReferral(array $referralDetails);
     public function updateReferral($referralId, array $newDetails);
     public function deleteReferral($referralId);
-    public function getReferralComparisonStart($startYear);
-    public function getReferralComparisonEnd($endYear);
     public function getReferralComparison($startYear, $endYear);
 }
