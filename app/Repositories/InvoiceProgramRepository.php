@@ -219,4 +219,15 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->whereMonth('success_date', '=', $month)
             ->get();
     }
+
+    public function getTotalInvoice($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return InvoiceProgram::select(DB::raw('COUNT(id) as count_invoice'), DB::raw('CAST(sum(inv_totalprice_idr) as integer) as total'))
+            ->whereYear('created_at', '=', $year)
+            ->whereMonth('created_at', '=', $month)
+            ->get();
+    }
 }

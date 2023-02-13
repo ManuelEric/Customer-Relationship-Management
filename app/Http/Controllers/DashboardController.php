@@ -15,9 +15,7 @@ use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
-
-
-
+use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -37,9 +35,10 @@ class DashboardController extends Controller
     protected UserRepositoryInterface $userRepository;
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
+    protected ReceiptRepositoryInterface $receiptRepository;
 
 
-    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->followupRepository = $followupRepository;
@@ -55,13 +54,14 @@ class DashboardController extends Controller
         $this->userRepository = $userRepository;
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceProgramRepository = $invoiceProgramRepository;
+        $this->receiptRepository = $receiptRepository;
     }
 
     public function index(Request $request)
     {
         // return $this->indexSales($request);
-        return $this->indexPartnership($request);
-        // return $this->indexFinance($request);
+        // return $this->indexPartnership($request);
+        return $this->indexFinance($request);
     }
 
     # sales dashboard
@@ -252,13 +252,25 @@ class DashboardController extends Controller
 
     public function indexFinance()
     {
-        $totalInvoiceNeededB2b = $this->invoiceB2bRepository->getTotalInvoiceNeeded(date('Y-m'))->sum('count_invoice_needed');
+        $totalInvoiceNeededB2b = $this->invoiceB2bRepository->getTotalInvoiceNeeded(date('Y-m'));
         $totalInvoiceNeededB2c = $this->invoiceProgramRepository->getTotalInvoiceNeeded(date('Y-m'));
-        // return $totalInvoiceNeededB2c;
+
+        $totalInvoiceB2b = $this->invoiceB2bRepository->getTotalInvoice(date('Y-m'));
+        $totalInvoiceB2c = $this->invoiceProgramRepository->getTotalInvoice(date('Y-m'));
+
+        $totalReceipt = $this->receiptRepository->getTotalReceipt(date('Y-m'));
+
+        $totalInvoiceNeeded = collect($totalInvoiceNeededB2b)->merge($totalInvoiceNeededB2c)->sum('count_invoice_needed');
+        $totalInvoice = collect($totalInvoiceB2b)->merge($totalInvoiceB2c);
+
+        // return $totalInvoiceB2b;
         // exit;
+
         return view('pages.dashboard.index')->with(
             [
-                'totalInvoiceNeeded' => $totalInvoiceNeededB2b,
+                'totalInvoiceNeeded' => $totalInvoiceNeeded,
+                'totalInvoice' => $totalInvoice,
+                'totalReceipt' => $totalReceipt,
             ]
         );
     }

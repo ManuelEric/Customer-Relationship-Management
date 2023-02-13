@@ -171,4 +171,15 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 ->get();
         }
     }
+
+    public function getTotalReceipt($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return Receipt::select(DB::raw('COUNT(id) as count_receipt'), DB::raw('CAST(SUM(receipt_amount_idr) as integer) as total'))
+            ->whereYear('created_at', '=', $year)
+            ->whereMonth('created_at', '=', $month)
+            ->get();
+    }
 }

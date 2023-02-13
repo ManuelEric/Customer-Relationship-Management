@@ -325,4 +325,15 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         $collection = collect($schProg);
         return $collection->merge($partnerProg);
     }
+
+    public function getTotalInvoice($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return Invb2b::select(DB::raw('COUNT(invb2b_num) as count_invoice'), DB::raw('CAST(sum(invb2b_totpriceidr) as integer) as total'))
+            ->whereYear('created_at', '=', $year)
+            ->whereMonth('created_at', '=', $month)
+            ->get();
+    }
 }

@@ -19,4 +19,5 @@ interface InvoiceB2bRepositoryInterface
     public function getReportUnpaidInvoiceB2b($start_date, $end_date);
     public function getTotalPartnershipProgram($monthYear);
     public function getTotalInvoiceNeeded($monthYear);
+    public function getTotalInvoice($monthYear);
 }
