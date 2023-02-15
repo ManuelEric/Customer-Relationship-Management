@@ -642,6 +642,59 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         })->sum('inv_totalprice_idr');
     }
 
+    public function getComparisonBetweenYears($cp_filter)
+    {
+        // return ClientProgram::with('program')->leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')
+        //     ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+        //     ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+        //     ->whereBetween(DB::raw('YEAR(tbl_client_prog.created_at)'), [$cp_filter['queryParams_year1'], $cp_filter['queryParams_year2']])
+        //     ->select([
+        //         'tbl_client_prog.prog_id',
+        //         // DB::raw('CONCAT(tbl_main_prog.prog_name, tbl_prog.prog_program) as program_name'),
+        //         DB::raw('SUM(tbl_inv.inv_totalprice_idr) as revenue'),
+        //         DB::raw('YEAR(tbl_client_prog.created_at) as year')
+        //     ])
+        //     ->groupBy(
+        //         'tbl_client_prog.prog_id',
+        //         // DB::raw('CONCAT(tbl_main_prog.prog_name, tbl_prog.prog_program)'),
+        //         DB::raw('YEAR(tbl_client_prog.created_at)')
+        //         )
+        //     ->get();
+
+        $userId = $this->getUser($cp_filter);
+
+        return DB::table('tbl_client_prog as cp')->
+            leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'cp.prog_id')->
+            leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->
+            select([
+                'cp.prog_id',
+                'tbl_main_prog.prog_name',
+                'tbl_prog.prog_program',
+                'revenue_year1' => DB::table('tbl_client_prog as scp')
+                    ->leftJoin('tbl_inv as si', 'si.clientprog_id', '=', 'scp.clientprog_id')
+                    ->whereRaw('scp.prog_id = cp.prog_id')
+                    ->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year1'])
+                    ->select([
+                        DB::raw('SUM(si.inv_totalprice_idr)')
+                    ]),
+                'revenue_year2' => DB::table('tbl_client_prog as scp')
+                    ->leftJoin('tbl_inv as si', 'si.clientprog_id', '=', 'scp.clientprog_id')
+                    ->whereRaw('scp.prog_id = cp.prog_id')
+                    ->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year2'])
+                    ->select([
+                        DB::raw('SUM(si.inv_totalprice_idr)')
+                    ])
+            ])
+            ->when($userId, function($query) use ($userId) {
+                $query->where('cp.empl_id', $userId);
+            })
+            ->when(isset($cp_filter['qprogs']), function ($query) use ($cp_filter) {
+                $query->whereIn('cp.prog_id', $cp_filter['qprogs']);
+            })
+            ->groupBy('cp.prog_id', 'tbl_main_prog.prog_name', 'tbl_prog.prog_program',)->get();
+
+    }
+
     # 
 
     private function getUser($cp_filter)

@@ -27,6 +27,5 @@ Route::get('login', function () {
 });
 
 Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
-
 // User 
 Route::resource('user/volunteer', VolunteerController::class);

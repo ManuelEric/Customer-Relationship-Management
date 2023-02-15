@@ -29,4 +29,5 @@ interface ClientProgramRepositoryInterface
     public function getConversionTimeProgress($dateDetails);
     public function getSuccessProgramByMonth($cp_filter);
     public function getTotalRevenueByProgramAndMonth($cp_filter);
+    public function getComparisonBetweenYears($cp_filter);
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
+use App\Interfaces\SalesTargetRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -14,13 +16,18 @@ class DashboardController extends Controller
     protected FollowupRepositoryInterface $followupRepository;
     protected ClientProgramRepositoryInterface $clientProgramRepository;
     protected UserRepositoryInterface $userRepository;
+    protected SalesTargetRepositoryInterface $salesTargetRepository;
+    protected ProgramRepositoryInterface $programRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, ClientProgramRepositoryInterface $clientProgramRepository, UserRepositoryInterface $userRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, ClientProgramRepositoryInterface $clientProgramRepository, UserRepositoryInterface $userRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->followupRepository = $followupRepository;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->userRepository = $userRepository;
+        $this->salesTargetRepository = $salesTargetRepository;
+        $this->programRepository = $programRepository;
+
     }
 
     public function index(Request $request)
@@ -32,6 +39,7 @@ class DashboardController extends Controller
 
     public function indexSales($request)
     {
+
         # data at the top of dashboard
         $month = date('Y-m');
         $filter = null;
@@ -70,8 +78,8 @@ class DashboardController extends Controller
                 # then null
                 # elif not admin
                 # their uuid
-                $cp_filter['quuid'] = null;
-                if ($request->get('quser')) {
+                
+                if (empty($request->get('quser'))) {
                     $cp_filter['quuid'] = $request->get('quser');
                 }
 
@@ -88,7 +96,7 @@ class DashboardController extends Controller
 
                 $initialAssessmentMaking = $this->clientProgramRepository->getInitialMaking($dateDetails);
                 $conversionTimeProgress = $this->clientProgramRepository->getConversionTimeProgress($dateDetails);
-                $successPercentage = ($successProgram/$totalInitialConsultation) * 100;
+                $successPercentage = $successProgram == 0 ? 0 : ($successProgram/$totalInitialConsultation) * 100;
                 $allSuccessProgramByMonth = $this->clientProgramRepository->getSuccessProgramByMonth($cp_filter);
                 $totalRevenueAdmMentoringByProgramAndMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $cp_filter);
                 $academicTestPrep = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Academic & Test Preparation'] + $cp_filter);
@@ -104,8 +112,18 @@ class DashboardController extends Controller
                 $careerExplorationConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, 'Career Exploration');
 
             # on sales target tab
+            $programId = null; # means all programs
+            $salesTarget = $this->salesTargetRepository->getMonthlySalesTarget($programId, $cp_filter);
+            $salesActual = $this->salesTargetRepository->getMonthlySalesActual($programId, $cp_filter);
+            
+            $salesDetail = $this->salesTargetRepository->getSalesDetail($programId, $cp_filter);
 
             # on program comparison tab
+            $allPrograms = $this->programRepository->getAllPrograms()->groupBy('main_prog.prog_name');
+            $cp_filter['queryParams_year1'] = date('Y') - 1;
+            $cp_filter['queryParams_year2'] = (int) date('Y');
+            
+            $comparisons = $this->clientProgramRepository->getComparisonBetweenYears($cp_filter);
 
             # on client event tab
 
@@ -137,6 +155,18 @@ class DashboardController extends Controller
                 'adminssionMentoringConvLead' => $adminssionMentoringConvLead,
                 'academicTestPrepConvLead' => $academicTestPrepConvLead,
                 'careerExplorationConvLead' => $careerExplorationConvLead,
+
+                # sales target tab
+                'salesTarget' => $salesTarget,
+                'salesActual' => $salesActual,
+                'salesDetail' => $salesDetail,
+
+                # program comparison
+                'allPrograms' => $allPrograms,
+                'comparisons' => $comparisons,
+
+                # client event tab
+
             ]
         );
     }

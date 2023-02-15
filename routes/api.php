@@ -22,3 +22,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 # dashboard sales
 Route::get('mentee/birthday/{month}', [SalesDashboardController::class, 'getMenteesBirthdayByMonth']);
+Route::get('get/program-comparison', [SalesDashboardController::class, 'compare_program']);

@@ -17,7 +17,8 @@ class RefundRepository implements RefundRepositoryInterface
         switch ($status) {
             case "needed":
             default:
-                $query = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
+                # query for client program
+                $query_b2c = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
                     ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
                     ->leftJoin('tbl_reason', 'tbl_reason.reason_id', '=', 'tbl_client_prog.reason_id')
                     ->leftJoin('users', 'users.id', '=', 'tbl_client_prog.empl_id')
@@ -41,6 +42,60 @@ class RefundRepository implements RefundRepositoryInterface
                         DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),                        
                         
                     ]);
+
+                # query for school program
+                // $query_b2b_school = Receipt::leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_receipt.invb2b_id')
+                //             ->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+                //             ->leftJoin('users', 'users.id', '=', 'tbl_sch_prog.empl_id')
+                //             ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
+                //             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+                //             ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                //             ->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')
+                //             ->leftJoin('users', 'users.id', '=', 'tbl_sch_prog.empl_id')
+                //             ->whereNotIn('tbl_invb2b.invb2b_id', Refund::pluck('invb2b_id'))
+                //             ->where('tbl_sch_prog.status', 3)
+                //             ->select([
+                //                 'tbl_sch_prog.id',
+                //                 'tbl_sch_prog.refund_date',
+                //                 'tbl_inv.inv_totalprice_idr as total_price',
+                //                 DB::raw('(SELECT SUM(re.receipt_amount_idr) FROM tbl_receipt re WHERE re.inv_id = tbl_inv.inv_id) as total_paid'),
+                //                 'tbl_client_prog.refund_notes',
+                //                 'tbl_reason.reason_name as refund_reason',
+                //                 DB::raw('CONCAT(users.first_name, " ", COALESCE(users.last_name, "")) as pic_name'),
+                //                 'tbl_inv.clientprog_id',
+                //                 'tbl_receipt.id',
+                //                 DB::raw('CONCAT(tbl_client.first_name, " ", COALESCE(tbl_client.last_name, "")) as client_fullname'),
+                //                 DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),                        
+                                
+                //             ]);
+
+                # query for partner program
+                // $query_b2b_partner = Receipt::leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_receipt.invb2b_id')
+                //             ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
+                //             ->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')
+                //             ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_partner_prog.prog_id')
+                //             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+                //             ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                //             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
+                //             ->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')
+                //             ->whereNotIn('tbl_invb2b.invb2b_id', Refund::pluck('invb2b_id'))
+                //             ->where('tbl_sch_prog.status', 3)
+                //             ->select([
+                //                 'tbl_client_prog.clientprog_id',
+                //                 'tbl_client_prog.refund_date',
+                //                 'tbl_inv.inv_totalprice_idr as total_price',
+                //                 DB::raw('(SELECT SUM(re.receipt_amount_idr) FROM tbl_receipt re WHERE re.inv_id = tbl_inv.inv_id) as total_paid'),
+                //                 'tbl_client_prog.refund_notes',
+                //                 'tbl_reason.reason_name as refund_reason',
+                //                 DB::raw('CONCAT(users.first_name, " ", COALESCE(users.last_name, "")) as pic_name'),
+                //                 'tbl_inv.clientprog_id',
+                //                 'tbl_receipt.id',
+                //                 DB::raw('CONCAT(tbl_client.first_name, " ", COALESCE(tbl_client.last_name, "")) as client_fullname'),
+                //                 DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),                        
+                                
+                //             ]);
+
+;
                 break;
 
             case "list":
