@@ -4,9 +4,20 @@
 
 @section('content')
 
+    @if(isset($invoiceSch) && count($invoiceSch->invoiceAttachment) > 0)
+        @foreach ($invoiceSch->invoiceAttachment as $key => $att)
+            @php
+                $isIdr[$key] = ($att->currency == 'idr');
+                $isOther[$key] = ($att->currency == 'other');
+                $isSigned[$key] = ($att->sign_status == 'signed');
+                $isNotYet[$key] = ($att->sign_status == 'not yet');
+            @endphp
+        @endforeach
+    @endif
+
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/school-program/status/needed') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Invoice 
+            <i class="bi bi-arrow-left me-2"></i> Invoice
         </a>
     </div>
 
@@ -36,56 +47,98 @@
                             </button>    
                         @endif
                     </div>
-                    @if (isset($invoiceSch))
-                        <div class="d-flex justify-content-center mt-2">
-                            @if($invoiceSch->currency != 'idr')
-                                {{-- <a href="{{  route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" 
-                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                                    <i class="bi bi-printer me-1"></i> Print Others
-                                </a> --}}
-                                {{-- {{  route('invoice-sch.request_sign', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }} --}}
-                                <a href="#export" id="print_other" 
-                                {{-- id="print_other" --}}
-                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                                    <i class="bi bi-printer me-1"></i> Print Others
-                                </a>
-                            @endif
-                            {{-- {{  route('invoice-sch.request_sign', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }} --}}
-                            <a href="#export" id="print_idr" 
-                            {{-- id="print_idr" --}}
-                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                                <i class="bi bi-printer me-1"></i> Print IDR
-                            </a>
-                        </div>
+                        @if (isset($invoiceSch) && count($invoiceSch->invoiceAttachment) > 0)
+                            <div class="d-flex justify-content-center mt-2">
+                                @if(count($invoiceSch->invoiceAttachment) > 1)
+                                    @foreach ($invoiceSch->invoiceAttachment as $attachment)
+                                        @if($attachment->sign_status == 'signed')
+                                            <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => $attachment->currency]) }}" 
+                                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                                <i class="bi bi-printer me-1"></i> Print {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }}
+                                            </a>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    @if($invoiceSch->invoiceAttachment[0]->sign_status == 'signed')
+                                        <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => $invoiceSch->invoiceAttachment[0]->currency]) }}" 
+                                            {{-- id="print_idr" --}}
+                                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                            <i class="bi bi-printer me-1"></i> Print {{$invoiceSch->invoiceAttachment[0]->currency == 'idr' ? 'IDR' : 'Others'}}
+                                        </a>
+                                    @endif            
+                                @endif
+                            </div>
+                        @endif
 
-                             @if (!isset($invoiceSch->refund) && isset($invoiceSch) && $invoiceSch->sign_status == 'not yet')
-                                <div class="d-flex justify-content-center mt-2">
-                                    <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
-                                        <i class="bi bi-pen me-1"></i> Request Sign
-                                    </button>
-
-                                    
-                                        @if (isset($invoiceSch) && $invoiceSch->currency != "idr")
-                                            <button class="btn btn-sm btn-outline-info rounded mx-1" id="request-acc-other">
-                                                <i class="bi bi-printer me-1"></i> Request Sign Foreign
+                        @if (!isset($invoiceSch->refund) && isset($invoiceSch))
+                            <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
+                                @if(count($invoiceSch->invoiceAttachment) > 0)
+                                    @if(count($invoiceSch->invoiceAttachment) > 1)
+                                        @foreach ($invoiceSch->invoiceAttachment as $key => $att)
+                                            @if(($isIdr[$key] && $isNotYet[$key]))
+                                                <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
+                                                    <i class="bi bi-pen me-1"></i> Request Sign IDR
+                                                </button>
+                                            @elseif(($isOther[$key] && $isNotYet[$key]) && $invoiceSch->currency != 'idr') 
+                                                <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
+                                                    <i class="bi bi-pen me-1"></i> Request Sign Other
+                                                </button>
+                                            @endif                                        
+                                        @endforeach
+                                    @else
+                                        @if(((!$isIdr[0] || !$isOther[0])) && $invoiceSch->currency != 'idr' && $isNotYet[0])
+                                            <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
+                                                <i class="bi bi-pen me-1"></i> Request Sign IDR
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
+                                                <i class="bi bi-pen me-1"></i> Request Sign Other
+                                            </button>
+                                        @elseif(($isNotYet[0] && $isIdr[0]) || ($isSigned[0] && $isOther[0]))
+                                            <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
+                                                <i class="bi bi-pen me-1"></i> Request Sign IDR
+                                            </button>
+                                        @elseif(($isNotYet[0] && $isOther[0]) || ($isSigned[0] && $isIdr[0]) && $invoiceSch->currency != 'idr')
+                                            <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
+                                                <i class="bi bi-pen me-1"></i> Request Sign Other
                                             </button>
                                         @endif
-                                </div>
-                            @else
-                                <div class="d-flex justify-content-center mt-2">
-                                    <a href="{{ route('invoice-sch.download', ['invoice' => $invoiceSch->invb2b_num]) }}">
-                                        <button class="btn btn-sm btn-outline-success rounded mx-1">
-                                            <i class="bi bi-download me-1"></i>
-                                            Download
+                                    @endif
+                                @else
+                                    @if($invoiceSch->currency == 'idr')
+                                        <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
+                                            <i class="bi bi-pen me-1"></i> Request Sign IDR
                                         </button>
-                                    </a>
-                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client">
-                                        <i class="bi bi-printer me-1"></i> Send Invoice to Client
-                                    </button>
-                                </div>
-                            @endif
+                                    @else
+                                        <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
+                                            <i class="bi bi-pen me-1"></i> Request Sign IDR
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
+                                            <i class="bi bi-pen me-1"></i> Request Sign Other
+                                        </button>
+                                    @endif
+                                @endif
+                            </div>
                         @endif
-                    {{-- </div> --}}
+
+                        @if (isset($invoiceSch) && count($invoiceSch->invoiceAttachment) > 0)
+                            <div class="d-flex justify-content-center">
+                                @if(count($invoiceSch->invoiceAttachment) > 1)
+                                    @foreach ($invoiceSch->invoiceAttachment as $attachment)
+                                        @if($attachment->sign_status == 'signed')
+                                            <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-{{ ($attachment->currency == 'idr' ? 'idr' : 'other') }}">
+                                                <i class="bi bi-printer me-1"></i> Send Invoice {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }} to Client
+                                            </button>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    @if($invoiceSch->invoiceAttachment[0]->sign_status == 'signed')
+                                        <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-{{ ($invoiceSch->invoiceAttachment[0]->currency == 'idr' ? 'idr' : 'other') }}">
+                                            <i class="bi bi-printer me-1"></i> Send Invoice {{ ($invoiceSch->invoiceAttachment[0]->currency == 'idr' ? 'IDR' : 'Others') }} to Client
+                                        </button>
+                                    @endif            
+                                @endif
+                            </div>
+                        @endif
                 </div>
             </div>
 
@@ -613,68 +666,30 @@
     @endif
 
         <script>
-            $(document).ready(function(){
-             
-
-                $("#print_other").on('click', function(e) {
-                e.preventDefault();
-
-                @if (isset($invoiceSch))
-                Swal.showLoading()                
-                axios
-                    .get('{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}', {
-                        responseType: 'arraybuffer'
-                    })
-                    .then(response => {
-                        console.log(response)
-
-                        let blob = new Blob([response.data], { type: 'application/pdf' }),
-                            url = window.URL.createObjectURL(blob)
-
-                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
-                        swal.close()
-                        notification('success', 'Invoice has been exported')
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong while exporting the invoice')
-                        swal.close()
-                    })
-                })
-
-                $("#print_idr").on('click', function(e) {
-                e.preventDefault();
-
-                 axios
-                    .get('{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}', {
-                        responseType: 'arraybuffer'
-                    })
-                    .then(response => {
-                        console.log(response)
-
-                        let blob = new Blob([response.data], { type: 'application/pdf' }),
-                            url = window.URL.createObjectURL(blob)
-
-                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
-                        swal.close()
-                        notification('success', 'Invoice has been exported')
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong while exporting the invoice')
-                        swal.close()
-                    })
-                })
-
-                @endif
-            })
+         
 
             @if (isset($invoiceSch))
-                $("#send-inv-client").on('click', function(e) {
+                $("#send-inv-client-idr").on('click', function(e) {
                     e.preventDefault()
                     Swal.showLoading()
-                    // var attachment = "{{ route('invoice-sch.download', ['invoice' => $invoiceSch->invb2b_num]) }}";
-                    // var link = 'https://api.whatsapp.com/send?phone=6285159825532&text=Test%20123%20%0Alink%20download%20';
                     axios
-                        .get('{{ route('invoice-sch.send_to_client', ['invoice' => $invoiceSch->invb2b_num]) }}')
+                        .get('{{ route('invoice-sch.send_to_client', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}')
+                        .then(response => {
+                            // window.open(link + attachment) 
+                            swal.close()
+                            notification('success', 'Invoice has been send to client')
+                        })
+                        .catch(error => {
+                            notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                            swal.close()
+                        })
+                })
+
+                $("#send-inv-client-other").on('click', function(e) {
+                    e.preventDefault()
+                    Swal.showLoading()
+                    axios
+                        .get('{{ route('invoice-sch.send_to_client', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}')
                         .then(response => {
                             // window.open(link + attachment) 
                             swal.close()

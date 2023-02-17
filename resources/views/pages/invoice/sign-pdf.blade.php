@@ -28,7 +28,7 @@
                 <button class="btn btn-danger btn-sm" onclick="clearPage()">Clear Page</button>
             </div>
             <div class="tool">
-                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ str_replace('/', '_', $invoice->invb2b_id) }}.pdf','{{ isset($invoice->schprog_id) ? url('api/invoice-sch/'.$invoice->invb2b_num.'/upload') : '' }}')"><i
+                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment }}','{{ isset($invoice->schprog_id) ? url('api/invoice-sch/'.$invoice->invb2b_num.'/'.$currency.'/upload') : '' }}')"><i
                         class="fa fa-save me-2"></i>
                     Save</button>
             </div>
@@ -39,7 +39,7 @@
 @endsection
 @section('script')
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$file_name.'.pdf') }}", {
+        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$attachment) }}", {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },

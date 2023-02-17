@@ -10,7 +10,7 @@
                     onclick="enableSelector(event)"></i></button>
         </div>
         <div class="tool">
-            <button class="btn btn-light btn-sm" onclick="savePDF('print','filename.pdf')"><i class="fa fa-print"
+            <button class="btn btn-light btn-sm" onclick="savePDF('print','{{$invoiceAttachment->attachment}}')"><i class="fa fa-print"
                     title="Print"></i> Print</button>
         </div>
     </div>
@@ -18,14 +18,14 @@
 @endsection
 @section('script')
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset('document.pdf') }}", {
+        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$invoiceAttachment->attachment) }}", {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },
             ready() {
                 console.log("Plugin initialized successfully");
             },
-            scale: 1.2,
+            scale: 1.7,
             pageImageCompression: "SLOW", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
         });
     </script>

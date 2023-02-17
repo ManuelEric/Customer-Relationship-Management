@@ -40,7 +40,6 @@
                         <div id="tot_receipt" class="text-end">
                             <h4 class="m-0 p-0 text-info">
                                 {{ $totalReceipt->sum('count_receipt') }}
-
                             </h4>
                             <h6 class="m-0">Rp. {{ number_format($totalReceipt->sum('total'), '2', ',', '.') }}</h6>
                         </div>
@@ -52,8 +51,8 @@
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="m-0 p-0">Outstanding Payment</h5>
                         <div id="reminder_need" class="text-end">
-                            <h3 class="m-0 p-0 text-danger">
-                                10
+                            <h3 class="m-0 p-0 text-danger" id="tot_outstanding">
+                                {{ $unpaidPayments->count() }}
                             </h3>
                         </div>
                     </div>
@@ -64,8 +63,8 @@
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="m-0 p-0">Refund Request</h5>
                         <div id="refund_request" class="text-end">
-                            <h3 class="m-0 p-0 text-danger">
-                                13
+                            <h3 class="m-0 p-0 text-danger" id="tot_refund">
+                                {{ $totalRefundRequest }}
                             </h3>
                         </div>
                     </div>
@@ -99,6 +98,12 @@
                 'total': 0,
                 'amount': 0
             },
+            'outstanding': {
+                'total': 0,
+            },
+            'refund':{
+                'total': 0
+            }
         }
 
         function total(arr) {
@@ -112,11 +117,12 @@
                 var html = ""
                 var no = 1;
 
-                console.log(result)
+                // console.log(result)
 
 
                 data['invoiceNeeded']['total'] = result.totalInvoiceNeeded
-                // data['invoice']['total'] = result.totalInvoiceNeeded
+                data['refund']['total'] = result.totalRefundRequest
+                data['outstanding']['total'] = result.totalOutstanding
 
                 result.totalInvoice.forEach(function (item, index) {
                     data['invoice']['total'] += item.count_invoice
@@ -151,6 +157,9 @@
                     rupiah(data.receipt.amount) +
                     '</h6>'
                 )
+
+                $('#tot_outstanding').html(data.outstanding.total)
+                $('#tot_refund').html(data.refund.total)
 
                 swal.close()
             }, (error) => {

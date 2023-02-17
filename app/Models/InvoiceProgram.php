@@ -149,9 +149,14 @@ class InvoiceProgram extends Model
         return $this->hasOne(Receipt::class, 'inv_id', 'inv_id');
     }
 
+
     public function refund()
     {
         return $this->hasOne(Refund::class, 'inv_id', 'inv_id');
     }
 
+    public function invoiceAttachment()
+    {
+        return $this->hasMany(InvoiceAttachment::class, 'inv_id', 'inv_id');
+    }
 }

@@ -33,15 +33,30 @@ class FinanceDashboardController extends Controller
         $totalInvoiceB2b = $this->invoiceB2bRepository->getTotalInvoice($monthYear);
         $totalInvoiceB2c = $this->invoiceProgramRepository->getTotalInvoice($monthYear);
 
+        $totalRefundRequestB2b = $this->invoiceB2bRepository->getTotalRefundRequest($monthYear);
+        $totalRefundRequestB2c = $this->invoiceProgramRepository->getTotalRefundRequest($monthYear);
+
         $totalReceipt = $this->receiptRepository->getTotalReceipt($monthYear);
 
         $totalInvoiceNeeded = collect($totalInvoiceNeededB2b)->merge($totalInvoiceNeededB2c)->sum('count_invoice_needed');
         $totalInvoice = collect($totalInvoiceB2b)->merge($totalInvoiceB2c);
 
+        $totalRefundRequest = collect($totalRefundRequestB2b)->merge($totalRefundRequestB2c)->sum('count_refund_request');
+
+        $unpaidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid', null, null);
+        $unpaidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
+
+        $unpaidPayments = collect($unpaidPaymentB2b)->merge($unpaidPaymentB2c);
+
+        $totalOutstanding = $unpaidPayments->count();
+
+
         $data = [
             'totalInvoiceNeeded' => $totalInvoiceNeeded,
             'totalInvoice' => $totalInvoice,
             'totalReceipt' => $totalReceipt,
+            'totalRefundRequest' => $totalRefundRequest,
+            'totalOutstanding' => $totalOutstanding,
         ];
 
         if ($data) {
@@ -59,43 +74,23 @@ class FinanceDashboardController extends Controller
         return response()->json($response);
     }
 
-    public function getSpeakerByDate(Request $request)
-    {
-        $date = $request->route('date');
-
-        $data = [
-            'allSpeaker' => $this->agendaSpeakerRepository->getAllSpeakerDashboard('byDate', $date),
-        ];
-
-        if ($data) {
-            $response = [
-                'success' => true,
-                'data' => $data
-            ];
-        } else {
-            $response = [
-                'success' => false,
-                'data' => null
-            ];
-        }
-
-        return response()->json($response);
-    }
-
-    public function getPartnershipProgramByMonth(Request $request)
+    public function getOutstandingPayment(Request $request)
     {
         $monthYear = $request->route('month');
 
-        $totalPartnership = $this->invoiceB2bRepository->getTotalPartnershipProgram($monthYear);
-        $totalPartnerProgram = $totalPartnership->where('type', 'partner_prog')->sum('invb2b_totpriceidr');
-        $totalSchoolProgram = $totalPartnership->where('type', 'sch_prog')->sum('invb2b_totpriceidr');
+        $paidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment($monthYear, 'paid');
+        $paidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment($monthYear, 'paid');
+
+        $paidPayments = collect($paidPaymentB2b)->merge($paidPaymentB2c);
+
+        $unpaidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
+        $unpaidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
+
+        $unpaidPayments = collect($unpaidPaymentB2b)->merge($unpaidPaymentB2c);
 
         $data = [
-            'statusSchoolPrograms' => $this->schoolProgramRepository->getStatusSchoolProgramByMonthly($monthYear),
-            'statusPartnerPrograms' => $this->partnerProgramRepository->getStatusPartnerProgramByMonthly($monthYear),
-            'referralTypes' => $this->referralRepository->getReferralTypeByMonthly($monthYear),
-            'totalPartnerProgram' => $totalPartnerProgram,
-            'totalSchoolProgram' => $totalSchoolProgram,
+            'paidPayments' => $paidPayments,
+            'unpaidPayments' => $unpaidPayments,
         ];
 
         if ($data) {
@@ -113,79 +108,25 @@ class FinanceDashboardController extends Controller
         return response()->json($response);
     }
 
-    public function getPartnershipProgramDetailByMonth(Request $request)
+    public function getOutstandingPaymentByPeriod(Request $request)
     {
-        $type = $request->route('type');
-        $status = $request->route('status');
-        $monthYear = $request->route('month');
+        $start_date = $request->route('start_date');
+        $end_date = $request->route('end_date');
+        // $monthYear = $request->route('month');
 
-        switch ($status) {
-            case 'Pending':
-                $status = 0;
-                break;
-            case 'Success':
-                $status = 1;
-                break;
-            case 'Denied':
-                $status = 2;
-                break;
-            case 'Refund':
-                $status = 3;
-                break;
-            case 'Referral IN':
-                $status = 'In';
-                break;
-            case 'Referral Out':
-                $status = 'Out';
-                break;
-        }
+        $paidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment(null, 'paid', $start_date, $end_date);
+        $paidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment(null, 'paid', $start_date, $end_date);
 
-        switch ($type) {
-            case 'school':
-                $data = $this->schoolProgramRepository->getAllSchoolProgramByStatusAndMonth($status, $monthYear);
-                break;
-            case 'partner':
-                $data = $this->partnerProgramRepository->getAllPartnerProgramByStatusAndMonth($status, $monthYear);
-                break;
-            case 'referral':
-                $data = $this->referralRepository->getAllReferralByTypeAndMonth($status, $monthYear);
-                break;
-        }
+        $paidPayments = collect($paidPaymentB2b)->merge($paidPaymentB2c);
 
+        $unpaidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment(null, 'unpaid', $start_date, $end_date);
+        $unpaidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment(null, 'unpaid', $start_date, $end_date);
 
-        if ($data) {
-            $response = [
-                'success' => true,
-                'data' => $data
-            ];
-        } else {
-            $response = [
-                'success' => false,
-                'data' => null
-            ];
-        }
-
-        return response()->json($response);
-    }
-
-    public function getProgramComparison(Request $request)
-    {
-        $startYear = $request->route('start_year');
-        $endYear = $request->route('end_year');
-
-        $schoolProgramMerge = $this->schoolProgramRepository->getSchoolProgramComparison($startYear, $endYear);
-        $partnerProgramMerge = $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear);
-        $referralMerge = $this->referralRepository->getReferralComparison($startYear, $endYear);
-
-        $programComparisonMerge = $this->mergeProgramComparison($schoolProgramMerge, $partnerProgramMerge, $referralMerge);
-
-        $programComparisons = $this->mappingProgramComparison($programComparisonMerge);
+        $unpaidPayments = collect($unpaidPaymentB2b)->merge($unpaidPaymentB2c);
 
         $data = [
-            'programComparisons' => $programComparisons,
-            'partnerPrograms' => $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear),
-            'totalSch' => $this->schoolProgramRepository->getTotalSchoolProgramComparison($startYear, $endYear),
-            'totalPartner' => $this->partnerProgramRepository->getTotalPartnerProgramComparison($startYear, $endYear),
+            'paidPayments' => $paidPayments,
+            'unpaidPayments' => $unpaidPayments,
         ];
 
         if ($data) {
@@ -203,28 +144,67 @@ class FinanceDashboardController extends Controller
         return response()->json($response);
     }
 
-    protected function mappingProgramComparison($data)
+    public function getRevenueByYear(Request $request)
     {
-        return $data->mapToGroups(function ($item, $key) {
-            return [
-                $item['program_name'] . ' - ' . $item['type'] => [
-                    'program_name' => $item['program_name'],
-                    'type' => $item['type'],
-                    'year' => $item['year'],
+        $year = $request->route('year');
 
-                    $item['year'] =>
-                    [
-                        'participants' => $item['participants'],
-                        'total' => $item['total'],
-                    ]
-                ],
+        $revenueB2b = $this->invoiceB2bRepository->getRevenueByYear($year);
+        $revenueB2c = $this->invoiceProgramRepository->getRevenueByYear($year);
+
+        $revenue = collect($revenueB2b)->merge($revenueB2c)->groupBy('month')->map(
+            function ($row) {
+                return $row->sum('total');
+            }
+        );
+
+        $data = [
+            'totalRevenue' => $revenue,
+            // 'unpaidPayments' => $unpaidPayments,
+        ];
+
+        if ($data) {
+            $response = [
+                'success' => true,
+                'data' => $data
             ];
-        });
+        } else {
+            $response = [
+                'success' => false,
+                'data' => null
+            ];
+        }
+
+        return response()->json($response);
     }
 
-    protected function mergeProgramComparison($schoolProgram, $partnerProgram, $referral)
+    public function getRevenueDetailByMonth(Request $request)
     {
-        $collection = collect($schoolProgram);
-        return $collection->merge($partnerProgram)->merge($referral);
+        $monthYear = $request->route('year') . '-' . $request->route('month');
+
+
+        $paidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment($monthYear, 'paid');
+        $paidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment($monthYear, 'paid');
+
+        $paidPayments = collect($paidPaymentB2b)->merge($paidPaymentB2c);
+
+
+        $data = [
+            'revenueDetail' => $paidPayments,
+            // 'unpaidPayments' => $unpaidPayments,
+        ];
+
+        if ($data) {
+            $response = [
+                'success' => true,
+                'data' => $data
+            ];
+        } else {
+            $response = [
+                'success' => false,
+                'data' => null
+            ];
+        }
+
+        return response()->json($response);
     }
 }

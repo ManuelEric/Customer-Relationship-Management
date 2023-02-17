@@ -21,6 +21,7 @@ use App\Interfaces\EdufReviewRepositoryInterface;
 use App\Interfaces\EmployeeRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
+use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
@@ -78,6 +79,7 @@ use App\Repositories\EdufReviewRepository;
 use App\Repositories\EmployeeRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\FollowupRepository;
+use App\Repositories\InvoiceAttachmentRepository;
 use App\Repositories\InvoiceProgramRepository;
 use App\Repositories\InvoiceDetailRepository;
 use App\Repositories\InvoiceB2bRepository;
@@ -182,6 +184,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(RefundRepositoryInterface::class, RefundRepository::class);
         $this->app->bind(UserTypeRepositoryInterface::class, UserTypeRepository::class);
         $this->app->bind(SchoolVisitRepositoryInterface::class, SchoolVisitRepository::class);
+        $this->app->bind(InvoiceAttachmentRepositoryInterface::class, InvoiceAttachmentRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);

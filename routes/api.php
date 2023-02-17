@@ -36,7 +36,11 @@ Route::get('partner/partnership-program/program-comparison/{start_year}/{end_yea
 
 # dashboard finance
 Route::get('finance/total/{month}', [FinanceDashboardController::class, 'getTotalByMonth']);
+Route::get('finance/outstanding/{month}', [FinanceDashboardController::class, 'getOutstandingPayment']);
+Route::get('finance/revenue/{year}', [FinanceDashboardController::class, 'getRevenueByYear']);
+Route::get('finance/revenue/detail/{year}/{month}', [FinanceDashboardController::class, 'getRevenueDetailByMonth']);
+Route::get('finance/outstanding/period/{start_date}/{end_date}', [FinanceDashboardController::class, 'getOutstandingPaymentByPeriod']);
 
 
 Route::post('/upload', [InvoiceProgramController::class, 'upload']);
-Route::post('invoice-sch/{invoice}/upload', [InvoiceSchoolController::class, 'upload']);
+Route::post('invoice-sch/{invoice}/{currency}/upload', [InvoiceSchoolController::class, 'upload']);

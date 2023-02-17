@@ -252,6 +252,9 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 				formData.append("pdfFile", data, fileName);
 				axios.post(route, formData).then(function (response) {
 					console.log(response.data);
+					if(response.data.status == 'success'){
+						alert('Invoice saved successfully')
+					}
 				}).catch(function (error) {
 					console.log(error);
 				});

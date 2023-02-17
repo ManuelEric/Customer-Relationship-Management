@@ -160,27 +160,32 @@ class ReportController extends Controller
 
         $totalAmount = $invoiceB2bReport->sum('invb2b_totpriceidr') + $invoiceB2cReport->sum('inv_totalprice_idr');
 
+        $totalUnpaid = $invoiceMerge->where('receipt_id', null)->sum('total_price_inv');
+
         $totalReceipt = 0;
         $totalPaid = 0;
-        $remaining = 0;
+        $totalDiff = 0;
         foreach ($invoices as $invoice) {
             if (isset($invoice->receipt_id)) {
-                $totalReceipt += (int)filter_var($invoice->receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
+                $totalReceipt += $invoice->receipt_amount_idr;
+                $totalDiff += $invoice->receipt_amount_idr > $invoice->total_price_inv ? $invoice->receipt_amount_idr - $invoice->total_price_inv : 0;
             }
         }
 
         if ($totalReceipt > 0) {
-            $totalPaid = substr($totalReceipt, 0, -2);
-            $remaining = $totalAmount - $totalPaid;
+            $totalPaid = $totalReceipt;
         }
 
+        // return $totalDiff;
+        // exit;
 
         return view('pages.report.unpaid-payment.index')->with(
             [
                 'invoices' => $invoices,
                 'totalAmount' => $totalAmount,
                 'totalPaid' => $totalPaid,
-                'remaining' => $remaining
+                'totalDiff' => $totalDiff,
+                'remaining' => $totalUnpaid
             ]
         );
     }

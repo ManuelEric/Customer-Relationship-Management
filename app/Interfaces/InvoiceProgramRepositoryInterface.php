@@ -13,4 +13,7 @@ interface InvoiceProgramRepositoryInterface
     public function getReportUnpaidInvoiceB2c($start_date, $end_date);
     public function getTotalInvoiceNeeded($monthYear);
     public function getTotalInvoice($monthYear);
+    public function getTotalRefundRequest($monthYear);
+    public function getInvoiceOutstandingPayment($monthYear, $type, $start_date = null, $end_date = null);
+    public function getRevenueByYear($year);
 }

@@ -20,4 +20,7 @@ interface InvoiceB2bRepositoryInterface
     public function getTotalPartnershipProgram($monthYear);
     public function getTotalInvoiceNeeded($monthYear);
     public function getTotalInvoice($monthYear);
+    public function getTotalRefundRequest($monthYear);
+    public function getInvoiceOutstandingPayment($monthYear, $type, $start_date = null, $end_date = null);
+    public function getRevenueByYear($year);
 }

@@ -40,10 +40,7 @@
                     <div class="d-flex justify-content-between">
                         <strong>Paid</strong>
                         <div class="text-end">
-                        
-                                
-                                Rp. {{ number_format($totalPaid, '2', ',', '.') }}
-                       
+                                Rp. {{ number_format($totalPaid, '2', ',', '.') }} {{ $totalDiff > 0 ? '( Rp. '. number_format($totalDiff, '2', ',', '.') .')' : '' }}                       
                         </div>
                     </div>
                     <hr class="my-2">
@@ -136,7 +133,7 @@
                                         
                                         {{-- Amount --}}
                                          @if(isset($invoice->receipt_id))
-                                            <td>Rp. {{ number_format($invoice->receipt_amount_idr, '2', ',', '.') }}</td>
+                                            <td>Rp. {{ number_format($invoice->receipt_amount_idr, '2', ',', '.') }} {{ $invoice->receipt_amount_idr > $invoice->total_price_inv ? '( Rp.'. number_format($invoice->receipt_amount_idr - $invoice->total_price_inv, '2', ',', '.') .')' : '' }}</td>
                                         @else
                                             <td class="text-center">-</td>
                                         @endif

@@ -171,4 +171,9 @@ class Invb2b extends Model
     {
         return $this->hasOne(PartnerProg::class, 'id', 'partnerprog_id');
     }
+
+    public function invoiceAttachment()
+    {
+        return $this->hasMany(InvoiceAttachment::class, 'invb2b_id', 'invb2b_id');
+    }
 }
