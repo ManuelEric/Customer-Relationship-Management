@@ -117,6 +117,10 @@
                     },
                     {
                         data: 'joined_date',
+                        render: function(data, type, row, meta) {
+                            return moment(data).format('dddd, DD MMM YYYY');
+
+                        }
                     },
                     {
                         data: 'status',

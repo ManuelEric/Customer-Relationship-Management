@@ -165,7 +165,7 @@ class ClientRepository implements ClientRepositoryInterface
             ->make(true);
     }
 
-    public function getAllClientByRole($roleName, $filter = null) # mentee, parent, teacher
+    public function getAllClientByRole($roleName, $month = null) # mentee, parent, teacher
     {
         return UserClient::when($roleName == "alumni", function($query) {
             $query->whereHas('clientProgram', function ($q2) {
@@ -182,8 +182,8 @@ class ClientRepository implements ClientRepositoryInterface
             $query->whereHas('roles', function ($query2) use ($roleName) {
                 $query2->where('role_name', $roleName);
             });
-        })->when($filter, function ($query) use ($filter) {
-            $query->whereMonth('tbl_client.created_at', date('m', strtotime($filter)))->whereYear('tbl_client.created_at', date('Y', strtotime($filter)));
+        })->when($month, function ($query) use ($month) {
+            $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
         })->get();
     }
 
@@ -319,18 +319,18 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     # dashboard
-    public function getCountTotalClientByStatus($status, $filter = null)
+    public function getCountTotalClientByStatus($status, $month = null)
     {
-        return Client::where('st_statuscli', $status)->when($filter, function($query) use ($filter) {
-            $query->whereMonth('created_at', date('m', strtotime($filter)))->whereYear('created_at', date('Y', strtotime($filter)));
+        return Client::where('st_statuscli', $status)->when($month, function($query) use ($month) {
+            $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
         })->whereHas('roles', function($query) {
             $query->where('role_name', 'Student');
         })->count();
     }
 
-    public function getMenteesBirthdayMonthly($filter)
+    public function getMenteesBirthdayMonthly($month)
     {
-        return Client::whereMonth('created_at', date('m', strtotime($filter)))->whereYear('created_at', date('Y', strtotime($filter)))->whereHas('roles', function($query) {
+        return Client::whereMonth('dob', date('m', strtotime($month)))->whereHas('roles', function($query) {
             $query->where('role_name', 'Student');
         })->where('st_statusact', 1)->get();
     }

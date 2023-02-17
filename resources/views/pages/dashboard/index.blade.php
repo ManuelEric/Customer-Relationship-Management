@@ -67,16 +67,6 @@
             return            
         }
         
-        // $(document).ready(function() {
-        //     var type = '{{ Request::get('type') }}'
-        //     var tab = '{{ Request::get('tab') }}'
-
-        //     $('.dashboard-' + type).addClass('d-none')
-        //     $('#' + tab + '.dashboard-' + type).removeClass('d-none')
-        //     $('.nav-link.' + type).removeClass('active')
-        //     $('.nav-link.' + type + '.' + tab).addClass('active')
-        // })
-        
         const formatRupiah = (money) => {
             return new Intl.NumberFormat('id-ID',
                 { style: 'currency', currency: 'IDR' }
@@ -85,18 +75,11 @@
     </script>
     <script type="text/javascript">
         $("#cp_employee").on('change', function() {
-            if ($(this).val() != "all" && $(this).val() != null) {
+            
+            var month = $(".qdate").val()
+            var uuid = $(this).val() == "all" ? null : $(this).val()
 
-                const searchParams = new URLSearchParams({'quser': $(this).val()})
-                location.href = "?" + searchParams
-                return
-            }
-
-            let url = window.location.href
-            let urlObj = new URL(url)
-            urlObj.search = ''
-            const result = urlObj.toString()
-            window.location = result
+            reloadChart(month, uuid)
             
         })
 
@@ -104,5 +87,27 @@
             placeholder: "Select value",
             allowClear: true
         });
+
+        $(".qdate").on('change', function() {
+    
+            var month = $(this).val()
+            var uuid = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
+
+            reloadChart(month, uuid)
+
+        })
+
+        function reloadChart(month, uuid) {
+            get_client_program_status(month, uuid)
+            get_successful_program(month, uuid)
+            get_admission_program(month, uuid)
+            get_initial_consultation(month, uuid)
+            get_academic_prep(month, uuid)
+            get_career_exploration(month, uuid)
+            get_conversion_leads(month, uuid)
+            get_admission_mentoring_lead(month, uuid)
+            get_academic_prep_lead(month, uuid)
+            get_career_exp_lead(month, uuid)
+        }
     </script>
 @endsection

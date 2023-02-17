@@ -82,7 +82,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-6 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label>Start Date </label>
                                 <input type="datetime-local" name="event_startdate"
                                     value="{{ isset($event->event_startdate) ? $event->event_startdate : old('event_startdate') }}"
@@ -91,12 +91,21 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-6 mb-2">
+                            <div class="col-md-4 mb-2">
                                 <label>End Date </label>
                                 <input type="datetime-local" name="event_enddate"
                                     value="{{ isset($event->event_enddate) ? $event->event_enddate : old('event_enddate') }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
                                 @error('event_enddate')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label>Target </label>
+                                <input type="number" name="event_target"
+                                    value="{{ isset($event->event_target) ? $event->event_target : old('event_target') }}"
+                                    class="form-control form-control-sm rounded" {{ $disabled }}>
+                                @error('event_target')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>

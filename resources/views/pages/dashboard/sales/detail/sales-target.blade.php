@@ -2,7 +2,7 @@
     <div class="card-body">
         <div class="row justify-content-end mb-2">
             <div class="col-md-2">
-                <input type="month" class="form-control form-control-sm" value="{{ date('Y-m') }}">
+                <input type="month" class="form-control form-control-sm" value="{{ Request::get('qdate') ?? date('Y-m') }}">
             </div>
         </div>
         <div class="row">
@@ -69,11 +69,11 @@
     const dataset_sales_target = new Array();
     const dataset_sales_actual = new Array();
 
-    dataset_sales_target.push({{ $salesTarget->total_participant }})
-    dataset_sales_target.push({{ $salesActual->total_participant }})
+    dataset_sales_target.push({{ $salesTarget->total_participant ?? 0 }})
+    dataset_sales_target.push({{ $salesActual->total_participant ?? 0 }})
     
-    dataset_sales_actual.push({{ $salesTarget->total_target }})
-    dataset_sales_actual.push({{ $salesActual->total_target }})
+    dataset_sales_actual.push({{ $salesTarget->total_target ?? 0 }})
+    dataset_sales_actual.push({{ $salesActual->total_target ?? 0 }})
 
     new Chart(st, {
         data: {

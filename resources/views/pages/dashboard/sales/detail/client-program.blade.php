@@ -4,7 +4,7 @@
             <div class="card-body">
                 <div class="row justify-content-end mb-2">
                     <div class="col-md-2">
-                        <input type="month" class="form-control form-control-sm" value="{{ date('Y-m') }}">
+                        <input type="month" class="form-control form-control-sm qdate" value="{{ Request::get('qdate') ?? date('Y-m') }}">
                     </div>
                 </div>
                 <div class="row ">
@@ -19,14 +19,14 @@
                                 Successful Program
                             </div>
                             <div class="card-body overflow-auto" style="height: 350px">
-                                <ul class="list-group">
+                                <ul class="list-group" id="successful-program">
                                     @forelse ($allSuccessProgramByMonth as $detail)
                                         <li class="list-group-item d-flex justify-content-between">
                                             <div class="">{{ $detail->program_name_st }}</div>
                                             <span class="badge badge-primary">{{ $detail->total_client_per_program }}</span>
                                         </li>
                                     @empty
-                                        There's no success program
+                                        There's no success programs
                                     @endforelse
                                 </ul>
                             </div>
@@ -55,7 +55,7 @@
                                                                             <tr>
                                                                                 <td>Total Initial Consultation</td>
                                                                                 <td class="text-end">
-                                                                                    <span class="badge badge-info">
+                                                                                    <span class="badge badge-info init-consult-details">
                                                                                         {{ $totalInitialConsultation }}
                                                                                     </span>
                                                                                 </td>
@@ -63,7 +63,7 @@
                                                                             <tr>
                                                                                 <td>Success Program</td>
                                                                                 <td class="text-end">
-                                                                                    <span class="badge badge-info">
+                                                                                    <span class="badge badge-info init-consult-details">
                                                                                         {{ $successProgram }}
                                                                                     </span>
                                                                                 </td>
@@ -71,7 +71,7 @@
                                                                             <tr>
                                                                                 <td>Initial Assessment Making</td>
                                                                                 <td class="text-end">
-                                                                                    <span class="badge badge-info">
+                                                                                    <span class="badge badge-info init-consult-details">
                                                                                         {{ isset($initialAssessmentMaking) ? (int)$initialAssessmentMaking->initialMaking : 0 }} Days
                                                                                     </span>
                                                                                 </td>
@@ -79,7 +79,7 @@
                                                                             <tr>
                                                                                 <td>Conversion Time Progess</td>
                                                                                 <td class="text-end">
-                                                                                    <span class="badge badge-info">
+                                                                                    <span class="badge badge-info init-consult-details">
                                                                                         {{ isset($conversionTimeProgress) ? (int)$conversionTimeProgress->conversionTime : 0 }} Days
                                                                                     </span>
                                                                                 </td>
@@ -87,7 +87,7 @@
                                                                             <tr>
                                                                                 <td>Success Percentage</td>
                                                                                 <td class="text-end">
-                                                                                    <span class="badge badge-info">
+                                                                                    <span class="badge badge-info init-consult-details">
                                                                                         {{ $successPercentage }}%
                                                                                     </span>
                                                                                 </td>
@@ -100,7 +100,7 @@
                                                     </div>
                                                     <div class="card-header d-flex justify-content-between">
                                                         <div>Total :</div>
-                                                        <div>Rp. {{ number_format($totalRevenueAdmissionMentoring,'2',',','.') }}</div>
+                                                        <div class="init-consult-details">Rp. {{ number_format($totalRevenueAdmissionMentoring,'2',',','.') }}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -116,7 +116,7 @@
                                     </div>
                                     <div class="card-header d-flex justify-content-between">
                                         <div>Total :</div>
-                                        <div>Rp. {{ number_format($totalRevenueAcadTestPrepByMonth,'2',',','.') }}</div>
+                                        <div class="academic-prep-details">Rp. {{ number_format($totalRevenueAcadTestPrepByMonth,'2',',','.') }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -127,7 +127,7 @@
                                     </div>
                                     <div class="card-header d-flex justify-content-between">
                                         <div>Total :</div>
-                                        <div>Rp. {{ number_format($totalRevenueCareerExplorationByMonth,'2',',','.') }}</div>
+                                        <div class="career-exp-details">Rp. {{ number_format($totalRevenueCareerExplorationByMonth,'2',',','.') }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -140,6 +140,164 @@
     </div>
 </div>
 
+
+<script async type="text/javascript">
+    var client_program_status_chart, admission_mentoring_chart, initial_consult_chart, academic_prep_chart, career_exploration_chart = null;
+
+
+    function get_successful_program(month = null, user = null)
+    {
+        var today = new Date()
+
+        if (!month)
+            month = moment(today).format('YYYY-MM')
+
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/successful-program/' + month + '/' + user
+
+        axios.get(url)
+            .then(function (response) {
+                var obj = response.data.data
+                $("#successful-program").html(obj.html_txt);
+
+            }).catch (function (error) {
+                notification('error', 'Ooops! Something went wrong. Please try again.')
+
+            })
+    }
+
+    function get_client_program_status(month = null, user = null)
+    {
+        var today = new Date()
+
+        if (!month)
+            month = moment(today).format('YYYY-MM')
+
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/client-program/' + month + '/' + user
+
+        axios.get(url)
+            .then(function (response) {
+                
+                var obj = response.data.data
+                client_program_status_chart.data.datasets[0].data = obj
+                client_program_status_chart.update();
+                
+
+            }).catch(function (error) {
+                notification('error', 'Ooops! Something went wrong. Please try again.')
+            })
+        
+    }
+
+    function get_admission_program(month = null, user = null)
+    {
+        var today = new Date()
+
+        if (!month)
+            month = moment(today).format('YYYY-MM')
+
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/admissions-mentoring/' + month + '/' + user
+
+        axios.get(url)
+           .then(function (response) {
+            
+                var obj = response.data.data
+                admission_mentoring_chart.data.datasets[0].data = obj
+                admission_mentoring_chart.update();
+
+            }).catch(function (error) {
+                notification('error', 'Ooops! Something went wrong. Please try again.')
+            })
+    }
+
+    function get_initial_consultation(month = null, user = null)
+    {   
+        var today = new Date()
+
+        if (!month)
+            month = moment(today).format('YYYY-MM')
+
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/initial-consultation/' + month + '/' + user
+
+        axios.get(url)
+           .then(function (response) {
+            
+                var obj = response.data.data
+                initial_consult_chart.data.datasets[0].data = obj.ctx
+                initial_consult_chart.update();
+
+                $(".init-consult-details").each(function(index) {
+                    $(this).html(obj.details[index])
+                })
+
+            }).catch(function (error) {
+                notification('error', 'Ooops! Something went wrong. Please try again.')
+            })
+    }
+
+    function get_academic_prep(month = null, user = null)
+    {
+        var today = new Date()
+
+        if (!month)
+            month = moment(today).format('YYYY-MM')
+
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/academic-prep/' + month + '/' + user
+
+        axios.get(url)
+           .then(function (response) {
+            
+                var obj = response.data.data
+                academic_prep_chart.data.datasets[0].data = obj.ctx
+                academic_prep_chart.update();
+
+                $(".academic-prep-details").html(obj.total_revenue)
+
+            }).catch(function (error) {
+                notification('error', 'Ooops! Something went wrong. Please try again.')
+            })
+    }
+
+    function get_career_exploration(month = null, user = null)
+    {
+        var today = new Date()
+
+        if (!month)
+            month = moment(today).format('YYYY-MM')
+
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/career-exploration/' + month + '/' + user
+
+        axios.get(url)
+        .then(function (response) {
+            
+                var obj = response.data.data
+                career_exploration_chart.data.datasets[0].data = obj.ctx
+                career_exploration_chart.update();
+
+                $(".career-exp-details").html(obj.total_revenue)
+
+            }).catch(function (error) {
+                notification('error', 'Ooops! Something went wrong. Please try again.')
+            })
+    }
+</script>
 <script>
     // percentage 
     let lbl_client_prog = [{
@@ -170,23 +328,22 @@
         backgroundColor: '#192e54',
     }]
 
-
+    get_client_program_status()
     // Overall 
-    const all = document.getElementById('clientProgram');
-
-    // create a dataset for clientprogram by status
-    var dataset_programstatus = new Array()
+    const all = document.getElementById('clientProgram');      
+    
+    var dataset_program = new Array()
     @foreach ($clientProgramGroupByStatus as $key => $val)
-        dataset_programstatus.push({{ (int)$val }})
+        dataset_program.push({{ (int)$val }})
     @endforeach
 
-    new Chart(all, {
+    var client_program_status_chart = new Chart(all, {
         type: 'bar',
         data: {
             labels: ['Pending', 'Failed', 'Success', 'Refund'],
             datasets: [{
                 label: '',
-                data: dataset_programstatus,
+                data: dataset_program,
                 backgroundColor: [
                     '#fd7e14',
                     '#dc3545',
@@ -220,6 +377,7 @@
             }
         }
     });
+    
 
     // Admissions Program 
     const adm = document.getElementById('admissionsProgram');
@@ -230,7 +388,7 @@
         dataset_admentoring.push({{ (int)$val }})
     @endforeach
 
-    new Chart(adm, {
+    var admission_mentoring_chart = new Chart(adm, {
         type: 'doughnut',
         data: {
             labels: ['Pending', 'Failed', 'Success', 'Refund'],
@@ -277,7 +435,7 @@
         dataset_acadtestprep.push({{ (int)$val }})
     @endforeach
 
-    new Chart(acad, {
+    var academic_prep_chart = new Chart(acad, {
         type: 'doughnut',
         data: {
             labels: ['Pending', 'Failed', 'Success', 'Refund'],
@@ -324,7 +482,7 @@
         dataset_careerexploration.push({{ (int)$val }})
     @endforeach
 
-    new Chart(career, {
+    var career_exploration_chart = new Chart(career, {
         type: 'doughnut',
         data: {
             labels: ['Pending', 'Failed', 'Success', 'Refund'],
@@ -370,7 +528,7 @@
         dataset_initconsult.push({{ (int)$val }})
     @endforeach
 
-    new Chart(ic, {
+    var initial_consult_chart = new Chart(ic, {
         type: 'pie',
         data: {
             labels: ['Soon', 'Already', 'Success'],

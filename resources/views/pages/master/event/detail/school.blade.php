@@ -14,7 +14,7 @@
     </div>
     <div class="card-body">
         @if (isset($schoolEvent))
-            @foreach ($schoolEvent as $school)
+            @forelse ($schoolEvent as $school)
                 <div class="list-group">
                     <div class="d-flex list-group-item justify-content-between">
                         <div class="">
@@ -25,7 +25,9 @@
                         </div>
                     </div>
                 </div>
-            @endforeach
+                @empty
+                There's no school
+            @endforelse
         @endif
     </div>
 </div>

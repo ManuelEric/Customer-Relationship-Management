@@ -243,7 +243,7 @@
                                         Event</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('*/program/*') || Request::is('program/*') ? 'active' : '' }}"
+                                    <a class="nav-link {{ Request::is('*/program/client*') || Request::is('program/client*') ? 'active' : '' }}"
                                         href="{{ url('program/client') }}">Client
                                         Program</a>
                                 </li>

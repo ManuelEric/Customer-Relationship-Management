@@ -271,6 +271,9 @@ class ClientProgramController extends Controller
 
                 # when program status is active
             case 1:
+                # declare default variable
+                $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
+
                 # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
 
@@ -287,7 +290,7 @@ class ClientProgramController extends Controller
                     // $clientProgramDetails['main_mentor'] = $request->main_mentor;
                     // $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
-                    $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
+                    $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     # add additional values
@@ -297,7 +300,7 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['prog_end_date'] = $request->prog_end_date;
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
                     // $clientProgramDetails['tutor_id'] = $request->tutor_id;
-                    $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
+                    $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
                 } elseif (in_array($progId, $this->satact_prog_list)) {
 
                     # add additional values
@@ -308,7 +311,7 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['test_score'] = $request->test_score;
                     // $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     // $clientProgramDetails['tutor_2'] = $request->tutor_2;
-                    $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
+                    $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
                 }
 
                 if (in_array($progId, $this->admission_prog_list)) {
@@ -323,7 +326,6 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     $clientProgramDetails['tutor_2'] = $request->tutor_2;
                 }
-
                 break;
 
                 # when program status is failed

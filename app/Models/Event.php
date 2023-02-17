@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\pivot\AgendaSpeaker;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,8 +29,16 @@ class Event extends Model
         'event_location',
         'event_startdate',
         'event_enddate',
-        'status'
+        'status',
+        'event_target',
     ];
+
+    protected function eventTarget(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value == null ? 0 : $value,
+        );
+    }
 
     public static function whereEventId($id)
     {

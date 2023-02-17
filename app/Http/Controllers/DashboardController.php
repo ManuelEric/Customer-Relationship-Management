@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SalesTargetRepositoryInterface;
@@ -18,8 +20,10 @@ class DashboardController extends Controller
     protected UserRepositoryInterface $userRepository;
     protected SalesTargetRepositoryInterface $salesTargetRepository;
     protected ProgramRepositoryInterface $programRepository;
+    protected ClientEventRepositoryInterface $clientEventRepository;
+    protected EventRepositoryInterface $eventRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, ClientProgramRepositoryInterface $clientProgramRepository, UserRepositoryInterface $userRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, ClientProgramRepositoryInterface $clientProgramRepository, UserRepositoryInterface $userRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->followupRepository = $followupRepository;
@@ -27,6 +31,8 @@ class DashboardController extends Controller
         $this->userRepository = $userRepository;
         $this->salesTargetRepository = $salesTargetRepository;
         $this->programRepository = $programRepository;
+        $this->clientEventRepository = $clientEventRepository;
+        $this->eventRepository = $eventRepository;
 
     }
 
@@ -64,7 +70,7 @@ class DashboardController extends Controller
         $employees = $this->userRepository->getAllUsersByRole('employee');
         
             # on client program tab
-                $cp_filter['qdate'] = date('Y-m');
+                $cp_filter['qdate'] = $request->get('qdate') ?? date('Y-m');
                 if ($request->get('cp-month')) { # format Y-m
                     $cp_filter['qdate'] = $request->get('cp-month');
                 }
@@ -79,7 +85,7 @@ class DashboardController extends Controller
                 # elif not admin
                 # their uuid
                 
-                if (empty($request->get('quser'))) {
+                if ($request->get('quser')) {
                     $cp_filter['quuid'] = $request->get('quser');
                 }
 
@@ -94,8 +100,8 @@ class DashboardController extends Controller
                 $totalInitialConsultation = array_sum($initialConsultation);
                 $successProgram = $admissionsMentoring[2];
 
-                $initialAssessmentMaking = $this->clientProgramRepository->getInitialMaking($dateDetails);
-                $conversionTimeProgress = $this->clientProgramRepository->getConversionTimeProgress($dateDetails);
+                $initialAssessmentMaking = $this->clientProgramRepository->getInitialMaking($dateDetails, $cp_filter);
+                $conversionTimeProgress = $this->clientProgramRepository->getConversionTimeProgress($dateDetails, $cp_filter);
                 $successPercentage = $successProgram == 0 ? 0 : ($successProgram/$totalInitialConsultation) * 100;
                 $allSuccessProgramByMonth = $this->clientProgramRepository->getSuccessProgramByMonth($cp_filter);
                 $totalRevenueAdmMentoringByProgramAndMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $cp_filter);
@@ -104,12 +110,12 @@ class DashboardController extends Controller
                 $careerExploration = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Career Exploration'] + $cp_filter);
                 $totalRevenueCareerExplorationByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Career Exploration'] + $cp_filter);
 
-                $leadSource = $this->clientProgramRepository->getLeadSource($dateDetails);
-                $conversionLeads = $this->clientProgramRepository->getConversionLead($dateDetails);
+                $leadSource = $this->clientProgramRepository->getLeadSource($dateDetails, $cp_filter);
+                $conversionLeads = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter);
 
-                $adminssionMentoringConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, 'Admissions Mentoring');
-                $academicTestPrepConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, 'Academic & Test Preparation');
-                $careerExplorationConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, 'Career Exploration');
+                $adminssionMentoringConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Admissions Mentoring']);
+                $academicTestPrepConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Academic & Test Preparation']);
+                $careerExplorationConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Career Exploration']);
 
             # on sales target tab
             $programId = null; # means all programs
@@ -126,6 +132,9 @@ class DashboardController extends Controller
             $comparisons = $this->clientProgramRepository->getComparisonBetweenYears($cp_filter);
 
             # on client event tab
+            $events = $this->eventRepository->getEventsWithParticipants($cp_filter);
+            $eventId = count($events) > 0 ? $events[0]->event_id : null;
+            $conversion_lead_of_event = count($events) > 0 ? $this->clientEventRepository->getConversionLead($eventId) : null;
 
         return view('pages.dashboard.index')->with(
             [
@@ -166,7 +175,8 @@ class DashboardController extends Controller
                 'comparisons' => $comparisons,
 
                 # client event tab
-
+                'events' => $events,
+                'conversion_lead_of_event' => $conversion_lead_of_event
             ]
         );
     }

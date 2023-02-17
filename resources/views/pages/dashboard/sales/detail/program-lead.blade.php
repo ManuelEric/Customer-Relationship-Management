@@ -43,6 +43,114 @@
 </div>
 
 <script>
+    var lead_source_chart, conversion_lead_chart, admission_lead_chart, academic_prep_chart, career_exp_chart = null;
+
+    function get_conversion_leads(month = null, user = null)
+    {
+        var today = new Date()
+
+        if (!month)
+            month = moment(today).format('YYYY-MM')
+
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/conversion-lead/' + month + '/' + user
+
+        axios.get(url)
+           .then(function (response) {
+            
+                var obj = response.data.data
+                lead_source_chart.data.labels = obj.ctx_leadsource.label
+                lead_source_chart.data.datasets[0].data = obj.ctx_leadsource.dataset
+                lead_source_chart.update();
+
+                conversion_lead_chart.data.labels = obj.ctx_conversionlead.label
+                conversion_lead_chart.data.datasets[0].data = obj.ctx_conversionlead.dataset
+                conversion_lead_chart.update();
+
+            }).catch(function (error) {
+                notification('error', 'Ooops! Something went wrong. Please try again.')
+            })
+    }
+
+    function get_admission_mentoring_lead(month = null, user = null)
+    {
+        var today = new Date()
+
+        if (!month)
+            month = moment(today).format('YYYY-MM')
+
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/lead/admissions-mentoring/' + month + '/' + user
+
+        axios.get(url)
+           .then(function (response) {
+            
+                var obj = response.data.data
+                admission_lead_chart.data.labels = obj.ctx.label
+                admission_lead_chart.data.datasets[0].data = obj.ctx.dataset
+                admission_lead_chart.update();
+
+            }).catch(function (error) {
+                notification('error', 'Ooops! Something went wrong. Please try again.')
+            })
+    }
+
+    function get_academic_prep_lead(month = null, user = null)
+    {
+        var today = new Date()
+
+        if (!month)
+            month = moment(today).format('YYYY-MM')
+
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/lead/academic-prep/' + month + '/' + user
+
+        axios.get(url)
+           .then(function (response) {
+            
+                var obj = response.data.data
+                academic_prep_chart.data.labels = obj.ctx.label
+                academic_prep_chart.data.datasets[0].data = obj.ctx.dataset
+                academic_prep_chart.update();
+
+            }).catch(function (error) {
+                notification('error', 'Ooops! Something went wrong. Please try again.')
+            })
+    }
+
+    function get_career_exp_lead(month = null, user = null)
+    {
+        var today = new Date()
+
+        if (!month)
+            month = moment(today).format('YYYY-MM')
+
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/lead/career-exploration/' + month + '/' + user
+
+        axios.get(url)
+           .then(function (response) {
+            
+                console.log(response.data)
+                var obj = response.data.data
+                career_exp_chart.data.labels = obj.ctx.label
+                career_exp_chart.data.datasets[0].data = obj.ctx.dataset
+                career_exp_chart.update();
+
+            }).catch(function (error) {
+                notification('error', 'Ooops! Something went wrong. Please try again.')
+            })
+    }
+</script>
+<script>
     // percentage 
     let lbl_prog_lead = [{
         formatter: (value, ctx) => {
@@ -81,7 +189,7 @@
         dataset_leadsource.push('{{ $source->lead_source_count }}')
     @endforeach
 
-    new Chart(lead, {
+    var lead_source_chart = new Chart(lead, {
         type: 'bar',
         data: {
             labels: dataset_leadsource_label,
@@ -126,7 +234,7 @@
         dataset_conversion.push('{{ $source->conversion_lead_count }}')
     @endforeach
 
-    new Chart(progLead, {
+    var conversion_lead_chart = new Chart(progLead, {
         type: 'bar',
         data: {
             labels: dataset_conversion_label,
@@ -172,7 +280,7 @@
         dataset_admconversion.push('{{ $source->conversion_lead_count }}')
     @endforeach
 
-    new Chart(admLead, {
+    var admission_lead_chart = new Chart(admLead, {
         type: 'pie',
         data: {
             labels: dataset_admconversion_label,
@@ -208,7 +316,7 @@
         dataset_acaconversion.push('{{ $source->conversion_lead_count }}')
     @endforeach
 
-    new Chart(acadLead, {
+    var academic_prep_chart = new Chart(acadLead, {
         type: 'pie',
         data: {
             labels: dataset_acaconversion_label,
@@ -244,7 +352,7 @@
         dataset_carconversion.push('{{ $source->conversion_lead_count }}')
     @endforeach
 
-    new Chart(careerLead, {
+    var career_exp_chart = new Chart(careerLead, {
         type: 'pie',
         data: {
             labels: dataset_carconversion_label,

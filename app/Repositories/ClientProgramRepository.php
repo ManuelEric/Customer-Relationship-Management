@@ -435,8 +435,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->get();
     }
 
-    public function getLeadSource($dateDetails)
+    public function getLeadSource($dateDetails, $cp_filter)
     {
+        $userId = $this->getUser($cp_filter);
+        
         return ClientProgram::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
             ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client.lead_id')
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client.eduf_id')
@@ -455,14 +457,20 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     ELSE tbl_lead.main_lead
                 END)) AS lead_source_count'),
             ])
+            ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                $q->where('empl_id', $userId);
+            })
             ->where('tbl_client_prog.status', 1)
             ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('lead_source')
             ->get();
     }
 
-    public function getConversionLead($dateDetails, $program = null)
+    public function getConversionLead($dateDetails, $cp_filter)
     {
+        $userId = $this->getUser($cp_filter);
+        $program = isset($cp_filter['prog']) ? $cp_filter['prog'] : null;
+
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_prog.lead_id')
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_prog.eduf_lead_id')
@@ -483,6 +491,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     ELSE tbl_lead.main_lead
                 END)) AS conversion_lead_count'),
             ])
+            ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                $q->where('empl_id', $userId);
+            })
             ->when($program, function($query) use ($program) {
                 $query->whereHas('program', function ($query) use ($program) {
                     $query->whereHas('main_prog', function ($query2) use ($program) {
@@ -568,8 +579,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return $data;
     }
 
-    public function getInitialMaking($dateDetails)
+    public function getInitialMaking($dateDetails, $cp_filter)
     {
+        $userId = $this->getUser($cp_filter);
+
         # average value of initial consult and assessment sent date
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
@@ -583,14 +596,19 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
                 });
             })
+            ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                $q->where('empl_id', $userId);
+            })
             ->where('status', 1)
             ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('tbl_main_prog.id')
             ->first();
     }
 
-    public function getConversionTimeProgress($dateDetails)
+    public function getConversionTimeProgress($dateDetails, $cp_filter)
     {
+        $userId = $this->getUser($cp_filter);
+
         # average value of success date and assessment sent date
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
@@ -604,6 +622,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
                 });
             })
+            ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                $q->where('empl_id', $userId);
+            })
             ->where('status', 1)
             ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('tbl_main_prog.id')
@@ -612,6 +633,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function getSuccessProgramByMonth($cp_filter)
     {
+        $userId = $this->getUser($cp_filter);
+
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
             ->select([
@@ -619,6 +642,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 DB::raw('COUNT(*) as total_client_per_program')
             ])
             ->where('status', 1)
+            ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                $q->where('empl_id', $userId);
+            })
             ->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))
             ->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])))
             ->groupBy('program_name_st')
@@ -627,7 +653,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     public function getTotalRevenueByProgramAndMonth($cp_filter)
     {
-        return InvoiceProgram::whereHas('clientprog', function ($query) use ($cp_filter) {
+        $userId = $this->getUser($cp_filter);
+
+        return InvoiceProgram::whereHas('clientprog', function ($query) use ($cp_filter, $userId) {
             $query->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))
                 ->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])))
                 ->when($cp_filter['program'], function ($q) use ($cp_filter) {
@@ -638,29 +666,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                             $q3->where('sub_prog_name', $cp_filter['program']);
                         });
                     });
+                })
+                ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                    $q->where('empl_id', $userId);
                 });
         })->sum('inv_totalprice_idr');
     }
 
     public function getComparisonBetweenYears($cp_filter)
     {
-        // return ClientProgram::with('program')->leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')
-        //     ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-        //     ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-        //     ->whereBetween(DB::raw('YEAR(tbl_client_prog.created_at)'), [$cp_filter['queryParams_year1'], $cp_filter['queryParams_year2']])
-        //     ->select([
-        //         'tbl_client_prog.prog_id',
-        //         // DB::raw('CONCAT(tbl_main_prog.prog_name, tbl_prog.prog_program) as program_name'),
-        //         DB::raw('SUM(tbl_inv.inv_totalprice_idr) as revenue'),
-        //         DB::raw('YEAR(tbl_client_prog.created_at) as year')
-        //     ])
-        //     ->groupBy(
-        //         'tbl_client_prog.prog_id',
-        //         // DB::raw('CONCAT(tbl_main_prog.prog_name, tbl_prog.prog_program)'),
-        //         DB::raw('YEAR(tbl_client_prog.created_at)')
-        //         )
-        //     ->get();
-
         $userId = $this->getUser($cp_filter);
 
         return DB::table('tbl_client_prog as cp')->
@@ -700,7 +714,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     private function getUser($cp_filter)
     {
         $userId = null;
-        if (isset($cp_filter['quuid']) && $uuid = $cp_filter['quuid']) {
+        if (isset($cp_filter['quuid']) && $cp_filter['quuid'] !== null) {
+            $uuid = $cp_filter['quuid'];
             $user = User::where('uuid', $uuid)->first();
             $userId = $user->id;
         }

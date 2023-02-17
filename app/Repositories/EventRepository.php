@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\EventRepositoryInterface;
 use App\Models\Event;
+use App\Models\User;
 use DataTables;
 use Illuminate\Support\Carbon;
 
@@ -56,5 +57,33 @@ class EventRepository implements EventRepositoryInterface
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
+    }
+
+    # dashboard
+    public function getEventsWithParticipants($cp_filter)
+    {
+        $userId = $this->getUser($cp_filter);
+
+        return Event::withCount('clientEvent as participants')->whereHas('clientEvent', function ($query) use ($cp_filter) {
+            $query->whereMonth('tbl_client_event.created_at', date('m', strtotime($cp_filter['qdate'])))
+                    ->whereYear('tbl_client_event.created_at', date('Y', strtotime($cp_filter['qdate'])));
+        })->when($userId, function($query) use ($userId) {
+            $query->whereHas('eventPic', function ($query) use ($userId) {
+                $query->where('empl_id', $userId);
+            });
+        })->get();
+    }
+
+    #
+
+    private function getUser($cp_filter)
+    {
+        $userId = null;
+        if (isset($cp_filter['quuid']) && $uuid = $cp_filter['quuid']) {
+            $user = User::where('uuid', $uuid)->first();
+            $userId = $user->id;
+        }
+
+        return $userId;
     }
 }

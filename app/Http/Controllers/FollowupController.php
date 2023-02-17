@@ -73,11 +73,18 @@ class FollowupController extends Controller
 
             DB::rollBack();
             Log::error('Store followup plan failed : ' . $e->getMessage());
-            return response()->json(['success' => false]);
+            // if ($request->ajax())
+                return response()->json(['success' => false]);
+            
+            // return Redirect::back()->withError('Failed to update followup plan');
 
         }
 
-        return response()->json(['success' => true]);
+        // if ($request->ajax())
+            return response()->json(['success' => true]);
+
+        // return Redirect::to('/dashboard')->withSuccess('Follow up plan has been updated');
+
     }
 
     public function destroy(Request $request)
