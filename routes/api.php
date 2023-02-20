@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\v1\SalesDashboardController;
 use App\Http\Controllers\UniversityController;
+use App\Http\Controllers\InvoiceProgramController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,3 +44,5 @@ Route::get('get/client-event/{year}/{user?}', [SalesDashboardController::class, 
 
 Route::get('get/program-comparison', [SalesDashboardController::class, 'compare_program']);
 Route::get('get/conversion-lead/event/{event}', [SalesDashboardController::class, 'getConversionLeadsByEventId']);
+
+Route::post('/upload', [InvoiceProgramController::class, 'upload']);
