@@ -168,6 +168,8 @@ PDFAnnotate.prototype.enableAddArrow = function () {
 	}
 }
 
+// custom 
+// do not overwrite the function
 PDFAnnotate.prototype.addImageToCanvas = function () {
 	var inst = this;
 	var fabricObj = inst.fabricObjects[inst.active_canvas];
@@ -182,12 +184,23 @@ PDFAnnotate.prototype.addImageToCanvas = function () {
 				inputElement.remove()
 				var image = new Image();
 				image.onload = function () {
-					fabricObj.add(new fabric.Image(image))
+					var canvas_width = fabricObj.width;
+					var canvas_height = fabricObj.height;
+
+					var img = new fabric.Image(image)
+					img.setOptions({
+						left: canvas_width*0.7,
+						top: canvas_height*0.71,
+					})
+					fabricObj.add(img)
+
+					window.scrollTo(0, canvas_height*0.5)
 				}
 				image.src = this.result;
 			}, false);
 			reader.readAsDataURL(inputElement.files[0]);
 		}
+		
 		document.getElementsByTagName('body')[0].appendChild(inputElement)
 		inputElement.click()
 	}

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use PDF;
 
 class InvoiceProgramController extends Controller
@@ -480,13 +481,21 @@ class InvoiceProgramController extends Controller
 
         try {
 
+            
+            # generate invoice as a PDF file
+            $file_name = str_replace('/', '_', $invoice_id);
             $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+            Storage::put('public/uploaded_file/invoice/'.$file_name.'.pdf', $pdf->output());
+            
+            $clientProg->invoice->attachment = $file_name.'.pdf';
+            $clientProg->invoice->save();
 
             Mail::send('pages.invoice.client-program.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
                 $message->to($data['email'], $data['recipient'])
                     ->subject($data['title'])
                     ->attachData($pdf->output(), $invoice_id . '.pdf');
             });
+            
         } catch (Exception $e) {
 
             Log::info('Failed to request sign invoice : ' . $e->getMessage());
@@ -600,11 +609,28 @@ class InvoiceProgramController extends Controller
         $pdfFile = $request->file('pdfFile');
         $name = $request->file('pdfFile')->getClientOriginalName();
         // $destination = public_path('attachment/');
+        return $name;
 
         if ($pdfFile->storeAs('public/uploaded_file/invoice/', $name)) {
             return response()->json(['status' => 'success']);
         } else {
             return response()->json(['status' => 'error']);
         }
+    }
+
+    public function preview(Request $request)
+    {
+        $clientprog_id = $request->route('client_program');
+        if (!$clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id))
+            abort(404);
+        
+        $invoice = $clientProg->invoice;
+
+        return view('pages.invoice.sign-pdf')->with(
+            [
+                'invoice' => $invoice
+            ]
+        );
+        // return view('pages.invoice.view-pdf');
     }
 }

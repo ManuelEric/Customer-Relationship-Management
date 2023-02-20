@@ -20,7 +20,7 @@ function enablePencil(event) {
 
 function addImage(event) {
     event.preventDefault();
-    pdf.addImageToCanvas()
+    pdf.addImageToCanvas();
 }
 
 function deleteSelectedObject(event) {

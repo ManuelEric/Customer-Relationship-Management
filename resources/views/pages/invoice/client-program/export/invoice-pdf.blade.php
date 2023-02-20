@@ -55,6 +55,7 @@
 
 <body style="padding: 0; margin:0; height: 100vh">
     <div style="width: 100%; height:1059px; padding:0; margin:0;">
+
         <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
         <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">

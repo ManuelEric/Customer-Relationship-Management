@@ -655,16 +655,17 @@
                 Swal.showLoading()                
                 axios
                     .get('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
-                        responseType: 'arraybuffer',
                         params: {
                             type: 'idr'
                         }
                     })
                     .then(response => {
+                        console.log(response)
                         swal.close()
                         notification('success', 'Sign has been requested')
                     })
                     .catch(error => {
+                        console.log(error)
                         notification('error', 'Something went wrong while send email')
                         swal.close()
                     })

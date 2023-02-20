@@ -28,7 +28,7 @@
                 <button class="btn btn-danger btn-sm" onclick="clearPage()">Clear Page</button>
             </div>
             <div class="tool">
-                <button class="btn btn-light btn-sm" onclick="savePDF('save','filename.pdf','{{ url('api/upload') }}')"><i
+                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $invoice->attachment }}','{{ route('invoice.program.upload-signed', ['client_program' => Request::route('client_program')]) }}')"><i
                         class="fa fa-save me-2"></i>
                     Save</button>
             </div>
@@ -39,7 +39,8 @@
 @endsection
 @section('script')
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset('document.pdf') }}", {
+
+        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$invoice->attachment) }}", {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },
@@ -49,6 +50,8 @@
             scale: 1.8,
             pageImageCompression: "MEDIUM", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
         });
+
+        
     </script>
     <script src="{{ asset('js/pdf-annotation/script-pdf.js') }}"></script>
 @endsection
