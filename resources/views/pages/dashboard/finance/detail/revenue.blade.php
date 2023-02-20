@@ -40,7 +40,7 @@
                     </div>
                     <div class="card-footer d-flex justify-content-between align-items-center">
                         <h6 class="m-0 p-0">Total Paid</h6>
-                        <h6 class="m-0 p-0" id="tot_paid">Rp. 0</h6>
+                        <h6 class="m-0 p-0" id="tot_paid_revenue">Rp. 0</h6>
                     </div>
                 </div>
             </div>
@@ -203,7 +203,7 @@
                             })
 
                             
-                            $('#tot_paid').empty().append(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
+                            $('#tot_paid_revenue').empty().append(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
 
                         }, (error) => {
                             console.log(error)

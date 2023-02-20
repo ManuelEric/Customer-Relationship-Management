@@ -196,8 +196,10 @@ PDFAnnotate.prototype.addImageToCanvas = function () {
 			reader.addEventListener("load", function () {
 				inputElement.remove()
 				var image = new Image();
+				var widthEntirePage = document.documentElement.scrollWidth;
+				// console.log()
 				image.onload = function () {
-					fabricObj.add(new fabric.Image(image))
+					fabricObj.add(new fabric.Image(image, {top:1250, left: 950}))
 				}
 				image.src = this.result;
 			}, false);

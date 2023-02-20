@@ -443,7 +443,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                             WHEN tbl_invb2b.invb2b_pm = "Installment" THEN 
                                 tbl_invdtl.invdtl_amountidr
                             ELSE null
-                        END) as total')
+                        END) as total'),
+                    // DB::raw("'start_data '" . $start_date . "as start_date"),
+
                 )->doesnthave('receipt');
                 break;
         }
@@ -452,11 +454,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             $queryInv->whereYear('tbl_invb2b.invb2b_duedate', '=', $year)
                 ->whereMonth('tbl_invb2b.invb2b_duedate', '=', $month);
         } else {
-            if ($start_date > $end_date) {
-                $queryInv->whereBetween('tbl_invb2b.invb2b_duedate', [$start_date, $end_date]);
-            } else {
-                $queryInv->whereBetween('tbl_invb2b.invb2b_duedate', [$end_date, $start_date]);
-            }
+            $queryInv->whereBetween('tbl_invb2b.invb2b_duedate', [$start_date, $end_date]);
         }
 
         $queryInv->where(DB::raw('(CASE

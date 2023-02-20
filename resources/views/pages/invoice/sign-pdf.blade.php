@@ -27,6 +27,9 @@
             <div class="tool">
                 <button class="btn btn-danger btn-sm" onclick="clearPage()">Clear Page</button>
             </div>
+            {{-- <div class="tool">
+                <button class="btn btn-info btn-sm" onclick="showPdfData()">{}</button>
+            </div> --}}
             <div class="tool">
                 <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment }}','{{ isset($invoice->schprog_id) ? url('api/invoice-sch/'.$invoice->invb2b_num.'/'.$currency.'/upload') : '' }}')"><i
                         class="fa fa-save me-2"></i>
@@ -35,6 +38,23 @@
         </div>
     </div>
     <div id="pdf-container"></div>
+
+{{-- <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="dataModalLabel">PDF annotation data</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<pre class="prettyprint lang-json linenums">
+				</pre>
+			</div>
+		</div>
+	</div>
+</div> --}}
 
 @endsection
 @section('script')

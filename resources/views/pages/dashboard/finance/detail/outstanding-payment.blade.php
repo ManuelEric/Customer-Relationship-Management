@@ -158,7 +158,7 @@
 
                 var result = response.data.data
 
-                // console.log(result.paidPayments.length)
+                console.log(result)
 
                 data['total'][0] = result.paidPayments.length
                 data['total'][1] = result.unpaidPayments.length
@@ -240,11 +240,11 @@
 
                 var result = response.data.data
 
-                console.log(response)
-
+                
                 data['total'][0] = result.paidPayments.length
                 data['total'][1] = result.unpaidPayments.length
-
+                console.log(data)
+                
                 var html;
                 var no = 1;
                 var total_paid = 0;
@@ -286,14 +286,14 @@
                 })
                 
                 $('#tot_unpaid').html(rupiah(total_unpaid))
-
+                
+                renderChart(data)
                 }, (error) => {
                     console.log(error)
                     swal.close()
                 })
 
           
-            renderChart(data)
     }
 
    function renderChart(data = null){
@@ -307,7 +307,7 @@
                 labels: ['Paid', 'Unpaid'],
                 datasets: [{
                     label: 'Invoice',
-                    data: data ? data.total : null,
+                    data: data.total ? data.total : null,
                     borderWidth: 4
                 }]
             },
