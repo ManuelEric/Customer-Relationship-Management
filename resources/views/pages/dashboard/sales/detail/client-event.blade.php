@@ -3,8 +3,8 @@
         <div class="row justify-content-end mb-2">
             <div class="col-md-2">
                 <select name="" id="qclient-event-year" class="select w-100">
-                    <option value="{{ date('Y') }}">Current Year</option>
-                    <option value="{{ date('Y') - 3 }}">The Last 3 Year</option>
+                    <option value="current">Current Year</option>
+                    <option value="last-3-year">The Last 3 Year</option>
                 </select>
             </div>
         </div>
@@ -15,22 +15,26 @@
                         Client Event Percentage
                     </div>
                     <div class="card-body overflow-auto" style="height: 300px">
-                        <table class="table table-hover">
-                            <tr>
-                                <th>Event Name</th>
-                                <th class="text-end">Percentage</th>
-                            </tr>
-                            @forelse ($events as $event)
+                        <table class="table table-hover" id="client-event-percentage-tbl">
+                            <thead>
                                 <tr>
-                                    <td>{{ $event->event_title }}</td>
-                                    <td class="text-end">{{ $event->participants != 0 && $event->event_target != null ? ($event->participants/$event->event_target)*100 : 0 }}%</td>
+                                    <th>Event Name</th>
+                                    <th class="text-end">Percentage</th>
                                 </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="2">No Data</td>
-                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($events as $event)
+                                    <tr>
+                                        <td>{{ $event->event_title }}</td>
+                                        <td class="text-end">{{ $event->participants != 0 && $event->event_target != null ? ($event->participants/$event->event_target)*100 : 0 }}%</td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="2">No Data</td>
+                                    </tr>
 
-                            @endforelse
+                                @endforelse
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -56,7 +60,45 @@
         </div>
     </div>
 </div>
+<script>
+    var client_event_chart_pct, event_lead_chart = null;
 
+    $("#qclient-event-year").on('change', function() {
+        var selected_year = $(this).val()
+        var uuid = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
+
+        get_client_event(selected_year, uuid)
+
+    });
+
+    function get_client_event(year = null, user = null)
+    {
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/client-event/' + year + '/' + user
+
+        axios.get(url)
+            .then(function (response) {
+                console.log(response)
+                var obj = response.data.data
+
+                $("#client-event-percentage-tbl tbody").html(obj.html_txt)
+
+                client_event_chart_pct.data.labels = obj.ctx.labels
+                client_event_chart_pct.data.datasets[0].data = obj.ctx.target
+                client_event_chart_pct.data.datasets[1].data = obj.ctx.participants
+                client_event_chart_pct.update();
+
+                event_lead_chart.data.labels = obj.lead.labels
+                event_lead_chart.data.datasets[0].data = obj.lead.total
+                event_lead_chart.update();
+
+            }).catch(function (error) {
+                console.log(error)
+            })
+    }
+</script>
 <script>
     // Percentage 
     let lbl_client_event = [{
@@ -99,7 +141,7 @@
         @endforeach
     @endif
 
-    new Chart(event, {
+    var client_event_chart_pct = new Chart(event, {
         data: {
             labels: dataset_events,
             datasets: [{
@@ -143,72 +185,49 @@
 
 
     // Concersion Lead 
-    function get_event_lead(event_name) {
-        $('.client-event-lead canvas').remove()
-        $('.client-event-lead').append('<canvas id="client_event_lead"></canvas>')
 
-        const dataset_labels = new Array();
-        const dataset_info = new Array();
-        @if (isset($conversion_lead_of_event))
-        @foreach ($conversion_lead_of_event->pluck('conversion_lead')->toArray() as $key => $value)
-            dataset_labels.push('{{ $value }}')
-        @endforeach
+    $('.client-event-lead canvas').remove()
+    $('.client-event-lead').append('<canvas id="client_event_lead"></canvas>')
 
-        @foreach ($conversion_lead_of_event->pluck('count_conversionLead')->toArray() as $key => $value)
-            dataset_info.push('{{ $value == null || $value == '' ? 0 : $value }}')
-        @endforeach
-        @endif
+    const dataset_labels = new Array();
+    const dataset_info = new Array();
+    @if (isset($conversion_lead_of_event))
+    @foreach ($conversion_lead_of_event->pluck('conversion_lead')->toArray() as $key => $value)
+        dataset_labels.push('{{ $value }}')
+    @endforeach
 
-        const event_lead = document.getElementById('client_event_lead');
-        new Chart(event_lead, {
-            type: 'pie',
-            data: {
-                labels: dataset_labels,
-                datasets: [{
-                    label: 'Participants',
-                    data: dataset_info,
-                    borderWidth: 1,
-                }]
-            },
-            plugins: [ChartDataLabels],
-            options: {
-                plugins: {
-                    datalabels: lbl_client_event[0],
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            boxWidth: 15,
-                        }
+    @foreach ($conversion_lead_of_event->pluck('count_conversionLead')->toArray() as $key => $value)
+        dataset_info.push('{{ $value == null || $value == '' ? 0 : $value }}')
+    @endforeach
+    @endif
+
+    const event_lead = document.getElementById('client_event_lead');
+    var event_lead_chart = new Chart(event_lead, {
+        type: 'pie',
+        data: {
+            labels: dataset_labels,
+            datasets: [{
+                label: 'Participants',
+                data: dataset_info,
+                borderWidth: 1,
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            plugins: {
+                datalabels: lbl_client_event[0],
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 15,
                     }
-                },
-                onClick: (e, activeEls) => {
-
                 }
+            },
+            onClick: (e, activeEls) => {
+
             }
-        });
-    }
+        }
+    });
+    
 
-    get_event_lead('event_a');
-
-    $("#qclient-event-year").on('change', function () {
-        if ($(this).val() != "all" && $(this).val() != null) {
-
-                let link = window.location.origin + "/dashboard"
-                var queryString = window.location.search
-                
-                const urlParams = new URLSearchParams(queryString);
-                if (urlParams.has('qyear')) {
-                    urlParams.set('qyear', $(this).val())
-                }
-                urlParams.append('qyear', $(this).val())
-                location.href = link + "?" + urlParams
-                return
-            }
-
-            let url = window.location.href
-            let urlObj = new URL(url)
-            urlObj.search = ''
-            const result = urlObj.toString()
-            window.location = result
-    })
 </script>

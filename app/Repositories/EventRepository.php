@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\User;
 use DataTables;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class EventRepository implements EventRepositoryInterface 
 {
@@ -63,13 +64,20 @@ class EventRepository implements EventRepositoryInterface
     public function getEventsWithParticipants($cp_filter)
     {
         $userId = $this->getUser($cp_filter);
+        $current_year = date('Y');
+        $last_3_year = date('Y') - 2;
 
-        return Event::withCount('clientEvent as participants')->whereHas('clientEvent', function ($query) use ($cp_filter) {
-            $query->whereMonth('tbl_client_event.created_at', date('m', strtotime($cp_filter['qdate'])))
-                    ->whereYear('tbl_client_event.created_at', date('Y', strtotime($cp_filter['qdate'])));
+        return Event::withCount('clientEvent as participants')->whereHas('clientEvent', function ($query) use ($cp_filter, $current_year, $last_3_year) {
+
+            $query->when($cp_filter['qyear'] == "last-3-year", function ($sq) use ($current_year, $last_3_year) {
+                $sq->whereRaw('YEAR(tbl_client_event.created_at) BETWEEN ? AND ?', [$last_3_year, $current_year]);
+                // $sq->whereYearBetween('tbl_client_event.created_at', [date('Y')-2, date('Y')]);
+            }, function ($sq) use ($cp_filter) {
+                $sq->whereYear('tbl_client_event.created_at', date('Y'));
+            });
         })->when($userId, function($query) use ($userId) {
             $query->whereHas('eventPic', function ($query) use ($userId) {
-                $query->where('empl_id', $userId);
+                $query->where('users.id', $userId);
             });
         })->get();
     }

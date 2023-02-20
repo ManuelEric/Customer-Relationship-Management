@@ -78,8 +78,9 @@
             
             var month = $(".qdate").val()
             var uuid = $(this).val() == "all" ? null : $(this).val()
+            var year = $("#qclient-event-year").val()
 
-            reloadChart(month, uuid)
+            reloadChart(month, uuid, year)
             
         })
 
@@ -91,13 +92,15 @@
         $(".qdate").on('change', function() {
     
             var month = $(this).val()
+            $(".qdate").val(month)
             var uuid = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
+            var year = $("#qclient-event-year").val()
 
-            reloadChart(month, uuid)
+            reloadChart(month, uuid, year)
 
         })
 
-        function reloadChart(month, uuid) {
+        function reloadChart(month, uuid, year) {
             get_client_program_status(month, uuid)
             get_successful_program(month, uuid)
             get_admission_program(month, uuid)
@@ -108,6 +111,8 @@
             get_admission_mentoring_lead(month, uuid)
             get_academic_prep_lead(month, uuid)
             get_career_exp_lead(month, uuid)
+            get_all_program(month, uuid)
+            get_client_event(year, uuid)
         }
     </script>
 @endsection

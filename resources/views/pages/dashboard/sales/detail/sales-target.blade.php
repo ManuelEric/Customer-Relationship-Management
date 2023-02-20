@@ -2,7 +2,7 @@
     <div class="card-body">
         <div class="row justify-content-end mb-2">
             <div class="col-md-2">
-                <input type="month" class="form-control form-control-sm" value="{{ Request::get('qdate') ?? date('Y-m') }}">
+                <input type="month" class="form-control form-control-sm qdate" value="{{ Request::get('qdate') ?? date('Y-m') }}">
             </div>
         </div>
         <div class="row">
@@ -18,7 +18,7 @@
                 <div class="card">
                     <div class="card-body overflow-auto" style="height: 400px">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover">
+                            <table class="table table-bordered table-hover" id="sales-target-detail">
                                 <thead>
                                     <tr class="text-center">
                                         <th rowspan="2">No</th>
@@ -63,6 +63,40 @@
 </div>
 
 <script>
+    var target_revenue_chart, target_people_chart = null;
+
+    function get_all_program(month = null, user = null)
+    {
+        var today = new Date()
+
+        if (!month)
+            month = moment(today).format('YYYY-MM')
+
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/all-program/target/' + month + '/' + user
+
+        axios.get(url)
+           .then(function (response) {
+            
+                var obj = response.data.data
+                target_people_chart.data.datasets[0].data = obj.dataset.participant
+                target_people_chart.data.datasets[1].data = obj.dataset.participant
+                target_people_chart.update();
+                
+                target_revenue_chart.data.datasets[0].data = obj.dataset.revenue
+                target_revenue_chart.data.datasets[1].data = obj.dataset.revenue
+                target_revenue_chart.update();
+
+                $("#sales-target-detail tbody").html(obj.html_txt)
+
+            }).catch(function (error) {
+                notification('error', 'Ooops! Something went wrong. Please try again.')
+            })
+    }
+</script>
+<script>
     const st = document.getElementById('student_target');
     const sa = document.getElementById('amount_target');
 
@@ -75,7 +109,7 @@
     dataset_sales_actual.push({{ $salesTarget->total_target ?? 0 }})
     dataset_sales_actual.push({{ $salesActual->total_target ?? 0 }})
 
-    new Chart(st, {
+    var target_people_chart = new Chart(st, {
         data: {
             labels: ['Target', 'Actual'],
             datasets: [{
@@ -121,7 +155,7 @@
         },
     });
 
-    new Chart(sa, {
+    var target_revenue_chart = new Chart(sa, {
         data: {
             labels: ['Target', 'Actual'],
             datasets: [{

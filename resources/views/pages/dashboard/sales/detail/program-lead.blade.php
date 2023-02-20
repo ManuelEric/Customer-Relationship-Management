@@ -139,7 +139,6 @@
         axios.get(url)
            .then(function (response) {
             
-                console.log(response.data)
                 var obj = response.data.data
                 career_exp_chart.data.labels = obj.ctx.label
                 career_exp_chart.data.datasets[0].data = obj.ctx.dataset

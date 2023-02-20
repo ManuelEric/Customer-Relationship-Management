@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Models\ClientEvent;
+use App\Models\User;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -94,8 +95,15 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         }
     }
 
-    public function getConversionLead($eventId = null)
+    public function getConversionLead($filter = null)
     {
+        $eventId = isset($filter['eventId']) ? $filter['eventId'] : null;
+        $userId = $this->getUser($filter);
+        $year = $filter['qyear'];
+
+        $current_year = date('Y');
+        $last_3_year = date('Y') - 2;
+
         return ClientEvent::leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_event.lead_id')
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
@@ -116,6 +124,17 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->groupBy('conversion_lead')
             ->when($eventId, function($query) use ($eventId) {
                 $query->where('tbl_client_event.event_id', $eventId);
+            })->when($userId, function ($query) use ($userId) {
+                $query->whereHas('event', function ($q) use ($userId) {
+                    $q->whereHas('eventPic', function ($q2) use ($userId) {
+                        $q2->where('users.id', $userId);
+                    });
+                });
+            })->when($filter['qyear'] == "last-3-year", function ($sq) use ($current_year, $last_3_year) {
+                $sq->whereRaw('YEAR(tbl_client_event.created_at) BETWEEN ? AND ?', [$last_3_year, $current_year]);
+                // $sq->whereYearBetween('tbl_client_event.created_at', [date('Y')-2, date('Y')]);
+            }, function ($sq) {
+                $sq->whereYear('tbl_client_event.created_at', date('Y'));
             })
             ->get();
     }
@@ -138,5 +157,19 @@ class ClientEventRepository implements ClientEventRepositoryInterface
     public function updateClientEvent($clientEventId, array $newClientEvents)
     {
         return ClientEvent::find($clientEventId)->update($newClientEvents);
+    }
+
+    # 
+
+    private function getUser($cp_filter)
+    {
+        $userId = null;
+        if (isset($cp_filter['quuid']) && $cp_filter['quuid'] !== null) {
+            $uuid = $cp_filter['quuid'];
+            $user = User::where('uuid', $uuid)->first();
+            $userId = $user->id;
+        }
+
+        return $userId;
     }
 }

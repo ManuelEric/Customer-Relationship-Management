@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
+use App\Interfaces\SalesTargetRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -17,13 +19,18 @@ class SalesDashboardController extends Controller
     protected ClientProgramRepositoryInterface $clientProgramRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
     protected FollowupRepositoryInterface $followupRepository;
+    protected SalesTargetRepositoryInterface $salesTargetRepository;
+    protected EventRepositoryInterface $eventRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, FollowupRepositoryInterface $followupRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, FollowupRepositoryInterface $followupRepository, SalesTargetRepositoryInterface $salesTargetRepository, EventRepositoryInterface $eventRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->clientEventRepository = $clientEventRepository;
         $this->followupRepository = $followupRepository;
+        $this->salesTargetRepository = $salesTargetRepository;
+        $this->eventRepository = $eventRepository;
+
     }
 
     public function getClientStatus(Request $request)
@@ -580,6 +587,126 @@ class SalesDashboardController extends Controller
         );
     }
 
+    public function getAllProgramTargetByMonth(Request $request)
+    {   
+        $dataset_participant = $dataset_revenue = [];
+        $cp_filter['qdate'] = $request->route('month');
+        $cp_filter['quuid'] = $request->route('user') ?? null;
+
+        $programId = null; # means all programs
+        $salesTarget = $this->salesTargetRepository->getMonthlySalesTarget($programId, $cp_filter);
+
+        $salesActual = $this->salesTargetRepository->getMonthlySalesActual($programId, $cp_filter);
+        
+        $participant_target = isset($salesTarget->total_participant) ? $salesTarget->total_participant : 0; 
+        $participant_actual = isset($salesActual->total_participant) ? $salesActual->total_participant : 0; 
+        $revenue_target = isset($salesTarget->total_target) ? $salesTarget->total_target : 0;
+        $revenue_actual = isset($salesActual->total_target) ? $salesActual->total_target : 0;
+
+
+        $dataset_participant = [$participant_target, $participant_actual];
+        $dataset_revenue = [$revenue_target, $revenue_actual];
+        
+        $salesDetail = $this->salesTargetRepository->getSalesDetail($programId, $cp_filter);
+        $html = '';
+        $no = 1;
+        foreach ($salesDetail as $detail) {
+            $percentage_participant = ($detail->total_actual_participant/$detail->total_target_participant) * 100;
+            $percentage_revenue = ($detail->total_actual_amount/$detail->total_target_amount) * 100;
+
+            $html .= '<tr class="text-center">
+                    <td>'.$no++.'</td>
+                    <td>'.$detail->prog_id.'</td>
+                    <td class="text-start">'.$detail->program_name_sales.'</td>
+                    <td>'.$detail->total_target_participant.'</td>
+                    <td>'.number_format($detail->total_target_amount,'2',',','.').'</td>
+                    <td>'.$detail->total_actual_participant.'</td>
+                    <td>'.number_format($detail->total_actual_amount,'2',',','.').'</td>
+                    <td>'.$percentage_participant.'%</td>
+                    <td>'.$percentage_revenue.'%</td>
+                </tr>';
+        }
+        
+        return response()->json(
+            [
+                'success' => true,
+                'data' => [
+                    'dataset' => [
+                        'participant' => $dataset_participant,
+                        'revenue' => $dataset_revenue,
+                    ],
+                    'html_txt' => $html
+                ]
+            ]
+        );
+    }
+
+    public function getClientEventByYear(Request $request)
+    {
+        $dataset_participants = $dataset_target = $dataset_labels = $dataset_lead_labels = $dataset_lead_total = [];
+        $filter['qyear'] = $request->route('year');
+        $filter['quuid'] = $request->route('user') ?? null;
+
+        $html = '';
+        if (!$events = $this->eventRepository->getEventsWithParticipants($filter)) {
+
+            $html = '<tr><td colspan="2">There\'s no data</td></tr>';
+            $dataset_participant[] = $dataset_target[] = $dataset_labels[] = 0;
+
+        } else {
+
+            foreach ($events as $event) {
+                $dataset_participants[] = $event->participants;
+                $dataset_target[] = $event->event_target == null ? 0 : $event->event_target;
+                $dataset_labels[] = $event->event_title;
+    
+                $percentage = $event->participants != 0 && $event->event_target != null ? ($event->participants/$event->event_target)*100 : 0;
+    
+                $html .= '<tr>
+                            <td>'.$event->event_title.'</td>
+                            <td class="text-end">'.$percentage.'%</td>
+                        </tr>';
+            }
+        }
+        
+
+
+        $filter['eventId'] = count($events) > 0 ? $events[0]->event_id : null;
+
+        if (!$conversion_lead_of_event = $this->clientEventRepository->getConversionLead($filter)) {
+
+            $dataset_lead_labels[] = $dataset_lead_total[] = 0;
+
+        } else {
+
+            foreach ($conversion_lead_of_event->pluck('conversion_lead')->toArray() as $key => $value) {
+                $dataset_lead_labels[] = $value;
+            }
+    
+            foreach ($conversion_lead_of_event->pluck('count_conversionLead')->toArray() as $key => $value) {
+                $dataset_lead_total[] = $value == null || $value == '' ? 0 : $value;
+            }
+        }
+
+
+        return response()->json(
+            [
+                'success' => true,
+                'data' => [
+                    'html_txt' => $html,
+                    'ctx' => [
+                        'participants' => $dataset_participants,
+                        'target' => $dataset_target,
+                        'labels' => $dataset_labels,
+                    ],
+                    'lead' => [
+                        'labels' => $dataset_lead_labels,
+                        'total' => $dataset_lead_total,
+                    ]
+                ]
+            ]
+        );
+    }
     
     # 
     public function compare_program(Request $request)

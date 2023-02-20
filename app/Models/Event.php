@@ -52,7 +52,7 @@ class Event extends Model
     # relation
     public function eventPic()
     {
-        return $this->belongsToMany(User::class, 'tbl_event_pic', 'event_id', 'empl_id');
+        return $this->belongsToMany(User::class, 'tbl_event_pic', 'event_id', 'empl_id')->withTimestamps();
     }
 
     public function university()

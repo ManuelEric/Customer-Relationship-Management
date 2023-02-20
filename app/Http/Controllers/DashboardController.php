@@ -52,7 +52,6 @@ class DashboardController extends Controller
         if ($request->get('month')) {
             $filter = $month = $request->get('month');
         }
-
         $totalClientByStatus = [
             'prospective' => $this->clientRepository->getCountTotalClientByStatus(0, $filter), # prospective
             'potential' => $this->clientRepository->getCountTotalClientByStatus(1, $filter), # potential
@@ -132,9 +131,15 @@ class DashboardController extends Controller
             $comparisons = $this->clientProgramRepository->getComparisonBetweenYears($cp_filter);
 
             # on client event tab
-            $events = $this->eventRepository->getEventsWithParticipants($cp_filter);
-            $eventId = count($events) > 0 ? $events[0]->event_id : null;
-            $conversion_lead_of_event = count($events) > 0 ? $this->clientEventRepository->getConversionLead($eventId) : null;
+            $cp_filter['qyear'] = 'current';
+            $events = [];
+            if ($this->eventRepository->getEventsWithParticipants($cp_filter)->count() > 0) {
+                $events = $this->eventRepository->getEventsWithParticipants($cp_filter);
+                $cp_filter['eventId'] = $events[0]->event_id;
+            }
+            
+            
+            $conversion_lead_of_event = $this->clientEventRepository->getConversionLead($cp_filter);
 
         return view('pages.dashboard.index')->with(
             [
