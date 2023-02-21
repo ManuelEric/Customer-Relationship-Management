@@ -34,20 +34,23 @@
 
                         </h6>
                     </div>
-                    <div class="card-body overflow-auto" style="height: 370px">
-                        <ul class="list-group">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div class="">
-                                    Speaker Name <br>
-                                    <small>
-                                        Event Name / Program Name
-                                    </small>
-                                </div>
-                                <div class="">
-                                    10.00 - 14.00
-                                </div>
-                            </li>
-                        </ul>
+                    <div class="card-body overflow-auto {{!isset($speakerToday) ? 'd-none' : ''}}" id="speaker_list" style="height: 370px">
+                        @foreach ($speakerToday as $speaker)
+                            
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="">
+                                        {{ $speaker->speaker_name }} <br>
+                                        <small>
+                                            {{ $speaker->event_name }}
+                                        </small>
+                                    </div>
+                                    <div class="">
+                                        {{ date("H.i", strtotime($speaker->start_time)) }} - {{ date("M d, Y H.i", strtotime($speaker->end_time)) }}
+                                    </div>
+                                </li>
+                            </ul>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -56,6 +59,19 @@
 </div>
 
 <script>
+    let data_speaker = new Array();
+
+    @foreach ($speakers as $key => $speaker)
+        data_speaker.push({
+            id: '{{$key + 1}}',
+            title: '{{$speaker->event_name}} - {{ $speaker->speaker_name }}',
+            start: moment('{{$speaker->start_time}}').format(),
+            end: moment('{{$speaker->end_time}}').format(),
+        });
+    @endforeach
+    
+    // console.log(data_speaker)
+
     let date = new Date;
     $('#agenda_date').html(moment(date).format('LL'))
 
@@ -85,30 +101,8 @@
                 meridiem: 'lowercase'
             },
             dayMaxEventRows: true, // for all non-TimeGrid views
-            events: [{
-                    id: 1,
-                    title: 'Event 1 - Speaker 1',
-                    start: '2023-01-25'
-                },
-                {
-                    id: 2,
-                    title: 'Event 2 - Speaker 2',
-                    start: '2023-01-26',
-                    end: '2023-01-27'
-                },
-                {
-                    id: 3,
-                    title: 'Event 3 - Speaker 4',
-                    start: '2023-01-28T12:30:00',
-                    end: '2023-01-28T13:30:00',
-                },
-                {
-                    id: 4,
-                    title: 'Event 3 - Speaker 5',
-                    start: '2023-01-28T13:30:00',
-                    end: '2023-01-28T14:30:00',
-                }
-            ],
+            events: data_speaker,
+            
             eventDisplay: 'block',
             eventTimeFormat: {
                 hour: '2-digit',
@@ -141,6 +135,38 @@
     });
 
     function checkAgenda(date) {
-        // axios here .. 
+        Swal.showLoading()
+
+        // Axios here...
+        axios.get('{{ url("api/partner/agenda/") }}/' + date)
+            .then((response) => {
+                var result = response.data.data.allSpeaker
+                var start_listgroup = '<ul class="list-group">' +
+                            '<li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom:15px">';
+                
+                var end_listgroup =  '</li>' +
+                                    '</ul>';
+                var html;
+                if(result.length > 0){
+                    $('#speaker_list').removeClass('d-none')
+                    $('#speaker_list').empty()
+                    result.forEach(function(item, index, arr) {
+                        html = start_listgroup 
+                        html += '<div class=""><p>' + item.speaker_name + '</p>'
+                        html += '<small>' + item.event_name + '</small></div>'
+                        html += '<div class="">' + moment(item.start_time).format('HH.mm') + ' - ' + moment(item.end_time).format('MMM DD, YYYY HH.mm'); + '</div>'
+                        html += end_listgroup
+                        $('#speaker_list').append(html)
+                        })
+                }else{
+                    $('#speaker_list').addClass('d-none')
+                }
+                // console.log(result)
+                swal.close()
+            }, (error) => {
+                console.log(error)
+                swal.close()
+        })
+            
     }
 </script>

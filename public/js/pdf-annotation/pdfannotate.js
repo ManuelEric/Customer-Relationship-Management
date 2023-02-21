@@ -34,7 +34,22 @@ var PDFAnnotate = function (container_id, url, options = {}) {
 				canvas.className = 'pdf-canvas';
 				canvas.height = viewport.height;
 				canvas.width = viewport.width;
+				
 				context = canvas.getContext('2d');
+
+				// Increase the resolution of the canvas
+
+				if (window.devicePixelRatio > 1) {
+					var canvasWidth = canvas.width;
+					var canvasHeight = canvas.height;
+
+					canvas.width = canvasWidth * window.devicePixelRatio;
+					canvas.height = canvasHeight * window.devicePixelRatio;
+					canvas.style.width = canvasWidth + "px";
+					canvas.style.height = canvasHeight + "px";
+
+					context.scale(window.devicePixelRatio, window.devicePixelRatio);
+				}
 
 				var renderContext = {
 					canvasContext: context,
@@ -183,6 +198,8 @@ PDFAnnotate.prototype.addImageToCanvas = function () {
 			reader.addEventListener("load", function () {
 				inputElement.remove()
 				var image = new Image();
+				var widthEntirePage = document.documentElement.scrollWidth;
+				// console.log()
 				image.onload = function () {
 					var canvas_width = fabricObj.width;
 					var canvas_height = fabricObj.height;
@@ -195,6 +212,7 @@ PDFAnnotate.prototype.addImageToCanvas = function () {
 					fabricObj.add(img)
 
 					window.scrollTo(0, canvas_height*0.5)
+					// fabricObj.add(new fabric.Image(image, {top:1250, left: 950}))
 				}
 				image.src = this.result;
 			}, false);
@@ -248,8 +266,15 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 				var data = doc.output('blob');
 				var formData = new FormData();
 				formData.append("pdfFile", data, fileName);
+				
 				axios.post(route, formData).then(function (response) {
 					console.log(response.data);
+
+					if(response.data.status == 'success'){
+						alert('Document saved successfully')
+					}else{
+						alert('Failed to save document')
+					}
 				}).catch(function (error) {
 					console.log(error);
 				});

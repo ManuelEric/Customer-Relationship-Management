@@ -13,7 +13,6 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
 
     public function getAllSchoolProgramsDataTables($filter = null)
     {
-        // TODO: Filter by status refund
 
         return Datatables::eloquent(
             SchoolProgram::leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->leftJoin('users', 'users.id', '=', 'tbl_sch_prog.empl_id')->select(
@@ -174,6 +173,39 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
         return SchoolProgram::where('sch_id', $schoolId)->orderBy('id', 'asc')->get();
     }
 
+    public function getAllSchoolProgramByStatusAndMonth($status, $monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return SchoolProgram::leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')
+            ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
+            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->select(
+                'tbl_sch.sch_name as school_name',
+                DB::raw('(CASE
+                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                            ELSE tbl_prog.prog_program
+                        END) AS program_name')
+            )
+            ->whereYear('tbl_sch_prog.created_at', '=', $year)
+            ->whereMonth('tbl_sch_prog.created_at', '=', $month)
+            ->where('tbl_sch_prog.status', $status)
+            ->get();
+    }
+
+    public function getStatusSchoolProgramByMonthly($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return SchoolProgram::select('status', DB::raw('sum(total_fee) as total_fee'), DB::raw('count(*) as count_status'))
+            ->whereYear('created_at', '=', $year)
+            ->whereMonth('created_at', '=', $month)
+            ->groupBy('status')
+            ->get();
+    }
+
     public function getSchoolProgramById($schoolProgramId)
     {
         return SchoolProgram::find($schoolProgramId);
@@ -192,5 +224,76 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
     public function updateSchoolProgram($schoolProgramId, array $newPrograms)
     {
         return SchoolProgram::find($schoolProgramId)->update($newPrograms);
+    }
+
+    public function getReportSchoolPrograms($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        if (isset($start_date) && isset($end_date)) {
+            return SchoolProgram::where('status', 1)
+                ->whereDate('success_date', '>=', $start_date)
+                ->whereDate('success_date', '<=', $end_date)
+
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return SchoolProgram::where('status', 1)
+                ->whereDate('success_date', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return SchoolProgram::where('status', 1)
+                ->whereDate('success_date', '<=', $end_date)
+                ->get();
+        } else {
+            return SchoolProgram::where('status', 1)
+                ->whereBetween('success_date', [$firstDay, $lastDay])
+                ->get();
+        }
+    }
+
+    public function getTotalSchoolProgramComparison($startYear, $endYear)
+    {
+        $start = SchoolProgram::select(DB::raw("'start' as 'type'"), DB::raw('count(id) as count'), DB::raw('sum(total_fee) as total_fee'))
+            ->where('status', 1)
+            ->whereYear('success_date', $startYear);
+
+        $end = SchoolProgram::select(DB::raw("'end' as 'type'"), DB::raw('count(id) as count'), DB::raw('sum(total_fee) as total_fee'))
+            ->where('status', 1)
+            ->whereYear('success_date', $endYear)
+            ->union($start)
+            ->get();
+
+        return $end;
+    }
+
+    public function getSchoolProgramComparison($startYear, $endYear)
+    {
+        return SchoolProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
+            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->select(
+                'tbl_sch_prog.prog_id',
+                DB::raw('(CASE
+                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                            ELSE tbl_prog.prog_program
+                        END) AS program_name'),
+                DB::raw("'School Program' as type"),
+                DB::raw('SUM(participants) as participants'),
+                DB::raw('DATE_FORMAT(success_date, "%Y") as year'),
+                DB::raw("SUM(total_fee) as total"),
+            )
+            ->where('status', 1)
+            // ->whereYear('success_date', '=', $startYear)
+            ->whereYear(
+                'success_date',
+                '=',
+                DB::raw('(case year(success_date)
+                                when ' . $startYear . ' then ' . $startYear . '
+                                when ' . $endYear . ' then ' . $endYear . '
+                            end)')
+            )
+            ->groupBy('prog_id')
+            ->groupBy(DB::raw('year(success_date)'))
+            ->get();
     }
 }

@@ -408,27 +408,4 @@ class ClientEventController extends Controller
 
         return Redirect::to('program/event')->withSuccess('Client event successfully deleted');
     }
-
-    public function report(Request $request)
-    {
-        $eventId = null;
-        if ($request->get('event_id') != null) {
-            $eventId = $request->get('event_id');
-        }
-
-        $events = $this->eventRepository->getAllEvents();
-        $clientEvents = $this->clientEventRepository->getAllClientEvents($eventId);
-        $clients = $this->clientEventRepository->getAllClientEventsGroupByRoles($eventId);
-        $conversionLeads = $this->clientEventRepository->getConversionLead($eventId);
-
-
-        return view('pages.report.event-tracking.index')->with(
-            [
-                'clientEvents' => $clientEvents,
-                'clients' => $clients,
-                'events' => $events,
-                'conversionLeads' => $conversionLeads,
-            ]
-        );
-    }
 }

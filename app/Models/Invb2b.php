@@ -44,6 +44,8 @@ class Invb2b extends Model
         'currency',
         'attachment',
         'send_to_client',
+        'sign_status',
+        'approve_date',
     ];
 
     public function getCurrencyUnit()
@@ -168,5 +170,10 @@ class Invb2b extends Model
     public function partner_prog()
     {
         return $this->hasOne(PartnerProg::class, 'id', 'partnerprog_id');
+    }
+
+    public function invoiceAttachment()
+    {
+        return $this->hasMany(InvoiceAttachment::class, 'invb2b_id', 'invb2b_id');
     }
 }

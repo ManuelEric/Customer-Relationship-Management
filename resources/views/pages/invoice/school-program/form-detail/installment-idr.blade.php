@@ -11,9 +11,9 @@
     </div>
     <div class="card-body " id="installment_content">
         @if ((old('invdtl_installment') || isset($invoiceSch->inv_detail)) && isset($invoiceSch) && $invoiceSch->invb2b_pm == 'Installment')
-        @php
-            $limit = isset($invoiceSch->inv_detail) ? count($invoiceSch->inv_detail) : count(old('invdtl_installment'))
-        @endphp
+            @php
+                $limit = isset($invoiceSch->inv_detail) ? count($invoiceSch->inv_detail) : count(old('invdtl_installment'))
+            @endphp
             @for ($i = 0; $i < $limit ; $i++)
                 <div class="row g-2 installment mb-3">
                     <div class="col-md-3">

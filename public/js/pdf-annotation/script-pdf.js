@@ -38,6 +38,14 @@ function clearPage() {
     pdf.clearActivePage();
 }
 
+function showPdfData() {
+    var string = pdf.serializePdf();
+    $('#dataModal .modal-body pre').first().text(string);
+    PR.prettyPrint();
+    $('#dataModal').modal('show');
+}
+
+
 $('html').keyup(function(e){
     if(e.keyCode == 46) {
         deleteSelectedObject(e)

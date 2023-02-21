@@ -50,7 +50,6 @@ class InvDetail extends Model
             case "gbp":
                 $unit = '£';
                 break;
-
         }
 
         return $unit;
@@ -59,14 +58,14 @@ class InvDetail extends Model
     protected function invoicedtlAmount(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit().' '.$this->invdtl_amount
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invdtl_amount
         );
     }
 
     protected function invoicedtlAmountidr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. ".number_format($this->invdtl_amountidr,'2',',','.')
+            get: fn ($value) => "Rp. " . number_format($this->invdtl_amountidr, '2', ',', '.')
         );
     }
 
@@ -84,5 +83,4 @@ class InvDetail extends Model
     {
         return $this->hasOne(Receipt::class, 'invdtl_id', 'invdtl_id');
     }
-
 }

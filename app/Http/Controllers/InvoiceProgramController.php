@@ -593,8 +593,6 @@ class InvoiceProgramController extends Controller
             # update status send to client
             $newDetails['send_to_client'] = 'sent';
             $this->invoiceProgramRepository->updateInvoice($invoice_id, $newDetails);
-
-
         } catch (Exception $e) {
 
             Log::info('Failed to send invoice to client : ' . $e->getMessage());
@@ -608,8 +606,6 @@ class InvoiceProgramController extends Controller
     {
         $pdfFile = $request->file('pdfFile');
         $name = $request->file('pdfFile')->getClientOriginalName();
-        // $destination = public_path('attachment/');
-        return $name;
 
         if ($pdfFile->storeAs('public/uploaded_file/invoice/', $name)) {
             return response()->json(['status' => 'success']);

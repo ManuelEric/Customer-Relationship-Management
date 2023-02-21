@@ -6,6 +6,8 @@ use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Models\PartnerProg;
 use DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
+
 
 class PartnerProgramRepository implements PartnerProgramRepositoryInterface
 {
@@ -166,16 +168,44 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
         return PartnerProg::where('corp_id', $corpId)->orderBy('id', 'asc')->get();
     }
 
-    public function getReportPartnerPrograms($success_date = null)
+    public function getAllPartnerProgramByStatusAndMonth($status, $monthYear)
     {
-        return PartnerProg::where('status', 1)->get();
-        // ->where('created_at');
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return PartnerProg::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
+            ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_partner_prog.prog_id')
+            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->select(
+                'tbl_corp.corp_name as corp_name',
+                DB::raw('(CASE
+                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                            ELSE tbl_prog.prog_program
+                        END) AS program_name')
+            )
+            ->whereYear('tbl_partner_prog.created_at', '=', $year)
+            ->whereMonth('tbl_partner_prog.created_at', '=', $month)
+            ->where('tbl_partner_prog.status', $status)
+            ->get();
+    }
+
+    public function getStatusPartnerProgramByMonthly($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return PartnerProg::select('status', DB::raw('sum(total_fee) as total_fee'), DB::raw('count(*) as count_status'))
+            ->whereYear('created_at', '=', $year)
+            ->whereMonth('created_at', '=', $month)
+            ->groupBy('status')
+            ->get();
     }
 
     public function getPartnerProgramById($partnerProgId)
     {
         return PartnerProg::find($partnerProgId);
     }
+
 
     public function deletePartnerProgram($partnerProgId)
     {
@@ -190,5 +220,76 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
     public function updatePartnerProgram($partnerProgId, array $newPrograms)
     {
         return PartnerProg::find($partnerProgId)->update($newPrograms);
+    }
+
+    public function getReportPartnerPrograms($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+
+        if (isset($start_date) && isset($end_date)) {
+            return PartnerProg::where('status', 1)
+                ->whereDate('success_date', '>=', $start_date)
+                ->whereDate('success_date', '<=', $end_date)
+
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return PartnerProg::where('status', 1)
+                ->whereDate('success_date', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return PartnerProg::where('status', 1)
+                ->whereDate('success_date', '<=', $end_date)
+                ->get();
+        } else {
+            return PartnerProg::where('status', 1)
+                ->whereBetween('success_date', [$firstDay, $lastDay])
+                ->get();
+        }
+    }
+
+    public function getTotalPartnerProgramComparison($startYear, $endYear)
+    {
+        $start = PartnerProg::select(DB::raw("'start' as 'type'"), DB::raw('count(id) as count'), DB::raw('sum(total_fee) as total_fee'))
+            ->where('status', 1)
+            ->whereYear('success_date', $startYear);
+
+        $end = PartnerProg::select(DB::raw("'end' as 'type'"), DB::raw('count(id) as count'), DB::raw('sum(total_fee) as total_fee'))
+            ->where('status', 1)
+            ->whereYear('success_date', $endYear)
+            ->union($start)
+            ->get();
+
+        return $end;
+    }
+
+    public function getPartnerProgramComparison($startYear, $endYear)
+    {
+        return PartnerProg::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_partner_prog.prog_id')
+            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->select(
+                'tbl_partner_prog.prog_id',
+                DB::raw('(CASE
+                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                            ELSE tbl_prog.prog_program
+                        END) AS program_name'),
+                DB::raw("'Partner Program' as type"),
+                DB::raw('SUM(participants) as participants'),
+                DB::raw('DATE_FORMAT(success_date, "%Y") as year'),
+                DB::raw("SUM(total_fee) as total"),
+            )
+            ->where('status', 1)
+            ->whereYear(
+                'success_date',
+                '=',
+                DB::raw('(case year(success_date)
+                                when ' . $startYear . ' then ' . $startYear . '
+                                when ' . $endYear . ' then ' . $endYear . '
+                            end)')
+            )
+            ->groupBy('prog_id')
+            ->groupBy(DB::raw('year(success_date)'))
+            ->get();
     }
 }

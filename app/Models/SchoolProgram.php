@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 
 
-class SchoolProgram extends Model
+class SchoolProgram extends Model 
 {
     use HasFactory;
 

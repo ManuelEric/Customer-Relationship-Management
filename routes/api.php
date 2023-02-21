@@ -1,8 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\v1\SalesDashboardController;
+use App\Http\Controllers\Api\v1\PartnerDashboardController;
+use App\Http\Controllers\Api\v1\FinanceDashboardController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\InvoiceProgramController;
+use App\Http\Controllers\InvoiceSchoolController;
+use App\Http\Controllers\ReceiptSchoolController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,11 +42,28 @@ Route::get('get/lead/academic-prep/{month}/{user?}', [SalesDashboardController::
 Route::get('get/lead/career-exploration/{month}/{user?}', [SalesDashboardController::class, 'getLeadCareerExplorationByMonth']);
 Route::get('get/all-program/target/{month}/{user?}', [SalesDashboardController::class, 'getAllProgramTargetByMonth']);
 Route::get('get/client-event/{year}/{user?}', [SalesDashboardController::class, 'getClientEventByYear']);
-
-
-
-
 Route::get('get/program-comparison', [SalesDashboardController::class, 'compare_program']);
 Route::get('get/conversion-lead/event/{event}', [SalesDashboardController::class, 'getConversionLeadsByEventId']);
 
 Route::post('/upload', [InvoiceProgramController::class, 'upload']);
+Route::get('mentee/birthday/{month}', [SalesDashboardController::class, 'getMenteesBirthdayByMonth']);
+
+# dashboard partnership
+Route::get('partner/total/{month}', [PartnerDashboardController::class, 'getTotalByMonth']);
+Route::get('partner/agenda/{date}', [PartnerDashboardController::class, 'getSpeakerByDate']);
+Route::get('partner/partnership-program/{month}', [PartnerDashboardController::class, 'getPartnershipProgramByMonth']);
+Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [PartnerDashboardController::class, 'getPartnershipProgramDetailByMonth']);
+Route::get('partner/partnership-program/program-comparison/{start_year}/{end_year}', [PartnerDashboardController::class, 'getProgramComparison']);
+
+# dashboard finance
+Route::get('finance/total/{month}', [FinanceDashboardController::class, 'getTotalByMonth']);
+Route::get('finance/outstanding/{month}', [FinanceDashboardController::class, 'getOutstandingPayment']);
+Route::get('finance/revenue/{year}', [FinanceDashboardController::class, 'getRevenueByYear']);
+Route::get('finance/revenue/detail/{year}/{month}', [FinanceDashboardController::class, 'getRevenueDetailByMonth']);
+Route::get('finance/outstanding/period/{start_date}/{end_date}', [FinanceDashboardController::class, 'getOutstandingPaymentByPeriod']);
+
+
+Route::post('/upload', [InvoiceProgramController::class, 'upload']);
+Route::post('invoice-sch/{invoice}/upload/{currency}', [InvoiceSchoolController::class, 'upload']);
+
+Route::post('receipt/{receipt}/upload/{currency}', [ReceiptSchoolController::class, 'upload_signed']);

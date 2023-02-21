@@ -6,14 +6,15 @@ use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Models\ClientProgram;
 use App\Models\InvoiceProgram;
 use App\Models\ViewClientProgram;
+use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
-class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface 
+class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 {
     public function getAllInvoiceProgramDataTables($status)
     {
-        switch($status) {
+        switch ($status) {
 
             case "needed":
                 $query = ViewClientProgram::when($status == "needed", function ($q) {
@@ -25,20 +26,20 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
             case "list":
                 $query = InvoiceProgram::leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-                        ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-                        ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-                        ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-                        ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
-                        ->select([
-                            'tbl_inv.clientprog_id',
-                            DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
-                            DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
-                            'inv_id',
-                            'inv_paymentmethod',
-                            'tbl_inv.created_at',
-                            'inv_duedate',
-                            'inv_totalprice_idr',
-                        ]);
+                    ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+                    ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+                    ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                    ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+                    ->select([
+                        'tbl_inv.clientprog_id',
+                        DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
+                        DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                        'inv_id',
+                        'inv_paymentmethod',
+                        'tbl_inv.created_at',
+                        'inv_duedate',
+                        'inv_totalprice_idr',
+                    ]);
                 break;
 
             case "reminder":
@@ -60,27 +61,26 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 //         ])
                 //         ->orderBy('date_difference', 'asc');
                 $query = InvoiceProgram::leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-                        ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-                        ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-                        ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-                        ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
-                        ->select([
-                            'tbl_inv.clientprog_id',
-                            DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
-                            DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
-                            'inv_id',
-                            'inv_paymentmethod',
-                            'tbl_inv.created_at',
-                            'inv_duedate',
-                            'inv_totalprice_idr',
-                            DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
-                        ])
-                        ->where(DB::raw('DATEDIFF(inv_duedate, now())'), '<=', 7)
-                        ->orderBy('date_difference', 'asc');
+                    ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+                    ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+                    ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                    ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+                    ->select([
+                        'tbl_inv.clientprog_id',
+                        DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
+                        DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                        'inv_id',
+                        'inv_paymentmethod',
+                        'tbl_inv.created_at',
+                        'inv_duedate',
+                        'inv_totalprice_idr',
+                        DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
+                    ])
+                    ->where(DB::raw('DATEDIFF(inv_duedate, now())'), '<=', 7)
+                    ->orderBy('date_difference', 'asc');
                 break;
-
         }
-        
+
 
         return DataTables::eloquent($query)->make(true);
     }
@@ -107,4 +107,220 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         return InvoiceProgram::where('clientprog_id', $clientProgId)->delete();
     }
 
+    public function getReportInvoiceB2c($start_date = null, $end_date = null, $whereBy)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        $queryInv = InvoiceProgram::whereRelation('clientprog', 'status', 1);
+
+        if (isset($start_date) && isset($end_date)) {
+            $queryInv->whereDate($whereBy, '>=', $start_date)
+                ->whereDate($whereBy, '<=', $end_date);
+        } else if (isset($start_date) && !isset($end_date)) {
+            $queryInv->whereDate($whereBy, '>=', $start_date);
+        } else if (!isset($start_date) && isset($end_date)) {
+            $queryInv->whereDate($whereBy, '<=', $end_date);
+        } else {
+            $queryInv->whereBetween($whereBy, [$firstDay, $lastDay]);
+        }
+
+        return $queryInv->get();
+    }
+
+
+    public function getReportUnpaidInvoiceB2c($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        $invoiceB2c = InvoiceProgram::leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')
+            ->leftJoin(
+                'tbl_receipt',
+                DB::raw('(CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                            tbl_receipt.inv_id 
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                tbl_receipt.invdtl_id
+                        ELSE null
+                    END )'),
+                DB::raw('CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                            tbl_inv.inv_id 
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                tbl_invdtl.invdtl_id
+                        ELSE null
+                    END')
+            )
+
+            ->select(
+                'tbl_inv.inv_id',
+                'tbl_inv.clientprog_id',
+                'tbl_inv.inv_duedate',
+                DB::raw('(CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                                tbl_inv.inv_totalprice_idr 
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                tbl_invdtl.invdtl_amountidr
+                            ELSE null
+                        END) as total_price_inv'),
+                'tbl_receipt.receipt_id',
+                'tbl_receipt.receipt_amount_idr',
+                'tbl_receipt.created_at as paid_date',
+                'tbl_invdtl.invdtl_installment',
+                'tbl_invdtl.invdtl_id',
+            )
+            ->whereRelation('clientprog', 'status', 1);
+
+        if (isset($start_date) && isset($end_date)) {
+            return $invoiceB2c->whereBetween('inv_duedate', [$start_date, $end_date])
+                ->orderBy('inv_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return $invoiceB2c->whereDate('inv_duedate', '>=', $start_date)
+                ->orderBy('inv_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return $invoiceB2c->whereDate('inv_duedate', '<=', $end_date)
+                ->orderBy('inv_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
+                ->get();
+        } else {
+            return $invoiceB2c->whereBetween('inv_duedate', [$firstDay, $lastDay])
+                ->orderBy('inv_id', 'asc')
+                ->orderBy('invdtl_id', 'asc')
+                ->get();
+        }
+    }
+
+    public function getTotalInvoiceNeeded($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return ViewClientProgram::doesntHave('invoice')
+            ->select(DB::raw('COUNT(clientprog_id) as count_invoice_needed'))
+            ->where('status', 1)
+            ->whereYear('success_date', '=', $year)
+            ->whereMonth('success_date', '=', $month)
+            ->get();
+    }
+
+    public function getTotalInvoice($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return InvoiceProgram::leftJoin('clientprogram', 'clientprogram.clientprog_id', '=', 'tbl_inv.clientprog_id')
+            ->select(DB::raw('COUNT(id) as count_invoice'), DB::raw('CAST(sum(inv_totalprice_idr) as integer) as total'))
+            ->whereYear('tbl_inv.inv_duedate', '=', $year)
+            ->whereMonth('tbl_inv.inv_duedate', '=', $month)
+            ->where('clientprogram.status', 1)
+            ->get();
+    }
+
+    public function getTotalRefundRequest($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return ViewClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')
+            ->select(DB::raw("count('clientprogram.clientprog_id') as count_refund_request"))
+            ->where('clientprogram.status', 3)
+            ->where('tbl_inv.inv_status', 1)
+            ->whereYear('tbl_inv.inv_duedate', '=', $year)
+            ->whereMonth('tbl_inv.inv_duedate', '=', $month)
+            ->get();
+    }
+
+    public function getInvoiceOutstandingPayment($monthYear, $type, $start_date = null, $end_date = null)
+    {
+        // TODO: Outstanding payment by period
+
+        if (isset($monthYear)) {
+            $year = date('Y', strtotime($monthYear));
+            $month = date('m', strtotime($monthYear));
+        }
+
+        $queryInv = InvoiceProgram::leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')
+            ->leftJoin(
+                'tbl_receipt',
+                DB::raw('(CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                            tbl_receipt.inv_id 
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                tbl_receipt.invdtl_id
+                        ELSE null
+                    END )'),
+                DB::raw('CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                            tbl_inv.inv_id 
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                tbl_invdtl.invdtl_id
+                        ELSE null
+                    END')
+            )
+            ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
+            ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id');
+
+        switch ($type) {
+            case 'paid':
+                $queryInv->select([
+                    'tbl_inv.clientprog_id',
+                    DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
+                    DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                    'tbl_inv.inv_totalprice_idr as total_price_inv',
+                    'tbl_receipt.receipt_amount_idr as total'
+                ])->has('receipt');
+                break;
+
+            case 'unpaid':
+                $queryInv->select([
+                    'tbl_inv.clientprog_id',
+                    DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
+                    DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                    DB::raw('(CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                                tbl_inv.inv_totalprice_idr 
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                tbl_invdtl.invdtl_amountidr
+                            ELSE null
+                        END) as total')
+                ])->doesnthave('receipt');
+                break;
+        }
+
+        if (isset($monthYear)) {
+            $queryInv->whereYear('tbl_inv.inv_duedate', '=', $year)
+                ->whereMonth('tbl_inv.inv_duedate', '=', $month);
+        } else {
+            if ($start_date > $end_date) {
+                $queryInv->whereBetween('tbl_inv.inv_duedate', [$start_date, $end_date]);
+            } else {
+                $queryInv->whereBetween('tbl_inv.inv_duedate', [$end_date, $start_date]);
+            }
+        }
+
+        $queryInv
+            ->whereRelation('clientprog', 'status', 1);
+        // ->groupBy('tbl_inv.inv_id');
+
+        return $queryInv->get();
+    }
+
+    public function getRevenueByYear($year)
+    {
+        return InvoiceProgram::leftJoin('tbl_receipt', 'tbl_receipt.inv_id', '=', 'tbl_inv.inv_id')
+            ->select(DB::raw('SUM(tbl_receipt.receipt_amount_idr) as total'), DB::raw('MONTH(tbl_inv.inv_duedate) as month'))
+            ->whereYear('tbl_inv.inv_duedate', '=', $year)
+            ->whereRelation('clientprog', 'status', 1)
+            ->whereHas('receipt')
+            ->groupBy(DB::raw('MONTH(tbl_inv.inv_duedate)'))
+            ->get();
+    }
 }

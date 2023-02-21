@@ -2,10 +2,11 @@
 
 namespace App\Interfaces;
 
-interface AgendaSpeakerRepositoryInterface 
+interface AgendaSpeakerRepositoryInterface
 {
     public function getAllSpeakerByMonthAndYear($month, $year);
     public function getAllSpeakerByEvent($eventId);
+    public function getAllSpeakerDashboard($type, $date = null);
     public function getAllSpeakerBySchoolProgram($schProgId);
     public function getAllSpeakerByPartnerProgram($partnerProgId);
     public function getAllSpeakerByEventAndMonthAndYear($eventId, $month, $year);

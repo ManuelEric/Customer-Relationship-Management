@@ -6,6 +6,7 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Models\Invb2b;
 use App\Models\Receipt;
 use App\Models\Refund;
+use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -148,5 +149,80 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     public function deleteReceipt($receiptId)
     {
         return Receipt::whereId($receiptId)->delete();
+    }
+
+    public function getReportReceipt($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        $queryReceipt = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
+            ->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_receipt.invb2b_id')
+            ->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+            ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
+            ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
+            ->where(DB::raw('(CASE
+                            WHEN tbl_receipt.inv_id IS NULL THEN 
+                                CASE 
+                                    WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
+                                    WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
+                                END
+                            WHEN  tbl_receipt.invb2b_id IS NULL THEN 
+                                CASE
+                                    WHEN tbl_inv.clientprog_id > 0 THEN tbl_client_prog.status
+                                END
+                            END)'), 1);
+
+        if (isset($start_date) && isset($end_date)) {
+            $queryReceipt->whereDate('tbl_receipt.created_at', '>=', $start_date)
+                ->whereDate('tbl_receipt.created_at', '<=', $end_date)
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            $queryReceipt->whereDate('tbl_receipt.created_at', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            $queryReceipt->whereDate('tbl_receipt.created_at', '<=', $end_date)
+                ->get();
+        } else {
+            $queryReceipt->whereBetween('tbl_receipt.created_at', [$firstDay, $lastDay])
+                ->get();
+        }
+
+        return $queryReceipt->get();
+    }
+
+    public function getTotalReceipt($monthYear)
+    {
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        return Receipt::leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_receipt.invb2b_id')
+            ->leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
+            ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
+            ->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+            ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
+            ->select(DB::raw('COUNT(tbl_receipt.id) as count_receipt'), DB::raw('CAST(SUM(receipt_amount_idr) as integer) as total'))
+            ->whereYear(DB::raw('(CASE
+                                    WHEN tbl_receipt.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
+                                    WHEN tbl_receipt.inv_id is not null THEN tbl_inv.inv_duedate
+                                END)'), '=', $year)
+            ->whereMonth(DB::raw('(CASE
+                                    WHEN tbl_receipt.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
+                                    WHEN tbl_receipt.inv_id is not null THEN tbl_inv.inv_duedate
+                                END)'), '=', $month)
+            ->where(DB::raw('(CASE
+                                WHEN tbl_receipt.invb2b_id is not null THEN 
+                                    (CASE
+                                        WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
+                                        WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
+                                    END)
+                                WHEN tbl_inv.inv_id is not null THEN tbl_client_prog.status
+                            ELSE NULL
+                            END)'), 1)
+            ->groupBy(DB::raw('(CASE
+                                    WHEN tbl_receipt.invb2b_id is not null THEN tbl_invb2b.invb2b_id
+                                    WHEN tbl_receipt.inv_id is not null THEN tbl_inv.inv_id
+                                END)'))
+            ->get();
     }
 }

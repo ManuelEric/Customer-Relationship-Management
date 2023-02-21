@@ -7,6 +7,7 @@ use App\Http\Requests\StoreAttachmentB2bRequest;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
+use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use PDF;
 
 
@@ -30,15 +32,17 @@ class InvoiceSchoolController extends Controller
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
     protected ProgramRepositoryInterface $programRepository;
+    protected InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
         $this->programRepository = $programRepository;
+        $this->invoiceAttachmentRepository = $invoiceAttachmentRepository;
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->receiptRepository = $receiptRepository;
@@ -206,13 +210,14 @@ class InvoiceSchoolController extends Controller
 
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
-
+        $attachments = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceIdentifier('B2B', $invoiceSch->invb2b_id);
 
         return view('pages.invoice.school-program.form')->with(
             [
                 'schoolProgram' => $schoolProgram,
                 'school' => $school,
                 'invoiceSch' => $invoiceSch,
+                'attachments' => $attachments,
                 'status' => 'show',
             ]
         );
@@ -374,43 +379,30 @@ class InvoiceSchoolController extends Controller
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoiceSch->invb2b_id;
 
+        $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
-        return view('pages.invoice.school-program.export.invoice-pdf')->with([
-            'invoiceSch' => $invoiceSch,
-            'currency' => $currency,
+        return view('pages.invoice.view-pdf')->with([
+            'invoiceAttachment' => $invoiceAttachment,
         ]);
-
-        // $companyDetail = [
-        //     'name' => env('ALLIN_COMPANY'),
-        //     'address' => env('ALLIN_ADDRESS'),
-        //     'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-        //     'city' => env('ALLIN_CITY')
-        // ];
-
-        $pdf = PDF::loadView(
-            'pages.invoice.school-program.export.invoice-pdf',
-            [
-                'invoiceSch' => $invoiceSch,
-                'currency' => $currency,
-                // 'companyDetail' => $companyDetail
-            ]
-        );
-        return $pdf->download($invoice_id . ".pdf");
     }
 
     public function requestSign(Request $request)
     {
-
         $invNum = $request->route('invoice');
         $currency = $request->route('currency');
 
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoiceSch->invb2b_id;
         $invoice_num = $invoiceSch->invb2b_num;
+        $file_name = str_replace('/', '_', $invoice_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
+        $path = 'public/uploaded_file/invoice/sch_prog/';
+        $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
-        // $type = $request->get('type');
-        // return $link;
-        // exit;
+        $attachmentDetails = [
+            'invb2b_id' => $invoice_id,
+            'currency' => $currency,
+            'attachment' => $file_name,
+        ];
 
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
@@ -423,8 +415,13 @@ class InvoiceSchoolController extends Controller
         $data['recipient'] = 'test name';
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
-            'invb2b_num' => $invoice_num
+            'invb2b_num' => $invoice_num,
+            'currency' => $currency,
         ];
+
+        if (Storage::exists($path . $file_name)) {
+            unlink(storage_path('app/' . $path . $file_name));
+        }
 
         try {
 
@@ -434,10 +431,20 @@ class InvoiceSchoolController extends Controller
                 'companyDetail' => $companyDetail
             ]);
 
-            Mail::send('pages.invoice.school-program.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
+            # Generate PDF file
+            $content = $pdf->download();
+            Storage::put($path . $file_name, $content);
+
+            # if attachment exist then update attachement else insert attachement
+            if (isset($attachment)) {
+                $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $attachmentDetails);
+            } else {
+                $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
+            }
+
+            Mail::send('pages.invoice.school-program.mail.view', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['recipient'])
-                    ->subject($data['title'])
-                    ->attachData($pdf->output(), $invoice_id . '.pdf');
+                    ->subject($data['title']);
             });
         } catch (Exception $e) {
 
@@ -448,76 +455,65 @@ class InvoiceSchoolController extends Controller
         return true;
     }
 
-    public function createSignedAttachment(Request $request)
+    public function signAttachment(Request $request)
     {
         if (Session::token() != $request->get('token')) {
             return "Your session token is expired";
         }
 
         $invNum = $request->route('invoice');
+        $currency = $request->route('currency');
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_id = $invoiceSch->invb2b_id;
+        $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
-        return view('pages.invoice.school-program.upload.view')->with(
+        if (isset($invoiceAttachment->sign_status) && $invoiceAttachment->sign_status == 'signed') {
+            return "Invoice is already signed";
+        }
+
+        return view('pages.invoice.sign-pdf')->with(
             [
-                'invoiceSch' => $invoiceSch,
+                'attachment' => $invoiceAttachment->attachment,
+                'currency' => $currency,
+                'invoice' => $invoiceSch,
             ]
         );
     }
 
-    public function storeSignedAttachment(StoreAttachmentB2bRequest $request)
+    public function upload(Request $request)
     {
-        $invoice_id = $request->invoice_id;
-        $invNum = $request->route('invoice');
-
-        $attachmentDetails = $request->only([
-            'signed_attachment',
-        ]);
-
-        $file_format = $request->file('signed_attachment')->getClientOriginalExtension();
-
-        DB::beginTransaction();
-        try {
-
-            # proses store attachment here
-            if (!$request->hasFile('signed_attachment')) {
-                throw new Exception('Please upload your file');
-            }
-
-            $file_name = str_replace('/', '_', $invoice_id);
-            $file_format = $request->file('signed_attachment')->getClientOriginalExtension();
-            $file_path = $request->file('signed_attachment')->storeAs('public/uploaded_file/invoice/', $file_name . '.' . $file_format);
-
-            unset($attachmentDetails['signed_attachment']);
-            $attachmentDetails['attachment'] = $file_name . '.' . $file_format;
-            $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $attachmentDetails);
-
-
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::info('Upload signed attachment invoice failed : ' . $e->getMessage());
-            return false;
-        }
-
-        return true;
-    }
-
-    public function download(Request $request)
-    {
+        $pdfFile = $request->file('pdfFile');
+        $name = $request->file('pdfFile')->getClientOriginalName();
         $invNum = $request->route('invoice');
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_id = $invoiceSch->invb2b_id;
+        $currency = $request->route('currency');
 
-        return response()->download(storage_path('app/public/uploaded_file/invoice/' . $invoiceSch->attachment));
+        $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
+
+        if ($pdfFile->storeAs('public/uploaded_file/invoice/sch_prog/', $name)) {
+
+            $attachmentDetails = [
+                'sign_status' => 'signed',
+                'approve_date' => Carbon::now()->toDateString()
+            ];
+
+            $this->invoiceAttachmentRepository->updateInvoiceAttachment($invoiceAttachment->id, $attachmentDetails);
+
+            return response()->json(['status' => 'success']);
+        } else {
+            return response()->json(['status' => 'error']);
+        }
     }
 
     public function sendToClient(Request $request)
     {
         $invNum = $request->route('invoice');
+        $currency = $request->route('currency');
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoiceSch->invb2b_id;
+        $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
         $program_name = $invoiceSch->sch_prog->program->prog_program;
-
 
         if ($invoiceSch->sch_prog->program->sub_prog_id > 0) {
             $program_name = $invoiceSch->sch_prog->program->prog_sub . ' - ' . $invoiceSch->sch_prog->program->prog_program;
@@ -528,17 +524,24 @@ class InvoiceSchoolController extends Controller
         $data['recipient'] = 'Test Name';
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
         $data['param'] = [
-            'invb2b_num' => $invNum
+            'invb2b_num' => $invNum,
+            'currency' => $currency,
         ];
 
         try {
 
-            Mail::send('pages.invoice.school-program.mail.client-view', $data, function ($message) use ($data, $invoiceSch) {
+            Mail::send('pages.invoice.school-program.mail.client-view', $data, function ($message) use ($data, $invoiceAttachment) {
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/invoice/' . $invoiceSch->attachment));
+                    ->attach(storage_path('app/public/uploaded_file/invoice/sch_prog' . $invoiceAttachment->attachment));
             });
+
+            $attachmentDetails = [
+                'send_to_client' => 'sent',
+            ];
+
+            $this->invoiceAttachmentRepository->updateInvoiceAttachment($invoiceAttachment->id, $attachmentDetails);
         } catch (Exception $e) {
 
             Log::info('Failed to send invoice to client : ' . $e->getMessage());

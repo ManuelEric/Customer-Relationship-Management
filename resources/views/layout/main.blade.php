@@ -10,6 +10,9 @@
     <script src="{{ asset('dashboard-template/js/jquery.cookie.js') }}" type="text/javascript"></script>
 
     <script src="{{ asset('assets/dist/pspdfkit.js')}}"></script>
+
+    {{-- Sheet Js --}}
+    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
 @endsection
 
 @section('body')
@@ -368,24 +371,24 @@
                                 <li class="nav-item">
                                     <a @class([
                                         'nav-link',
-                                        'active' => Request::is('report*')
+                                        'active' => Request::is('report/sales*')
                                     ]) href="{{ url('report/sales') }}">Sales
                                         Tracking</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url('report/event') }}">Event Tracking</a>
+                                    <a class="nav-link {{ Request::is('report/event*') ? 'active' : '' }}" href="{{ url('report/event') }}">Event Tracking</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url('report/partnership') }}">
+                                    <a class="nav-link {{ Request::is('report/partnership*') ? 'active' : '' }}" href="{{ url('report/partnership') }}">
                                         Partnership
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url('report/invoice') }}">Invoice &
+                                    <a class="nav-link {{ Request::is('report/invoice*') ? 'active' : '' }}" href="{{ url('report/invoice') }}">Invoice &
                                         Receipt</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ url('report/unpaid') }}">Unpaid Payment</a>
+                                    <a class="nav-link {{ Request::is('report/unpaid*') ? 'active' : '' }}" href="{{ url('report/unpaid') }}">Unpaid Payment</a>
                                 </li>
                             </ul>
                         </div>

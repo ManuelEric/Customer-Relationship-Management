@@ -10,17 +10,19 @@
                     <h6 class="p-0 m-0">Period</h6>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <label>Start Date</label>
-                        <input type="date" name="" id="" class="form-control form-control-sm rounded">
-                    </div>
-                    <div class="mb-3">
-                        <label>End Date</label>
-                        <input type="date" name="" id="" class="form-control form-control-sm rounded">
-                    </div>
-                    <div class="text-center">
-                        <button class="btn btn-sm btn-outline-primary">Submit</button>
-                    </div>
+                    <form action="">
+                        <div class="mb-3">
+                            <label>Start Date</label>
+                            <input type="date" name="start_date" id="" class="form-control form-control-sm rounded">
+                        </div>
+                        <div class="mb-3">
+                            <label>End Date</label>
+                            <input type="date" name="end_date" id="" class="form-control form-control-sm rounded">
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Submit</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -32,20 +34,20 @@
                     <div class="d-flex justify-content-between">
                         <strong>Total</strong>
                         <div class="text-end">
-                            Rp. 123.000.000
+                            Rp. {{ number_format($totalAmount, '2', ',', '.') }}
                         </div>
                     </div>
                     <div class="d-flex justify-content-between">
                         <strong>Paid</strong>
                         <div class="text-end">
-                            Rp. 123.000.000
+                                Rp. {{ number_format($totalPaid, '2', ',', '.') }} {{ $totalDiff > 0 ? '( Rp. '. number_format($totalDiff, '2', ',', '.') .')' : '' }}                       
                         </div>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between">
                         <strong>Remaining</strong>
                         <div class="text-end">
-                            Rp. 123.000.000
+                             Rp. {{ number_format($remaining, '2', ',', '.') }}
                         </div>
                     </div>
                 </div>
@@ -57,18 +59,19 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">Invoice & Receipt Report</h6>
                     <div class="">
-                        <button class="btn btn-sm btn-outline-info">
+                        <button class="btn btn-sm btn-outline-info" onclick="ExportToExcel()">
                             <i class="bi bi-file-earmark-excel me-1"></i> Print
                         </button>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="volunteerTable">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100 table2excel" id="tbl_unpaid_payment">
                             <thead>
                                 <tr>
                                     <th>#</th>
                                     <th>Invoice ID</th>
+                                    <th>Type</th>
                                     <th>Client/Partner/School Name</th>
                                     <th>Program Name</th>
                                     <th>Installment</th>
@@ -79,28 +82,67 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>0001/INV-JEI/STP/II/23</td>
-                                    <td>Client/Partner/School Name</td>
-                                    <td>Program Name</td>
-                                    <td>Installment</td>
-                                    <td>Paid</td>
-                                    <td>0001/REC-JEI/STP/II/23</td>
-                                    <td>23 February 2023</td>
-                                    <td>Rp. 23.000.000</td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>0001/INV-JEI/STP/II/23</td>
-                                    <td>Client/Partner/School Name</td>
-                                    <td>Program Name</td>
-                                    <td>Installment</td>
-                                    <td>Not Yet Paid</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>Rp. 23.000.000</td>
-                                </tr>
+                         
+                                @forelse ($invoices as $invoice)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ isset($invoice->inv_id) ? $invoice->inv_id : $invoice->invb2b_id}}</td>
+                                        <td>{{ isset($invoice->inv_id) ? 'B2C' : 'B2B'}}</td>
+                                        
+                                        {{-- Client Name --}}
+                                        @if(isset($invoice->clientprog_id))
+                                            <td>{{ $invoice->clientprog->client->first_name }} {{ $invoice->clientprog->client->last_name }}</td>
+                                        @elseif(isset($invoice->schprog_id))
+                                            <td>{{ $invoice->sch_prog->school->sch_name }}</td>
+                                        @elseif(isset($invoice->partnerprog_id))
+                                            <td>{{ $invoice->partner_prog->corp->corp_name }}</td>
+                                        @endif
+
+                                        {{-- Program Name --}}
+                                        @if(isset($invoice->clientprog_id))
+                                            <td>{{ $invoice->clientprog->program->sub_prog ? $invoice->clientprog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->clientprog->program->prog_program }}</td>
+                                        @elseif(isset($invoice->schprog_id))
+                                            <td>{{ $invoice->sch_prog->program->sub_prog ? $invoice->sch_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->sch_prog->program->prog_program }}</td>
+                                        @elseif(isset($invoice->partnerprog_id))
+                                            <td>{{ $invoice->partner_prog->program->sub_prog ? $invoice->partner_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->partner_prog->program->prog_program }}</td>
+                                        @endif 
+
+                                        {{-- Installment --}}
+                                        <td class="text-center">
+                                            {{ isset($invoice->invdtl_installment) ? $invoice->invdtl_installment : '-' }}
+                                        </td>
+
+                                        {{-- Status --}}
+                                        <td>
+                                            {{ isset($invoice->receipt_id) ? 'Paid' : 'Not yet' }}
+                                        </td>
+
+                                        {{-- Receipt ID --}}
+                                        @if(isset($invoice->receipt_id))
+                                            <td>{{ $invoice->receipt_id }}</td>
+                                        @else
+                                            <td class="text-center">-</td>
+                                        @endif
+                                       
+                                        {{-- Paid Date --}}
+                                        @if(isset($invoice->receipt_id))
+                                            <td>{{ date('M d, Y H:i:s', strtotime($invoice->paid_date)) }}</td>
+                                        @else
+                                            <td class="text-center">-</td>
+                                        @endif
+                                        
+                                        {{-- Amount --}}
+                                         @if(isset($invoice->receipt_id))
+                                            <td>Rp. {{ number_format($invoice->receipt_amount_idr, '2', ',', '.') }} {{ $invoice->receipt_amount_idr > $invoice->total_price_inv ? '( Rp.'. number_format($invoice->receipt_amount_idr - $invoice->total_price_inv, '2', ',', '.') .')' : '' }}</td>
+                                        @else
+                                            <td class="text-center">-</td>
+                                        @endif
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="10" class="text-center">Not yet invoice</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                             <tfoot class="bg-light text-white">
                                 <tr>
@@ -113,4 +155,16 @@
             </div>
         </div>
     </div>
+    
+    <script>
+         function ExportToExcel() {
+
+            var workbook = XLSX.utils.book_new();
+            var ws = XLSX.utils.table_to_sheet(document.getElementById("tbl_unpaid_payment"));
+            XLSX.utils.book_append_sheet(workbook, ws, "Unpaid Payment");
+
+            XLSX.writeFile(workbook, "report-unpaid-payment.xlsx");
+            
+        }
+    </script>
 @endsection

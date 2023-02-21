@@ -42,15 +42,13 @@
                                             <div class="col text-center">
                                                 <div class="comparison_start">
                                                 </div>
-                                                <span class="badge badge-primary">
-                                                    Rp. 200.000.000
+                                                <span class="badge badge-primary" id="tot_start_partner">
                                                 </span>
                                             </div>
                                             <div class="col text-center">
                                                 <div class="comparison_end">
                                                 </div>
-                                                <span class="badge badge-primary">
-                                                    Rp. 200.000.000
+                                                <span class="badge badge-primary" id="tot_end_partner">
                                                 </span>
                                             </div>
                                         </div>
@@ -65,6 +63,7 @@
                 <div class="card">
                     <div class="card-header text-center">
                         School Program
+
                     </div>
                     <div class="card-body">
                         <div class="row align-items-center">
@@ -80,15 +79,13 @@
                                             <div class="col text-center">
                                                 <div class="comparison_start">
                                                 </div>
-                                                <span class="badge badge-primary">
-                                                    Rp. 200.000.000
+                                                <span class="badge badge-primary" id="tot_start_school">
                                                 </span>
                                             </div>
                                             <div class="col text-center">
                                                 <div class="comparison_end">
                                                 </div>
-                                                <span class="badge badge-primary">
-                                                    Rp. 200.000.000
+                                                <span class="badge badge-primary" id="tot_end_school">
                                                 </span>
                                             </div>
                                         </div>
@@ -140,7 +137,7 @@
 
             <div class="col-md-12 mt-3">
                 <div class="card">
-                    <div class="card-body overflow-auto" style="height: 300px">
+            <div class="card-body overflow-auto" style="height: 300px">
                         <table class="table table-bordered table-hover">
                             <thead class="bg-dark text-white">
                                 <tr class="text-center">
@@ -154,28 +151,27 @@
                                     <th class="comparison_end">2023</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr class="text-center">
-                                    <td>1</td>
-                                    <td>Program Name</td>
-                                    <td>Partner Program</td>
-                                    <td>10 (Rp. 123.333.122)</td>
-                                    <td>10 (Rp. 123.333.122)</td>
-                                </tr>
-                                <tr class="text-center">
-                                    <td>1</td>
-                                    <td>Program Name</td>
-                                    <td>School Program</td>
-                                    <td>10 (Rp. 123.333.122)</td>
-                                    <td>10 (Rp. 123.333.122)</td>
-                                </tr>
-                                <tr class="text-center">
-                                    <td>1</td>
-                                    <td>Program Name</td>
-                                    <td>Referral In</td>
-                                    <td>10 (Rp. 123.333.122)</td>
-                                    <td>10 (Rp. 123.333.122)</td>
-                                </tr>
+                            <tbody id="tbl_comparison">
+                                @php
+                                    $startYear = date('Y') - 1;
+                                    $endYear = date('Y');
+                                @endphp
+                                @foreach ($programComparisons as $key => $programComparison)
+                                    <tr class="text-center">
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $programComparison[0]['program_name'] }}</td>
+                                        <td>{{ $programComparison[0]['type'] }}</td>
+                                        @if(count($programComparison) > 1)
+                                            @foreach ($programComparison as $yearData)
+                                                <td>{{$yearData['year'] == $startYear ? $yearData[$startYear]['participants'] .' (Rp. '. number_format($yearData[$startYear]['total'], '2', ',', '.') .')' : $yearData['2023']['participants']  .' (Rp. '. number_format($yearData['2023']['total'], '2', ',', '.') .')'}}</td>
+                                            @endforeach  
+                                        @else
+                                            <td>{{ isset($programComparison[0][$startYear]) ? $programComparison[0][$startYear]['participants'] .' (Rp. '. number_format($programComparison[0][$startYear]['total'], '2', ',', '.') .')' : '-' }}</td>
+                                            <td>{{isset($programComparison[0][$endYear]) ? $programComparison[0][$endYear]['participants'] .' (Rp. '.number_format($programComparison[0][$endYear]['total'], '2', ',', '.').')' : '-'}}</td>
+                                        @endif
+                                        
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -192,8 +188,11 @@
             let datasets = ctx.chart.data.datasets;
             if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
                 let sum = datasets[0].data.reduce((a, b) => a + b, 0);
-                let percentage = Math.round((value / sum) * 100) + '%';
-                return percentage;
+                let percentage = Math.round((value / sum) * 100);
+                if(isNaN(percentage))
+                    return 0;
+                else 
+                    return percentage + "%";
             } else {
                 return percentage;
             }
@@ -217,11 +216,18 @@
         let start = $('#start_comparison').val()
         let end = $('#end_comparison').val()
 
+
+        const rupiah = (number)=>{
+            return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR"
+            }).format(number);
+        }
+
         if (start != end) {
             $('.comparison_start').html(start)
             $('.comparison_end').html(end)
-
-            // Axios here ...
+            
             let data = {
                 'label': {
                     'start': start,
@@ -231,10 +237,79 @@
                     'start': 'Rp. 120.000.000',
                     'end': 'Rp. 120.000.000'
                 },
-                'partner': [12, 5],
-                'school': [4, 5],
+                'partner': [0, 0],
+                'school': [0, 0],
                 'referral': [6, 5],
             }
+            // Axios here ...
+            axios.get('{{ url("api/partner/partnership-program/program-comparison") }}/' + start + '/' +  end)
+            .then((response) => {
+
+                var result = response.data.data
+
+                result.totalPartner.forEach(function (item, index) {
+                    switch (item['type']) {
+                        case 'start':
+                            data['partner'][0] = item['count'];
+                            $('#tot_start_partner').html(rupiah(item['total_fee']));
+                            break;
+                        case 'end':
+                            data['partner'][1] = item['count'];
+                            $('#tot_end_partner').html(rupiah(item['total_fee']));
+                            break;
+                        default:
+                            break;
+                    }
+                })
+
+                result.totalSch.forEach(function (item, index) {
+                    switch (item['type']) {
+                        case 'start':
+                            data['school'][0] = item['count'];
+                            $('#tot_start_school').html(rupiah(item['total_fee']));
+                            break;
+                        case 'end':
+                            data['school'][1] = item['count'];
+                            $('#tot_end_school').html(rupiah(item['total_fee']));
+                            break;
+                        default:
+                            break;
+                    }
+                })
+                
+                var html;
+                var no = 1;
+                
+                $('#tbl_comparison').empty()
+
+                // console.log(result.programComparisons)
+
+                Object.entries(result.programComparisons).forEach(entry => {
+                    const [key, value] = entry;
+                    html = "<tr class='text-center'>";
+                    html += "<td>" + no + "</td>";
+                    html += "<td>" + value[0]['program_name'] + "</td>";
+                    html += "<td>" + value[0]['type'] + "</td>";
+                        if(value.length > 1){
+                            Object.entries(value).forEach(entry => {
+                                const [key, value] = entry;
+                                html += "<td>" + (value['year'] === start ? value[start]['participants'] + ' (' + rupiah(value[start]['total']) + ')' : value[end]['participants'] + ' (' + rupiah(value[end]['total']) + ')') + "</td>"
+                            })
+                        }else{
+                            html += "<td>" + (value[0]['year'] === start ? value[0][start]['participants'] + ' (' + rupiah(value[0][start]['total']) + ')' : '-' ) + "</td>";
+                            html += "<td>" + (value[0]['year'] === end ? value[0][end]['participants'] + ' (' + rupiah(value[0][end]['total']) + ')' : '-' ) + "</td>";
+                        }
+                    html += '</tr>'
+                    $('#tbl_comparison').append(html);
+                    no++;
+                });
+
+                }, (error) => {
+                    console.log(error)
+                    swal.close()
+                })
+
+          
             renderChart(data)
         } else {
             $('#end_comparison').val(parseInt(start) + 1).trigger('change')

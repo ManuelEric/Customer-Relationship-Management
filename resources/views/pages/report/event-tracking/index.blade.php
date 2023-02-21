@@ -10,7 +10,7 @@
                     <h6 class="p-0 m-0">Client Event</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('report.client.event.index') }}" method="GET">
+                    <form action="{{ route('report.client.event') }}" method="GET">
                         {{-- @csrf --}}
                         <div class="mb-3">
                             <label>Event Name</label>
@@ -46,8 +46,7 @@
                                 <span class="badge badge-info">{{ $client->count_role }}</span>
                             </li>
                         @empty
-                            Not client yet
-                            
+                            <li class="text-center">Not Client yet</li> 
                         @endforelse
                     </ul>
                 </div>
@@ -60,14 +59,14 @@
                 </div>
                 <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
                     <ul class="list-group">
-                        @foreach ($conversionLeads as $conversionLead)
+                        @forelse ($conversionLeads as $conversionLead)
                             <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
                                 <div class="">{{ $conversionLead->conversion_lead }}</div>
                                 <span class="badge badge-warning">{{ $conversionLead->count_conversionLead }}</span>
                             </li>
-                        @endforeach
-                        {{-- @for ($i = 0; $i < 20; $i++)
-                        @endfor --}}
+                        @empty
+                            <li class="text-center">Not conversion lead yet</li>
+                        @endforelse
                     </ul>
                 </div>
             </div>
@@ -77,14 +76,14 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">Client Event</h6>
                     <div class="">
-                        <button class="btn btn-sm btn-outline-info">
+                        <button onclick="ExportToExcel()" class="btn btn-sm btn-outline-info">
                             <i class="bi bi-file-earmark-excel me-1"></i> Print
                         </button>
                     </div>
                 </div>
                 <div class="card-body overflow-auto" style="height: 500px">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover nowrap align-middle w-100">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100 table2excel" id="tbl_event">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -101,32 +100,17 @@
                                 @forelse ($clientEvents as $clientEvent)
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
-                                        <td>{{ $clientEvent->client->first_name }} {{ $clientEvent->client->last_name }}</td>
-                                        <td>{{ $clientEvent->client->mail }}</td>
-                                        <td>{{ $clientEvent->client->phone }}</td>
-                                        <td>{{ isset($clientEvent->client->sch_id) ? $clientEvent->client->school->sch_name : '-' }}</td>
-                                        <td>{{ isset($clientEvent->client->st_grade) ? $clientEvent->client->st_grade : '-' }}</td>
-                                        <td> 
-                                            @switch($clientEvent->lead->main_lead)
-                                                @case('KOL')
-                                                    {{ $clientEvent->lead->main_lead }}: {{ $clientEvent->lead->sub_lead }}
-                                                    @break
-                                                @case('External Edufair')
-                                                    {{ $clientEvent->lead->main_lead }}: {{ $clientEvent->edufLead->title }}
-                                                    @break
-                                                @case('All-In Partners')
-                                                    {{ $clientEvent->lead->main_lead }}: {{ $clientEvent->partner->corp_name }}
-                                                    @break
-                                                @default
-                                                    {{ $clientEvent->lead->main_lead }}
-                                                    
-                                            @endswitch
-
+                                        <td>{{ $clientEvent->client_name }}</td>
+                                        <td>{{ $clientEvent->mail }}</td>
+                                        <td>{{ $clientEvent->phone }}</td>
+                                        <td>{{ isset($clientEvent->sch_name) ? $clientEvent->sch_name : '-' }}</td>
+                                        <td>{{ isset($clientEvent->st_grade) ? $clientEvent->st_grade : '-' }}</td>
+                                        <td> {{ $clientEvent->conversion_lead }}
                                         </td>
-                                        <td>{{ $clientEvent->joined_date }}</td>
+                                        <td>{{ isset($clientEvent->joined_date) ? $clientEvent->joined_date : '-' }}</td>
                                 @empty
-                                        <td>
-                                            Not event yet
+                                        <td colspan="8" class="text-center">
+                                            Not yet event
                                         </td>
                                     </tr>
                                 @endforelse
@@ -137,4 +121,17 @@
             </div>
         </div>
     </div>
+
+
+    <script>
+         function ExportToExcel() {
+
+            var workbook = XLSX.utils.book_new();
+            var ws = XLSX.utils.table_to_sheet(document.getElementById("tbl_event"));
+            XLSX.utils.book_append_sheet(workbook, ws, "Client Events");
+
+            XLSX.writeFile(workbook, "report-event-tracking.xlsx");
+            
+        }
+    </script>
 @endsection

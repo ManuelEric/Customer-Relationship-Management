@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\School;
+use Carbon\Carbon;
 use App\Models\SchoolDetail;
 use DataTables;
 
@@ -17,11 +18,11 @@ class SchoolRepository implements SchoolRepositoryInterface
                 $no = 1;
                 $curriculums = '';
                 foreach ($data->curriculum as $curriculum) {
-                    if ($no == 1) 
+                    if ($no == 1)
                         $curriculums = $curriculum->name;
-                    else 
-                        $curriculums .= ', '.$curriculum->name;
-                    
+                    else
+                        $curriculums .= ', ' . $curriculum->name;
+
                     $no++;
                 }
                 return $curriculums;
@@ -37,6 +38,15 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function getAllSchools()
     {
         return School::orderBy('sch_id', 'asc')->get();
+    }
+
+    public function getCountTotalSchoolByMonthly($monthYear)
+    {
+        $year = date('Y',strtotime($monthYear));
+        $month = date('m',strtotime($monthYear));
+        
+        return School::whereYear('created_at', '=', $year)
+              ->whereMonth('created_at', '=', $month)->count();
     }
 
     public function getSchoolById($schoolId)
@@ -123,5 +133,26 @@ class SchoolRepository implements SchoolRepositoryInterface
                 'schdetail_phone' => null
             ]
         );
+    }
+
+    public function getReportNewSchool($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        if (isset($start_date) && isset($end_date)) {
+            return School::whereDate('created_at', '>=', $start_date)
+                ->whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else if (isset($start_date) && !isset($end_date)) {
+            return School::whereDate('created_at', '>=', $start_date)
+                ->get();
+        } else if (!isset($start_date) && isset($end_date)) {
+            return School::whereDate('created_at', '<=', $end_date)
+                ->get();
+        } else {
+            return School::whereBetween('created_at', [$firstDay, $lastDay])
+                ->get();
+        }
     }
 }

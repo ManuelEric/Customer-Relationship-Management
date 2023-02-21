@@ -67,6 +67,11 @@ Route::prefix('school-program')->name('receipt.school.')->group(function () {
     Route::delete('{detail}', [ReceiptSchoolController::class, 'destroy'])->name('destroy');
     Route::post('/{invoice}', [ReceiptSchoolController::class, 'store'])->name('store');
     Route::get('{receipt}/export/{currency}', [ReceiptSchoolController::class, 'export'])->name('export');
+    Route::post('{receipt}/upload', [ReceiptSchoolController::class, 'upload'])->name('upload');
+    Route::get('{receipt}/request_sign/{currency}', [ReceiptSchoolController::class, 'requestSign'])->name('request_sign');
+    Route::get('{receipt}/sign/{currency}', [ReceiptSchoolController::class, 'signAttachment'])->name('sign_document');
+    Route::get('{receipt}/print/{currency}', [ReceiptSchoolController::class, 'print'])->name('print');
+    Route::get('{receipt}/send/{currency}', [ReceiptSchoolController::class, 'sendToClient'])->name('send_to_client');
     Route::get('{receipt}/refund', [RefundSchoolController::class, 'refund'])->name('refund');
 });
 
