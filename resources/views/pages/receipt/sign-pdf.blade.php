@@ -1,10 +1,10 @@
 @extends('layout.pdf')
-@section('title', 'INVOICE - SIGN NEED')
+@section('title', 'RECEIPT - SIGN NEED')
 @section('body')
     <div class="toolbar d-flex justify-content-between">
         <div class="">
             <div class="tool">
-                <span>INVOICE - SIGN</span>
+                <span>RECEIPT - SIGN</span>
             </div>
         </div>
         <div class="">
@@ -27,11 +27,11 @@
             <div class="tool">
                 <button class="btn btn-danger btn-sm" onclick="clearPage()">Clear Page</button>
             </div>
-            <div class="tool">
+            {{-- <div class="tool">
                 <button class="btn btn-info btn-sm" onclick="showPdfData()">{}</button>
-            </div>
+            </div> --}}
             <div class="tool">
-                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment }}','{{ isset($invoice->schprog_id) ? url('api/invoice-sch/'.$invoice->invb2b_num.'/upload/'.$currency) : '' }}')"><i
+                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt/'.$receipt->id.'/upload/'.$currency) : '' }}')"><i
                         class="fa fa-save me-2"></i>
                     Save</button>
             </div>
@@ -39,7 +39,7 @@
     </div>
     <div id="pdf-container"></div>
 
-<div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
+{{-- <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -54,12 +54,12 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div> --}}
 
 @endsection
 @section('script')
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$attachment) }}", {
+        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/receipt/'.$attachment) }}", {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },

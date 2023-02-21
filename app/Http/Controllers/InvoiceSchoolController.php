@@ -212,93 +212,6 @@ class InvoiceSchoolController extends Controller
 
         $attachments = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceIdentifier('B2B', $invoiceSch->invb2b_id);
 
-        // $printButton = null;
-
-        // $isIdr = null;
-        // $isOther = null;
-        // $isSigned =  null;
-        // $isNotYet = null;
-
-
-        // if (!isset($invoiceSch->refund)) {
-        //     if (count($invoiceSch->invoiceAttachment) > 0) {
-        //         $att = $invoiceSch->invoiceAttachment[0];
-        //         $isIdr = ($att->currency == 'idr');
-        //         $isOther = ($att->currency == 'other');
-        //         $isSigned = ($att->sign_status == 'signed');
-        //         $isNotYet = ($att->sign_status == 'not yet');
-
-        //         if (count($invoiceSch->invoiceAttachment) > 1) {
-        //             foreach ($invoiceSch->invoiceAttachment as $att) {
-        //                 if (($isIdr && $isNotYet) || ($isOther && $isSigned)) {
-        //                     $printButton = 'print button idr';
-        //                 } else if (($isOther && $isNotYet) || ($isIdr && $isSigned && $invoiceSch->currency != 'idr')) {
-        //                     $printButton = 'print button other';
-        //                     break;
-        //                 }
-        //             }
-        //             if (($isIdr && $isNotYet) && ($invoiceSch->invoiceAttachment[1]->currency == 'other' && $invoiceSch->invoiceAttachment[1]->sign_status == 'not yet')) {
-        //                 $printButton = 'print button idr other';
-        //             }
-        //         } else {
-        //             if (($isIdr && $isNotYet) || ($isOther && $isSigned)) {
-        //                 $printButton = 'print button idr';
-        //             } else if (($isOther && $isNotYet) || ($isIdr && $isSigned && $invoiceSch->currency != 'idr')) {
-        //                 $printButton = 'print button other';
-        //             }
-        //         }
-        //     } else {
-        //         if ($invoiceSch->currency != 'idr') {
-        //             $printButton = 'print button idr && print button other';
-        //         } else {
-        //             $printButton = 'print button idr';
-        //         }
-        //     }
-        // }
-
-        // return $printButton;
-
-        // if (count($invoiceSch->invoiceAttachment) > 0) {
-        //     foreach ($invoiceSch->invoiceAttachment as $key => $att) {
-        //         $isIdr[$key] = ($att->currency == 'idr');
-        //         $isOther[$key] = ($att->currency == 'other');
-        //         $isSigned[$key] = ($att->sign_status == 'signed');
-        //         $isNotYet[$key] = ($att->sign_status == 'not yet');
-        //     }
-        // }
-
-
-        // $a = null;
-        // if (!isset($invoiceSch->refund)) {
-        //     if (count($invoiceSch->invoiceAttachment) > 0) {
-        //         if (count($invoiceSch->invoiceAttachment) > 1) {
-        //             foreach ($invoiceSch->invoiceAttachment as $key => $att) {
-        //                 if (($isIdr[$key] && $isNotYet[$key])) {
-        //                     $a .= 'print button idr';
-        //                 } else if (($isOther[$key] && $isNotYet[$key]) && $invoiceSch->currency != 'idr') {
-        //                     $a .= 'print button other';
-        //                 }
-        //             }
-        //         } else {
-        //             if (((!$isIdr[0] || !$isOther[0]) || ($isOther[0] || $isIdr[0])) && $invoiceSch->currency != 'idr' && $isNotYet[0]) {
-        //                 $a = 'print button idr other';
-        //             } else if (($isNotYet[0] && $isIdr[0]) or ($isSigned[0] && $isOther[0])) {
-        //                 $a = 'print button other';
-        //             } else if (($isNotYet[0] && $isOther[0]) or ($isSigned[0] && $isIdr[0]) && $invoiceSch->currency != 'idr') {
-        //                 $a = 'print button idr';
-        //             }
-        //         }
-        //     } else {
-        //         if ($invoiceSch->currency != 'idr') {
-        //             $a = 'print button idr && print button other';
-        //         } else {
-        //             $a = 'print button idr';
-        //         }
-        //     }
-        // }
-
-
-
         return view('pages.invoice.school-program.form')->with(
             [
                 'schoolProgram' => $schoolProgram,
@@ -482,7 +395,7 @@ class InvoiceSchoolController extends Controller
         $invoice_id = $invoiceSch->invb2b_id;
         $invoice_num = $invoiceSch->invb2b_num;
         $file_name = str_replace('/', '_', $invoice_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
-        $path = 'public/uploaded_file/invoice/';
+        $path = 'public/uploaded_file/invoice/sch_prog/';
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
         $attachmentDetails = [
@@ -578,7 +491,7 @@ class InvoiceSchoolController extends Controller
 
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
-        if ($pdfFile->storeAs('public/uploaded_file/invoice/', $name)) {
+        if ($pdfFile->storeAs('public/uploaded_file/invoice/sch_prog/', $name)) {
 
             $attachmentDetails = [
                 'sign_status' => 'signed',
@@ -621,7 +534,7 @@ class InvoiceSchoolController extends Controller
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/invoice/' . $invoiceAttachment->attachment));
+                    ->attach(storage_path('app/public/uploaded_file/invoice/sch_prog' . $invoiceAttachment->attachment));
             });
 
             $attachmentDetails = [

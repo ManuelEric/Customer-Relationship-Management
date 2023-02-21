@@ -15,6 +15,15 @@
         @endforeach
     @endif
 
+    @php
+        $requestSignIdr = '<button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
+                                <i class="bi bi-pen me-1"></i> Request Sign IDR
+                            </button>';
+        $requestSignOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
+                                <i class="bi bi-pen me-1"></i> Request Sign Other
+                            </button>';
+    @endphp
+
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/school-program/status/needed') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Invoice
@@ -76,45 +85,27 @@
                                     @if(count($invoiceSch->invoiceAttachment) > 1)
                                         @foreach ($invoiceSch->invoiceAttachment as $key => $att)
                                             @if(($isIdr[$key] && $isNotYet[$key]))
-                                                <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
-                                                    <i class="bi bi-pen me-1"></i> Request Sign IDR
-                                                </button>
+                                                {!! $requestSignIdr !!}
                                             @elseif(($isOther[$key] && $isNotYet[$key]) && $invoiceSch->currency != 'idr') 
-                                                <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
-                                                    <i class="bi bi-pen me-1"></i> Request Sign Other
-                                                </button>
+                                                {!! $requestSignOther !!}
                                             @endif                                        
                                         @endforeach
                                     @else
                                         @if(((!$isIdr[0] || !$isOther[0])) && $invoiceSch->currency != 'idr' && $isNotYet[0])
-                                            <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
-                                                <i class="bi bi-pen me-1"></i> Request Sign IDR
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
-                                                <i class="bi bi-pen me-1"></i> Request Sign Other
-                                            </button>
+                                            {!! $requestSignIdr !!}
+                                            {!! $requestSignOther !!}
                                         @elseif(($isNotYet[0] && $isIdr[0]) || ($isSigned[0] && $isOther[0]))
-                                            <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
-                                                <i class="bi bi-pen me-1"></i> Request Sign IDR
-                                            </button>
+                                            {!! $requestSignIdr !!}
                                         @elseif(($isNotYet[0] && $isOther[0]) || ($isSigned[0] && $isIdr[0]) && $invoiceSch->currency != 'idr')
-                                            <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
-                                                <i class="bi bi-pen me-1"></i> Request Sign Other
-                                            </button>
+                                            {!! $requestSignOther !!}
                                         @endif
                                     @endif
                                 @else
                                     @if($invoiceSch->currency == 'idr')
-                                        <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
-                                            <i class="bi bi-pen me-1"></i> Request Sign IDR
-                                        </button>
+                                        {!! $requestSignIdr !!}
                                     @else
-                                        <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
-                                            <i class="bi bi-pen me-1"></i> Request Sign IDR
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
-                                            <i class="bi bi-pen me-1"></i> Request Sign Other
-                                        </button>
+                                        {!! $requestSignIdr !!}
+                                        {!! $requestSignOther !!}
                                     @endif
                                 @endif
                             </div>

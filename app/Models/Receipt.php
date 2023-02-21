@@ -101,4 +101,9 @@ class Receipt extends Model
     {
         return $this->belongsTo(InvDetail::class, 'invdtl_id', 'invdtl_id');
     }
+
+    public function receiptAttachment()
+    {
+        return $this->hasMany(receiptAttachment::class, 'receipt_id', 'receipt_id');
+    }
 }

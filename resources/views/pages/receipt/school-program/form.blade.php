@@ -4,6 +4,37 @@
 
 @section('content')
 
+    @if(isset($receiptSch) && count($receiptSch->receiptAttachment) > 0)
+        @foreach ($receiptSch->receiptAttachment as $key => $att)
+            @php
+                $isIdr[$key] = ($att->currency == 'idr');
+                $isOther[$key] = ($att->currency == 'other');
+                $isSigned[$key] = ($att->sign_status == 'signed');
+                $isNotYet[$key] = ($att->sign_status == 'not yet');
+            @endphp
+        @endforeach
+    @endif
+
+    @php
+        $exportIdr = '<a href="#export" id="export_idr"
+                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                            <i class="bi bi-printer me-1"></i> Export IDR
+                      </a>';
+        $uploadIdr = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
+                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_idr">
+                            <i class="bi bi-file-arrow-up me-1"></i> Upload IDR
+                      </button>';
+        $exportOther = '<a href="#export" id="export_other"
+                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                            <i class="bi bi-printer me-1"></i> Export Other
+                        </a>';
+        $uploadOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
+                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_other">
+                            <i class="bi bi-file-arrow-up me-1"></i> Upload Other
+                        </button>';
+
+    @endphp
+
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('receipt/school-program') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Receipt
@@ -23,21 +54,77 @@
                             onclick="confirmDelete('{{'receipt/school-program'}}', {{$receiptSch->id}})">
                             <i class="bi bi-trash2 me-1"></i> Delete
                         </button>
-                         @if (isset($receiptSch))
-                            @if($receiptSch->invoiceB2b->currency != 'idr')
-                                {{-- <a href="{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}"
-                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                                    <i class="bi bi-printer me-1"></i> Print Others
-                                </a> --}}
-                                <a href="#export" id="print_other"
-                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                                    <i class="bi bi-printer me-1"></i> Print Others
-                                </a>
+                         @if (!isset($receiptSch->invoiceB2b->refund) && isset($receiptSch))
+                                @if(count($receiptSch->receiptAttachment) > 0)
+                                    @if(count($receiptSch->receiptAttachment) > 1)
+                                        @foreach ($receiptSch->receiptAttachment as $key => $att)
+                                            @if(($isIdr[$key] && $isNotYet[$key]))
+                                                {!! $exportIdr !!}
+                                                {!! $uploadIdr !!}
+                                            @elseif(($isOther[$key] && $isNotYet[$key]) && $receiptSch->currency != 'idr') 
+                                                {!! $exportOther !!}
+                                                {!! $uploadOther !!}
+                                            @endif                                        
+                                        @endforeach
+                                    @else
+                                        @if(((!$isIdr[0] || !$isOther[0])) && $receiptSch->currency != 'idr' && $isNotYet[0])
+                                            {!! $exportIdr !!}
+                                            {!! $uploadIdr !!}
+                                            {!! $exportOther !!}
+                                            {!! $uploadOther !!}
+                                        @elseif(($isNotYet[0] && $isIdr[0]) || ($isSigned[0] && $isOther[0]))
+                                            {!! $exportIdr !!}
+                                            {!! $uploadIdr !!}
+                                        @elseif(($isNotYet[0] && $isOther[0]) || ($isSigned[0] && $isIdr[0]) && $receiptSch->currency != 'idr')
+                                            {!! $exportOther !!}
+                                            {!! $uploadOther !!}
+                                        @endif
+                                    @endif
+                                @else
+                                    @if($receiptSch->currency == 'idr')
+                                        {!! $exportIdr !!}
+                                        {!! $uploadIdr !!}
+                                    @else
+                                        {!! $exportIdr !!}
+                                        {!! $uploadIdr !!}
+                                        {!! $exportOther !!}
+                                        {!! $uploadOther !!}
+                                    @endif
+                                @endif
+
+                            @if(isset($receiptSch) && count($receiptSch->receiptAttachment) > 0)
+                                 @if(count($receiptSch->receiptAttachment) > 1)
+                                    @foreach ($receiptSch->receiptAttachment as $attachment)
+                                        @if($attachment->sign_status == 'signed')
+                                            <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => $attachment->currency]) }}" 
+                                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                                <i class="bi bi-printer me-1"></i> Print {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }}
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-{{ ($attachment->currency == 'idr' ? 'idr' : 'other') }}">
+                                                <i class="bi bi-printer me-1"></i> Send Receipt {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }} to Client
+                                            </button>
+                                        @else
+                                            <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc{{ $attachment->currency == 'other' ? '-other' : ''  }}">
+                                                <i class="bi bi-pen me-1"></i> Request Sign {{ $attachment->currency == 'other' ? 'Other' : 'IDR'  }}
+                                            </button>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    @if($receiptSch->receiptAttachment[0]->sign_status == 'signed')
+                                        <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => $receiptSch->receiptAttachment[0]->currency]) }}" 
+                                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                            <i class="bi bi-printer me-1"></i> Print {{ ($receiptSch->receiptAttachment[0]->currency == 'idr' ? 'IDR' : 'Others') }}
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-{{ $receiptSch->receiptAttachment[0]->currency == 'other' ? 'other' : 'idr'}}">
+                                            <i class="bi bi-printer me-1"></i> Send Receipt {{ $receiptSch->receiptAttachment[0]->currency == 'other' ? 'Other' : 'IDR'  }} to Client
+                                        </button>
+                                    @else
+                                        <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc{{ ($receiptSch->receiptAttachment[0]->currency == 'other' ? '-other' : '') }}">
+                                            <i class="bi bi-pen me-1"></i> Request Sign {{ $receiptSch->receiptAttachment[0]->currency == 'other' ? 'Other' : 'IDR'  }}
+                                        </button>
+                                    @endif 
+                                @endif
                             @endif
-                            <a href="#export" id="print_idr"
-                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                                <i class="bi bi-printer me-1"></i> Print IDR
-                            </a>
                         @endif
                     </div>
                 </div>
@@ -110,102 +197,39 @@
         </div>
     </div>
 
-    {{-- Add Receipt  --}}
-    <div class="modal fade" id="addReceipt" data-bs-backdrop="static" data-bs-keyboard="false"
+    {{-- Upload Receipt  --}}
+    <div class="modal fade" id="uploadReceipt" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-between">
                     <span>
-                        Add Receipt
+                        Upload Receipt
                     </span>
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="#" method="POST" id="receipt">
+                    <form action="{{ route('receipt.school.upload', ['receipt' => $receiptSch->id]) }}" method="POST" id="receipt" enctype="multipart/form-data">
                         @csrf
                         <div class="put"></div>
                         <div class="row g-2">
-                            <div class="col-md-3 receipt-other d-none">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Amount <sup class="text-danger">*</sup>
-                                    </label>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text currency-icon" id="basic-addon1">
-                                            $
-                                        </span>
-                                        <input type="text" name="receipt" id="receipt_amount_other" class="form-control"
-                                            required value="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Amount <sup class="text-danger">*</sup>
-                                    </label>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text" id="basic-addon1">
-                                            Rp
-                                        </span>
-                                        <input type="text" name="receipt" id="receipt_amount" class="form-control"
-                                            required value="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Date <sup class="text-danger">*</sup>
-                                    </label>
-                                    <input type="date" name="receipt" id="receipt_date"
-                                        class="form-control form-control-sm rounded" required value="">
-                                </div>
-                            </div>
-                            <div class="col-md-12 receipt-other d-none">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Word <sup class="text-danger">*</sup>
-                                    </label>
-                                    <input type="text" name="receipt" id="receipt_word_other"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
-                                </div>
-                            </div>
+                            <input type="hidden" name="currency" id="currency">
                             <div class="col-md-12">
                                 <div class="mb-1">
                                     <label for="">
-                                        Word <sup class="text-danger">*</sup>
+                                        File <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_word"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Payment Method <sup class="text-danger">*</sup>
-                                    </label>
-                                    <select name="" class="modal-select w-100" id="receipt_payment"
-                                        onchange="checkPaymentReceipt()">
-                                        <option value="Wire Transfer">Wire Transfer</option>
-                                        <option value="Cash">Cash</option>
-                                        <option value="Cheque">Cheque</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Cheque No <sup class="text-danger">*</sup>
-                                    </label>
-                                    <input type="text" name="receipt" id="receipt_cheque"
-                                        class="form-control form-control-sm rounded" required value="" disabled>
+                                    <div class="input-group input-group-sm">
+                                        <input type="file" name="attachment" id="attachment" class="form-control"
+                                            required value="">
+                                    </div>
+                                        @error('attachment')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
                                 </div>
                             </div>
                         </div>
-                        <hr>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-4">
                             <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
                                 <i class="bi bi-x-square me-1"></i>
                                 Cancel</a>
@@ -219,6 +243,17 @@
         </div>
     </div>
 
+    @if($errors->has('attachment') )
+                
+        <script>
+            $(document).ready(function(){
+                $('#uploadReceipt').modal('show'); 
+                              
+            })
+        </script>
+
+    @endif
+
     <script>
         $(document).ready(function() {
             $('.modal-select').select2({
@@ -227,7 +262,37 @@
                 allowClear: true
             });
 
-            $("#print_other").on('click', function(e) {
+            $("#send-inv-client-idr").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+                axios
+                    .get('{{ route('receipt.school.send_to_client', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}')
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Receipt has been send to client')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
+                        swal.close()
+                    })
+            })
+
+            $("#send-inv-client-other").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+                axios
+                    .get('{{ route('receipt.school.send_to_client', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}')
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Receipt has been send to client')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
+                        swal.close()
+                    })
+            })
+
+            $("#export_other").on('click', function(e) {
                 e.preventDefault();
 
                 Swal.showLoading()                
@@ -251,7 +316,7 @@
                     })
                 })
 
-            $("#print_idr").on('click', function(e) {
+            $("#export_idr").on('click', function(e) {
                 e.preventDefault();
 
                 Swal.showLoading()                
@@ -275,6 +340,60 @@
                     })
                 })
         });
+
+        $("#upload_idr").on('click', function(e) {
+            e.preventDefault();
+
+            $("#currency").val('idr')
+        });
+
+        $("#upload_other").on('click', function(e) {
+            e.preventDefault();
+
+            $("#currency").val('other')
+        });
+
+        $("#request-acc").on('click', function(e) {
+            e.preventDefault();
+
+            Swal.showLoading()                
+                axios
+                    .get('{{ route('receipt.school.request_sign', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'idr'
+                        }
+                    })
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+                })
+
+        $("#request-acc-other").on('click', function(e) {
+            e.preventDefault();
+
+            Swal.showLoading()                
+                axios
+                    .get('{{  route('receipt.school.request_sign', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'other'
+                        }
+                    })
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+        })        
 
         function checkCurrency() {
             let cur = $('#currency').val()
