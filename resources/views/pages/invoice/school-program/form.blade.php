@@ -62,7 +62,7 @@
                                     @foreach ($invoiceSch->invoiceAttachment as $attachment)
                                         @if($attachment->sign_status == 'signed')
                                             <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => $attachment->currency]) }}" 
-                                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
                                                 <i class="bi bi-printer me-1"></i> Print {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }}
                                             </a>
                                         @endif
@@ -70,8 +70,8 @@
                                 @else
                                     @if($invoiceSch->invoiceAttachment[0]->sign_status == 'signed')
                                         <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => $invoiceSch->invoiceAttachment[0]->currency]) }}" 
-                                            {{-- id="print_idr" --}}
-                                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                            {{-- id="print_idr" --}} 
+                                            class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
                                             <i class="bi bi-printer me-1"></i> Print {{$invoiceSch->invoiceAttachment[0]->currency == 'idr' ? 'IDR' : 'Others'}}
                                         </a>
                                     @endif            
@@ -453,8 +453,6 @@
             </div>
         </div>
     </div>
-
-    <div id="pspdfkit" style="height: 100vh"></div>
 
     <script>
         function setIdentifier(id)

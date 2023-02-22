@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use Illuminate\Support\Facades\Request;
 
-class StoreInvoiceSchRequest extends FormRequest
+class StoreInvoiceB2bRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

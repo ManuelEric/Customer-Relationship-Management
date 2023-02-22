@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreInvoiceSchRequest;
+use App\Http\Requests\StoreInvoiceB2bRequest;
 use App\Http\Requests\StoreAttachmentB2bRequest;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
@@ -82,7 +82,7 @@ class InvoicePartnerController extends Controller
         );
     }
 
-    public function store(StoreInvoiceSchRequest $request)
+    public function store(StoreInvoiceB2bRequest $request)
     {
 
         $partnerProgId = $request->route('corp_prog');
@@ -240,7 +240,7 @@ class InvoicePartnerController extends Controller
         );
     }
 
-    public function update(StoreInvoiceSchRequest $request)
+    public function update(StoreInvoiceB2bRequest $request)
     {
 
         $partnerProgId = $request->route('corp_prog');

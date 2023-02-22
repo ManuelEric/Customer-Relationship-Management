@@ -31,8 +31,15 @@
                 <button class="btn btn-info btn-sm" onclick="showPdfData()">{}</button>
             </div> --}}
             <div class="tool">
-                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt/'.$receipt->id.'/upload/'.$currency) : '' }}')"><i
-                        class="fa fa-save me-2"></i>
+                <button class="btn btn-light btn-sm"
+                    @if(isset($receipt->invoiceB2b))
+                        @if($receipt->invoiceB2b->schprog_id)
+                            onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt-sch/'.$receipt->id.'/upload/'.$currency) : '' }}')">
+                        @elseif($receipt->invoiceB2b->ref_id)
+                            onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt-ref/'.$receipt->id.'/upload/'.$currency) : '' }}')">
+                        @endif
+                    @endif 
+                    <i class="fa fa-save me-2"></i>
                     Save</button>
             </div>
         </div>
@@ -59,7 +66,7 @@
 @endsection
 @section('script')
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/receipt/'.$attachment) }}", {
+        var pdf = new PDFAnnotate("pdf-container", "{{ asset($attachment) }}", {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },

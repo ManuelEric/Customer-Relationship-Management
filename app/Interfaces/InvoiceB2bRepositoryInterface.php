@@ -8,6 +8,8 @@ interface InvoiceB2bRepositoryInterface
     public function getAllInvoiceSchDataTables();
     public function getAllInvoiceNeededCorpDataTables();
     public function getAllInvoiceCorpDataTables();
+    public function getAllInvoiceNeededReferralDataTables();
+    public function getAllInvoiceReferralDataTables();
     public function getInvoiceB2bByInvId($invb2b_id);
     public function getInvoiceB2bBySchProg($schprog_id);
     public function getInvoiceB2bByPartnerProg($partnerprog_id);

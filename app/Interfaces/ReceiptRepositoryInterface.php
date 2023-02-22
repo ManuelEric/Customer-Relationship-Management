@@ -5,6 +5,8 @@ namespace App\Interfaces;
 interface ReceiptRepositoryInterface
 {
     public function getAllReceiptSchDataTables();
+    public function getAllReceiptCorpDataTables();
+    public function getAllReceiptReferralDataTables();
     public function getAllReceiptByStatusDataTables();
     public function getReceiptByInvoiceIdentifier($invoiceType, $identifier);
     public function getReceiptById($receiptId);

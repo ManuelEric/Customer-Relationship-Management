@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreInvoiceSchRequest;
+use App\Http\Requests\StoreInvoiceB2bRequest;
 use App\Http\Requests\StoreAttachmentB2bRequest;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
@@ -86,7 +86,7 @@ class InvoiceSchoolController extends Controller
         );
     }
 
-    public function store(StoreInvoiceSchRequest $request)
+    public function store(StoreInvoiceB2bRequest $request)
     {
 
         $schProgId = $request->route('sch_prog');
@@ -246,7 +246,7 @@ class InvoiceSchoolController extends Controller
         );
     }
 
-    public function update(StoreInvoiceSchRequest $request)
+    public function update(StoreInvoiceB2bRequest $request)
     {
 
         $schProgId = $request->route('sch_prog');
@@ -395,13 +395,13 @@ class InvoiceSchoolController extends Controller
         $invoice_id = $invoiceSch->invb2b_id;
         $invoice_num = $invoiceSch->invb2b_num;
         $file_name = str_replace('/', '_', $invoice_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
-        $path = 'public/uploaded_file/invoice/sch_prog/';
+        $path = 'uploaded_file/invoice/sch_prog/';
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
         $attachmentDetails = [
             'invb2b_id' => $invoice_id,
             'currency' => $currency,
-            'attachment' => $file_name,
+            'attachment' => 'storage/' . $path . $file_name,
         ];
 
         $companyDetail = [
@@ -419,10 +419,6 @@ class InvoiceSchoolController extends Controller
             'currency' => $currency,
         ];
 
-        if (Storage::exists($path . $file_name)) {
-            unlink(storage_path('app/' . $path . $file_name));
-        }
-
         try {
 
             $pdf = PDF::loadView('pages.invoice.school-program.export.invoice-pdf', [
@@ -433,7 +429,7 @@ class InvoiceSchoolController extends Controller
 
             # Generate PDF file
             $content = $pdf->download();
-            Storage::put($path . $file_name, $content);
+            Storage::disk('public')->put($path . $file_name, $content);
 
             # if attachment exist then update attachement else insert attachement
             if (isset($attachment)) {
@@ -534,7 +530,7 @@ class InvoiceSchoolController extends Controller
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/invoice/sch_prog' . $invoiceAttachment->attachment));
+                    ->attach(public_path($invoiceAttachment->attachment));
             });
 
             $attachmentDetails = [

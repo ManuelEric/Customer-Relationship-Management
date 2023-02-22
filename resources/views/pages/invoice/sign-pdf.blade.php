@@ -31,8 +31,14 @@
                 <button class="btn btn-info btn-sm" onclick="showPdfData()">{}</button>
             </div>
             <div class="tool">
-                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment }}','{{ isset($invoice->schprog_id) ? url('api/invoice-sch/'.$invoice->invb2b_num.'/upload/'.$currency) : '' }}')"><i
-                        class="fa fa-save me-2"></i>
+                <button class="btn btn-light btn-sm" 
+                
+                @if(isset($invoice->schprog_id))
+                    onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-sch/'.$invoice->invb2b_num.'/upload/'.$currency) }}')">
+                @elseif(isset($invoice->ref_id))
+                    onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-ref/'.$invoice->invb2b_num.'/upload/'.$currency)  }}')">
+                @endif
+                       <i class="fa fa-save me-2"></i>
                     Save</button>
             </div>
         </div>
@@ -59,7 +65,7 @@
 @endsection
 @section('script')
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$attachment) }}", {
+        var pdf = new PDFAnnotate("pdf-container", "{{ asset($attachment) }}", {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },

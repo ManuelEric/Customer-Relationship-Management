@@ -71,6 +71,30 @@ class ReceiptRepository implements ReceiptRepositoryInterface
         )->make(true);
     }
 
+    public function getAllReceiptReferralDataTables()
+    {
+        return Datatables::eloquent(
+            Invb2b::rightJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
+                ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+                ->leftJoin('tbl_receipt', 'tbl_receipt.invb2b_id', '=', 'tbl_invb2b.invb2b_id')
+                ->select(
+                    'tbl_receipt.id as increment_receipt',
+                    'tbl_corp.corp_name',
+                    'tbl_referral.additional_prog_name as program_name',
+                    'tbl_receipt.receipt_id',
+                    'tbl_receipt.invb2b_id',
+                    'tbl_receipt.receipt_method',
+                    'tbl_receipt.created_at',
+                    'tbl_invb2b.invb2b_num',
+                    'tbl_invb2b.currency',
+                    'tbl_receipt.receipt_amount as total_price_other',
+                    'tbl_receipt.receipt_amount_idr as total_price_idr',
+                )
+                ->where('tbl_receipt.receipt_status', 1)
+                ->where('tbl_referral.referral_type', 'Out')
+        )->make(true);
+    }
+
     public function getReceiptById($receiptId)
     {
         return Receipt::find($receiptId);

@@ -54,20 +54,20 @@
                             onclick="confirmDelete('{{'receipt/school-program'}}', {{$receiptSch->id}})">
                             <i class="bi bi-trash2 me-1"></i> Delete
                         </button>
-                         @if (!isset($receiptSch->invoiceB2b->refund) && isset($receiptSch))
+                        @if (!isset($receiptSch->invoiceB2b->refund) && isset($receiptSch))
                                 @if(count($receiptSch->receiptAttachment) > 0)
                                     @if(count($receiptSch->receiptAttachment) > 1)
                                         @foreach ($receiptSch->receiptAttachment as $key => $att)
                                             @if(($isIdr[$key] && $isNotYet[$key]))
                                                 {!! $exportIdr !!}
                                                 {!! $uploadIdr !!}
-                                            @elseif(($isOther[$key] && $isNotYet[$key]) && $receiptSch->currency != 'idr') 
+                                            @elseif(($isOther[$key] && $isNotYet[$key]) && $receiptSch->invoiceB2b->currency != 'idr') 
                                                 {!! $exportOther !!}
                                                 {!! $uploadOther !!}
                                             @endif                                        
                                         @endforeach
                                     @else
-                                        @if(((!$isIdr[0] || !$isOther[0])) && $receiptSch->currency != 'idr' && $isNotYet[0])
+                                        @if(((!$isIdr[0] || !$isOther[0])) && $receiptSch->invoiceB2b->currency != 'idr' && $isNotYet[0])
                                             {!! $exportIdr !!}
                                             {!! $uploadIdr !!}
                                             {!! $exportOther !!}
@@ -75,13 +75,13 @@
                                         @elseif(($isNotYet[0] && $isIdr[0]) || ($isSigned[0] && $isOther[0]))
                                             {!! $exportIdr !!}
                                             {!! $uploadIdr !!}
-                                        @elseif(($isNotYet[0] && $isOther[0]) || ($isSigned[0] && $isIdr[0]) && $receiptSch->currency != 'idr')
+                                        @elseif(($isNotYet[0] && $isOther[0]) || ($isSigned[0] && $isIdr[0]) && $receiptSch->invoiceB2b->currency != 'idr')
                                             {!! $exportOther !!}
                                             {!! $uploadOther !!}
                                         @endif
                                     @endif
                                 @else
-                                    @if($receiptSch->currency == 'idr')
+                                    @if($receiptSch->invoiceB2b->currency == 'idr')
                                         {!! $exportIdr !!}
                                         {!! $uploadIdr !!}
                                     @else
@@ -97,7 +97,7 @@
                                     @foreach ($receiptSch->receiptAttachment as $attachment)
                                         @if($attachment->sign_status == 'signed')
                                             <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => $attachment->currency]) }}" 
-                                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
                                                 <i class="bi bi-printer me-1"></i> Print {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }}
                                             </a>
                                             <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-{{ ($attachment->currency == 'idr' ? 'idr' : 'other') }}">
@@ -112,7 +112,7 @@
                                 @else
                                     @if($receiptSch->receiptAttachment[0]->sign_status == 'signed')
                                         <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => $receiptSch->receiptAttachment[0]->currency]) }}" 
-                                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                                            class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
                                             <i class="bi bi-printer me-1"></i> Print {{ ($receiptSch->receiptAttachment[0]->currency == 'idr' ? 'IDR' : 'Others') }}
                                         </a>
                                         <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-{{ $receiptSch->receiptAttachment[0]->currency == 'other' ? 'other' : 'idr'}}">
