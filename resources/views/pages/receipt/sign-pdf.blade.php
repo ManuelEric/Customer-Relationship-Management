@@ -31,9 +31,12 @@
                 <button class="btn btn-info btn-sm" onclick="showPdfData()">{}</button>
             </div> --}}
             <div class="tool">
-                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt/'.$receipt->id.'/upload/'.$currency) : '' }}')"><i
-                        class="fa fa-save me-2"></i>
+                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('receipt.client-program.upload-signed', ['receipt' => Request::route('receipt'), 'currency' => Request::route('currency')]) }}')"><i
+                    class="fa fa-save me-2"></i>
                     Save</button>
+                {{-- <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment->attachment }}','{{ isset($receipt) ? url('api/receipt/'.$receipt->id.'/upload/'.$currency) : '' }}')"><i
+                        class="fa fa-save me-2"></i>
+                    Save</button> --}}
             </div>
         </div>
     </div>
@@ -55,11 +58,14 @@
 		</div>
 	</div>
 </div> --}}
-
 @endsection
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/receipt/'.$attachment) }}", {
+
+        var file = "{{ asset('storage/uploaded_file/receipt/client/'.$attachment->attachment) }}"
+    
+        var pdf = new PDFAnnotate("pdf-container", file, {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },

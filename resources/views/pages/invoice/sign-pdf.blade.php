@@ -28,7 +28,7 @@
                 <button class="btn btn-danger btn-sm" onclick="clearPage()">Clear Page</button>
             </div>
             <div class="tool">
-                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment }}','{{ route('invoice.program.upload-signed', ['client_program' => Request::route('client_program'), 'currency' => Request::route('currency')]) }}')"><i
+                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('invoice.program.upload-signed', ['client_program' => Request::route('client_program'), 'currency' => Request::route('currency')]) }}')"><i
                     class="fa fa-save me-2"></i>
                     Save</button>
             </div>
@@ -60,9 +60,14 @@
 
 @endsection
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
 
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$attachment) }}", {
+        @if (isset($attachment) && $attachment->inv_id != NULL)
+            var file = "{{ asset('storage/uploaded_file/invoice/client/'.$attachment->attachment) }}"
+        @endif
+
+        var pdf = new PDFAnnotate("pdf-container", file, {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },

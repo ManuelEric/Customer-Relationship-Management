@@ -44,6 +44,10 @@ Route::resource('client-program', ReceiptController::class, [
 
 Route::prefix('client-program')->name('receipt.client-program.')->group(function () {
     Route::get('{receipt}/export', [ReceiptController::class, 'export'])->name('export');
+    Route::post('{receipt}/upload', [ReceiptController::class, 'upload'])->name('upload');
+    Route::get('{receipt}/request_sign', [ReceiptController::class, 'requestSign'])->name('request_sign');
+    Route::get('{receipt}/preview/{currency}', [ReceiptController::class, 'preview'])->name('preview'); # new 
+    Route::post('{receipt}/preview/{currency}', [ReceiptController::class, 'uploadSigned'])->name('upload-signed'); # new
 });
 
 // CORPORATE 

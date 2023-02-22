@@ -61,6 +61,7 @@ Route::resource('client-program', InvoiceProgramController::class, [
 ]);
 
 Route::prefix('client-program')->name('invoice.program.')->group(function () {
+    Route::get('{client_program}/print/{currency}', [InvoiceProgramController::class, 'print'])->name('print');
     Route::get('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'preview'])->name('preview'); # new 
     Route::post('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'upload'])->name('upload-signed'); # new
     Route::get('{client_program}/export', [InvoiceProgramController::class, 'export'])->name('export');
@@ -69,7 +70,7 @@ Route::prefix('client-program')->name('invoice.program.')->group(function () {
     Route::get('{client_program}/request_sign', [InvoiceProgramController::class, 'requestSign'])->name('request_sign');
     Route::get('{client_program}/upload', [InvoiceProgramController::class, 'createSignedAttachment'])->name('create_signed_document');
     Route::post('{client_program}/upload', [InvoiceProgramController::class, 'storeSignedAttachment'])->name('upload_signed_document');
-    Route::get('{client_program}/send', [InvoiceProgramController::class, 'sendToClient'])->name('send_to_client');
+    Route::get('{client_program}/send/{currency}', [InvoiceProgramController::class, 'sendToClient'])->name('send_to_client');
     Route::get('{client_program}/attachment/download', [InvoiceProgramController::class, 'download'])->name('download');
 });
 

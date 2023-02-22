@@ -68,7 +68,7 @@
                             </button>
                         </div>
 
-                        @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'idr')->first())
+                        @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
                             <div class="d-flex justify-content-center mt-3">
                                 <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
                                     <i class="bi bi-pen me-1"></i> Request Sign
@@ -78,18 +78,18 @@
                             </div>
                         @else
                             <div class="d-flex justify-content-center mt-3">
-                                <a href="#export" id="print">
+                                <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}" target="_blank">
                                     <button class="btn btn-sm btn-outline-info rounded mx-1">
                                         <i class="bi bi-printer me-1"></i> Print
                                     </button>
                                 </a>
-                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client">
+                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-idr">
                                     <i class="bi bi-printer me-1"></i> Send Invoice to Client
                                 </button>
                             </div>
                         @endif
                         
-                        @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'other')->first())
+                        @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
                             <div class="d-flex justify-content-center mt-3">
                                 <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
                                     <i class="bi bi-pen me-1"></i> Request Sign Foreign
@@ -99,12 +99,12 @@
                             </div>
                         @else
                             <div class="d-flex justify-content-center mt-3">
-                                <a href="#export" id="print-other">
+                                <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}" target="_blank">
                                     <button class="btn btn-sm btn-outline-info rounded mx-1">
                                         <i class="bi bi-printer me-1"></i> Print Foreign
                                     </button>
                                 </a>
-                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client">
+                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-other">
                                     <i class="bi bi-printer me-1"></i> Send Invoice to Client
                                 </button>
                             </div>
@@ -653,8 +653,8 @@
 
             $("#request-acc").on('click', function(e) {
                 e.preventDefault();
-
-                Swal.showLoading()                
+                showLoading()
+                              
                 axios
                     .get('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
                         params: {
@@ -676,7 +676,7 @@
             $("#request-acc-other").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()                
+                showLoading()            
                 axios
                     .get('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
                         params: {
@@ -695,12 +695,28 @@
                     })
             })
 
-            $("#send-inv-client").on('click', function(e) {
+            $("#send-inv-client-idr").on('click', function(e) {
                 e.preventDefault()
-                Swal.showLoading()
+                showLoading()
 
                 axios
-                    .get('{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id]) }}')
+                    .get('{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}')
+                    .then(response => { 
+                        swal.close()
+                        notification('success', 'Invoice has been send to client')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                        swal.close()
+                    })
+            })
+
+            $("#send-inv-client-other").on('click', function(e) {
+                e.preventDefault()
+                showLoading()
+
+                axios
+                    .get('{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}')
                     .then(response => { 
                         swal.close()
                         notification('success', 'Invoice has been send to client')
@@ -714,7 +730,7 @@
             $("#print").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()                
+                showLoading()              
                 axios
                     .get('{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
                         responseType: 'arraybuffer',
@@ -740,7 +756,7 @@
             $("#print-other").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()                
+                showLoading()              
                 axios
                     .get('{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
                         responseType: 'arraybuffer',

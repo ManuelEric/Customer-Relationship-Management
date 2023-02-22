@@ -241,6 +241,9 @@ PDFAnnotate.prototype.deleteSelectedObject = function () {
 }
 
 PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
+
+	showLoading()
+
 	var inst = this;
 	var doc = new jspdf.jsPDF();
 	if (typeof fileName === 'undefined') {
@@ -283,8 +286,10 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 					}else{
 						alert('Failed to save document')
 					}
+					swal.close();
 				}).catch(function (error) {
 					console.log(error);
+					swal.close();
 				});
 			}
 		}
@@ -346,4 +351,14 @@ PDFAnnotate.prototype.loadFromJSON = function (jsonData) {
 			})
 		}
 	})
+}
+
+function showLoading()
+{
+	Swal.fire({
+		width: 100,
+		backdrop: '#4e4e4e7d',
+		allowOutsideClick: false,
+	})
+	Swal.showLoading();
 }

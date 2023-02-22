@@ -18,7 +18,7 @@ class RefundRepository implements RefundRepositoryInterface
             case "needed":
             default:
                 # query for client program
-                $query_b2c = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
+                $query = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
                     ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
                     ->leftJoin('tbl_reason', 'tbl_reason.reason_id', '=', 'tbl_client_prog.reason_id')
                     ->leftJoin('users', 'users.id', '=', 'tbl_client_prog.empl_id')

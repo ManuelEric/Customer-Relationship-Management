@@ -261,9 +261,11 @@
         axios.get(url)
            .then(function (response) {
             
+                console.log(response)
+
                 var obj = response.data.data
-                academic_prep_chart.data.datasets[0].data = obj.ctx
-                academic_prep_chart.update();
+                academic_prep_chart_cp.data.datasets[0].data = obj.ctx
+                academic_prep_chart_cp.update();
 
                 $(".academic-prep-details").html(obj.total_revenue)
 
@@ -435,7 +437,7 @@
         dataset_acadtestprep.push({{ (int)$val }})
     @endforeach
 
-    var academic_prep_chart = new Chart(acad, {
+    var academic_prep_chart_cp = new Chart(acad, {
         type: 'doughnut',
         data: {
             labels: ['Pending', 'Failed', 'Success', 'Refund'],

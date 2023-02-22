@@ -5,11 +5,11 @@
 @section('content')
 
     {{-- Sales --}}
-    {{-- @include('pages.dashboard.sales.index') --}}
+    @include('pages.dashboard.sales.index')
     {{-- Partnership --}}
     {{-- @include('pages.dashboard.partnership.index') --}}
     {{-- Finance  --}}
-    @include('pages.dashboard.finance.index')
+    {{-- @include('pages.dashboard.finance.index') --}}
 
 
     <script>

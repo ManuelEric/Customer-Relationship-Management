@@ -1,6 +1,15 @@
 @extends('layout.pdf')
 @section('title', 'INVOICE - VIEW')
 @section('body')
+<style>
+    @media print {
+        #pdf-container > .canvas-container {
+            position: unset !important;
+            box-shadow: none;
+            -webkit-box-shadow: none;
+        }
+    }
+</style>
     <div class="toolbar">
         <div class="tool">
             <span>INVOICE</span>
@@ -10,15 +19,21 @@
                     onclick="enableSelector(event)"></i></button>
         </div>
         <div class="tool">
-            <button class="btn btn-light btn-sm" onclick="savePDF('print','{{$invoiceAttachment->attachment}}')"><i class="fa fa-print"
+            {{-- <button class="btn btn-light btn-sm" onclick="savePDF('print','{{$invoiceAttachment->attachment}}')"><i class="fa fa-print" --}}
+            <button class="btn btn-light btn-sm" onclick="printPDF()"><i class="fa fa-print"
                     title="Print"></i> Print</button>
         </div>
     </div>
     <div id="pdf-container"></div>
 @endsection
 @section('script')
+ {{-- var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$invoiceAttachment->attachment) }}", { --}}
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$invoiceAttachment->attachment) }}", {
+        @if (isset($attachment) && $attachment->inv_id != NULL)
+            var file = "{{ asset('storage/uploaded_file/invoice/client/'.$attachment->attachment) }}"
+        @endif
+
+        var pdf = new PDFAnnotate("pdf-container", file, {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },
@@ -30,4 +45,29 @@
         });
     </script>
     <script src="{{ asset('js/pdf-annotation/script-pdf.js') }}"></script>
+    <script>
+        if (window.matchMedia) {
+            var mediaQueryList = window.matchMedia('print');
+            mediaQueryList.addListener(function(mql) {
+                if (mql.matches) {
+                    beforePrint();
+                } else {
+                    afterPrint();
+                }
+            });
+        }
+        
+        function printPDF()
+        {
+            $(".toolbar").css({'display': 'none'});
+            window.print();
+        }
+
+        var afterPrint = function() {
+            $(".toolbar").css({'display': 'block'})
+        };
+        var beforePrint = function() {
+            console.log('Functionality to run before printing.');
+        };
+    </script>
 @endsection
