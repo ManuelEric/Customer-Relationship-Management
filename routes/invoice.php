@@ -61,8 +61,8 @@ Route::resource('client-program', InvoiceProgramController::class, [
 ]);
 
 Route::prefix('client-program')->name('invoice.program.')->group(function () {
-    Route::get('{client_program}/preview', [InvoiceProgramController::class, 'preview'])->name('preview'); # new 
-    Route::post('{client_program}/preview', [InvoiceProgramController::class, 'upload'])->name('upload-signed'); # new
+    Route::get('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'preview'])->name('preview'); # new 
+    Route::post('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'upload'])->name('upload-signed'); # new
     Route::get('{client_program}/export', [InvoiceProgramController::class, 'export'])->name('export');
     Route::post('{client_program}/refund', [RefundController::class, 'store'])->name('refund');
     Route::delete('{client_program}/refund', [RefundController::class, 'destroy'])->name('destroy');

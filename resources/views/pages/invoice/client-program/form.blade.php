@@ -52,29 +52,15 @@
                             <i class="bi bi-eye me-1"></i> More
                         </a> --}}
 
-                        @if (!isset($invoice->refund))
-                            <a href="{{ $status == 'edit' ? url('invoice/client-program/' . $clientProg->clientprog_id) : url('invoice/client-program/' . $clientProg->clientprog_id . '/edit') }}"
-                                class="btn btn-sm btn-outline-warning rounded mx-1">
-                                <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
-                                {{ $status == 'edit' ? 'Back' : 'Edit' }}
-                            </a>
-                        @endif
+                            @if (!isset($invoice->refund))
+                                <a href="{{ $status == 'edit' ? url('invoice/client-program/' . $clientProg->clientprog_id) : url('invoice/client-program/' . $clientProg->clientprog_id . '/edit') }}"
+                                    class="btn btn-sm btn-outline-warning rounded mx-1">
+                                    <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
+                                    {{ $status == 'edit' ? 'Back' : 'Edit' }}
+                                </a>
+                            @endif
                     
-                        <a href="#export" id="print">
-                            <button class="btn btn-sm btn-outline-info rounded mx-1">
-                                <i class="bi bi-printer me-1"></i> Print
-                            </button>
-                        </a>
 
-                        @if (isset($invoice) && $invoice->currency != "idr")
-
-                            <a href="#export" id="print-other">
-                                <button class="btn btn-sm btn-outline-info rounded mx-1">
-                                    <i class="bi bi-printer me-1"></i> Print Foreign
-                                </button>
-                            </a>
-
-                        @endif
 
                             <button class="btn btn-sm btn-outline-danger rounded mx-1"
                                 onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
@@ -82,32 +68,48 @@
                             </button>
                         </div>
 
-                        @if (!isset($invoice->refund) && isset($invoice) && $invoice->attachment == NULL)
-                        <div class="d-flex justify-content-center mt-3">
-                            <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
-                                <i class="bi bi-pen me-1"></i> Request Sign
-                            </button>
-                            
-                            @if (isset($invoice) && $invoice->currency != "idr")
-                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="request-acc-other">
-                                    <i class="bi bi-printer me-1"></i> Request Sign Foreign
+                        @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'idr')->first())
+                            <div class="d-flex justify-content-center mt-3">
+                                <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
+                                    <i class="bi bi-pen me-1"></i> Request Sign
                                 </button>
-                            @endif
-                        </div>
+                                
+                                
+                            </div>
                         @else
-                        <div class="d-flex justify-content-center mt-3">
-                            <a href="{{ route('invoice.program.download', ['client_program' => $clientProg->clientprog_id]) }}">
-                                <button class="btn btn-sm btn-outline-success rounded mx-1">
-                                    <i class="bi bi-download me-1"></i>
-                                    Download
+                            <div class="d-flex justify-content-center mt-3">
+                                <a href="#export" id="print">
+                                    <button class="btn btn-sm btn-outline-info rounded mx-1">
+                                        <i class="bi bi-printer me-1"></i> Print
+                                    </button>
+                                </a>
+                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client">
+                                    <i class="bi bi-printer me-1"></i> Send Invoice to Client
                                 </button>
-                            </a>
-                            <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client">
-                                <i class="bi bi-printer me-1"></i> Send Invoice to Client
-                            </button>
-                        </div>
+                            </div>
                         @endif
                         
+                        @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'other')->first())
+                            <div class="d-flex justify-content-center mt-3">
+                                <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
+                                    <i class="bi bi-pen me-1"></i> Request Sign Foreign
+                                </button>
+                                
+                                
+                            </div>
+                        @else
+                            <div class="d-flex justify-content-center mt-3">
+                                <a href="#export" id="print-other">
+                                    <button class="btn btn-sm btn-outline-info rounded mx-1">
+                                        <i class="bi bi-printer me-1"></i> Print Foreign
+                                    </button>
+                                </a>
+                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client">
+                                    <i class="bi bi-printer me-1"></i> Send Invoice to Client
+                                </button>
+                            </div>
+                        @endif
+
                     @endif
                 </div>
             </div>
@@ -660,13 +662,13 @@
                         }
                     })
                     .then(response => {
-                        console.log(response)
                         swal.close()
                         notification('success', 'Sign has been requested')
                     })
                     .catch(error => {
-                        console.log(error)
-                        notification('error', 'Something went wrong while send email')
+                        
+                        notification('error', error.message)
+                        // notification('error', 'Something went wrong while send email')
                         swal.close()
                     })
             })
@@ -677,16 +679,17 @@
                 Swal.showLoading()                
                 axios
                     .get('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
-                        responseType: 'arraybuffer',
                         params: {
                             type: 'other'
                         }
                     })
                     .then(response => {
+                        console.log(response)
                         swal.close()
                         notification('success', 'Sign has been requested')
                     })
                     .catch(error => {
+                        console.log(error)
                         notification('error', 'Something went wrong while send email')
                         swal.close()
                     })

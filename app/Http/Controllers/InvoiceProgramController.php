@@ -6,6 +6,7 @@ use App\Http\Requests\StoreAttachmentRequest;
 use App\Http\Requests\StoreInvoiceProgramRequest;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
+use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Models\InvoiceProgram;
@@ -27,12 +28,14 @@ class InvoiceProgramController extends Controller
     private InvoiceProgramRepositoryInterface $invoiceProgramRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private InvoiceDetailRepositoryInterface $invoiceDetailRepository;
+    private InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
 
-    public function __construct(InvoiceProgramRepositoryInterface $invoiceProgramRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository)
+    public function __construct(InvoiceProgramRepositoryInterface $invoiceProgramRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository)
     {
         $this->invoiceProgramRepository = $invoiceProgramRepository;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
+        $this->invoiceAttachmentRepository = $invoiceAttachmentRepository;
     }
 
     public function index(Request $request)
@@ -442,14 +445,20 @@ class InvoiceProgramController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
-        return $pdf->download($invoice_id . ".pdf");
+        // $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+        // return $pdf->download($invoice_id . ".pdf");
 
-        // return view('pages.invoice.client-program.export.invoice-pdf')->with(
-        //     [
-        //         'clientProg' => $clientProg, 'companyDetail' => $companyDetail, 'is_session' => true
-        //     ]
-        // );
+        $currency = $request->route('currency');
+        
+        $invoice = $clientProg->invoice;
+        $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice->inv_id, $currency);
+
+        return view('pages.invoice.view-pdf')->with(
+            [
+                'invoice' => $invoice,
+                'attachment' => $attachment->attachment
+            ]
+        );
     }
 
     public function requestSign(Request $request)
@@ -459,6 +468,11 @@ class InvoiceProgramController extends Controller
         $invoice_id = $clientProg->invoice->inv_id;
 
         $type = $request->get('type');
+
+        # validate 
+        # if the invoice has already requested to be signed
+        if ($this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice_id, $type))
+            return response()->json(['message' => 'Invoice has already been requested to be signed.'], 500);
 
         if ($type == "idr")
             $view = 'pages.invoice.client-program.export.invoice-pdf';
@@ -476,20 +490,28 @@ class InvoiceProgramController extends Controller
         $data['recipient'] = env('DIRECTOR_NAME');
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
-            'clientprog_id' => $clientprog_id
+            'clientprog_id' => $clientprog_id,
+            'currency' => $type
         ];
 
         try {
-
             
             # generate invoice as a PDF file
             $file_name = str_replace('/', '_', $invoice_id);
             $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
             Storage::put('public/uploaded_file/invoice/'.$file_name.'.pdf', $pdf->output());
             
-            $clientProg->invoice->attachment = $file_name.'.pdf';
-            $clientProg->invoice->save();
+            # insert to invoice attachment
+            $attachmentDetails = [
+                'inv_id' => $invoice_id,
+                'currency' => $type,
+                'sign_status' => 'not yet',
+                'send_to_client' => 'not sent',
+                'attachment' => $file_name.'.pdf'
+            ];
+            $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
 
+            # send email to related person that has authority to give a signature
             Mail::send('pages.invoice.client-program.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
                 $message->to($data['email'], $data['recipient'])
                     ->subject($data['title'])
@@ -499,10 +521,11 @@ class InvoiceProgramController extends Controller
         } catch (Exception $e) {
 
             Log::info('Failed to request sign invoice : ' . $e->getMessage());
-            return false;
+            return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
 
-        return true;
+        return response()->json(['message' => 'Invoice sent successfully.']);
+
     }
 
     public function createSignedAttachment(Request $request)
@@ -607,24 +630,53 @@ class InvoiceProgramController extends Controller
         $pdfFile = $request->file('pdfFile');
         $name = $request->file('pdfFile')->getClientOriginalName();
 
-        if ($pdfFile->storeAs('public/uploaded_file/invoice/', $name)) {
-            return response()->json(['status' => 'success']);
-        } else {
-            return response()->json(['status' => 'error']);
+        $clientprog_id = $request->route('client_program');
+        $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
+        $invoice = $clientProg->invoice;
+        $inv_id = $invoice->inv_id;
+        $currency = $request->route('currency');
+
+        $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $inv_id, $currency);
+
+        $newDetails = [
+            'sign_status' => 'signed',
+            'approve_date' => Carbon::now()
+        ];
+
+        DB::beginTransaction();
+        try {
+
+            $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $newDetails);
+            if (!$pdfFile->storeAs('public/uploaded_file/invoice/', $name))
+                throw new Exception('Failed to store signed invoice file');
+
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            Log::error('Failed to update status after being signed : ' . $e->getMessage());
+            return response()->json(['status' => 'success', 'message' => 'Failed to update'], 500);
+
         }
+
+        return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
     }
 
     public function preview(Request $request)
     {
         $clientprog_id = $request->route('client_program');
+        $currency = $request->route('currency');
+
         if (!$clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id))
             abort(404);
         
         $invoice = $clientProg->invoice;
+        $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice->inv_id, $currency);
 
         return view('pages.invoice.sign-pdf')->with(
             [
-                'invoice' => $invoice
+                'invoice' => $invoice,
+                'attachment' => $attachment->attachment
             ]
         );
         // return view('pages.invoice.view-pdf');

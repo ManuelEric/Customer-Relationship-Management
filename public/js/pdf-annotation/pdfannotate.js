@@ -199,15 +199,23 @@ PDFAnnotate.prototype.addImageToCanvas = function () {
 				inputElement.remove()
 				var image = new Image();
 				var widthEntirePage = document.documentElement.scrollWidth;
-				// console.log()
+				
 				image.onload = function () {
+					var scaleX, scaleY = 1; var width, height = 0;
 					var canvas_width = fabricObj.width;
 					var canvas_height = fabricObj.height;
 
 					var img = new fabric.Image(image)
+					
+					var scaleX = (canvas_width / img.width) * 0.18;
+					var scaleY = (canvas_height / img.height) * 0.066;
+
 					img.setOptions({
-						left: canvas_width*0.7,
-						top: canvas_height*0.71,
+						left: canvas_width*0.688,
+						top: canvas_height*0.707,
+						scaleX: scaleX,
+						scaleY: scaleY
+
 					})
 					fabricObj.add(img)
 

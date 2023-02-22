@@ -41,10 +41,7 @@ class InvoiceProgram extends Model
         'inv_status',
         'curs_rate',
         'currency',
-        'attachment',
         'send_to_client',
-        'sign_status',
-        'approved_date',
     ];
 
     public function getCurrencyUnit()

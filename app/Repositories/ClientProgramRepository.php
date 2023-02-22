@@ -435,7 +435,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->get();
     }
 
-    public function getLeadSource($dateDetails, $cp_filter)
+    public function getLeadSource($dateDetails, $cp_filter = null)
     {
         $userId = $this->getUser($cp_filter);
         
@@ -466,7 +466,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->get();
     }
 
-    public function getConversionLead($dateDetails, $cp_filter)
+    public function getConversionLead($dateDetails, $cp_filter = null)
     {
         $userId = $this->getUser($cp_filter);
         $program = isset($cp_filter['prog']) ? $cp_filter['prog'] : null;

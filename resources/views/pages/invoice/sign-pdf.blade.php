@@ -28,15 +28,15 @@
                 <button class="btn btn-danger btn-sm" onclick="clearPage()">Clear Page</button>
             </div>
             <div class="tool">
-                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $invoice->attachment }}','{{ route('invoice.program.upload-signed', ['client_program' => Request::route('client_program')]) }}')"><i
+                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment }}','{{ route('invoice.program.upload-signed', ['client_program' => Request::route('client_program'), 'currency' => Request::route('currency')]) }}')"><i
                     class="fa fa-save me-2"></i>
                     Save</button>
             </div>
-            <div class="tool">
+            {{-- <div class="tool">
                 <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment }}','{{ isset($invoice->schprog_id) ? url('api/invoice-sch/'.$invoice->invb2b_num.'/upload/'.$currency) : '' }}')"><i
                         class="fa fa-save me-2"></i>
                     Save</button>
-            </div>
+            </div> --}}
         </div>
     </div>
     <div id="pdf-container"></div>
@@ -62,7 +62,6 @@
 @section('script')
     <script>
 
-        // var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$invoice->attachment) }}", {
         var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$attachment) }}", {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
@@ -73,7 +72,6 @@
             scale: 1.7,
             pageImageCompression: "SLOW", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
         });
-
         
     </script>
     <script src="{{ asset('js/pdf-annotation/script-pdf.js') }}"></script>

@@ -120,7 +120,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
     {
         $eventId = isset($filter['eventId']) ? $filter['eventId'] : null;
         $userId = $this->getUser($filter);
-        $year = $filter['qyear'];
+        // $year = $filter['qyear'];
 
         $current_year = date('Y');
         $last_3_year = date('Y') - 2;
@@ -151,7 +151,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                         $q2->where('users.id', $userId);
                     });
                 });
-            })->when($filter['qyear'] == "last-3-year", function ($sq) use ($current_year, $last_3_year) {
+            })->when(isset($filter['qyear']) && $filter['qyear'] == "last-3-year", function ($sq) use ($current_year, $last_3_year) {
                 $sq->whereRaw('YEAR(tbl_client_event.created_at) BETWEEN ? AND ?', [$last_3_year, $current_year]);
                 // $sq->whereYearBetween('tbl_client_event.created_at', [date('Y')-2, date('Y')]);
             }, function ($sq) {
