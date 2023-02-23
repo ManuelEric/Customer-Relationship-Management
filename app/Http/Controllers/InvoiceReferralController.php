@@ -11,6 +11,7 @@ use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
+use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\Invb2b;
 use Barryvdh\DomPDF\PDF as DomPDFPDF;
@@ -36,8 +37,9 @@ class InvoiceReferralController extends Controller
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
     protected CorporateRepositoryInterface $corporateRepository;
+    protected AxisRepositoryInterface $axisRepository;
 
-    public function __construct(ReferralRepositoryInterface $referralRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, CorporateRepositoryInterface $corporateRepository)
+    public function __construct(ReferralRepositoryInterface $referralRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, CorporateRepositoryInterface $corporateRepository, AxisRepositoryInterface $axisRepository)
     {
         $this->referralRepository = $referralRepository;
         $this->programRepository = $programRepository;
@@ -46,6 +48,7 @@ class InvoiceReferralController extends Controller
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->receiptRepository = $receiptRepository;
         $this->corporateRepository = $corporateRepository;
+        $this->axisRepository = $axisRepository;
     }
 
     public function index(Request $request)
@@ -394,6 +397,19 @@ class InvoiceReferralController extends Controller
         $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoiceRef->invb2b_id;
         $currency = $request->route('currency');
+        $dataAxis = $this->axisRepository->getAxisByType('invoice');
+
+        $axis = [
+            'top' => $request->top,
+            'left' => $request->left,
+            'scaleX' => $request->scaleX,
+            'scaleY' => $request->scaleY,
+            'angle' => $request->angle,
+            'flipX' => $request->flipX,
+            'flipY' => $request->flipY,
+            'type' => 'invoice'
+        ];
+
 
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
@@ -401,10 +417,17 @@ class InvoiceReferralController extends Controller
 
             $attachmentDetails = [
                 'sign_status' => 'signed',
-                'approve_date' => Carbon::now()->toDateString()
+                'approve_date' => Carbon::now()
             ];
 
             $this->invoiceAttachmentRepository->updateInvoiceAttachment($invoiceAttachment->id, $attachmentDetails);
+
+            if (isset($dataAxis)) {
+                $this->axisRepository->updateAxis($dataAxis->id, $axis);
+            } else {
+
+                $this->axisRepository->createAxis($axis);
+            }
 
             return response()->json(['status' => 'success']);
         } else {

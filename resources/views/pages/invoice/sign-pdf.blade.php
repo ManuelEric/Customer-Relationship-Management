@@ -18,7 +18,7 @@
             </div>
             <div class="tool">
                 <button class="tool-button"><i class="fa fa-picture-o" title="Add an Image"
-                        onclick="addImage(event)"></i></button>
+                        onclick="addImage({{isset($axis) ? $axis : 'null'}}, '{{ isset($invoice) ? 'invoice' : 'receipt' }}')"></i></button>
             </div>
             <div class="tool">
                 <button class="btn btn-danger btn-sm" onclick="deleteSelectedObject(event)"><i

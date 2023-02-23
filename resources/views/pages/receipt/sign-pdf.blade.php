@@ -18,7 +18,7 @@
             </div>
             <div class="tool">
                 <button class="tool-button"><i class="fa fa-picture-o" title="Add an Image"
-                        onclick="addImage(event)"></i></button>
+                        onclick="addImage('{{$axis}}')"></i></button>
             </div>
             <div class="tool">
                 <button class="btn btn-danger btn-sm" onclick="deleteSelectedObject(event)"><i
@@ -68,7 +68,7 @@
     <script>
         var pdf = new PDFAnnotate("pdf-container", "{{ asset($attachment) }}", {
             onPageUpdated(page, oldData, newData) {
-                console.log(page, oldData, newData);
+                // console.log(page, oldData, newData);
             },
             ready() {
                 console.log("Plugin initialized successfully");

@@ -18,9 +18,9 @@ function enablePencil(event) {
     pdf.enablePencil();
 }
 
-function addImage(event) {
-    event.preventDefault();
-    pdf.addImageToCanvas()
+function addImage(axis=null, type=null) {
+    // event.preventDefault();
+    pdf.addImageToCanvas(axis, type)
 }
 
 function deleteSelectedObject(event) {
@@ -40,6 +40,10 @@ function clearPage() {
 
 function showPdfData() {
     var string = pdf.serializePdf();
+    // const obj =JSON.parse(string);
+    
+    //     console.log(obj[0].objects.length);
+
     $('#dataModal .modal-body pre').first().text(string);
     PR.prettyPrint();
     $('#dataModal').modal('show');

@@ -11,9 +11,9 @@ use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
+use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\Invb2b;
-use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -36,8 +36,9 @@ class InvoiceSchoolController extends Controller
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
+    protected AxisRepositoryInterface $axisRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, AxisRepositoryInterface $axisRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
@@ -46,6 +47,7 @@ class InvoiceSchoolController extends Controller
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->receiptRepository = $receiptRepository;
+        $this->axisRepository = $axisRepository;
     }
 
     public function index(Request $request)
@@ -462,6 +464,7 @@ class InvoiceSchoolController extends Controller
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoiceSch->invb2b_id;
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
+        $axis = $this->axisRepository->getAxisByType('invoice');
 
         if (isset($invoiceAttachment->sign_status) && $invoiceAttachment->sign_status == 'signed') {
             return "Invoice is already signed";
@@ -470,6 +473,7 @@ class InvoiceSchoolController extends Controller
         return view('pages.invoice.sign-pdf')->with(
             [
                 'attachment' => $invoiceAttachment->attachment,
+                'axis' => $axis,
                 'currency' => $currency,
                 'invoice' => $invoiceSch,
             ]
@@ -484,6 +488,18 @@ class InvoiceSchoolController extends Controller
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoiceSch->invb2b_id;
         $currency = $request->route('currency');
+        $dataAxis = $this->axisRepository->getAxisByType('invoice');
+
+        $axis = [
+            'top' => $request->top,
+            'left' => $request->left,
+            'scaleX' => $request->scaleX,
+            'scaleY' => $request->scaleY,
+            'angle' => $request->angle,
+            'flipX' => $request->flipX,
+            'flipY' => $request->flipY,
+            'type' => 'invoice'
+        ];
 
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
@@ -491,10 +507,17 @@ class InvoiceSchoolController extends Controller
 
             $attachmentDetails = [
                 'sign_status' => 'signed',
-                'approve_date' => Carbon::now()->toDateString()
+                'approve_date' => Carbon::now()
             ];
 
             $this->invoiceAttachmentRepository->updateInvoiceAttachment($invoiceAttachment->id, $attachmentDetails);
+
+            if (isset($dataAxis)) {
+                $this->axisRepository->updateAxis($dataAxis->id, $axis);
+            } else {
+
+                $this->axisRepository->createAxis($axis);
+            }
 
             return response()->json(['status' => 'success']);
         } else {

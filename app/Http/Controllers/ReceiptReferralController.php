@@ -12,6 +12,7 @@ use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
+use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\Receipt;
 use Carbon\Carbon;
@@ -38,8 +39,9 @@ class ReceiptReferralController extends Controller
     protected ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
     protected RefundRepositoryInterface $refundRepository;
+    protected AxisRepositoryInterface $axisRepository;
 
-    public function __construct(CorporateRepositoryInterface $corporateRepository, ReferralRepositoryInterface $referralRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository)
+    public function __construct(CorporateRepositoryInterface $corporateRepository, ReferralRepositoryInterface $referralRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository, AxisRepositoryInterface $axisRepository)
     {
         $this->corporateRepository = $corporateRepository;
         $this->referralRepository = $referralRepository;
@@ -49,6 +51,7 @@ class ReceiptReferralController extends Controller
         $this->receiptAttachmentRepository = $receiptAttachmentRepository;
         $this->receiptRepository = $receiptRepository;
         $this->refundRepository = $refundRepository;
+        $this->axisRepository = $axisRepository;
     }
 
     public function index(Request $request)
@@ -299,7 +302,27 @@ class ReceiptReferralController extends Controller
         $receipt_id = $receipt->receipt_id;
         $currency = $request->route('currency');
 
+        $dataAxis = $this->axisRepository->getAxisByType('receipt');
+
+        $axis = [
+            'top' => $request->top,
+            'left' => $request->left,
+            'scaleX' => $request->scaleX,
+            'scaleY' => $request->scaleY,
+            'angle' => $request->angle,
+            'flipX' => $request->flipX,
+            'flipY' => $request->flipY,
+            'type' => 'receipt'
+        ];
+
         $receiptAttachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
+
+        if (isset($dataAxis)) {
+            $this->axisRepository->updateAxis($dataAxis->id, $axis);
+        } else {
+
+            $this->axisRepository->createAxis($axis);
+        }
 
         if ($pdfFile->storeAs('public/uploaded_file/receipt/referral/', $name)) {
 

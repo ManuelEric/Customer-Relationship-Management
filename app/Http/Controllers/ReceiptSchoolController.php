@@ -14,6 +14,7 @@ use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
+use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\Invb2b;
 use App\Models\Receipt;
@@ -41,8 +42,9 @@ class ReceiptSchoolController extends Controller
     protected ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
     protected RefundRepositoryInterface $refundRepository;
+    protected AxisRepositoryInterface $axisRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository, AxisRepositoryInterface $axisRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
@@ -52,6 +54,7 @@ class ReceiptSchoolController extends Controller
         $this->receiptAttachmentRepository = $receiptAttachmentRepository;
         $this->receiptRepository = $receiptRepository;
         $this->refundRepository = $refundRepository;
+        $this->axisRepository = $axisRepository;
     }
 
     public function index(Request $request)
@@ -315,6 +318,19 @@ class ReceiptSchoolController extends Controller
         $receipt_id = $receipt->receipt_id;
         $currency = $request->route('currency');
 
+        $dataAxis = $this->axisRepository->getAxisByType('receipt');
+
+        $axis = [
+            'top' => $request->top,
+            'left' => $request->left,
+            'scaleX' => $request->scaleX,
+            'scaleY' => $request->scaleY,
+            'angle' => $request->angle,
+            'flipX' => $request->flipX,
+            'flipY' => $request->flipY,
+            'type' => 'receipt'
+        ];
+
         $receiptAttachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
 
         if ($pdfFile->storeAs('public/uploaded_file/receipt/sch_prog/', $name)) {
@@ -325,6 +341,13 @@ class ReceiptSchoolController extends Controller
             ];
 
             $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAttachment->id, $attachmentDetails);
+
+            if (isset($dataAxis)) {
+                $this->axisRepository->updateAxis($dataAxis->id, $axis);
+            } else {
+
+                $this->axisRepository->createAxis($axis);
+            }
 
             return response()->json(['status' => 'success']);
         } else {
