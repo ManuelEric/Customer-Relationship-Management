@@ -273,13 +273,14 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 			if (method == 'print') {
 				doc.autoPrint();
 				doc.save(fileName);
+				
 			} else {
 				var data = doc.output('blob');
 				var formData = new FormData();
 				formData.append("pdfFile", data, fileName);
 				
 				axios.post(route, formData).then(function (response) {
-					console.log(response.data);
+					
 
 					if(response.data.status == 'success'){
 						alert('Document saved successfully')
@@ -289,9 +290,9 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 					swal.close();
 				}).catch(function (error) {
 					console.log(error);
-					swal.close();
 				});
 			}
+			swal.close();
 		}
 	})
 }

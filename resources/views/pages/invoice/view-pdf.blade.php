@@ -3,12 +3,16 @@
 @section('body')
 <style>
     @media print {
-        #pdf-container > .canvas-container {
+        #pdf-container > .canvas-container{
             position: unset !important;
-            box-shadow: none;
-            -webkit-box-shadow: none;
+            
+        }
+        canvas, .canvas-container {
+            box-shadow: none !important;
+            -webkit-box-shadow: none !important;
         }
     }
+    
 </style>
     <div class="toolbar">
         <div class="tool">
@@ -19,8 +23,8 @@
                     onclick="enableSelector(event)"></i></button>
         </div>
         <div class="tool">
-            {{-- <button class="btn btn-light btn-sm" onclick="savePDF('print','{{$invoiceAttachment->attachment}}')"><i class="fa fa-print" --}}
-            <button class="btn btn-light btn-sm" onclick="printPDF()"><i class="fa fa-print"
+            <button class="btn btn-light btn-sm" onclick="savePDF('print','{{$attachment->attachment}}')"><i class="fa fa-print"
+            {{-- <button class="btn btn-light btn-sm" onclick="printPDF()"><i class="fa fa-print" --}}
                     title="Print"></i> Print</button>
         </div>
     </div>
@@ -28,6 +32,7 @@
 @endsection
 @section('script')
  {{-- var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/invoice/'.$invoiceAttachment->attachment) }}", { --}}
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         @if (isset($attachment) && $attachment->inv_id != NULL)
             var file = "{{ asset('storage/uploaded_file/invoice/client/'.$attachment->attachment) }}"

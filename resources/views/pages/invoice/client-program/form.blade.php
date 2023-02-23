@@ -662,11 +662,12 @@
                         }
                     })
                     .then(response => {
+                        
                         swal.close()
                         notification('success', 'Sign has been requested')
                     })
                     .catch(error => {
-                        
+                        console.log(error)
                         notification('error', error.message)
                         // notification('error', 'Something went wrong while send email')
                         swal.close()

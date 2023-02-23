@@ -491,8 +491,10 @@ class InvoiceProgramController extends Controller
 
             # validate 
         # if the invoice has already requested to be signed
+
         if ($this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice_id, $type)) {
-            $file_name = str_replace('/', '_', $invoice_id);
+
+            $file_name = str_replace('/', '_', $invoice_id).'_'.$type;
             $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
             
             # insert to invoice attachment
@@ -516,7 +518,7 @@ class InvoiceProgramController extends Controller
         try {
             
             # generate invoice as a PDF file
-            $file_name = str_replace('/', '_', $invoice_id);
+            $file_name = str_replace('/', '_', $invoice_id).'_'.$type;
             $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
             Storage::put('public/uploaded_file/invoice/client/'.$file_name.'.pdf', $pdf->output());
             
@@ -547,66 +549,12 @@ class InvoiceProgramController extends Controller
 
     }
 
-    public function createSignedAttachment(Request $request)
-    {
-        // if (Session::token() != $request->get('token')) {
-        //     return "Your session token is expired";
-        // }
-
-        $clientprog_id = $request->route('client_program');
-        $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
-
-        return view('pages.invoice.client-program.upload.view')->with(
-            [
-                'clientProg' => $clientProg,
-            ]
-        );
-    }
-
-    public function storeSignedAttachment(StoreAttachmentRequest $request)
-    {
-        $invoice_id = $request->invoice_id;
-        $attachmentDetails = $request->only([
-            'signed_attachment',
-        ]);
-
-        $file_format = $request->file('signed_attachment')->getClientOriginalExtension();
-
-        DB::beginTransaction();
-        try {
-
-            # proses store attachment here
-            if (!$request->hasFile('signed_attachment')) {
-                throw new Exception('Please upload your file');
-            }
-
-            $file_name = str_replace('/', '_', $invoice_id);
-            $file_format = $request->file('signed_attachment')->getClientOriginalExtension();
-            $file_path = $request->file('signed_attachment')->storeAs('public/uploaded_file/invoice/', $file_name . '.' . $file_format);
-
-            unset($attachmentDetails['signed_attachment']);
-            $attachmentDetails['attachment'] = $file_name . '.' . $file_format;
-            $this->invoiceProgramRepository->updateInvoice($invoice_id, $attachmentDetails);
-
-
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::info('Upload signed attachment invoice failed : ' . $e->getMessage());
-            return false;
-        }
-
-        return true;
-    }
-
     public function download(Request $request)
     {
         $clientprog_id = $request->client_program;
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
         $invoice = $clientProg->invoice;
 
-        // return storage_path('app/public/uploaded_file/invoice/'.$invoice->attachment);
         return response()->download(storage_path('app/public/uploaded_file/invoice/' . $invoice->attachment));
     }
 
@@ -659,6 +607,7 @@ class InvoiceProgramController extends Controller
         $invoice = $clientProg->invoice;
         $inv_id = $invoice->inv_id;
         $currency = $request->route('currency');
+        $file_name = str_replace('/', '_', $inv_id).'_'.$currency.'.pdf';
 
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $inv_id, $currency);
 
@@ -671,7 +620,7 @@ class InvoiceProgramController extends Controller
         try {
 
             $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $newDetails);
-            if (!$pdfFile->storeAs('public/uploaded_file/invoice/client/', $name))
+            if (!$pdfFile->storeAs('public/uploaded_file/invoice/client/', $file_name))
                 throw new Exception('Failed to store signed invoice file');
 
             DB::commit();
