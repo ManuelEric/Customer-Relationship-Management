@@ -160,6 +160,8 @@ class ReceiptController extends Controller
                 'address_dtl' => env('ALLIN_ADDRESS_DTL'),
                 'city' => env('ALLIN_CITY')
             ];
+            $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
+            return $pdf->download($receipt->receipt_id.".pdf");
 
         } catch (Exception $e) {
             
@@ -167,7 +169,6 @@ class ReceiptController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
        
-        return response()->download(public_path('storage/uploaded_file/receipt/client/'.$receipt->receiptAttachment()->where('currency', $type)->where('sign_status', 'signed')->first()->attachment));
     }
 
     public function upload(Request $request)
@@ -264,6 +265,25 @@ class ReceiptController extends Controller
         }
 
         return response()->json(['message' => 'Receipt sent successfully.']);
+    }
+
+    public function print(Request $request)
+    {
+        $receipt_id = $request->route('receipt');
+        $currency = $request->route('currency');
+
+        if (!$receipt = $this->receiptRepository->getReceiptById($receipt_id))
+            abort(404);
+        
+
+        $attachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt->receipt_id, $currency);
+
+        return view('pages.receipt.view-pdf')->with(
+            [
+                'receipt' => $receipt,
+                'attachment' => $attachment
+            ]
+        );
     }
 
     public function preview(Request $request)

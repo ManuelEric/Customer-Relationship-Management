@@ -61,15 +61,6 @@
                             </a>
                         @endif
 
-                        @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'other')->first())
-                        <a href="#export-as-foreign" id="print-other" class="btn btn-sm btn-outline-success rounded mx-1 my-1" title="Download Receipt in Foreign Currency">
-                            <i class="bi bi-download me-1"></i> Download Foreign
-                        </a>
-                        <a href="#" class="btn btn-sm btn-outline-success rounded mx-1 my-1" id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal">
-                            <i class="bi bi-upload me-1"></i> Upload Foreign
-                        </a>
-                        @endif
-
                         {{-- @else --}}
                             {{-- <a href="#export-idr" id="print"
                                 class="btn btn-sm btn-outline-info rounded mx-1 my-1">
@@ -105,8 +96,8 @@
                                 <i class="bi bi-printer me-1"></i> Request Signed
                             </a>
                         @else
-                            <a href="#print"
-                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="print-other">
+                            <a href="{{ route('receipt.client-program.print', ['receipt' => $receipt->id, 'currency' => 'other']) }}" target="_blank"
+                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
                                 <i class="bi bi-printer me-1"></i> Print
                             </a>
                             <a href="#send-to-client"

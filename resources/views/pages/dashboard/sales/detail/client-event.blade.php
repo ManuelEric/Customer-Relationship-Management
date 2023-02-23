@@ -80,7 +80,7 @@
 
         axios.get(url)
             .then(function (response) {
-                console.log(response)
+                
                 var obj = response.data.data
 
                 $("#client-event-percentage-tbl tbody").html(obj.html_txt)
@@ -93,9 +93,10 @@
                 event_lead_chart.data.labels = obj.lead.labels
                 event_lead_chart.data.datasets[0].data = obj.lead.total
                 event_lead_chart.update();
+                swal.close()
 
             }).catch(function (error) {
-                console.log(error)
+                
             })
     }
 </script>

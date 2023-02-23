@@ -260,8 +260,6 @@
 
         axios.get(url)
            .then(function (response) {
-            
-                console.log(response)
 
                 var obj = response.data.data
                 academic_prep_chart_cp.data.datasets[0].data = obj.ctx

@@ -128,7 +128,7 @@
                     <th width="20%">Price</th>
                     <th width="20%">Total</th>
                 </tr>
-                {{-- <tr>
+                <tr>
                     <td valign="top" align="center">1</td>
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
@@ -168,52 +168,28 @@
                             </p>
                         </div>
                     </td>
-                </tr> --}}
+                </tr>
+                
+                @if ($receipt->invoiceProgram->inv_earlybird_idr > 0)
                 <tr>
-                    <td valign="top" align="center">1</td>
-                    <td valign="top" style="padding-bottom:10px;">
-                        <div style="height:80px;">
-                            <p>
-                                <strong> {{ $receipt->invoiceProgram->clientprog->invoice_program_name }} </strong>
-                            </p>
-                        </div>
-
-                        <div style="margin-top:5px;">
-                            <p>
-                                <strong> Early Bird</strong>
-                            </p>
-                            <p>
-                                <strong> Discount</strong>
-                            </p>
-                        </div>
-                    </td>
-                    <td valign="top" align="center">
-                        <div style="height:80px;">
-                            <p>
-                                <strong>
-                                    {{ $receipt->invoiceProgram->invoice_price_idr }}
-                                </strong>
-                            </p>
-                        </div>
-                    </td>
-                    <td valign="top" align="center">
-                        <div style="height:80px;">
-                            <p>
-                                <strong>
-                                    {{ $receipt->invoiceProgram->invoice_price_idr }}
-                                </strong>
-                            </p>
-                        </div>
-                        <div style="margin-top:5px;">
-                            <p>
-                                <strong> - {{ $receipt->invoiceProgram->invoice_earlybird_idr }}</strong>
-                            </p>
-                            <p>
-                                <strong> - {{ $receipt->invoiceProgram->invoice_discount_idr }}</strong>
-                            </p>
-                        </div>
+                    <td colspan="3" align="right"><b>Early Bird</b></td>
+                    <td valign="middle" align="center">
+                        <b>  
+                            {{ $receipt->invoiceProgram->invoice_earlybird_idr }}
+                        </b>
                     </td>
                 </tr>
+                @endif
+                @if ($receipt->invoiceProgram->inv_discount_idr > 0)
+                <tr>
+                    <td colspan="3" align="right"><b>Discount</b></td>
+                    <td valign="middle" align="center">
+                        <b>  
+                            {{ $receipt->invoiceProgram->invoice_discount_idr }}
+                        </b>
+                    </td>
+                </tr>
+                @endif
                 <tr>
                     <td colspan="3" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">

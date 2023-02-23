@@ -215,12 +215,16 @@
                             </div>
 
                             <div style="margin-top:5px;">
+                                @if ($clientProg->invoice->invoice_earlybird_idr > 0)
                                 <p>
                                     <strong> Early Bird</strong>
                                 </p>
+                                @endif
+                                @if ($clientProg->invoice->invoice_discount_idr > 0)
                                 <p>
                                     <strong> Discount</strong>
                                 </p>
+                                @endif
                             </div>
                         </td>
                         <td valign="top" align="center">
@@ -241,12 +245,16 @@
                                 </p>
                             </div>
                             <div style="margin-top:5px;">
+                                @if ($clientProg->invoice->invoice_earlybird_idr > 0)
                                 <p>
                                     <strong> - {{ $clientProg->invoice->invoice_earlybird_idr }}</strong>
                                 </p>
+                                @endif
+                                @if ($clientProg->invoice->invoice_discount_idr > 0)
                                 <p>
                                     <strong> - {{ $clientProg->invoice->invoice_discount_idr }}</strong>
                                 </p>
+                                @endif
                             </div>
                         </td>
                     </tr>

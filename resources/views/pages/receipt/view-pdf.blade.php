@@ -10,7 +10,7 @@
                     onclick="enableSelector(event)"></i></button>
         </div>
         <div class="tool">
-            <button class="btn btn-light btn-sm" onclick="savePDF('print','{{$receiptAttachment->attachment}}')"><i class="fa fa-print"
+            <button class="btn btn-light btn-sm" onclick="savePDF('print','{{$attachment->attachment}}')"><i class="fa fa-print"
                     title="Print"></i> Print</button>
         </div>
     </div>
@@ -18,7 +18,7 @@
 @endsection
 @section('script')
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/receipt/'.$receiptAttachment->attachment) }}", {
+        var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/receipt/client/'.$attachment->attachment) }}", {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },

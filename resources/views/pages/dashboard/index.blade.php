@@ -75,7 +75,8 @@
     </script>
     <script type="text/javascript">
         $("#cp_employee").on('change', function() {
-            
+            showLoading()
+
             var month = $(".qdate").val()
             var uuid = $(this).val() == "all" ? null : $(this).val()
             var year = $("#qclient-event-year").val()
@@ -101,6 +102,7 @@
         })
 
         function reloadChart(month, uuid, year) {
+
             get_client_program_status(month, uuid)
             get_successful_program(month, uuid)
             get_admission_program(month, uuid)

@@ -705,7 +705,8 @@ class InvoiceProgramController extends Controller
         );
     }
 
-    public function print(Request $request) {
+    public function print(Request $request) 
+    {
         $clientprog_id = $request->route('client_program');
         $currency = $request->route('currency');
 
