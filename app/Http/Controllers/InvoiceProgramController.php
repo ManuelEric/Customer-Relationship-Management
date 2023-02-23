@@ -617,10 +617,11 @@ class InvoiceProgramController extends Controller
         $invoice = $clientProg->invoice;
         $invoice_id = $invoice->inv_id;
         $currency = $request->route('currency');
+        $attachment = $invoice->invoiceAttachment()->where('currency', $currency)->first();
 
         $data['email'] = $clientProg->client->parents[0]->mail;
         $data['cc'] = $clientProg->client->mail;
-        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['recipient'] = $clientProg->client->parents[0]->full_name;
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $clientProg->program_name;
         $data['param'] = [
             'clientprog_id' => $clientprog_id
@@ -628,16 +629,17 @@ class InvoiceProgramController extends Controller
 
         try {
 
-            Mail::send('pages.invoice.client-program.mail.client-view', $data, function ($message) use ($data, $invoice, $currency) {
+            Mail::send('pages.invoice.client-program.mail.client-view', $data, function ($message) use ($data, $attachment) {
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/invoice/client/' . $invoice->invoiceAttachment()->where('currency', $currency)->first()->attachment));
+                    ->attach(storage_path('app/public/uploaded_file/invoice/client/' . $attachment->attachment));
             });
 
             # update status send to client
             $newDetails['send_to_client'] = 'sent';
-            $this->invoiceProgramRepository->updateInvoice($invoice_id, $newDetails);
+            ! $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $newDetails);
+            
         } catch (Exception $e) {
 
             Log::info('Failed to send invoice to client : ' . $e->getMessage());

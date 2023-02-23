@@ -110,13 +110,9 @@
                         data: 'id',
                         className: 'text-center',
                         render: function(data, type, row) {
-                            @if (Request::get('s') == "list")
+                            
                             return '<a href="{{ url('receipt/client-program/') }}/' + data +
                                 '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
-                            @else
-                            return '<a href="{{ url('invoice/client-program/') }}/' + row.clientprog_id +
-                                '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
-                            @endif
                         }
                     }
                 ]

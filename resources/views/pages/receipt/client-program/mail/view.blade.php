@@ -14,6 +14,5 @@
             'receipt' => $param['receipt']->id,
             'currency' => $param['currency']
         ]) }}">here</a>
-    {{-- Click <a href="{{ route('invoice.program.create_signed_document', ['client_program' => $param['clientprog_id']]) }}?token={{ csrf_token() }}">here</a> to upload the signed document --}}
 </body>
 </html>

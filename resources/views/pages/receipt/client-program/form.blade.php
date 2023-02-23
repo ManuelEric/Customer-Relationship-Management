@@ -33,7 +33,6 @@
                         </button>
                     </div>
                     <div class="d-flex flex-wrap justify-content-center mt-3">
-                        {{-- @if (!$receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first()) --}}
 
                         @if (!$receipt->receiptAttachment()->where('currency', 'idr')->first())
                              @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'idr')->first())
@@ -45,28 +44,30 @@
                             </a>
                             @endif
 
-                            @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'other')->first())
-                            <a href="#export-as-foreign" id="print-other" class="btn btn-sm btn-outline-success rounded mx-1 my-1" title="Download Receipt in Foreign Currency">
-                                <i class="bi bi-download me-1"></i> Download Foreign
-                            </a>
-                            <a href="#" class="btn btn-sm btn-outline-success rounded mx-1 my-1" id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal">
-                                <i class="bi bi-upload me-1"></i> Upload Foreign
-                            </a>
-                            @endif
+
                         @elseif ($receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first())
                             <a href="#req-acc"
                                 class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc">
                                 <i class="bi bi-printer me-1"></i> Request Signed
                             </a>
                         @else
-                            <a href="#req-acc"
-                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="request-acc">
+                            <a href="#print"
+                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="print">
                                 <i class="bi bi-printer me-1"></i> Print
                             </a>
-                            <a href="#req-acc"
-                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="request-acc">
+                            <a href="#send-to-client"
+                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-rec-client-idr">
                                 <i class="bi bi-send me-1"></i> Send to Client
                             </a>
+                        @endif
+
+                        @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'other')->first())
+                        <a href="#export-as-foreign" id="print-other" class="btn btn-sm btn-outline-success rounded mx-1 my-1" title="Download Receipt in Foreign Currency">
+                            <i class="bi bi-download me-1"></i> Download Foreign
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-success rounded mx-1 my-1" id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal">
+                            <i class="bi bi-upload me-1"></i> Upload Foreign
+                        </a>
                         @endif
 
                         {{-- @else --}}
@@ -85,6 +86,34 @@
                                 <i class="bi bi-printer me-1"></i> Request Signed
                             </a>  
                         @endif --}}
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-center mt-3">
+                        @if (!$receipt->receiptAttachment()->where('currency', 'other')->first())
+                            @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'other')->first())
+                                <a href="#export-as-foreign" id="print-other" class="btn btn-sm btn-outline-success rounded mx-1 my-1" title="Download Receipt in Foreign Currency">
+                                    <i class="bi bi-download me-1"></i> Download Foreign
+                                </a>
+                                <a href="#" class="btn btn-sm btn-outline-success rounded mx-1 my-1" id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal">
+                                    <i class="bi bi-upload me-1"></i> Upload Foreign
+                                </a>
+                            @endif
+
+
+                        @elseif ($receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
+                            <a href="#req-acc"
+                                class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc-other">
+                                <i class="bi bi-printer me-1"></i> Request Signed
+                            </a>
+                        @else
+                            <a href="#print"
+                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="print-other">
+                                <i class="bi bi-printer me-1"></i> Print
+                            </a>
+                            <a href="#send-to-client"
+                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-rec-client-other">
+                                <i class="bi bi-send me-1"></i> Send to Client
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -208,6 +237,38 @@
                 allowClear: true
             });
 
+            $("#send-rec-client-idr").on('click', function(e) {
+                e.preventDefault()
+                showLoading()
+
+                axios
+                    .get('{{ route('receipt.client-program.send_to_client', ['receipt' => $receipt->id, 'currency' => 'idr']) }}')
+                    .then(response => { 
+                        swal.close()
+                        notification('success', 'Receipt has been send to client')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
+                        swal.close()
+                    })
+            })
+
+            $("#send-rec-client-other").on('click', function(e) {
+                e.preventDefault()
+                showLoading()
+
+                axios
+                    .get('{{ route('receipt.client-program.send_to_client', ['receipt' => $receipt->id, 'currency' => 'other']) }}')
+                    .then(response => { 
+                        swal.close()
+                        notification('success', 'Receipt has been send to client')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
+                        swal.close()
+                    })
+            })
+
             $("#request-acc").on('click', function(e) {
                 e.preventDefault();
                 showLoading()
@@ -216,6 +277,29 @@
                     .get('{{ route('receipt.client-program.request_sign', ['receipt' => $receipt->id]) }}', {
                         params: {
                             type: 'idr'
+                        }
+                    })
+                    .then(response => {
+                        
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                    })
+                    .catch(error => {
+                        
+                        notification('error', error.message)
+                        // notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+            })
+
+            $("#request-acc-other").on('click', function(e) {
+                e.preventDefault();
+                showLoading()
+                              
+                axios
+                    .get('{{ route('receipt.client-program.request_sign', ['receipt' => $receipt->id]) }}', {
+                        params: {
+                            type: 'other'
                         }
                     })
                     .then(response => {
@@ -251,7 +335,7 @@
                         }
                     })
                     .then(response => {
-                        
+
                         let blob = new Blob([response.data], { type: 'application/pdf' }),
                             url = window.URL.createObjectURL(blob)
 
