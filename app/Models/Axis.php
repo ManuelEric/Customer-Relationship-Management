@@ -25,5 +25,6 @@ class Axis extends Model
         'angle',
         'flipX',
         'flipY',
+        'type'
     ];
 }

@@ -220,7 +220,7 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 								top: canvas_height*0.71,
 							})
 						}
-					}else{
+					}else if(type == 'receipt'){
 						if(axis != null && axis.type == 'receipt')
 						{
 							img.setOptions({

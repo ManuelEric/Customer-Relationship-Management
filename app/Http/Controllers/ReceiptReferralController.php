@@ -279,6 +279,7 @@ class ReceiptReferralController extends Controller
         $receipt = $this->receiptRepository->getReceiptById($receipt_Identifier);
         $receipt_id = $receipt->receipt_id;
         $receiptAttachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
+        $axis = $this->axisRepository->getAxisByType('receipt');
 
         if (isset($receiptAttachment->sign_status) && $receiptAttachment->sign_status == 'signed') {
             return "Receipt is already signed";
@@ -289,6 +290,7 @@ class ReceiptReferralController extends Controller
                 'attachment' => $receiptAttachment->attachment,
                 'currency' => $currency,
                 'receipt' => $receipt,
+                'axis' => $axis,
             ]
         );
     }
@@ -328,7 +330,7 @@ class ReceiptReferralController extends Controller
 
             $attachmentDetails = [
                 'sign_status' => 'signed',
-                'approve_date' => Carbon::now()->toDateString()
+                'approve_date' => Carbon::now()
             ];
 
             $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAttachment->id, $attachmentDetails);

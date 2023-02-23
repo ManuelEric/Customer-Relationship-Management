@@ -285,6 +285,15 @@
 
                         let blob = new Blob([response.data], { type: 'application/pdf' }),
                             url = window.URL.createObjectURL(blob)
+                             // create <a> tag dinamically
+                            var fileLink = document.createElement('a');
+                            fileLink.href = url;
+
+                            // it forces the name of the downloaded file
+                            fileLink.download = '{{ $receiptRef->receipt_id }}' + '_other';;
+
+                            // triggers the click event
+                            fileLink.click();
 
                         window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
                         swal.close()
@@ -309,6 +318,15 @@
 
                         let blob = new Blob([response.data], { type: 'application/pdf' }),
                             url = window.URL.createObjectURL(blob)
+                             // create <a> tag dinamically
+                            var fileLink = document.createElement('a');
+                            fileLink.href = url;
+
+                            // it forces the name of the downloaded file
+                            fileLink.download = '{{ $receiptRef->receipt_id }}' + '_idr';;
+
+                            // triggers the click event
+                            fileLink.click();
 
                         window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
                         swal.close()

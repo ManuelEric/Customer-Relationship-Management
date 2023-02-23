@@ -141,12 +141,7 @@
                                 <strong> {{ $receiptRef->invoiceB2b->referral->additional_prog_name }} </strong>
                             </p>
                         </div>
-{{-- 
-                        <div style="margin-top:5px;">
-                            <p>
-                                <strong> Discount</strong>
-                            </p>
-                        </div> --}}
+                        
                     </td>
                     <td valign="top" align="center">
                         <div style="height:80px;">
@@ -155,7 +150,7 @@
                                     @if ($receiptRef->invoiceB2b->invb2b_pm == "Installment")
                                         {{ $currency == 'other' ? $receiptRef->invoiceInstallment->invoicedtl_amount :  $receiptRef->invoiceInstallment->invoicedtl_amountidr }}
                                     @else
-                                        {{ $currency == 'other' ? $receiptRef->invoiceB2b->invoiceTotalPrice : $receiptRef->invoiceB2b->invoiceTotalPriceIdr }}
+                                        {{ $currency == 'other' ? $receiptRef->invoiceB2b->invoiceTotalprice : $receiptRef->invoiceB2b->invoiceTotalpriceIdr }}
                                     @endif
                                 </strong>
                             </p>
@@ -168,25 +163,19 @@
                                     @if ($receiptRef->invoiceB2b->invb2b_pm == "Installment")
                                         {{ $currency == 'other' ? $receiptRef->invoiceInstallment->invoicedtl_amount :  $receiptRef->invoiceInstallment->invoicedtl_amountidr }}
                                     @else
-                                        {{ $currency == 'other' ? $receiptRef->invoiceB2b->invoiceTotalPrice : $receiptRef->invoiceB2b->invoiceTotalPriceIdr }}
+                                        {{ $currency == 'other' ? $receiptRef->invoiceB2b->invoiceTotalprice : $receiptRef->invoiceB2b->invoiceTotalpriceIdr }}
                                     @endif
                                 </strong>
                             </p>
                         </div>
-                        {{-- <div style="margin-top:5px;">
-                            <p>
-                                <strong> - $50</strong>
-                            </p>
-                            <p>
-                                <strong> - $100</strong>
-                            </p>
-                        </div> --}}
                     </td>
                 </tr>
                 <tr>
                     <td colspan="3" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
-                        {{ $currency == 'other' ? $receiptRef->invoiceB2b->invoiceTotalPrice : $receiptRef->invoiceB2b->invoiceTotalPriceIdr }}
+                        <b>
+                            {{ $currency == 'other' ? $receiptRef->receipt_amount : $receiptRef->receipt_amount_idr }}
+                        </b>
                     </td>
                 </tr>
             </table>
