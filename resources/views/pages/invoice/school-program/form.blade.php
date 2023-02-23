@@ -654,8 +654,7 @@
         </script>
     @endif
 
-        <script>
-         
+        <script>  
 
             @if (isset($invoiceSch))
                 $("#send-inv-client-idr").on('click', function(e) {

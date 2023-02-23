@@ -499,6 +499,80 @@
         </script>
 
     <script>
+
+        @if (isset($invoicePartner))
+            $("#send-inv-client-idr").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+                axios
+                    .get('{{ route('invoice-corp.send_to_client', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'idr']) }}')
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Invoice has been send to client')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                        swal.close()
+                    })
+                })
+
+            $("#send-inv-client-other").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+                axios
+                    .get('{{ route('invoice-corp.send_to_client', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'other']) }}')
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Invoice has been send to client')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                        swal.close()
+                    })
+            })
+
+            $("#request-acc").on('click', function(e) {
+                e.preventDefault();
+                Swal.showLoading()                
+                axios
+                    .get('{{  route('invoice-corp.request_sign', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'idr']) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'idr'
+                        }
+                    })
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+            })
+
+            $("#request-acc-other").on('click', function(e) {
+                e.preventDefault();
+                Swal.showLoading()                
+                axios
+                    .get('{{  route('invoice-corp.request_sign', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'other']) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'other'
+                        }
+                    })
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                    })
+                        .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+            })
+                
+        @endif
+
         $("#submit-form").click(function(e) {
             e.preventDefault();
 
