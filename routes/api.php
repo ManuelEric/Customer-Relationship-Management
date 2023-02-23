@@ -6,7 +6,9 @@ use App\Http\Controllers\Api\v1\FinanceDashboardController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\InvoiceProgramController;
 use App\Http\Controllers\InvoiceSchoolController;
+use App\Http\Controllers\InvoiceReferralController;
 use App\Http\Controllers\ReceiptSchoolController;
+use App\Http\Controllers\ReceiptReferralController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -65,5 +67,7 @@ Route::get('finance/outstanding/period/{start_date}/{end_date}', [FinanceDashboa
 
 Route::post('/upload', [InvoiceProgramController::class, 'upload']);
 Route::post('invoice-sch/{invoice}/upload/{currency}', [InvoiceSchoolController::class, 'upload']);
+Route::post('invoice-ref/{invoice}/upload/{currency}', [InvoiceReferralController::class, 'upload']);
 
-Route::post('receipt/{receipt}/upload/{currency}', [ReceiptSchoolController::class, 'upload_signed']);
+Route::post('receipt-sch/{receipt}/upload/{currency}', [ReceiptSchoolController::class, 'upload_signed']);
+Route::post('receipt-ref/{receipt}/upload/{currency}', [ReceiptReferralController::class, 'upload_signed']);

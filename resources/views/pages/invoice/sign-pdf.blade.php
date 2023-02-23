@@ -18,7 +18,7 @@
             </div>
             <div class="tool">
                 <button class="tool-button"><i class="fa fa-picture-o" title="Add an Image"
-                        onclick="addImage(event)"></i></button>
+                        onclick="addImage({{isset($axis) ? $axis : 'null'}}, '{{ isset($invoice) ? 'invoice' : 'receipt' }}')"></i></button>
             </div>
             <div class="tool">
                 <button class="btn btn-danger btn-sm" onclick="deleteSelectedObject(event)"><i
@@ -28,15 +28,18 @@
                 <button class="btn btn-danger btn-sm" onclick="clearPage()">Clear Page</button>
             </div>
             <div class="tool">
-                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('invoice.program.upload-signed', ['client_program' => Request::route('client_program'), 'currency' => Request::route('currency')]) }}')"><i
-                    class="fa fa-save me-2"></i>
+                <button class="btn btn-light btn-sm" 
+                
+                @if(isset($invoice->schprog_id))
+                    onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-sch/'.$invoice->invb2b_num.'/upload/'.$currency) }}')">
+                @elseif(isset($invoice->ref_id))
+                    onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-ref/'.$invoice->invb2b_num.'/upload/'.$currency)  }}')">
+                @else
+                    onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('invoice.program.upload-signed', ['client_program' => Request::route('client_program'), 'currency' => Request::route('currency')]) }}')"
+                @endif
+                       <i class="fa fa-save me-2"></i>
                     Save</button>
             </div>
-            {{-- <div class="tool">
-                <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment }}','{{ isset($invoice->schprog_id) ? url('api/invoice-sch/'.$invoice->invb2b_num.'/upload/'.$currency) : '' }}')"><i
-                        class="fa fa-save me-2"></i>
-                    Save</button>
-            </div> --}}
         </div>
     </div>
     <div id="pdf-container"></div>
@@ -65,6 +68,8 @@
 
         @if (isset($attachment) && $attachment->inv_id != NULL)
             var file = "{{ asset('storage/uploaded_file/invoice/client/'.$attachment->attachment) }}"
+        @else
+            var file = "{{ asset($attachment) }}"
         @endif
 
         var pdf = new PDFAnnotate("pdf-container", file, {

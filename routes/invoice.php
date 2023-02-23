@@ -5,6 +5,7 @@ use App\Http\Controllers\InvoiceSchoolController;
 use App\Http\Controllers\RefundSchoolController;
 use App\Http\Controllers\RefundPartnerController;
 use App\Http\Controllers\InvoicePartnerController;
+use App\Http\Controllers\InvoiceReferralController;
 use App\Http\Controllers\RefundController;
 use Illuminate\Support\Facades\Route;
 
@@ -121,25 +122,7 @@ Route::get('corporate-program/1/export/pdf', function () {
 
 
 // Referral 
-Route::get('referral/create', function () {
-    return view('pages.invoice.referral.form', ['status' => 'create']);
-});
 
-Route::get('referral/1', function () {
-    return view('pages.invoice.referral.form', ['status' => 'view']);
-});
-
-Route::get('referral/1/edit', function () {
-    return view('pages.invoice.referral.form', ['status' => 'edit']);
-});
-
-Route::get('referral/1/export/pdf', function () {
-    return view('pages.invoice.referral.export.invoice-pdf');
-});
-
-Route::get('referral/status/{status?}', function ($status = null) {
-    return view('pages.invoice.referral.index', ['status' => $status]);
-});
 
 Route::prefix('school-program')->name('invoice-sch.')->group(function () {
     Route::resource('{sch_prog}/detail', InvoiceSchoolController::class)->except(['index']);
@@ -150,6 +133,17 @@ Route::prefix('school-program')->name('invoice-sch.')->group(function () {
     Route::get('{invoice}/send/{currency}', [InvoiceSchoolController::class, 'sendToClient'])->name('send_to_client');
     Route::post('{invoice}/refund', [RefundSchoolController::class, 'store'])->name('refund');
     Route::delete('{invoice}/refund/{refund}', [RefundSchoolController::class, 'destroy'])->name('refund.destroy');
+});
+
+Route::prefix('referral')->name('invoice-ref.')->group(function () {
+    Route::resource('{referral}/detail', InvoiceReferralController::class)->except(['index']);
+    Route::get('status/{status}', [InvoiceReferralController::class, 'index'])->name('index');
+    Route::get('{invoice}/export/{currency}', [InvoiceReferralController::class, 'export'])->name('export');
+    Route::get('{invoice}/request_sign/{currency}', [InvoiceReferralController::class, 'requestSign'])->name('request_sign');
+    Route::get('{invoice}/sign/{currency}', [InvoiceReferralController::class, 'signAttachment'])->name('sign_document');
+    Route::get('{invoice}/send/{currency}', [InvoiceReferralController::class, 'sendToClient'])->name('send_to_client');
+    // Route::post('{invoice}/refund', [RefundSchoolController::class, 'store'])->name('refund');
+    // Route::delete('{invoice}/refund/{refund}', [RefundSchoolController::class, 'destroy'])->name('refund.destroy');
 });
 
 // Route::get('sign/b2c/1', function () {

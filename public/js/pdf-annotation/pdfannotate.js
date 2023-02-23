@@ -183,9 +183,7 @@ PDFAnnotate.prototype.enableAddArrow = function () {
 	}
 }
 
-// custom 
-// do not overwrite the function
-PDFAnnotate.prototype.addImageToCanvas = function () {
+PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 	var inst = this;
 	var fabricObj = inst.fabricObjects[inst.active_canvas];
 
@@ -209,18 +207,51 @@ PDFAnnotate.prototype.addImageToCanvas = function () {
 					
 					var scaleX = (canvas_width / img.width) * 0.18;
 					var scaleY = (canvas_height / img.height) * 0.066;
-
-					img.setOptions({
-						left: canvas_width*0.688,
-						top: canvas_height*0.707,
-						scaleX: scaleX,
-						scaleY: scaleY
-
-					})
+					
+					if(type == 'invoice'){
+						if(axis != null && axis.type == 'invoice')
+						{
+							img.setOptions({
+								left: axis.left,
+								top: axis.top,
+								scaleX: axis.scaleX,
+								scaleY: axis.scaleY,
+								angle: axis.angle,
+								flipX: axis.flipX,
+								flipY: axis.flipY,
+							})
+						}else{
+							img.setOptions({
+								left: canvas_width*0.688,
+								top: canvas_height*0.707,
+								scaleX: scaleX,
+								scaleY: scaleY
+							})
+						}
+					}else if(type == 'receipt'){
+						if(axis != null && axis.type == 'receipt')
+						{
+							img.setOptions({
+								left: axis.left,
+								top: axis.top,
+								scaleX: axis.scaleX,
+								scaleY: axis.scaleY,
+								angle: axis.angle,
+								flipX: axis.flipX,
+								flipY: axis.flipY,
+							})
+						}else{
+							img.setOptions({
+								left: canvas_width*0.688,
+								top: canvas_height*0.707,
+								scaleX: scaleX,
+								scaleY: scaleY
+							})
+						}
+					}
 					fabricObj.add(img)
 
 					window.scrollTo(0, canvas_height*0.5)
-					// fabricObj.add(new fabric.Image(image, {top:1250, left: 950}))
 				}
 				image.src = this.result;
 			}, false);
@@ -277,10 +308,22 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 			} else {
 				var data = doc.output('blob');
 				var formData = new FormData();
+				var dataImage = JSON.parse(pdf.serializePdf());
+				if(dataImage[0].objects.length === 1){
+					formData.append("top", dataImage[0].objects[0].top);
+					formData.append("left", dataImage[0].objects[0].left);
+					formData.append("scaleX", dataImage[0].objects[0].scaleX);
+					formData.append("scaleY", dataImage[0].objects[0].scaleY);
+					formData.append("angle", dataImage[0].objects[0].angle);
+					formData.append("flipX", dataImage[0].objects[0].flipX);
+					formData.append("flipY", dataImage[0].objects[0].flipY);
+				}
+
 				formData.append("pdfFile", data, fileName);
 				
-				axios.post(route, formData).then(function (response) {
-					
+				axios.post(route, formData)
+				.then(function (response) {
+					// console.log(response.data);
 
 					if(response.data.status == 'success'){
 						alert('Document saved successfully')

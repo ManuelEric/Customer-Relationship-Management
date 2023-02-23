@@ -17,7 +17,8 @@
     <div id="pdf-container"></div>
 @endsection
 @section('script')
-    <script>
+{{-- var pdf = new PDFAnnotate("pdf-container", "{{ asset($receiptAttachment->attachment) }}", { --}}
+<script>
         var pdf = new PDFAnnotate("pdf-container", "{{ asset('storage/uploaded_file/receipt/client/'.$attachment->attachment) }}", {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);

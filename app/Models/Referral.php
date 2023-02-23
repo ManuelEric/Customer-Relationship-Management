@@ -33,4 +33,19 @@ class Referral extends Model
     {
         return $this->hasMany(InvoiceProgram::class, 'ref_id', 'id');
     }
+
+    public function partner()
+    {
+        return $this->belongsTo(Corporate::class, 'partner_id', 'corp_id');
+    }
+
+    public function program()
+    {
+        return $this->belongsTo(Program::class, 'prog_id', 'prog_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'empl_id', 'id');
+    }
 }

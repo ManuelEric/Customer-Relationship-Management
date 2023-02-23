@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreInvoiceB2bRequest;
-use App\Http\Requests\StoreAttachmentB2bRequest;
+use App\Http\Requests\StoreInvoiceReferralRequest;
+use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
-use App\Interfaces\SchoolRepositoryInterface;
-use App\Interfaces\SchoolProgramRepositoryInterface;
+use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
@@ -14,6 +14,7 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\Invb2b;
+use Barryvdh\DomPDF\PDF as DomPDFPDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -26,27 +27,27 @@ use Illuminate\Support\Facades\Storage;
 use PDF;
 
 
-class InvoiceSchoolController extends Controller
+class InvoiceReferralController extends Controller
 {
     use CreateInvoiceIdTrait;
-    protected SchoolRepositoryInterface $schoolRepository;
-    protected SchoolProgramRepositoryInterface $schoolProgramRepository;
+    protected ReferralRepositoryInterface $referralRepository;
     protected ProgramRepositoryInterface $programRepository;
     protected InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
+    protected CorporateRepositoryInterface $corporateRepository;
     protected AxisRepositoryInterface $axisRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, AxisRepositoryInterface $axisRepository)
+    public function __construct(ReferralRepositoryInterface $referralRepository, ProgramRepositoryInterface $programRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, CorporateRepositoryInterface $corporateRepository, AxisRepositoryInterface $axisRepository)
     {
-        $this->schoolRepository = $schoolRepository;
-        $this->schoolProgramRepository = $schoolProgramRepository;
+        $this->referralRepository = $referralRepository;
         $this->programRepository = $programRepository;
         $this->invoiceAttachmentRepository = $invoiceAttachmentRepository;
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->receiptRepository = $receiptRepository;
+        $this->corporateRepository = $corporateRepository;
         $this->axisRepository = $axisRepository;
     }
 
@@ -57,56 +58,48 @@ class InvoiceSchoolController extends Controller
         if ($request->ajax()) {
             switch ($status) {
                 case 'needed':
-                    return $this->invoiceB2bRepository->getAllInvoiceNeededSchDataTables();
+                    return $this->invoiceB2bRepository->getAllInvoiceNeededReferralDataTables();
                     break;
                 case 'list':
-                    return $this->invoiceB2bRepository->getAllInvoiceSchDataTables();
+                    return $this->invoiceB2bRepository->getAllInvoiceReferralDataTables();
                     break;
             }
         }
 
-        return view('pages.invoice.school-program.index')->with(['status' => $status]);
+        return view('pages.invoice.referral.index')->with(['status' => $status]);
     }
 
     public function create(Request $request)
     {
-        $schProgId = $request->route('sch_prog');
+        $ref_id = $request->route('referral');
 
-        $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
+        $referral = $this->referralRepository->getReferralById($ref_id);
 
-        $schoolId = $schoolProgram->sch_id;
+        $partnerId = $referral->partner_id;
 
-        # retrieve school data by id
-        $school = $this->schoolRepository->getSchoolById($schoolId);
+        # retrieve corp data by id
+        $partner = $this->corporateRepository->getCorporateById($partnerId);
 
-        return view('pages.invoice.school-program.form')->with(
+        return view('pages.invoice.referral.form')->with(
             [
-                'schoolProgram' => $schoolProgram,
-                'school' => $school,
+                'referral' => $referral,
+                'partner' => $partner,
                 'status' => 'create',
             ]
         );
     }
 
-    public function store(StoreInvoiceB2bRequest $request)
+    public function store(StoreInvoiceReferralRequest $request)
     {
 
-        $schProgId = $request->route('sch_prog');
+        $ref_id = $request->route('referral');
         $invoices = $request->only([
             'select_currency',
             'currency',
             'curs_rate',
-            'invb2b_priceidr',
-            'invb2b_priceidr_other',
-            'invb2b_price',
             'invb2b_totpriceidr',
             'invb2b_totpriceidr_other',
             'invb2b_totprice',
-            'invb2b_participants',
-            'invb2b_participants_other',
-            'invb2b_discidr',
-            'invb2b_discidr_other',
-            'invb2b_disc',
             'invb2b_wordsidr',
             'invb2b_wordsidr_other',
             'invb2b_words',
@@ -117,44 +110,21 @@ class InvoiceSchoolController extends Controller
             'invb2b_tnc',
         ]);
 
-        $installments = $request->only(
-            [
-                'invdtl_installment',
-                'invdtl_duedate',
-                'invdtl_percentage',
-                'invdtl_installment_other',
-                'invdtl_duedate_other',
-                'invdtl_percentage_other',
-                'invdtl_amount',
-                'invdtl_amountidr',
-                'invdtl_amountidr_other',
-            ]
-        );
 
         switch ($invoices['select_currency']) {
             case 'other':
-                $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other'];
-                $invoices['invb2b_discidr'] = $invoices['invb2b_discidr_other'];
-                $invoices['invb2b_participants'] = $invoices['invb2b_participants_other'];
                 $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other'];
                 $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other'];
                 break;
 
             case 'idr':
                 $invoices['currency'] = 'idr';
-                unset($invoices['invb2b_price']);
-                unset($invoices['invb2b_disc']);
                 unset($invoices['invb2b_totprice']);
                 unset($invoices['invb2b_words']);
                 // unset($invoices['currency']);
                 break;
         }
 
-
-
-        unset($invoices['invb2b_participants_other']);
-        unset($invoices['invb2b_priceidr_other']);
-        unset($invoices['invb2b_discidr_other']);
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
 
@@ -164,62 +134,48 @@ class InvoiceSchoolController extends Controller
 
         $last_id = Invb2b::whereMonth('created_at', $thisMonth)->max(DB::raw('substr(invb2b_id, 1, 4)'));
 
-        $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
-        $prog_id = $schoolProgram->prog_id;
-
         // Use Trait Create Invoice Id
-        $inv_id = $this->getInvoiceId($last_id, $prog_id);
+        $inv_id = $this->getInvoiceId($last_id, 'REF-OUT');
 
         $invoices['invb2b_id'] = $inv_id;
-        $invoices['schprog_id'] = $schProgId;
-
-        if ($invoices['invb2b_pm'] == 'Installment') {
-            $installment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
-        }
-        unset($installments);
+        $invoices['ref_id'] = $ref_id;
 
         DB::beginTransaction();
         try {
 
             $this->invoiceB2bRepository->createInvoiceB2b($invoices);
-            if ($invoices['invb2b_pm'] == 'Installment') {
-                $this->invoiceDetailRepository->createInvoiceDetail($installment);
-            }
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Create invoice failed : ' . $e->getMessage());
 
-            return $e->getMessage();
-            exit;
-            return Redirect::to('invoice/school-program/' . $schProgId . '/detail/create')->withError('Failed to create a new invoice');
+            return Redirect::to('invoice/referral/' . $ref_id . '/detail/create')->withError('Failed to create a new invoice');
         }
 
-        return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully created');
+        return Redirect::to('invoice/referral/status/list')->withSuccess('Invoice successfully created');
     }
 
     public function show(Request $request)
     {
-        $schProgId = $request->route('sch_prog');
+        $ref_id = $request->route('referral');
         $invNum = $request->route('detail');
 
-        $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
+        $referral = $this->referralRepository->getReferralById($ref_id);
 
-        $schoolId = $schoolProgram->sch_id;
+        $partnerId = $referral->partner_id;
 
-        $school = $this->schoolRepository->getSchoolById($schoolId);
+        $partner = $this->corporateRepository->getCorporateById($partnerId);
 
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
-        $attachments = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceIdentifier('B2B', $invoiceSch->invb2b_id);
 
-        return view('pages.invoice.school-program.form')->with(
+        return view('pages.invoice.referral.form')->with(
             [
-                'schoolProgram' => $schoolProgram,
-                'school' => $school,
-                'invoiceSch' => $invoiceSch,
-                'attachments' => $attachments,
+                'referral' => $referral,
+                'partner' => $partner,
+                'invoiceRef' => $invoiceRef,
                 'status' => 'show',
             ]
         );
@@ -228,47 +184,39 @@ class InvoiceSchoolController extends Controller
     public function edit(Request $request)
     {
         $invNum = $request->route('detail');
-        $schProgId = $request->route('sch_prog');
+        $ref_id = $request->route('referral');
 
-        $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
+        $referral = $this->referralRepository->getReferralById($ref_id);
 
-        $schoolId = $schoolProgram->sch_id;
+        $partnerId = $referral->partner_id;
 
-        $school = $this->schoolRepository->getSchoolById($schoolId);
+        $partner = $this->corporateRepository->getCorporateById($partnerId);
 
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
-        return view('pages.invoice.school-program.form')->with(
+        return view('pages.invoice.referral.form')->with(
             [
                 'status' => 'edit',
-                'schoolProgram' => $schoolProgram,
-                'school' => $school,
-                'invoiceSch' => $invoiceSch,
+                'referral' => $referral,
+                'partner' => $partner,
+                'invoiceRef' => $invoiceRef,
             ]
         );
     }
 
-    public function update(StoreInvoiceB2bRequest $request)
+    public function update(StoreInvoiceReferralRequest $request)
     {
 
-        $schProgId = $request->route('sch_prog');
+        $ref_id = $request->route('referral');
         $invNum = $request->route('detail');
 
         $invoices = $request->only([
             'select_currency',
             'currency',
             'curs_rate',
-            'invb2b_priceidr',
-            'invb2b_priceidr_other',
-            'invb2b_price',
             'invb2b_totpriceidr',
             'invb2b_totpriceidr_other',
             'invb2b_totprice',
-            'invb2b_participants',
-            'invb2b_participants_other',
-            'invb2b_discidr',
-            'invb2b_discidr_other',
-            'invb2b_disc',
             'invb2b_wordsidr',
             'invb2b_wordsidr_other',
             'invb2b_words',
@@ -279,65 +227,28 @@ class InvoiceSchoolController extends Controller
             'invb2b_tnc',
         ]);
 
-        $installments = $request->only(
-            [
-                'invdtl_installment',
-                'invdtl_duedate',
-                'invdtl_percentage',
-                'invdtl_installment_other',
-                'invdtl_duedate_other',
-                'invdtl_percentage_other',
-                'invdtl_amount',
-                'invdtl_amountidr',
-                'invdtl_amountidr_other',
-            ]
-        );
-
         switch ($invoices['select_currency']) {
             case 'other':
-                $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other'];
-                $invoices['invb2b_discidr'] = $invoices['invb2b_discidr_other'];
-                $invoices['invb2b_participants'] = $invoices['invb2b_participants_other'];
                 $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other'];
                 $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other'];
                 break;
 
             case 'idr':
-                unset($invoices['invb2b_price']);
-                unset($invoices['invb2b_disc']);
                 unset($invoices['invb2b_totprice']);
                 unset($invoices['invb2b_words']);
                 unset($invoices['currency']);
                 break;
         }
 
-        unset($invoices['invb2b_participants_other']);
-        unset($invoices['invb2b_priceidr_other']);
-        unset($invoices['invb2b_discidr_other']);
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
 
-        $invoices['schprog_id'] = $schProgId;
-
-        $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-        $inv_id = $inv_b2b->invb2b_id;
-        if ($invoices['invb2b_pm'] == 'Installment') {
-            $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
-        }
-        unset($installments);
-
-        // return $installment;
-        // exit;
+        $invoices['ref_id'] = $ref_id;
 
         DB::beginTransaction();
         try {
 
             $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $invoices);
-            if ($invoices['invb2b_pm'] == 'Installment') {
-                $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
-                $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
-            }
-            // exit;
             DB::commit();
         } catch (Exception $e) {
 
@@ -346,16 +257,16 @@ class InvoiceSchoolController extends Controller
 
             return $e->getMessage();
             exit;
-            return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to update invoice');
+            return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invNum)->withError('Failed to update invoice');
         }
 
-        return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withSuccess('Invoice successfully updated');
+        return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invNum)->withSuccess('Invoice successfully updated');
     }
 
     public function destroy(Request $request)
     {
         $invNum = $request->route('detail');
-        $schProgId = $request->route('sch_prog');
+        $ref_id = $request->route('referral');
 
         DB::beginTransaction();
         try {
@@ -367,10 +278,10 @@ class InvoiceSchoolController extends Controller
             DB::rollBack();
             Log::error('Delete invoice failed : ' . $e->getMessage());
 
-            return Redirect::to('invoice/school-program/' . $schProgId . '/detail/' . $invNum)->withError('Failed to delete invoice');
+            return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invNum)->withError('Failed to delete invoice');
         }
 
-        return Redirect::to('invoice/school-program/status/list')->withSuccess('Invoice successfully deleted');
+        return Redirect::to('invoice/referral/status/list')->withSuccess('Invoice successfully deleted');
     }
 
     public function export(Request $request)
@@ -378,8 +289,8 @@ class InvoiceSchoolController extends Controller
         $invNum = $request->route('invoice');
         $currency = $request->route('currency');
 
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-        $invoice_id = $invoiceSch->invb2b_id;
+        $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_id = $invoiceRef->invb2b_id;
 
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
@@ -393,11 +304,11 @@ class InvoiceSchoolController extends Controller
         $invNum = $request->route('invoice');
         $currency = $request->route('currency');
 
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-        $invoice_id = $invoiceSch->invb2b_id;
-        $invoice_num = $invoiceSch->invb2b_num;
+        $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_id = $invoiceRef->invb2b_id;
+        $invoice_num = $invoiceRef->invb2b_num;
         $file_name = str_replace('/', '_', $invoice_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
-        $path = 'uploaded_file/invoice/sch_prog/';
+        $path = 'uploaded_file/invoice/referral/';
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
         $attachmentDetails = [
@@ -406,12 +317,12 @@ class InvoiceSchoolController extends Controller
             'attachment' => 'storage/' . $path . $file_name,
         ];
 
-        $companyDetail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
-        ];
+        // $companyDetail = [
+        //     'name' => env('ALLIN_COMPANY'),
+        //     'address' => env('ALLIN_ADDRESS'),
+        //     'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+        //     'city' => env('ALLIN_CITY')
+        // ];
 
         $data['email'] = 'test@gmail.com';
         $data['recipient'] = 'test name';
@@ -423,13 +334,13 @@ class InvoiceSchoolController extends Controller
 
         try {
 
-            $pdf = PDF::loadView('pages.invoice.school-program.export.invoice-pdf', [
-                'invoiceSch' => $invoiceSch,
+            $pdf = PDF::loadView('pages.invoice.referral.export.invoice-pdf', [
+                'invoiceRef' => $invoiceRef,
                 'currency' => $currency,
-                'companyDetail' => $companyDetail
+                // 'companyDetail' => $companyDetail
             ]);
 
-            # Generate PDF file
+            // # Generate PDF file
             $content = $pdf->download();
             Storage::disk('public')->put($path . $file_name, $content);
 
@@ -440,7 +351,7 @@ class InvoiceSchoolController extends Controller
                 $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
             }
 
-            Mail::send('pages.invoice.school-program.mail.view', $data, function ($message) use ($data) {
+            Mail::send('pages.invoice.referral.mail.view', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['recipient'])
                     ->subject($data['title']);
             });
@@ -461,10 +372,9 @@ class InvoiceSchoolController extends Controller
 
         $invNum = $request->route('invoice');
         $currency = $request->route('currency');
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-        $invoice_id = $invoiceSch->invb2b_id;
+        $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_id = $invoiceRef->invb2b_id;
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
-        $axis = $this->axisRepository->getAxisByType('invoice');
 
         if (isset($invoiceAttachment->sign_status) && $invoiceAttachment->sign_status == 'signed') {
             return "Invoice is already signed";
@@ -473,9 +383,8 @@ class InvoiceSchoolController extends Controller
         return view('pages.invoice.sign-pdf')->with(
             [
                 'attachment' => $invoiceAttachment->attachment,
-                'axis' => $axis,
                 'currency' => $currency,
-                'invoice' => $invoiceSch,
+                'invoice' => $invoiceRef,
             ]
         );
     }
@@ -485,8 +394,8 @@ class InvoiceSchoolController extends Controller
         $pdfFile = $request->file('pdfFile');
         $name = $request->file('pdfFile')->getClientOriginalName();
         $invNum = $request->route('invoice');
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-        $invoice_id = $invoiceSch->invb2b_id;
+        $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_id = $invoiceRef->invb2b_id;
         $currency = $request->route('currency');
         $dataAxis = $this->axisRepository->getAxisByType('invoice');
 
@@ -501,9 +410,10 @@ class InvoiceSchoolController extends Controller
             'type' => 'invoice'
         ];
 
+
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
-        if ($pdfFile->storeAs('public/uploaded_file/invoice/sch_prog/', $name)) {
+        if ($pdfFile->storeAs('public/uploaded_file/invoice/referral/', $name)) {
 
             $attachmentDetails = [
                 'sign_status' => 'signed',
@@ -529,16 +439,12 @@ class InvoiceSchoolController extends Controller
     {
         $invNum = $request->route('invoice');
         $currency = $request->route('currency');
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
-        $invoice_id = $invoiceSch->invb2b_id;
+        $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $invoice_id = $invoiceRef->invb2b_id;
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
-        $program_name = $invoiceSch->sch_prog->program->prog_program;
+        $program_name = $invoiceRef->referral->additional_prog_name;
 
-        if ($invoiceSch->sch_prog->program->sub_prog_id > 0) {
-            $program_name = $invoiceSch->sch_prog->program->prog_sub . ' - ' . $invoiceSch->sch_prog->program->prog_program;
-        }
-
-        $data['email'] = $invoiceSch->sch_prog->user->email;
+        $data['email'] = $invoiceRef->referral->user->email;
         $data['cc'] = ['test1@example.com', 'test2@example.com'];
         $data['recipient'] = 'Test Name';
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
@@ -549,7 +455,7 @@ class InvoiceSchoolController extends Controller
 
         try {
 
-            Mail::send('pages.invoice.school-program.mail.client-view', $data, function ($message) use ($data, $invoiceAttachment) {
+            Mail::send('pages.invoice.referral.mail.client-view', $data, function ($message) use ($data, $invoiceAttachment) {
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
@@ -568,33 +474,5 @@ class InvoiceSchoolController extends Controller
         }
 
         return true;
-    }
-
-    protected function extract_installment($inv_id, $currency,  array $installments)
-    {
-        if ($currency == 'other') {
-            for ($i = 0; $i < count($installments['invdtl_installment_other']); $i++) {
-                $installment[] = [
-                    'invdtl_installment' => $installments['invdtl_installment_other'][$i],
-                    'invdtl_duedate' => $installments['invdtl_duedate_other'][$i],
-                    'invdtl_percentage' => $installments['invdtl_percentage_other'][$i],
-                    'invdtl_amount' => $installments['invdtl_amount'][$i],
-                    'invdtl_amountidr' => $installments['invdtl_amountidr_other'][$i],
-                    'invb2b_id' => $inv_id,
-                ];
-            }
-        } elseif ($currency == 'idr') {
-            for ($i = 0; $i < count($installments['invdtl_installment']); $i++) {
-                $installment[] = [
-                    'invdtl_installment' => $installments['invdtl_installment'][$i],
-                    'invdtl_duedate' => $installments['invdtl_duedate'][$i],
-                    'invdtl_percentage' => $installments['invdtl_percentage'][$i],
-                    'invdtl_amountidr' => $installments['invdtl_amountidr'][$i],
-                    'invb2b_id' => $inv_id,
-                ];
-            }
-        }
-
-        return $installment;
     }
 }

@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Models\Invb2b;
 use App\Models\PartnerProg;
+use App\Models\Referral;
 use App\Models\SchoolProgram;
 use Carbon\Carbon;
 use DataTables;
@@ -137,6 +138,74 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 )
                 ->whereIn('tbl_partner_prog.status', [1, 3])
             // ->where('tbl_invb2b.invb2b_status', 1)
+
+        )->make(true);
+    }
+
+    // Referral
+    public function getAllInvoiceNeededReferralDataTables()
+    {
+        return datatables::eloquent(
+            Referral::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+                ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_referral.prog_id')
+                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                ->leftJoin('users', 'users.id', '=', 'tbl_referral.empl_id')
+                ->leftJoin('tbl_invb2b', 'tbl_invb2b.ref_id', '=', 'tbl_referral.id')
+                ->select(
+                    'tbl_referral.id',
+                    'tbl_corp.corp_id',
+                    'tbl_corp.corp_name as partner_name',
+                    DB::raw('(CASE tbl_referral.referral_type
+                                WHEN "Out" THEN tbl_referral.additional_prog_name
+                                WHEN "In" 
+                                    THEN 
+                                        (CASE
+                                        WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                                            ELSE tbl_prog.prog_program
+                                        END) 
+                            END) AS program_name'),
+                    'tbl_referral.number_of_student',
+                    'tbl_referral.ref_date',
+                    'users.id as pic_id',
+                    DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
+                )->where('tbl_referral.referral_type', 'Out')->whereNull('tbl_invb2b.ref_id')
+        )->filterColumn(
+            'pic_name',
+            function (
+                $query,
+                $keyword
+            ) {
+                $sql = 'CONCAT(users.first_name," ",users.last_name) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            }
+        )->make(true);
+    }
+
+    public function getAllInvoiceReferralDataTables()
+    {
+        return datatables::eloquent(
+            Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
+                ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+                ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_referral.prog_id')
+                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                ->select(
+                    'tbl_invb2b.invb2b_num',
+                    'tbl_corp.corp_name as partner_name',
+                    DB::raw('(CASE
+                                WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                                ELSE tbl_prog.prog_program
+                            END) AS program_name'),
+                    'tbl_invb2b.ref_id',
+                    'tbl_invb2b.invb2b_id',
+                    'tbl_invb2b.invb2b_status',
+                    'tbl_invb2b.invb2b_pm',
+                    'tbl_invb2b.created_at',
+                    'tbl_invb2b.invb2b_duedate',
+                    'tbl_invb2b.currency',
+                    'tbl_invb2b.invb2b_totpriceidr',
+                    'tbl_invb2b.invb2b_totprice',
+                )
+                ->where('tbl_referral.referral_type', 'Out')
 
         )->make(true);
     }
@@ -368,7 +437,6 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
     public function getInvoiceOutstandingPayment($monthYear, $type, $start_date = null, $end_date = null)
     {
-        // TODO: Outstanding payment by period
 
         if (isset($monthYear)) {
             $year = date('Y', strtotime($monthYear));

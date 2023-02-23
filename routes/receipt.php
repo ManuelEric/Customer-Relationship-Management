@@ -3,6 +3,7 @@
 use App\Http\Controllers\ReceiptController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReceiptSchoolController;
+use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\RefundSchoolController;
 
@@ -90,6 +91,19 @@ Route::prefix('corporate-program')->name('receipt.corporate.')->group(function (
     // Route::get('{receipt}/refund', [RefundSchoolController::class, 'refund'])->name('refund');
 });
 
+Route::prefix('referral')->name('receipt.referral.')->group(function () {
+    Route::get('/', [ReceiptReferralController::class, 'index'])->name('index');
+    Route::get('{detail}', [ReceiptReferralController::class, 'show'])->name('show');
+    Route::delete('{detail}', [ReceiptReferralController::class, 'destroy'])->name('destroy');
+    Route::post('/{invoice}', [ReceiptReferralController::class, 'store'])->name('store');
+    Route::get('{receipt}/export/{currency}', [ReceiptReferralController::class, 'export'])->name('export');
+    Route::post('{receipt}/upload', [ReceiptReferralController::class, 'upload'])->name('upload');
+    Route::get('{receipt}/request_sign/{currency}', [ReceiptReferralController::class, 'requestSign'])->name('request_sign');
+    Route::get('{receipt}/sign/{currency}', [ReceiptReferralController::class, 'signAttachment'])->name('sign_document');
+    Route::get('{receipt}/print/{currency}', [ReceiptReferralController::class, 'print'])->name('print');
+    Route::get('{receipt}/send/{currency}', [ReceiptReferralController::class, 'sendToClient'])->name('send_to_client');
+});
+
 // Route::get('school-program/', function () {
 //     return view('pages.receipt.school-program.index');
 // });
@@ -103,14 +117,14 @@ Route::get('school-program/1/export/pdf', function () {
 });
 
 // referral 
-Route::get('referral/', function () {
-    return view('pages.receipt.referral.index');
-});
+// Route::get('referral/', function () {
+//     return view('pages.receipt.referral.index');
+// });
 
-Route::get('referral/1', function () {
-    return view('pages.receipt.referral.form');
-});
+// Route::get('referral/1', function () {
+//     return view('pages.receipt.referral.form');
+// });
 
-Route::get('referral/1/export/pdf', function () {
-    return view('pages.receipt.referral.export.receipt-pdf');
-});
+// Route::get('referral/1/export/pdf', function () {
+//     return view('pages.receipt.referral.export.receipt-pdf');
+// });

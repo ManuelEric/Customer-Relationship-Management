@@ -36,6 +36,8 @@
     <script>
         @if (isset($attachment) && $attachment->inv_id != NULL)
             var file = "{{ asset('storage/uploaded_file/invoice/client/'.$attachment->attachment) }}"
+        @elseif (isset($invoiceAttachment))
+            var file = "{{ asset($invoiceAttachment->attachment) }}"
         @endif
 
         var pdf = new PDFAnnotate("pdf-container", file, {

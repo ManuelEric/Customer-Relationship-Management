@@ -25,6 +25,7 @@ class Invb2b extends Model
         'invb2b_id',
         'schprog_id',
         'partnerprog_id',
+        'ref_id',
         'invb2b_price',
         'invb2b_priceidr',
         'invb2b_participants',
@@ -165,6 +166,11 @@ class Invb2b extends Model
     public function sch_prog()
     {
         return $this->hasOne(SchoolProgram::class, 'id', 'schprog_id');
+    }
+
+    public function referral()
+    {
+        return $this->hasOne(Referral::class, 'id', 'ref_id');
     }
 
     public function partner_prog()

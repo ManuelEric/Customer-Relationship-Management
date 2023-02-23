@@ -147,11 +147,6 @@
                             @endif
                         </div>
 
-                        {{-- <div style="margin-top:5px;">
-                            <p>
-                                <strong> Discount</strong>
-                            </p>
-                        </div> --}}
                     </td>
                     <td valign="top" align="center">
                         <div style="height:80px;">
@@ -160,7 +155,7 @@
                                     @if ($receiptSch->invoiceB2b->invb2b_pm == "Installment")
                                         {{ $currency == 'other' ? $receiptSch->invoiceInstallment->invoicedtl_amount :  $receiptSch->invoiceInstallment->invoicedtl_amountidr }}
                                     @else
-                                        {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceTotalPrice : $receiptSch->invoiceB2b->invoiceTotalPriceIdr }}
+                                        {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceSubTotalprice : $receiptSch->invoiceB2b->invoiceSubTotalpriceIdr }}
                                     @endif
                                 </strong>
                             </p>
@@ -173,26 +168,28 @@
                                     @if ($receiptSch->invoiceB2b->invb2b_pm == "Installment")
                                         {{ $currency == 'other' ? $receiptSch->invoiceInstallment->invoicedtl_amount :  $receiptSch->invoiceInstallment->invoicedtl_amountidr }}
                                     @else
-                                        {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceTotalPrice : $receiptSch->invoiceB2b->invoiceTotalPriceIdr }}
+                                        {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceSubTotalprice : $receiptSch->invoiceB2b->invoiceSubTotalpriceIdr }}
                                     @endif
                                 </strong>
                             </p>
                         </div>
-                        {{-- <div style="margin-top:5px;">
-                            <p>
-                                <strong> - {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceDiscount : $receiptSch->invoiceB2b->invoiceDiscountIdr }}</strong>
-                            </p>
-                        </div> --}}
                     </td>
                 </tr>
+                @if(isset($receiptSch->invoiceB2b->invb2b_discidr))
+                    <tr>
+                        <td colspan="3" align="right"><b>Discount</b></td>
+                        <td valign="middle" align="center">
+                            <b> 
+                                <strong> - {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceDiscount : $receiptSch->invoiceB2b->invoiceDiscountIdr }}</strong>
+                            </b>
+                        </td>
+                    </tr>
+                @endif
                 <tr>
                     <td colspan="3" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
-                        <b> @if ($receiptSch->invoiceB2b->invb2b_pm == "Installment")
-                                {{ $currency == 'other' ? $receiptSch->invoiceInstallment->invoicedtl_amount :  $receiptSch->invoiceInstallment->invoicedtl_amountidr }}
-                            @else
-                                {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceTotalPrice : $receiptSch->invoiceB2b->invoiceTotalPriceIdr }}
-                             @endif
+                        <b> 
+                            {{ $currency == 'other' ? $receiptSch->receipt_amount : $receiptSch->receipt_amount_idr }}
                         </b>
                     </td>
                 </tr>
