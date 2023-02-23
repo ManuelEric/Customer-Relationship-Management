@@ -72,6 +72,7 @@ class SalesDashboardController extends Controller
     public function getFollowUpReminder(Request $request)
     {
         $month = $request->route('month') ?? date('Y-md');
+        $title = '';
 
         try {
 
