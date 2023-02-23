@@ -4,6 +4,15 @@
 
 @section('content')
 
+    @php
+        $requestSignIdr = '<a class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
+                                <i class="bi bi-pen me-1"></i> Request Sign IDR
+                            </a>';
+        $requestSignOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
+                                <i class="bi bi-pen me-1"></i> Request Sign Other
+                            </button>';
+    @endphp
+
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/corporate-program/status/needed') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Invoice
@@ -36,6 +45,40 @@
                             </button>
                         @endif
                     </div>
+                    @if ($invoicePartner->partner_prog->status == 1 && isset($invoicePartner))
+                        <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
+                            @php
+                                $invoicePartnerAttachment = $invoicePartner->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
+                            @endphp
+                            @if (!$invoicePartnerAttachment)
+                                {!! $requestSignIdr !!}
+                            @else
+                                <a href="{{ route('invoice-corp.export', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'idr']) }}" 
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
+                                    <i class="bi bi-printer me-1"></i> Print IDR
+                                </a>
+                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-idr">
+                                    <i class="bi bi-printer me-1"></i> Send Invoice IDR to Client
+                                </button>
+                            @endif
+                        </div>
+                        <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
+                             @php
+                                $invoicePartnerAttachmentOther = $invoicePartner->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
+                            @endphp
+                            @if (!$invoicePartnerAttachmentOther && $invoicePartner->currency == 'idr')
+                                {!! $requestSignOther !!}
+                            @else
+                                <a href="{{ route('invoice-corp.export', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'other']) }}" 
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
+                                    <i class="bi bi-printer me-1"></i> Print Other
+                                </a>
+                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-other">
+                                    <i class="bi bi-printer me-1"></i> Send Invoice Other to Client
+                                </button>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
 

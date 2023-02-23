@@ -57,8 +57,7 @@
                         @endif
                     </div>
                     
-
-                        @if (!isset($invoiceSch->refund) && isset($invoiceSch))
+                        @if ($invoiceSch->sch_prog->status == 1 && isset($invoiceSch))
                             <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
                                 @php
                                     $invoiceSchAttachment = $invoiceSch->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
@@ -70,8 +69,12 @@
                                         class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
                                         <i class="bi bi-printer me-1"></i> Print IDR
                                     </a>
+                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-idr">
+                                        <i class="bi bi-printer me-1"></i> Send Invoice IDR to Client
+                                    </button>
                                 @endif
-
+                            </div>
+                            <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
                                 @php
                                     $invoiceSchAttachmentOther = $invoiceSch->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
                                 @endphp
@@ -82,29 +85,13 @@
                                         class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
                                         <i class="bi bi-printer me-1"></i> Print Other
                                     </a>
+                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-other">
+                                        <i class="bi bi-printer me-1"></i> Send Invoice Other to Client
+                                    </button>
                                 @endif
                             </div>
                         @endif
 
-                        @if (isset($invoiceSch) && count($invoiceSch->invoiceAttachment) > 0)
-                            <div class="d-flex justify-content-center">
-                                @if(count($invoiceSch->invoiceAttachment) > 1)
-                                    @foreach ($invoiceSch->invoiceAttachment as $attachment)
-                                        @if($attachment->sign_status == 'signed')
-                                            <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-{{ ($attachment->currency == 'idr' ? 'idr' : 'other') }}">
-                                                <i class="bi bi-printer me-1"></i> Send Invoice {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }} to Client
-                                            </button>
-                                        @endif
-                                    @endforeach
-                                @else
-                                    @if($invoiceSch->invoiceAttachment[0]->sign_status == 'signed')
-                                        <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-{{ ($invoiceSch->invoiceAttachment[0]->currency == 'idr' ? 'idr' : 'other') }}">
-                                            <i class="bi bi-printer me-1"></i> Send Invoice {{ ($invoiceSch->invoiceAttachment[0]->currency == 'idr' ? 'IDR' : 'Others') }} to Client
-                                        </button>
-                                    @endif            
-                                @endif
-                            </div>
-                        @endif
                 </div>
             </div>
 

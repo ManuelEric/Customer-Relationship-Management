@@ -34,6 +34,8 @@
                     onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-sch/'.$invoice->invb2b_num.'/upload/'.$currency) }}')">
                 @elseif(isset($invoice->ref_id))
                     onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-ref/'.$invoice->invb2b_num.'/upload/'.$currency)  }}')">
+                @elseif(isset($invoice->partnerprog_id))
+                    onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-corp/'.$invoice->invb2b_num.'/upload/'.$currency)  }}')">
                 @else
                     onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('invoice.program.upload-signed', ['client_program' => Request::route('client_program'), 'currency' => Request::route('currency')]) }}')"
                 @endif

@@ -88,7 +88,12 @@ Route::prefix('corporate-program')->name('receipt.corporate.')->group(function (
     Route::delete('{detail}', [ReceiptPartnerController::class, 'destroy'])->name('destroy');
     Route::post('/{invoice}', [ReceiptPartnerController::class, 'store'])->name('store');
     Route::get('{receipt}/export/{currency}', [ReceiptPartnerController::class, 'export'])->name('export');
-    // Route::get('{receipt}/refund', [RefundSchoolController::class, 'refund'])->name('refund');
+    Route::post('{receipt}/upload', [ReceiptPartnerController::class, 'upload'])->name('upload');
+    Route::get('{receipt}/request_sign/{currency}', [ReceiptPartnerController::class, 'requestSign'])->name('request_sign');
+    Route::get('{receipt}/sign/{currency}', [ReceiptPartnerController::class, 'signAttachment'])->name('sign_document');
+    Route::get('{receipt}/print/{currency}', [ReceiptPartnerController::class, 'print'])->name('print');
+    Route::get('{receipt}/send/{currency}', [ReceiptPartnerController::class, 'sendToClient'])->name('send_to_client');
+    Route::get('{receipt}/refund', [RefundPartnerController::class, 'refund'])->name('refund');
 });
 
 Route::prefix('referral')->name('receipt.referral.')->group(function () {

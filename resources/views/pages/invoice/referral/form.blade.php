@@ -63,75 +63,37 @@
                             </button>
                         @endif
                     </div>
-                    @if (isset($invoiceRef) && count($invoiceRef->invoiceAttachment) > 0)
-                        <div class="d-flex justify-content-center mt-2">
-                            @if(count($invoiceRef->invoiceAttachment) > 1)
-                                @foreach ($invoiceRef->invoiceAttachment as $attachment)
-                                    @if($attachment->sign_status == 'signed')
-                                        <a href="{{ route('invoice-ref.export', ['invoice' => $invoiceRef->invb2b_num, 'currency' => $attachment->currency]) }}" 
-                                            class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                            <i class="bi bi-printer me-1"></i> Print {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }}
-                                        </a>
-                                    @endif
-                                @endforeach
-                            @else
-                                @if($invoiceRef->invoiceAttachment[0]->sign_status == 'signed')
-                                    <a href="{{ route('invoice-ref.export', ['invoice' => $invoiceRef->invb2b_num, 'currency' => $invoiceRef->invoiceAttachment[0]->currency]) }}" 
-                                        class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                        <i class="bi bi-printer me-1"></i> Print {{$invoiceRef->invoiceAttachment[0]->currency == 'idr' ? 'IDR' : 'Others'}}
-                                    </a>
-                                @endif            
-                            @endif
-                        </div>
-                    @endif
-
-                    @if (!isset($invoiceRef->refund) && isset($invoiceRef))
+                    @if (isset($invoiceRef))
                         <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
-                            @if(count($invoiceRef->invoiceAttachment) > 0)
-                                @if(count($invoiceRef->invoiceAttachment) > 1)
-                                    @foreach ($invoiceRef->invoiceAttachment as $key => $att)
-                                        @if(($isIdr[$key] && $isNotYet[$key]))
-                                            {!! $requestSignIdr !!}
-                                        @elseif(($isOther[$key] && $isNotYet[$key]) && $invoiceRef->currency != 'idr') 
-                                            {!! $requestSignOther !!}
-                                        @endif                                        
-                                    @endforeach
-                                @else
-                                    @if(((!$isIdr[0] || !$isOther[0])) && $invoiceRef->currency != 'idr' && $isNotYet[0])
-                                        {!! $requestSignIdr !!}
-                                        {!! $requestSignOther !!}
-                                    @elseif(($isNotYet[0] && $isIdr[0]) || ($isSigned[0] && $isOther[0]))
-                                        {!! $requestSignIdr !!}
-                                    @elseif(($isNotYet[0] && $isOther[0]) || ($isSigned[0] && $isIdr[0]) && $invoiceRef->currency != 'idr')
-                                        {!! $requestSignOther !!}
-                                    @endif
-                                @endif
+                            @php
+                                $invoiceRefAttachment = $invoiceRef->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
+                            @endphp
+                            @if (!$invoiceRefAttachment)
+                                {!! $requestSignIdr !!}
                             @else
-                                @if($invoiceRef->currency == 'idr')
-                                    {!! $requestSignIdr !!}
-                                @else
-                                    {!! $requestSignIdr !!}
-                                    {!! $requestSignOther !!}
-                                @endif
+                                <a href="{{ route('invoice-ref.export', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'idr']) }}" 
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
+                                    <i class="bi bi-printer me-1"></i> Print IDR
+                                </a>
+                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-idr">
+                                    <i class="bi bi-printer me-1"></i> Send Invoice IDR to Client
+                                </button>
                             @endif
                         </div>
-                    @endif
-                    @if (isset($invoiceRef) && count($invoiceRef->invoiceAttachment) > 0)
-                        <div class="d-flex justify-content-center">
-                            @if(count($invoiceRef->invoiceAttachment) > 1)
-                                @foreach ($invoiceRef->invoiceAttachment as $attachment)
-                                    @if($attachment->sign_status == 'signed')
-                                        <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-{{ ($attachment->currency == 'idr' ? 'idr' : 'other') }}">
-                                            <i class="bi bi-printer me-1"></i> Send Invoice {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }} to Client
-                                        </button>
-                                    @endif
-                                @endforeach
+                        <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
+                             @php
+                                $invoiceRefAttachmentOther = $invoiceRef->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
+                            @endphp
+                            @if (!$invoiceRefAttachmentOther && $invoiceRef->currency == 'idr')
+                                {!! $requestSignOther !!}
                             @else
-                                @if($invoiceRef->invoiceAttachment[0]->sign_status == 'signed')
-                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-{{ ($invoiceRef->invoiceAttachment[0]->currency == 'idr' ? 'idr' : 'other') }}">
-                                        <i class="bi bi-printer me-1"></i> Send Invoice {{ ($invoiceRef->invoiceAttachment[0]->currency == 'idr' ? 'IDR' : 'Others') }} to Client
-                                    </button>
-                                @endif            
+                                <a href="{{ route('invoice-ref.export', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'other']) }}" 
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
+                                    <i class="bi bi-printer me-1"></i> Print Other
+                                </a>
+                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-other">
+                                    <i class="bi bi-printer me-1"></i> Send Invoice Other to Client
+                                </button>
                             @endif
                         </div>
                     @endif
