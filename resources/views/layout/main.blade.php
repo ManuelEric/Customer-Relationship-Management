@@ -9,7 +9,7 @@
     <script src="{{ asset('dashboard-template/js/settings.js') }}"></script>
     <script src="{{ asset('dashboard-template/js/jquery.cookie.js') }}" type="text/javascript"></script>
 
-    <script src="{{ asset('assets/dist/pspdfkit.js')}}"></script>
+    {{-- <script src="{{ asset('assets/dist/pspdfkit.js')}}"></script> --}}
 
     {{-- Sheet Js --}}
     <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
@@ -246,7 +246,7 @@
                                         Event</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('program/client*') ? 'active' : '' }}"
+                                    <a class="nav-link {{ Request::is('*/program/client*') || Request::is('program/client*') ? 'active' : '' }}"
                                         href="{{ url('program/client') }}">Client
                                         Program</a>
                                 </li>

@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreReceiptRequest;
 use App\Http\Traits\CreateReceiptIdTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
+use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Models\Receipt;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use PDF;
 
 class ReceiptController extends Controller
@@ -19,11 +23,13 @@ class ReceiptController extends Controller
     use CreateReceiptIdTrait;
     private ReceiptRepositoryInterface $receiptRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
+    private ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository;
 
-    public function __construct(ReceiptRepositoryInterface $receiptRepository, ClientProgramRepositoryInterface $clientProgramRepository)
+    public function __construct(ReceiptRepositoryInterface $receiptRepository, ClientProgramRepositoryInterface $clientProgramRepository, ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository)
     {
         $this->receiptRepository = $receiptRepository;
         $this->clientProgramRepository = $clientProgramRepository;
+        $this->receiptAttachmentRepository = $receiptAttachmentRepository;
     }
     
     public function index(Request $request)
@@ -134,10 +140,91 @@ class ReceiptController extends Controller
         return Redirect::to('receipt/client-program?s=list')->withSuccess('Receipt has been deleted');
     }
 
-    public function export(Request $request)
+    public function export(Request $request) # print function
     {
         $receiptId = $request->route('receipt');
         $receipt = $this->receiptRepository->getReceiptById($receiptId);
+
+        $type = $request->get('type');
+
+        if ($type == "idr")
+            $view = 'pages.receipt.client-program.export.receipt-pdf';
+        else
+            $view = 'pages.receipt.client-program.export.receipt-pdf-foreign';
+
+        try {
+
+            $companyDetail = [
+                'name' => env('ALLIN_COMPANY'),
+                'address' => env('ALLIN_ADDRESS'),
+                'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+                'city' => env('ALLIN_CITY')
+            ];
+            $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
+            return $pdf->download($receipt->receipt_id.".pdf");
+
+        } catch (Exception $e) {
+            
+            Log::info('Export receipt failed: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+       
+    }
+
+    public function upload(Request $request)
+    {
+        $receipt_id = $request->route('receipt');
+        $receipt = $this->receiptRepository->getReceiptById($receipt_id);
+        $currency = $request->currency;
+
+        if ($receipt->receiptAttachment()->where('currency', $currency)->where('sign_status', 'not yet')->first())
+            return Redirect::back()->withError('You already upload the receipt.');
+
+        $validated = $request->validate([
+            'currency' => 'in:idr,other',
+            'attachment' => 'required|file|mimes:pdf'
+        ]);
+
+        $attachment = $request->file('attachment');
+        $file_name = $attachment->getClientOriginalName();
+        $file_name = str_replace('/', '_', $receipt->receipt_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
+        $path = 'public/uploaded_file/receipt/client/';
+
+        DB::beginTransaction();
+        try {
+
+             # insert to invoice attachment
+             $attachmentDetails = [
+                'receipt_id' => $receipt->receipt_id,
+                'currency' => $currency,
+                'sign_status' => 'not yet',
+                'send_to_client' => 'not sent',
+                'attachment' => $file_name
+            ];
+
+            # generate invoice as a PDF file
+            if ($attachment->storeAs($path, $file_name)) {
+                $this->receiptAttachmentRepository->createReceiptAttachment($attachmentDetails);
+            }
+            DB::commit();
+            
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::info('Failed to request sign invoice : ' . $e->getMessage());
+            return Redirect::back()->withError('Failed to upload receipt. Please try again.');
+
+        }
+
+        return Redirect::to('receipt/client-program/'.$receipt_id)->withSuccess('Receipt has been uploaded.');
+
+    }
+
+    public function requestSign(Request $request)
+    {
+        $receipt_id = $request->route('receipt');
+        $receipt = $this->receiptRepository->getReceiptById($receipt_id);
+        $invoice_id = $receipt->invoiceProgram->inv_id;
 
         $type = $request->get('type');
 
@@ -153,14 +240,137 @@ class ReceiptController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
-        return $pdf->download($receipt->receipt_id.".pdf");
+        $data['email'] = env('DIRECTOR_EMAIL');
+        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['title'] = "Request Sign of Receipt Number : " . $receipt->receipt_id;
+        $data['param'] = [
+            'receipt' => $receipt,
+            'currency' => $type
+        ];
+        try {
+            
+            $file_name = str_replace('/', '_', $receipt->receipt_id);
+            $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
 
-        // return view('pages.receipt.client-program.export.receipt-pdf')->with(
-        //     [
-        //         'receipt' => $receipt,
-        //         'companyDetail' => $companyDetail
-        //     ]
-        // );
+            Mail::send('pages.receipt.client-program.mail.view', $data, function ($message) use ($data, $pdf, $receipt) {
+                $message->to($data['email'], $data['recipient'])
+                    ->subject($data['title'])
+                    ->attachData($pdf->output(), $receipt->receipt_id . '.pdf');
+            });
+
+        } catch (Exception $e) {
+
+            Log::info('Failed to request sign receipt : ' . $e->getMessage());
+            return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
+        }
+
+        return response()->json(['message' => 'Receipt sent successfully.']);
+    }
+
+    public function print(Request $request)
+    {
+        $receipt_id = $request->route('receipt');
+        $currency = $request->route('currency');
+
+        if (!$receipt = $this->receiptRepository->getReceiptById($receipt_id))
+            abort(404);
+        
+
+        $attachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt->receipt_id, $currency);
+
+        return view('pages.receipt.view-pdf')->with(
+            [
+                'receipt' => $receipt,
+                'attachment' => $attachment
+            ]
+        );
+    }
+
+    public function preview(Request $request)
+    {
+        $receipt_id = $request->route('receipt');
+        $currency = $request->route('currency');
+
+        if (!$receipt = $this->receiptRepository->getReceiptById($receipt_id))
+            abort(404);
+        
+
+        $attachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt->receipt_id, $currency);
+
+        return view('pages.receipt.sign-pdf')->with(
+            [
+                'receipt' => $receipt,
+                'attachment' => $attachment
+            ]
+        );
+    }
+
+    public function uploadSigned(Request $request)
+    {
+        $pdfFile = $request->file('pdfFile');
+        $name = $request->file('pdfFile')->getClientOriginalName();
+
+        $receipt_id = $request->route('receipt');
+        $receipt = $this->receiptRepository->getReceiptById($receipt_id);
+        $currency = $request->route('currency');
+
+        $attachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt->receipt_id, $currency);
+
+        $newDetails = [
+            'sign_status' => 'signed',
+            'approve_date' => Carbon::now()
+        ];
+
+        DB::beginTransaction();
+        try {
+
+            $this->receiptAttachmentRepository->updateReceiptAttachment($attachment->id, $newDetails);
+            if (!$pdfFile->storeAs('public/uploaded_file/receipt/client/', $name))
+                throw new Exception('Failed to store signed receipt file');
+
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            Log::error('Failed to update status after being signed : ' . $e->getMessage());
+            return response()->json(['status' => 'success', 'message' => 'Failed to update'], 500);
+
+        }
+
+        return response()->json(['status' => 'success', 'message' => 'Receipt signed successfully']);
+    }
+
+    public function sendToClient(Request $request)
+    {
+        $receipt_id = $request->route('receipt');
+        $receipt = $this->receiptRepository->getReceiptById($receipt_id);
+        $currency = $request->route('currency');
+        $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
+
+        $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
+        $data['cc'] = $receipt->invoiceProgram->clientprog->client->mail;
+        $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
+        $data['title'] = "ALL-In Eduspace | Receipt of program : " . $receipt->invoiceProgram->clientprog->program_name;
+
+        try {
+
+            Mail::send('pages.receipt.client-program.mail.client-view', $data, function ($message) use ($data, $attachment) {
+                $message->to($data['email'], $data['recipient'])
+                    ->cc($data['cc'])
+                    ->subject($data['title'])
+                    ->attach(storage_path('app/public/uploaded_file/receipt/client/' . $attachment->attachment));
+            });
+
+            # update status send to client
+            $newDetails['send_to_client'] = 'sent';
+            $this->receiptAttachmentRepository->updateReceiptAttachment($attachment->id, $newDetails);
+
+        } catch (Exception $e) {
+
+            Log::info('Failed to send receipt to client : ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to send receipt to client.'], 500);
+        }
+
+        return response()->json(['message' => 'Successfully sent receipt to client.']);
     }
 }

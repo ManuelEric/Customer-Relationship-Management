@@ -83,9 +83,9 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($clients as $client)
                                         @if(isset($clientEvent))
-                                            <option value="{{ $client->id }}" {{ $clientEvent->client_id == $client->id ? 'selected' : '' }}>{{ $client->first_name }} {{ $client->last_name }}</option>
+                                            <option value="{{ $client->id }}" {{ $clientEvent->client_id == $client->id ? 'selected' : '' }}>{{ $client->full_name }}</option>
                                         @else
-                                            <option value="{{ $client->id }}">{{ $client->first_name }} {{ $client->last_name }}</option>
+                                            <option value="{{ $client->id }}">{{ $client->full_name }}</option>
                                         @endif
                                     @endforeach
                                 </select>

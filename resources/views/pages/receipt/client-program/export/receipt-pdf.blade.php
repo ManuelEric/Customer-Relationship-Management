@@ -88,9 +88,9 @@
                                     Received from :
                                 </td>
                                 <td>
-                                    {{ $receipt->invoiceProgram->clientProg->client->parents[0]->full_name }}
+                                    {{ $receipt->invoiceProgram->clientprog->client->parents[0]->full_name }}
                                     <br>
-                                    {{ $receipt->invoiceProgram->clientProg->client->parents[0]->city }}
+                                    {{ $receipt->invoiceProgram->clientprog->client->parents[0]->city }}
                                 </td>
                             </tr>
                         </table>
@@ -169,6 +169,27 @@
                         </div>
                     </td>
                 </tr>
+                
+                @if ($receipt->invoiceProgram->inv_earlybird_idr > 0)
+                <tr>
+                    <td colspan="3" align="right"><b>Early Bird</b></td>
+                    <td valign="middle" align="center">
+                        <b>  
+                            {{ $receipt->invoiceProgram->invoice_earlybird_idr }}
+                        </b>
+                    </td>
+                </tr>
+                @endif
+                @if ($receipt->invoiceProgram->inv_discount_idr > 0)
+                <tr>
+                    <td colspan="3" align="right"><b>Discount</b></td>
+                    <td valign="middle" align="center">
+                        <b>  
+                            {{ $receipt->invoiceProgram->invoice_discount_idr }}
+                        </b>
+                    </td>
+                </tr>
+                @endif
                 <tr>
                     <td colspan="3" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">

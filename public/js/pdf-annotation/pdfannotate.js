@@ -196,12 +196,18 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 			reader.addEventListener("load", function () {
 				inputElement.remove()
 				var image = new Image();
-
+				var widthEntirePage = document.documentElement.scrollWidth;
+				
 				image.onload = function () {
+					var scaleX, scaleY = 1; var width, height = 0;
 					var canvas_width = fabricObj.width;
 					var canvas_height = fabricObj.height;
 
 					var img = new fabric.Image(image)
+					
+					var scaleX = (canvas_width / img.width) * 0.18;
+					var scaleY = (canvas_height / img.height) * 0.066;
+					
 					if(type == 'invoice'){
 						if(axis != null && axis.type == 'invoice')
 						{
@@ -216,8 +222,10 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 							})
 						}else{
 							img.setOptions({
-								left: canvas_width*0.7,
-								top: canvas_height*0.71,
+								left: canvas_width*0.688,
+								top: canvas_height*0.707,
+								scaleX: scaleX,
+								scaleY: scaleY
 							})
 						}
 					}else if(type == 'receipt'){
@@ -234,8 +242,10 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 							})
 						}else{
 							img.setOptions({
-								left: canvas_width*0.7,
-								top: canvas_height*0.71,
+								left: canvas_width*0.688,
+								top: canvas_height*0.707,
+								scaleX: scaleX,
+								scaleY: scaleY
 							})
 						}
 					}
@@ -247,6 +257,7 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 			}, false);
 			reader.readAsDataURL(inputElement.files[0]);
 		}
+		
 		document.getElementsByTagName('body')[0].appendChild(inputElement)
 		inputElement.click()
 	}
@@ -261,6 +272,9 @@ PDFAnnotate.prototype.deleteSelectedObject = function () {
 }
 
 PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
+
+	showLoading()
+
 	var inst = this;
 	var doc = new jspdf.jsPDF();
 	if (typeof fileName === 'undefined') {
@@ -290,6 +304,7 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 			if (method == 'print') {
 				doc.autoPrint();
 				doc.save(fileName);
+				
 			} else {
 				var data = doc.output('blob');
 				var formData = new FormData();
@@ -315,10 +330,12 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 					}else{
 						alert('Failed to save document')
 					}
+					swal.close();
 				}).catch(function (error) {
 					console.log(error);
 				});
 			}
+			swal.close();
 		}
 	})
 }
@@ -378,4 +395,14 @@ PDFAnnotate.prototype.loadFromJSON = function (jsonData) {
 			})
 		}
 	})
+}
+
+function showLoading()
+{
+	Swal.fire({
+		width: 100,
+		backdrop: '#4e4e4e7d',
+		allowOutsideClick: false,
+	})
+	Swal.showLoading();
 }

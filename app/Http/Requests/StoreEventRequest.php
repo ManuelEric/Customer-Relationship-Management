@@ -45,7 +45,8 @@ class StoreEventRequest extends FormRequest
                         $fail('The submitted pic was invalid employee');
                     }
                 },
-            ]
+            ],
+            'event_target' => 'required|min:1',
         ];
     }
 

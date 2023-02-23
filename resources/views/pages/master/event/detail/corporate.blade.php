@@ -14,7 +14,7 @@
     </div>
     <div class="card-body">
         @if (isset($partnerEvent))
-            @foreach ($partnerEvent as $partner)
+            @forelse ($partnerEvent as $partner)
                 <div class="list-group">
                     <div class="d-flex list-group-item justify-content-between">
                         <div class="">
@@ -25,7 +25,10 @@
                         </div>
                     </div>
                 </div>
-            @endforeach
+
+                @empty
+                There's no partner
+            @endforelse
         @endif
     </div>
 </div>

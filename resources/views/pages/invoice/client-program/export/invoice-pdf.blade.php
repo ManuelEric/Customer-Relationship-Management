@@ -55,6 +55,7 @@
 
 <body style="padding: 0; margin:0; height: 100vh">
     <div style="width: 100%; height:1059px; padding:0; margin:0;">
+
         <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
         <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
@@ -214,12 +215,16 @@
                             </div>
 
                             <div style="margin-top:5px;">
+                                @if ($clientProg->invoice->invoice_earlybird_idr > 0)
                                 <p>
                                     <strong> Early Bird</strong>
                                 </p>
+                                @endif
+                                @if ($clientProg->invoice->invoice_discount_idr > 0)
                                 <p>
                                     <strong> Discount</strong>
                                 </p>
+                                @endif
                             </div>
                         </td>
                         <td valign="top" align="center">
@@ -240,12 +245,16 @@
                                 </p>
                             </div>
                             <div style="margin-top:5px;">
+                                @if ($clientProg->invoice->invoice_earlybird_idr > 0)
                                 <p>
                                     <strong> - {{ $clientProg->invoice->invoice_earlybird_idr }}</strong>
                                 </p>
+                                @endif
+                                @if ($clientProg->invoice->invoice_discount_idr > 0)
                                 <p>
                                     <strong> - {{ $clientProg->invoice->invoice_discount_idr }}</strong>
                                 </p>
+                                @endif
                             </div>
                         </td>
                     </tr>

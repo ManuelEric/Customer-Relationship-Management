@@ -38,9 +38,14 @@
                         @elseif($receipt->invoiceB2b->ref_id)
                             onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt-ref/'.$receipt->id.'/upload/'.$currency) : '' }}')">
                         @endif
+                    @else
+                        onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('receipt.client-program.upload-signed', ['receipt' => Request::route('receipt'), 'currency' => Request::route('currency')]) }}')"
                     @endif 
                     <i class="fa fa-save me-2"></i>
                     Save</button>
+                {{-- <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment->attachment }}','{{ isset($receipt) ? url('api/receipt/'.$receipt->id.'/upload/'.$currency) : '' }}')"><i
+                        class="fa fa-save me-2"></i>
+                    Save</button> --}}
             </div>
         </div>
     </div>
@@ -62,11 +67,18 @@
 		</div>
 	</div>
 </div> --}}
-
 @endsection
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset($attachment) }}", {
+
+        @if (isset($attachment) && gettype($attachment) != "string")
+            var file = "{{ asset('storage/uploaded_file/receipt/client/'.$attachment->attachment) }}"
+        @else
+            var file = "{{ asset($attachment) }}"
+        @endif
+    
+        var pdf = new PDFAnnotate("pdf-container", file, {
             onPageUpdated(page, oldData, newData) {
                 // console.log(page, oldData, newData);
             },

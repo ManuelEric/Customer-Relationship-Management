@@ -41,7 +41,6 @@ class InvoiceProgram extends Model
         'inv_status',
         'curs_rate',
         'currency',
-        'attachment',
         'send_to_client',
     ];
 

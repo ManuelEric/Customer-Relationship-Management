@@ -58,6 +58,13 @@ class Program extends Model
         );
     }
 
+    public function programName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->main_prog->prog_name.' '.$this->prog_program,
+        );
+    }
+
 
     # relation
     public function schoolProgram()

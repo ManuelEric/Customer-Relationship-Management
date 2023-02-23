@@ -2,9 +2,9 @@
     <div class="card-body">
         <div class="row justify-content-end mb-2">
             <div class="col-md-2">
-                <select name="" id="" class="select w-100">
-                    <option value="Current Year">Current Year</option>
-                    <option value="The Last 3 Year">The Last 3 Year</option>
+                <select name="" id="qclient-event-year" class="select w-100">
+                    <option value="current">Current Year</option>
+                    <option value="last-3-year">The Last 3 Year</option>
                 </select>
             </div>
         </div>
@@ -15,17 +15,26 @@
                         Client Event Percentage
                     </div>
                     <div class="card-body overflow-auto" style="height: 300px">
-                        <table class="table table-hover">
-                            <tr>
-                                <th>Event Name</th>
-                                <th class="text-end">Percentage</th>
-                            </tr>
-                            @for ($i = 0; $i < 20; $i++)
+                        <table class="table table-hover" id="client-event-percentage-tbl">
+                            <thead>
                                 <tr>
-                                    <td>Event Name ADADDADA {{ $i }}</td>
-                                    <td class="text-end">20%</td>
+                                    <th>Event Name</th>
+                                    <th class="text-end">Percentage</th>
                                 </tr>
-                            @endfor
+                            </thead>
+                            <tbody>
+                                @forelse ($events as $event)
+                                    <tr>
+                                        <td>{{ $event->event_title }}</td>
+                                        <td class="text-end">{{ $event->participants != 0 && $event->event_target != null ? ($event->participants/$event->event_target)*100 : 0 }}%</td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="2">No Data</td>
+                                    </tr>
+
+                                @endforelse
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -40,7 +49,7 @@
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
-                        <div class="" id="event_title">Event A</div>
+                        <div class="" id="event_title">{{ count($events) > 0 ? $events[0]->event_title : null }}</div>
                         <div class="">Conversion Lead</div>
                     </div>
                     <div class="card-body client-event-lead">
@@ -51,7 +60,46 @@
         </div>
     </div>
 </div>
+<script>
+    var client_event_chart_pct, event_lead_chart = null;
 
+    $("#qclient-event-year").on('change', function() {
+        var selected_year = $(this).val()
+        var uuid = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
+
+        get_client_event(selected_year, uuid)
+
+    });
+
+    function get_client_event(year = null, user = null)
+    {
+        if (!user)
+            user = '';
+
+        var url = window.location.origin + '/api/get/client-event/' + year + '/' + user
+
+        axios.get(url)
+            .then(function (response) {
+                
+                var obj = response.data.data
+
+                $("#client-event-percentage-tbl tbody").html(obj.html_txt)
+
+                client_event_chart_pct.data.labels = obj.ctx.labels
+                client_event_chart_pct.data.datasets[0].data = obj.ctx.target
+                client_event_chart_pct.data.datasets[1].data = obj.ctx.participants
+                client_event_chart_pct.update();
+
+                event_lead_chart.data.labels = obj.lead.labels
+                event_lead_chart.data.datasets[0].data = obj.lead.total
+                event_lead_chart.update();
+                swal.close()
+
+            }).catch(function (error) {
+                
+            })
+    }
+</script>
 <script>
     // Percentage 
     let lbl_client_event = [{
@@ -83,13 +131,24 @@
     // Client Event 
     const event = document.getElementById('client_event');
 
-    new Chart(event, {
+    const dataset_participants = new Array()
+    const dataset_target = new Array()
+    const dataset_events = new Array()
+    @if (isset($events))
+        @foreach ($events as $event)
+            dataset_participants.push('{{ $event->participants }}')
+            dataset_target.push('{{ $event->event_target == null ? 0 : $event->event_target }}')
+            dataset_events.push('{{ $event->event_title }}')        
+        @endforeach
+    @endif
+
+    var client_event_chart_pct = new Chart(event, {
         data: {
-            labels: ['Event A', 'Event B', 'Event C', 'Event D'],
+            labels: dataset_events,
             datasets: [{
                 type: 'line',
                 label: 'Target Participants',
-                data: [12, 19, 20, 35],
+                data: dataset_target,
                 borderWidth: 6,
                 datalabels: {
                     color: '#fff',
@@ -100,7 +159,7 @@
             }, {
                 type: 'bar',
                 label: 'Join Event',
-                data: [15, 25, 31, 20],
+                data: dataset_participants,
                 borderWidth: 1,
                 datalabels: {
                     color: '#000',
@@ -127,38 +186,49 @@
 
 
     // Concersion Lead 
-    function get_event_lead(event_name) {
-        $('.client-event-lead canvas').remove()
-        $('.client-event-lead').append('<canvas id="client_event_lead"></canvas>')
 
-        const event_lead = document.getElementById('client_event_lead');
-        new Chart(event_lead, {
-            type: 'pie',
-            data: {
-                labels: ['Whatsapp Blass', 'Website', 'Newsletter', 'Instagram'],
-                datasets: [{
-                    label: 'Target Participants',
-                    data: [12, 19, 20, 35],
-                    borderWidth: 1,
-                }]
-            },
-            plugins: [ChartDataLabels],
-            options: {
-                plugins: {
-                    datalabels: lbl_client_event[0],
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            boxWidth: 15,
-                        }
+    $('.client-event-lead canvas').remove()
+    $('.client-event-lead').append('<canvas id="client_event_lead"></canvas>')
+
+    const dataset_labels = new Array();
+    const dataset_info = new Array();
+    @if (isset($conversion_lead_of_event))
+    @foreach ($conversion_lead_of_event->pluck('conversion_lead')->toArray() as $key => $value)
+        dataset_labels.push('{{ $value }}')
+    @endforeach
+
+    @foreach ($conversion_lead_of_event->pluck('count_conversionLead')->toArray() as $key => $value)
+        dataset_info.push('{{ $value == null || $value == '' ? 0 : $value }}')
+    @endforeach
+    @endif
+
+    const event_lead = document.getElementById('client_event_lead');
+    var event_lead_chart = new Chart(event_lead, {
+        type: 'pie',
+        data: {
+            labels: dataset_labels,
+            datasets: [{
+                label: 'Participants',
+                data: dataset_info,
+                borderWidth: 1,
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            plugins: {
+                datalabels: lbl_client_event[0],
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 15,
                     }
-                },
-                onClick: (e, activeEls) => {
-
                 }
-            }
-        });
-    }
+            },
+            onClick: (e, activeEls) => {
 
-    get_event_lead('event_a');
+            }
+        }
+    });
+    
+
 </script>

@@ -56,57 +56,32 @@
                             </button>    
                         @endif
                     </div>
-                        @if (isset($invoiceSch) && count($invoiceSch->invoiceAttachment) > 0)
-                            <div class="d-flex justify-content-center mt-2">
-                                @if(count($invoiceSch->invoiceAttachment) > 1)
-                                    @foreach ($invoiceSch->invoiceAttachment as $attachment)
-                                        @if($attachment->sign_status == 'signed')
-                                            <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => $attachment->currency]) }}" 
-                                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                                <i class="bi bi-printer me-1"></i> Print {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }}
-                                            </a>
-                                        @endif
-                                    @endforeach
-                                @else
-                                    @if($invoiceSch->invoiceAttachment[0]->sign_status == 'signed')
-                                        <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => $invoiceSch->invoiceAttachment[0]->currency]) }}" 
-                                            {{-- id="print_idr" --}} 
-                                            class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                            <i class="bi bi-printer me-1"></i> Print {{$invoiceSch->invoiceAttachment[0]->currency == 'idr' ? 'IDR' : 'Others'}}
-                                        </a>
-                                    @endif            
-                                @endif
-                            </div>
-                        @endif
+                    
 
                         @if (!isset($invoiceSch->refund) && isset($invoiceSch))
                             <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
-                                @if(count($invoiceSch->invoiceAttachment) > 0)
-                                    @if(count($invoiceSch->invoiceAttachment) > 1)
-                                        @foreach ($invoiceSch->invoiceAttachment as $key => $att)
-                                            @if(($isIdr[$key] && $isNotYet[$key]))
-                                                {!! $requestSignIdr !!}
-                                            @elseif(($isOther[$key] && $isNotYet[$key]) && $invoiceSch->currency != 'idr') 
-                                                {!! $requestSignOther !!}
-                                            @endif                                        
-                                        @endforeach
-                                    @else
-                                        @if(((!$isIdr[0] || !$isOther[0])) && $invoiceSch->currency != 'idr' && $isNotYet[0])
-                                            {!! $requestSignIdr !!}
-                                            {!! $requestSignOther !!}
-                                        @elseif(($isNotYet[0] && $isIdr[0]) || ($isSigned[0] && $isOther[0]))
-                                            {!! $requestSignIdr !!}
-                                        @elseif(($isNotYet[0] && $isOther[0]) || ($isSigned[0] && $isIdr[0]) && $invoiceSch->currency != 'idr')
-                                            {!! $requestSignOther !!}
-                                        @endif
-                                    @endif
+                                @php
+                                    $invoiceSchAttachment = $invoiceSch->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
+                                @endphp
+                                @if (!$invoiceSchAttachment)
+                                    {!! $requestSignIdr !!}
                                 @else
-                                    @if($invoiceSch->currency == 'idr')
-                                        {!! $requestSignIdr !!}
-                                    @else
-                                        {!! $requestSignIdr !!}
-                                        {!! $requestSignOther !!}
-                                    @endif
+                                    <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}" 
+                                        class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
+                                        <i class="bi bi-printer me-1"></i> Print IDR
+                                    </a>
+                                @endif
+
+                                @php
+                                    $invoiceSchAttachmentOther = $invoiceSch->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
+                                @endphp
+                                @if (!$invoiceSchAttachmentOther && $invoiceSch->currency == 'idr')
+                                    {!! $requestSignOther !!}
+                                @else
+                                    <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" 
+                                        class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
+                                        <i class="bi bi-printer me-1"></i> Print Other
+                                    </a>
                                 @endif
                             </div>
                         @endif

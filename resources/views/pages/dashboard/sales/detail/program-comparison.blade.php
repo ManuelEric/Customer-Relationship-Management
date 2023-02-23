@@ -7,13 +7,21 @@
                         <div class="row mb-3 g-0">
                             <div class="col-12 mb-2">
                                 <label for="">Program Name</label>
-                                <select name="" id="" class="select w-100" multiple></select>
+                                <select name="q-program" id="" class="select w-100" multiple>
+                                    @foreach ($allPrograms as $key => $value)
+                                        <optgroup label="{{ $key }}">
+                                            @foreach ($value as $program)
+                                                <option value="{{ $program->prog_id }}">{{ $program->prog_program }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="col-12">
                                 <label for="">Year</label>
                                 <div class="row align-items-center g-0">
                                     <div class="col">
-                                        <select name="" id="" class="select w-100">
+                                        <select name="q-first-year" id="" class="select-pc w-100">
                                             @for ($i = 2020; $i <= date('Y'); $i++)
                                                 <option value="{{ $i }}"
                                                     {{ $i == date('Y') - 1 ? 'selected' : '' }}>{{ $i }}
@@ -25,7 +33,7 @@
                                         VS
                                     </div>
                                     <div class="col">
-                                        <select name="" id="" class="select w-100">
+                                        <select name="q-second-year" id="" class="select-pc w-100">
                                             @for ($i = 2020; $i <= date('Y'); $i++)
                                                 <option value="{{ $i }}"
                                                     {{ $i == date('Y') ? 'selected' : '' }}>
@@ -38,7 +46,7 @@
                         </div>
                         <div class="text-center">
                             <hr>
-                            <button class="btn btn-sm btn-outline-primary">
+                            <button class="btn btn-sm btn-outline-primary btn-compare">
                                 <i class="bi bi-search"></i>
                                 Submit
                             </button>
@@ -51,12 +59,12 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover table-bordered">
+                            <table class="table table-hover table-bordered" id="comparison-table">
                                 <thead class="text-center">
                                     <tr>
                                         <th rowspan="2">#</th>
                                         <th rowspan="2">Program Name</th>
-                                        <th colspan="2">Comparison</th>
+                                        <th colspan="2">Comparison (IDR)</th>
                                     </tr>
                                     <tr>
                                         <th>2022</th>
@@ -64,14 +72,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @for ($i = 1; $i < 10; $i++)
+                                    @foreach ($comparisons as $comparison)
                                         <tr>
-                                            <td class="text-center">{{ $i }}</td>
-                                            <td>Program Name</td>
-                                            <td class="text-center">30 (IDR)</td>
-                                            <td class="text-center">50 (IDR)</td>
+                                            <td class="text-center">{{ $loop->iteration }}</td>
+                                            <td>{{ $comparison->prog_name.': '.$comparison->prog_program }}</td>
+                                            <td class="text-center">{{ number_format($comparison->revenue_year1, '2', '.',',') }} </td>
+                                            <td class="text-center">{{ number_format($comparison->revenue_year2, '2', '.',',') }} </td>
                                         </tr>
-                                    @endfor
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>

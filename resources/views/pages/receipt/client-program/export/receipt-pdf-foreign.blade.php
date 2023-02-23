@@ -169,6 +169,26 @@
                         </div>
                     </td>
                 </tr>
+                @if ($receipt->invoiceProgram->inv_earlybird > 0)
+                <tr>
+                    <td colspan="3" align="right"><b>Early Bird</b></td>
+                    <td valign="middle" align="center">
+                        <b>  
+                            {{ $receipt->invoiceProgram->invoice_earlybird }}
+                        </b>
+                    </td>
+                </tr>
+                @endif
+                @if ($receipt->invoiceProgram->inv_discount > 0)
+                <tr>
+                    <td colspan="3" align="right"><b>Discount</b></td>
+                    <td valign="middle" align="center">
+                        <b>  
+                            {{ $receipt->invoiceProgram->invoice_discount }}
+                        </b>
+                    </td>
+                </tr>
+                @endif
                 <tr>
                     <td colspan="3" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">

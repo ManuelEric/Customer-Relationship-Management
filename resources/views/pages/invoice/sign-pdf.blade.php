@@ -28,15 +28,14 @@
                 <button class="btn btn-danger btn-sm" onclick="clearPage()">Clear Page</button>
             </div>
             <div class="tool">
-                <button class="btn btn-info btn-sm" onclick="showPdfData()">{}</button>
-            </div>
-            <div class="tool">
                 <button class="btn btn-light btn-sm" 
                 
                 @if(isset($invoice->schprog_id))
                     onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-sch/'.$invoice->invb2b_num.'/upload/'.$currency) }}')">
                 @elseif(isset($invoice->ref_id))
                     onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-ref/'.$invoice->invb2b_num.'/upload/'.$currency)  }}')">
+                @else
+                    onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('invoice.program.upload-signed', ['client_program' => Request::route('client_program'), 'currency' => Request::route('currency')]) }}')"
                 @endif
                        <i class="fa fa-save me-2"></i>
                     Save</button>
@@ -64,8 +63,16 @@
 
 @endsection
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        var pdf = new PDFAnnotate("pdf-container", "{{ asset($attachment) }}", {
+
+        @if (isset($attachment) && isset($attachment->inv_id))
+            var file = "{{ asset('storage/uploaded_file/invoice/client/'.$attachment->attachment) }}"
+        @else
+            var file = "{{ asset($attachment) }}"
+        @endif
+
+        var pdf = new PDFAnnotate("pdf-container", file, {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);
             },
@@ -75,6 +82,7 @@
             scale: 1.7,
             pageImageCompression: "SLOW", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
         });
+        
     </script>
     <script src="{{ asset('js/pdf-annotation/script-pdf.js') }}"></script>
 @endsection

@@ -7,7 +7,7 @@ interface ClientRepositoryInterface
     public function getAllClients();
     public function getAllClientDataTables();
     public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = null);
-    public function getAllClientByRole($roleName, $filter = NULL); # mentee, parent, teacher
+    public function getAllClientByRole($roleName, $month = NULL); # mentee, parent, teacher
     public function getAllClientByRoleAndStatus($roleName, $statusClient);
     public function getAllChildrenWithNoParents($parentId);
     public function getClientById($clientId);
@@ -26,6 +26,6 @@ interface ClientRepositoryInterface
     public function updateActiveStatus($clientId, $newStatus);
     public function checkAllProgramStatus($clientId);
     # dashboard
-    public function getCountTotalClientByStatus($status, $filter = null);
-    public function getMenteesBirthdayMonthly($filter);
+    public function getCountTotalClientByStatus($status, $month = null);
+    public function getMenteesBirthdayMonthly($month);
 }

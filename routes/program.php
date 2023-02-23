@@ -56,7 +56,17 @@ Route::get('corporate/1', function () {
     return view('pages.program.corporate-program.form');
 });
 
-Route::resource('event', ClientEventController::class);
+Route::resource('event', ClientEventController::class, [
+    'names' => [
+        'index' => 'program.event.index',
+        'store' => 'program.event.store',
+        'create' => 'program.event.create',
+        'show' => 'program.event.show',
+        'update' => 'program.event.update',
+        'edit' => 'program.event.edit',
+        'destroy' => 'program.event.destroy',
+    ]
+]);
 
 Route::get('corporate', [PartnerProgramController::class, 'index'])->name('program.corporate.index');
 Route::prefix('corporate')->name('corporate_prog.')->group(function () {
