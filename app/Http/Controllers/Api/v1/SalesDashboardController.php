@@ -78,52 +78,60 @@ class SalesDashboardController extends Controller
             $data['followUpReminder'] = $followUpReminder = $this->followupRepository->getAllFollowupWithin(7, $month);
 
             $html = '';
-            foreach ($followUpReminder as $key => $detail) {
-                
-                $html .= '<h6>';
-                $opener = "(";
-                $closer = ")";
-                    switch(date('d', strtotime($key))-date('d')) {
-                        case 0:
-                            $title = 'Today';
-                            break;
+            if ($followUpReminder) {
 
-                        case 1:
-                            $title = 'Tomorrow';
-                            break;
-
-                        case 2:
-                            $title = 'The day after tomorrow';
-                            break;
-
-                        default:
-                            $opener = null;
-                            $closer = null;
-                            
-                    }
-                    $html .= $title.' '. $opener . ' '. date('D, d M Y', strtotime($key)). $closer;
-                $html .= '</h6>';
-                $html .= '<div class="overflow-auto mb-3" style="height: 150px">';
-                    $html .= '<ul class="list-group">';
-                        foreach($detail as $key => $info) {
-                            
-                            $checked = $info->status == 1 ? "checked" : null;
-
-                            $html .= '<li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="">
-                                            <p class="m-0 p-0 lh-1">'.$info->clientProgram->client->full_name.'</p>
-                                                <small class="m-0">'.$info->clientProgram->program_name.'</small>
-                                        </div>
-                                        <div class="">
-                                            <input class="form-check-input me-1" type="checkbox" value="1" '.$checked.
-                                                ' id="mark_'.$key.'"
-                                                data-student="'.$info->clientProgram->client->id.'"
-                                                data-program="'.$info->clientProgram->clientprog_id.'"
-                                                data-followup="'.$info->id.'"
-                                                onchange="marked('.$key.')">
-                                            <label class="form-check-label" for="mark_'.$key.'">Done</label>
-                                    </div></li></ul></div><hr>';
+                foreach ($followUpReminder as $key => $detail) {
+                    
+                    $html .= '<h6>';
+                    $opener = "(";
+                    $closer = ")";
+                        switch(date('d', strtotime($key))-date('d')) {
+                            case 0:
+                                $title = 'Today';
+                                break;
+    
+                            case 1:
+                                $title = 'Tomorrow';
+                                break;
+    
+                            case 2:
+                                $title = 'The day after tomorrow';
+                                break;
+    
+                            default:
+                                $opener = null;
+                                $closer = null;
+                                
                         }
+                        $html .= $title.' '. $opener . ' '. date('D, d M Y', strtotime($key)). $closer;
+                    $html .= '</h6>';
+                    $html .= '<div class="overflow-auto mb-3" style="height: 150px">';
+                        $html .= '<ul class="list-group">';
+                            foreach($detail as $key => $info) {
+                                
+                                $checked = $info->status == 1 ? "checked" : null;
+    
+                                $html .= '<li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div class="">
+                                                <p class="m-0 p-0 lh-1">'.$info->clientProgram->client->full_name.'</p>
+                                                    <small class="m-0">'.$info->clientProgram->program_name.'</small>
+                                            </div>
+                                            <div class="">
+                                                <input class="form-check-input me-1" type="checkbox" value="1" '.$checked.
+                                                    ' id="mark_'.$key.'"
+                                                    data-student="'.$info->clientProgram->client->id.'"
+                                                    data-program="'.$info->clientProgram->clientprog_id.'"
+                                                    data-followup="'.$info->id.'"
+                                                    onchange="marked('.$key.')">
+                                                <label class="form-check-label" for="mark_'.$key.'">Done</label>
+                                        </div></li></ul></div><hr>';
+                            }
+                }
+
+            } else {
+
+                $html = 'No Follow up reminder';
+
             }
             $data['html_txt'] = $html;
 

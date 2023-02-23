@@ -386,7 +386,7 @@ class ReceiptSchoolController extends Controller
                 $message->to($data['email'], $data['recipient'])
                     ->cc($data['cc'])
                     ->subject($data['title'])
-                    ->attach(storage_path('app/public/uploaded_file/receipt/sch_prog/' . $receiptAttachment->attachment));
+                    ->attach($receiptAttachment->attachment);
             });
 
             $attachmentDetails = [
