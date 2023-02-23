@@ -71,21 +71,23 @@
                             </button>
                         @endif
 
-                        @if (!$receiptSch->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
-                            {!! $exportOther !!}
-                            {!! $uploadOther !!}
-                        @elseif ($receiptSch->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
-                            <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc-other">
-                                <i class="bi bi-pen me-1"></i> Request Sign Other
-                            </button>
-                        @else
-                            <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}" 
-                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                <i class="bi bi-printer me-1"></i> Print Other
-                            </a>
-                            <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-other">
-                                <i class="bi bi-printer me-1"></i> Send Receipt Other to Client
-                            </button>
+                        @if ($receiptSch->invoiceB2b->currency != "idr")
+                            @if (!$receiptSch->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
+                                {!! $exportOther !!}
+                                {!! $uploadOther !!}
+                            @elseif ($receiptSch->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
+                                <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc-other">
+                                    <i class="bi bi-pen me-1"></i> Request Sign Other
+                                </button>
+                            @else
+                                <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}" 
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
+                                    <i class="bi bi-printer me-1"></i> Print Other
+                                </a>
+                                <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-other">
+                                    <i class="bi bi-printer me-1"></i> Send Receipt Other to Client
+                                </button>
+                            @endif
                         @endif
 
                     </div>

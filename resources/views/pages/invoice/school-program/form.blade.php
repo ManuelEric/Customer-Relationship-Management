@@ -78,7 +78,7 @@
                                 @php
                                     $invoiceSchAttachmentOther = $invoiceSch->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
                                 @endphp
-                                @if (!$invoiceSchAttachmentOther && $invoiceSch->currency == 'idr')
+                                @if (!$invoiceSchAttachmentOther && $invoiceSch->currency != 'idr')
                                     {!! $requestSignOther !!}
                                 @else
                                     <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" 
