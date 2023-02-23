@@ -89,25 +89,27 @@
                             </div>
                         @endif
                         
-                        @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
-                            <div class="d-flex justify-content-center mt-3">
-                                <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
-                                    <i class="bi bi-pen me-1"></i> Request Sign Foreign
-                                </button>
-                                
-                                
-                            </div>
-                        @else
-                            <div class="d-flex justify-content-center mt-3">
-                                <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}" target="_blank">
-                                    <button class="btn btn-sm btn-outline-info rounded mx-1">
-                                        <i class="bi bi-printer me-1"></i> Print Foreign
+                        @if ($invoice->currency != 'idr')
+                            @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
+                                <div class="d-flex justify-content-center mt-3">
+                                    <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
+                                        <i class="bi bi-pen me-1"></i> Request Sign Foreign
                                     </button>
-                                </a>
-                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-other">
-                                    <i class="bi bi-printer me-1"></i> Send Invoice to Client
-                                </button>
-                            </div>
+                                    
+                                    
+                                </div>
+                            @else
+                                <div class="d-flex justify-content-center mt-3">
+                                    <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}" target="_blank">
+                                        <button class="btn btn-sm btn-outline-info rounded mx-1">
+                                            <i class="bi bi-printer me-1"></i> Print Foreign
+                                        </button>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-other">
+                                        <i class="bi bi-printer me-1"></i> Send Invoice to Client
+                                    </button>
+                                </div>
+                            @endif
                         @endif
 
                     @endif

@@ -61,23 +61,8 @@
                             </a>
                         @endif
 
-                        {{-- @else --}}
-                            {{-- <a href="#export-idr" id="print"
-                                class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                                <i class="bi bi-printer me-1"></i> Print
-                            </a>
-                            @if (isset($client_prog->invoice->currency) && $client_prog->invoice->currency != "idr")
-                                <a href="#export-idr" id="print-other"
-                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                                    <i class="bi bi-printer me-1"></i> Print Foreign
-                                </a>
-                            @endif --}}
-                            {{-- <a href="#req-acc"
-                                class="btn btn-sm btn-outline-warning rounded mx-1 my-1">
-                                <i class="bi bi-printer me-1"></i> Request Signed
-                            </a>  
-                        @endif --}}
                     </div>
+                    @if ($receipt->invoiceProgram->currency != "idr")
                     <div class="d-flex flex-wrap justify-content-center mt-3">
                         @if (!$receipt->receiptAttachment()->where('currency', 'other')->first())
                             @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'other')->first())
@@ -106,6 +91,7 @@
                             </a>
                         @endif
                     </div>
+                    @endif
                 </div>
             </div>
 {{-- 

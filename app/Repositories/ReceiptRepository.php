@@ -101,7 +101,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     }
 
 
-    public function getAllReceiptByStatusDataTables()
+    public function getAllReceiptByStatusDataTables() # client program
     {
 
         $query = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
@@ -111,6 +111,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
             ->where('receipt_status', 1)
+            ->whereNotNull('tbl_receipt.inv_id')
             ->select([
                 'tbl_client_prog.clientprog_id',
                 'tbl_inv.clientprog_id',
