@@ -30,91 +30,163 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $clientProg->client->full_name }}</h4>
-                    <h6 class="d-flex flex-column">
-                        @php
-                            $programName = explode('-', $clientProg->program_name);
-                        @endphp
-                        @for ($i = 0; $i < count($programName); $i++)
-                            @if ($i > 0)
-                            <a href="{{ route('student.program.show', ['student' => $clientProg->client->id, 'program' => $clientProg->clientprog_id]) }}">
-                            @endif
-                            <span 
-                                @if ($i > 0) style="font-size:.8em;color:blue" @endif>{{ $programName[$i] }}</span>
-                            @if ($i > 0)
-                            </a>
-                            @endif
-                        @endfor
-                    </h6>
-                    @if (isset($invoice))
-                        <div class="d-flex justify-content-center mt-3">
-                            {{-- <a href="{{ url('program/client/1') }}" class="btn btn-sm btn-outline-info rounded mx-1"
-                            target="_blank">
-                            <i class="bi bi-eye me-1"></i> More
-                        </a> --}}
 
-                            @if (!isset($invoice->refund))
-                                <a href="{{ $status == 'edit' ? url('invoice/client-program/' . $clientProg->clientprog_id) : url('invoice/client-program/' . $clientProg->clientprog_id . '/edit') }}"
-                                    class="btn btn-sm btn-outline-warning rounded mx-1">
-                                    <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
-                                    {{ $status == 'edit' ? 'Back' : 'Edit' }}
-                                </a>
-                            @endif
-                    
-
-
-                            <button class="btn btn-sm btn-outline-danger rounded mx-1"
-                                onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
-                                <i class="bi bi-trash2 me-1"></i> Delete
-                            </button>
-                        </div>
-
-                        @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
-                            <div class="d-flex justify-content-center mt-3">
-                                <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
-                                    <i class="bi bi-pen me-1"></i> Request Sign
-                                </button>
-                                
-                                
-                            </div>
-                        @else
-                            <div class="d-flex justify-content-center mt-3">
-                                <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}" target="_blank">
-                                    <button class="btn btn-sm btn-outline-info rounded mx-1">
-                                        <i class="bi bi-printer me-1"></i> Print
-                                    </button>
-                                </a>
-                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-idr">
-                                    <i class="bi bi-printer me-1"></i> Send Invoice to Client
-                                </button>
-                            </div>
-                        @endif
-                        
-                        @if ($invoice->currency != 'idr')
-                            @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
-                                <div class="d-flex justify-content-center mt-3">
-                                    <button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
-                                        <i class="bi bi-pen me-1"></i> Request Sign Foreign
-                                    </button>
-                                    
-                                    
-                                </div>
-                            @else
-                                <div class="d-flex justify-content-center mt-3">
-                                    <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}" target="_blank">
-                                        <button class="btn btn-sm btn-outline-info rounded mx-1">
-                                            <i class="bi bi-printer me-1"></i> Print Foreign
-                                        </button>
-                                    </a>
-                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-other">
-                                        <i class="bi bi-printer me-1"></i> Send Invoice to Client
-                                    </button>
-                                </div>
-                            @endif
-                        @endif
-
-                    @endif
+                    <a
+                        href="{{ route('student.program.show', ['student' => $clientProg->client->id, 'program' => $clientProg->clientprog_id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">
+                        <h6 class="d-flex flex-column">
+                            @php
+                                $programName = explode('-', $clientProg->program_name);
+                            @endphp
+                            @for ($i = 0; $i < count($programName); $i++)
+                                {{ $programName[$i] }}  <br>
+                            @endfor
+                        </h6>
+                    </a>
                 </div>
             </div>
+
+            {{-- Tools  --}}
+            @if (isset($invoice) && !isset($invoice->refund))
+                <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
+                    <div class="border p-1 text-center flex-fill">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
+                                <a href="{{ $status == 'edit' ? url('invoice/client-program/' . $clientProg->clientprog_id) : url('invoice/client-program/' . $clientProg->clientprog_id . '/edit') }}"
+                                    class="text-warning">
+                                    <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}"></i>
+                                </a>
+                            </div>
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Cancel"
+                                onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
+                                <a href="#" class="text-danger">
+                                    <i class="bi bi-trash2"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <hr class="my-1">
+                        <small>General</small>
+                    </div>
+                    <div class="border p-1 text-center flex-fill">
+                        <div class="d-flex gap-1 justify-content-center">
+                            @if (isset($invoice) &&
+                                    !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="Request Sign" id="request-acc">
+                                    <a href="" class="text-info">
+                                        <i class="bi bi-pen-fill"></i>
+                                    </a>
+                                </div>
+                            @else
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="Print Invoice">
+                                    <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}"
+                                        class="text-info">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                </div>
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="Send to Client" id="send-inv-client-idr">
+                                    <a href="#" class="text-info">
+                                        <i class="bi bi-send"></i>
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                        <hr class="my-1">
+                        <small class="text-center">IDR</small>
+                    </div>
+
+                    @if ($invoice->currency != 'idr')
+                        <div class="border p-1 text-center flex-fill">
+                            <div class="d-flex gap-1 justify-content-center">
+                                @if (
+                                    !isset($invoice->refund) &&
+                                        isset($invoice) &&
+                                        !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
+                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Request Sign" id="request-acc-other">
+                                        <a href="" class="text-info">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </a>
+                                    </div>
+                                @else
+                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Print Invoice">
+                                        <a href="{{ route('invoice.program.print', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}"
+                                            class="text-info">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
+                                    </div>
+                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Send to Client">
+                                        <a href="#" class="text-info">
+                                            <i class="bi bi-send"></i>
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                            <hr class="my-1">
+                            <small class="text-center">Other Currency</small>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
+            {{-- Invoice Progress  --}}
+            @if (isset($invoice) && !isset($invoice->refund))
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header">
+                        <h6 class="my-0">
+                            Invoice Progress
+                        </h6>
+                    </div>
+                    <div class="card-body position-relative h-auto pb-5">
+                        {{-- IDR  --}}
+                        <div class="text-center">
+                            <h6>IDR</h6>
+                            <section class="step-indicator">
+                                <div class="step step1 active">
+                                    <div class="step-icon">1</div>
+                                    <p>Request Sign</p>
+                                </div>
+                                <div class="indicator-line active"></div>
+                                <div class="step step2">
+                                    <div class="step-icon">2</div>
+                                    <p>Signed</p>
+                                </div>
+                                <div class="indicator-line"></div>
+                                <div class="step step3">
+                                    <div class="step-icon">3</div>
+                                    <p>Print or Send to Client</p>
+                                </div>
+                            </section>
+                        </div>
+
+                        {{-- Other  --}}
+                        <div class="text-center mt-5">
+                            <hr>
+                            <h6>Other Currency</h6>
+                            <section class="step-indicator">
+                                <div class="step step1 active">
+                                    <div class="step-icon">1</div>
+                                    <p>Request Sign</p>
+                                </div>
+                                <div class="indicator-line active"></div>
+                                <div class="step step2">
+                                    <div class="step-icon">2</div>
+                                    <p>Signed</p>
+                                </div>
+                                <div class="indicator-line"></div>
+                                <div class="step step3">
+                                    <div class="step-icon">3</div>
+                                    <p>Print or Send to Client</p>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             @if (isset($invoice->receipt) && $clientProg->status == 3)
                 @include('pages.invoice.client-program.detail.refund')
@@ -137,9 +209,10 @@
                         </h6>
                     </div>
                     <div class="">
-                        {{-- @if ($invoice === NULL && isset($invoice->receipt)) --}}
-                        @if (isset($invoice) && $invoice->inv_paymentmethod == "Full Payment" && !isset($invoice->receipt))
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}')">
+                        {{-- @if ($invoice === null && isset($invoice->receipt)) --}}
+                        @if (isset($invoice) && $invoice->inv_paymentmethod == 'Full Payment' && !isset($invoice->receipt))
+                            <button class="btn btn-sm btn-outline-primary py-1"
+                                onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -165,18 +238,17 @@
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label for="">Currency <sup class="text-danger">*</sup></label>
-                                <select id="currency" name="currency" class="select w-100" onchange="checkCurrency()" {{ $disabled }}>
-                                    <option value="idr"    
-                                    @if (($clientProg->program->prog_payment == "session" OR $clientProg->program->prog_payment == "idr") && !isset($invoice))
-                                        {{ "selected" }}
-                                    @elseif (isset($invoice) && $invoice->inv_category == "idr")
-                                        {{ "selected" }}
-                                    @endif
-                                        >IDR</option>
+                                <select id="currency" name="currency" class="select w-100" onchange="checkCurrency()"
+                                    {{ $disabled }}>
+                                    <option value="idr"
+                                        @if (
+                                            ($clientProg->program->prog_payment == 'session' or $clientProg->program->prog_payment == 'idr') &&
+                                                !isset($invoice)) {{ 'selected' }}
+                                    @elseif (isset($invoice) && $invoice->inv_category == 'idr')
+                                        {{ 'selected' }} @endif>
+                                        IDR</option>
                                     <option value="other"
-                                        @if ($clientProg->program->prog_payment != 'session' &&
-                                            $clientProg->program->prog_payment != 'idr' &&
-                                            !isset($invoice)) {{ 'selected' }}
+                                        @if ($clientProg->program->prog_payment != 'session' && $clientProg->program->prog_payment != 'idr' && !isset($invoice)) {{ 'selected' }}
                                     @elseif (isset($invoice) && $invoice->inv_category == 'other')
                                         {{ 'selected' }} @endif>
                                         Other Currency</option>
@@ -186,8 +258,10 @@
                                 @enderror
                             </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
-                                <label for="">Currency Detail <sup class="text-danger">*</sup></label> {{ old('currency') }}
-                                <select class="select w-100" name="currency_detail" id="currency_detail" {{ $disabled !== null ? $disabled : 'onchange="checkCurrencyDetail()"' }}>
+                                <label for="">Currency Detail <sup class="text-danger">*</sup></label>
+                                {{ old('currency') }}
+                                <select class="select w-100" name="currency_detail" id="currency_detail"
+                                    {{ $disabled !== null ? $disabled : 'onchange="checkCurrencyDetail()"' }}>
                                     <option data-placeholder="true"></option>
                                     <option value="usd"
                                         @if (isset($invoice->currency) && $invoice->currency == 'usd') {{ 'selected' }}
@@ -506,7 +580,9 @@
                 allowClear: true
             });
 
-            @if (($clientProg->program->prog_payment == 'idr' || $clientProg->program->prog_payment == 'session') && !isset($invoice))
+            @if (
+                ($clientProg->program->prog_payment == 'idr' || $clientProg->program->prog_payment == 'session') &&
+                    !isset($invoice))
                 $("#currency").val('idr').trigger('change')
             @elseif (isset($invoice) && $invoice->inv_category == 'idr')
                 $("#currency").val('idr').trigger('change')
@@ -656,15 +732,16 @@
             $("#request-acc").on('click', function(e) {
                 e.preventDefault();
                 showLoading()
-                              
+
                 axios
-                    .get('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
-                        params: {
-                            type: 'idr'
-                        }
-                    })
+                    .get(
+                        '{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
+                            params: {
+                                type: 'idr'
+                            }
+                        })
                     .then(response => {
-                        
+
                         swal.close()
                         notification('success', 'Sign has been requested')
                     })
@@ -679,13 +756,14 @@
             $("#request-acc-other").on('click', function(e) {
                 e.preventDefault();
 
-                showLoading()            
+                showLoading()
                 axios
-                    .get('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
-                        params: {
-                            type: 'other'
-                        }
-                    })
+                    .get(
+                        '{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
+                            params: {
+                                type: 'other'
+                            }
+                        })
                     .then(response => {
                         console.log(response)
                         swal.close()
@@ -703,13 +781,16 @@
                 showLoading()
 
                 axios
-                    .get('{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}')
-                    .then(response => { 
+                    .get(
+                        '{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}'
+                    )
+                    .then(response => {
                         swal.close()
                         notification('success', 'Invoice has been send to client')
                     })
                     .catch(error => {
-                        notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                        notification('error',
+                            'Something went wrong when sending invoice to client. Please try again');
                         swal.close()
                     })
             })
@@ -719,13 +800,16 @@
                 showLoading()
 
                 axios
-                    .get('{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}')
-                    .then(response => { 
+                    .get(
+                        '{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}'
+                    )
+                    .then(response => {
                         swal.close()
                         notification('success', 'Invoice has been send to client')
                     })
                     .catch(error => {
-                        notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                        notification('error',
+                            'Something went wrong when sending invoice to client. Please try again');
                         swal.close()
                     })
             })
@@ -733,20 +817,25 @@
             $("#print").on('click', function(e) {
                 e.preventDefault();
 
-                showLoading()              
+                showLoading()
                 axios
-                    .get('{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
-                        responseType: 'arraybuffer',
-                        params: {
-                            type: 'idr'
-                        }
-                    })
+                    .get(
+                        '{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                            responseType: 'arraybuffer',
+                            params: {
+                                type: 'idr'
+                            }
+                        })
                     .then(response => {
 
-                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                        let blob = new Blob([response.data], {
+                                type: 'application/pdf'
+                            }),
                             url = window.URL.createObjectURL(blob)
 
-                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        window.open(
+                            url
+                        ) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
                         swal.close()
                         notification('success', 'Invoice has been exported')
                     })
@@ -759,20 +848,25 @@
             $("#print-other").on('click', function(e) {
                 e.preventDefault();
 
-                showLoading()              
+                showLoading()
                 axios
-                    .get('{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
-                        responseType: 'arraybuffer',
-                        params: {
-                            type: 'other'
-                        }
-                    })
+                    .get(
+                        '{{ route('invoice.program.export', ['client_program' => $clientProg->clientprog_id]) }}', {
+                            responseType: 'arraybuffer',
+                            params: {
+                                type: 'other'
+                            }
+                        })
                     .then(response => {
 
-                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                        let blob = new Blob([response.data], {
+                                type: 'application/pdf'
+                            }),
                             url = window.URL.createObjectURL(blob)
 
-                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        window.open(
+                            url
+                        ) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
                         swal.close()
                         notification('success', 'Invoice has been exported')
                     })
@@ -818,7 +912,7 @@
 
             $("#invoice-form").submit()
 
-            
+
         })
     </script>
 @endsection
