@@ -4,17 +4,6 @@
 
 @section('content')
 
-    @if(isset($receiptRef) && count($receiptRef->receiptAttachment) > 0)
-        @foreach ($receiptRef->receiptAttachment as $key => $att)
-            @php
-                $isIdr[$key] = ($att->currency == 'idr');
-                $isOther[$key] = ($att->currency == 'other');
-                $isSigned[$key] = ($att->sign_status == 'signed');
-                $isNotYet[$key] = ($att->sign_status == 'not yet');
-            @endphp
-        @endforeach
-    @endif
-
     @php
         $exportIdr = '<a href="#export" id="export_idr"
                             class="btn btn-sm btn-outline-info rounded mx-1 my-1">
@@ -50,79 +39,43 @@
                     <h4> {{ $receiptRef->invoiceB2b->referral->partner->corp_name }} </h4>
                     <h6> {{ $receiptRef->invoiceB2b->referral->additional_prog_name }} </h6>
                     <div class="d-flex flex-wrap justify-content-center mt-3">
-                        <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1">
+                        <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1"
+                            onclick="confirmDelete('{{'receipt/referral'}}', {{$receiptRef->id}})">
                             <i class="bi bi-trash2 me-1"></i> Delete
                         </button>
-                        @if (!isset($receiptRef->invoiceB2b->refund) && isset($receiptRef))
-                                @if(count($receiptRef->receiptAttachment) > 0)
-                                    @if(count($receiptRef->receiptAttachment) > 1)
-                                        @foreach ($receiptRef->receiptAttachment as $key => $att)
-                                            @if(($isIdr[$key] && $isNotYet[$key]))
-                                                {!! $exportIdr !!}
-                                                {!! $uploadIdr !!}
-                                            @elseif(($isOther[$key] && $isNotYet[$key]) && $receiptRef->invoiceB2b->currency != 'idr') 
-                                                {!! $exportOther !!}
-                                                {!! $uploadOther !!}
-                                            @endif                                        
-                                        @endforeach
-                                    @else
-                                        @if(((!$isIdr[0] || !$isOther[0])) && $receiptRef->invoiceB2b->currency != 'idr' && $isNotYet[0])
-                                            {!! $exportIdr !!}
-                                            {!! $uploadIdr !!}
-                                            {!! $exportOther !!}
-                                            {!! $uploadOther !!}
-                                        @elseif(($isNotYet[0] && $isIdr[0]) || ($isSigned[0] && $isOther[0]))
-                                            {!! $exportIdr !!}
-                                            {!! $uploadIdr !!}
-                                        @elseif(($isNotYet[0] && $isOther[0]) || ($isSigned[0] && $isIdr[0]) && $receiptRef->invoiceB2b->currency != 'idr')
-                                            {!! $exportOther !!}
-                                            {!! $uploadOther !!}
-                                        @endif
-                                    @endif
-                                @else
-                                    @if($receiptRef->invoiceB2b->currency == 'idr')
-                                        {!! $exportIdr !!}
-                                        {!! $uploadIdr !!}
-                                    @else
-                                        {!! $exportIdr !!}
-                                        {!! $uploadIdr !!}
-                                        {!! $exportOther !!}
-                                        {!! $uploadOther !!}
-                                    @endif
-                                @endif
+                        @if (!$receiptRef->receiptAttachment()->where('currency', 'idr')->first())
+                            {!! $exportIdr !!}
+                            {!! $uploadIdr !!}
+                        @elseif ($receiptRef->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first())
+                            <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc">
+                                <i class="bi bi-pen me-1"></i> Request Sign IDR
+                            </button>
+                        @else
+                            <a href="{{ route('receipt.referral.print', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}" 
+                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
+                                <i class="bi bi-printer me-1"></i> Print IDR
+                            </a>
+                            <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-idr">
+                                <i class="bi bi-printer me-1"></i> Send Receipt IDR to Client
+                            </button>
+                        @endif
 
-                            @if(isset($receiptRef) && count($receiptRef->receiptAttachment) > 0)
-                                 @if(count($receiptRef->receiptAttachment) > 1)
-                                    @foreach ($receiptRef->receiptAttachment as $attachment)
-                                        @if($attachment->sign_status == 'signed')
-                                            <a href="{{ route('receipt.referral.print', ['receipt' => $receiptRef->id, 'currency' => $attachment->currency]) }}" 
-                                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                                <i class="bi bi-printer me-1"></i> Print {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }}
-                                            </a>
-                                            <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-{{ ($attachment->currency == 'idr' ? 'idr' : 'other') }}">
-                                                <i class="bi bi-printer me-1"></i> Send Receipt {{ ($attachment->currency == 'idr' ? 'IDR' : 'Others') }} to Client
-                                            </button>
-                                        @else
-                                            <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc{{ $attachment->currency == 'other' ? '-other' : ''  }}">
-                                                <i class="bi bi-pen me-1"></i> Request Sign {{ $attachment->currency == 'other' ? 'Other' : 'IDR'  }}
-                                            </button>
-                                        @endif
-                                    @endforeach
-                                @else
-                                    @if($receiptRef->receiptAttachment[0]->sign_status == 'signed')
-                                        <a href="{{ route('receipt.referral.print', ['receipt' => $receiptRef->id, 'currency' => $receiptRef->receiptAttachment[0]->currency]) }}" 
-                                            class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                            <i class="bi bi-printer me-1"></i> Print {{ ($receiptRef->receiptAttachment[0]->currency == 'idr' ? 'IDR' : 'Others') }}
-                                        </a>
-                                        <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-{{ $receiptRef->receiptAttachment[0]->currency == 'other' ? 'other' : 'idr'}}">
-                                            <i class="bi bi-printer me-1"></i> Send Receipt {{ $receiptRef->receiptAttachment[0]->currency == 'other' ? 'Other' : 'IDR'  }} to Client
-                                        </button>
-                                    @else
-                                        <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc{{ ($receiptRef->receiptAttachment[0]->currency == 'other' ? '-other' : '') }}">
-                                            <i class="bi bi-pen me-1"></i> Request Sign {{ $receiptRef->receiptAttachment[0]->currency == 'other' ? 'Other' : 'IDR'  }}
-                                        </button>
-                                    @endif 
-                                @endif
+                        @if ($receiptRef->invoiceB2b->currency != "idr")
+                            @if (!$receiptRef->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
+                                {!! $exportOther !!}
+                                {!! $uploadOther !!}
+                            @elseif ($receiptRef->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
+                                <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc-other">
+                                    <i class="bi bi-pen me-1"></i> Request Sign Other
+                                </button>
+                            @else
+                                <a href="{{ route('receipt.referral.print', ['receipt' => $receiptRef->id, 'currency' => 'other']) }}" 
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
+                                    <i class="bi bi-printer me-1"></i> Print Other
+                                </a>
+                                <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-other">
+                                    <i class="bi bi-printer me-1"></i> Send Receipt Other to Client
+                                </button>
                             @endif
                         @endif
                     </div>

@@ -45,7 +45,7 @@
                             </button>
                         @endif
                     </div>
-                    @if ($invoicePartner->partner_prog->status == 1 && isset($invoicePartner))
+                    @if (isset($invoicePartner) && $invoicePartner->partner_prog->status == 1)
                         <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
                             @php
                                 $invoicePartnerAttachment = $invoicePartner->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
@@ -66,12 +66,14 @@
                              @php
                                 $invoicePartnerAttachmentOther = $invoicePartner->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
                             @endphp
-                            @if (!$invoicePartnerAttachmentOther && $invoicePartner->currency == 'idr')
-                                {!! $requestSignOther !!}
+                            @if (!$invoicePartnerAttachmentOther)
+                                @if($invoicePartner->currency != 'idr')
+                                    {!! $requestSignOther !!}
+                                @endif
                             @else
                                 <a href="{{ route('invoice-corp.export', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'other']) }}" 
                                     class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                    <i class="bi bi-printer me-1"></i> Print Other
+                                    <i class="bi bi-printer me-1"></i> Print Other {{ (!$invoicePartnerAttachmentOther ? 'a' : 'b') }}
                                 </a>
                                 <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-other">
                                     <i class="bi bi-printer me-1"></i> Send Invoice Other to Client

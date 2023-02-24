@@ -4,17 +4,6 @@
 
 @section('content')
 
-    @if(isset($invoiceRef) && count($invoiceRef->invoiceAttachment) > 0)
-        @foreach ($invoiceRef->invoiceAttachment as $key => $att)
-            @php
-                $isIdr[$key] = ($att->currency == 'idr');
-                $isOther[$key] = ($att->currency == 'other');
-                $isSigned[$key] = ($att->sign_status == 'signed');
-                $isNotYet[$key] = ($att->sign_status == 'not yet');
-            @endphp
-        @endforeach
-    @endif
-
     @php
         $requestSignIdr = '<a class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
                                 <i class="bi bi-pen me-1"></i> Request Sign IDR
@@ -84,8 +73,10 @@
                              @php
                                 $invoiceRefAttachmentOther = $invoiceRef->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
                             @endphp
-                            @if (!$invoiceRefAttachmentOther && $invoiceRef->currency == 'idr')
-                                {!! $requestSignOther !!}
+                            @if (!$invoiceRefAttachmentOther)
+                                @if($invoiceRef->currency != 'idr')
+                                    {!! $requestSignOther !!}   
+                                @endif
                             @else
                                 <a href="{{ route('invoice-ref.export', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'other']) }}" 
                                     class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">

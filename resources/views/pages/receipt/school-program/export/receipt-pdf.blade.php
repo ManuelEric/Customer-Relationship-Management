@@ -175,7 +175,7 @@
                         </div>
                     </td>
                 </tr>
-                @if(isset($receiptSch->invoiceB2b->invb2b_discidr))
+                @if($receiptSch->invoiceB2b->invb2b_discidr != 0)
                     <tr>
                         <td colspan="3" align="right"><b>Discount</b></td>
                         <td valign="middle" align="center">

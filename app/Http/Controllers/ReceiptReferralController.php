@@ -132,7 +132,7 @@ class ReceiptReferralController extends Controller
             return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invb2b_num)->withError('Failed to create a new receipt');
         }
 
-        return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invb2b_num)->withSuccess('Invoice successfully updated');
+        return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invb2b_num)->withSuccess('Receipt successfully created');
     }
 
     public function show(Request $request)

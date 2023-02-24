@@ -380,12 +380,6 @@ class InvoicePartnerController extends Controller
         $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoicePartner->invb2b_id;
 
-
-        return view('pages.invoice.corporate-program.export.invoice-pdf')->with([
-            'invoicePartner' => $invoicePartner,
-            'currency' => $currency,
-        ]);
-
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
         return view('pages.invoice.view-pdf')->with([
@@ -539,13 +533,13 @@ class InvoicePartnerController extends Controller
         $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoicePartner->invb2b_id;
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
-        $program_name = $invoicePartner->sch_prog->program->prog_program;
+        $program_name = $invoicePartner->partner_prog->program->prog_program;
 
-        if ($invoicePartner->sch_prog->program->sub_prog_id > 0) {
-            $program_name = $invoicePartner->sch_prog->program->prog_sub . ' - ' . $invoicePartner->sch_prog->program->prog_program;
+        if ($invoicePartner->partner_prog->program->sub_prog_id > 0) {
+            $program_name = $invoicePartner->partner_prog->program->prog_sub . ' - ' . $invoicePartner->partner_prog->program->prog_program;
         }
 
-        $data['email'] = $invoicePartner->sch_prog->user->email;
+        $data['email'] = $invoicePartner->partner_prog->user->email;
         $data['cc'] = ['test1@example.com', 'test2@example.com'];
         $data['recipient'] = 'Test Name';
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;

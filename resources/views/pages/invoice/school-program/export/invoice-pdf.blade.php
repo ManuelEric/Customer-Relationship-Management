@@ -142,7 +142,7 @@
                             </p>
                         </div>
 
-                        @if(isset($invoiceSch->invb2b_discidr))
+                        @if($invoiceSch->invb2b_discidr != 0)
                             <div style="margin-top:5px;">
                                 <p>
                                     <strong> Discount</strong>
@@ -174,7 +174,7 @@
                                 </strong>
                             </p>
                         </div>
-                        @if(isset($invoiceSch->invb2b_discidr))
+                        @if($invoiceSch->invb2b_discidr != 0)
                             <div style="margin-top:5px;">
                                 <p>
                                     <strong> - {{ $currency == 'other' ? $invoiceSch->invoiceDiscount : $invoiceSch->invoiceDiscountIdr }}</strong>

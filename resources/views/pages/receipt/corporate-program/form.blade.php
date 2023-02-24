@@ -4,6 +4,26 @@
 
 @section('content')
 
+  @php
+        $exportIdr = '<a href="#export" id="export_idr"
+                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                            <i class="bi bi-printer me-1"></i> Export IDR
+                      </a>';
+        $uploadIdr = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
+                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_idr">
+                            <i class="bi bi-file-arrow-up me-1"></i> Upload IDR
+                      </button>';
+        $exportOther = '<a href="#export" id="export_other"
+                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                            <i class="bi bi-printer me-1"></i> Export Other
+                        </a>';
+        $uploadOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
+                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_other">
+                            <i class="bi bi-file-arrow-up me-1"></i> Upload Other
+                        </button>';
+
+    @endphp
+
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('receipt/corporate-program') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Receipt
@@ -40,21 +60,23 @@
                             </button>
                         @endif
 
-                        @if (!$receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
-                            {!! $exportOther !!}
-                            {!! $uploadOther !!}
-                        @elseif ($receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
-                            <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc-other">
-                                <i class="bi bi-pen me-1"></i> Request Sign Other
-                            </button>
-                        @else
-                            <a href="{{ route('receipt.corporate.print', ['receipt' => $receiptPartner->id, 'currency' => 'other']) }}" 
-                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                <i class="bi bi-printer me-1"></i> Print Other
-                            </a>
-                            <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-other">
-                                <i class="bi bi-printer me-1"></i> Send Receipt Other to Client
-                            </button>
+                        @if ($receiptPartner->invoiceB2b->currency != "idr")
+                            @if (!$receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
+                                {!! $exportOther !!}
+                                {!! $uploadOther !!}
+                            @elseif ($receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
+                                <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc-other">
+                                    <i class="bi bi-pen me-1"></i> Request Sign Other
+                                </button>
+                            @else
+                                <a href="{{ route('receipt.corporate.print', ['receipt' => $receiptPartner->id, 'currency' => 'other']) }}" 
+                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
+                                    <i class="bi bi-printer me-1"></i> Print Other
+                                </a>
+                                <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-other">
+                                    <i class="bi bi-printer me-1"></i> Send Receipt Other to Client
+                                </button>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -127,102 +149,39 @@
         </div>
     </div>
 
-    {{-- Add Receipt  --}}
-    <div class="modal fade" id="addReceipt" data-bs-backdrop="static" data-bs-keyboard="false"
+    {{-- Upload Receipt  --}}
+    <div class="modal fade" id="uploadReceipt" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-between">
                     <span>
-                        Add Receipt
+                        Upload Receipt
                     </span>
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="#" method="POST" id="receipt">
+                    <form action="{{ route('receipt.corporate.upload', ['receipt' => $receiptPartner->id]) }}" method="POST" id="receipt" enctype="multipart/form-data">
                         @csrf
                         <div class="put"></div>
                         <div class="row g-2">
-                            <div class="col-md-3 receipt-other d-none">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Amount <sup class="text-danger">*</sup>
-                                    </label>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text currency-icon" id="basic-addon1">
-                                            $
-                                        </span>
-                                        <input type="text" name="receipt" id="receipt_amount_other" class="form-control"
-                                            required value="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Amount <sup class="text-danger">*</sup>
-                                    </label>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text" id="basic-addon1">
-                                            Rp
-                                        </span>
-                                        <input type="text" name="receipt" id="receipt_amount" class="form-control"
-                                            required value="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Date <sup class="text-danger">*</sup>
-                                    </label>
-                                    <input type="date" name="receipt" id="receipt_date"
-                                        class="form-control form-control-sm rounded" required value="">
-                                </div>
-                            </div>
-                            <div class="col-md-12 receipt-other d-none">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Word <sup class="text-danger">*</sup>
-                                    </label>
-                                    <input type="text" name="receipt" id="receipt_word_other"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
-                                </div>
-                            </div>
+                            <input type="hidden" name="currency" id="currency">
                             <div class="col-md-12">
                                 <div class="mb-1">
                                     <label for="">
-                                        Word <sup class="text-danger">*</sup>
+                                        File <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_word"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Payment Method <sup class="text-danger">*</sup>
-                                    </label>
-                                    <select name="" class="modal-select w-100" id="receipt_payment"
-                                        onchange="checkPaymentReceipt()">
-                                        <option value="Wire Transfer">Wire Transfer</option>
-                                        <option value="Cash">Cash</option>
-                                        <option value="Cheque">Cheque</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Cheque No <sup class="text-danger">*</sup>
-                                    </label>
-                                    <input type="text" name="receipt" id="receipt_cheque"
-                                        class="form-control form-control-sm rounded" required value="" disabled>
+                                    <div class="input-group input-group-sm">
+                                        <input type="file" name="attachment" id="attachment" class="form-control"
+                                            required value="">
+                                    </div>
+                                        @error('attachment')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
                                 </div>
                             </div>
                         </div>
-                        <hr>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-4">
                             <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
                                 <i class="bi bi-x-square me-1"></i>
                                 Cancel</a>
@@ -235,6 +194,17 @@
             </div>
         </div>
     </div>
+
+    @if($errors->has('attachment') )
+                
+        <script>
+            $(document).ready(function(){
+                $('#uploadReceipt').modal('show'); 
+                              
+            })
+        </script>
+
+    @endif
 
     <script>
         $(document).ready(function() {

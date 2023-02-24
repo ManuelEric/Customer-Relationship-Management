@@ -4,17 +4,6 @@
 
 @section('content')
 
-    @if(isset($invoiceSch) && count($invoiceSch->invoiceAttachment) > 0)
-        @foreach ($invoiceSch->invoiceAttachment as $key => $att)
-            @php
-                $isIdr[$key] = ($att->currency == 'idr');
-                $isOther[$key] = ($att->currency == 'other');
-                $isSigned[$key] = ($att->sign_status == 'signed');
-                $isNotYet[$key] = ($att->sign_status == 'not yet');
-            @endphp
-        @endforeach
-    @endif
-
     @php
         $requestSignIdr = '<button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
                                 <i class="bi bi-pen me-1"></i> Request Sign IDR
@@ -57,7 +46,7 @@
                         @endif
                     </div>
                     
-                        @if ($invoiceSch->sch_prog->status == 1 && isset($invoiceSch))
+                        @if (isset($invoiceSch) && $invoiceSch->sch_prog->status == 1)
                             <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
                                 @php
                                     $invoiceSchAttachment = $invoiceSch->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
@@ -78,8 +67,10 @@
                                 @php
                                     $invoiceSchAttachmentOther = $invoiceSch->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
                                 @endphp
-                                @if (!$invoiceSchAttachmentOther && $invoiceSch->currency != 'idr')
-                                    {!! $requestSignOther !!}
+                                @if (!$invoiceSchAttachmentOther)
+                                    @if($invoiceSch->currency != 'idr')
+                                        {!! $requestSignOther !!}
+                                    @endif
                                 @else
                                     <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" 
                                         class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">

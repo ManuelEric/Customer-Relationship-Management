@@ -4,16 +4,6 @@
 
 @section('content')
 
-    @if(isset($receiptSch) && count($receiptSch->receiptAttachment) > 0)
-        @foreach ($receiptSch->receiptAttachment as $key => $att)
-            @php
-                $isIdr[$key] = ($att->currency == 'idr');
-                $isOther[$key] = ($att->currency == 'other');
-                $isSigned[$key] = ($att->sign_status == 'signed');
-                $isNotYet[$key] = ($att->sign_status == 'not yet');
-            @endphp
-        @endforeach
-    @endif
 
     @php
         $exportIdr = '<a href="#export" id="export_idr"
