@@ -27,8 +27,8 @@
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $partner->corp_name }}</h4>
                     <h6>
-                        @if(isset($referral->prog_id))
-                            {{ $referral->program->sub_prog ? $referral->program->sub_prog->sub_prog_name.' - ':''}}{{ $referral->program->prog_program }}
+                        @if (isset($referral->prog_id))
+                            {{ $referral->program->sub_prog ? $referral->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $referral->program->prog_program }}
                         @else
                             {{ $referral->additional_prog_name }}
                         @endif
@@ -39,7 +39,7 @@
                             <i class="bi bi-eye me-1"></i> More
                         </a> --}}
 
-                        @if(isset($invoiceRef))
+                        @if (isset($invoiceRef))
                             <a href="{{ $status == 'edit' ? route('invoice-ref.detail.show', ['referral' => $referral->id, 'detail' => $invoiceRef->invb2b_num]) : route('invoice-ref.detail.edit', ['referral' => $referral->id, 'detail' => $invoiceRef->invb2b_num]) }}"
                                 class="btn btn-sm btn-outline-warning rounded mx-1">
                                 <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}  me-1"></i>
@@ -90,6 +90,137 @@
                     @endif
                 </div>
             </div>
+
+            {{-- Tools  --}}
+            @if (isset($invoiceSch))
+                <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
+                    <div class="border p-1 text-center flex-fill">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
+                                <a href="{{ $status == 'edit' ? url('invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num) : url('invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num . '/edit') }}"
+                                    class="text-warning">
+                                    <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}"></i>
+                                </a>
+                            </div>
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Cancel"
+                                onclick="confirmDelete('{{ 'invoice/school-program/' . $schoolProgram->id . '/detail' }}', {{ $invoiceSch->invb2b_num }})">
+                                <a href="#" class="text-danger">
+                                    <i class="bi bi-trash2"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <hr class="my-1">
+                        <small>General</small>
+                    </div>
+
+                    {{-- IDR  --}}
+                    <div class="border p-1 text-center flex-fill">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Request Sign" id="request-acc">
+                                <a href="" class="text-info">
+                                    <i class="bi bi-pen-fill"></i>
+                                </a>
+                            </div>
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Print Invoice">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                            </div>
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Send to Client" id="send-inv-client-idr">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-send"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <hr class="my-1">
+                        <small class="text-center">IDR</small>
+                    </div>
+
+                    {{-- Other  --}}
+                    <div class="border p-1 text-center flex-fill">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Request Sign" id="request-acc-other">
+                                <a href="" class="text-info">
+                                    <i class="bi bi-pen-fill"></i>
+                                </a>
+                            </div>
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Print Invoice">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                            </div>
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Send to Client">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-send"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <hr class="my-1">
+                        <small class="text-center">Other Currency</small>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Invoice Progress  --}}
+            <div class="card shadow-sm mb-3">
+                <div class="card-header">
+                    <h6 class="my-0">
+                        Invoice Progress
+                    </h6>
+                </div>
+                <div class="card-body position-relative h-auto pb-5">
+                    {{-- IDR  --}}
+                    <div class="text-center">
+                        <h6>IDR</h6>
+                        <section class="step-indicator">
+                            <div class="step step1 active">
+                                <div class="step-icon">1</div>
+                                <p>Request Sign</p>
+                            </div>
+                            <div class="indicator-line active"></div>
+                            <div class="step step2">
+                                <div class="step-icon">2</div>
+                                <p>Signed</p>
+                            </div>
+                            <div class="indicator-line"></div>
+                            <div class="step step3">
+                                <div class="step-icon">3</div>
+                                <p>Print or Send to Client</p>
+                            </div>
+                        </section>
+                    </div>
+
+                    {{-- Other  --}}
+                    <div class="text-center mt-5">
+                        <hr>
+                        <h6>Other Currency</h6>
+                        <section class="step-indicator">
+                            <div class="step step1 active">
+                                <div class="step-icon">1</div>
+                                <p>Request Sign</p>
+                            </div>
+                            <div class="indicator-line active"></div>
+                            <div class="step step2">
+                                <div class="step-icon">2</div>
+                                <p>Signed</p>
+                            </div>
+                            <div class="indicator-line"></div>
+                            <div class="step step3">
+                                <div class="step-icon">3</div>
+                                <p>Print or Send to Client</p>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
             @include('pages.invoice.referral.form-detail.client')
         </div>
 
@@ -103,13 +234,14 @@
                         </h6>
                     </div>
                     <div class="">
-                        @if(isset($invoiceRef) && !isset($invoiceRef->receipt) && $invoiceRef->invb2b_pm == 'Full Payment' && $status != 'edit')
+                        @if (isset($invoiceRef) && !isset($invoiceRef->receipt) && $invoiceRef->invb2b_pm == 'Full Payment' && $status != 'edit')
                             <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
-                        @if(isset($invoiceRef->receipt)  && $status != 'edit' && $invoiceRef->invb2b_pm == 'Full Payment')
-                            <a href="{{ route('receipt.referral.show', ['detail' => $invoiceRef->receipt->id ]) }}" class="btn btn-sm btn-outline-warning py-1">
+                        @if (isset($invoiceRef->receipt) && $status != 'edit' && $invoiceRef->invb2b_pm == 'Full Payment')
+                            <a href="{{ route('receipt.referral.show', ['detail' => $invoiceRef->receipt->id]) }}"
+                                class="btn btn-sm btn-outline-warning py-1">
                                 <i class="bi bi-eye"></i> View Receipt
                             </a>
                         @endif
@@ -117,7 +249,9 @@
                 </div>
 
                 <div class="card-body">
-                    <form action="{{ $status == 'edit' ? route('invoice-ref.detail.update', ['referral' => $referral->id, 'detail' => $invoiceRef->invb2b_num]) : route('invoice-ref.detail.store', ['referral' => $referral->id]) }}" method="POST">
+                    <form
+                        action="{{ $status == 'edit' ? route('invoice-ref.detail.update', ['referral' => $referral->id, 'detail' => $invoiceRef->invb2b_num]) : route('invoice-ref.detail.store', ['referral' => $referral->id]) }}"
+                        method="POST">
                         @csrf
                         @if ($status == 'edit')
                             @method('put')
@@ -125,7 +259,8 @@
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label for="">Currency</label>
-                                <select id="currency" name="select_currency" class="select w-100" onchange="checkCurrency()"
+                                <select id="currency" name="select_currency" class="select w-100"
+                                    onchange="checkCurrency()"
                                     {{ empty($invoiceRef) || $status == 'edit' ? '' : 'disabled' }}>
                                     <option value="idr">IDR</option>
                                     <option value="other">Other Currency</option>
@@ -133,7 +268,8 @@
                             </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
                                 <label for="">Currency Detail</label>
-                                <select class="select w-100" name="currency" id="currency_detail" onchange="checkCurrencyDetail()"
+                                <select class="select w-100" name="currency" id="currency_detail"
+                                    onchange="checkCurrencyDetail()"
                                     {{ empty($invoiceRef) || $status == 'edit' ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     <@if (isset($invoiceRef))
@@ -150,7 +286,7 @@
                                         </option>
                                         <option value="gbp" {{ old('currency') == 'gbp' ? 'selected' : '' }}>GBP
                                         </option>
-                                    @endif
+                                        @endif
                                 </select>
                                 @error('currency')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -182,8 +318,10 @@
                             </div>
 
                             <div class="col-md-12">
-                                <input type="hidden" name="" id="total_idr" value="{{ (isset($invoiceRef)) ? $invoiceRef->invb2b_totpriceidr : null }}">
-                                <input type="hidden" name="" id="total_other" value="{{ (isset($invoiceRef)) ? $invoiceRef->invb2b_totprice : null }}">
+                                <input type="hidden" name="" id="total_idr"
+                                    value="{{ isset($invoiceRef) ? $invoiceRef->invb2b_totpriceidr : null }}">
+                                <input type="hidden" name="" id="total_other"
+                                    value="{{ isset($invoiceRef) ? $invoiceRef->invb2b_totprice : null }}">
                             </div>
 
                             <div class="col-md-5 mb-3">
@@ -234,7 +372,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                             @if (empty($invoiceRef) || $status == 'edit')
+                            @if (empty($invoiceRef) || $status == 'edit')
                                 <div class="mt-3 text-end">
                                     <button type="submit" class="btn btn-sm btn-primary rounded" id="submit-form">
                                         <i class="bi bi-save2 me-2"></i> Submit
@@ -260,9 +398,12 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="{{ isset($invoiceRef) ? route('receipt.referral.store', ['invoice' => $invoiceRef->invb2b_num ]) : '' }}" method="POST" id="receipt">
+                    <form
+                        action="{{ isset($invoiceRef) ? route('receipt.referral.store', ['invoice' => $invoiceRef->invb2b_num]) : '' }}"
+                        method="POST" id="receipt">
                         @csrf
-                        <input type="hidden" name="currency" value="{{ isset($invoiceRef->currency) ? $invoiceRef->currency : null }}">
+                        <input type="hidden" name="currency"
+                            value="{{ isset($invoiceRef->currency) ? $invoiceRef->currency : null }}">
                         <div class="row g-2">
                             <div class="col-md-3 receipt-other d-none">
                                 <div class="mb-1">
@@ -290,9 +431,9 @@
                                         <span class="input-group-text" id="basic-addon1">
                                             Rp
                                         </span>
-                                        <input type="text" name="receipt_amount_idr" id="receipt_amount" class="form-control"
-                                         value="">
-                                         @error('receipt_amount_idr')
+                                        <input type="text" name="receipt_amount_idr" id="receipt_amount"
+                                            class="form-control" value="">
+                                        @error('receipt_amount_idr')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
@@ -303,8 +444,8 @@
                                     <label for="">
                                         Date <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="date" name="receipt_date" value="{{ date('Y-m-d') }}" id="receipt_date"
-                                        class="form-control form-control-sm rounded" value="">
+                                    <input type="date" name="receipt_date" value="{{ date('Y-m-d') }}"
+                                        id="receipt_date" class="form-control form-control-sm rounded" value="">
                                 </div>
                             </div>
                             <div class="col-md-12 receipt-other d-none">
@@ -401,10 +542,10 @@
                         currency = '';
                         totprice = '-'
                         break;
-                }  
+                }
                 $("#receipt_word_other").val(wordConverter(val) + currency)
-                $("#receipt_amount").val(val*curs_rate)
-                $("#receipt_word").val(wordConverter(val*curs_rate) + " Rupiah")
+                $("#receipt_amount").val(val * curs_rate)
+                $("#receipt_word").val(wordConverter(val * curs_rate) + " Rupiah")
             })
 
             $("#receipt_amount").on('keyup', function() {
@@ -412,7 +553,7 @@
                 $("#receipt_word").val(wordConverter(val) + " Rupiah")
             })
         });
-        
+
         function checkCurrency() {
             let cur = $('#currency').val()
             $('.invoice-currency').addClass('d-none')
@@ -459,27 +600,24 @@
 
     {{-- receipt --}}
 
-    @if(
-        $errors->has('receipt_amount') | 
-        $errors->has('receipt_amount_idr') | 
-        $errors->has('receipt_words') | 
-        $errors->has('receipt_words_idr') |
-        $errors->has('receipt_method') |
-        $errors->has('receipt_cheque')
-        )
-                
+    @if (
+        $errors->has('receipt_amount') |
+            $errors->has('receipt_amount_idr') |
+            $errors->has('receipt_words') |
+            $errors->has('receipt_words_idr') |
+            $errors->has('receipt_method') |
+            $errors->has('receipt_cheque'))
         <script>
-            $(document).ready(function(){
-                $('#addReceiptReferral').modal('show'); 
+            $(document).ready(function() {
+                $('#addReceiptReferral').modal('show');
                 checkReceipt();
-                
-              
+
+
             })
         </script>
-
     @endif
 
-    @if(isset($invoiceRef->currency) && $invoiceRef->currency != 'idr') 
+    @if (isset($invoiceRef->currency) && $invoiceRef->currency != 'idr')
         <script>
             $(document).ready(function() {
                 $('#currency').val('other').trigger('change')
@@ -487,7 +625,7 @@
         </script>
     @else
         <script>
-            $(document).ready(function(){
+            $(document).ready(function() {
                 $('#currency').val('idr').trigger('change')
             })
         </script>
@@ -501,21 +639,19 @@
         </script>
     @endif
 
-    @if(!empty(old('invb2b_pm')))
+    @if (!empty(old('invb2b_pm')))
         <script>
-            $(document).ready(function(){
-                $('#payment_method').val("{{old('invb2b_pm')}}").trigger('change')
+            $(document).ready(function() {
+                $('#payment_method').val("{{ old('invb2b_pm') }}").trigger('change')
             })
-
         </script>
     @endif
 
-    @if(!empty(old('select_currency')))
+    @if (!empty(old('select_currency')))
         <script>
-            $(document).ready(function(){
-                $('#currency').val("{{old('select_currency')}}").trigger('change')
+            $(document).ready(function() {
+                $('#currency').val("{{ old('select_currency') }}").trigger('change')
             })
-
         </script>
     @endif
 
@@ -525,13 +661,16 @@
                 e.preventDefault()
                 Swal.showLoading()
                 axios
-                    .get('{{ route('invoice-ref.send_to_client', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'idr']) }}')
+                    .get(
+                        '{{ route('invoice-ref.send_to_client', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'idr']) }}'
+                    )
                     .then(response => {
                         swal.close()
                         notification('success', 'Invoice has been send to client')
                     })
                     .catch(error => {
-                        notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                        notification('error',
+                            'Something went wrong when sending invoice to client. Please try again');
                         swal.close()
                     })
             })
@@ -540,58 +679,63 @@
                 e.preventDefault()
                 Swal.showLoading()
                 axios
-                    .get('{{ route('invoice-ref.send_to_client', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'other']) }}')
+                    .get(
+                        '{{ route('invoice-ref.send_to_client', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'other']) }}'
+                    )
                     .then(response => {
                         swal.close()
                         notification('success', 'Invoice has been send to client')
                     })
                     .catch(error => {
-                        notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                        notification('error',
+                            'Something went wrong when sending invoice to client. Please try again');
                         swal.close()
                     })
-                })
+            })
 
             $("#request-acc").on('click', function(e) {
-                    e.preventDefault();
+                e.preventDefault();
 
-                    Swal.showLoading()                
-                    axios
-                        .get('{{  route('invoice-ref.request_sign', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'idr']) }}', {
+                Swal.showLoading()
+                axios
+                    .get(
+                        '{{ route('invoice-ref.request_sign', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'idr']) }}', {
                             responseType: 'arraybuffer',
                             params: {
                                 type: 'idr'
                             }
                         })
-                        .then(response => {
-                            swal.close()
-                            notification('success', 'Sign has been requested')
-                        })
-                        .catch(error => {
-                            notification('error', 'Something went wrong while send email')
-                            swal.close()
-                        })
-                })
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+            })
 
-                $("#request-acc-other").on('click', function(e) {
-                    e.preventDefault();
+            $("#request-acc-other").on('click', function(e) {
+                e.preventDefault();
 
-                    Swal.showLoading()                
-                    axios
-                        .get('{{  route('invoice-ref.request_sign', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'other']) }}', {
+                Swal.showLoading()
+                axios
+                    .get(
+                        '{{ route('invoice-ref.request_sign', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'other']) }}', {
                             responseType: 'arraybuffer',
                             params: {
                                 type: 'other'
                             }
                         })
-                        .then(response => {
-                            swal.close()
-                            notification('success', 'Sign has been requested')
-                        })
-                        .catch(error => {
-                            notification('error', 'Something went wrong while send email')
-                            swal.close()
-                        })
-                })      
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+            })
         @endif
     </script>
 @endsection

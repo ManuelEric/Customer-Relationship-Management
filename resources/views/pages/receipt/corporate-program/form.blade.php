@@ -32,53 +32,109 @@
 
 
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-4 mb-3">
+            {{-- Tools  --}}
+            <div class="bg-white rounded p-2 mb-2 d-flex gap-2 shadow-sm justify-content-start">
+                <div class="d-flex align-items-stretch">
+                    <div class="bg-secondary px-3 text-white" style="padding-top:10px ">General</div>
+                    <div class="border p-1 text-center">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Delete"
+                                onclick="">
+                                <a href="#" class="text-danger">
+                                    <i class="bi bi-trash2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- IDR  --}}
+                <div class="d-flex align-items-stretch">
+                    <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
+                    <div class="border p-1 text-center">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Download">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </div>
+                            <div id="upload-idr" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
+                                class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Upload">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-upload"></i>
+                                </a>
+                            </div>
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Request Sign" id="request-acc">
+                                <a href="" class="text-info">
+                                    <i class="bi bi-pen-fill"></i>
+                                </a>
+                            </div>
+
+                            <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Print Invoice">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                            </div>
+                            <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Send to Client" id="send-inv-client-idr">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-send"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Other  --}}
+                <div class="d-flex align-items-stretch">
+                    <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
+                    <div class="border p-1 text-center">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <div id="print-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Download">
+                                <a href="" class="text-info">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </div>
+                            <div id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
+                                class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Upload">
+                                <a href="" class="text-info">
+                                    <i class="bi bi-upload"></i>
+                                </a>
+                            </div>
+                            <div id="request-acc-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Request Sign" id="request-acc-other">
+                                <a href="" class="text-info">
+                                    <i class="bi bi-pen-fill"></i>
+                                </a>
+                            </div>
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Print Invoice">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                            </div>
+                            <div id="send-rec-client-other" class="btn btn-sm py-1 border btn-light"
+                                data-bs-toggle="tooltip" data-bs-title="Send to Client">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-send"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $receiptPartner->invoiceB2b->partner_prog->corp->corp_name }}</h4>
-                    <h6>{{ $receiptPartner->invoiceB2b->partner_prog->program->sub_prog ? $receiptPartner->invoiceB2b->partner_prog->program->sub_prog->sub_prog_name.' - ' : '' }} {{$receiptPartner->invoiceB2b->partner_prog->program->prog_program}}</h6>
-                    <div class="d-flex flex-wrap justify-content-center mt-3">
-                        <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1"
-                            onclick="confirmDelete('{{'receipt/corporate-program'}}', {{$receiptPartner->id}})">
-                            <i class="bi bi-trash2 me-1"></i> Delete
-                        </button>
-                        @if (!$receiptPartner->receiptAttachment()->where('currency', 'idr')->first())
-                            {!! $exportIdr !!}
-                            {!! $uploadIdr !!}
-                        @elseif ($receiptPartner->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first())
-                            <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc">
-                                <i class="bi bi-pen me-1"></i> Request Sign IDR
-                            </button>
-                        @else
-                            <a href="{{ route('receipt.corporate.print', ['receipt' => $receiptPartner->id, 'currency' => 'idr']) }}" 
-                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                <i class="bi bi-printer me-1"></i> Print IDR
-                            </a>
-                            <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-idr">
-                                <i class="bi bi-printer me-1"></i> Send Receipt IDR to Client
-                            </button>
-                        @endif
-
-                        @if ($receiptPartner->invoiceB2b->currency != "idr")
-                            @if (!$receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
-                                {!! $exportOther !!}
-                                {!! $uploadOther !!}
-                            @elseif ($receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
-                                <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc-other">
-                                    <i class="bi bi-pen me-1"></i> Request Sign Other
-                                </button>
-                            @else
-                                <a href="{{ route('receipt.corporate.print', ['receipt' => $receiptPartner->id, 'currency' => 'other']) }}" 
-                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                    <i class="bi bi-printer me-1"></i> Print Other
-                                </a>
-                                <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-other">
-                                    <i class="bi bi-printer me-1"></i> Send Receipt Other to Client
-                                </button>
-                            @endif
-                        @endif
-                    </div>
+                    <h6>{{ $receiptPartner->invoiceB2b->partner_prog->program->sub_prog ? $receiptPartner->invoiceB2b->partner_prog->program->sub_prog->sub_prog_name . ' - ' : '' }}
+                        {{ $receiptPartner->invoiceB2b->partner_prog->program->prog_program }}</h6>
                 </div>
             </div>
 
@@ -108,7 +164,7 @@
                             <td>Receipt Date :</td>
                             <td>{{ date('d M Y H:i:s', strtotime($receiptPartner->created_at)) }}</td>
                         </tr>
-                        @if(isset($receiptPartner->invdtl_id))
+                        @if (isset($receiptPartner->invdtl_id))
                             <tr>
                                 <td>Installment Name :</td>
                                 <td>{{ $receiptPartner->invoiceInstallment->invdtl_installment }}</td>
@@ -118,13 +174,13 @@
                             <td>Payment Method :</td>
                             <td>{{ $receiptPartner->receipt_method }}</td>
                         </tr>
-                         @if($receiptPartner->receipt_method == 'Cheque')
+                        @if ($receiptPartner->receipt_method == 'Cheque')
                             <tr>
                                 <td>Cheque No : </td>
                                 <td>{{ $receiptPartner->receipt_cheque }}</td>
                             </tr>
                         @endif
-                        @if ($receiptPartner->invoiceB2b->currency != "idr")
+                        @if ($receiptPartner->invoiceB2b->currency != 'idr')
                             <tr>
                                 <td>Curs Rate :</td>
                                 <td>{{ $receiptPartner->invoiceB2b->rate }}</td>
@@ -133,9 +189,9 @@
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                 @if ($receiptPartner->receipt_amount != null && $receiptPartner->invoiceB2b->currency != "idr")
+                                @if ($receiptPartner->receipt_amount != null && $receiptPartner->invoiceB2b->currency != 'idr')
                                     {{ $receiptPartner->receipt_amount }}
-                                     ( {{ $receiptPartner->receipt_amount_idr }} )
+                                    ( {{ $receiptPartner->receipt_amount_idr }} )
                                 @else
                                     {{ $receiptPartner->receipt_amount_idr }}
                                 @endif
@@ -146,6 +202,79 @@
             </div>
 
             @include('pages.receipt.corporate-program.form-detail.invoice')
+
+            {{-- Receipt Progress  --}}
+            <div class="card shadow-sm mb-3">
+                <div class="card-header">
+                    <h6 class="my-0">
+                        Receipt Progress
+                    </h6>
+                </div>
+                <div class="card-body position-relative h-auto pb-5">
+                    {{-- IDR  --}}
+                    <div class="text-center">
+                        <h6>IDR</h6>
+                        <section class="step-indicator">
+                            <div class="step step1 active">
+                                <div class="step-icon">1</div>
+                                <p>Download</p>
+                            </div>
+                            <div class="indicator-line active"></div>
+                            <div class="step step2">
+                                <div class="step-icon">2</div>
+                                <p>Upload</p>
+                            </div>
+                            <div class="indicator-line"></div>
+                            <div class="step step3">
+                                <div class="step-icon">3</div>
+                                <p>Request Sign</p>
+                            </div>
+                            <div class="indicator-line"></div>
+                            <div class="step step4">
+                                <div class="step-icon">4</div>
+                                <p>Signed</p>
+                            </div>
+                            <div class="indicator-line"></div>
+                            <div class="step step5">
+                                <div class="step-icon">5</div>
+                                <p>Print or Send to Client</p>
+                            </div>
+                        </section>
+                    </div>
+
+                    {{-- Other  --}}
+                    <div class="text-center mt-5">
+                        <hr>
+                        <h6>Other Currency</h6>
+                        <section class="step-indicator">
+                            <div class="step step1 active">
+                                <div class="step-icon">1</div>
+                                <p>Download</p>
+                            </div>
+                            <div class="indicator-line active"></div>
+                            <div class="step step2">
+                                <div class="step-icon">2</div>
+                                <p>Upload</p>
+                            </div>
+                            <div class="indicator-line"></div>
+                            <div class="step step3">
+                                <div class="step-icon">3</div>
+                                <p>Request Sign</p>
+                            </div>
+                            <div class="indicator-line"></div>
+                            <div class="step step4">
+                                <div class="step-icon">4</div>
+                                <p>Signed</p>
+                            </div>
+                            <div class="indicator-line"></div>
+                            <div class="step step5">
+                                <div class="step-icon">5</div>
+                                <p>Print or Send to Client</p>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -453,7 +582,7 @@
             }
         }
 
-         $("#installment-list .detail").each(function() {
+        $("#installment-list .detail").each(function() {
             $(this).click(function() {
                 var link = "{{ url('/') }}/receipt/corporate-program/" + $(this).data('recid')
                 window.location = link
