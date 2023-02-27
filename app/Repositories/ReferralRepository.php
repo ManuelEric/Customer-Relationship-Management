@@ -124,4 +124,19 @@ class ReferralRepository implements ReferralRepositoryInterface
             ->groupBy(DB::raw('year(ref_date)'))
             ->get();
     }
+
+    public function getTotalReferralProgramComparison($startYear, $endYear)
+    {
+        $start = Referral::select(DB::raw("'start' as 'type'"), 'referral_type', DB::raw('count(id) as count'), DB::raw('sum(revenue) as total_fee'))
+            ->whereYear('ref_date', $startYear)
+            ->groupBy('referral_type');
+
+        $end = Referral::select(DB::raw("'end' as 'type'"), 'referral_type', DB::raw('count(id) as count'), DB::raw('sum(revenue) as total_fee'))
+            ->whereYear('ref_date', $endYear)
+            ->groupBy('referral_type')
+            ->union($start)
+            ->get();
+
+        return $end;
+    }
 }
