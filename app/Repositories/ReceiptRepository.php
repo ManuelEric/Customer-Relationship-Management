@@ -186,17 +186,32 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             ->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
             ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-            ->where(DB::raw('(CASE
+            ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
+            ->where(
+                DB::raw('(CASE
                             WHEN tbl_receipt.inv_id IS NULL THEN 
                                 CASE 
                                     WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
                                     WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
+                                    WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type
                                 END
                             WHEN  tbl_receipt.invb2b_id IS NULL THEN 
                                 CASE
                                     WHEN tbl_inv.clientprog_id > 0 THEN tbl_client_prog.status
                                 END
-                            END)'), 1);
+                            END)'),
+                DB::raw('(CASE
+                            WHEN tbl_receipt.inv_id IS NULL THEN 
+                                CASE 
+                                    WHEN tbl_invb2b.ref_id > 0 THEN "Out"
+                                    ELSE 1
+                                END
+                            WHEN  tbl_receipt.invb2b_id IS NULL THEN 
+                                CASE
+                                    WHEN tbl_inv.clientprog_id > 0 THEN 1
+                                END
+                            END)')
+            );
 
         if (isset($start_date) && isset($end_date)) {
             $queryReceipt->whereDate('tbl_receipt.created_at', '>=', $start_date)
@@ -226,6 +241,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
             ->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
             ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
+            ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
             ->select(DB::raw('COUNT(tbl_receipt.id) as count_receipt'), DB::raw('CAST(SUM(receipt_amount_idr) as integer) as total'))
             ->whereYear(DB::raw('(CASE
                                     WHEN tbl_receipt.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
@@ -235,15 +251,22 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                                     WHEN tbl_receipt.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
                                     WHEN tbl_receipt.inv_id is not null THEN tbl_inv.inv_duedate
                                 END)'), '=', $month)
-            ->where(DB::raw('(CASE
+            ->where(
+                DB::raw('(CASE
                                 WHEN tbl_receipt.invb2b_id is not null THEN 
                                     (CASE
                                         WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
                                         WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
+                                        WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type
                                     END)
                                 WHEN tbl_inv.inv_id is not null THEN tbl_client_prog.status
                             ELSE NULL
-                            END)'), 1)
+                            END)'),
+                DB::raw('(CASE
+                                WHEN tbl_invb2b.ref_id > 0 THEN "Out"
+                                ELSE 1
+                            END)')
+            )
             ->groupBy(DB::raw('(CASE
                                     WHEN tbl_receipt.invb2b_id is not null THEN tbl_invb2b.invb2b_id
                                     WHEN tbl_receipt.inv_id is not null THEN tbl_inv.inv_id

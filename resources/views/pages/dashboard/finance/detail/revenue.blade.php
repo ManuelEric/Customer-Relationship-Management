@@ -23,24 +23,41 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
                         <div class="">Revenue</div>
-                        <div class="" id="revenue_month">Month</div>
+                        <div class="" id="revenue_month">{{ date('F') }}</div>
                     </div>
                     <div class="card-body overflow-auto" style="height: 280px">
                         <table class="table table-hover">
                             <tr>
                                 <th>ID</th>
                                 <th>Full Name</th>
+                                <th>Type</th>
                                 <th>Program Name</th>
+                                <th>Installment</th>
                                 <th>Amount</th>
                             </tr>
                             <tbody id="tbl_revenue">
-
+                            @php
+                                $total_paid_diff = 0;
+                            @endphp
+                            @foreach ($paidPayments as $paidPayment)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $paidPayment->full_name }}</td>
+                                    <td>{{ $paidPayment->type }}</td>
+                                    <td>{{ $paidPayment->program_name }}</td>
+                                    <td class="text-center">{{ isset($paidPayment->installment_name) ? $paidPayment->installment_name : '-' }}</td>
+                                    <td>Rp. {{ number_format($paidPayment->total, '2', ',', '.') }}</td>
+                                </tr>
+                                @php
+                                    $total_paid_diff += $paidPayment->total > $paidPayment->total_price_inv ? $paidPayment->total - $PaidPayment->total_price_inv : 0;
+                                @endphp
+                            @endforeach
                             </tbody>
                         </table>
                     </div>
                     <div class="card-footer d-flex justify-content-between align-items-center">
                         <h6 class="m-0 p-0">Total Paid</h6>
-                        <h6 class="m-0 p-0" id="tot_paid_revenue">Rp. 0</h6>
+                        <h6 class="m-0 p-0" id="tot_paid_revenue">Rp. {{ number_format($paidPayments->sum('total'), '2', ',', '.') }} {{ $total_paid_diff > 0 ? '(Rp. '.number_format($total_paid_diff, '2', ',', '.') .')' : '' }}</h6>
                     </div>
                 </div>
             </div>
@@ -50,7 +67,7 @@
 
 <script>
     
-    renderChart(null)
+    var revenue_chart = null;
 
     function checkRevenueMode() {
         let mode = $('#revenue_mode').val()
@@ -66,35 +83,34 @@
     function checkRevenueByYear(){
         let year = $('#revenue_year').val()
 
-        let revenue = [0,0,0,0,0,0,0,0,0,0,0,0]
-
-
         axios.get('{{ url("api/finance/revenue") }}/' + year)
-            .then((response) => {
+        .then((response) => {
+            
+                $('#tbl_revenue').empty();
+                $('#tot_paid_revenue').empty();
 
+                let revenue = [0,0,0,0,0,0,0,0,0,0,0,0];
                 var result = response.data.data
-
+                revenue_chart.data.datasets[0].data = revenue;
+                
                 var index =0;
                 Object.entries(result.totalRevenue).forEach(entry => {
                     const [key, value] = entry;
                     revenue[index] = value;
+                    revenue_chart.data.datasets[0].data[key-1] = value              
                     index++;
                 });
-                console.log(revenue)
-
+                
+                revenue_chart.update()
+                
                 }, (error) => {
                     console.log(error)
                     swal.close()
                 })
 
-       renderChart(revenue);
-
     }
 
     
-    function renderChart(revenue = null){
-        $('#revenue_chart').remove()
-        $('.revenue_chart').append('<canvas id="revenue_chart"></canvas>')
 
         let SI_SYMBOL = ["", "k", "M", "G", "T", "P", "E"];
 
@@ -117,15 +133,27 @@
             return scaled.toFixed(0) + ' ' + suffix;
         }
 
-        const revenue_chart = document.getElementById('revenue_chart');
-    
-        new Chart(revenue_chart, {
+        const rc = document.getElementById('revenue_chart');
+        const dataset_revenue = new Array();
+
+        let revenue = [0,0,0,0,0,0,0,0,0,0,0,0];
+
+        @foreach ($revenue as $key => $tot_revenue)
+            revenue[{{$key-1}}] = {{$tot_revenue ?? 0}}
+        @endforeach
+        
+         Object.entries(revenue).forEach(entry => {
+            const [key, value] = entry;
+            dataset_revenue[key] = value       
+        });
+        
+        var revenue_chart = new Chart(rc, {
             type: 'line',
             data: {
                 labels: ['January', 'February', 'March', 'April', 'May', 'June'],
                 datasets: [{
                     label: 'Revenue',
-                    data: revenue ? revenue : null,
+                    data: dataset_revenue,
                     borderWidth: 4,
                 }]
             },
@@ -179,9 +207,7 @@
                     axios.get('{{ url("api/finance/revenue/detail") }}/' + year + '/' +  month)
                         .then((response) => {
                             var result = response.data.data
-                            
-                            console.log(result)
-                            
+                                                        
                             var html = '';     
                             var no = 1;   
                             var total_paid = 0;
@@ -194,7 +220,9 @@
                                 html = "<tr>";
                                 html += "<td>" + no + "</td>"
                                 html += "<td>" + item.full_name + "</td>"
+                                html += "<td>" + item.type + "</td>"
                                 html += "<td>" + item.program_name + "</td>"
+                                html += "<td class='text-center'>" + (item.installment_name !== null ? item.installment_name : "-") + "</td>"
                                 html += "<td>" + rupiah(item.total) + (diff > 0 ? " ("+ rupiah(diff) +")" : '') + "</td>"
                                 total_paid += item.total_price_inv;
                                 total_paid_diff += diff;
@@ -214,8 +242,8 @@
                 }
             }
         });
-    }
     
-    checkRevenueByYear()
+    
+    // checkRevenueByYear()
     
 </script>
