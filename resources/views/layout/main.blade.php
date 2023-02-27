@@ -1,14 +1,14 @@
 @extends('app')
 @section('css')
-    <link rel="stylesheet" href="{{ asset('dashboard/css/vertical-layout-light/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/step.css') }}">
 @endsection
 @section('script')
-    <script src="{{ asset('dashboard/js/off-canvas.js') }}"></script>
-    <script src="{{ asset('dashboard/js/hoverable-collapse.js') }}"></script>
-    <script src="{{ asset('dashboard/js/template.js') }}"></script>
-    <script src="{{ asset('dashboard/js/settings.js') }}"></script>
-    <script src="{{ asset('dashboard/js/jquery.cookie.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('library/dashboard/js/off-canvas.js') }}"></script>
+    <script src="{{ asset('library/dashboard/js/hoverable-collapse.js') }}"></script>
+    <script src="{{ asset('library/dashboard/js/template.js') }}"></script>
+    <script src="{{ asset('library/dashboard/js/settings.js') }}"></script>
+    <script src="{{ asset('library/dashboard/js/jquery.cookie.js') }}" type="text/javascript"></script>
 
     {{-- <script src="{{ asset('assets/dist/pspdfkit.js')}}"></script> --}}
 
@@ -28,10 +28,10 @@
                 </div>
                 <div>
                     <a class="navbar-brand brand-logo" href="{{ url('dashboard') }}">
-                        <img src="{{ asset('dashboard/images/logo.svg') }}" alt="logo" />
+                        <img src="{{ asset('library/dashboard/images/logo.svg') }}" alt="logo" />
                     </a>
                     <a class="navbar-brand brand-logo-mini" href="{{ url('dashboard') }}">
-                        <img src="{{ asset('dashboard/images/logo-mini.svg') }}" alt="logo" />
+                        <img src="{{ asset('library/dashboard/images/logo-mini.svg') }}" alt="logo" />
                     </a>
                 </div>
             </div>
@@ -45,11 +45,11 @@
                     <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                         <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown"
                             aria-expanded="false">
-                            <img class="img-xs rounded-circle" src="{{ asset('dashboard/images/faces/face8.jpg') }}"
+                            <img class="img-xs rounded-circle" src="{{ asset('library/dashboard/images/faces/face8.jpg') }}"
                                 alt="Profile image"> </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
                             <div class="dropdown-header text-center">
-                                <img class="img-md rounded-circle" src="{{ asset('dashboard/images/faces/face8.jpg') }}"
+                                <img class="img-md rounded-circle" src="{{ asset('library/dashboard/images/faces/face8.jpg') }}"
                                     alt="Profile image">
                                 <p class="mb-1 mt-3 font-weight-semibold">Allen Moreno</p>
                                 <p class="fw-light text-muted mb-0">allenmoreno@gmail.com</p>
