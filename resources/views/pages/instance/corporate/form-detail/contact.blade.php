@@ -14,7 +14,7 @@
     </div>
     <div class="list-group list-group-flush">
         @if (isset($pics))
-            @foreach ($pics as $pic)
+            @forelse ($pics as $pic)
                 <div class="list-group-item">
                     <div class="d-flex align-items-center mb-1">
                         <strong class="text-muted me-2">
@@ -44,7 +44,12 @@
                         </a>
                     </div>
                 </div>
-            @endforeach
+                @empty
+                <div class="list-group-item">
+                    <div>No PIC yet</div>
+                </div>
+
+            @endforelse
         @endif
     </div>
 </div>
