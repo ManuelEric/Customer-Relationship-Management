@@ -25,7 +25,7 @@ class RefundController extends Controller
     public function index(Request $request)
     {
         $status =  $request->route('status');
-        return $this->refundRepository->getAllRefundDataTables($status);
+        // return $this->refundRepository->getAllRefundDataTables($status);
         if ($request->ajax())
             return $this->refundRepository->getAllRefundDataTables($status);
 
