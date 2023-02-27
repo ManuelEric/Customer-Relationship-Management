@@ -72,8 +72,8 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
-        return $this->indexSales($request);
-        // return $this->indexPartnership($request);
+        // return $this->indexSales($request);
+        return $this->indexPartnership($request);
         // return $this->indexFinance($request);
     }
 

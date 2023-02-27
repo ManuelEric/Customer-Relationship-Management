@@ -20,7 +20,7 @@
                     <div class="border p-1 text-center">
                         <div class="d-flex gap-1 justify-content-center">
                             <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Delete"
-                                onclick="confirmDelete('receipt/client-program/', '{{ $receipt->id }}')">
+                                onclick="">
                                 <a href="#" class="text-danger">
                                     <i class="bi bi-trash2"></i>
                                 </a>
@@ -34,97 +34,81 @@
                     <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                     <div class="border p-1 text-center">
                         <div class="d-flex gap-1 justify-content-center">
-                            @if (!$receipt->receiptAttachment()->where('currency', 'idr')->first())
-                                @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'idr')->first())
-                                    <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Download">
-                                        <a href="#" class="text-info">
-                                            <i class="bi bi-download"></i>
-                                        </a>
-                                    </div>
-                                    <div id="upload-idr" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
-                                        class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Upload">
-                                        <a href="#" class="text-info">
-                                            <i class="bi bi-upload"></i>
-                                        </a>
-                                    </div>
-                                @endif
-                            @elseif ($receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first())
-                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                    data-bs-title="Request Sign" id="request-acc">
-                                    <a href="" class="text-info">
-                                        <i class="bi bi-pen-fill"></i>
-                                    </a>
-                                </div>
-                            @else
-                                <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                    data-bs-title="Print Invoice">
-                                    <a href="#" class="text-info">
-                                        <i class="bi bi-printer"></i>
-                                    </a>
-                                </div>
-                                <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light"
-                                    data-bs-toggle="tooltip" data-bs-title="Send to Client" id="send-inv-client-idr">
-                                    <a href="#" class="text-info">
-                                        <i class="bi bi-send"></i>
-                                    </a>
-                                </div>
-                            @endif
+                            <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Download">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </div>
+                            <div id="upload-idr" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
+                                class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Upload">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-upload"></i>
+                                </a>
+                            </div>
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Request Sign" id="request-acc">
+                                <a href="" class="text-info">
+                                    <i class="bi bi-pen-fill"></i>
+                                </a>
+                            </div>
+
+                            <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Print Invoice">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                            </div>
+                            <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Send to Client" id="send-inv-client-idr">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-send"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Other  --}}
-                @if ($receipt->invoiceProgram->currency != 'idr')
-                    <div class="d-flex align-items-stretch">
-                        <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
-                        <div class="border p-1 text-center">
-                            <div class="d-flex gap-1 justify-content-center">
-                                @if (!$receipt->receiptAttachment()->where('currency', 'other')->first())
-                                    @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'other')->first())
-                                        <div id="print-other" class="btn btn-sm py-1 border btn-light"
-                                            data-bs-toggle="tooltip" data-bs-title="Download">
-                                            <a href="" class="text-info">
-                                                <i class="bi bi-download"></i>
-                                            </a>
-                                        </div>
-                                        <div id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
-                                            class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                            data-bs-title="Upload">
-                                            <a href="" class="text-info">
-                                                <i class="bi bi-upload"></i>
-                                            </a>
-                                        </div>
-                                    @endif
-                                @elseif ($receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
-                                    <div id="request-acc-other" class="btn btn-sm py-1 border btn-light"
-                                        data-bs-toggle="tooltip" data-bs-title="Request Sign" id="request-acc-other">
-                                        <a href="" class="text-info">
-                                            <i class="bi bi-pen-fill"></i>
-                                        </a>
-                                    </div>
-                                @else
-                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Print Invoice">
-                                        <a href="{{ route('receipt.client-program.print', ['receipt' => $receipt->id, 'currency' => 'other']) }}"
-                                            class="text-info">
-                                            <i class="bi bi-printer"></i>
-                                        </a>
-                                    </div>
-                                    <div id="send-rec-client-other" class="btn btn-sm py-1 border btn-light"
-                                        data-bs-toggle="tooltip" data-bs-title="Send to Client">
-                                        <a href="#" class="text-info">
-                                            <i class="bi bi-send"></i>
-                                        </a>
-                                    </div>
-                                @endif
+                <div class="d-flex align-items-stretch">
+                    <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
+                    <div class="border p-1 text-center">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <div id="print-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Download">
+                                <a href="" class="text-info">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </div>
+                            <div id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
+                                class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Upload">
+                                <a href="" class="text-info">
+                                    <i class="bi bi-upload"></i>
+                                </a>
+                            </div>
+                            <div id="request-acc-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Request Sign" id="request-acc-other">
+                                <a href="" class="text-info">
+                                    <i class="bi bi-pen-fill"></i>
+                                </a>
+                            </div>
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Print Invoice">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                            </div>
+                            <div id="send-rec-client-other" class="btn btn-sm py-1 border btn-light"
+                                data-bs-toggle="tooltip" data-bs-title="Send to Client">
+                                <a href="#" class="text-info">
+                                    <i class="bi bi-send"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
-                @endif
+                </div>
             </div>
-            
+
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
@@ -299,8 +283,8 @@
                                         <span class="input-group-text currency-icon" id="basic-addon1">
                                             $
                                         </span>
-                                        <input type="text" name="receipt" id="receipt_amount_other" class="form-control"
-                                            required value="">
+                                        <input type="text" name="receipt" id="receipt_amount_other"
+                                            class="form-control" required value="">
                                     </div>
                                 </div>
                             </div>
