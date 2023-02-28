@@ -567,8 +567,14 @@ class InvoiceProgramController extends Controller
         $currency = $request->route('currency');
         $attachment = $invoice->invoiceAttachment()->where('currency', $currency)->first();
 
+        $pic_mail = $clientProg->internalPic->email;
+
         $data['email'] = $clientProg->client->parents[0]->mail;
-        $data['cc'] = $clientProg->client->mail;
+        $data['cc'] = [
+            env('CEO_CC'), 
+            env('FINANCE_CC'), 
+            $pic_mail
+        ];
         $data['recipient'] = $clientProg->client->parents[0]->full_name;
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $clientProg->program_name;
         $data['param'] = [
@@ -637,6 +643,7 @@ class InvoiceProgramController extends Controller
 
     public function preview(Request $request)
     {
+        
         $clientprog_id = $request->route('client_program');
         $currency = $request->route('currency');
 

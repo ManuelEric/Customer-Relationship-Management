@@ -154,6 +154,14 @@ class ReceiptController extends Controller
 
         try {
 
+            # update download status on tbl_receipt
+            if ($type == "idr")
+                $receipt->download_idr = 1;
+            else
+                $receipt->download = 1;
+            
+            $receipt->save();
+
             $companyDetail = [
                 'name' => env('ALLIN_COMPANY'),
                 'address' => env('ALLIN_ADDRESS'),
@@ -248,6 +256,11 @@ class ReceiptController extends Controller
             'currency' => $type
         ];
         try {
+
+            # update request status on receipt attachment
+            $attachment = $receipt->receiptAttachment()->where('currency', $type)->first();
+            $attachment->request_status = 1;
+            $attachment->save();
             
             $file_name = str_replace('/', '_', $receipt->receipt_id);
             $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
@@ -294,7 +307,6 @@ class ReceiptController extends Controller
         if (!$receipt = $this->receiptRepository->getReceiptById($receipt_id))
             abort(404);
         
-
         $attachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt->receipt_id, $currency);
 
         return view('pages.receipt.sign-pdf')->with(
@@ -347,8 +359,14 @@ class ReceiptController extends Controller
         $currency = $request->route('currency');
         $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
 
+        $pic_mail = $receipt->invoiceProgram->clientprog->internalPic->email;
+
         $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
-        $data['cc'] = $receipt->invoiceProgram->clientprog->client->mail;
+        $data['cc'] = [
+            env('CEO_CC'),
+            env('FINANCE_CC'),
+            $pic_mail
+        ];
         $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
         $data['title'] = "ALL-In Eduspace | Receipt of program : " . $receipt->invoiceProgram->clientprog->program_name;
 
