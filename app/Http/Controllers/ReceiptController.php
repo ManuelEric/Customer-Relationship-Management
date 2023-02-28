@@ -259,7 +259,7 @@ class ReceiptController extends Controller
 
             # update request status on receipt attachment
             $attachment = $receipt->receiptAttachment()->where('currency', $type)->first();
-            $attachment->request_status = 1;
+            $attachment->request_status = 'requested';
             $attachment->save();
             
             $file_name = str_replace('/', '_', $receipt->receipt_id);
