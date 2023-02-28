@@ -46,4 +46,9 @@ class Department extends Model
     {
         return $this->hasMany(PurchaseRequest::class, 'purchase_department', 'id');
     }
+
+    public function menu_detail()
+    {
+        return $this->belongsTo(MenuDetail::class, 'department_id', 'id');
+    }
 }
