@@ -1,13 +1,14 @@
 @extends('app')
 @section('css')
-    <link rel="stylesheet" href="{{ asset('dashboard-template/css/vertical-layout-light/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/step.css') }}">
 @endsection
 @section('script')
-    <script src="{{ asset('dashboard-template/js/off-canvas.js') }}"></script>
-    <script src="{{ asset('dashboard-template/js/hoverable-collapse.js') }}"></script>
-    <script src="{{ asset('dashboard-template/js/template.js') }}"></script>
-    <script src="{{ asset('dashboard-template/js/settings.js') }}"></script>
-    <script src="{{ asset('dashboard-template/js/jquery.cookie.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('library/dashboard/js/off-canvas.js') }}"></script>
+    <script src="{{ asset('library/dashboard/js/hoverable-collapse.js') }}"></script>
+    <script src="{{ asset('library/dashboard/js/template.js') }}"></script>
+    <script src="{{ asset('library/dashboard/js/settings.js') }}"></script>
+    <script src="{{ asset('library/dashboard/js/jquery.cookie.js') }}" type="text/javascript"></script>
 
     {{-- <script src="{{ asset('assets/dist/pspdfkit.js')}}"></script> --}}
 
@@ -27,10 +28,10 @@
                 </div>
                 <div>
                     <a class="navbar-brand brand-logo" href="{{ url('dashboard') }}">
-                        <img src="{{ asset('dashboard-template/images/logo.svg') }}" alt="logo" />
+                        <img src="{{ asset('library/dashboard/images/logo.svg') }}" alt="logo" />
                     </a>
                     <a class="navbar-brand brand-logo-mini" href="{{ url('dashboard') }}">
-                        <img src="{{ asset('dashboard-template/images/logo-mini.svg') }}" alt="logo" />
+                        <img src="{{ asset('library/dashboard/images/logo-mini.svg') }}" alt="logo" />
                     </a>
                 </div>
             </div>
@@ -44,12 +45,12 @@
                     <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                         <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown"
                             aria-expanded="false">
-                            <img class="img-xs rounded-circle"
-                                src="{{ asset('dashboard-template/images/faces/face8.jpg') }}" alt="Profile image"> </a>
+                            <img class="img-xs rounded-circle" src="{{ asset('library/dashboard/images/faces/face8.jpg') }}"
+                                alt="Profile image"> </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
                             <div class="dropdown-header text-center">
-                                <img class="img-md rounded-circle"
-                                    src="{{ asset('dashboard-template/images/faces/face8.jpg') }}" alt="Profile image">
+                                <img class="img-md rounded-circle" src="{{ asset('library/dashboard/images/faces/face8.jpg') }}"
+                                    alt="Profile image">
                                 <p class="mb-1 mt-3 font-weight-semibold">Allen Moreno</p>
                                 <p class="fw-light text-muted mb-0">allenmoreno@gmail.com</p>
                             </div>
@@ -101,10 +102,7 @@
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a @class([
-                            'nav-link',
-                            'text-primary' => Request::is('dashboard')
-                        ]) href="{{ url('dashboard') }}">
+                        <a @class(['nav-link', 'text-primary' => Request::is('dashboard')]) href="{{ url('dashboard') }}">
                             <i class="bi bi-speedometer2 mx-2"></i>
                             <span class="menu-title">Dashboard</span>
                         </a>
@@ -340,27 +338,28 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ Request::is('user*') ? 'text-primary' : '' }}" data-bs-toggle="collapse" href="#users" aria-expanded="false"
-                            aria-controls="users">
+                        <a class="nav-link {{ Request::is('user*') ? 'text-primary' : '' }}" data-bs-toggle="collapse"
+                            href="#users" aria-expanded="false" aria-controls="users">
                             <i class="bi bi-person-workspace mx-2"></i>
                             <span class="menu-title">Users</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
                         <div class="collapse {{ Request::is('user*') ? 'show' : 'hide' }}" id="users">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link {{ Request::is('user/*') && !Request::is('user/volunteer*') ? 'active' : '' }}" href="{{ url('user/employee') }}">Employee</a>
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('user/*') && !Request::is('user/volunteer*') ? 'active' : '' }}"
+                                        href="{{ url('user/employee') }}">Employee</a>
                                 </li>
-                                <li class="nav-item"> <a class="nav-link {{ Request::is('user/volunteer*') ? 'active' : '' }}" href="{{ url('user/volunteer') }}">Volunteer
+                                <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is('user/volunteer*') ? 'active' : '' }}"
+                                        href="{{ url('user/volunteer') }}">Volunteer
                                     </a>
                                 </li>
                             </ul>
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a @class([
-                            'nav-link',
-                            'text-primary' => Request::is('report*')
-                        ]) data-bs-toggle="collapse" href="#report" aria-expanded="false"
+                        <a @class(['nav-link', 'text-primary' => Request::is('report*')]) data-bs-toggle="collapse" href="#report" aria-expanded="false"
                             aria-controls="report">
                             <i class="bi bi-printer mx-2"></i>
                             <span class="menu-title">Report</span>
@@ -369,26 +368,27 @@
                         <div class="collapse {{ Request::is('report*') ? 'show' : 'hide' }}" id="report">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item">
-                                    <a @class([
-                                        'nav-link',
-                                        'active' => Request::is('report/sales*')
-                                    ]) href="{{ url('report/sales') }}">Sales
+                                    <a @class(['nav-link', 'active' => Request::is('report/sales*')]) href="{{ url('report/sales') }}">Sales
                                         Tracking</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('report/event*') ? 'active' : '' }}" href="{{ url('report/event') }}">Event Tracking</a>
+                                    <a class="nav-link {{ Request::is('report/event*') ? 'active' : '' }}"
+                                        href="{{ url('report/event') }}">Event Tracking</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('report/partnership*') ? 'active' : '' }}" href="{{ url('report/partnership') }}">
+                                    <a class="nav-link {{ Request::is('report/partnership*') ? 'active' : '' }}"
+                                        href="{{ url('report/partnership') }}">
                                         Partnership
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('report/invoice*') ? 'active' : '' }}" href="{{ url('report/invoice') }}">Invoice &
+                                    <a class="nav-link {{ Request::is('report/invoice*') ? 'active' : '' }}"
+                                        href="{{ url('report/invoice') }}">Invoice &
                                         Receipt</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('report/unpaid*') ? 'active' : '' }}" href="{{ url('report/unpaid') }}">Unpaid Payment</a>
+                                    <a class="nav-link {{ Request::is('report/unpaid*') ? 'active' : '' }}"
+                                        href="{{ url('report/unpaid') }}">Unpaid Payment</a>
                                 </li>
                             </ul>
                         </div>

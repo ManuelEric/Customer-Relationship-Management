@@ -26,5 +26,5 @@
     @include('pages.dashboard.partnership.detail.program-comparison')
 </section>
 <section id="client-event" class="dashboard-partnership d-none">
-    @include('pages.dashboard.sales.detail.client-event')
+    {{-- @include('pages.dashboard.sales.detail.client-event') --}}
 </section>
