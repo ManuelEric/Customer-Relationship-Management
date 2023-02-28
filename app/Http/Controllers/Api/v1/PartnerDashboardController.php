@@ -186,6 +186,7 @@ class PartnerDashboardController extends Controller
         $schoolProgramMerge = $this->schoolProgramRepository->getSchoolProgramComparison($startYear, $endYear);
         $partnerProgramMerge = $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear);
         $referralMerge = $this->referralRepository->getReferralComparison($startYear, $endYear);
+        $totReferral = $this->referralRepository->getTotalReferralProgramComparison($startYear, $endYear);
 
         $programComparisonMerge = $this->mergeProgramComparison($schoolProgramMerge, $partnerProgramMerge, $referralMerge);
 
@@ -196,6 +197,7 @@ class PartnerDashboardController extends Controller
             'partnerPrograms' => $this->partnerProgramRepository->getPartnerProgramComparison($startYear, $endYear),
             'totalSch' => $this->schoolProgramRepository->getTotalSchoolProgramComparison($startYear, $endYear),
             'totalPartner' => $this->partnerProgramRepository->getTotalPartnerProgramComparison($startYear, $endYear),
+            'totalReferral' => $this->referralRepository->getTotalReferralProgramComparison($startYear, $endYear),
         ];
 
         if ($data) {

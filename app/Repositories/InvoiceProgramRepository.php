@@ -237,8 +237,6 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
     public function getInvoiceOutstandingPayment($monthYear, $type, $start_date = null, $end_date = null)
     {
-        // TODO: Outstanding payment by period
-
         if (isset($monthYear)) {
             $year = date('Y', strtotime($monthYear));
             $month = date('m', strtotime($monthYear));
@@ -275,6 +273,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
                     DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
                     'tbl_inv.inv_totalprice_idr as total_price_inv',
+                    'tbl_invdtl.invdtl_installment as installment_name',
+                    DB::raw("'B2C' as type"),
                     'tbl_receipt.receipt_amount_idr as total'
                 ])->has('receipt');
                 break;
@@ -284,6 +284,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     'tbl_inv.clientprog_id',
                     DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
                     DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                    'tbl_invdtl.invdtl_installment as installment_name',
+                    DB::raw("'B2C' as type"),
                     DB::raw('(CASE
                             WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
                                 tbl_inv.inv_totalprice_idr 
@@ -299,11 +301,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             $queryInv->whereYear('tbl_inv.inv_duedate', '=', $year)
                 ->whereMonth('tbl_inv.inv_duedate', '=', $month);
         } else {
-            if ($start_date > $end_date) {
-                $queryInv->whereBetween('tbl_inv.inv_duedate', [$start_date, $end_date]);
-            } else {
-                $queryInv->whereBetween('tbl_inv.inv_duedate', [$end_date, $start_date]);
-            }
+            $queryInv->whereBetween('tbl_inv.inv_duedate', [$start_date, $end_date]);
         }
 
         $queryInv

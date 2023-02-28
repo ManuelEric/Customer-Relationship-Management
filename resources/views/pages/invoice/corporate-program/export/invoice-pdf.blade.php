@@ -4,11 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice : INV/123/2425/12312/23 - PDF</title>
+    <title>Invoice : {{ $invoicePartner->invb2b_id }} - PDF</title>
     {{-- <link rel="icon" href="#" type="image/gif" sizes="16x16"> --}}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
+        /* @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'); */
+        @import url('{{ public_path("dashboard-template/css/googleapisfont.css") }}');
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+        }
         body {
             font-family: 'Poppins', sans-serif;
         }
@@ -48,9 +54,9 @@
 </head>
 
 <body style="padding: 0; margin:0">
-    <div style="width: 100%; height:1100px; padding:0; margin:0;">
-        <img src="{{ asset('img/pdf/header.png') }}" width="100%">
-        <img src="{{ asset('img/pdf/confidential.png') }}" width="85%"
+    <div style="width: 100%; height:1059px; padding:0; margin:0;">
+        <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
+        <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
             <h4
@@ -75,9 +81,9 @@
                                 <tr>
                                     <td valign="top">To : </td>
                                     <td><b>
-                                            Rainier Owen Harsono
+                                            {{$invoicePartner->partner_prog->corp->corp_name}}
                                         </b><br>
-                                        Malang Jawa Timur
+                                        {{ $invoicePartner->partner_prog->corp->corp_region }}
                                         <br>
                                     </td>
                                 </tr>
@@ -93,9 +99,9 @@
                                         Due Date<br>
                                     </td>
                                     <td>
-                                        : &nbsp; INV-/12124/21412/12<br>
-                                        : &nbsp; 09 Desember 2022 <br>
-                                        : &nbsp; 15 Desember 2022 <br>
+                                        : &nbsp; {{ $invoicePartner->invb2b_id }}<br>
+                                        : &nbsp; {{ date("d F Y", strtotime($invoicePartner->invb2b_date)) }} <br>
+                                        : &nbsp; {{ date("d F Y", strtotime($invoicePartner->invb2b_duedate)) }} <br>
                                     </td>
                                 </tr>
                             </table>
@@ -116,8 +122,8 @@
             <table width="100%" class="table-detail" style="padding:8px 5px;">
                 <tr align="center">
                     <th width="5%">No</th>
-                    <th width="55%">Description</th>
-                    <th width="15%">Price</th>
+                    <th width="45%">Description</th>
+                    <th width="25%">Price</th>
                     <th width="10%">Participants</th>
                     <th width="15%">Total</th>
                 </tr>
@@ -126,25 +132,28 @@
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
                             <p>
-                                <strong> Admissions Mentoring: Ultimate Package </strong>
+                                <strong> {{ (($invoicePartner->partner_prog->program->prog_sub != '-')) ? $invoicePartner->partner_prog->program->prog_sub . ': ' . $invoicePartner->partner_prog->program->prog_program : $invoicePartner->partner_prog->program->prog_program }} </strong>
                             </p>
                             <p>
-                                USD 5,400 (IDR 80,460,000) for Yeriel Abinawa Handoyo. <br>
-                                USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo.
+                                {{-- USD 5,400 (IDR 80,460,000) for Yeriel Abinawa Handoyo. <br>
+                                USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo. --}}
+                                {!! $invoicePartner->invb2b_notes !!}
                             </p>
                         </div>
 
-                        <div style="margin-top:5px;">
-                            <p>
-                                <strong> Discount</strong>
-                            </p>
-                        </div>
+                        @if(isset($invoicePartner->invb2b_discidr))
+                            <div style="margin-top:5px;">
+                                <p>
+                                    <strong> Discount</strong>
+                                </p>
+                            </div>
+                        @endif
                     </td>
                     <td valign="top" align="center">
                         <div style="height:80px;">
                             <p>
                                 <strong>
-                                    $8,150
+                                    {{ $currency == 'other' ? $invoicePartner->invoicePrice : $invoicePartner->invoicePriceIdr }}
                                 </strong>
                             </p>
                         </div>
@@ -152,29 +161,31 @@
                     <td valign="top" align="center">
                         <p>
                             <strong>
-                                20
+                                {{ $invoicePartner->invb2b_participants }}
                             </strong>
                         </p>
                     </td>
                     <td valign="top" align="center">
-                        <div style="height:80px;">
-                            <p>
+                        <div style="height:80px;width: 150px">
+                            <p> 
                                 <strong>
-                                    $8,150
+                                    {{ $currency == 'other' ? $invoicePartner->invoiceSubTotalprice :  $invoicePartner->invoiceSubTotalpriceIdr }}
                                 </strong>
                             </p>
                         </div>
-                        <div style="margin-top:5px;">
-                            <p>
-                                <strong> - $50</strong>
-                            </p>
-                        </div>
+                        @if($invoicePartner->invb2b_discidr != 0)
+                            <div style="margin-top:5px;">
+                                <p>
+                                    <strong> - {{ $currency == 'other' ? $invoicePartner->invoiceDiscount : $invoicePartner->invoiceDiscountIdr }}</strong>
+                                </p>
+                            </div>
+                        @endif
                     </td>
                 </tr>
                 <tr>
                     <td colspan="4" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
-                        <b>$8,000</b>
+                        <b>{{ $currency == 'other' ? $invoicePartner->invoiceTotalprice : $invoicePartner->invoiceTotalpriceIdr }}</b>
                     </td>
                 </tr>
             </table>
@@ -182,21 +193,30 @@
             <table>
                 <tr>
                     <td>
-                        <b style="letter-spacing:0.7px;"><i>Total Amount : Eight thousand dollars</i></b>
+                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{  $currency == 'other' ? $invoicePartner->invb2b_words : $invoicePartner->invb2b_wordsidr }}</i></b>
                         <br><br>
 
                         {{-- IF INSTALLMENT EXIST --}}
                         Terms of Payment :
-                        <div style="margin-left:2px;">
-                        </div>
+                        @if(count($invoicePartner->inv_detail) > 0)
+                            Terms of Payment :
+                            <div style="margin-left:2px;">
+                                @foreach ($invoicePartner->inv_detail as $installment)
+                                    {{ $installment->invdtl_installment  . '  (' . $installment->invdtl_percentage .'%) ' . date("d F Y", strtotime($installment->invdtl_duedate)) }} {{$currency == 'other' ? $installment->invoicedtlAmount : $installment->invoicedtlAmountIdr}}
+                                    <br>  
+                                @endforeach
+                            </div>
+                        @endif
 
 
                         {{-- IF TERMS & CONDITION EXIST  --}}
-                        <br>
-                        Terms & Conditions :
-                        <div style="margin-left:2px;">
-                            - Program fee is not refundable
-                        </div>
+                        @if(isset($invoicePartner->invb2b_tnc))
+                            <br>
+                            Terms & Conditions :
+                            <div style="margin-left:2px;">
+                                {!! $invoicePartner->invb2b_tnc !!}
+                            </div>
+                        @endif
                     </td>
                 </tr>
             </table>
@@ -233,8 +253,8 @@
                 </tr>
             </table>
         </div>
-        <img src="{{ asset('img/pdf/footer.png') }}" width="100%">
     </div>
+    <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%">
 </body>
 
 </html>

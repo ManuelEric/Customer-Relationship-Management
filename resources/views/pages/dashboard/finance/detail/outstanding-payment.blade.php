@@ -49,7 +49,9 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>Full Name</th>
+                                        <th>Type</th>
                                         <th>Program Name</th>
+                                        <th>Installment</th>
                                         <th>Amount</th>
                                     </tr>
                                         <tbody id="tbl_paid_payment">
@@ -57,7 +59,9 @@
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ $paidPayment->full_name }}</td>
+                                                    <td>{{ $paidPayment->type }}</td>
                                                     <td>{{ $paidPayment->program_name }}</td>
+                                                    <td>{{ isset($paidPayment->installment_name) ? $paidPayment->installment_name : '-' }}</td>
                                                     <td>Rp. {{ number_format($paidPayment->total, '2', ',', '.') }}</td>
                                                 </tr>
                                             @endforeach
@@ -80,7 +84,9 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>Full Name</th>
+                                        <th>Type</th>
                                         <th>Program Name</th>
+                                        <th>Installment</th>
                                         <th>Amount</th>
                                     </tr>
                                     <tbody id="tbl_unpaid_payment">
@@ -88,7 +94,9 @@
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $unpaidPayment->full_name }}</td>
+                                                <td>{{ $unpaidPayment->type }}</td>
                                                 <td>{{ $unpaidPayment->program_name }}</td>
+                                                <td>{{ isset($unpaidPayment->installment_name) ? $unpaidPayment->installment_name : '-' }}</td>
                                                 <td>Rp. {{ number_format($unpaidPayment->total, '2', ',', '.') }}</td>
                                             </tr>
                                         @endforeach
@@ -107,6 +115,8 @@
     </div>
 </div>
 <script>
+    var outstanding_chart = null;
+
     // percentage 
     let lbl_outstanding_payment = [{
         formatter: (value, ctx) => {
@@ -148,20 +158,16 @@
             }).format(number);
         }
 
-        let data = {
-            'total': [0, 0],
-        }
-
         // Axios here ...
             axios.get('{{ url("api/finance/outstanding/") }}/' + month)
             .then((response) => {
 
                 var result = response.data.data
 
-                console.log(result)
-
-                data['total'][0] = result.paidPayments.length
-                data['total'][1] = result.unpaidPayments.length
+                outstanding_chart.data.datasets[0].data = [];
+                outstanding_chart.data.datasets[0].data.push(result.paidPayments.length)                
+                outstanding_chart.data.datasets[0].data.push(result.unpaidPayments.length)                
+                outstanding_chart.update()
 
                 var html;
                 var no = 1;
@@ -176,15 +182,15 @@
                     html = "<tr>";
                     html += "<td>" + no + "</td>"
                     html += "<td>" + item.full_name + "</td>"
+                    html += "<td>" + item.type + "</td>"
                     html += "<td>" + item.program_name + "</td>"
+                    html += "<td class='text-center'>" + (item.installment_name !== null ? item.installment_name : "-") + "</td>"
                     html += "<td>" + rupiah(item.total) + (diff > 0 ? " ("+ rupiah(diff) +")" : '') + "</td>"
                     total_paid += item.total_price_inv;
                     total_paid_diff += diff;
                     $('#tbl_paid_payment').append(html);
                     no++;
                 })
-
-                console.log(data)
                 
                 $('#tot_paid').html(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
                 
@@ -196,7 +202,9 @@
                     html = "<tr>";
                     html += "<td>" + no + "</td>"
                     html += "<td>" + item.full_name + "</td>"
+                    html += "<td>" + item.type + "</td>"
                     html += "<td>" + item.program_name + "</td>"
+                    html += "<td class='text-center'>" + (item.installment_name !== null ? item.installment_name : "-") + "</td>"
                     html += "<td>" + rupiah(item.total) + "</td>"
                     total_unpaid += item.total;
                     $('#tbl_unpaid_payment').append(html);
@@ -205,23 +213,19 @@
                 
                 $('#tot_unpaid').html(rupiah(total_unpaid))
 
-                }, (error) => {
-                    console.log(error)
-                    swal.close()
-                })
-
-          
-            renderChart(data)
+            }, (error) => {
+                console.log(error)
+                swal.close()
+            })
+            
+            // console.log(data)
+            // renderChart(data)
 
     }
 
     function checkFinancebyPeriode(){
         let start_date = $('#start_outstanding').val()
         let end_date = $('#end_outstanding').val()
-        
-        console.log(start_date)
-        console.log(end_date)
-
 
          const rupiah = (number)=>{
             return new Intl.NumberFormat("id-ID", {
@@ -239,12 +243,12 @@
             .then((response) => {
 
                 var result = response.data.data
+                
+                outstanding_chart.data.datasets[0].data = [];
+                outstanding_chart.data.datasets[0].data.push(result.paidPayments.length)                
+                outstanding_chart.data.datasets[0].data.push(result.unpaidPayments.length)                
+                outstanding_chart.update()
 
-                
-                data['total'][0] = result.paidPayments.length
-                data['total'][1] = result.unpaidPayments.length
-                console.log(data)
-                
                 var html;
                 var no = 1;
                 var total_paid = 0;
@@ -265,8 +269,6 @@
                     $('#tbl_paid_payment').append(html);
                     no++;
                 })
-
-                // console.log(total_paid_diff)
                 
                 $('#tot_paid').html(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
                 
@@ -287,27 +289,30 @@
                 
                 $('#tot_unpaid').html(rupiah(total_unpaid))
                 
-                renderChart(data)
-                }, (error) => {
-                    console.log(error)
-                    swal.close()
-                })
-
+            }, (error) => {
+                console.log(error)
+                swal.close()
+            })
+            
+            // renderCha`rt(data)
           
     }
 
-   function renderChart(data = null){
-        $('#payment_chart').remove()
-        $('.payment_chart').append('<canvas id="payment_chart"></canvas>')
-        const payment_chart = document.getElementById('payment_chart');
+    // $('#payment_chart').remove()
+    // $('.payment_chart').append('<canvas id="payment_chart"></canvas>')
+    const payment_chart = document.getElementById('payment_chart');
+    const dataset_outstanding = new Array();
 
-        new Chart(payment_chart, {
+    dataset_outstanding.push({{ count($paidPayments) ?? 0 }})
+    dataset_outstanding.push({{ count($unpaidPayments) ?? 0 }})
+
+    var outstanding_chart = new Chart(payment_chart, {
             type: 'doughnut',
             data: {
                 labels: ['Paid', 'Unpaid'],
                 datasets: [{
                     label: 'Invoice',
-                    data: data.total ? data.total : null,
+                    data: dataset_outstanding,
                     borderWidth: 4
                 }]
             },
@@ -324,15 +329,8 @@
                     }
                 },
             }
-        });
+    });
 
-    }
-
-    checkFinancebyMonth()
-  $( document ).ready(function() {
-    // console.log( "ready!" );
-});
-    
     function checkFinanceMode() {
         let mode = $('#filter_mode').val()
         $('.finance-period').addClass('d-none')
@@ -342,4 +340,6 @@
             $('#monthly').removeClass('d-none')
         }
     }
+
+    checkFinancebyMonth()
 </script>

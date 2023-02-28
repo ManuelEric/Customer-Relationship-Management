@@ -4,11 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receipt : INV/123/2425/12312/23 - PDF</title>
+    <title>Receipt : {{ $receiptPartner->receipt_id }} - PDF</title>
     {{-- <link rel="icon" href="#" type="image/gif" sizes="16x16"> --}}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
+        /* @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'); */
+        @import url('{{ public_path("dashboard-template/css/googleapisfont.css") }}');
+         * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+        }
         body {
             font-family: 'Poppins', sans-serif;
         }
@@ -50,9 +56,9 @@
 </head>
 
 <body style="padding: 0; margin:0">
-    <div style="width: 100%; height:1100px; padding:0; margin:0;">
-        <img src="{{ asset('img/pdf/header.png') }}" width="100%">
-        <img src="{{ asset('img/pdf/confidential.png') }}" width="85%"
+    <div style="width: 100%; height:1059px; padding:0; margin:0;">
+        <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
+        <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
             <h4 style="">
@@ -82,9 +88,9 @@
                                     Received from :
                                 </td>
                                 <td>
-                                    Gabriella Anna Santoso
+                                    {{ $receiptPartner->invoiceB2b->partner_prog->corp->corp_name }}
                                     <br>
-                                    DKI Jakarta
+                                    {{ $receiptPartner->invoiceB2b->partner_prog->corp->corp_region }}
                                 </td>
                             </tr>
                         </table>
@@ -96,7 +102,7 @@
             <table>
                 <tr>
                     <td>
-                        Receipt No. 0013/REC-JEI/SATPRIV/XII/22
+                        Receipt No. {{ $receiptPartner->receipt_id }}
                     </td>
                 </tr>
             </table>
@@ -104,13 +110,17 @@
             <table width="100%" class="table-detail" style="padding:8px 5px;">
                 <tr align="center">
                     <th width="35%">Payment Method</th>
-                    <th width="35%">Cheque No.</th>
+                    @if($receiptPartner->receipt_method == 'Cheque')
+                        <th width="35%">Cheque No.</th>
+                    @endif
                     <th width="30%">Amount</th>
                 </tr>
                 <tr align="center">
-                    <td>Payment Method</td>
-                    <td>Cheque No.</td>
-                    <td>Amount</td>
+                    <td>{{ $receiptPartner->receipt_method }}</td>
+                    @if($receiptPartner->receipt_method == 'Cheque')
+                        <td>{{ $receiptPartner->receipt_cheque }}</td>
+                    @endif
+                    <td>{{ $currency == 'other' ? $receiptPartner->receipt_amount : $receiptPartner->receipt_amount_idr }}</td>
                 </tr>
             </table>
             <br>
@@ -127,21 +137,25 @@
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
                             <p>
-                                <strong> Admissions Mentoring: Ultimate Package </strong>
+                                <strong> {{ (($receiptPartner->invoiceB2b->partner_prog->program->prog_sub != '-')) ? $receiptPartner->invoiceB2b->partner_prog->program->prog_sub . ': ' . $receiptPartner->invoiceB2b->partner_prog->program->prog_program : $receiptPartner->invoiceB2b->partner_prog->program->prog_program }} </strong>
                             </p>
+                            @if ($receiptPartner->invoiceB2b->invb2b_pm == "Installment")
+                                <p>
+                                    {{ $receiptPartner->invoiceInstallment->invdtl_installment }} ( {{ $receiptPartner->invoiceInstallment->invdtl_percentage }}% )
+                                </p>
+                            @endif
                         </div>
 
-                        <div style="margin-top:5px;">
-                            <p>
-                                <strong> Discount</strong>
-                            </p>
-                        </div>
                     </td>
                     <td valign="top" align="center">
                         <div style="height:80px;">
                             <p>
                                 <strong>
-                                    $8,150
+                                    @if ($receiptPartner->invoiceB2b->invb2b_pm == "Installment")
+                                        {{ $currency == 'other' ? $receiptPartner->invoiceInstallment->invoicedtl_amount :  $receiptPartner->invoiceInstallment->invoicedtl_amountidr }}
+                                    @else
+                                        {{ $currency == 'other' ? $receiptPartner->invoiceB2b->invoiceSubTotalprice : $receiptPartner->invoiceB2b->invoiceSubTotalpriceIdr }}
+                                    @endif
                                 </strong>
                             </p>
                         </div>
@@ -150,24 +164,32 @@
                         <div style="height:80px;">
                             <p>
                                 <strong>
-                                    $8,150
+                                    @if ($receiptPartner->invoiceB2b->invb2b_pm == "Installment")
+                                        {{ $currency == 'other' ? $receiptPartner->invoiceInstallment->invoicedtl_amount :  $receiptPartner->invoiceInstallment->invoicedtl_amountidr }}
+                                    @else
+                                        {{ $currency == 'other' ? $receiptPartner->invoiceB2b->invoiceSubTotalprice : $receiptPartner->invoiceB2b->invoiceSubTotalpriceIdr }}
+                                    @endif
                                 </strong>
-                            </p>
-                        </div>
-                        <div style="margin-top:5px;">
-                            <p>
-                                <strong> - $50</strong>
-                            </p>
-                            <p>
-                                <strong> - $100</strong>
                             </p>
                         </div>
                     </td>
                 </tr>
+                @if($receiptPartner->invoiceB2b->invb2b_discidr != 0)
+                    <tr>
+                        <td colspan="3" align="right"><b>Discount</b></td>
+                        <td valign="middle" align="center">
+                            <b> 
+                                <strong> - {{ $currency == 'other' ? $receiptPartner->invoiceB2b->invoiceDiscount : $receiptPartner->invoiceB2b->invoiceDiscountIdr }}</strong>
+                            </b>
+                        </td>
+                    </tr>
+                @endif
                 <tr>
                     <td colspan="3" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
-                        <b>$8,000</b>
+                        <b>
+                            {{ $currency == 'other' ? $receiptPartner->receipt_amount : $receiptPartner->receipt_amount_idr }}
+                        </b>
                     </td>
                 </tr>
             </table>
@@ -175,7 +197,7 @@
             <table>
                 <tr>
                     <td>
-                        <b style="letter-spacing:0.7px;"><i>Total Amount : Eight thousand dollars</i></b>
+                        <b style="letter-spacing:0.7px;"><i>Total Amount : {{ $currency == 'other' ? $receiptPartner->receipt_words : $receiptPartner->receipt_words_idr }}</i></b>
                     </td>
                 </tr>
             </table>
@@ -202,8 +224,8 @@
                 </tr>
             </table>
         </div>
-        <img src="{{ asset('img/pdf/footer.png') }}" width="100%">
     </div>
+    <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%">
 </body>
 
 </html>

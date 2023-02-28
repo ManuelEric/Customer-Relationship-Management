@@ -225,7 +225,7 @@
 
                     {{-- Other  --}}
                     @php
-                        $receiptHasBeenDownloaded_other = $receipt->download;
+                        $receiptHasBeenDownloaded_other = $receipt->download_other;
                         $receiptHasBeenStamped_other = $receipt->receiptAttachment()->where('currency', 'other')->count() > 0 ? true : false; # with e-materai / uploaded
                         $receiptHasBeenRequested_other = $receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->where('request_status', 1)->first();
                         $receiptHasBeenSigned_other = $receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();

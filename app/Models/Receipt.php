@@ -26,8 +26,14 @@ class Receipt extends Model
         'receipt_words_idr',
         'receipt_notes',
         'receipt_status',
-        'download',
+        'rfd_total_payment',
+        'rfd_percentage_payment',
+        'refund_amount',
+        'refund_tax_percentage',
+        'refund_tax_amount',
+        'total_refunded',
         'download_idr',
+        'download_other',
     ];
 
     public function getCurrencyUnit()

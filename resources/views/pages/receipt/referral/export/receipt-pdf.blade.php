@@ -57,7 +57,7 @@
 </head>
 
 <body style="padding: 0; margin:0">
-    <div style="width: 100%; height:1100px; padding:0; margin:0;">
+    <div style="width: 100%; height:1059px; padding:0; margin:0;">
         <img src="{{ public_path('img/pdf/header.png') }}" width="100%">
         <img src="{{ public_path('img/pdf/confidential.png') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
@@ -210,8 +210,8 @@
                 </tr>
             </table>
         </div>
-        <img src="{{ public_path('img/pdf/footer.png') }}" width="100%">
     </div>
+    <img src="{{ public_path('img/pdf/footer.png') }}" width="100%">
 </body>
 
 </html>

@@ -83,7 +83,8 @@
 </div>
 
 <script>
-    
+    var school_program_chart, partner_program_chart, referral_program_chart = null;
+
     // percentage 
     let lbl_partner_prog = [{
         formatter: (value, ctx) => {
@@ -132,8 +133,6 @@
             'referral': [0, 0],
         }
 
-        Swal.showLoading()
-
         axios.get('{{ url("api/partner/partnership-program/") }}/' + month)
             .then((response) => {
                 var result = response.data.data
@@ -141,93 +140,98 @@
                 var no = 1;
                 var totalReferral = 0;
 
-                swal.close()
+                school_program_chart.data.datasets[0].data = [0,0,0,0]
 
                 result.statusSchoolPrograms.forEach(function (item, index, arr) {
 
                     switch (item['status']) {                        
                         case 0:
-                            data['school'][0] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[0] = item['count_status'];
                             break;
                         case 1:
-                            data['school'][1] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[1] = item['count_status'];
                             break;
                         case 2:
-                            data['school'][2] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[2] = item['count_status'];
                             break;
                         case 3:
-                            data['school'][3] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[3] = item['count_status'];
                             break;
                     
                         default:
                             break;
                     }
-                 
+                    
                 })
+                school_program_chart.update()
 
                 $('#tot_school_program').html(rupiah(result.totalSchoolProgram))
                 
+                partner_program_chart.data.datasets[0].data = [0,0,0,0]
                 result.statusPartnerPrograms.forEach(function (item, index, arr) {
                   
                     switch (item['status']) {                        
                         case 0:
-                            data['partner'][0] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[0] = item['count_status'];
                             break;
                         case 1:
-                            data['partner'][1] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[1] = item['count_status'];
                             break;
                         case 2:
-                            data['partner'][2] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[2] = item['count_status'];
                             break;
                         case 3:
-                            data['partner'][3] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[3] = item['count_status'];
                             break;
                     
                         default:
                             break;
                     }
                 })
+                partner_program_chart.update()
 
                 $('#tot_partner_program').html(rupiah(result.totalPartnerProgram))
 
+                referral_program_chart.data.datasets[0].data = [0,0]
                 result.referralTypes.forEach(function (item, index, arr) {
                     switch (item['referral_type']) {
 
                         case 'In':
-                            data['referral'][0] = item['count_referral_type'];
+                            referral_program_chart.data.datasets[0].data[0] = item['count_referral_type'];
                             break;
                         case 'Out':
-                            data['referral'][1] = item['count_referral_type'];
+                            referral_program_chart.data.datasets[0].data[1] = item['count_referral_type'];
                             totalReferral += item['revenue'];
                             break;
                         default:
                             break;
                     }
                 })
-
+                referral_program_chart.update()
                 $('#tot_referral').html(rupiah(totalReferral))
 
 
             }, (error) => {
                 console.log(error)
-                swal.close()
             })
-        renderChartProgram(data)
     }
 
-    function renderChartProgram(data = null) {
-        $('.partnership-program canvas').remove()
-        $('.partnership-program.partner').append('<canvas id="partner_program"></canvas>')
-
         const partner_program = document.getElementById('partner_program');
+        const school_program = document.getElementById('school_program');
+        const referral_program = document.getElementById('referral_program');
 
-        new Chart(partner_program, {
+        const dataset_partner_program = new Array();
+        const dataset_school_program = new Array();
+        const dataset_referral_program = new Array();
+
+
+        var partner_program_chart = new Chart(partner_program, {
             type: 'doughnut',
             data: {
                 labels: ['Pending', 'Success', 'Denied', 'Refund'],
                 datasets: [{
                     label: 'Partner Program',
-                    data: data ? data.partner : null,
+                    data: [0,0,0,0],
                     borderWidth: 1
                 }]
             },
@@ -249,14 +253,10 @@
                     let label = e.chart.data.labels[dataIndex];
                     let month = $('#month_partner_program').val()
 
-                    Swal.showLoading()
-
                     axios.get('{{ url("api/partner/partnership-program/detail") }}/partner/' + label + '/' +  month)
                         .then((response) => {
                             var result = response.data.data
 
-                            swal.close()
-                  
                             var start_listgroup = '<li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom:10px">';
                             var end_listgroup =  '</li>';
                             var html;
@@ -282,16 +282,13 @@
             }
         });
 
-        $('.partnership-program.school').append('<canvas id="school_program"></canvas>')
-        const school_program = document.getElementById('school_program');
-
-        new Chart(school_program, {
+        var school_program_chart = new Chart(school_program, {
             type: 'doughnut',
             data: {
                 labels: ['Pending', 'Success', 'Denied', 'Refund'],
                 datasets: [{
                     label: 'School Program',
-                    data: data ? data.school : null,
+                    data: [0,0,0,0],
                     borderWidth: 1
                 }]
             },
@@ -313,13 +310,9 @@
                     let label = e.chart.data.labels[dataIndex];
                     let month = $('#month_partner_program').val()
 
-                    Swal.showLoading()
-
                     axios.get('{{ url("api/partner/partnership-program/detail") }}/school/' + label + '/' +  month)
                         .then((response) => {
                             var result = response.data.data
-
-                            swal.close()
                   
                             var start_listgroup = '<li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom:10px">';
                             var end_listgroup =  '</li>';
@@ -334,6 +327,8 @@
                                 html += end_listgroup;
                                 $('#partnerProgramDetail').append(html)
                             })
+                            
+                            console.log(response)
 
                         }, (error) => {
                             console.log(error)
@@ -346,17 +341,13 @@
             }
         });
 
-
-        $('.partnership-program.referral').append('<canvas id="referral_program"></canvas>')
-        const referral_program = document.getElementById('referral_program');
-
-        new Chart(referral_program, {
+        var referral_program_chart = new Chart(referral_program, {
             type: 'doughnut',
             data: {
                 labels: ['Referral IN', 'Referral Out'],
                 datasets: [{
                     label: '# of Votes',
-                    data: data ? data.referral : null,
+                    data: [0,0],
                     borderWidth: 1
                 }]
             },
@@ -412,7 +403,6 @@
                 }
             }
         });
-    }
 
     checkProgrambyMonth()
 </script>

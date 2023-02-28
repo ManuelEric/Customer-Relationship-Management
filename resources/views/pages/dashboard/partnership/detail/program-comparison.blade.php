@@ -114,15 +114,13 @@
                                             <div class="col text-center">
                                                 <div class="comparison_start">
                                                 </div>
-                                                <span class="badge badge-primary">
-                                                    Rp. 200.000.000
+                                                <span class="badge badge-primary" id="tot_start_ref">
                                                 </span>
                                             </div>
                                             <div class="col text-center">
                                                 <div class="comparison_end">
                                                 </div>
-                                                <span class="badge badge-primary">
-                                                    Rp. 200.000.000
+                                                <span class="badge badge-primary" id="tot_end_ref">
                                                 </span>
                                             </div>
                                         </div>
@@ -184,6 +182,8 @@
 </div>
 
 <script>
+    var comparison_partner_chart, comparison_school_chart, comparison_referral_chart = null;
+
     // percentage 
     let lbl_program_comparison = [{
         formatter: (value, ctx) => {
@@ -230,19 +230,11 @@
             $('.comparison_start').html(start)
             $('.comparison_end').html(end)
 
-            let data = {
-                'label': {
-                    'start': start,
-                    'end': end
-                },
-                'total': {
-                    'start': 'Rp. 120.000.000',
-                    'end': 'Rp. 120.000.000'
-                },
-                'partner': [0, 0],
-                'school': [0, 0],
-                'referral': [6, 5],
-            }
+           
+            comparison_partner_chart.data.labels = [start, end]
+            comparison_school_chart.data.labels = [start, end]
+            comparison_referral_chart.data.labels = [start, end]
+
             // Axios here ...
             axios.get('{{ url('api/partner/partnership-program/program-comparison') }}/' + start + '/' + end)
                 .then((response) => {
@@ -252,32 +244,54 @@
                     result.totalPartner.forEach(function(item, index) {
                         switch (item['type']) {
                             case 'start':
-                                data['partner'][0] = item['count'];
+                                comparison_partner_chart.data.datasets[0].data[0] = item['count'];
                                 $('#tot_start_partner').html(rupiah(item['total_fee']));
                                 break;
                             case 'end':
-                                data['partner'][1] = item['count'];
+                                comparison_partner_chart.data.datasets[0].data[1] = item['count'];
                                 $('#tot_end_partner').html(rupiah(item['total_fee']));
                                 break;
                             default:
                                 break;
                         }
                     })
+                    comparison_partner_chart.update()
 
                     result.totalSch.forEach(function(item, index) {
                         switch (item['type']) {
                             case 'start':
-                                data['school'][0] = item['count'];
+                                comparison_school_chart.data.datasets[0].data[0] = item['count'];
                                 $('#tot_start_school').html(rupiah(item['total_fee']));
                                 break;
                             case 'end':
-                                data['school'][1] = item['count'];
+                                comparison_school_chart.data.datasets[0].data[1] = item['count'];
                                 $('#tot_end_school').html(rupiah(item['total_fee']));
                                 break;
                             default:
                                 break;
                         }
                     })
+                    comparison_school_chart.update()
+                    
+                    var total_ref = 0;
+                     $('#tot_start_ref').html(rupiah(0))
+                     $('#tot_end_ref').html(rupiah(0))
+                    comparison_referral_chart.data.datasets[0].data = [0,0]
+                    comparison_referral_chart.data.datasets[1].data = [0,0]
+                    result.totalReferral.forEach(function(item, index) {
+                        switch (item['type']) {
+                            case 'start':
+                                comparison_referral_chart.data.datasets[item['referral_type'] == 'In' ? 0 : 1].data[0] = item['count'];
+                                $('#tot_start_ref').html(rupiah(item['total_fee']));
+                                break;
+                            case 'end':
+                                comparison_referral_chart.data.datasets[item['referral_type'] == 'In' ? 0 : 1].data[1] = item['count'];
+                                total_ref += parseInt(item['total_fee']);
+                                $('#tot_end_ref').html(rupiah(total_ref));
+                                break;
+                        }
+                    })
+                    comparison_referral_chart.update()
 
                     var html;
                     var no = 1;
@@ -318,7 +332,7 @@
                 })
 
 
-            renderChart(data)
+            // renderChart(data)
         } else {
             $('#end_comparison').val(parseInt(start) + 1).trigger('change')
         }
@@ -326,18 +340,21 @@
 
     }
 
-    function renderChart(data = null) {
-        $('#comparison_partner').remove()
-        $('.comparison_partner').append('<canvas id="comparison_partner"></canvas>')
         const comparison_partner = document.getElementById('comparison_partner');
+        const comparison_school = document.getElementById('comparison_school');
+        const comparison_referral = document.getElementById('comparison_referral');
 
-        new Chart(comparison_partner, {
+        const dataset_comparison_partner = new Array();
+        const dataset_comparison_school = new Array();
+        const dataset_comparison_referral = new Array();
+
+        var comparison_partner_chart = new Chart(comparison_partner, {
             type: 'doughnut',
             data: {
-                labels: [data.label.start, data.label.end],
+                labels: [{{date('Y')}}, {{date('Y')-1}}],
                 datasets: [{
                     label: 'Success Program',
-                    data: data ? data.partner : null,
+                    data: [0,0],
                     borderWidth: 1
                 }]
             },
@@ -355,18 +372,13 @@
             }
         });
 
-
-        $('#comparison_school').remove()
-        $('.comparison_school').append('<canvas id="comparison_school"></canvas>')
-        const comparison_school = document.getElementById('comparison_school');
-
-        new Chart(comparison_school, {
+        var comparison_school_chart = new Chart(comparison_school, {
             type: 'doughnut',
             data: {
-                labels: [data.label.start, data.label.end],
+                labels: [{{date('Y')-1}}, {{date('Y')}}],
                 datasets: [{
                     label: 'Success Program',
-                    data: data ? data.school : null,
+                    data: [0,0],
                     borderWidth: 1
                 }]
             },
@@ -384,22 +396,18 @@
             }
         });
 
-        $('#comparison_referral').remove()
-        $('.comparison_referral').append('<canvas id="comparison_referral"></canvas>')
-        const comparison_referral = document.getElementById('comparison_referral');
-
-        new Chart(comparison_referral, {
+        var comparison_referral_chart = new Chart(comparison_referral, {
             type: 'bar',
             data: {
-                labels: ['2021', '2022'],
+                labels: [{{date('Y')}}, {{date('Y')-1}}],
                 datasets: [{
                         label: 'Referral In',
-                        data: data ? data.referral : null,
+                        data: [0,0],
                         borderWidth: 0,
                     },
                     {
                         label: 'Referral Out',
-                        data: data ? data.referral : null,
+                        data: [0,0],
                         borderWidth: 0,
                     }
                 ]
@@ -433,7 +441,7 @@
         //         }
         //     }
         // });
-    }
+    // }
 
     function renderTable() {
 

@@ -158,7 +158,7 @@ class ReceiptController extends Controller
             if ($type == "idr")
                 $receipt->download_idr = 1;
             else
-                $receipt->download = 1;
+                $receipt->download_other = 1;
             
             $receipt->save();
 

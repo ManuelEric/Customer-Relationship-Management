@@ -87,6 +87,8 @@
                                             <td>{{ $invoice->sch_prog->school->sch_name }}</td>
                                         @elseif(isset($invoice->partnerprog_id))
                                             <td>{{ $invoice->partner_prog->corp->corp_name }}</td>
+                                        @elseif(isset($invoice->ref_id))
+                                            <td>{{ $invoice->referral->partner->corp_name }}</td>
                                         @endif
 
                                         {{-- Type --}}
@@ -99,6 +101,8 @@
                                             <td>{{ $invoice->sch_prog->program->sub_prog ? $invoice->sch_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->sch_prog->program->prog_program }}</td>
                                         @elseif(isset($invoice->partnerprog_id))
                                             <td>{{ $invoice->partner_prog->program->sub_prog ? $invoice->partner_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->partner_prog->program->prog_program }}</td>
+                                        @elseif(isset($invoice->ref_id))
+                                            <td>{{ $invoice->referral->additional_prog_name }}</td>
                                         @endif 
 
                                         {{-- Method --}}
@@ -177,6 +181,8 @@
                                                 <td>{{ $receipt->invoiceB2b->sch_prog->school->sch_name }}</td>
                                             @elseif(isset($receipt->invoiceB2b->partnerprog_id))
                                                 <td>{{ $receipt->invoiceB2b->partner_prog->corp->corp_name }}</td>
+                                            @elseif(isset($receipt->invoiceB2b->ref_id))
+                                                <td>{{ $receipt->invoiceB2b->referral->partner->corp_name }}</td>
                                             @endif
                                         @endif
 
@@ -191,6 +197,8 @@
                                                 <td>{{ $receipt->invoiceB2b->sch_prog->program->sub_prog ? $receipt->invoiceB2b->sch_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $receipt->invoiceB2b->sch_prog->program->prog_program }}</td>
                                             @elseif((isset($receipt->invoiceB2b->partnerprog_id)))
                                                 <td>{{ $receipt->invoiceB2b->partner_prog->program->sub_prog ? $receipt->invoiceB2b->partner_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $receipt->invoiceB2b->partner_prog->program->prog_program }}</td>
+                                            @elseif((isset($receipt->invoiceB2b->ref_id)))
+                                                <td>{{ $receipt->invoiceB2b->referral->additional_prog_name }}</td>
                                             @endif
                                         @endif 
 

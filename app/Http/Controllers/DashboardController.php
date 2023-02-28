@@ -103,79 +103,79 @@ class DashboardController extends Controller
 
         # data at the body of dashboard
         $employees = $this->userRepository->getAllUsersByRole('employee');
-        
-            # on client program tab
-                $cp_filter['qdate'] = $request->get('qdate') ?? date('Y-m');
-                if ($request->get('cp-month')) { # format Y-m
-                    $cp_filter['qdate'] = $request->get('cp-month');
-                }
 
-                $dateDetails = [
-                    'startDate' => $cp_filter['qdate'].'-01', 
-                    'endDate' => $cp_filter['qdate'].'-31'
-                ];
+        # on client program tab
+        $cp_filter['qdate'] = $request->get('qdate') ?? date('Y-m');
+        if ($request->get('cp-month')) { # format Y-m
+            $cp_filter['qdate'] = $request->get('cp-month');
+        }
 
-                # if (admin)
-                # then null
-                # elif not admin
-                # their uuid
-                
-                if ($request->get('quser')) {
-                    $cp_filter['quuid'] = $request->get('quser');
-                }
+        $dateDetails = [
+            'startDate' => $cp_filter['qdate'] . '-01',
+            'endDate' => $cp_filter['qdate'] . '-31'
+        ];
 
-                # client program status
-                $totalAllClientProgramByStatus = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => null] + $cp_filter);
+        # if (admin)
+        # then null
+        # elif not admin
+        # their uuid
 
-                # admissions mentoring
-                $admissionsMentoring = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Admissions Mentoring'] + $cp_filter);
+        if ($request->get('quser')) {
+            $cp_filter['quuid'] = $request->get('quser');
+        }
 
-                # initial consultation
-                $initialConsultation = $this->clientProgramRepository->getInitialConsultationInformation($cp_filter);
-                $totalInitialConsultation = array_sum($initialConsultation);
-                $successProgram = $admissionsMentoring[2];
+        # client program status
+        $totalAllClientProgramByStatus = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => null] + $cp_filter);
 
-                $initialAssessmentMaking = $this->clientProgramRepository->getInitialMaking($dateDetails, $cp_filter);
-                $conversionTimeProgress = $this->clientProgramRepository->getConversionTimeProgress($dateDetails, $cp_filter);
-                $successPercentage = $successProgram == 0 ? 0 : ($successProgram/$totalInitialConsultation) * 100;
-                $allSuccessProgramByMonth = $this->clientProgramRepository->getSuccessProgramByMonth($cp_filter);
-                $totalRevenueAdmMentoringByProgramAndMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $cp_filter);
-                $academicTestPrep = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Academic & Test Preparation'] + $cp_filter);
-                $totalRevenueAcadTestPrepByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Academic & Test Preparation'] + $cp_filter);
-                $careerExploration = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Career Exploration'] + $cp_filter);
-                $totalRevenueCareerExplorationByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Career Exploration'] + $cp_filter);
+        # admissions mentoring
+        $admissionsMentoring = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Admissions Mentoring'] + $cp_filter);
 
-                $leadSource = $this->clientProgramRepository->getLeadSource($dateDetails, $cp_filter);
-                $conversionLeads = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter);
+        # initial consultation
+        $initialConsultation = $this->clientProgramRepository->getInitialConsultationInformation($cp_filter);
+        $totalInitialConsultation = array_sum($initialConsultation);
+        $successProgram = $admissionsMentoring[2];
 
-                $adminssionMentoringConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Admissions Mentoring']);
-                $academicTestPrepConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Academic & Test Preparation']);
-                $careerExplorationConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Career Exploration']);
+        $initialAssessmentMaking = $this->clientProgramRepository->getInitialMaking($dateDetails, $cp_filter);
+        $conversionTimeProgress = $this->clientProgramRepository->getConversionTimeProgress($dateDetails, $cp_filter);
+        $successPercentage = $successProgram == 0 ? 0 : ($successProgram / $totalInitialConsultation) * 100;
+        $allSuccessProgramByMonth = $this->clientProgramRepository->getSuccessProgramByMonth($cp_filter);
+        $totalRevenueAdmMentoringByProgramAndMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $cp_filter);
+        $academicTestPrep = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Academic & Test Preparation'] + $cp_filter);
+        $totalRevenueAcadTestPrepByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Academic & Test Preparation'] + $cp_filter);
+        $careerExploration = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Career Exploration'] + $cp_filter);
+        $totalRevenueCareerExplorationByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Career Exploration'] + $cp_filter);
 
-            # on sales target tab
-            $programId = null; # means all programs
-            $salesTarget = $this->salesTargetRepository->getMonthlySalesTarget($programId, $cp_filter);
-            $salesActual = $this->salesTargetRepository->getMonthlySalesActual($programId, $cp_filter);
-            
-            $salesDetail = $this->salesTargetRepository->getSalesDetail($programId, $cp_filter);
+        $leadSource = $this->clientProgramRepository->getLeadSource($dateDetails, $cp_filter);
+        $conversionLeads = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter);
 
-            # on program comparison tab
-            $allPrograms = $this->programRepository->getAllPrograms()->groupBy('main_prog.prog_name');
-            $cp_filter['queryParams_year1'] = date('Y') - 1;
-            $cp_filter['queryParams_year2'] = (int) date('Y');
-            
-            $comparisons = $this->clientProgramRepository->getComparisonBetweenYears($cp_filter);
+        $adminssionMentoringConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Admissions Mentoring']);
+        $academicTestPrepConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Academic & Test Preparation']);
+        $careerExplorationConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Career Exploration']);
 
-            # on client event tab
-            $cp_filter['qyear'] = 'current';
-            $events = [];
-            if ($this->eventRepository->getEventsWithParticipants($cp_filter)->count() > 0) {
-                $events = $this->eventRepository->getEventsWithParticipants($cp_filter);
-                $cp_filter['eventId'] = $events[0]->event_id;
-            }
-            
-            
-            $conversion_lead_of_event = $this->clientEventRepository->getConversionLead($cp_filter);
+        # on sales target tab
+        $programId = null; # means all programs
+        $salesTarget = $this->salesTargetRepository->getMonthlySalesTarget($programId, $cp_filter);
+        $salesActual = $this->salesTargetRepository->getMonthlySalesActual($programId, $cp_filter);
+
+        $salesDetail = $this->salesTargetRepository->getSalesDetail($programId, $cp_filter);
+
+        # on program comparison tab
+        $allPrograms = $this->programRepository->getAllPrograms()->groupBy('main_prog.prog_name');
+        $cp_filter['queryParams_year1'] = date('Y') - 1;
+        $cp_filter['queryParams_year2'] = (int) date('Y');
+
+        $comparisons = $this->clientProgramRepository->getComparisonBetweenYears($cp_filter);
+
+        # on client event tab
+        $cp_filter['qyear'] = 'current';
+        $events = [];
+        if ($this->eventRepository->getEventsWithParticipants($cp_filter)->count() > 0) {
+            $events = $this->eventRepository->getEventsWithParticipants($cp_filter);
+            $cp_filter['eventId'] = $events[0]->event_id;
+        }
+
+
+        $conversion_lead_of_event = $this->clientEventRepository->getConversionLead($cp_filter);
 
         return view('pages.dashboard.index')->with(
             [
@@ -253,6 +253,16 @@ class DashboardController extends Controller
 
         $programComparisons = $this->mappingProgramComparison($programComparisonMerge);
 
+        # on client event tab
+        $cp_filter['qyear'] = 'current';
+        $events = [];
+        if ($this->eventRepository->getEventsWithParticipants($cp_filter)->count() > 0) {
+            $events = $this->eventRepository->getEventsWithParticipants($cp_filter);
+            $cp_filter['eventId'] = $events[0]->event_id;
+        }
+
+        $conversion_lead_of_event = $this->clientEventRepository->getConversionLead($cp_filter);
+
         return view('pages.dashboard.index')->with(
             [
                 'totalPartner' => $totalPartner,
@@ -265,7 +275,10 @@ class DashboardController extends Controller
                 'speakers' => $speakers,
                 'speakerToday' => $speakerToday,
                 'partnerPrograms' => $partnerPrograms,
-                'programComparisons' => $programComparisons
+                'programComparisons' => $programComparisons,
+                # client event tab
+                'events' => $events,
+                'conversion_lead_of_event' => $conversion_lead_of_event
             ]
         );
     }
@@ -332,14 +345,6 @@ class DashboardController extends Controller
             }
         );
 
-        // return $revenue->groupBy('month')->map(function ($row) {
-        //     return $row->sum('total');
-        // });
-        // exit;
-
-        // return $unpaidPayments->sum('total');
-        // return $paidPayments;
-        // exit;
         return view('pages.dashboard.index')->with(
             [
                 'totalInvoiceNeeded' => $totalInvoiceNeeded,
