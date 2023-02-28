@@ -32,6 +32,8 @@ class Receipt extends Model
         'refund_tax_percentage',
         'refund_tax_amount',
         'total_refunded',
+        'download_idr',
+        'download_other',
     ];
 
     public function getCurrencyUnit()

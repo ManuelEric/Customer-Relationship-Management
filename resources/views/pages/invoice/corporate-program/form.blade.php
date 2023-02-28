@@ -4,14 +4,14 @@
 
 @section('content')
 
-    @php
+    {{-- @php
         $requestSignIdr = '<a class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
                                 <i class="bi bi-pen me-1"></i> Request Sign IDR
                             </a>';
         $requestSignOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
                                 <i class="bi bi-pen me-1"></i> Request Sign Other
                             </button>';
-    @endphp
+    @endphp --}}
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/corporate-program/status/needed') }}" class="text-decoration-none text-muted">
@@ -54,59 +54,79 @@
                         <small>General</small>
                     </div>
 
-                    {{-- IDR  --}}
-                    <div class="border p-1 text-center flex-fill">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Request Sign" id="request-acc">
-                                <a href="" class="text-info">
-                                    <i class="bi bi-pen-fill"></i>
-                                </a>
+                    @if (!isset($invoicePartner->refund))
+                        {{-- IDR  --}}
+                        <div class="border p-1 text-center flex-fill">
+                            <div class="d-flex gap-1 justify-content-center">
+                                @php
+                                    $invoiceHasRequested = $invoicePartner->invoiceAttachment()->where('currency', 'idr')->first();
+                                    $invoiceAttachment = $invoicePartner->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
+                                    $invoiceAttachmentSent = $invoicePartner->invoiceAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
+                                @endphp
+                                @if (!$invoiceAttachment)
+                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Request Sign">
+                                        <a href="#" class="text-info" id="request-acc">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </a>
+                                    </div>
+                                @else
+                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Print Invoice">
+                                        <a href="{{ route('invoice-corp.export', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'idr']) }}" target="blank"
+                                            class="text-info">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
+                                    </div>
+                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Send to Client">
+                                        <a href="#" class="text-info" id="send-inv-client-idr">
+                                            <i class="bi bi-send"></i>
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Print Invoice">
-                                <a href="#"
-                                    class="text-info">
-                                    <i class="bi bi-printer"></i>
-                                </a>
-                            </div>
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Send to Client" id="send-inv-client-idr">
-                                <a href="#" class="text-info">
-                                    <i class="bi bi-send"></i>
-                                </a>
-                            </div>
+                            <hr class="my-1">
+                            <small class="text-center">IDR</small>
                         </div>
-                        <hr class="my-1">
-                        <small class="text-center">IDR</small>
-                    </div>
 
-                    {{-- Other  --}}
-                    <div class="border p-1 text-center flex-fill">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Request Sign" id="request-acc-other">
-                                <a href="" class="text-info">
-                                    <i class="bi bi-pen-fill"></i>
-                                </a>
+                        {{-- Other  --}}
+                        @if($invoicePartner->currency != 'idr')
+                            <div class="border p-1 text-center flex-fill">
+                                <div class="d-flex gap-1 justify-content-center">
+                                    @php
+                                        $invoiceHasRequestedOther = $invoicePartner->invoiceAttachment()->where('currency', 'other')->first();
+                                        $invoiceAttachmentOther = $invoicePartner->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
+                                        $invoiceAttachmentOtherSent = $invoicePartner->invoiceAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
+                                    @endphp
+                                    @if (!$invoiceSchAttachmentOther)
+                                        <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                            data-bs-title="Request Sign">
+                                            <a href="#" class="text-info" id="request-acc-other">
+                                                <i class="bi bi-pen-fill"></i>
+                                            </a>
+                                        </div>
+                                    @else
+                                        <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                            data-bs-title="Print Invoice">
+                                            <a href="{{ route('invoice-corp.export', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'other']) }}" target="blank"
+                                                class="text-info">
+                                                <i class="bi bi-printer"></i>
+                                            </a>
+                                        </div>
+                                        <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                            data-bs-title="Send to Client">
+                                            <a href="#" class="text-info" id="send-inv-client-other">
+                                                <i class="bi bi-send"></i>
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+                                <hr class="my-1">
+                                <small class="text-center">Other Currency</small>
                             </div>
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Print Invoice">
-                                <a href="#"
-                                    class="text-info">
-                                    <i class="bi bi-printer"></i>
-                                </a>
-                            </div>
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Send to Client">
-                                <a href="#" class="text-info">
-                                    <i class="bi bi-send"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <hr class="my-1">
-                        <small class="text-center">Other Currency</small>
-                    </div>
+                        @endif
+                    @endif
                 </div>
             @endif
 
@@ -122,17 +142,17 @@
                     <div class="text-center">
                         <h6>IDR</h6>
                         <section class="step-indicator">
-                            <div class="step step1 active">
+                            <div class="step step1 {{$invoiceHasRequested ? 'active' : ''}}">
                                 <div class="step-icon">1</div>
                                 <p>Request Sign</p>
                             </div>
-                            <div class="indicator-line active"></div>
-                            <div class="step step2">
+                            <div class="indicator-line {{$invoiceHasRequested ? 'active' : ''}}"></div>
+                            <div class="step step2 {{$invoiceAttachment ? 'active' : ''}}">
                                 <div class="step-icon">2</div>
                                 <p>Signed</p>
                             </div>
-                            <div class="indicator-line"></div>
-                            <div class="step step3">
+                            <div class="indicator-line {{$invoiceAttachment ? 'active' : ''}}"></div>
+                            <div class="step step3 {{$invoiceAttachmentSent ? 'active' : ''}}">
                                 <div class="step-icon">3</div>
                                 <p>Print or Send to Client</p>
                             </div>
@@ -140,27 +160,29 @@
                     </div>
 
                     {{-- Other  --}}
-                    <div class="text-center mt-5">
-                        <hr>
-                        <h6>Other Currency</h6>
-                        <section class="step-indicator">
-                            <div class="step step1 active">
-                                <div class="step-icon">1</div>
-                                <p>Request Sign</p>
-                            </div>
-                            <div class="indicator-line active"></div>
-                            <div class="step step2">
-                                <div class="step-icon">2</div>
-                                <p>Signed</p>
-                            </div>
-                            <div class="indicator-line"></div>
-                            <div class="step step3">
-                                <div class="step-icon">3</div>
-                                <p>Print or Send to Client</p>
-                            </div>
-                        </section>
-                    </div>
-                    @if (isset($invoicePartner) && $invoicePartner->partner_prog->status == 1)
+                    @if($invoicePartner->currency != 'idr')
+                        <div class="text-center mt-5">
+                            <hr>
+                            <h6>Other Currency</h6>
+                            <section class="step-indicator">
+                                <div class="step step1 {{$invoiceHasRequestedOther ? 'active' : ''}}">
+                                    <div class="step-icon">1</div>
+                                    <p>Request Sign</p>
+                                </div>
+                                <div class="indicator-line {{$invoiceHasRequestedOther ? 'active' : ''}}"></div>
+                                <div class="step step2 {{$invoiceAttachmentOther ? 'active' : ''}}">
+                                    <div class="step-icon">2</div>
+                                    <p>Signed</p>
+                                </div>
+                                <div class="indicator-line {{$invoiceAttachmentOther ? 'active' : ''}}"></div>
+                                <div class="step step3 {{$invoiceAttachmentOtherSent ? 'active' : ''}}">
+                                    <div class="step-icon">3</div>
+                                    <p>Print or Send to Client</p>
+                                </div>
+                            </section>
+                        </div>
+                    @endif
+                    {{-- @if (isset($invoicePartner) && $invoicePartner->partner_prog->status == 1)
                         <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
                             @php
                                 $invoicePartnerAttachment = $invoicePartner->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
@@ -195,7 +217,7 @@
                                 </button>
                             @endif
                         </div>
-                    @endif
+                    @endif --}}
                 </div>
             </div>
 
@@ -683,6 +705,7 @@
                     .then(response => {
                         swal.close()
                         notification('success', 'Invoice has been send to client')
+                        setTimeout(location.reload.bind(location), 3000);
                     })
                     .catch(error => {
                         notification('error', 'Something went wrong when sending invoice to client. Please try again');
@@ -698,6 +721,7 @@
                     .then(response => {
                         swal.close()
                         notification('success', 'Invoice has been send to client')
+                        setTimeout(location.reload.bind(location), 3000);
                     })
                     .catch(error => {
                         notification('error', 'Something went wrong when sending invoice to client. Please try again');
@@ -718,6 +742,7 @@
                     .then(response => {
                         swal.close()
                         notification('success', 'Sign has been requested')
+                        setTimeout(location.reload.bind(location), 3000);
                     })
                     .catch(error => {
                         notification('error', 'Something went wrong while send email')
@@ -738,6 +763,7 @@
                     .then(response => {
                         swal.close()
                         notification('success', 'Sign has been requested')
+                        setTimeout(location.reload.bind(location), 3000);
                     })
                         .catch(error => {
                         notification('error', 'Something went wrong while send email')

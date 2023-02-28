@@ -88,6 +88,7 @@ class ReferralRepository implements ReferralRepositoryInterface
     public function getReferralComparison($startYear, $endYear)
     {
         return Referral::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_referral.prog_id')
+            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
             ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->select(
                 'tbl_referral.prog_id',
@@ -97,8 +98,8 @@ class ReferralRepository implements ReferralRepositoryInterface
                         WHEN "In" 
                             THEN 
                                 (CASE
-                                WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                                    ELSE tbl_prog.prog_program
+                                WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_prog.prog_program, " from ", tbl_main_prog.prog_name, tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                                    ELSE CONCAT(tbl_prog.prog_program, " from ", tbl_main_prog.prog_name)
                                 END) 
                     END AS program_name'
                 ),

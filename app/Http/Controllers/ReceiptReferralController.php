@@ -189,6 +189,10 @@ class ReceiptReferralController extends Controller
         ];
 
         $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf', ['receiptRef' => $receiptRef, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+
+        # Update status download
+        $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
+
         return $pdf->download($receiptRef->receipt_id . ".pdf");
     }
 
@@ -238,6 +242,8 @@ class ReceiptReferralController extends Controller
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
         $receipt_id = $receipt->receipt_id;
 
+        $receiptAtt = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
+
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
@@ -254,6 +260,9 @@ class ReceiptReferralController extends Controller
         ];
 
         try {
+
+            # Update status request
+            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested']);
 
             Mail::send('pages.receipt.referral.mail.view', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['recipient'])

@@ -18,6 +18,7 @@ use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\Invb2b;
 use App\Models\Receipt;
+use App\Repositories\ReceiptRepository;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -205,6 +206,10 @@ class ReceiptSchoolController extends Controller
         ];
 
         $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receiptSch, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+
+        # Update status download
+        $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
+
         return $pdf->download($receiptSch->receipt_id . ".pdf");
     }
 
@@ -254,6 +259,8 @@ class ReceiptSchoolController extends Controller
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
         $receipt_id = $receipt->receipt_id;
 
+        $receiptAtt = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
+
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
@@ -270,6 +277,9 @@ class ReceiptSchoolController extends Controller
         ];
 
         try {
+
+            # Update status request
+            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested']);
 
             Mail::send('pages.receipt.school-program.mail.view', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['recipient'])
