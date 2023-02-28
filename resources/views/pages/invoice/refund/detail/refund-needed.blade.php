@@ -144,18 +144,43 @@
                 },
                 {
                     data: 'refund_date',
+                    render: function(data, type, row) {    
+                        return moment(data).format('DD MMMM YYYY')
+                    }
                 },
                 {
                     data: 'total_price',
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
+                        return new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR"
+                        }).format(data);
+
+                    }
                 },
                 {
                     data: 'total_paid',
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
+                        return new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR"
+                        }).format(data);
+
+                    }
                 },
                 {
                     data: 'refund_reason',
+                    orderable: false,
+                    searchable: false
                 },
                 {
                     data: 'refund_notes',
+                    orderable: false,
+                    searchable: false
                 },
                 {
                     data: 'pic_name',
@@ -164,13 +189,24 @@
                     data: 'id',
                     className: 'text-center',
                     render: function(data, type, row) {
-                        @if (Request::get('s') == "list")
-                        return '<a href="{{ url('receipt/client-program/') }}/' + data +
-                            '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
-                        @else
-                        return '<a href="{{ url('invoice/client-program/') }}/' + row.clientprog_id +
-                            '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
-                        @endif
+                        switch (row.receipt_cat) {
+
+                            case "student":
+                                return '<a href="{{ url('invoice/client-program/') }}/' + row.b2prog_id +
+                                    '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
+                            break;
+
+                            case "school":
+                                return '<a href="{{ url('invoice/school-program/') }}/' + row.b2prog_id + '/detail/' + row.invoiceNum + 
+                                    '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
+                            break;
+
+                            case "partner":
+                                return '<a href="{{ url('invoice/corporate-program/') }}/' + row.b2prog_id + '/detail/' + row.invoiceNum + 
+                                    '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
+                            break;
+
+                        }
                     }
                 }
             ]
