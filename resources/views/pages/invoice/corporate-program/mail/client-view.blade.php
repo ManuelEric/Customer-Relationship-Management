@@ -6,7 +6,7 @@
 @section('content')
     <p style="margin:0;">Dear {{ ucwords($param['fullname']) }},</p>
     <p>
-        Please find attached the invoice of {{ $param['program_name'] }} for your further action.
+        Please find attached the invoice of <u>{{ $param['program_name'] }}</u> for your further action.
     </p>
     <p>
         Thank you <br>

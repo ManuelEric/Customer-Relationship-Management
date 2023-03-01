@@ -6,7 +6,7 @@
 @section('content')
     <p style="margin:0;">Dear {{ ucwords($param['fullname']) }},</p>
     <p>
-        Please find attached the payment receipt {{ $param['program_name'] }} for your reference.
+        Please find attached the payment receipt of <u>{{ $param['program_name'] }}</u> for your reference.
     </p>
     <p>
         Thank you <br>

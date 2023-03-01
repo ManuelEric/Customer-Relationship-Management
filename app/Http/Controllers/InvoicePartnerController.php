@@ -543,7 +543,7 @@ class InvoicePartnerController extends Controller
             $program_name = $invoicePartner->partner_prog->program->prog_sub . ' - ' . $invoicePartner->partner_prog->program->prog_program;
         }
 
-        $param_program_name = isset($invoicePartner->partner_prog->program->sub_prog) ? $invoicePartner->partner_prog->program->main_prog->prog_name.' - '.$invoicePartner->partner_prog->program->sub_prog->sub_prog_name : $invoicePartner->partner_prog->program->main_prog->prog_name;
+        // $param_program_name = isset($invoicePartner->partner_prog->program->sub_prog) ? $invoicePartner->partner_prog->program->main_prog->prog_name.' - '.$invoicePartner->partner_prog->program->sub_prog->sub_prog_name : $invoicePartner->partner_prog->program->main_prog->prog_name;
 
         $data['email'] = $invoicePartner->partner_prog->user->email; # email to pic of the partner program
         $data['cc'] = [env('CEO_CC'), env('FINANCE_CC')];
@@ -553,7 +553,7 @@ class InvoicePartnerController extends Controller
             'invb2b_num' => $invNum,
             'currency' => $currency,
             'fullname' => $invoicePartner->partner_prog->corp->corp_name,
-            'program_name' => $param_program_name, # main prog name - sub prog name
+            'program_name' => $program_name, # main prog name - sub prog name
         ];
 
         try {

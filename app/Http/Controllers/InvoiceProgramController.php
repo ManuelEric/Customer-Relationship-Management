@@ -583,7 +583,7 @@ class InvoiceProgramController extends Controller
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $clientProg->program_name;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,
-            'program_name' => $clientProg->program->main_prog->prog_name.' - '.$clientProg->program->sub_prog->sub_prog_name
+            'program_name' => $clientProg->program->program_name
         ];
 
         try {
