@@ -1,0 +1,101 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+
+class SubMenuSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        $main_menus = DB::table('tbl_main_menus')->orderBy('order_no', 'asc')->get();
+        foreach ($main_menus as $main_menu)
+        {
+            $no = 0;
+            $sub_menu = $this->getSubMenu($main_menu->mainmenu_name);
+
+            foreach ($sub_menu['submenus'] as $key => $value)
+            {
+                $seeds[] = [
+                    'mainmenu_id' => $main_menu->id,
+                    'submenu_name' => $value,
+                    'submenu_link' => $sub_menu['sublink'][$key],
+                    'order_no' => $no++,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ];
+            }
+        }
+    }
+
+    private function getSubMenu(string $type)
+    {
+        switch ($type) {
+
+            case "Master":
+                return [
+                    'submenus' => ['Assets', 'Curriculum', 'Position', 'Lead Source', 'Major', 'Program', 'Event', 'External Edufair', 'Purchase Request', 'Vendors', 'University Tag Score', 'Sales Target'],
+                    'sublink' => ['asest', 'curriculum', 'position', 'lead', 'major', 'program', 'event', 'edufair', 'purchase', 'vendor', 'university-tags', 'sales-target'],
+                ];
+                break;
+
+            case "Client":
+                return [
+                    'submenus' => ['Students', 'Mentees', 'Parents', 'Teacher/Counselor'],
+                    'sublink' => ['client/student?st=potential', 'client/mentee?st=active', 'client/parent', 'client/teacher-counselor'],
+                ];
+                break;
+
+            case "Instance":
+                return [
+                    'submenus' => ['Partner', 'School', 'Universities'],
+                    'sublink' => ['instance/corporate', 'instance/school', 'instance/university'],
+                ];
+                break;
+
+            case "Program":
+                return [
+                    'submenus' => ['Referral', 'Client Event', 'Client Program', 'Partner Program', 'School Program'],
+                    'sublink' => ['program/referral', 'program/event', 'program/client', 'program/corporate', 'program/school'],
+                ];
+                break;
+
+            case "Invoice":
+                return [
+                    'submenus' => ['Client Program', 'Partner Program', 'School Program', 'Referral', 'Refund'],
+                    'sublink' => ['invoice/client-program?s=needed', 'invoice/corporate-program/status/needed', 'invoice/school-program/status/needed', 'invoice/referral/status/needed', 'invoice/refund/status/needed'],
+                ];
+                break;
+
+            case "Receipt":
+                return [
+                    'submenus' => ['Client Program', 'Partner Program', 'School Program', 'Referral Program'],
+                    'sublink' => ['receipt/client-program', 'receipt/corporate-program', 'receipt/school-program', 'receipt/referral'],
+                ];
+                break;
+
+            case "Users":
+                return [
+                    'submenus' => ['Employee', 'Volunteer'],
+                    'sublink' => ['user/employee', 'user/volunteer'],
+                ];
+                break;
+
+            case "Report":
+                return [
+                    'submenus' => ['Sales Tracking', 'Event Tracking', 'Partnership', 'Invoice & Receipt', 'Unpaid Payment'],
+                    'sublink' => ['report/sales', 'report/event', 'report/partnership', 'report/invoice', 'report/unpaid'],
+                ];
+                break;
+
+        }
+    }
+}
