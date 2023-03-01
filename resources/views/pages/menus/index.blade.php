@@ -22,7 +22,7 @@
             <div id="user_card" class="card shadow mb-3 d-none">
                 <div class="card-header">Users</div>
                 <div class="card-body overflow-auto" style="max-height: 300px">
-                    <input type="text" name="" id="user_id">
+                    <input type="hidden" name="" id="user_id">
                     <ul class="list-group list-group-flush">
                         @for ($i = 0; $i < 20; $i++)
                             <li class="list-group-item d-flex justify-content-between cursor-pointer"
