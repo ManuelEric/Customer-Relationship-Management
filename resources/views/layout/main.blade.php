@@ -393,6 +393,14 @@
                             </ul>
                         </div>
                     </li>
+                    <li class="nav-item nav-category">Settings</li>
+                    <li class="nav-item">
+                        <a href="{{url('menus')}}" class="nav-link">
+                            <i class="bi bi-list mx-2"></i>
+                            <span class="menu-title">Menus</span>
+                            <i class="menu-arrow bi bi-arrow-right"></i>
+                        </a>
+                    </li>
                 </ul>
             </nav>
             <!-- partial -->

@@ -413,12 +413,16 @@ class InvoicePartnerController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = 'test@gmail.com';
-        $data['recipient'] = 'test name';
+        $data['email'] = env('DIRECTOR_EMAIL');
+        $data['recipient'] = env('DIRECTOR_NAME');
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
             'invb2b_num' => $invoice_num,
             'currency' => $currency,
+            'fullname' => $invoicePartner->partner_prog->corp->corp_name,
+            'program_name' => $invoicePartner->partner_prog->program->program_name,
+            'invoice_date' => date('d F Y', strtotime($invoicePartner->invb2b_date)),
+            'invoice_duedate' => date('d F Y', strtotime($invoicePartner->invb2b_duedate))
         ];
 
         try {
@@ -539,13 +543,17 @@ class InvoicePartnerController extends Controller
             $program_name = $invoicePartner->partner_prog->program->prog_sub . ' - ' . $invoicePartner->partner_prog->program->prog_program;
         }
 
-        $data['email'] = $invoicePartner->partner_prog->user->email;
-        $data['cc'] = ['test1@example.com', 'test2@example.com'];
-        $data['recipient'] = 'Test Name';
+        $param_program_name = isset($invoicePartner->partner_prog->program->sub_prog) ? $invoicePartner->partner_prog->program->main_prog->prog_name.' - '.$invoicePartner->partner_prog->program->sub_prog->sub_prog_name : $invoicePartner->partner_prog->program->main_prog->prog_name;
+
+        $data['email'] = $invoicePartner->partner_prog->user->email; # email to pic of the partner program
+        $data['cc'] = [env('CEO_CC'), env('FINANCE_CC')];
+        $data['recipient'] = $invoicePartner->partner_prog->user->full_name; # name of the pic of the partner program
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
         $data['param'] = [
             'invb2b_num' => $invNum,
             'currency' => $currency,
+            'fullname' => $invoicePartner->partner_prog->corp->corp_name,
+            'program_name' => $param_program_name, # main prog name - sub prog name
         ];
 
         try {

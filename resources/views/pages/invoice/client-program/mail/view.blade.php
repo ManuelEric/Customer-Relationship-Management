@@ -1,19 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ $title }}</title>
-</head>
-<body>
-    Please sign the document that has been attached to this email<br>
-    <br>
-    Click <a href="{{ route('invoice.program.preview', 
-        [
-            'client_program' => $param['clientprog_id'],
-            'currency' => $param['currency']
-        ]) }}">here</a>
-    {{-- Click <a href="{{ route('invoice.program.create_signed_document', ['client_program' => $param['clientprog_id']]) }}?token={{ csrf_token() }}">here</a> to upload the signed document --}}
-</body>
-</html>
+@extends('layout.email')
+@section('header', 'Request Sign - Invoice')
+@section('content')
+    <p style="margin:0;">Dear Nicholas,</p>
+    <p>
+        Please sign the invoice with details below:
+    </p>
+    <table border="0" style="margin:0;">
+        <tr>
+            <td>Full Name</td>
+            <td>:</td>
+            <td>{Full Name}</td>
+        </tr>
+        <tr>
+            <td>Program Name</td>
+            <td>:</td>
+            <td>{Main Program - Prog Program}</td>
+        </tr>
+        <tr>
+            <td>Invoice Date</td>
+            <td>:</td>
+            <td>{Invoice Date}</td>
+        </tr>
+        <tr>
+            <td>Invoice Due Date</td>
+            <td>:</td>
+            <td>{Invoice Due Date}</td>
+        </tr>
+    </table>
+    <p>
+
+    </p>
+
+    <p style="text-align: center;margin: 2.5em auto;">
+        <a class="button"
+            href="{{ route('invoice.program.preview', [
+                'client_program' => $param['clientprog_id'],
+                'currency' => $param['currency'],
+            ]) }}"
+            style="background: #3b6cde; 
+             text-decoration: none; 
+             padding: .5em 1.5em;
+             color: #ffffff; 
+             border-radius: 48px;
+             mso-padding-alt:0;
+             text-underline-color:#156ab3">
+            <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:20pt">&nbsp;</i><![endif]-->
+            <span style="mso-text-raise:10pt;font-weight:bold;">Sign Now</span>
+            <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
+        </a>
+    </p>
+    <p>
+        Thank you <br>
+        Regards
+    </p>
+@endsection
