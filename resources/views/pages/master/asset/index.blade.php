@@ -134,7 +134,7 @@
 
             $('#assetTable tbody').on('click', '.deleteAsset ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('asset', data.asset_id)
+                confirmDelete('master/asset', data.asset_id)
             });
         });
     </script>

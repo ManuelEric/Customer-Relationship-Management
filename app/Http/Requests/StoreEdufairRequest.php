@@ -67,7 +67,7 @@ class StoreEdufairRequest extends FormRequest
                 }
             ],
             'ext_pic_name' => 'required',
-            'ext_pic_mail' => 'nullable|email',
+            'ext_pic_mail' => 'required|email',
             'ext_pic_phone' => 'required',
             'first_discussion_date' => 'nullable|date',
             'last_discussion_date' => 'nullable|date',

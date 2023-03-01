@@ -93,7 +93,7 @@ Route::prefix('corporate-program')->name('receipt.corporate.')->group(function (
     Route::get('{receipt}/sign/{currency}', [ReceiptPartnerController::class, 'signAttachment'])->name('sign_document');
     Route::get('{receipt}/print/{currency}', [ReceiptPartnerController::class, 'print'])->name('print');
     Route::get('{receipt}/send/{currency}', [ReceiptPartnerController::class, 'sendToClient'])->name('send_to_client');
-    Route::get('{receipt}/refund', [RefundPartnerController::class, 'refund'])->name('refund');
+    // Route::get('{receipt}/refund', [RefundPartnerController::class, 'refund'])->name('refund');
 });
 
 Route::prefix('referral')->name('receipt.referral.')->group(function () {

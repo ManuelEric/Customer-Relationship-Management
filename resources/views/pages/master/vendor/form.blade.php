@@ -21,7 +21,7 @@
         <div class="col-md-8">
             <div class="card rounded">
                 <div class="card-body">
-                    <form action="{{ url(isset($vendor) ? 'master/vendor/' . $vendor->vendor_id : '/vendor') }}"
+                    <form action="{{ url(isset($vendor) ? 'master/vendor/' . $vendor->vendor_id : 'master/vendor') }}"
                         method="POST">
                         @csrf
                         @if (isset($vendor))

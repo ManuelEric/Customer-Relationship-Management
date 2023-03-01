@@ -288,7 +288,7 @@
                         </h4>
                     </div>
                     <div class="modal-body">
-                        @if ($errors->any())
+                        {{-- @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul class="pb-0 mb-0">
                                     @foreach ($errors->all() as $error)
@@ -296,7 +296,7 @@
                                     @endforeach
                                 </ul>
                             </div>
-                        @endif
+                        @endif --}}
                         <form action="{{ url('master/asset') . '/' . $asset->asset_id . '/used' }}" method="POST">
                             @csrf
                             {{-- <input type="text" name="user" value="{{ isset($user) ? $user->id : null }}">
@@ -315,7 +315,9 @@
                                                 {{ $employee->first_name . ' ' . $employee->last_name }}</option>
                                         @endforeach
                                     </select>
-
+                                    @error('user')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-md-4 mb-2">
                                     <label for="">
@@ -325,12 +327,18 @@
                                         value="{{ $asset->asset_amount - $asset->asset_running_stock }}">
                                     <input type="number" name="amount_used" class="form-control form-control-sm rounded"
                                         value="0" min=0>
+                                    @error('amount_used')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label for="">
                                         Start Using
                                     </label>
                                     <input type="date" name="used_date" class="form-control form-control-sm rounded">
+                                    @error('used_date')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label for="">
@@ -341,6 +349,9 @@
                                         <option value="Good">Good</option>
                                         <option value="Not Good">Not Good</option>
                                     </select>
+                                    @error('condition')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-12 d-flex justify-content-between mt-3">
                                     <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
@@ -368,7 +379,7 @@
                         </h4>
                     </div>
                     <div class="modal-body">
-                        @if ($errors->any())
+                        {{-- @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul class="pb-0 mb-0">
                                     @foreach ($errors->all() as $error)
@@ -376,7 +387,7 @@
                                     @endforeach
                                 </ul>
                             </div>
-                        @endif
+                        @endif --}}
                         <form action="#" method="POST" id="formReturn">
                             @csrf
                             <input type="hidden" name="user" id="userId">
@@ -391,6 +402,9 @@
                                     <input type="hidden" name="old_amount_used" id="oldAmountUsed">
                                     <input type="number" name="amount_returned"
                                         class="form-control form-control-sm rounded" id="amountReturned" min=0>
+                                    @error('amount_returned')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-md-5 mb-2">
                                     <label for="">
@@ -399,6 +413,9 @@
                                     <input type="hidden" name="old_used_date" id="oldUsedDate">
                                     <input type="date" name="returned_date"
                                         class="form-control form-control-sm rounded" id="returnedDate" value="">
+                                    @error('returned_date')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-md-5 mb-2">
                                     <label for="">
@@ -409,6 +426,9 @@
                                         <option value="Good">Good</option>
                                         <option value="Not Good">Not Good</option>
                                     </select>
+                                    @error('condition')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-12 d-flex justify-content-between mt-3">
                                     <button type="button" class="btn btn-sm btn-outline-danger rounded-3"
@@ -469,4 +489,30 @@
                 })
         }
     </script>
+
+    @if (
+        $errors->has('user') |
+            $errors->has('amount_used') |
+            $errors->has('used_date') |
+            $errors->has('condition'))
+        <script>
+            $(document).ready(function() {
+                $('#picForm').modal('show');
+
+            })
+        </script>
+    @endif
+
+    @if (
+        $errors->has('amount_returned') |
+            $errors->has('returned_date') |
+            $errors->has('condition'))
+        <script>
+            $(document).ready(function() {
+                $('#returnForm').modal('show');
+
+            })
+        </script>
+    @endif
+
 @endsection
