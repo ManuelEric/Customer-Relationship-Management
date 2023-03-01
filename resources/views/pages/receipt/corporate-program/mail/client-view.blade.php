@@ -2,11 +2,11 @@
 {{-- cc to kak dev + emil  --}}
 
 @extends('layout.email')
-@section('header', 'Invoice')
+@section('header', 'Receipt')
 @section('content')
     <p style="margin:0;">Dear {Full Name},</p>
     <p>
-        Please find attached the invoice of {Program Main - Sub Program} for your further action.
+        Please find attached the payment receipt {Program Main - Sub Program} for your reference.
     </p>
     <p>
         Thank you <br>

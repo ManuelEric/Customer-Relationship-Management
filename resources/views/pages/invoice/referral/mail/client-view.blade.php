@@ -1,12 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-    Here you can find the invoice
-</body>
-</html>
+{{-- send to internal PIC  --}}
+{{-- cc to kak dev + emil  --}}
+
+@extends('layout.email')
+@section('header', 'Invoice')
+@section('content')
+    <p style="margin:0;">Dear {Full Name},</p>
+    <p>
+        Please find attached the invoice of {Program Main - Sub Program} for your further action.
+    </p>
+    <p>
+        Thank you <br>
+        Regards
+    </p>
+@endsection

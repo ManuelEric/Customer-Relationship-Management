@@ -1,34 +1,30 @@
 @extends('layout.email')
-@section('header', 'Request Sign - Receipt')
+@section('header', 'Request Sign - Invoice')
 @section('content')
     <p style="margin:0;">Dear Nicholas,</p>
     <p>
-        Please sign the receipt with details below:
+        Please sign the invoice with details below:
     </p>
     <table border="0" style="margin:0;">
         <tr>
-            <td>Full Name</td>
-            <td>:</td>
-            <td>{Full Name}</td>
+            <td>Full Name</td><td>:</td><td>{Full Name}</td>
         </tr>
         <tr>
-            <td>Program Name</td>
-            <td>:</td>
-            <td>{Main Program - Prog Program}</td>
+            <td>Program Name</td><td>:</td><td>{Main Program - Prog Program}</td>
         </tr>
         <tr>
-            <td>Receipt Date</td>
-            <td>:</td>
-            <td>{Receipt Date}</td>
+            <td>Invoice Date</td><td>:</td><td>{Invoice Date}</td>
+        </tr>
+        <tr>
+            <td>Invoice Due Date</td><td>:</td><td>{Invoice Due Date}</td>
         </tr>
     </table>
     <p>
-
+        
     </p>
-
+    
     <p style="text-align: center;margin: 2.5em auto;">
-        <a class="button"
-            href="{{ route('receipt.referral.sign_document', ['receipt' => $param['receipt_identifier'], 'currency' => $param['currency']]) }}?token={{ csrf_token() }}"
+        <a class="button" href="#"
             style="background: #3b6cde; 
              text-decoration: none; 
              padding: .5em 1.5em;
