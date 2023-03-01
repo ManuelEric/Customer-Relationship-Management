@@ -486,7 +486,11 @@ class InvoiceProgramController extends Controller
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,
-            'currency' => $type
+            'currency' => $type,
+            'fullname' => $clientProg->client->full_name,
+            'program_name' => $clientProg->program->program_name,
+            'invoice_date' => date('d F Y', strtotime($clientProg->invoice->created_at)),
+            'invoice_duedate' => date('d F Y', strtotime($clientProg->invoice->inv_duedate))
         ];
 
             # validate 
@@ -578,7 +582,8 @@ class InvoiceProgramController extends Controller
         $data['recipient'] = $clientProg->client->parents[0]->full_name;
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $clientProg->program_name;
         $data['param'] = [
-            'clientprog_id' => $clientprog_id
+            'clientprog_id' => $clientprog_id,
+            'program_name' => $clientProg->program->main_prog->prog_name.' - '.$clientProg->program->sub_prog->sub_prog_name
         ];
 
         try {
@@ -628,6 +633,16 @@ class InvoiceProgramController extends Controller
             $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $newDetails);
             if (!$pdfFile->storeAs('public/uploaded_file/invoice/client/', $file_name))
                 throw new Exception('Failed to store signed invoice file');
+
+            $data['title'] = 'Invoice No. '.$inv_id.' has been signed';
+            $data['inv_id'] = $inv_id;
+
+            # send mail when document has been signed
+            Mail::send('pages.invoice.client-program.mail.signed', $data, function ($message) use ($data, $file_name) {
+                $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                    ->subject($data['title'])
+                    ->attach(storage_path('app/public/uploaded_file/invoice/client/' . $file_name));
+            });
 
             DB::commit();
 

@@ -253,7 +253,10 @@ class ReceiptController extends Controller
         $data['title'] = "Request Sign of Receipt Number : " . $receipt->receipt_id;
         $data['param'] = [
             'receipt' => $receipt,
-            'currency' => $type
+            'currency' => $type,
+            'fullname' => $receipt->invoiceProgram->clientprog->client->full_name,
+            'program_name' => $receipt->invoiceProgram->clientprog->program->program_name,
+            'receipt_date' => date('d F Y', strtotime($receipt->created_at))
         ];
         try {
 
@@ -339,6 +342,16 @@ class ReceiptController extends Controller
             $this->receiptAttachmentRepository->updateReceiptAttachment($attachment->id, $newDetails);
             if (!$pdfFile->storeAs('public/uploaded_file/receipt/client/', $name))
                 throw new Exception('Failed to store signed receipt file');
+
+            $data['title'] = 'Receipt No. '.$receipt->receipt_id.' has been signed';
+            $data['receipt_id'] = $receipt->receipt_id;;
+
+            # send mail when document has been signed
+            Mail::send('pages.invoice.client-program.mail.signed', $data, function ($message) use ($data, $name) {
+                $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                    ->subject($data['title'])
+                    ->attach(storage_path('app/public/uploaded_file/receipt/client/' . $name));
+            });
 
             DB::commit();
 
