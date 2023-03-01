@@ -183,15 +183,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(SchoolVisit::class, 'internal_pic', 'id');
     }
-
-    public function login_log()
-    {
-        return $this->hasManyThrough(
-            UserTypeDetail::class,
-            LoginLog::class,
-            'department_id',
-            'user_type_id',
-            'user_id'
-        );
-    }
 }

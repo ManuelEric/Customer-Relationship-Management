@@ -13,6 +13,7 @@ use App\Interfaces\UserTypeRepositoryInterface;
 use App\Models\pivot\UserRole;
 use App\Models\pivot\UserTypeDetail;
 use App\Models\User;
+use App\Models\UserType;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -41,12 +42,14 @@ class UserController extends Controller
         $this->positionRepository = $positionRepository;
         $this->userTypeRepository = $userTypeRepository;
     }
-    
+
     public function index(Request $request)
     {
+        // $user = UserTypeDetail::where('user_id', 495)->first();
+        // return $user->login_log;
         $role = $request->route('user_role');
         if ($request->ajax())
-            return $this->userRepository->getAllUsersByRoleDataTables($role); 
+            return $this->userRepository->getAllUsersByRoleDataTables($role);
 
         return view('pages.user.employee.index');
     }
@@ -96,8 +99,7 @@ class UserController extends Controller
             $newUserId = $newUser->id;
 
             # store new user education to tbl_user_education
-            for ($i = 0; $i < count($request->graduated_from) ; $i++)
-            {
+            for ($i = 0; $i < count($request->graduated_from); $i++) {
                 $newUser->educations()->attach($request->graduated_from[$i], [
                     'major_id' => $request->major[$i],
                     'degree' => $request->degree[$i],
@@ -106,8 +108,7 @@ class UserController extends Controller
             }
 
             # store new user role to tbl_user_roles
-            for ($i = 0 ; $i < count($request->role) ; $i++)
-            {
+            for ($i = 0; $i < count($request->role); $i++) {
                 $ext_id_with_label = null;
                 if ($request->role[$i] == "mentor") {
                     # generate secondary extended_id 
@@ -135,28 +136,28 @@ class UserController extends Controller
 
             # upload curriculum vitae
             $CV_file_format = $request->file('curriculum_vitae')->getClientOriginalExtension();
-            $CV_file_name = 'CV-'.str_replace(' ', '_', $request->first_name.'_'.$request->last_name);
-            $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/'.$user_id_with_label, $CV_file_name . '.' . $CV_file_format);
+            $CV_file_name = 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+            $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $CV_file_name . '.' . $CV_file_format);
 
             # upload KTP / idcard
             $ID_file_format = $request->file('idcard')->getClientOriginalExtension();
-            $ID_file_name = 'ID-'.str_replace(' ', '_', $request->first_name.'_'.$request->last_name);
-            $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/'.$user_id_with_label, $ID_file_name . '.' . $ID_file_format);
+            $ID_file_name = 'ID-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+            $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $ID_file_name . '.' . $ID_file_format);
 
             # upload tax
             $TX_file_format = $request->file('tax')->getClientOriginalExtension();
-            $TX_file_name = 'TAX-'.str_replace(' ', '_', $request->first_name.'_'.$request->last_name);
-            $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/'.$user_id_with_label, $TX_file_name . '.' . $TX_file_format);
+            $TX_file_name = 'TAX-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+            $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $TX_file_name . '.' . $TX_file_format);
 
             # upload bpjs kesehatan / health insurance
             $HI_file_format = $request->file('health_insurance')->getClientOriginalExtension();
-            $HI_file_name = 'HI-'.str_replace(' ', '_', $request->first_name.'_'.$request->last_name);
-            $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/'.$user_id_with_label, $HI_file_name . '.' . $HI_file_format);
+            $HI_file_name = 'HI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+            $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $HI_file_name . '.' . $HI_file_format);
 
             # upload bpjs ketenagakerjaan / empl insurance
             $EI_file_format = $request->file('empl_insurance')->getClientOriginalExtension();
-            $EI_file_name = 'EI-'.str_replace(' ', '_', $request->first_name.'_'.$request->last_name);
-            $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/'.$user_id_with_label, $EI_file_name . '.' . $EI_file_format);
+            $EI_file_name = 'EI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+            $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $EI_file_name . '.' . $EI_file_format);
 
             # update uploaded data to user table
             $this->userRepository->updateUser($newUserId, [
@@ -167,16 +168,14 @@ class UserController extends Controller
                 'empl_insurance' => $EI_file_path
             ]);
             DB::commit();
-
         } catch (Exception $e) {
-            
-            DB::rollBack();
-            Log::error('Store user '.$request->route('user_role').' failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to create a new '.$request->route('user_role'));
 
+            DB::rollBack();
+            Log::error('Store user ' . $request->route('user_role') . ' failed : ' . $e->getMessage());
+            return Redirect::back()->withError('Failed to create a new ' . $request->route('user_role'));
         }
 
-        return Redirect::to('user/'.$request->route('user_role'))->withSuccess('New '.$request->route('user_role').' has been created');
+        return Redirect::to('user/' . $request->route('user_role'))->withSuccess('New ' . $request->route('user_role') . ' has been created');
     }
 
     public function create(Request $request)
@@ -215,16 +214,14 @@ class UserController extends Controller
             # update on users table
             $this->userRepository->updateStatusUser($userId, $newStatus);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error(ucfirst($status).' '.$user->full_name.' failed : ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to '.$status.' '.$user->full_name], 422);
-
+            Log::error(ucfirst($status) . ' ' . $user->full_name . ' failed : ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to ' . $status . ' ' . $user->full_name], 422);
         }
 
-        return response()->json(['message' => ucwords($user->full_name).' has been '.$status], 200);
+        return response()->json(['message' => ucwords($user->full_name) . ' has been ' . $status], 200);
     }
 
     public function update(StoreUserRequest $request)
@@ -258,8 +255,7 @@ class UserController extends Controller
             $newUser = $this->userRepository->updateUser($userId, $newDetails);
 
             # update user education to tbl_user_education
-            for ($i = 0; $i < count($request->graduated_from) ; $i++)
-            {
+            for ($i = 0; $i < count($request->graduated_from); $i++) {
                 $detailEducations[] = [
                     'univ_id' => $request->graduated_from[$i],
                     'major_id' => (int) $request->major[$i],
@@ -272,9 +268,8 @@ class UserController extends Controller
 
 
             # update user role to tbl_user_roles
-            for ($i = 0 ; $i < count($request->role) ; $i++)
-            {
-                
+            for ($i = 0; $i < count($request->role); $i++) {
+
                 $ext_id_with_label = null;
                 if ($request->role[$i] == 2) { # 2 means mentor
 
@@ -283,7 +278,6 @@ class UserController extends Controller
                     if ($existingRoleInfo = $user->roles()->where('tbl_roles.id', $request->role[$i])->first()) {
 
                         $ext_id_with_label = $existingRoleInfo->pivot->extended_id;
-
                     } else {
                         # generate secondary extended_id 
                         $last_id = UserRole::max('extended_id');
@@ -291,7 +285,7 @@ class UserController extends Controller
                         $ext_id_with_label = 'MT-' . $this->add_digit((int)$ext_id_without_label + 1, 4);
                     }
                 }
-                
+
 
                 $roleDetails[] = [
                     'role_id' => $request->role[$i],
@@ -300,25 +294,23 @@ class UserController extends Controller
                     'feehours' => isset($request->feehours) ? $request->feehours : null,
                     'feesession' => isset($request->feesession) ? $request->feesession : null,
                 ];
-                
             }
             $user->roles()->sync($roleDetails);
-            
+
             # validate
             # in order to avoid double data
-            if ($user->user_type()->wherePivot('user_type_id', 2)->wherePivot('department_id', 3)->wherePivot('start_date', '2022-12-01')->wherePivot('end_date', '2023-01-01')->count() == 0)
-            {
+            if ($user->user_type()->wherePivot('user_type_id', 2)->wherePivot('department_id', 3)->wherePivot('start_date', '2022-12-01')->wherePivot('end_date', '2023-01-01')->count() == 0) {
 
                 # deactivate the latest active type
                 $activeType = $user->user_type()->where('tbl_user_type_detail.status', 1)->whereNull('deactivated_at')->pluck('tbl_user_type_detail.user_type_id')->toArray();
                 foreach ($activeType as $key => $value) {
-        
+
                     $user->user_type()->updateExistingPivot($activeType[$key], ['status' => 0, 'deactivated_at' => Carbon::now()]);
                 }
-            
+
                 # store new user type to tbl_user_type
                 $user->user_type()->syncWithoutDetaching([[
-                    'user_type_id' => $request->type, 
+                    'user_type_id' => $request->type,
                     'department_id' => $request->department,
                     'start_date' => $request->start_period,
                     'end_date' => $request->type == 1 ? null : $request->end_period,
@@ -329,40 +321,40 @@ class UserController extends Controller
             $CV_file_path = $user->cv;
             if ($request->hasFile('curriculum_vitae')) {
                 $CV_file_format = $request->file('curriculum_vitae')->getClientOriginalExtension();
-                $CV_file_name = 'CV-'.str_replace(' ', '_', $request->first_name.'_'.$request->last_name);
-                $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/'.$user_id_with_label, $CV_file_name . '.' . $CV_file_format);
+                $CV_file_name = 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+                $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $CV_file_name . '.' . $CV_file_format);
             }
 
             # upload KTP / idcard
             $ID_file_path = $user->idcard;
             if ($request->hasFile('idcard')) {
                 $ID_file_format = $request->file('idcard')->getClientOriginalExtension();
-                $ID_file_name = 'ID-'.str_replace(' ', '_', $request->first_name.'_'.$request->last_name);
-                $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/'.$user_id_with_label, $ID_file_name . '.' . $ID_file_format);
+                $ID_file_name = 'ID-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+                $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $ID_file_name . '.' . $ID_file_format);
             }
 
             # upload tax
             $TX_file_path = $user->tax;
             if ($request->hasFile('tax')) {
                 $TX_file_format = $request->file('tax')->getClientOriginalExtension();
-                $TX_file_name = 'TAX-'.str_replace(' ', '_', $request->first_name.'_'.$request->last_name);
-                $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/'.$user_id_with_label, $TX_file_name . '.' . $TX_file_format);
+                $TX_file_name = 'TAX-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+                $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $TX_file_name . '.' . $TX_file_format);
             }
 
             # upload bpjs kesehatan / health insurance
             $HI_file_path = $user->health_insurance;
             if ($request->hasFile('health_insurance')) {
                 $HI_file_format = $request->file('health_insurance')->getClientOriginalExtension();
-                $HI_file_name = 'HI-'.str_replace(' ', '_', $request->first_name.'_'.$request->last_name);
-                $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/'.$user_id_with_label, $HI_file_name . '.' . $HI_file_format);
+                $HI_file_name = 'HI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+                $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $HI_file_name . '.' . $HI_file_format);
             }
 
             # upload bpjs ketenagakerjaan / empl insurance
             $EI_file_path = $user->empl_insurance;
             if ($request->hasFile('empl_insurance')) {
                 $EI_file_format = $request->file('empl_insurance')->getClientOriginalExtension();
-                $EI_file_name = 'EI-'.str_replace(' ', '_', $request->first_name.'_'.$request->last_name);
-                $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/'.$user_id_with_label, $EI_file_name . '.' . $EI_file_format);
+                $EI_file_name = 'EI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+                $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $EI_file_name . '.' . $EI_file_format);
             }
 
             # update uploaded data to user table
@@ -376,19 +368,17 @@ class UserController extends Controller
                 ]);
             }
             DB::commit();
-
         } catch (Exception $e) {
-            
-            DB::rollBack();
-            Log::error('Update user '.$request->route('user_role').' failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to update '.$request->route('user_role'));
 
+            DB::rollBack();
+            Log::error('Update user ' . $request->route('user_role') . ' failed : ' . $e->getMessage());
+            return Redirect::back()->withError('Failed to update ' . $request->route('user_role'));
         }
 
-        return Redirect::to('user/'.$request->route('user_role').'/'.$userId.'/edit')->withSuccess(ucfirst($request->route('user_role')).' has been updated');
+        return Redirect::to('user/' . $request->route('user_role') . '/' . $userId . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
     }
 
-    public function edit(Request $request) 
+    public function edit(Request $request)
     {
         $userId = $request->route('user');
         $user = $this->userRepository->getUserById($userId);
@@ -439,10 +429,8 @@ class UserController extends Controller
             case "EI":
                 $file = Storage::disk('local')->get($user->empl_insurance);
                 break;
-
-
         }
-        
+
         return response($file)->header('Content-Type', 'application/pdf');
     }
 
@@ -456,15 +444,13 @@ class UserController extends Controller
 
             $this->userRepository->deleteUserType($userTypeId);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete user type failed : ' . $e->getMessage());
             return Redirect::back()->withError('Failed to delete user type');
-
         }
 
-        return Redirect::to('user/'.$request->route('user_role').'/'.$userId.'/edit')->withSuccess(ucfirst($request->route('user_role')).' has been updated');
+        return Redirect::to('user/' . $request->route('user_role') . '/' . $userId . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
     }
 }
