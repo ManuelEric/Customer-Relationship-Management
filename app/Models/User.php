@@ -119,6 +119,16 @@ class User extends Authenticatable
         )->withTimestamps();
     }
 
+    public function department()
+    {
+        return $this->belongsToMany(Department::class, 'tbl_user_roles', 'user_id', 'department_id')->using(UserRole::class)->withTimestamps();
+    }
+
+    public function access_menus()
+    {
+        return $this->belongsToMany(Menu::class, 'tbl_menus_user', 'user_id', 'menu_id')->withTimestamps();
+    }
+
     public function position()
     {
         return $this->belongsTo(Position::class, 'position_id', 'id');

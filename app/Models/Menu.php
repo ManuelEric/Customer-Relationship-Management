@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\pivot\MenuDetail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,8 +26,19 @@ class Menu extends Model
         'menus_icon',
     ];
 
-    public function menu_detail()
+    public function mainmenu()
     {
-        return $this->hasMany(MenuDetail::class, 'menus_id', 'menus_id');
+        return $this->belongsTo(MainMenus::class, 'mainmenu_id', 'id');
+    }
+
+    public function department()
+    {
+        // return $this->hasMany(MenuDetail::class, 'menus_id', 'menus_id');
+        return $this->belongsToMany(Department::class, 'tbl_menusdtl', 'menu_id', 'department_id')->using(MenuDetail::class)->withTimestamps();
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'tbl_menus_user', 'menu_id', 'user_id')->withTimestamps();
     }
 }

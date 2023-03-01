@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class MainMenuSeeder extends Seeder
@@ -17,47 +18,63 @@ class MainMenuSeeder extends Seeder
     {
         $seeds = [
             [
-                'menu_name' => 'Master',
+                'mainmenu_name' => 'Master',
                 'order_no' => 1,
                 'icon' => 'bi bi-bookmark',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
             [
-                'menu_name' => 'Client',
+                'mainmenu_name' => 'Client',
                 'order_no' => 2,
                 'icon' => 'bi bi-people-fill',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
             [
-                'menu_name' => 'Instance',
+                'mainmenu_name' => 'Instance',
                 'order_no' => 3,
                 'icon' => 'bi bi-building',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
             [
-                'menu_name' => 'Program',
+                'mainmenu_name' => 'Program',
                 'order_no' => 4,
                 'icon' => 'bi bi-calendar2-event',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
             [
-                'menu_name' => 'Invoice',
+                'mainmenu_name' => 'Invoice',
                 'order_no' => 5,
                 'icon' => 'bi bi-receipt',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
             [
-                'menu_name' => 'Receipt',
+                'mainmenu_name' => 'Receipt',
                 'order_no' => 6,
                 'icon' => 'bi bi-receipt-cutoff',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
             [
-                'menu_name' => 'Users',
+                'mainmenu_name' => 'Users',
                 'order_no' => 7,
                 'icon' => 'bi bi-person-workspace',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ],
             [
-                'menu_name' => 'Report',
+                'mainmenu_name' => 'Report',
                 'order_no' => 8,
                 'icon' => 'bi bi-printer',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ]
         ];
 
-        DB::table('tbl_main_menu')->insert($seeds);
+        DB::table('tbl_main_menus')->insert($seeds);
     }
 }

@@ -19,7 +19,7 @@ class SubMenuSeeder extends Seeder
         $main_menus = DB::table('tbl_main_menus')->orderBy('order_no', 'asc')->get();
         foreach ($main_menus as $main_menu)
         {
-            $no = 0;
+            $no = 1;
             $sub_menu = $this->getSubMenu($main_menu->mainmenu_name);
 
             foreach ($sub_menu['submenus'] as $key => $value)
@@ -33,7 +33,9 @@ class SubMenuSeeder extends Seeder
                     'updated_at' => Carbon::now()
                 ];
             }
+
         }
+        DB::table('tbl_menus')->insert($seeds);
     }
 
     private function getSubMenu(string $type)
@@ -43,7 +45,7 @@ class SubMenuSeeder extends Seeder
             case "Master":
                 return [
                     'submenus' => ['Assets', 'Curriculum', 'Position', 'Lead Source', 'Major', 'Program', 'Event', 'External Edufair', 'Purchase Request', 'Vendors', 'University Tag Score', 'Sales Target'],
-                    'sublink' => ['asest', 'curriculum', 'position', 'lead', 'major', 'program', 'event', 'edufair', 'purchase', 'vendor', 'university-tags', 'sales-target'],
+                    'sublink' => ['master/asset', 'master/curriculum', 'master/position', 'master/lead', 'master/major', 'master/program', 'master/event', 'master/edufair', 'master/purchase', 'master/vendor', 'master/university-tags', 'master/sales-target'],
                 ];
                 break;
 

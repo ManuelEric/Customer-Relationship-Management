@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\pivot\MenuDetail;
 use App\Models\pivot\UserRole;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -42,13 +43,19 @@ class Department extends Model
     //     return $this->hasMany(UserRole::class, 'department_id', 'id');
     // }
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'tbl_user_roles', 'department_id', 'user_id')->using(UserRole::class)->withTimestamps();
+    }
+
     public function purchase_request()
     {
         return $this->hasMany(PurchaseRequest::class, 'purchase_department', 'id');
     }
 
-    public function menu_detail()
+    public function access_menu()
     {
-        return $this->belongsTo(MenuDetail::class, 'department_id', 'id');
+        // return $this->belongsTo(MenuDetail::class, 'department_id', 'id');
+        return $this->belongsToMany(Menu::class, 'tbl_menusdtl', 'department_id', 'menu_id')->using(MenuDetail::class)->withTimestamps();
     }
 }

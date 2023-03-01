@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\pivot;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class MenuDetail extends Model
+class MenuDetail extends Pivot
 {
-    use HasFactory;
-
     protected $table = 'tbl_menusdtl';
     protected $primaryKey = 'menusdtl_id';
 
@@ -24,13 +22,13 @@ class MenuDetail extends Model
         'status',
     ];
 
-    public function menu()
-    {
-        return $this->belongsTo(Menu::class, 'menus_id', 'menus_id');
-    }
+    // public function menu()
+    // {
+    //     return $this->belongsTo(Menu::class, 'menus_id', 'menus_id');
+    // }
 
-    public function department()
-    {
-        return $this->hasOne(Department::class, 'id', 'department_id');
-    }
+    // public function department()
+    // {
+    //     return $this->hasOne(Department::class, 'id', 'department_id');
+    // }
 }
