@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\pivot\UserTypeDetail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,5 +26,10 @@ class LoginLog extends Model
     public function user()
     {
         return $this->belongsToMany(User::class, 'tbl_login_log', 'user_type_id', 'user_id');
+    }
+
+    public function user_type()
+    {
+        return $this->belongsTo(UserTypeDetail::class, 'user_type_id', 'id');
     }
 }
