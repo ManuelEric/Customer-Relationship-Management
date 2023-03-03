@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\ReceiptReferralController;
 use App\Http\Controllers\ReceiptPartnerController;
+use App\Http\Controllers\RefundPartnerController;
 use App\Http\Controllers\RefundSchoolController;
 
 /*

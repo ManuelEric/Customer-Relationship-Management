@@ -19,7 +19,8 @@ class MenuDetail extends Pivot
     protected $fillable = [
         'menus_id',
         'department_id',
-        'status',
+        'copy',
+        'export',
     ];
 
     // public function menu()

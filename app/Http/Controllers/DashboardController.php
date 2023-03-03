@@ -22,6 +22,8 @@ use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class DashboardController extends Controller
 {
@@ -72,6 +74,10 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
+        // Auth::logout();
+        // $request->session()->invalidate();
+        // $request->session()->regenerateToken();
+        // return redirect('/');
         // return $this->indexSales($request);
         return $this->indexPartnership($request);
         // return $this->indexFinance($request);

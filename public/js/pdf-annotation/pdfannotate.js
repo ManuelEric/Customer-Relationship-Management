@@ -186,7 +186,7 @@ PDFAnnotate.prototype.enableAddArrow = function () {
 PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 	var inst = this;
 	var fabricObj = inst.fabricObjects[inst.active_canvas];
-
+	console.log(inst)
 	if (fabricObj) {
 		var inputElement = document.createElement("input");
 		inputElement.type = 'file'

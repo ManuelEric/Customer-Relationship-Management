@@ -12,7 +12,6 @@ class Menu extends Model
     use HasFactory;
 
     protected $table = 'tbl_menus';
-    protected $primaryKey = 'menus_id';
 
     /**
      * The attributes that should be visible in arrays.
@@ -34,7 +33,7 @@ class Menu extends Model
     public function department()
     {
         // return $this->hasMany(MenuDetail::class, 'menus_id', 'menus_id');
-        return $this->belongsToMany(Department::class, 'tbl_menusdtl', 'menu_id', 'department_id')->using(MenuDetail::class)->withTimestamps();
+        return $this->belongsToMany(Department::class, 'tbl_menusdtl', 'menu_id', 'department_id')->using(MenuDetail::class)->withPivot(['copy', 'export'])->withTimestamps();
     }
 
     public function users()

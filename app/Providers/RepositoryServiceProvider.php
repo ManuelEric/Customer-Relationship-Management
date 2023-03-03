@@ -30,6 +30,7 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\MentorRepositoryInterface;
+use App\Interfaces\MenuRepositoryInterface;
 use App\Interfaces\PartnerRepositoryInterface;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\PartnerAgreementRepositoryInterface;
@@ -90,6 +91,7 @@ use App\Repositories\LeadRepository;
 use App\Repositories\MainProgRepository;
 use App\Repositories\MajorRepository;
 use App\Repositories\MentorRepository;
+use App\Repositories\MenuRepository;
 use App\Repositories\PartnerRepository;
 use App\Repositories\PartnerProgramRepository;
 use App\Repositories\PartnerAgreementRepository;
@@ -194,6 +196,7 @@ class RepositoryServiceProvider extends ServiceProvider
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
+        $this->app->bind(MenuRepositoryInterface::class, MenuRepository::class);
     }
 
     /**
