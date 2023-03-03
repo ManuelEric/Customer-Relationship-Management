@@ -4,14 +4,6 @@
 
 @section('content')
 
-    {{-- @php
-        $requestSignIdr = '<a class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
-                                <i class="bi bi-pen me-1"></i> Request Sign IDR
-                            </a>';
-        $requestSignOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
-                                <i class="bi bi-pen me-1"></i> Request Sign Other
-                            </button>';
-    @endphp --}}
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/corporate-program/status/needed') }}" class="text-decoration-none text-muted">
@@ -128,98 +120,63 @@
                         @endif
                     @endif
                 </div>
-            @endif
-
-            {{-- Invoice Progress  --}}
-            <div class="card shadow-sm mb-3">
-                <div class="card-header">
-                    <h6 class="my-0">
-                        Invoice Progress
-                    </h6>
-                </div>
-                <div class="card-body position-relative h-auto pb-5">
-                    {{-- IDR  --}}
-                    <div class="text-center">
-                        <h6>IDR</h6>
-                        <section class="step-indicator">
-                            <div class="step step1 {{$invoiceHasRequested ? 'active' : ''}}">
-                                <div class="step-icon">1</div>
-                                <p>Request Sign</p>
-                            </div>
-                            <div class="indicator-line {{$invoiceHasRequested ? 'active' : ''}}"></div>
-                            <div class="step step2 {{$invoiceAttachment ? 'active' : ''}}">
-                                <div class="step-icon">2</div>
-                                <p>Signed</p>
-                            </div>
-                            <div class="indicator-line {{$invoiceAttachment ? 'active' : ''}}"></div>
-                            <div class="step step3 {{$invoiceAttachmentSent ? 'active' : ''}}">
-                                <div class="step-icon">3</div>
-                                <p>Print or Send to Client</p>
-                            </div>
-                        </section>
+                
+                {{-- Invoice Progress  --}}
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header">
+                        <h6 class="my-0">
+                            Invoice Progress
+                        </h6>
                     </div>
-
-                    {{-- Other  --}}
-                    @if($invoicePartner->currency != 'idr')
-                        <div class="text-center mt-5">
-                            <hr>
-                            <h6>Other Currency</h6>
+                    <div class="card-body position-relative h-auto pb-5">
+                        {{-- IDR  --}}
+                        <div class="text-center">
+                            <h6>IDR</h6>
                             <section class="step-indicator">
-                                <div class="step step1 {{$invoiceHasRequestedOther ? 'active' : ''}}">
+                                <div class="step step1 {{$invoiceHasRequested ? 'active' : ''}}">
                                     <div class="step-icon">1</div>
                                     <p>Request Sign</p>
                                 </div>
-                                <div class="indicator-line {{$invoiceHasRequestedOther ? 'active' : ''}}"></div>
-                                <div class="step step2 {{$invoiceAttachmentOther ? 'active' : ''}}">
+                                <div class="indicator-line {{$invoiceHasRequested ? 'active' : ''}}"></div>
+                                <div class="step step2 {{$invoiceAttachment ? 'active' : ''}}">
                                     <div class="step-icon">2</div>
                                     <p>Signed</p>
                                 </div>
-                                <div class="indicator-line {{$invoiceAttachmentOther ? 'active' : ''}}"></div>
-                                <div class="step step3 {{$invoiceAttachmentOtherSent ? 'active' : ''}}">
+                                <div class="indicator-line {{$invoiceAttachment ? 'active' : ''}}"></div>
+                                <div class="step step3 {{$invoiceAttachmentSent ? 'active' : ''}}">
                                     <div class="step-icon">3</div>
                                     <p>Print or Send to Client</p>
                                 </div>
                             </section>
                         </div>
-                    @endif
-                    {{-- @if (isset($invoicePartner) && $invoicePartner->partner_prog->status == 1)
-                        <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
-                            @php
-                                $invoicePartnerAttachment = $invoicePartner->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
-                            @endphp
-                            @if (!$invoicePartnerAttachment)
-                                {!! $requestSignIdr !!}
-                            @else
-                                <a href="{{ route('invoice-corp.export', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'idr']) }}" 
-                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                    <i class="bi bi-printer me-1"></i> Print IDR
-                                </a>
-                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-idr">
-                                    <i class="bi bi-printer me-1"></i> Send Invoice IDR to Client
-                                </button>
-                            @endif
-                        </div>
-                        <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
-                             @php
-                                $invoicePartnerAttachmentOther = $invoicePartner->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
-                            @endphp
-                            @if (!$invoicePartnerAttachmentOther)
-                                @if($invoicePartner->currency != 'idr')
-                                    {!! $requestSignOther !!}
-                                @endif
-                            @else
-                                <a href="{{ route('invoice-corp.export', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'other']) }}" 
-                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                    <i class="bi bi-printer me-1"></i> Print Other {{ (!$invoicePartnerAttachmentOther ? 'a' : 'b') }}
-                                </a>
-                                <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-other">
-                                    <i class="bi bi-printer me-1"></i> Send Invoice Other to Client
-                                </button>
-                            @endif
-                        </div>
-                    @endif --}}
+    
+                        {{-- Other  --}}
+                        @if($invoicePartner->currency != 'idr')
+                            <div class="text-center mt-5">
+                                <hr>
+                                <h6>Other Currency</h6>
+                                <section class="step-indicator">
+                                    <div class="step step1 {{$invoiceHasRequestedOther ? 'active' : ''}}">
+                                        <div class="step-icon">1</div>
+                                        <p>Request Sign</p>
+                                    </div>
+                                    <div class="indicator-line {{$invoiceHasRequestedOther ? 'active' : ''}}"></div>
+                                    <div class="step step2 {{$invoiceAttachmentOther ? 'active' : ''}}">
+                                        <div class="step-icon">2</div>
+                                        <p>Signed</p>
+                                    </div>
+                                    <div class="indicator-line {{$invoiceAttachmentOther ? 'active' : ''}}"></div>
+                                    <div class="step step3 {{$invoiceAttachmentOtherSent ? 'active' : ''}}">
+                                        <div class="step-icon">3</div>
+                                        <p>Print or Send to Client</p>
+                                    </div>
+                                </section>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-            </div>
+            @endif
+
 
             @if (isset($invoicePartner) && $invoicePartner->partner_prog->status == 3 && isset($invoicePartner->receipt))
                 @include('pages.invoice.corporate-program.detail.refund')

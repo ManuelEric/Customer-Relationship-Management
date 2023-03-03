@@ -271,9 +271,7 @@ PDFAnnotate.prototype.deleteSelectedObject = function () {
 	}
 }
 
-PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
-
-	showLoading()
+PDFAnnotate.prototype.savePdf = function (method, fileName, route, type) {
 
 	var inst = this;
 	var doc = new jspdf.jsPDF();
@@ -281,6 +279,7 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 		fileName = `${new Date().getTime()}.pdf`;
 	}
 
+	showLoading();
 	inst.fabricObjects.forEach(function (fabricObj, index) {
 		if (index != 0) {
 			doc.addPage();
@@ -309,6 +308,11 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 				var data = doc.output('blob');
 				var formData = new FormData();
 				var dataImage = JSON.parse(pdf.serializePdf());
+				let image_index = 0;
+				if(type=='receipt') {
+					image_index = 1;
+				}
+
 				if(dataImage[0].objects.length === 1){
 					formData.append("top", dataImage[0].objects[0].top);
 					formData.append("left", dataImage[0].objects[0].left);
@@ -317,6 +321,9 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 					formData.append("angle", dataImage[0].objects[0].angle);
 					formData.append("flipX", dataImage[0].objects[0].flipX);
 					formData.append("flipY", dataImage[0].objects[0].flipY);
+					formData.append("no_data", 0);
+				} else {
+					formData.append("no_data", 1);
 				}
 
 				formData.append("pdfFile", data, fileName);
@@ -327,15 +334,17 @@ PDFAnnotate.prototype.savePdf = function (method, fileName, route) {
 
 					if(response.data.status == 'success'){
 						alert('Document saved successfully')
+						swal.close();
 					}else{
-						alert('Failed to save document')
+						alert(response.data.message)
+						swal.close();
 					}
-					swal.close();
 				}).catch(function (error) {
 					console.log(error);
+					swal.close();
 				});
 			}
-			swal.close();
+			// swal.close();
 		}
 	})
 }

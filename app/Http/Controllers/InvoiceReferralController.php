@@ -317,19 +317,23 @@ class InvoiceReferralController extends Controller
             'attachment' => 'storage/' . $path . $file_name,
         ];
 
-        // $companyDetail = [
-        //     'name' => env('ALLIN_COMPANY'),
-        //     'address' => env('ALLIN_ADDRESS'),
-        //     'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-        //     'city' => env('ALLIN_CITY')
-        // ];
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
 
-        $data['email'] = 'test@gmail.com';
-        $data['recipient'] = 'test name';
+        $data['email'] = env('DIRECTOR_EMAIL');
+        $data['recipient'] = env('DIRECTOR_NAME');
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
             'invb2b_num' => $invoice_num,
             'currency' => $currency,
+            'fullname' => $invoiceRef->referral->partner->corp_name,
+            'program_name' => $invoiceRef->referral->additional_prog_name,
+            'invoice_date' => date('d F Y', strtotime($invoiceRef->invb2b_date)),
+            'invoice_duedate' => date('d F Y', strtotime($invoiceRef->invb2b_duedate))
         ];
 
         try {
@@ -337,7 +341,7 @@ class InvoiceReferralController extends Controller
             $pdf = PDF::loadView('pages.invoice.referral.export.invoice-pdf', [
                 'invoiceRef' => $invoiceRef,
                 'currency' => $currency,
-                // 'companyDetail' => $companyDetail
+                'companyDetail' => $companyDetail
             ]);
 
             // # Generate PDF file
@@ -351,9 +355,10 @@ class InvoiceReferralController extends Controller
                 $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
             }
 
-            Mail::send('pages.invoice.referral.mail.view', $data, function ($message) use ($data) {
+            Mail::send('pages.invoice.referral.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
                 $message->to($data['email'], $data['recipient'])
-                    ->subject($data['title']);
+                    ->subject($data['title'])
+                    ->attachData($pdf->output(), $invoice_id . '.pdf');
             });
         } catch (Exception $e) {
 
@@ -399,40 +404,62 @@ class InvoiceReferralController extends Controller
         $currency = $request->route('currency');
         $dataAxis = $this->axisRepository->getAxisByType('invoice');
 
-        $axis = [
-            'top' => $request->top,
-            'left' => $request->left,
-            'scaleX' => $request->scaleX,
-            'scaleY' => $request->scaleY,
-            'angle' => $request->angle,
-            'flipX' => $request->flipX,
-            'flipY' => $request->flipY,
-            'type' => 'invoice'
+        $attachmentDetails = [
+            'sign_status' => 'signed',
+            'approve_date' => Carbon::now()
         ];
-
 
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
-        if ($pdfFile->storeAs('public/uploaded_file/invoice/referral/', $name)) {
+        if ($invoiceAttachment->sign_status == 'signed') {
+            return response()->json(['status' => 'error', 'message' => 'Document has already signed']);
+        }
 
-            $attachmentDetails = [
-                'sign_status' => 'signed',
-                'approve_date' => Carbon::now()
-            ];
+        DB::beginTransaction();
+        try {
+
+            # if no_data == false
+            if ($request->no_data == 0) {
+                $axis = [
+                    'top' => $request->top,
+                    'left' => $request->left,
+                    'scaleX' => $request->scaleX,
+                    'scaleY' => $request->scaleY,
+                    'angle' => $request->angle,
+                    'flipX' => $request->flipX,
+                    'flipY' => $request->flipY,
+                    'type' => 'invoice'
+                ];
+
+                if (isset($dataAxis)) {
+                    $this->axisRepository->updateAxis($dataAxis->id, $axis);
+                } else {
+                    $this->axisRepository->createAxis($axis);
+                }
+            }
 
             $this->invoiceAttachmentRepository->updateInvoiceAttachment($invoiceAttachment->id, $attachmentDetails);
 
-            if (isset($dataAxis)) {
-                $this->axisRepository->updateAxis($dataAxis->id, $axis);
-            } else {
+            if (!$pdfFile->storeAs('public/uploaded_file/invoice/referral/', $name))
+                throw new Exception('Failed to store signed invoice file');
 
-                $this->axisRepository->createAxis($axis);
-            }
+            $data['title'] = 'Invoice No. ' . $invoice_id . ' has been signed';
+            $data['invoice_id'] = $invoice_id;
 
-            return response()->json(['status' => 'success']);
-        } else {
-            return response()->json(['status' => 'error']);
+            # send mail when document has been signed
+            Mail::send('pages.invoice.school-program.mail.signed', $data, function ($message) use ($data, $invoiceAttachment) {
+                $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                    ->subject($data['title'])
+                    ->attach(public_path($invoiceAttachment->attachment));
+            });
+
+            DB::commit();
+        } catch (Exception $e) {
+            Log::error('Failed to update status after being signed : ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Failed to update'], 500);
         }
+
+        return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
     }
 
     public function sendToClient(Request $request)
@@ -445,12 +472,17 @@ class InvoiceReferralController extends Controller
         $program_name = $invoiceRef->referral->additional_prog_name;
 
         $data['email'] = $invoiceRef->referral->user->email;
-        $data['cc'] = ['test1@example.com', 'test2@example.com'];
-        $data['recipient'] = 'Test Name';
+        $data['cc'] = [
+            env('CEO_CC'),
+            env('FINANCE_CC')
+        ];
+        $data['recipient'] = $invoiceRef->referral->user->email;
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
         $data['param'] = [
             'invb2b_num' => $invNum,
             'currency' => $currency,
+            'fullname' => $invoiceRef->referral->partner->corp_name,
+            'program_name' => $invoiceRef->referral->additional_prog_name
         ];
 
         try {

@@ -495,39 +495,60 @@ class InvoicePartnerController extends Controller
         $currency = $request->route('currency');
         $dataAxis = $this->axisRepository->getAxisByType('invoice');
 
-        $axis = [
-            'top' => $request->top,
-            'left' => $request->left,
-            'scaleX' => $request->scaleX,
-            'scaleY' => $request->scaleY,
-            'angle' => $request->angle,
-            'flipX' => $request->flipX,
-            'flipY' => $request->flipY,
-            'type' => 'invoice'
+        $attachmentDetails = [
+            'sign_status' => 'signed',
+            'approve_date' => Carbon::now()
         ];
 
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
-        if ($pdfFile->storeAs('public/uploaded_file/invoice/partner_prog/', $name)) {
+        if ($invoiceAttachment->sign_status == 'signed') {
+            return response()->json(['status' => 'error', 'message' => 'Document has already signed']);
+        }
 
-            $attachmentDetails = [
-                'sign_status' => 'signed',
-                'approve_date' => Carbon::now()
-            ];
+        DB::beginTransaction();
+        try {
 
+            # if no_data == false
+            if ($request->no_data == 0) {
+                $axis = [
+                    'top' => $request->top,
+                    'left' => $request->left,
+                    'scaleX' => $request->scaleX,
+                    'scaleY' => $request->scaleY,
+                    'angle' => $request->angle,
+                    'flipX' => $request->flipX,
+                    'flipY' => $request->flipY,
+                    'type' => 'invoice'
+                ];
+
+                if (isset($dataAxis)) {
+                    $this->axisRepository->updateAxis($dataAxis->id, $axis);
+                } else {
+                    $this->axisRepository->createAxis($axis);
+                }
+            }
             $this->invoiceAttachmentRepository->updateInvoiceAttachment($invoiceAttachment->id, $attachmentDetails);
 
-            if (isset($dataAxis)) {
-                $this->axisRepository->updateAxis($dataAxis->id, $axis);
-            } else {
+            if (!$pdfFile->storeAs('public/uploaded_file/invoice/partner_prog/', $name))
+                throw new Exception('Failed to store signed invoice file');
+            $data['title'] = 'Invoice No. ' . $invoice_id . ' has been signed';
+            $data['invoice_id'] = $invoice_id;
 
-                $this->axisRepository->createAxis($axis);
-            }
+            # send mail when document has been signed
+            Mail::send('pages.invoice.corporate-program.mail.signed', $data, function ($message) use ($data, $invoiceAttachment) {
+                $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                    ->subject($data['title'])
+                    ->attach(public_path($invoiceAttachment->attachment));
+            });
 
-            return response()->json(['status' => 'success']);
-        } else {
-            return response()->json(['status' => 'error']);
+            DB::commit();
+        } catch (Exception $e) {
+            Log::error('Failed to update status after being signed : ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Failed to update'], 500);
         }
+
+        return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
     }
 
     public function sendToClient(Request $request)
@@ -543,7 +564,7 @@ class InvoicePartnerController extends Controller
             $program_name = $invoicePartner->partner_prog->program->prog_sub . ' - ' . $invoicePartner->partner_prog->program->prog_program;
         }
 
-        $param_program_name = isset($invoicePartner->partner_prog->program->sub_prog) ? $invoicePartner->partner_prog->program->main_prog->prog_name.' - '.$invoicePartner->partner_prog->program->sub_prog->sub_prog_name : $invoicePartner->partner_prog->program->main_prog->prog_name;
+        $param_program_name = isset($invoicePartner->partner_prog->program->sub_prog) ? $invoicePartner->partner_prog->program->main_prog->prog_name . ' - ' . $invoicePartner->partner_prog->program->sub_prog->sub_prog_name : $invoicePartner->partner_prog->program->main_prog->prog_name;
 
         $data['email'] = $invoicePartner->partner_prog->user->email; # email to pic of the partner program
         $data['cc'] = [env('CEO_CC'), env('FINANCE_CC')];

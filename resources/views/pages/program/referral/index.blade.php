@@ -69,12 +69,14 @@
                     },
                     {
                         data: 'partner_name',
+                        name: 'tbl_corp.corp_name'
                     },
                     {
                         data: 'referral_type',
                     },
                     {
                         data: 'program_name',
+                        name: 'tbl_prog.prog_program',
                         render: function(data, type, row, meta) {
                             return row.referral_type == "Out" ? row.additional_prog_name : row.program_name
                         }
