@@ -495,16 +495,26 @@ class InvoicePartnerController extends Controller
         $currency = $request->route('currency');
         $dataAxis = $this->axisRepository->getAxisByType('invoice');
 
-        $axis = [
-            'top' => $request->top,
-            'left' => $request->left,
-            'scaleX' => $request->scaleX,
-            'scaleY' => $request->scaleY,
-            'angle' => $request->angle,
-            'flipX' => $request->flipX,
-            'flipY' => $request->flipY,
-            'type' => 'invoice'
-        ];
+        if ($request->no_data == false) {
+
+            $axis = [
+                'top' => $request->top,
+                'left' => $request->left,
+                'scaleX' => $request->scaleX,
+                'scaleY' => $request->scaleY,
+                'angle' => $request->angle,
+                'flipX' => $request->flipX,
+                'flipY' => $request->flipY,
+                'type' => 'invoice'
+            ];
+
+            if (isset($dataAxis)) {
+                $this->axisRepository->updateAxis($dataAxis->id, $axis);
+            } else {
+
+                $this->axisRepository->createAxis($axis);
+            }
+        }
 
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
@@ -516,13 +526,6 @@ class InvoicePartnerController extends Controller
             ];
 
             $this->invoiceAttachmentRepository->updateInvoiceAttachment($invoiceAttachment->id, $attachmentDetails);
-
-            if (isset($dataAxis)) {
-                $this->axisRepository->updateAxis($dataAxis->id, $axis);
-            } else {
-
-                $this->axisRepository->createAxis($axis);
-            }
 
             return response()->json(['status' => 'success']);
         } else {

@@ -45,7 +45,7 @@ class Department extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'tbl_user_roles', 'department_id', 'user_id')->using(UserRole::class)->withTimestamps();
+        return $this->belongsToMany(User::class, 'tbl_user_type_detail', 'department_id', 'user_id')->withTimestamps();
     }
 
     public function purchase_request()
@@ -53,9 +53,9 @@ class Department extends Model
         return $this->hasMany(PurchaseRequest::class, 'purchase_department', 'id');
     }
 
-    public function access_menu()
+    public function access_menus()
     {
         // return $this->belongsTo(MenuDetail::class, 'department_id', 'id');
-        return $this->belongsToMany(Menu::class, 'tbl_menusdtl', 'department_id', 'menu_id')->using(MenuDetail::class)->withTimestamps();
+        return $this->belongsToMany(Menu::class, 'tbl_menusdtl', 'department_id', 'menu_id')->using(MenuDetail::class)->withPivot(['copy', 'export'])->withTimestamps();
     }
 }

@@ -395,7 +395,7 @@
                     </li>
                     <li class="nav-item nav-category">Settings</li>
                     <li class="nav-item">
-                        <a href="{{url('menus')}}" class="nav-link">
+                        <a href="{{url('menus')}}" class="nav-link {{ Request::is('menus') ? 'text-primary' : '' }}">
                             <i class="bi bi-list mx-2"></i>
                             <span class="menu-title">Menus</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>

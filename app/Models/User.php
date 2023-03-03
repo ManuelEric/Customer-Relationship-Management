@@ -121,12 +121,12 @@ class User extends Authenticatable
 
     public function department()
     {
-        return $this->belongsToMany(Department::class, 'tbl_user_roles', 'user_id', 'department_id')->using(UserRole::class)->withTimestamps();
+        return $this->belongsToMany(Department::class, 'tbl_user_type_detail', 'user_id', 'department_id')->withTimestamps();
     }
 
     public function access_menus()
     {
-        return $this->belongsToMany(Menu::class, 'tbl_menus_user', 'user_id', 'menu_id')->withTimestamps();
+        return $this->belongsToMany(Menu::class, 'tbl_menus_user', 'user_id', 'menu_id')->withPivot(['copy', 'export'])->withTimestamps();
     }
 
     public function position()
