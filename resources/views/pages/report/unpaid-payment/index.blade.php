@@ -161,6 +161,19 @@
     </div>
     
     <script>
+         @php            
+            $privilage = $menus['Report']->where('submenu_name', 'Unpaid Payment')->first();
+        @endphp
+        $(document).ready(function() {
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                    
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+        });
+
          function ExportToExcel() {
 
             var workbook = XLSX.utils.book_new();

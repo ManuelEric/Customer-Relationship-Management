@@ -362,6 +362,18 @@
     </script>
 
     <script>
+        @php            
+            $privilage = $menus['Report']->where('submenu_name', 'Partnership')->first();
+        @endphp
+        $(document).ready(function() {
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                    
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+        });
         function ExportToExcel() {
 
             var sheetName = ['School Programs', 'Partner Programs', 'School Visits', 'New School', 'New Partner', 'New University'];

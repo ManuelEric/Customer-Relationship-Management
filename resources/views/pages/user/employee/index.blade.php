@@ -149,6 +149,22 @@
                 ]
             });
 
+            @php            
+                $privilage = $menus['Users']->where('submenu_name', 'Employee')->first();
+            @endphp
+
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
             $('#userTable tbody').on('click', '.editUser ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('user/'.Request::route('user_role')) }}/" + data.id + '/edit';

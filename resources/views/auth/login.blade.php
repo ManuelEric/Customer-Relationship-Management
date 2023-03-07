@@ -39,13 +39,10 @@
                                                 {{ $message }}
                                             </div>
                                         @enderror
-                                        <div class="invalid-feedback">
-                                            Test
-                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="">Password</label>
-                                        <input type="text" class="form-control  @error('password') is-invalid @enderror"
+                                        <input type="password" class="form-control  @error('password') is-invalid @enderror"
                                             name="password">
                                         @error('password')
                                             <div class="invalid-feedback">

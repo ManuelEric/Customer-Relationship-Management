@@ -112,6 +112,22 @@
                 ]
             });
 
+            @php            
+                $privilage = $menus['Master']->where('submenu_name', 'Vendors')->first();
+            @endphp
+
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
             $('#vendor-table tbody').on('click', '.editVendor ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('master/vendor') }}/" + data.vendor_id.toLowerCase() +

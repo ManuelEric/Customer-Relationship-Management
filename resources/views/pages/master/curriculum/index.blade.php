@@ -136,6 +136,22 @@
                 var data = table.row($(this).parents('tr')).data();
                 confirmDelete('master/curriculum', data.id)
             });
+
+            @php            
+                $privilage = $menus['Master']->where('submenu_name', 'Curriculum')->first();
+            @endphp
+
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
         });
 
         function resetForm() {

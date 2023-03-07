@@ -117,6 +117,22 @@
                 ]
             });
 
+            @php            
+                $privilage = $menus['Users']->where('submenu_name', 'Volunteer')->first();
+            @endphp
+
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
             $('#volunteerTable tbody').on('click', '.editVolunt ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('user/volunteer') }}/" + data.volunt_id + '/edit';

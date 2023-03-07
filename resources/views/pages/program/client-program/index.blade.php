@@ -162,6 +162,22 @@
         })
     })
 
+    @php            
+        $privilage = $menus['Program']->where('submenu_name', 'Client Program')->first();
+    @endphp
+
+    @if($privilage['copy'] == 0)
+        document.oncontextmenu = new Function("return false"); 
+                
+        $('body').bind('cut copy paste', function(event) {
+            event.preventDefault();
+        });
+    @endif
+
+    @if ($privilage['export'] == 0)
+        table.button(1).disable();
+    @endif
+
     @if ($request->get('program_name') !== NULL)
         var program_name = new Array();
         @foreach ($request->get('program_name') as $key => $val)

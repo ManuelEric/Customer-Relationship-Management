@@ -145,6 +145,22 @@
                 ]
             });
 
+            @php            
+                $privilage = $menus['Program']->where('submenu_name', 'Client Event')->first();
+            @endphp
+
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
             $('#eventTable tbody').on('click', '.detailEvent ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('program/event') }}/" + data.clientevent_id;

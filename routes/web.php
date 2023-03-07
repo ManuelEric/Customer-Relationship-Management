@@ -28,6 +28,7 @@ Route::get('login', function () {
 });
 
 Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
+Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
 

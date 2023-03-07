@@ -38,7 +38,7 @@
             <div class="navbar-menu-wrapper d-flex align-items-top border-bottom">
                 <ul class="navbar-nav">
                     <li class="nav-item font-weight-semibold d-none d-lg-block ms-0">
-                        <h1 class="welcome-text">Welcome Back, <span class="text-black fw-bold">John Doe</span></h1>
+                        <h1 class="welcome-text">Welcome Back, <span class="text-black fw-bold">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span></h1>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
@@ -51,14 +51,14 @@
                             <div class="dropdown-header text-center">
                                 <img class="img-md rounded-circle" src="{{ asset('library/dashboard/images/faces/face8.jpg') }}"
                                     alt="Profile image">
-                                <p class="mb-1 mt-3 font-weight-semibold">Allen Moreno</p>
-                                <p class="fw-light text-muted mb-0">allenmoreno@gmail.com</p>
+                                <p class="mb-1 mt-3 font-weight-semibold">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
+                                <p class="fw-light text-muted mb-0">{{ Auth::user()->email }}</p>
                             </div>
                             <a class="dropdown-item">
                                 <i class="bi bi-person text-primary me-2"></i>
                                 My
                                 Profile
-                                <a class="dropdown-item">
+                                <a class="dropdown-item" href="{{route('logout')}}">
                                     <i class="bi bi-box-arrow-down-left text-primary me-2"></i> Sign
                                     Out</a>
                         </div>
@@ -108,291 +108,28 @@
                         </a>
                     </li>
                     <li class="nav-item nav-category">Pages</li>
+    
+                    @foreach ($menus as $key => $menu)
                     <li class="nav-item">
-                        <a class="nav-link  {{ Request::is('master*') ? 'text-primary' : '' }}" data-bs-toggle="collapse"
-                            href="#master" aria-expanded="false" aria-controls="master">
-                            <i class="bi bi-bookmark mx-2"></i>
-                            <span class="menu-title">Master</span>
+                        <a class="nav-link  {{ Request::is(strtolower($key).'*') ? 'text-primary' : '' }}" data-bs-toggle="collapse"
+                            href="#{{strtolower($key)}}" aria-expanded="false" aria-controls="{{strtolower($key)}}">
+                            <i class="{{$menu[0]['icon']}} mx-2"></i>
+                            <span class="menu-title">{{$key}}</span>
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
-                        <div class="collapse {{ Request::is('master*') ? 'show' : 'hide' }}" id="master">
+                        <div class="collapse {{ Request::is(strtolower($key).'*') ? 'show' : 'hide' }}" id="{{strtolower($key)}}">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/asset*') ? 'active' : '' }}"
-                                        href="{{ url('master/asset') }}">Assets</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/curriculum*') ? 'active' : '' }}"
-                                        href="{{ url('master/curriculum') }}">Curriculum</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/position*') ? 'active' : '' }}"
-                                        href="{{ url('master/position') }}">Position</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link  {{ Request::is('master/lead*') ? 'active' : '' }}"
-                                        href="{{ url('master/lead') }}">Lead
-                                        Source</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/major*') ? 'active' : '' }}"
-                                        href="{{ url('master/major') }}">Major</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/program*') ? 'active' : '' }}"
-                                        href="{{ url('master/program') }}">Program</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/event*') ? 'active' : '' }}"
-                                        href="{{ url('master/event') }}">Event</a>
-                                </li>
+                                @foreach ($menu as $key => $submenu)
+                                    <li class="nav-item"> <a
+                                        class="nav-link {{ Request::is($submenu['submenu_link'] . '*') ? 'active' : '' }}"
+                                        href="{{ url($submenu['submenu_link']) }}">{{$submenu['submenu_name']}}</a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </li>
+                    @endforeach
 
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/edufair*') ? 'active' : '' }}"
-                                        href="{{ url('master/edufair') }}">External Edufair</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/purchase*') ? 'active' : '' }}"
-                                        href="{{ url('master/purchase') }}">Purchase
-                                        Request</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/vendor*') ? 'active' : '' }}"
-                                        href="{{ url('master/vendor') }}">Vendors</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/university-tags*') ? 'active' : '' }}"
-                                        href="{{ url('master/university-tags') }}">University Tag Score</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('master/sales-target*') ? 'active' : '' }}"
-                                        href="{{ url('master/sales-target') }}">Sales Target</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Request::is('client*') && !Request::is('*/program/*') ? 'text-primary' : '' }}"
-                            data-bs-toggle="collapse" href="#client" aria-expanded="false" aria-controls="client">
-                            <i class="bi bi-people-fill mx-2"></i>
-                            <span class="menu-title">Client</span>
-                            <i class="menu-arrow bi bi-arrow-right"></i>
-                        </a>
-                        <div class="collapse {{ Request::is('client*') && !Request::is('*/program/*') ? 'show' : 'hide' }}"
-                            id="client">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('client/student*') && !Request::is('*program*') ? 'active' : '' }}"
-                                        href="{{ url('client/student?st=potential') }}">Students</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('client/mentee*') && !Request::is('*program*') ? 'active' : '' }}"
-                                        href="{{ url('client/mentee?st=active') }}">Mentees</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('client/parent*') ? 'active' : '' }}"
-                                        href="{{ url('client/parent') }}">Parents</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('client/teacher-counselor*') ? 'active' : '' }}"
-                                        href="{{ url('client/teacher-counselor') }}">Teacher/Counselor</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Request::is('instance*') ? 'text-primary' : '' }}"
-                            data-bs-toggle="collapse" href="#instance" aria-expanded="false" aria-controls="ui-basic">
-                            <i class="bi bi-building mx-2"></i>
-                            <span class="menu-title">Instance</span>
-                            <i class="menu-arrow bi bi-arrow-right"></i>
-                        </a>
-                        <div class="collapse {{ Request::is('instance*') ? 'show' : 'hide' }}" id="instance">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('instance/corporate*') ? 'active' : '' }}"
-                                        href="{{ url('instance/corporate') }}">Partner</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('instance/school*') ? 'active' : '' }}"
-                                        href="{{ url('instance/school') }}">School</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('instance/university*') ? 'active' : '' }}"
-                                        href="{{ url('instance/university') }}">Universities</a>
-                                </li>
-
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Request::is('*/program/*') || Request::is('program/*') ? 'text-primary' : '' }}"
-                            data-bs-toggle="collapse" href="#program" aria-expanded="false" aria-controls="program">
-                            <i class="bi bi-calendar2-event mx-2"></i>
-                            <span class="menu-title">Program</span>
-                            <i class="menu-arrow bi bi-arrow-right"></i>
-                        </a>
-                        <div class="collapse {{ Request::is('*/program/*') || Request::is('program/*') ? 'show' : 'hide' }}"
-                            id="program">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('program/referral*') ? 'active' : '' }}"
-                                        href="{{ url('program/referral') }}">Referral</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link  {{ Request::is('program/event*') ? 'active' : '' }}"
-                                        href="{{ url('program/event') }}">Client
-                                        Event</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('*/program/client*') || Request::is('program/client*') ? 'active' : '' }}"
-                                        href="{{ url('program/client') }}">Client
-                                        Program</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('program/corporate*') ? 'active' : '' }}"
-                                        href="{{ url('program/corporate') }}">Partner
-                                        Program</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('program/school*') ? 'active' : '' }}"
-                                        href="{{ url('program/school') }}">School
-                                        Program</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Request::is('invoice*') ? 'text-primary' : '' }}" data-bs-toggle="collapse"
-                            href="#invoice" aria-expanded="false" aria-controls="invoice">
-                            <i class="bi bi-receipt mx-2"></i>
-                            <span class="menu-title">Invoice</span>
-                            <i class="menu-arrow bi bi-arrow-right"></i>
-                        </a>
-                        <div class="collapse {{ Request::is('invoice*') ? 'show' : 'hide' }}" id="invoice">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('invoice/client-program*') ? 'active' : '' }}"
-                                        href="{{ url('invoice/client-program?s=needed') }}">Client
-                                        Program</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('invoice/corporate-program*') ? 'active' : '' }}"
-                                        href="{{ url('invoice/corporate-program/status/needed') }}">Partner
-                                        Program
-                                    </a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('invoice/school-program*') ? 'active' : '' }}"
-                                        href="{{ url('invoice/school-program/status/needed') }}">School
-                                        Program
-                                    </a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('invoice/referral*') ? 'active' : '' }}"
-                                        href="{{ url('invoice/referral/status/needed') }}">
-                                        Referral
-                                    </a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('invoice/refund*') ? 'active' : '' }}"
-                                        href="{{ url('invoice/refund/status/needed') }}">
-                                        Refund
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Request::is('receipt*') ? 'text-primary' : '' }}" data-bs-toggle="collapse"
-                            href="#receipt" aria-expanded="false" aria-controls="receipt">
-                            <i class="bi bi-receipt-cutoff mx-2"></i>
-                            <span class="menu-title">Receipt</span>
-                            <i class="menu-arrow bi bi-arrow-right"></i>
-                        </a>
-                        <div class="collapse {{ Request::is('receipt*') ? 'show' : 'hide' }}" id="receipt">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('receipt/client-program*') ? 'active' : '' }}"
-                                        href="{{ url('receipt/client-program') }}">Client
-                                        Program</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('receipt/corporate-program*') ? 'active' : '' }}"
-                                        href="{{ url('receipt/corporate-program/') }}">Partner
-                                        Program
-                                    </a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('receipt/school-program*') ? 'active' : '' }}"
-                                        href="{{ url('receipt/school-program/') }}">School
-                                        Program
-                                    </a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('receipt/referral*') ? 'active' : '' }}"
-                                        href="{{ url('receipt/referral/') }}">Referral
-                                        Program
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Request::is('user*') ? 'text-primary' : '' }}" data-bs-toggle="collapse"
-                            href="#users" aria-expanded="false" aria-controls="users">
-                            <i class="bi bi-person-workspace mx-2"></i>
-                            <span class="menu-title">Users</span>
-                            <i class="menu-arrow bi bi-arrow-right"></i>
-                        </a>
-                        <div class="collapse {{ Request::is('user*') ? 'show' : 'hide' }}" id="users">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('user/*') && !Request::is('user/volunteer*') ? 'active' : '' }}"
-                                        href="{{ url('user/employee') }}">Employee</a>
-                                </li>
-                                <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is('user/volunteer*') ? 'active' : '' }}"
-                                        href="{{ url('user/volunteer') }}">Volunteer
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a @class(['nav-link', 'text-primary' => Request::is('report*')]) data-bs-toggle="collapse" href="#report" aria-expanded="false"
-                            aria-controls="report">
-                            <i class="bi bi-printer mx-2"></i>
-                            <span class="menu-title">Report</span>
-                            <i class="menu-arrow bi bi-arrow-right"></i>
-                        </a>
-                        <div class="collapse {{ Request::is('report*') ? 'show' : 'hide' }}" id="report">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    <a @class(['nav-link', 'active' => Request::is('report/sales*')]) href="{{ url('report/sales') }}">Sales
-                                        Tracking</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('report/event*') ? 'active' : '' }}"
-                                        href="{{ url('report/event') }}">Event Tracking</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('report/partnership*') ? 'active' : '' }}"
-                                        href="{{ url('report/partnership') }}">
-                                        Partnership
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('report/invoice*') ? 'active' : '' }}"
-                                        href="{{ url('report/invoice') }}">Invoice &
-                                        Receipt</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ Request::is('report/unpaid*') ? 'active' : '' }}"
-                                        href="{{ url('report/unpaid') }}">Unpaid Payment</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
                     <li class="nav-item nav-category">Settings</li>
                     <li class="nav-item">
                         <a href="{{url('menus')}}" class="nav-link {{ Request::is('menus') ? 'text-primary' : '' }}">

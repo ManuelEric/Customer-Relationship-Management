@@ -74,10 +74,6 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
-        // Auth::logout();
-        // $request->session()->invalidate();
-        // $request->session()->regenerateToken();
-        // return redirect('/');
         // return $this->indexSales($request);
         return $this->indexPartnership($request);
         // return $this->indexFinance($request);

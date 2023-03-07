@@ -113,6 +113,22 @@
                 ]
             });
 
+            @php            
+                $privilage = $menus['Program']->where('submenu_name', 'Referral')->first();
+            @endphp
+
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
             $('#refTable tbody').on('click', '.editRef ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('program/referral') }}/" + data.id;

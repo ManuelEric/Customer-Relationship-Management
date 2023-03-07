@@ -12,7 +12,6 @@
             Asset</a>
     </div>
 
-
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="assetTable">
@@ -118,7 +117,25 @@
                             '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteAsset"><i class="bi bi-trash2"></i></button>'
                     }
                 ]
+                
+                
             });
+
+            @php            
+                $privilage = $menus['Master']->where('submenu_name', 'Assets')->first();
+            @endphp
+
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
 
             realtimeData(table)
 
@@ -137,5 +154,6 @@
                 confirmDelete('master/asset', data.asset_id)
             });
         });
+
     </script>
 @endsection
