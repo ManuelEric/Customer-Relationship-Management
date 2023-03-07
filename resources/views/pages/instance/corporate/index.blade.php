@@ -76,6 +76,9 @@
                     },
                     {
                         data: 'corp_industry',
+                        render: function(data, type, row, meta) {
+                            return data == null ? '-' : data
+                        }
                     },
                     {
                         data: 'corp_mail',
@@ -91,12 +94,21 @@
                     },
                     {
                         data: 'partnership_type',
+                        render: function(data, type, row, meta) {
+                            return data == null ? '-' : data
+                        }
                     },
                     {
                         data: 'corp_region',
+                        render: function(data, type, row, meta) {
+                            return data == null ? '-' : data
+                        }
                     },
                     {
                         data: 'corp_address',
+                        render: function(data, type, row, meta) {
+                            return data == null ? '-' : data
+                        }
                     },
                     {
                         data: '',

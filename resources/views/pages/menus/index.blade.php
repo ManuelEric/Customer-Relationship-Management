@@ -174,7 +174,6 @@
                 'param' : param,
             }).then(function (response) {
 
-                console.log(response)
                 let obj = response.data
                 getActiveMenu(obj.data)
 

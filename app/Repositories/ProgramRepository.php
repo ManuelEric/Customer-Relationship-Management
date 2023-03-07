@@ -6,7 +6,9 @@ use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
 use App\Models\Program;
+use App\Models\v1\Program as CRMProgram;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 
 class ProgramRepository implements ProgramRepositoryInterface 
 {
@@ -66,6 +68,11 @@ class ProgramRepository implements ProgramRepositoryInterface
         # disesuaikan dengan main_prog_id & sub_prog_id
         return Program::create($programDetails);
     }
+
+    public function createProgramFromV1(array $programDetails)
+    {
+        return Program::create($programDetails);
+    }
     
     public function updateProgram($programId, array $newDetails)
     {
@@ -116,4 +123,45 @@ class ProgramRepository implements ProgramRepositoryInterface
             
         }
     }
+
+    # CRM
+    public function getProgramFromV1()
+    {
+        $crmprograms = CRMProgram::select([
+            'prog_id',
+            'main_number',
+            DB::raw('(CASE 
+                WHEN prog_main = "" THEN NULL ELSE prog_main
+            END) as prog_main'),
+            DB::raw('(CASE 
+                WHEN prog_sub = "" THEN NULL ELSE prog_sub
+            END) as prog_sub'),
+            'prog_program',
+            'prog_type',
+            'prog_mentor',
+            'prog_payment'
+        ])->get();
+
+        foreach ($crmprograms as $program) {
+
+            $main_prog = $this->mainProgRepository->getMainProgByName($program->prog_main);
+            $sub_prog = $this->subProgRepository->getSubProgBySubProgName($program->prog_sub);
+
+            $response[] = [
+                'prog_id' => $program->prog_id,
+                'main_prog_id' => $main_prog->id ?? null,
+                'prog_main' => $program->prog_main,
+                'main_number' => $program->main_number,
+                'sub_prog_id' => $sub_prog->id ?? null,
+                'prog_sub' => $program->prog_sub,
+                'prog_program' => $program->prog_program,
+                'prog_type' => $program->prog_type,
+                'prog_mentor' => $program->prog_mentor,
+                'prog_payment' => $program->prog_payment
+            ];
+
+        }
+
+        return $response;
+    } 
 }

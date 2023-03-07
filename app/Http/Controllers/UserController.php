@@ -45,8 +45,6 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        // $user = UserTypeDetail::where('user_id', 495)->first();
-        // return $user->login_log;
         $role = $request->route('user_role');
         if ($request->ajax())
             return $this->userRepository->getAllUsersByRoleDataTables($role);

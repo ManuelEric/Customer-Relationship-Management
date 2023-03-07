@@ -13,4 +13,7 @@ interface CorporateRepositoryInterface
     public function updateCorporate($corporateId, array $newDetails);
     public function cleaningCorporate();
     public function getReportNewPartner($start_date, $end_date);
+
+    # crm
+    public function getCorpFromV1();
 }
