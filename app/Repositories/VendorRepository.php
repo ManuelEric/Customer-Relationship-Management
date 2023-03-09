@@ -4,9 +4,10 @@ namespace App\Repositories;
 
 use App\Interfaces\VendorRepositoryInterface;
 use App\Models\Vendor;
+use App\Models\v1\Vendor as V1Vendor;
 use DataTables;
 
-class VendorRepository implements VendorRepositoryInterface 
+class VendorRepository implements VendorRepositoryInterface
 {
     public function getAllVendorDataTables()
     {
@@ -18,22 +19,22 @@ class VendorRepository implements VendorRepositoryInterface
         return Vendor::orderBy('vendor_name', 'asc')->get();
     }
 
-    public function getVendorById($vendorId) 
+    public function getVendorById($vendorId)
     {
         return Vendor::findOrFail($vendorId);
     }
 
-    public function deleteVendor($vendorId) 
+    public function deleteVendor($vendorId)
     {
         return Vendor::whereVendorId($vendorId)->delete();
     }
 
-    public function createVendor(array $vendorDetails) 
+    public function createVendor(array $vendorDetails)
     {
         return Vendor::create($vendorDetails);
     }
 
-    public function updateVendor($vendorId, array $newDetails) 
+    public function updateVendor($vendorId, array $newDetails)
     {
         return Vendor::whereVendorId($vendorId)->update($newDetails);
     }
@@ -75,5 +76,11 @@ class VendorRepository implements VendorRepositoryInterface
                 'vendor_notes' => null
             ]
         );
+    }
+
+    # CRM
+    public function getAllVendorFromCRM()
+    {
+        return V1Vendor::all();
     }
 }

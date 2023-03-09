@@ -7,7 +7,7 @@ use App\Models\Lead;
 use App\Models\v1\Lead as V1Lead;
 use DataTables;
 
-class LeadRepository implements LeadRepositoryInterface 
+class LeadRepository implements LeadRepositoryInterface
 {
     public function getAllLeadDataTables()
     {
@@ -32,6 +32,10 @@ class LeadRepository implements LeadRepositoryInterface
     public function getLeadById($leadId)
     {
         return Lead::whereLeadId($leadId);
+    }
+    public function getLeadByMainLead($main_lead)
+    {
+        return Lead::where('main_lead', $main_lead)->first();
     }
 
     public function deleteLead($leadId)

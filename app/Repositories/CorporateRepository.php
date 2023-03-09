@@ -20,17 +20,22 @@ class CorporateRepository implements CorporateRepositoryInterface
     }
     public function getCountTotalCorporateByMonthly($monthYear)
     {
-        $year = date('Y',strtotime($monthYear));
-        $month = date('m',strtotime($monthYear));
-        
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
 
         return Corporate::whereYear('created_at', '=', $year)
-              ->whereMonth('created_at', '=', $month)->count();
+            ->whereMonth('created_at', '=', $month)->count();
     }
 
     public function getCorporateById($corporateId)
     {
         return Corporate::whereCorpId($corporateId);
+    }
+
+    public function getCorporateByName($corp_name)
+    {
+        return Corporate::where('corp_name', $corp_name)->first();
     }
 
     public function deleteCorporate($corporateId)

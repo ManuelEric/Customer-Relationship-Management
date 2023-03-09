@@ -2,13 +2,14 @@
 
 namespace App\Interfaces;
 
-interface LeadRepositoryInterface 
+interface LeadRepositoryInterface
 {
     public function getAllLeadDataTables();
     public function getAllLead();
     public function getAllMainLead();
     public function getAllKOLlead();
     public function getLeadById($leadId);
+    public function getLeadByMainLead($main_lead);
     public function deleteLead($leadId);
     public function createLeads(array $leadDetails);
     public function createLead(array $leadDetails);

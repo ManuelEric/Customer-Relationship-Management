@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\School;
+use App\Models\V1\School as V1School;
 use Carbon\Carbon;
 use App\Models\SchoolDetail;
 use DataTables;
@@ -42,16 +43,21 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getCountTotalSchoolByMonthly($monthYear)
     {
-        $year = date('Y',strtotime($monthYear));
-        $month = date('m',strtotime($monthYear));
-        
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
         return School::whereYear('created_at', '=', $year)
-              ->whereMonth('created_at', '=', $month)->count();
+            ->whereMonth('created_at', '=', $month)->count();
     }
 
     public function getSchoolById($schoolId)
     {
         return School::whereSchoolId($schoolId);
+    }
+
+    public function getSchoolByName($schoolName)
+    {
+        return School::where('sch_name', $schoolName)->first();
     }
 
     public function deleteSchool($schoolId)
@@ -62,6 +68,11 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function createSchool(array $schoolDetails)
     {
         return School::create($schoolDetails);
+    }
+
+    public function createSchools(array $schoolDetails)
+    {
+        return School::insert($schoolDetails);
     }
 
     public function updateSchool($schoolId, array $newDetails)
@@ -154,5 +165,11 @@ class SchoolRepository implements SchoolRepositoryInterface
             return School::whereBetween('created_at', [$firstDay, $lastDay])
                 ->get();
         }
+    }
+
+    # CRM
+    public function getAllSchoolFromV1()
+    {
+        return V1School::all();
     }
 }

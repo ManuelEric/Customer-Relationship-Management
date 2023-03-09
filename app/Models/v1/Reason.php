@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\v1;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,9 +9,12 @@ class Reason extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql_bigdatav1';
+
     protected $table = 'tbl_reason';
     protected $primaryKey = 'reason_id';
 
+    public $incrementing = false;
 
     /**
      * The attributes that should be visible in arrays.
@@ -21,17 +24,5 @@ class Reason extends Model
     protected $fillable = [
         'reason_id',
         'reason_name',
-        'created_at',
-        'updated_at',
     ];
-
-    public function school_program()
-    {
-        return $this->hasMany(SchoolProgram::class, 'reason_id', 'reason_id');
-    }
-
-    public function clientProgram()
-    {
-        return $this->hasMany(ClientProgram::class, 'reason_id', 'reason_id');
-    }
 }

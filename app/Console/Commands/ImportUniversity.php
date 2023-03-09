@@ -43,17 +43,18 @@ class ImportUniversity extends Command
     {
         $count = 1;
         $universities = $this->universityRepository->getAllUniversitiesFromCRM();
+        $univDetails = [];
         foreach ($universities as $university) {
 
             if (!$this->universityRepository->getUniversityByName($university->univ_name) && $university->univ_name != "" && $university->univ_name != NULL) {
 
                 # initialize
-                $last_id = University::max('univ_id');
-                $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
-                $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label + $count, 3);
-    
+                // $last_id = University::max('univ_id');
+                // $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
+                // $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label + $count, 3);
+
                 $univDetails[] = [
-                    'univ_id' => $univ_id_with_label,
+                    'univ_id' => $university->univ_id,
                     'univ_name' => $university->univ_name,
                     'univ_address' => strip_tags($university->univ_address),
                     'univ_country' => $university->univ_country,
@@ -62,10 +63,11 @@ class ImportUniversity extends Command
                 ];
                 $count++;
             }
-
         }
 
-        $this->universityRepository->createuniversities($univDetails);
+        if (count($univDetails) > 0) {
+            $this->universityRepository->createuniversities($univDetails);
+        }
         return Command::SUCCESS;
     }
 }
