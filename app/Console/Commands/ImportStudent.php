@@ -502,7 +502,7 @@ class ImportStudent extends Command
             $arrayStudentDreamMajors = explode(',', $studentHasDreamMajors);
             foreach ($arrayStudentDreamMajors as $key => $value) {
 
-                $crm_majorName = $value;
+                $crm_majorName = trim($value);
                 if (!$major = $this->majorRepository->getMajorByName($crm_majorName)) {
 
                     $majorDetails = [

@@ -26,7 +26,7 @@ class MajorRepository implements MajorRepositoryInterface
 
     public function getMajorByName($majorName)
     {
-        return Major::whereRaw('LOWER(name) = (?)', [strtolower($majorName)])->first();
+        return Major::whereRaw('lower(name) = ?', [strtolower($majorName)])->first();
     }
 
     public function deleteMajor($majorId)
