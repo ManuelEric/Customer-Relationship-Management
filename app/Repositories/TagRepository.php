@@ -23,6 +23,11 @@ class TagRepository implements TagRepositoryInterface
         return Tag::find($tagId);
     }
 
+    public function getTagByName($tagName)
+    {
+        return Tag::where('name', 'like', '%'.$tagName.'%')->first();
+    }
+
     public function createTag(array $tags)
     {
         return Tag::insert($tags);

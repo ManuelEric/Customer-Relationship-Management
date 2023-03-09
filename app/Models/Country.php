@@ -17,6 +17,7 @@ class Country extends Model
      * @var array
      */
     protected $fillable = [
+        'lc_region_id',
         'official_name',
         'iso_alpha_2', 
         'iso_alpha_3', 

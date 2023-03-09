@@ -35,6 +35,11 @@ class CorporateRepository implements CorporateRepositoryInterface
         return Corporate::whereCorpId($corporateId);
     }
 
+    public function getCorporateByName($corporateName)
+    {
+        return Corporate::whereCorpName($corporateName);
+    }
+
     public function deleteCorporate($corporateId)
     {
         return Corporate::whereCorpId($corporateId)->delete();

@@ -95,12 +95,6 @@ class UniversityRepository implements UniversityRepositoryInterface
         return University::whereUniversityId($universityId)->update($newDetails);
     }
 
-    # CRM
-    public function getAllUniversitiesFromCRM()
-    {
-        return V1University::all();
-    }
-
     public function getReportNewUniversity($start_date = null, $end_date = null)
     {
         $firstDay = Carbon::now()->startOfMonth()->toDateString();
@@ -121,4 +115,17 @@ class UniversityRepository implements UniversityRepositoryInterface
                 ->get();
         }
     }
+
+    # CRM
+    public function getAllUniversitiesFromCRM()
+    {
+        return V1University::all();
+    }
+
+    public function getUniversityFromCRMByUnivId($univId)
+    {
+        return V1University::whereRaw('univ_id = ?', [trim($univId)])->first();
+    }
+
+    
 }

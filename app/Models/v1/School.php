@@ -34,4 +34,9 @@ class School extends Model
         'sch_location',
         'sch_lastupdate',
     ];
+
+    public function student()
+    {
+        return $this->hasMany(Student::class, 'sch_id', 'sch_id');
+    }
 }

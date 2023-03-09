@@ -42,6 +42,15 @@ class School extends Model
         return $instance->newQuery()->where('sch_id', $id)->first();
     }
 
+    public static function whereSchoolName($name)
+    {
+        if (is_array($name) && empty($name)) return new Collection;
+
+        $instance = new static;
+
+        return $instance->newQuery()->whereRaw('lower(sch_name) = ?', [$name])->first();
+    }
+
     # relation
     public function detail()
     {

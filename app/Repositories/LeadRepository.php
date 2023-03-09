@@ -34,6 +34,11 @@ class LeadRepository implements LeadRepositoryInterface
         return Lead::whereLeadId($leadId);
     }
 
+    public function getLeadByName($leadName)
+    {
+        return Lead::whereLeadName($leadName);
+    }
+
     public function deleteLead($leadId)
     {
         // return Lead::destroy($leadId);

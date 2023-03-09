@@ -16,9 +16,11 @@ interface ClientRepositoryInterface
     public function addRole($clientId, $role);
     public function removeRole($clientId, $role);
     public function getParentsByStudentId($studentId);
+    public function getParentByParentName($parentName);
     public function createClientRelation($parentId, $studentId);
     public function createManyClientRelation($parentId, array $studentId);
     public function createDestinationCountry($studentId, $destinationCountryDetails);
+    public function getInterestedProgram($studentId);
     public function createInterestProgram($studentId, array $interestProgramDetails);
     public function createInterestUniversities($studentId, array $interestUnivDetails);
     public function createInterestMajor($studentId, array $interestMajorDetails);
@@ -28,4 +30,10 @@ interface ClientRepositoryInterface
     # dashboard
     public function getCountTotalClientByStatus($status, $month = null);
     public function getMenteesBirthdayMonthly($month);
+    public function getStudentByStudentId($studentId);
+    public function getStudentByStudentName($studentName);
+
+    # CRM
+    public function getStudentFromV1();
+    public function getParentFromV1();
 }

@@ -21,6 +21,7 @@ class UserClient extends Authenticatable
      * @var array
      */
     protected $fillable = [
+        'id',
         'st_id',
         'first_name',
         'last_name',

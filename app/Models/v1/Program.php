@@ -30,4 +30,9 @@ class Program extends Model
         'prog_mentor',
         'prog_payment',
     ];
+
+    public function student()
+    {
+        return $this->hasMany(Student::class, 'prog_id', 'prog_id');
+    }
 }

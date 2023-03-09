@@ -9,6 +9,8 @@ use App\Interfaces\RoleRepositoryInterface;
 use App\Models\Client;
 use App\Models\Tag;
 use App\Models\UserClient;
+use App\Models\v1\Student as CRMStudent;
+use App\Models\v1\StudentParent as CRMParent;
 use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -232,6 +234,7 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $roleId = $this->roleRepository->getRoleByName($role);
         $client = UserClient::find($clientId);
+        # roles id 5 = Mentee
         if ($client->roles()->where('tbl_roles.id', 5)->count() == 0) {
             $client->roles()->attach($roleId);
         }
@@ -242,6 +245,7 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $roleId = $this->roleRepository->getRoleByName($role);
         $client = UserClient::find($clientId);
+        # roles id 5 = Mentee
         if ($client->roles()->where('tbl_roles.id', 5)->count() > 0) {
             $client->roles()->detach($roleId);
         }
@@ -259,6 +263,14 @@ class ClientRepository implements ClientRepositoryInterface
         return $student->parents()->pluck('tbl_client.id')->toArray();
     }
 
+    public function getParentByParentName($parentName)
+    {
+        return UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'like', '%'.$parentName.'%')->whereHas('roles', function ($query) {
+            $query->where('role_name', 'Parent');
+        })->first();
+    }
+
+    # connecting student with parents
     public function createClientRelation($parentId, $studentId)
     {
         $student = UserClient::where('id',$studentId)->first();
@@ -284,6 +296,12 @@ class ClientRepository implements ClientRepositoryInterface
         $student = UserClient::find($studentId);
         $student->destinationCountries()->sync($destinationCountryDetails);
         return $student;
+    }
+
+    public function getInterestedProgram($studentId)
+    {
+        $student = UserClient::find($studentId);
+        return $student->interestPrograms;
     }
 
     public function createInterestProgram($studentId, $interestProgramDetails)
@@ -333,5 +351,113 @@ class ClientRepository implements ClientRepositoryInterface
         return Client::whereMonth('dob', date('m', strtotime($month)))->whereHas('roles', function($query) {
             $query->where('role_name', 'Student');
         })->where('st_statusact', 1)->get();
+    }
+
+    public function getStudentByStudentId($studentId)
+    {
+        return UserClient::where('st_id', $studentId)->whereHas('roles', function ($query) {
+            $query->where('role_name', 'Student');
+        })->first();
+    }
+
+    public function getStudentByStudentName($studentName)
+    {
+        return UserClient::where(DB::raw('CONCAT(first_name, " ", last_name)'), $studentName)->first();
+    }
+
+    # CRM
+    public function getStudentFromV1()
+    {
+        return CRMStudent::select([
+            'st_num',
+            DB::raw('(CASE 
+                WHEN st_id = "" THEN NULL ELSE st_id
+            END) AS st_id'),
+            DB::raw('(CASE 
+                WHEN pr_id = 0 THEN NULL ELSE pr_id
+            END) AS pr_id'),
+            'st_firstname',
+            DB::raw('(CASE 
+                WHEN st_lastname = "" THEN NULL ELSE st_lastname
+            END) AS st_lastname'),
+            DB::raw('(CASE 
+                WHEN st_mail = "" THEN NULL ELSE st_mail
+            END) AS st_mail'),
+            DB::raw('(CASE 
+                WHEN st_phone = "" THEN NULL ELSE st_phone
+            END) AS st_phone'),
+            DB::raw('(CASE 
+                WHEN st_dob = "" OR st_dob = "0000-00-00" THEN NULL ELSE st_dob
+            END) AS st_dob'),
+            DB::raw('(CASE 
+                WHEN st_insta = "" THEN NULL ELSE st_insta
+            END) AS st_insta'),
+            DB::raw('(CASE 
+                WHEN st_state = "" THEN NULL ELSE st_state
+            END) AS st_state'),
+            DB::raw('(CASE 
+                WHEN st_city = "" THEN NULL ELSE st_city
+            END) AS st_city'),
+            DB::raw('(CASE 
+                WHEN st_address = "" THEN NULL ELSE st_address
+            END) AS st_address'),
+            DB::raw('(CASE 
+                WHEN sch_id = "" THEN NULL ELSE sch_id
+            END) AS sch_id'),
+            DB::raw('(CASE 
+                WHEN st_grade = 0 THEN NULL ELSE st_grade
+            END) AS st_grade'),
+            'lead_id',
+            DB::raw('(CASE 
+                WHEN eduf_id = 0 THEN NULL ELSE eduf_id
+            END) AS eduf_id'),
+            'st_levelinterest',
+            'prog_id',
+            DB::raw('(CASE 
+                WHEN st_abryear = "" THEN NULL ELSE st_abryear
+            END) AS st_abryear'),
+            'st_abrcountry',
+            'st_abruniv',
+            'st_abrmajor',
+            'st_statusact',
+            'st_note',
+            'st_statuscli',
+            DB::raw('(CASE 
+                WHEN st_password = "" THEN NULL ELSE st_password
+            END) AS st_password'),
+            'st_datecreate'
+
+        ])->get();
+    }
+
+    public function getParentFromV1()
+    {
+        return CRMParent::select([
+            'pr_firstname',
+            DB::raw('(CASE 
+                WHEN pr_lastname = "" THEN NULL ELSE pr_lastname
+            END) as pr_lastname'),
+            DB::raw('(CASE 
+                WHEN pr_mail = "" THEN NULL ELSE pr_mail
+            END) as pr_mail'),
+            DB::raw('(CASE 
+                WHEN pr_phone = "" THEN NULL ELSE pr_phone
+            END) as pr_phone'),
+            DB::raw('(CASE 
+                WHEN pr_dob = "" OR pr_dob = "0000-00-00" THEN NULL ELSE pr_dob
+            END) as pr_dob'),
+            DB::raw('(CASE 
+                WHEN pr_insta = "" THEN NULL ELSE pr_insta
+            END) as pr_insta'),
+            DB::raw('(CASE 
+                WHEN pr_state = "" THEN NULL ELSE pr_state
+            END) as pr_state'),
+            DB::raw('(CASE 
+                WHEN pr_address = "" THEN NULL ELSE pr_address
+            END) as pr_address'),
+            DB::raw('(CASE 
+                WHEN pr_password = "" THEN NULL ELSE pr_password
+            END) as pr_password'),
+        ])->where('pr_firstname', '!=', '')->orWhere('pr_lastname', '!=', '')->get();
     }
 }

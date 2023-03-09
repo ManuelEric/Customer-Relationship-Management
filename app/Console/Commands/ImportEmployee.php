@@ -405,7 +405,7 @@ class ImportEmployee extends Command
         $graduatedMagisterFrom = ltrim($employee->empl_graduatefr_magister);
         $graduatedMagisterMajor = ltrim($employee->empl_major_magister);
         
-        if ( ($graduatedMagisterMajor != "") && ($graduatedMagisterMajor != null) )
+        if ( ($graduatedMagisterMajor != "") || ($graduatedMagisterMajor != null) )
         {
             # validate university
             # if $graduatedMagisterFrom doesn't exist in database
@@ -463,7 +463,7 @@ class ImportEmployee extends Command
 
         # insert into tbl_user_educations
         if (isset($userMajorDetails))
-            $selectedUser->educations()->syncWithoutDetaching($userMajorDetails);
+            $selectedUser->educations()->sync($userMajorDetails);
     }
 
     public function checkUniversityName($univName)
@@ -473,6 +473,9 @@ class ImportEmployee extends Command
             case "Pennsylvania University":
                 return "Pennsylvania State University";
                 break;
+
+            default:
+                return $univName;
 
         }
     }

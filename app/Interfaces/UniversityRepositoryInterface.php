@@ -22,4 +22,5 @@ interface UniversityRepositoryInterface
 
     # CRM
     public function getAllUniversitiesFromCRM();
+    public function getUniversityFromCRMByUnivId($univId);
 }

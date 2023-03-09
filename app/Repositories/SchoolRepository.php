@@ -54,6 +54,11 @@ class SchoolRepository implements SchoolRepositoryInterface
         return School::whereSchoolId($schoolId);
     }
 
+    public function getSchoolByName($schoolName)
+    {
+        return School::whereSchoolName($schoolName);
+    }
+
     public function deleteSchool($schoolId)
     {
         return School::whereSchoolId($schoolId)->delete();
