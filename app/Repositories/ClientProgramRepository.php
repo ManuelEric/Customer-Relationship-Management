@@ -9,6 +9,7 @@ use App\Models\pivot\ClientMentor;
 use App\Models\Reason;
 use App\Models\Receipt;
 use App\Models\User;
+use App\Models\v1\ClientProgram as CRMClientProgram;
 use App\Models\ViewClientProgram;
 use DataTables;
 use Illuminate\Support\Carbon;
@@ -721,5 +722,75 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         }
 
         return $userId;
+    }
+
+    # CRM
+
+    public function getClientProgramFromV1()
+    {
+        return CRMClientProgram::select([
+            'stprog_id',
+            'st_num',
+            'prog_id',
+            'lead_id',
+            'eduf_id',
+            'infl_id',
+            'stprog_firstdisdate',
+            DB::raw('(CASE 
+                WHEN stprog_followupdate = "0000-00-00" THEN NULL ELSE stprog_followupdate
+            END) as stprog_followupdate'),
+            DB::raw('(CASE 
+                WHEN stprog_lastdisdate = "0000-00-00" THEN NULL ELSE stprog_lastdisdate
+            END) as stprog_lastdisdate'),
+            DB::raw('(CASE 
+                WHEN stprog_meetingdate = "0000-00-00" THEN NULL ELSE stprog_meetingdate
+            END) as stprog_meetingdate'),
+            DB::raw('(CASE 
+                WHEN stprog_meetingnote = "" THEN NULL ELSE stprog_meetingnote
+            END) as stprog_meetingnote'),
+            'stprog_status',
+            DB::raw('(CASE 
+                WHEN stprog_statusprogdate = "0000-00-00" THEN NULL ELSE stprog_statusprogdate
+            END) as stprog_statusprogdate'),
+            DB::raw('(CASE 
+                WHEN stprog_init_consult = "0000-00-00" THEN NULL ELSE stprog_init_consult
+            END) as stprog_init_consult'),
+            DB::raw('(CASE 
+                WHEN stprog_ass_sent = "0000-00-00" THEN NULL ELSE stprog_ass_sent
+            END) as stprog_ass_sent'),
+            DB::raw('(CASE 
+                WHEN stprog_nego = "0000-00-00" THEN NULL ELSE stprog_nego
+            END) as stprog_nego'),
+            DB::raw('(CASE 
+                WHEN reason_id = 0 THEN NULL ELSE reason_id
+            END) as reason_id'),
+            DB::raw('(CASE 
+                WHEN stprog_test_date = "0000-00-00" THEN NULL ELSE stprog_test_date
+            END) as stprog_test_date'),
+            DB::raw('(CASE 
+                WHEN stprog_last_class = "0000-00-00" THEN NULL ELSE stprog_last_class
+            END) as stprog_last_class'),
+            'stprog_diag_score',
+            'stprog_test_score',
+            'stprog_price_from_tutor',
+            'stprog_our_price_tutor',
+            'stprog_total_price_tutor',
+            DB::raw('(CASE 
+                WHEN stprog_duration = "" THEN NULL ELSE stprog_duration
+            END) as stprog_duration'),
+            'stprog_tot_uni',
+            'stprog_tot_dollar',
+            'stprog_kurs',
+            'stprog_tot_idr',
+            DB::raw('(CASE 
+                WHEN stprog_install_plan = "" THEN NULL ELSE stprog_install_plan
+            END) as stprog_install_plan'),
+            'stprog_runningstatus',
+            'stprog_start_date',
+            'stprog_end_date',
+            DB::raw('(CASE 
+                WHEN empl_id = "" THEN NULL ELSE empl_id
+            END) as empl_id'),
+        ])->get();
     }
 }

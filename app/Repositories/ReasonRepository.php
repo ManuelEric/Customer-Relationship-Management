@@ -19,6 +19,11 @@ class ReasonRepository implements ReasonRepositoryInterface
         return Reason::find($reasonId);
     }
 
+    public function getReasonByReasonName($reasonName)
+    {
+        return Reason::where('reason_name', 'like', '%'.$reasonName.'%')->first();
+    }
+
     public function deleteReason($reasonId)
     {
         return Reason::destroy($reasonId);

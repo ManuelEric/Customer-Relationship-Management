@@ -53,4 +53,9 @@ class Employee extends Model
         'empl_export',
         'empl_lastupdatedate'
     ];
+
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'empl_id', 'empl_id');
+    }
 }
