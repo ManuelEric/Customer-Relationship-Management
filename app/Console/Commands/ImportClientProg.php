@@ -74,8 +74,8 @@ class ImportClientProg extends Command
      */
     public function handle()
     {
-        // DB::beginTransaction();
-        // try {
+        DB::beginTransaction();
+        try {
 
             $crm_clientprogs = $this->clientProgramRepository->getClientProgramFromV1();
             foreach ($crm_clientprogs as $crm_clientprog)
@@ -305,16 +305,16 @@ class ImportClientProg extends Command
                 }
             }
 
-        //     DB::commit();
-        //     Log::info('Import client program works fine');
+            DB::commit();
+            Log::info('Import client program works fine');
             
-        // } catch (Exception $e) {
+        } catch (Exception $e) {
             
-        //     DB::rollBack();
-        //     $this->info($e->getMessage().' | line '.$e->getLine());
-        //     Log::warning('Failed to import client program '. $e->getMessage());
+            DB::rollBack();
+            $this->info($e->getMessage().' | line '.$e->getLine());
+            Log::warning('Failed to import client program '. $e->getMessage());
 
-        // }
+        }
 
         return Command::SUCCESS;
     }
