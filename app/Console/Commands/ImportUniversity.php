@@ -56,7 +56,7 @@ class ImportUniversity extends Command
                 $univDetails[] = [
                     'univ_id' => $university->univ_id,
                     'univ_name' => $university->univ_name,
-                    'univ_address' => strip_tags($university->univ_address),
+                    'univ_address' => $university->univ_address == '' ? null : strip_tags($university->univ_address),
                     'univ_country' => $university->univ_country,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()

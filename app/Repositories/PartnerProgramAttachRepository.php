@@ -20,6 +20,12 @@ class PartnerProgramAttachRepository implements PartnerProgramAttachRepositoryIn
         return PartnerProgAttach::find($corpProgAttachId);
     }
 
+    public function getPartnerProgAttByPartnerProgIdnFileName($partnerProgId, $file_name)
+    {
+        return PartnerProgAttach::where('partner_prog_id', $partnerProgId)
+            ->where('corprog_file', $file_name)->first();
+    }
+
     public function deletePartnerProgramAttach($corpProgAttachId)
     {
         return PartnerProgAttach::destroy($corpProgAttachId);
@@ -28,6 +34,11 @@ class PartnerProgramAttachRepository implements PartnerProgramAttachRepositoryIn
     public function createPartnerProgramAttach(array $partnerProgramAttachs)
     {
         return PartnerProgAttach::create($partnerProgramAttachs);
+    }
+
+    public function createPartnerProgramAttachs(array $partnerProgramAttachs)
+    {
+        return PartnerProgAttach::insert($partnerProgramAttachs);
     }
 
     public function updatePartnerProgramAttach($corpProgAttachId, array $partnerProgramAttachs)

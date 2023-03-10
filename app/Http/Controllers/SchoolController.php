@@ -122,7 +122,7 @@ class SchoolController extends Controller
 
         # retrieve program data
         $programs = $this->programRepository->getAllPrograms();
-        
+
         # retrieve lead data
         $leads = $this->leadRepository->getAllLead();
 
@@ -131,7 +131,7 @@ class SchoolController extends Controller
 
         # retrieve school detail data by school Id
         $schoolDetails = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
-        
+
         # retrieve School Program data by schoolId
         $schoolPrograms = $this->schoolProgramRepository->getAllSchoolProgramsBySchoolId($schoolId);
 

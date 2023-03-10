@@ -7,6 +7,7 @@ use App\Models\Invb2b;
 use App\Models\PartnerProg;
 use App\Models\Referral;
 use App\Models\SchoolProgram;
+use App\Models\v1\InvoiceSchool as V1InvoiceSchool;
 use Carbon\Carbon;
 use DataTables;
 use Illuminate\Database\Eloquent\Builder;
@@ -611,5 +612,11 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             ->whereHas('receipt')
             ->groupBy(DB::raw('MONTH(tbl_invb2b.invb2b_duedate)'))
             ->get();
+    }
+
+    # CRM
+    public function getAllInvoiceSchoolFromCRM()
+    {
+        return V1InvoiceSchool::all();
     }
 }

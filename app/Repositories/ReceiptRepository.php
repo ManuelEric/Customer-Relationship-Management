@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Models\Invb2b;
 use App\Models\Receipt;
+use App\Models\v1\Receipt as V1Receipt;
 use App\Models\Refund;
 use Carbon\Carbon;
 use DataTables;
@@ -272,5 +273,11 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                                     WHEN tbl_receipt.inv_id is not null THEN tbl_inv.inv_id
                                 END)'))
             ->get();
+    }
+
+    # CRM
+    public function getAllReceiptFromCRM()
+    {
+        return V1Receipt::all();
     }
 }

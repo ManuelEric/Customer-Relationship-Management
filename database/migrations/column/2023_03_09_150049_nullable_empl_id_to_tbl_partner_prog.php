@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('tbl_sch_prog', function (Blueprint $table) {
+        Schema::table('tbl_partner_prog', function (Blueprint $table) {
             $table->unsignedBigInteger('empl_id')->nullable()->change();
         });
     }
@@ -25,5 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
+        Schema::table('tbl_partner_prog', function (Blueprint $table) {
+            //
+        });
     }
 };

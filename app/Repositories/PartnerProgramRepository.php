@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Models\PartnerProg;
+use App\Models\v1\PartnerProg as V1PartnerProg;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
@@ -217,6 +218,11 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
         return PartnerProg::create($partnerPrograms);
     }
 
+    public function createPartnerPrograms(array $partnerPrograms)
+    {
+        return PartnerProg::insert($partnerPrograms);
+    }
+
     public function updatePartnerProgram($partnerProgId, array $newPrograms)
     {
         return PartnerProg::find($partnerProgId)->update($newPrograms);
@@ -291,5 +297,10 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
             ->groupBy('prog_id')
             ->groupBy(DB::raw('year(success_date)'))
             ->get();
+    }
+
+    public function getAllPartnerProgramFromCRM()
+    {
+        return V1PartnerProg::all();
     }
 }
