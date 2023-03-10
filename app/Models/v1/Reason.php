@@ -14,6 +14,8 @@ class Reason extends Model
     protected $table = 'tbl_reason';
     protected $primaryKey = 'reason_id';
 
+    public $incrementing = false;
+
     /**
      * The attributes that should be visible in arrays.
      *

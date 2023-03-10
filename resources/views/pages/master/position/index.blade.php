@@ -134,6 +134,22 @@
                 ]
             });
 
+            @php            
+                $privilage = $menus['Master']->where('submenu_name', 'Position')->first();
+            @endphp
+
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
             $('#positionTable tbody').on('click', '.editPosition ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 editById(data.id)

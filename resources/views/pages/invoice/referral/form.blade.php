@@ -4,14 +4,6 @@
 
 @section('content')
 
-    {{-- @php
-        $requestSignIdr = '<a class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc">
-                                <i class="bi bi-pen me-1"></i> Request Sign IDR
-                            </a>';
-        $requestSignOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other">
-                                <i class="bi bi-pen me-1"></i> Request Sign Other
-                            </button>';
-    @endphp --}}
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/referral/status/needed') }}" class="text-decoration-none text-muted">
@@ -131,62 +123,62 @@
                         @endif
                     @endif
                 </div>
-            @endif
-
-            {{-- Invoice Progress  --}}
-            <div class="card shadow-sm mb-3">
-                <div class="card-header">
-                    <h6 class="my-0">
-                        Invoice Progress
-                    </h6>
-                </div>
-                <div class="card-body position-relative h-auto pb-5">
-                    {{-- IDR  --}}
-                    <div class="text-center">
-                        <h6>IDR</h6>
-                        <section class="step-indicator">
-                            <div class="step step1 {{$invoiceHasRequested ? 'active' : ''}}">
-                                <div class="step-icon">1</div>
-                                <p>Request Sign</p>
-                            </div>
-                            <div class="indicator-line {{$invoiceHasRequested ? 'active' : ''}}"></div>
-                            <div class="step step2 {{$invoiceAttachment ? 'active' : ''}}">
-                                <div class="step-icon">2</div>
-                                <p>Signed</p>
-                            </div>
-                            <div class="indicator-line {{!$invoiceAttachment ? 'active' : ''}}"></div>
-                            <div class="step step3 {{$invoiceAttachmentSent ? 'active' : ''}}">
-                                <div class="step-icon">3</div>
-                                <p>Print or Send to Client</p>
-                            </div>
-                        </section>
+                {{-- Invoice Progress  --}}
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header">
+                        <h6 class="my-0">
+                            Invoice Progress
+                        </h6>
                     </div>
-
-                    {{-- Other  --}}
-                    @if($invoiceRef->currency != 'idr')
-                        <div class="text-center mt-5">
-                            <hr>
-                            <h6>Other Currency</h6>
+                    <div class="card-body position-relative h-auto pb-5">
+                        {{-- IDR  --}}
+                        <div class="text-center">
+                            <h6>IDR</h6>
                             <section class="step-indicator">
-                                <div class="step step1 {{$invoiceHasRequestedOther ? 'active' : ''}}">
+                                <div class="step step1 {{$invoiceHasRequested ? 'active' : ''}}">
                                     <div class="step-icon">1</div>
                                     <p>Request Sign</p>
                                 </div>
-                                <div class="indicator-line {{$invoiceHasRequestedOther ? 'active' : ''}}"></div>
-                                <div class="step step2 {{$invoiceAttachmentOther ? 'active' : ''}}">
+                                <div class="indicator-line {{$invoiceHasRequested ? 'active' : ''}}"></div>
+                                <div class="step step2 {{$invoiceAttachment ? 'active' : ''}}">
                                     <div class="step-icon">2</div>
                                     <p>Signed</p>
                                 </div>
-                                <div class="indicator-line {{$invoiceAttachmentOther ? 'active' : ''}}"></div>
-                                <div class="step step3 {{$invoiceAttachmentOtherSent ? 'active' : ''}}">
+                                <div class="indicator-line {{$invoiceAttachment ? 'active' : ''}}"></div>
+                                <div class="step step3 {{$invoiceAttachmentSent ? 'active' : ''}}">
                                     <div class="step-icon">3</div>
                                     <p>Print or Send to Client</p>
                                 </div>
                             </section>
                         </div>
-                    @endif
+    
+                        {{-- Other  --}}
+                        @if($invoiceRef->currency != 'idr')
+                            <div class="text-center mt-5">
+                                <hr>
+                                <h6>Other Currency</h6>
+                                <section class="step-indicator">
+                                    <div class="step step1 {{$invoiceHasRequestedOther ? 'active' : ''}}">
+                                        <div class="step-icon">1</div>
+                                        <p>Request Sign</p>
+                                    </div>
+                                    <div class="indicator-line {{$invoiceHasRequestedOther ? 'active' : ''}}"></div>
+                                    <div class="step step2 {{$invoiceAttachmentOther ? 'active' : ''}}">
+                                        <div class="step-icon">2</div>
+                                        <p>Signed</p>
+                                    </div>
+                                    <div class="indicator-line {{$invoiceAttachmentOther ? 'active' : ''}}"></div>
+                                    <div class="step step3 {{$invoiceAttachmentOtherSent ? 'active' : ''}}">
+                                        <div class="step-icon">3</div>
+                                        <p>Print or Send to Client</p>
+                                    </div>
+                                </section>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-            </div>
+            @endif
+
 
             @include('pages.invoice.referral.form-detail.client')
         </div>

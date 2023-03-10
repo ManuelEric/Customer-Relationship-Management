@@ -3,7 +3,7 @@
 @section('content')
     <p style="margin:0;">Dear Emil,</p>
     <p>
-        Invoice no: {inv_id} has been signed. <br>
+        Invoice no: {{$invoice_id}} has been signed. <br>
         Please find attached the invoice.
     </p>
     <p>

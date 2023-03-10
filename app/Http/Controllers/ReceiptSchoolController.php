@@ -268,12 +268,15 @@ class ReceiptSchoolController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = 'test@gmail.com';
-        $data['recipient'] = 'test name';
+        $data['email'] = env('DIRECTOR_EMAIL');
+        $data['recipient'] = env('DIRECTOR_NAME');
         $data['title'] = "Request Sign of Receipt Number : " . $receipt_id;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
+            'fullname' => $receipt->invoiceB2b->sch_prog->school->sch_name,
+            'program_name' => $receipt->invoiceB2b->sch_prog->program->program_name,
+            'receipt_date' => date('d F Y', strtotime($receipt->created_at)),
         ];
 
         try {
@@ -332,39 +335,61 @@ class ReceiptSchoolController extends Controller
 
         $dataAxis = $this->axisRepository->getAxisByType('receipt');
 
-        $axis = [
-            'top' => $request->top,
-            'left' => $request->left,
-            'scaleX' => $request->scaleX,
-            'scaleY' => $request->scaleY,
-            'angle' => $request->angle,
-            'flipX' => $request->flipX,
-            'flipY' => $request->flipY,
-            'type' => 'receipt'
+        $attachmentDetails = [
+            'sign_status' => 'signed',
+            'approve_date' => Carbon::now()
         ];
 
         $receiptAttachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
 
-        if ($pdfFile->storeAs('public/uploaded_file/receipt/sch_prog/', $name)) {
+        if ($receiptAttachment->sign_status == 'signed') {
+            return response()->json(['status' => 'error', 'message' => 'Document has already signed']);
+        }
 
-            $attachmentDetails = [
-                'sign_status' => 'signed',
-                'approve_date' => Carbon::now()
-            ];
+        DB::beginTransaction();
+        try {
+            # if no_data == false
+            if ($request->no_data == 0) {
+                $axis = [
+                    'top' => $request->top,
+                    'left' => $request->left,
+                    'scaleX' => $request->scaleX,
+                    'scaleY' => $request->scaleY,
+                    'angle' => $request->angle,
+                    'flipX' => $request->flipX,
+                    'flipY' => $request->flipY,
+                    'type' => 'receipt'
+                ];
 
-            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAttachment->id, $attachmentDetails);
+                if (isset($dataAxis)) {
+                    $this->axisRepository->updateAxis($dataAxis->id, $axis);
+                } else {
 
-            if (isset($dataAxis)) {
-                $this->axisRepository->updateAxis($dataAxis->id, $axis);
-            } else {
-
-                $this->axisRepository->createAxis($axis);
+                    $this->axisRepository->createAxis($axis);
+                }
             }
 
-            return response()->json(['status' => 'success']);
-        } else {
-            return response()->json(['status' => 'error']);
+            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAttachment->id, $attachmentDetails);
+            if (!$pdfFile->storeAs('public/uploaded_file/receipt/sch_prog/', $name))
+                throw new Exception('Failed to store signed receipt file');
+
+            $data['title'] = 'Receipt No. ' . $receipt_id . ' has been signed';
+            $data['receipt_id'] = $receipt_id;
+
+            # send mail when document has been signed
+            Mail::send('pages.receipt.school-program.mail.signed', $data, function ($message) use ($data, $receiptAttachment) {
+                $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                    ->subject($data['title'])
+                    ->attach(public_path($receiptAttachment->attachment));
+            });
+
+            DB::commit();
+        } catch (Exception $e) {
+            Log::error('Failed to update status after being signed : ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Failed to update'], 500);
         }
+
+        return response()->json(['status' => 'success', 'message' => 'Receipt signed successfully']);
     }
 
     public function sendToClient(Request $request)
@@ -382,12 +407,17 @@ class ReceiptSchoolController extends Controller
         }
 
         $data['email'] = $receipt->invoiceB2b->sch_prog->user->email;
-        $data['cc'] = ['test1@example.com', 'test2@example.com'];
-        $data['recipient'] = 'Test Name';
+        $data['cc'] = [
+            env('CEO_CC'),
+            env('FINANCE_CC')
+        ];
+        $data['recipient'] = $receipt->invoiceB2b->sch_prog->user->email;
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
+            'fullname' => $receipt->invoiceB2b->sch_prog->school->sch_name,
+            'program_name' => $receipt->invoiceB2b->sch_prog->program->program_name,
         ];
 
         try {

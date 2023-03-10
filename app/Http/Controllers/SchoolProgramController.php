@@ -112,8 +112,7 @@ class SchoolProgramController extends Controller
     public function store(StoreSchoolProgramRequest $request)
     {
 
-        $schoolId = $request->route('school');
-
+        $schoolId = strtoupper($request->route('school'));
 
 
         $schoolPrograms = $request->all();
@@ -164,7 +163,7 @@ class SchoolProgramController extends Controller
 
     public function create(Request $request)
     {
-        $schoolId = $request->route('school');
+        $schoolId = strtoupper($request->route('school'));
 
         # retrieve school data by id
         $school = $this->schoolRepository->getSchoolById($schoolId);
@@ -192,7 +191,8 @@ class SchoolProgramController extends Controller
 
     public function show(Request $request)
     {
-        $schoolId = $request->route('school');
+
+        $schoolId = strtoupper($request->route('school'));
         $sch_progId = $request->route('detail');
 
         # retrieve school data by id
@@ -264,7 +264,7 @@ class SchoolProgramController extends Controller
             }
         }
 
-        $schoolId = $request->route('school');
+        $schoolId = strtoupper($request->route('school'));
         $sch_progId = $request->route('detail');
 
         # retrieve school data by id
@@ -312,7 +312,7 @@ class SchoolProgramController extends Controller
     public function update(StoreSchoolProgramRequest $request)
     {
 
-        $schoolId = $request->route('school');
+        $schoolId = strtoupper($request->route('school'));
         $sch_progId = $request->route('detail');
         $schoolPrograms = $request->all();
         if ($request->input('status') == '2') {
@@ -370,7 +370,7 @@ class SchoolProgramController extends Controller
 
     public function destroy(Request $request)
     {
-        $schoolId = $request->route('school');
+        $schoolId = strtoupper($request->route('school'));
         $sch_progId = $request->route('detail');
 
         DB::beginTransaction();

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 
 
-class SchoolProgram extends Model 
+class SchoolProgram extends Model
 {
     use HasFactory;
 
@@ -98,4 +98,5 @@ class SchoolProgram extends Model
     //         get: fn ($value) => $this->program->prog_program . ' - ' . $this->program->prog_main,
     //     );
     // }
+
 }

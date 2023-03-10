@@ -24,7 +24,7 @@
     </p>
     
     <p style="text-align: center;margin: 2.5em auto;">
-        <a class="button" href="href="{{ route('invoice-corp.sign_document', ['invoice' => $param['invb2b_num'], 'currency' => $param['currency']]) }}?token={{ csrf_token() }}""
+        <a class="button" href="{{ route('invoice-corp.sign_document', ['invoice' => $param['invb2b_num'], 'currency' => $param['currency']]) }}?token={{ csrf_token() }}"
             style="background: #3b6cde; 
              text-decoration: none; 
              padding: .5em 1.5em;

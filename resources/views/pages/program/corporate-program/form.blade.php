@@ -411,18 +411,17 @@
                                     <div class="col-md-6">
                                         <select name="empl_id" id="" class="select w-100" {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
                                             <option data-placeholder="true"></option>
+                                            @if(isset($edit))
+                                                @foreach ($employees as $employee)
+                                                    <option value="{{ $employee->id }}" 
+                                                        {{ $partnerProgram->empl_id ==  $employee->id ? 'selected' : ''}}>
+                                                        {{ $employee->first_name }} {{ $employee->last_name }}</option>
+                                                @endforeach    
+                                            @endif
                                             @if(isset($partnerProgram->empl_id))
-                                                @if(isset($edit))
-                                                    @foreach ($employees as $employee)
-                                                        <option value="{{ $employee->id }}" 
-                                                            {{ $partnerProgram->empl_id ==  $employee->id ? 'selected' : ''}}>
-                                                            {{ $employee->first_name }} {{ $employee->last_name }}</option>
-                                                    @endforeach    
-                                                @else
                                                     <option value="{{ $partnerProgram->empl_id }}" selected>
                                                         {{ $partnerProgram->user->first_name }} {{ $partnerProgram->user->last_name }}
                                                     </option>
-                                                @endif
                                             @elseif(empty($partnerProgram))
                                                 @foreach ($employees as $employee)
                                                     <option value="{{ $employee->id }}" {{ old('empl_id') == $employee->id ? "selected" : "" }}>{{ $employee->first_name }} {{ $employee->last_name }}</option>

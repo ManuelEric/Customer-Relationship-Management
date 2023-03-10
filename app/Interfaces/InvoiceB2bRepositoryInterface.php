@@ -25,4 +25,5 @@ interface InvoiceB2bRepositoryInterface
     public function getTotalRefundRequest($monthYear);
     public function getInvoiceOutstandingPayment($monthYear, $type, $start_date = null, $end_date = null);
     public function getRevenueByYear($year);
+    public function getAllInvoiceSchoolFromCRM();
 }

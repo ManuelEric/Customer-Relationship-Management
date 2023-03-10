@@ -4,9 +4,10 @@ namespace App\Repositories;
 
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Models\SchoolDetail;
+use App\Models\v1\SchoolDetail as V1SchoolDetail;
 use DataTables;
 
-class SchoolDetailRepository implements SchoolDetailRepositoryInterface 
+class SchoolDetailRepository implements SchoolDetailRepositoryInterface
 {
 
     public function getAllSchoolDetailDataTables($schoolId)
@@ -34,14 +35,19 @@ class SchoolDetailRepository implements SchoolDetailRepositoryInterface
         return SchoolDetail::destroy($schoolDetailId);
     }
 
-    public function createSchoolDetail(array $schoolDetails) 
+    public function createSchoolDetail(array $schoolDetails)
     {
         return SchoolDetail::insert($schoolDetails);
     }
 
-    public function updateSchoolDetail($schoolDetailId, array $newDetails) 
+    public function updateSchoolDetail($schoolDetailId, array $newDetails)
     {
         return SchoolDetail::find($schoolDetailId)->update($newDetails);
     }
 
+    # CRM
+    public function getAllSchoolDetailFromCRM()
+    {
+        return V1SchoolDetail::all();
+    }
 }

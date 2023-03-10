@@ -121,7 +121,7 @@ class PartnerProgramController extends Controller
     public function store(StorePartnerProgramRequest $request)
     {
 
-        $corpId = $request->route('corp');
+        $corpId = strtoupper($request->route('corp'));
 
         $partnerPrograms = $request->all();
         if ($request->input('status') == '2') {
@@ -171,7 +171,7 @@ class PartnerProgramController extends Controller
 
     public function create(Request $request)
     {
-        $corp_id = $request->route('corp');
+        $corp_id = strtoupper($request->route('corp'));
 
         # retrieve program data
         $programsB2B = $this->programRepository->getAllProgramByType('B2B');
@@ -201,7 +201,7 @@ class PartnerProgramController extends Controller
 
     public function show(Request $request)
     {
-        $corpId = $request->route('corp');
+        $corpId = strtoupper($request->route('corp'));
         $corp_ProgId = $request->route('detail');
 
         // # retrieve school data by id
@@ -273,7 +273,7 @@ class PartnerProgramController extends Controller
             }
         }
 
-        $corpId = $request->route('corp');
+        $corpId = strtoupper($request->route('corp'));
         $partner_progId = $request->route('detail');
 
         # retrieve school data by id
@@ -322,7 +322,7 @@ class PartnerProgramController extends Controller
     public function update(StorePartnerProgramRequest $request)
     {
 
-        $corpId = $request->route('corp');
+        $corpId = strtoupper($request->route('corp'));
         $partner_progId = $request->route('detail');
         $partnerPrograms = $request->all();
         if ($request->input('status') == '2') {
@@ -381,7 +381,7 @@ class PartnerProgramController extends Controller
 
     public function destroy(Request $request)
     {
-        $corpId = $request->route('corp');
+        $corpId = strtoupper($request->route('corp'));
         $corp_progId = $request->route('detail');
 
         DB::beginTransaction();

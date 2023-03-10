@@ -4,15 +4,6 @@
 
 @section('content')
 
-    {{-- @php
-        $requestSignIdr = '<button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc2">
-                                <i class="bi bi-pen me-1"></i> Request Sign IDR
-                            </button>';
-        $requestSignOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1" id="request-acc-other2">
-                                <i class="bi bi-pen me-1"></i> Request Sign Other
-                            </button>';
-    @endphp --}}
-
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/school-program/status/needed') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Invoice
@@ -28,42 +19,6 @@
                     <h4>{{ $school->sch_name }}</h4>
                     <h6>{{ $schoolProgram->program->sub_prog ? $schoolProgram->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $schoolProgram->program->prog_program }}
                     </h6>
-                    {{-- @if (!isset($invoiceSch->refund) && isset($invoiceSch))
-                        <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
-                                @php
-                                    $invoiceSchAttachment = $invoiceSch->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
-                                @endphp
-                                @if (!$invoiceSchAttachment)
-                                    {!! $requestSignIdr !!}
-                                @else
-                                    <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}" 
-                                        class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                        <i class="bi bi-printer me-1"></i> Print IDR
-                                    </a>
-                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-idr2">
-                                        <i class="bi bi-printer me-1"></i> Send Invoice IDR to Client
-                                    </button>
-                                @endif
-                            </div>
-                            <div class="d-flex justify-content-center mt-2" style="margin-bottom:10px">
-                                @php
-                                    $invoiceSchAttachmentOther = $invoiceSch->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
-                                @endphp
-                                @if (!$invoiceSchAttachmentOther)
-                                    @if($invoiceSch->currency != 'idr')
-                                        {!! $requestSignOther !!}
-                                    @endif
-                                @else
-                                    <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" 
-                                        class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                        <i class="bi bi-printer me-1"></i> Print Other
-                                    </a>
-                                    <button class="btn btn-sm btn-outline-info rounded mx-1" id="send-inv-client-other2">
-                                        <i class="bi bi-printer me-1"></i> Send Invoice Other to Client
-                                    </button>
-                                @endif
-                            </div>
-                    @endif --}}
 
                 </div>
             </div>

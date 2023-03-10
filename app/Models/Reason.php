@@ -19,7 +19,10 @@ class Reason extends Model
      * @var array
      */
     protected $fillable = [
+        'reason_id',
         'reason_name',
+        'created_at',
+        'updated_at',
     ];
 
     public function school_program()
@@ -31,5 +34,4 @@ class Reason extends Model
     {
         return $this->hasMany(ClientProgram::class, 'reason_id', 'reason_id');
     }
-
 }

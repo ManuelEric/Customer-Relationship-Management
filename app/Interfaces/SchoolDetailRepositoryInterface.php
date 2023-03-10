@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface SchoolDetailRepositoryInterface 
+interface SchoolDetailRepositoryInterface
 {
     public function getAllSchoolDetailDataTables($schoolId);
     public function getAllSchoolDetailsById($schoolId);
@@ -11,4 +11,5 @@ interface SchoolDetailRepositoryInterface
     public function deleteSchoolDetail($schoolDetailId);
     public function createSchoolDetail(array $schoolDetails);
     public function updateSchoolDetail($schoolDetailId, array $schoolDetails);
+    public function getAllSchoolDetailFromCRM();
 }

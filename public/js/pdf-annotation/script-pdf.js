@@ -31,7 +31,10 @@ function deleteSelectedObject(event) {
 
 function savePDF(method, filename, route=null) {
     // pdf.savePdf();
-    pdf.savePdf(method, filename, route); // save with given file name
+    let text = "Are you sure?\nYou want to save this Document?";
+    if(confirm(text) == true){
+        pdf.savePdf(method, filename, route); // save with given file name
+    }
 }
 
 function clearPage() {

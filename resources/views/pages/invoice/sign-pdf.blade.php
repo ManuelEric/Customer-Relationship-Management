@@ -81,8 +81,9 @@
             ready() {
                 console.log("Plugin initialized successfully");
             },
-            scale: 1.7,
-            pageImageCompression: "SLOW", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
+            scale: 1.8,
+            pageImageCompression: "SLOW",
+            //  FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
         });
         
     </script>

@@ -318,7 +318,7 @@
                         </h4>
                     </div>
                     <div class="modal-body">
-                        @if ($errors->any())
+                        {{-- @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul class="pb-0 mb-0">
                                     @foreach ($errors->all() as $error)
@@ -327,7 +327,7 @@
                                 </ul>
                             </div>
                         @endif
-                        
+                         --}}
                         <form action="{{ url('master/edufair/' . $edufair->id . '/review') }}" method="POST"
                             id="formReview">
                             @csrf
@@ -340,11 +340,14 @@
                                     <select name="reviewer_name" id="reviewer_name" class="modal-select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($internal_pic as $pic)
-                                            <option value="{{ $pic->first_name . ' ' . $pic->last_name }}">
+                                            <option value="{{ $pic->id }}">
                                                 {{ $pic->first_name . ' ' . $pic->last_name }}
                                             </option>
                                         @endforeach
                                     </select>
+                                    @error('reviewer_name')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
 
                                 <div class="col-md-5 mb-2">
@@ -357,11 +360,17 @@
                                         <option value="Poor">Poor</option>
                                         <option value="Bad">Bad</option>
                                     </select>
+                                    @error('score')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
 
                                 <div class="col-md-12 mb-2">
                                     <label>Review</label>
                                     <textarea name="review" cols="30" rows="10" id="review"></textarea>
+                                    @error('review')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
 
                                 <div class="col-md-12 mt-2">
@@ -511,6 +520,17 @@
                         console.log(error);
                     })
             }
+        </script>
+    @endif
+
+      @if (
+        $errors->has('reviewer_name') |
+            $errors->has('score') |
+            $errors->has('review'))
+        <script>
+            $(document).ready(function() {
+                $('#reviewForm').modal('show');
+            })
         </script>
     @endif
 

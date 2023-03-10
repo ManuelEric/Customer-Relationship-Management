@@ -45,5 +45,4 @@ class SchoolDetail extends Model
     {
         return $this->belongsTo(SchoolDetail::class, 'school_pic', 'schdetail_id');
     }
-
 }
