@@ -79,8 +79,8 @@ class ImportStudent extends Command
      */
     public function handle()
     {
-        // DB::beginTransaction();
-        // try {
+        DB::beginTransaction();
+        try {
 
             $crm_students = $this->clientRepository->getStudentFromV1();
             foreach ($crm_students as $student) 
@@ -105,15 +105,15 @@ class ImportStudent extends Command
                 $this->attachDreamMajors($student, $studentNumPrimaryKey);
 
             }
-        //     DB::commit();
-        //     Log::info('Import Student works fine');
+            DB::commit();
+            Log::info('Import Student works fine');
             
-        // } catch (Exception $e) {
+        } catch (Exception $e) {
             
-        //     DB::rollBack();
-        //     Log::warning('Failed to import student : '. $e->getMessage());
+            DB::rollBack();
+            Log::warning('Failed to import student : '. $e->getMessage());
 
-        // }
+        }
 
         return Command::SUCCESS;
     }

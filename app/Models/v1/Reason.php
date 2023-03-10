@@ -5,16 +5,14 @@ namespace App\Models\v1;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Lead extends Model
+class Reason extends Model
 {
     use HasFactory;
 
     protected $connection = 'mysql_bigdatav1';
 
-    protected $table = 'tbl_lead';
-    protected $primaryKey = 'lead_id';
-    
-    public $incrementing = false;
+    protected $table = 'tbl_reason';
+    protected $primaryKey = 'reason_id';
 
     /**
      * The attributes that should be visible in arrays.
@@ -22,17 +20,12 @@ class Lead extends Model
      * @var array
      */
     protected $fillable = [
-        'lead_id',
-        'lead_name',
+        'reason_id',
+        'reason_name',
     ];
-
-    public function student()
-    {
-        return $this->hasMany(Student::class, 'lead_id', 'lead_id');
-    }
 
     public function clientProgram()
     {
-        return $this->hasMany(ClientProgram::class, 'lead_id', 'lead_id');
+        return $this->hasMany(ClientProgram::class, 'reason_id', 'reason_id');
     }
 }

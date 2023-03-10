@@ -362,7 +362,21 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getStudentByStudentName($studentName)
     {
-        return UserClient::where(DB::raw('CONCAT(first_name, " ", last_name)'), $studentName)->first();
+        $studentName = explode(' ', $studentName);
+        // return UserClient::where(DB::raw('CONCAT(first_name, " ", last_name)'), $studentName)->first();
+        return UserClient::where(function ($extquery) use ($studentName) {
+
+            # search word by word 
+            # and loop based on name length
+            for ($i = 0 ; $i < count($studentName) ; $i++) {
+
+                # looping at least two times
+                if ($i <= 1)
+                    $extquery = $extquery->whereRaw("CONCAT(first_name, ' ', COALESCE(last_name, '')) like ?", ['%'.$studentName[$i].'%']);
+
+            }
+
+        })->first();
     }
 
     # CRM

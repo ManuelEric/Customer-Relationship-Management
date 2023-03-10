@@ -35,4 +35,9 @@ class Program extends Model
     {
         return $this->hasMany(Student::class, 'prog_id', 'prog_id');
     }
+
+    public function client_program()
+    {
+        return $this->hasMany(ClientProgram::class, 'prog_id', 'prog_id');
+    }
 }

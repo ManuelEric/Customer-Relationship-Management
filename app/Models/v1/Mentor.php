@@ -64,4 +64,14 @@ class Mentor extends Model
     {
         return $this->belongsTo(University::class, 'univ_id', 'univ_id');
     }
+
+    public function mainMentorProgram()
+    {
+        return $this->belongsToMany(ClientProgram::class, 'tbl_stmentor', 'mt_id1', 'stprog_id');
+    }
+
+    public function backupMentorProgram()
+    {
+        return $this->belongsToMany(ClientProgram::class, 'tbl_stmentor', 'mt_id2', 'stprog_id');
+    }
 }

@@ -76,4 +76,9 @@ class Student extends Model
     {
         return $this->belongsTo(Program::class, 'prog_id', 'prog_id');
     }
+
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'st_num', 'st_num');
+    }
 }
