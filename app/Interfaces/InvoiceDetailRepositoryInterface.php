@@ -6,6 +6,7 @@ interface InvoiceDetailRepositoryInterface
 {
     public function getInvoiceDetailIdByInvB2b($invb2b_id, $invdtl_installment);
     public function getInvoiceDetailByInvB2bId($invb2b_id);
+    public function getInvoiceDetailByInvB2bIdnName($invb2b_id, $name);
     public function deleteInvoiceDetailById($invdtl_id);
     public function createInvoiceDetail(array $installments);
     public function updateInvoiceDetailByInvId($invoiceId, array $installmentDetails);

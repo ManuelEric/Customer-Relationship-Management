@@ -156,6 +156,11 @@ class ReceiptRepository implements ReceiptRepositoryInterface
         return Receipt::create($receiptDetails);
     }
 
+    public function insertReceipt(array $receiptDetails)
+    {
+        return Receipt::insert($receiptDetails);
+    }
+
     public function updateReceipt($receiptId, array $newDetails)
     {
         return Receipt::whereId($receiptId)->update($newDetails);

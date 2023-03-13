@@ -38,4 +38,14 @@ class InvoiceSchool extends Model
         'invsch_tnc',
         'invsch_status',
     ];
+
+    public function invoice_detail()
+    {
+        return $this->hasMany(InvoiceDetail::class, 'inv_id', 'invsch_id');
+    }
+
+    public function receipt()
+    {
+        return $this->hasOne(Receipt::class, 'inv_id', 'invsch_id');
+    }
 }
