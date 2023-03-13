@@ -69,12 +69,14 @@
                     },
                     {
                         data: 'partner_name',
+                        name: 'tbl_corp.corp_name'
                     },
                     {
                         data: 'referral_type',
                     },
                     {
                         data: 'program_name',
+                        name: 'tbl_prog.prog_program',
                         render: function(data, type, row, meta) {
                             return row.referral_type == "Out" ? row.additional_prog_name : row.program_name
                         }
@@ -110,6 +112,22 @@
                     }
                 ]
             });
+
+            @php            
+                $privilage = $menus['Program']->where('submenu_name', 'Referral')->first();
+            @endphp
+
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
 
             $('#refTable tbody').on('click', '.editRef ', function() {
                 var data = table.row($(this).parents('tr')).data();

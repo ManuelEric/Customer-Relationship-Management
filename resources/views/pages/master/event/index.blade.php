@@ -96,6 +96,23 @@
                 ]
             });
 
+            @php            
+                $privilage = $menus['Master']->where('submenu_name', 'Event')->first();
+            @endphp
+
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
+
             realtimeData(table)
 
             $('#eventTable tbody').on('click', '.showEvent ', function() {

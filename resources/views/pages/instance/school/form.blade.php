@@ -76,6 +76,8 @@
                                                     Success
                                                 @elseif ($schoolProgram->status == 2)
                                                     Denied
+                                                @elseif ($schoolProgram->status == 3)
+                                                    Refund
                                                 @endif
                                             </small>
                                         </div>

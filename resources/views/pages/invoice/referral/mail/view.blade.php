@@ -9,22 +9,22 @@
         <tr>
             <td>Full Name</td>
             <td>:</td>
-            <td>{Full Name}</td>
+            <td>{{ ucwords($param['fullname']) }}</td>
         </tr>
         <tr>
             <td>Program Name</td>
             <td>:</td>
-            <td>{Main Program - Prog Program}</td>
+            <td>{{ $param['program_name'] }}</td>
         </tr>
         <tr>
             <td>Invoice Date</td>
             <td>:</td>
-            <td>{Invoice Date}</td>
+            <td>{{ $param['invoice_date'] }}</td>
         </tr>
         <tr>
             <td>Invoice Due Date</td>
             <td>:</td>
-            <td>{Invoice Due Date}</td>
+            <td>{{ $param['invoice_duedate'] }}</td>
         </tr>
     </table>
     <p>

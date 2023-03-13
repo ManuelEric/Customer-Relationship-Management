@@ -23,8 +23,12 @@
                     onclick="enableSelector(event)"></i></button>
         </div>
         <div class="tool">
-            <button class="btn btn-light btn-sm" onclick="savePDF('print','{{$attachment->attachment}}')"><i class="fa fa-print"
-            {{-- <button class="btn btn-light btn-sm" onclick="printPDF()"><i class="fa fa-print" --}}
+            <button class="btn btn-light btn-sm" 
+                @if (isset($attachment) && $attachment->inv_id != NULL)
+                    onclick="savePDF('print','{{$attachment->attachment}}')"><i class="fa fa-print"
+                @else
+                    onclick="savePDF('print','{{$invoiceAttachment->attachment}}')"><i class="fa fa-print"
+                @endif
                     title="Print"></i> Print</button>
         </div>
     </div>

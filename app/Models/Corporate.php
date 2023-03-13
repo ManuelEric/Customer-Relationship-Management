@@ -46,6 +46,15 @@ class Corporate extends Model
         return $instance->newQuery()->where('corp_id', $id)->first();
     }
 
+    public static function whereCorpName($name)
+    {
+        if (is_array($name) && empty($name)) return new Collection;
+
+        $instance = new static;
+
+        return $instance->newQuery()->whereRaw('lower(corp_name) = ?', [$name])->first();
+    }
+
     public function edufair()
     {
         return $this->hasMany(EdufLead::class, 'corp_id', 'corp_id');

@@ -482,7 +482,7 @@
         function returnData(purchase_id, detail_id) {
             $("#detailForm").append('<input type="hidden" name="_method" value="PUT">');
             Swal.showLoading()
-            let link = "{{ url('master/purchase') }}/" + purchase_id.toLowerCase() + '/detail/1' + detail_id
+            let link = "{{ url('master/purchase') }}/" + purchase_id.toLowerCase() + '/detail/' + detail_id
 
             axios.get(link)
                 .then(function(response) {

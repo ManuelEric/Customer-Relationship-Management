@@ -33,6 +33,15 @@ class Lead extends Model
         return $instance->newQuery()->where('lead_id', $id)->first();
     }
 
+    public static function whereLeadName($name)
+    {
+        if (is_array($name) && empty($name)) return new Collection;
+
+        $instance = new static;
+
+        return $instance->newQuery()->whereRaw('lower(main_lead) = ?', [$name])->first();
+    }
+
     public function client()
     {
         return $this->hasMany(UserClient::class, 'lead_id', 'lead_id');

@@ -77,21 +77,21 @@ Route::prefix('client-program')->name('invoice.program.')->group(function () {
 
 
 // PARTNER 
-Route::get('corporate-program/create', function () {
-    return view('pages.invoice.corporate-program.form', ['status' => 'create']);
-});
+// Route::get('corporate-program/create', function () {
+//     return view('pages.invoice.corporate-program.form', ['status' => 'create']);
+// });
 
-Route::get('corporate-program/1', function () {
-    return view('pages.invoice.corporate-program.form', ['status' => 'view']);
-});
+// Route::get('corporate-program/1', function () {
+//     return view('pages.invoice.corporate-program.form', ['status' => 'view']);
+// });
 
-Route::get('corporate-program/1/edit', function () {
-    return view('pages.invoice.corporate-program.form', ['status' => 'edit']);
-});
+// Route::get('corporate-program/1/edit', function () {
+//     return view('pages.invoice.corporate-program.form', ['status' => 'edit']);
+// });
 
-Route::get('corporate-program/1/export/pdf', function () {
-    return view('pages.invoice.corporate-program.export.invoice-pdf');
-});
+// Route::get('corporate-program/1/export/pdf', function () {
+//     return view('pages.invoice.corporate-program.export.invoice-pdf');
+// });
 
 // Route::get('corporate-program/status/{status?}', function ($status = null) {
 //     return view('pages.invoice.corporate-program.index', ['status' => $status]);
@@ -153,12 +153,10 @@ Route::prefix('referral')->name('invoice-ref.')->group(function () {
 Route::prefix('corporate-program')->name('invoice-corp.')->group(function () {
     Route::resource('{corp_prog}/detail', InvoicePartnerController::class)->except(['index']);
     Route::get('status/{status}', [InvoicePartnerController::class, 'index'])->name('index');
-    // Route::get('{invoice}/export/{currency}', [InvoiceSchoolController::class, 'export'])->name('export');
-    // Route::get('{invoice}/request_sign/{currency}', [InvoiceSchoolController::class, 'requestSign'])->name('request_sign');
-    // Route::get('{invoice}/upload', [InvoiceSchoolController::class, 'createSignedAttachment'])->name('create_signed_document');
-    // Route::post('{invoice}/upload', [InvoiceSchoolController::class, 'storeSignedAttachment'])->name('upload_signed_document');
-    // Route::get('{invoice}/send', [InvoiceSchoolController::class, 'sendToClient'])->name('send_to_client');
-    // Route::get('{invoice}/attachment/download', [InvoiceSchoolController::class, 'download'])->name('download');
+    Route::get('{invoice}/export/{currency}', [InvoicePartnerController::class, 'export'])->name('export');
+    Route::get('{invoice}/request_sign/{currency}', [InvoicePartnerController::class, 'requestSign'])->name('request_sign');
+    Route::get('{invoice}/sign/{currency}', [InvoicePartnerController::class, 'signAttachment'])->name('sign_document');
+    Route::get('{invoice}/send/{currency}', [InvoicePartnerController::class, 'sendToClient'])->name('send_to_client');
     Route::post('{invoice}/refund', [RefundPartnerController::class, 'store'])->name('refund');
     Route::delete('{invoice}/refund/{refund}', [RefundPartnerController::class, 'destroy'])->name('refund.destroy');
 });

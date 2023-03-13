@@ -72,9 +72,9 @@
                                 <tr>
                                     <td width="15%" valign="top">From : </td>
                                     <td width="85%"><b>PT. Jawara Edukasih Indonesia</b><br>
-                                        Jl Jeruk Kembar Blok Q9 No. 15 <br>
-                                        Srengseng, Kembangan <br>
-                                        DKI Jakarta
+                                        {{ $companyDetail['address'] }} <br>
+                                        {{ $companyDetail['address_dtl'] }} <br>
+                                        {{ $companyDetail['city'] }}
                                         <br><br>
                                     </td>
                                 </tr>
@@ -114,7 +114,7 @@
             <table>
                 <tr>
                     <td>
-                        Please process payment to PT Jawara Edukasih Indonesia for the following services rendered :
+                        Please process payment to {{ $companyDetail['name'] }} for the following services rendered :
                     </td>
                 </tr>
             </table>
@@ -142,7 +142,7 @@
                             </p>
                         </div>
 
-                        @if(isset($invoiceSch->invb2b_discidr))
+                        @if($invoiceSch->invb2b_discidr != 0)
                             <div style="margin-top:5px;">
                                 <p>
                                     <strong> Discount</strong>
@@ -174,7 +174,7 @@
                                 </strong>
                             </p>
                         </div>
-                        @if(isset($invoiceSch->invb2b_discidr))
+                        @if($invoiceSch->invb2b_discidr != 0)
                             <div style="margin-top:5px;">
                                 <p>
                                     <strong> - {{ $currency == 'other' ? $invoiceSch->invoiceDiscount : $invoiceSch->invoiceDiscountIdr }}</strong>
@@ -245,7 +245,7 @@
                         </table>
                     </td>
                     <td width="40%" align="center" valign="top">
-                        PT. Jawara Edukasih Indonesia
+                        {{ $companyDetail['name'] }}
                         <br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director

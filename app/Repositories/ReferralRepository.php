@@ -12,18 +12,31 @@ class ReferralRepository implements ReferralRepositoryInterface
     public function getAllReferralDataTables()
     {
         return Datatables::eloquent(
-            Referral::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_referral.prog_id')->leftJoin('users', 'users.id', '=', 'tbl_referral.empl_id')->select(
-                'tbl_referral.id',
-                'tbl_corp.corp_name as partner_name',
-                'tbl_referral.referral_type',
-                'tbl_prog.prog_program as program_name',
-                'tbl_referral.number_of_student',
-                'tbl_referral.revenue',
-                'tbl_referral.additional_prog_name',
-                'tbl_referral.currency',
-                DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
-            )
-        )->make(true);
+            Referral::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+                ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_referral.prog_id')
+                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                ->leftJoin('users', 'users.id', '=', 'tbl_referral.empl_id')->select(
+                    'tbl_referral.id',
+                    'tbl_corp.corp_name as partner_name',
+                    'tbl_referral.referral_type',
+                    DB::raw('(CASE
+                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                            ELSE tbl_prog.prog_program
+                        END) AS program_name'),
+                    'tbl_referral.number_of_student',
+                    'tbl_referral.revenue',
+                    'tbl_referral.additional_prog_name',
+                    'tbl_referral.currency',
+                    DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
+                )
+        )->filterColumn(
+            'pic_name',
+            function ($query, $keyword) {
+                $sql = 'CONCAT(users.first_name," ",users.last_name) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            }
+        )
+            ->make(true);
     }
 
     public function getAllReferralByTypeAndMonth($type, $monthYear)
@@ -88,6 +101,7 @@ class ReferralRepository implements ReferralRepositoryInterface
     public function getReferralComparison($startYear, $endYear)
     {
         return Referral::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_referral.prog_id')
+            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
             ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->select(
                 'tbl_referral.prog_id',
@@ -97,8 +111,8 @@ class ReferralRepository implements ReferralRepositoryInterface
                         WHEN "In" 
                             THEN 
                                 (CASE
-                                WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                                    ELSE tbl_prog.prog_program
+                                WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_prog.prog_program, " from ", tbl_main_prog.prog_name, tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                                    ELSE CONCAT(tbl_prog.prog_program, " from ", tbl_main_prog.prog_name)
                                 END) 
                     END AS program_name'
                 ),
@@ -123,5 +137,20 @@ class ReferralRepository implements ReferralRepositoryInterface
             ->groupBy('prog_id')
             ->groupBy(DB::raw('year(ref_date)'))
             ->get();
+    }
+
+    public function getTotalReferralProgramComparison($startYear, $endYear)
+    {
+        $start = Referral::select(DB::raw("'start' as 'type'"), 'referral_type', DB::raw('count(id) as count'), DB::raw('sum(revenue) as total_fee'))
+            ->whereYear('ref_date', $startYear)
+            ->groupBy('referral_type');
+
+        $end = Referral::select(DB::raw("'end' as 'type'"), 'referral_type', DB::raw('count(id) as count'), DB::raw('sum(revenue) as total_fee'))
+            ->whereYear('ref_date', $endYear)
+            ->groupBy('referral_type')
+            ->union($start)
+            ->get();
+
+        return $end;
     }
 }

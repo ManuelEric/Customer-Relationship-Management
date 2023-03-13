@@ -96,6 +96,8 @@
                                             <td>{{ $invoice->sch_prog->school->sch_name }}</td>
                                         @elseif(isset($invoice->partnerprog_id))
                                             <td>{{ $invoice->partner_prog->corp->corp_name }}</td>
+                                        @elseif(isset($invoice->ref_id))
+                                            <td>{{ $invoice->referral->partner->corp_name }}</td>
                                         @endif
 
                                         {{-- Program Name --}}
@@ -105,6 +107,8 @@
                                             <td>{{ $invoice->sch_prog->program->sub_prog ? $invoice->sch_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->sch_prog->program->prog_program }}</td>
                                         @elseif(isset($invoice->partnerprog_id))
                                             <td>{{ $invoice->partner_prog->program->sub_prog ? $invoice->partner_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->partner_prog->program->prog_program }}</td>
+                                        @elseif(isset($invoice->ref_id))
+                                            <td>{{ $invoice->referral->additional_prog_name }}</td>
                                         @endif 
 
                                         {{-- Installment --}}
@@ -157,6 +161,19 @@
     </div>
     
     <script>
+         @php            
+            $privilage = $menus['Report']->where('submenu_name', 'Unpaid Payment')->first();
+        @endphp
+        $(document).ready(function() {
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                    
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+        });
+
          function ExportToExcel() {
 
             var workbook = XLSX.utils.book_new();

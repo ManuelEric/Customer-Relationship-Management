@@ -12,41 +12,54 @@
             </button>
         </div>
     </div>
-    <div class="list-group list-group-flush">
-        @if (isset($pics))
-            @foreach ($pics as $pic)
-                <div class="list-group-item">
-                    <div class="d-flex align-items-center mb-1">
-                        <strong class="text-muted me-2">
-                            {{ $pic->pic_name }}
-                        </strong>
-                        <div class="">
-                            <a href="#" onclick="returnData('{{ $corporate->corp_id }}','{{ $pic->id }}')"
-                                class="text-decoration-none" data-bs-target="#picForm">
-                                <i class="bi bi-pencil text-warning"></i>
+    {{-- <div class="card-body"> --}}
+        <div class="list-group list-group-flush overflow-auto">
+            @if (isset($pics))
+                @forelse ($pics as $pic)
+                    <div class="list-group-item">
+                        <div class="d-flex align-items-center mb-1">
+                            <strong class="text-muted me-2">
+                                {{ $pic->pic_name }}
+                            </strong>
+                            <div class="">
+                                <a href="#" onclick="returnData('{{ $corporate->corp_id }}','{{ $pic->id }}')"
+                                    class="text-decoration-none" data-bs-target="#picForm">
+                                    <i class="bi bi-pencil text-warning"></i>
+                                </a>
+                                <a href="#"
+                                    onclick="confirmDelete('instance/corporate/{{ $corporate->corp_id }}/detail', '{{ $pic->id }}')"
+                                    class="text-decoration-none">
+                                    <i class="bi bi-trash2 text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            @if ($pic->pic_mail)
+                            <div class="badge badge-success me-2">
+                                <i class="bi bi-envelope me-1"></i> {{ $pic->pic_mail }}
+                            </div>
+                            @endif
+                            @if ($pic->pic_phone)
+                            <div class="badge badge-info me-2">
+                                <i class="bi bi-phone me-1"></i> {{ $pic->pic_phone }}
+                            </div>
+                            @endif
+                            @if ($pic->pic_linkedin)
+                            <a href="{{ $pic->pic_linkedin }}" class="btn btn-sm btn-outline-primary rounded-circle">
+                                <i class="bi bi-linkedin"></i>
                             </a>
-                            <a href="#"
-                                onclick="confirmDelete('instance/corporate/{{ $corporate->corp_id }}/detail', '{{ $pic->id }}')"
-                                class="text-decoration-none">
-                                <i class="bi bi-trash2 text-danger"></i>
-                            </a>
+                            @endif
                         </div>
                     </div>
-                    <div class="d-flex align-items-center">
-                        <div class="badge badge-success me-2">
-                            <i class="bi bi-envelope me-1"></i> {{ $pic->pic_mail }}
-                        </div>
-                        <div class="badge badge-info me-2">
-                            <i class="bi bi-phone me-1"></i> {{ $pic->pic_phone }}
-                        </div>
-                        <a href="{{ $pic->pic_linkedin }}" class="btn btn-sm btn-outline-primary rounded-circle">
-                            <i class="bi bi-linkedin"></i>
-                        </a>
+                    @empty
+                    <div class="m-3">
+                        No PIC yet
                     </div>
-                </div>
-            @endforeach
-        @endif
-    </div>
+
+                @endforelse
+            @endif
+        </div>
+    {{-- </div> --}}
 </div>
 
 

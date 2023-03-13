@@ -88,7 +88,7 @@
                                                                                 <td>Success Percentage</td>
                                                                                 <td class="text-end">
                                                                                     <span class="badge badge-info init-consult-details">
-                                                                                        {{ $successPercentage }}%
+                                                                                        {{ round($successPercentage) }}%
                                                                                     </span>
                                                                                 </td>
                                                                             </tr>

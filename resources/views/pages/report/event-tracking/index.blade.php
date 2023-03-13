@@ -124,7 +124,19 @@
 
 
     <script>
-         function ExportToExcel() {
+        @php            
+            $privilage = $menus['Report']->where('submenu_name', 'Event Tracking')->first();
+        @endphp
+        $(document).ready(function() {
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                    
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+        });
+        function ExportToExcel() {
 
             var workbook = XLSX.utils.book_new();
             var ws = XLSX.utils.table_to_sheet(document.getElementById("tbl_event"));

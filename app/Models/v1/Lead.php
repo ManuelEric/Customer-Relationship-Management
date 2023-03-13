@@ -25,4 +25,14 @@ class Lead extends Model
         'lead_id',
         'lead_name',
     ];
+
+    public function student()
+    {
+        return $this->hasMany(Student::class, 'lead_id', 'lead_id');
+    }
+
+    public function clientProgram()
+    {
+        return $this->hasMany(ClientProgram::class, 'lead_id', 'lead_id');
+    }
 }

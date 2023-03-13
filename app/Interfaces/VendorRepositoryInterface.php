@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface VendorRepositoryInterface 
+interface VendorRepositoryInterface
 {
     public function getAllVendorDataTables();
     public function getAllVendor();
@@ -11,4 +11,5 @@ interface VendorRepositoryInterface
     public function createVendor(array $vendorDetails);
     public function updateVendor($vendorId, array $newDetails);
     public function cleaningVendor();
+    public function getAllVendorFromCRM();
 }

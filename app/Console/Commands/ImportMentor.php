@@ -62,13 +62,14 @@ class ImportMentor extends Command
      */
     public function handle()
     {
-        $mentors = $this->mentorRepository->getAllMentors();
+        # CRM
+        $crm_mentors = $this->mentorRepository->getAllMentors();
         
         DB::beginTransaction();
 
         try {
 
-            foreach ($mentors as $mentor) 
+            foreach ($crm_mentors as $mentor) 
             {
 
                 $extended_id = $mentor->mt_id;

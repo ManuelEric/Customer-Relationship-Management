@@ -4,8 +4,10 @@ namespace App\Repositories;
 
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Models\Corporate;
+use App\Models\v1\Corp as CRMCorp;
 use Carbon\Carbon;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 
 class CorporateRepository implements CorporateRepositoryInterface
 {
@@ -20,17 +22,27 @@ class CorporateRepository implements CorporateRepositoryInterface
     }
     public function getCountTotalCorporateByMonthly($monthYear)
     {
-        $year = date('Y',strtotime($monthYear));
-        $month = date('m',strtotime($monthYear));
-        
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
 
         return Corporate::whereYear('created_at', '=', $year)
-              ->whereMonth('created_at', '=', $month)->count();
+            ->whereMonth('created_at', '=', $month)->count();
     }
 
     public function getCorporateById($corporateId)
     {
         return Corporate::whereCorpId($corporateId);
+    }
+
+    // public function getCorporateByName($corporateName)
+    // {
+    //     return Corporate::whereCorpName($corporateName);
+    // }
+
+    public function getCorporateByName($corp_name)
+    {
+        return Corporate::where('corp_name', $corp_name)->first();
     }
 
     public function deleteCorporate($corporateId)
@@ -58,7 +70,7 @@ class CorporateRepository implements CorporateRepositoryInterface
 
         Corporate::where('corp_mail', '=', '')->orWhere('corp_mail', '=', '-')->orWhere('corp_mail', '=', 'no email. contact it')->update(
             [
-                'corp_industry' => null
+                'corp_mail' => null
             ]
         );
 
@@ -124,5 +136,41 @@ class CorporateRepository implements CorporateRepositoryInterface
             return Corporate::whereBetween('created_at', [$firstDay, $lastDay])
                 ->get();
         }
+    }
+
+    # crm
+    public function getCorpFromV1()
+    {
+        return CRMCorp::select([
+            'corp_id',
+            'corp_name',
+            DB::raw('(CASE
+                WHEN corp_industry = "" THEN NULL ELSE corp_industry
+            END) AS corp_industry'),
+            DB::raw('(CASE
+                WHEN corp_mail = "" OR corp_mail = "-" OR corp_mail like "%no email. contact it%" THEN NULL ELSE corp_mail
+            END) AS corp_mail'),
+            DB::raw('(CASE
+                WHEN corp_phone = "" OR corp_phone = "-" OR corp_phone like "%no contact%" THEN NULL ELSE corp_phone
+            END) AS corp_phone'),
+            DB::raw('(CASE
+                WHEN corp_insta = "" THEN NULL ELSE corp_insta
+            END) AS corp_insta'),
+            DB::raw('(CASE
+                WHEN corp_site = "" THEN NULL ELSE corp_site
+            END) AS corp_site'),
+            DB::raw('(CASE
+                WHEN corp_region = "" THEN NULL ELSE corp_region
+            END) AS corp_region'),
+            DB::raw('(CASE
+                WHEN corp_address = "" THEN NULL ELSE corp_address
+            END) AS corp_address'),
+            DB::raw('(CASE
+                WHEN corp_note = "" THEN NULL ELSE corp_note
+            END) AS corp_note'),
+            DB::raw('(CASE
+                WHEN corp_password = "" THEN NULL ELSE corp_password
+            END) AS corp_password'),
+        ])->get();
     }
 }

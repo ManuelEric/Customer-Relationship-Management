@@ -27,6 +27,7 @@ class ReceiptAttachment extends Model
         'approve_date',
         'send_to_client',
         'attachment',
+        'request_status',
     ];
 
     public function receipt()

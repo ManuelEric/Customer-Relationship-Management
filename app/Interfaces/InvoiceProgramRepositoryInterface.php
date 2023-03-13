@@ -6,6 +6,7 @@ interface InvoiceProgramRepositoryInterface
 {
     public function getAllInvoiceProgramDataTables($status);
     public function getInvoiceByClientProgId($clientProgId);
+    public function getInvoiceByInvoiceId($invoiceId);
     public function createInvoice(array $invoiceDetails);
     public function updateInvoice($invoiceId, array $invoiceDetails);
     public function deleteInvoiceByClientProgId($clientProgId);
@@ -16,4 +17,6 @@ interface InvoiceProgramRepositoryInterface
     public function getTotalRefundRequest($monthYear);
     public function getInvoiceOutstandingPayment($monthYear, $type, $start_date = null, $end_date = null);
     public function getRevenueByYear($year);
+
+    public function getInvoiceDifferences();
 }

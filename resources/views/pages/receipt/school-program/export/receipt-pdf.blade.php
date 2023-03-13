@@ -71,10 +71,10 @@
                         <table width="100%" style="padding:0px; margin-left:-10px;">
                             <tr>
                                 <td width="15%" valign="top">From : </td>
-                                <td width="85%"><b>PT. Jawara Edukasih Indonesia</b><br>
-                                    Jl Jeruk Kembar Blok Q9 No. 15 <br>
-                                    Srengseng, Kembangan <br>
-                                    DKI Jakarta
+                                <td width="85%"><b>{{ $companyDetail['name'] }}</b><br>
+                                    {{ $companyDetail['address'] }}<br>
+                                    {{ $companyDetail['address_dtl'] }} <br>
+                                    {{ $companyDetail['city'] }}
                                     <br><br>
                                 </td>
                             </tr>
@@ -175,7 +175,7 @@
                         </div>
                     </td>
                 </tr>
-                @if(isset($receiptSch->invoiceB2b->invb2b_discidr))
+                @if($receiptSch->invoiceB2b->invb2b_discidr != 0)
                     <tr>
                         <td colspan="3" align="right"><b>Discount</b></td>
                         <td valign="middle" align="center">

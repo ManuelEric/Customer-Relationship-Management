@@ -154,6 +154,14 @@ class ReceiptController extends Controller
 
         try {
 
+            # update download status on tbl_receipt
+            if ($type == "idr")
+                $receipt->download_idr = 1;
+            else
+                $receipt->download_other = 1;
+            
+            $receipt->save();
+
             $companyDetail = [
                 'name' => env('ALLIN_COMPANY'),
                 'address' => env('ALLIN_ADDRESS'),
@@ -245,9 +253,17 @@ class ReceiptController extends Controller
         $data['title'] = "Request Sign of Receipt Number : " . $receipt->receipt_id;
         $data['param'] = [
             'receipt' => $receipt,
-            'currency' => $type
+            'currency' => $type,
+            'fullname' => $receipt->invoiceProgram->clientprog->client->full_name,
+            'program_name' => $receipt->invoiceProgram->clientprog->program->program_name,
+            'receipt_date' => date('d F Y', strtotime($receipt->created_at))
         ];
         try {
+
+            # update request status on receipt attachment
+            $attachment = $receipt->receiptAttachment()->where('currency', $type)->first();
+            $attachment->request_status = 'requested';
+            $attachment->save();
             
             $file_name = str_replace('/', '_', $receipt->receipt_id);
             $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
@@ -294,7 +310,6 @@ class ReceiptController extends Controller
         if (!$receipt = $this->receiptRepository->getReceiptById($receipt_id))
             abort(404);
         
-
         $attachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt->receipt_id, $currency);
 
         return view('pages.receipt.sign-pdf')->with(
@@ -328,6 +343,16 @@ class ReceiptController extends Controller
             if (!$pdfFile->storeAs('public/uploaded_file/receipt/client/', $name))
                 throw new Exception('Failed to store signed receipt file');
 
+            $data['title'] = 'Receipt No. '.$receipt->receipt_id.' has been signed';
+            $data['receipt_id'] = $receipt->receipt_id;;
+
+            # send mail when document has been signed
+            Mail::send('pages.invoice.client-program.mail.signed', $data, function ($message) use ($data, $name) {
+                $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                    ->subject($data['title'])
+                    ->attach(storage_path('app/public/uploaded_file/receipt/client/' . $name));
+            });
+
             DB::commit();
 
         } catch (Exception $e) {
@@ -347,10 +372,17 @@ class ReceiptController extends Controller
         $currency = $request->route('currency');
         $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
 
+        $pic_mail = $receipt->invoiceProgram->clientprog->internalPic->email;
+
         $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
-        $data['cc'] = $receipt->invoiceProgram->clientprog->client->mail;
+        $data['cc'] = [
+            env('CEO_CC'),
+            env('FINANCE_CC'),
+            $pic_mail
+        ];
         $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
         $data['title'] = "ALL-In Eduspace | Receipt of program : " . $receipt->invoiceProgram->clientprog->program_name;
+        $data['program_name'] = $receipt->invoiceProgram->clientprog->program->program_name;
 
         try {
 

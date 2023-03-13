@@ -9,21 +9,24 @@
     </div>
     <div class="card-body">
         <div class="list-group">
-            @for ($i = 0; $i < 3; $i++)
+            @forelse ($corporate->events as $event)
                 <div class="list-group-item">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="">
-                            <strong>Event Name</strong> <br>
-                            Start Date - End Date
+                            <strong>{{ $event->event_title }}</strong> <br>
+                            {{ date('d F Y', strtotime($event->event_startdate)) }} - {{ date('d F Y', strtotime($event->event_enddate)) }}
                         </div>
                         <div class="">
-                            <a href="#" class="btn btn-sm btn-outline-success">
+                            <a href="{{ route('event.show', ['event' => $event->event_id]) }}" class="btn btn-sm btn-outline-success">
                                 <i class="bi bi-eye"></i>
                             </a>
                         </div>
                     </div>
                 </div>
-            @endfor
+                @empty
+                <div>No Event yet</div>
+
+            @endforelse
         </div>
     </div>
 </div>

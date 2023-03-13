@@ -11,4 +11,7 @@ interface AssetRepositoryInterface
     public function createAsset(array $assetDetails);
     public function updateAsset($assetId, array $newDetails);
     public function cleaningAsset();
+
+    # crm
+    public function getAssetFromV1();
 }

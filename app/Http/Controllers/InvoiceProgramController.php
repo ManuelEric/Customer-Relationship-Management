@@ -486,7 +486,11 @@ class InvoiceProgramController extends Controller
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,
-            'currency' => $type
+            'currency' => $type,
+            'fullname' => $clientProg->client->full_name,
+            'program_name' => $clientProg->program->program_name,
+            'invoice_date' => date('d F Y', strtotime($clientProg->invoice->created_at)),
+            'invoice_duedate' => date('d F Y', strtotime($clientProg->invoice->inv_duedate))
         ];
 
             # validate 
@@ -567,12 +571,19 @@ class InvoiceProgramController extends Controller
         $currency = $request->route('currency');
         $attachment = $invoice->invoiceAttachment()->where('currency', $currency)->first();
 
+        $pic_mail = $clientProg->internalPic->email;
+
         $data['email'] = $clientProg->client->parents[0]->mail;
-        $data['cc'] = $clientProg->client->mail;
+        $data['cc'] = [
+            env('CEO_CC'), 
+            env('FINANCE_CC'), 
+            $pic_mail
+        ];
         $data['recipient'] = $clientProg->client->parents[0]->full_name;
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $clientProg->program_name;
         $data['param'] = [
-            'clientprog_id' => $clientprog_id
+            'clientprog_id' => $clientprog_id,
+            'program_name' => $clientProg->program->program_name
         ];
 
         try {
@@ -623,6 +634,16 @@ class InvoiceProgramController extends Controller
             if (!$pdfFile->storeAs('public/uploaded_file/invoice/client/', $file_name))
                 throw new Exception('Failed to store signed invoice file');
 
+            $data['title'] = 'Invoice No. '.$inv_id.' has been signed';
+            $data['inv_id'] = $inv_id;
+
+            # send mail when document has been signed
+            Mail::send('pages.invoice.client-program.mail.signed', $data, function ($message) use ($data, $file_name) {
+                $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                    ->subject($data['title'])
+                    ->attach(storage_path('app/public/uploaded_file/invoice/client/' . $file_name));
+            });
+
             DB::commit();
 
         } catch (Exception $e) {
@@ -637,6 +658,7 @@ class InvoiceProgramController extends Controller
 
     public function preview(Request $request)
     {
+        
         $clientprog_id = $request->route('client_program');
         $currency = $request->route('currency');
 

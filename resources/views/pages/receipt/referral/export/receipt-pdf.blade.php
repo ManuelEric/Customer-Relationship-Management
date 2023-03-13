@@ -57,7 +57,7 @@
 </head>
 
 <body style="padding: 0; margin:0">
-    <div style="width: 100%; height:1100px; padding:0; margin:0;">
+    <div style="width: 100%; height:1059px; padding:0; margin:0;">
         <img src="{{ public_path('img/pdf/header.png') }}" width="100%">
         <img src="{{ public_path('img/pdf/confidential.png') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
@@ -72,10 +72,10 @@
                         <table width="100%" style="padding:0px; margin-left:-10px;">
                             <tr>
                                 <td width="15%" valign="top">From : </td>
-                                <td width="85%"><b>PT. Jawara Edukasih Indonesia</b><br>
-                                    Jl Jeruk Kembar Blok Q9 No. 15 <br>
-                                    Srengseng, Kembangan <br>
-                                    DKI Jakarta
+                                <td width="85%"><b>{{ $companyDetail['name'] }}</b><br>
+                                    {{ $companyDetail['address'] }}<br>
+                                    {{ $companyDetail['address_dtl'] }} <br>
+                                    {{ $companyDetail['city'] }}
                                     <br><br>
                                 </td>
                             </tr>
@@ -210,8 +210,8 @@
                 </tr>
             </table>
         </div>
-        <img src="{{ public_path('img/pdf/footer.png') }}" width="100%">
     </div>
+    <img src="{{ public_path('img/pdf/footer.png') }}" width="100%">
 </body>
 
 </html>

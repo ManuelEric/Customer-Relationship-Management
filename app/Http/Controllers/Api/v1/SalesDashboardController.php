@@ -338,7 +338,7 @@ class SalesDashboardController extends Controller
                         $successProgram,
                         $initial_assessment_making.' Days',
                         $conversion_time.' Days',
-                        $successPercentage.' %',
+                        round($successPercentage).' %',
                         'Rp. '.number_format($totalRevenueAdmMentoringByProgramAndMonth,'2',',','.')
                     ]
                 ]

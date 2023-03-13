@@ -12,7 +12,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class UserRepository implements UserRepositoryInterface 
+class UserRepository implements UserRepositoryInterface
 {
 
     public function getAllUsersByRoleDataTables($role)
@@ -20,50 +20,50 @@ class UserRepository implements UserRepositoryInterface
         return DataTables::eloquent(
             User::leftJoin('tbl_position', 'tbl_position.id', '=', 'users.position_id')->
             whereHas('roles', function ($query) use ($role) {
-                $query->where('role_name', $role);
+                $query->where('role_name', 'like', '%'.$role);
             })
-            ->select([
-                'users.id as id',
-                'extended_id',
-                'first_name',
-                'last_name',
-                DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
-                'email',
-                'phone',
-                'tbl_position.position_name',
-                DB::raw('(SELECT GROUP_CONCAT(tbl_user_educations.graduation_date SEPARATOR ", ") FROM tbl_user_educations
+                ->select([
+                    'users.id as id',
+                    'extended_id',
+                    'first_name',
+                    'last_name',
+                    DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
+                    'email',
+                    'phone',
+                    'tbl_position.position_name',
+                    DB::raw('(SELECT GROUP_CONCAT(tbl_user_educations.graduation_date SEPARATOR ", ") FROM tbl_user_educations
                 WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) as graduation_date_group'),
-                DB::raw('(SELECT GROUP_CONCAT(tbl_major.name SEPARATOR ", ") FROM tbl_user_educations
+                    DB::raw('(SELECT GROUP_CONCAT(tbl_major.name SEPARATOR ", ") FROM tbl_user_educations
                 LEFT JOIN tbl_major ON tbl_major.id = tbl_user_educations.major_id
                 WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) as major_group'),
-                'datebirth',
-                'nik',
-                'npwp',
-                'bankacc',
-                'emergency_contact',
-                'address',
-                'active',
+                    'datebirth',
+                    'nik',
+                    'npwp',
+                    'bankacc',
+                    'emergency_contact',
+                    'address',
+                    'active',
 
-            ])
-            ->orderBy('extended_id', 'asc')
+                ])
+                ->orderBy('extended_id', 'asc')
         )
-        ->filterColumn('full_name', function ($query, $keyword) {
-            $sql = 'CONCAT(first_name, " ", COALESCE(last_name, "")) like ?';
-            $query->whereRaw($sql, ["%{$keyword}%"]);
-        })
-        ->filterColumn('graduation_date_group', function ($query, $keyword) {
-            $sql = '(SELECT GROUP_CONCAT(tbl_user_educations.graduation_date SEPARATOR ", ") FROM tbl_user_educations
+            ->filterColumn('full_name', function ($query, $keyword) {
+                $sql = 'CONCAT(first_name, " ", COALESCE(last_name, "")) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->filterColumn('graduation_date_group', function ($query, $keyword) {
+                $sql = '(SELECT GROUP_CONCAT(tbl_user_educations.graduation_date SEPARATOR ", ") FROM tbl_user_educations
             WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) like ?';
-            $query->whereRaw($sql, ["%{$keyword}%"]);
-        })
-        ->filterColumn('major_group', function ($query, $keyword) {
-            $sql = '(SELECT GROUP_CONCAT(tbl_major.name SEPARATOR ", ") FROM tbl_user_educations
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->filterColumn('major_group', function ($query, $keyword) {
+                $sql = '(SELECT GROUP_CONCAT(tbl_major.name SEPARATOR ", ") FROM tbl_user_educations
             LEFT JOIN tbl_major ON tbl_major.id = tbl_user_educations.major_id
             WHERE user_id = users.id GROUP BY tbl_user_educations.user_id ORDER BY tbl_user_educations.degree ASC) like ?';
-            $query->whereRaw($sql, ["%{$keyword}%"]);
-        })
-        ->rawColumns(['address'])
-        ->make(true);
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->rawColumns(['address'])
+            ->make(true);
     }
 
     public function getAllUsers()
@@ -79,7 +79,7 @@ class UserRepository implements UserRepositoryInterface
     public function getAllUsersByRole($role)
     {
         return User::whereHas('roles', function ($query) use ($role) {
-            $query->where('role_name', $role);
+            $query->where('role_name', 'like', '%'.$role);
         })->where('active', 1)->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
 
@@ -101,15 +101,18 @@ class UserRepository implements UserRepositoryInterface
 
             # search word by word 
             # and loop based on name length
-            for ($i = 0 ; $i < count($userName) ; $i++) {
+            for ($i = 0; $i < count($userName); $i++) {
 
                 # looping at least two times
                 if ($i <= 1)
-                    $extquery = $extquery->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ['%'.$userName[$i].'%']);
-
+                    $extquery = $extquery->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ['%' . $userName[$i] . '%']);
             }
-
         })->orWhere('email', $userEmail)->first();
+    }
+
+    public function getUserByfirstName($first_name)
+    {
+        return User::where(DB::raw("SUBSTRING_INDEX(first_name, ' ', 1)"), $first_name)->first();
     }
 
     public function createUsers(array $userDetails)
@@ -131,7 +134,7 @@ class UserRepository implements UserRepositoryInterface
     {
         # update status users
         $user = User::find($userId)->update(['active' => $newStatus]);
-        
+
         # update status user type detail
         switch ($newStatus) {
 
@@ -151,7 +154,6 @@ class UserRepository implements UserRepositoryInterface
 
     public function updateExtendedId($newDetails)
     {
-        
     }
 
     public function deleteUserType($userTypeId)
@@ -192,5 +194,4 @@ class UserRepository implements UserRepositoryInterface
             ]
         );
     }
-
 }

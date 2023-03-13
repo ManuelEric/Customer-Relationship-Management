@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MenuController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('pages.menus.index');
-});
+Route::get('/', [MenuController::class, 'index']);
+Route::post('manage/department/access', [MenuController::class, 'updateDepartmentAccess']);
+Route::post('manage/user/access', [MenuController::class, 'updateUserAccess']);

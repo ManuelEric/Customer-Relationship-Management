@@ -132,7 +132,7 @@ class ReceiptReferralController extends Controller
             return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invb2b_num)->withError('Failed to create a new receipt');
         }
 
-        return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invb2b_num)->withSuccess('Invoice successfully updated');
+        return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invb2b_num)->withSuccess('Receipt successfully created');
     }
 
     public function show(Request $request)
@@ -189,6 +189,10 @@ class ReceiptReferralController extends Controller
         ];
 
         $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf', ['receiptRef' => $receiptRef, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+
+        # Update status download
+        $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
+
         return $pdf->download($receiptRef->receipt_id . ".pdf");
     }
 
@@ -238,6 +242,8 @@ class ReceiptReferralController extends Controller
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
         $receipt_id = $receipt->receipt_id;
 
+        $receiptAtt = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
+
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
@@ -245,15 +251,21 @@ class ReceiptReferralController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = 'test@gmail.com';
-        $data['recipient'] = 'test name';
+        $data['email'] = env('DIRECTOR_EMAIL');
+        $data['recipient'] = env('DIRECTOR_NAME');
         $data['title'] = "Request Sign of Receipt Number : " . $receipt_id;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
+            'fullname' => $receipt->invoiceB2b->referral->partner->corp_name,
+            'program_name' => $receipt->invoiceB2b->referral->additional_prog_name,
+            'receipt_date' => date('d F Y', strtotime($receipt->created_at)),
         ];
 
         try {
+
+            # Update status request
+            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested']);
 
             Mail::send('pages.receipt.referral.mail.view', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['recipient'])
@@ -306,39 +318,62 @@ class ReceiptReferralController extends Controller
 
         $dataAxis = $this->axisRepository->getAxisByType('receipt');
 
-        $axis = [
-            'top' => $request->top,
-            'left' => $request->left,
-            'scaleX' => $request->scaleX,
-            'scaleY' => $request->scaleY,
-            'angle' => $request->angle,
-            'flipX' => $request->flipX,
-            'flipY' => $request->flipY,
-            'type' => 'receipt'
+        $attachmentDetails = [
+            'sign_status' => 'signed',
+            'approve_date' => Carbon::now()
         ];
 
         $receiptAttachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
 
-        if (isset($dataAxis)) {
-            $this->axisRepository->updateAxis($dataAxis->id, $axis);
-        } else {
-
-            $this->axisRepository->createAxis($axis);
+        if ($receiptAttachment->sign_status == 'signed') {
+            return response()->json(['status' => 'error', 'message' => 'Document has already signed']);
         }
 
-        if ($pdfFile->storeAs('public/uploaded_file/receipt/referral/', $name)) {
+        DB::beginTransaction();
+        try {
 
-            $attachmentDetails = [
-                'sign_status' => 'signed',
-                'approve_date' => Carbon::now()
-            ];
+            # if no_data == false
+            if ($request->no_data == 0) {
+                $axis = [
+                    'top' => $request->top,
+                    'left' => $request->left,
+                    'scaleX' => $request->scaleX,
+                    'scaleY' => $request->scaleY,
+                    'angle' => $request->angle,
+                    'flipX' => $request->flipX,
+                    'flipY' => $request->flipY,
+                    'type' => 'receipt'
+                ];
+
+                if (isset($dataAxis)) {
+                    $this->axisRepository->updateAxis($dataAxis->id, $axis);
+                } else {
+
+                    $this->axisRepository->createAxis($axis);
+                }
+            }
 
             $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAttachment->id, $attachmentDetails);
+            if (!$pdfFile->storeAs('public/uploaded_file/receipt/referral/', $name))
+                throw new Exception('Failed to store signed receipt file');
 
-            return response()->json(['status' => 'success']);
-        } else {
-            return response()->json(['status' => 'error']);
+            $data['title'] = 'Receipt No. ' . $receipt_id . ' has been signed';
+            $data['receipt_id'] = $receipt_id;
+
+            # send mail when document has been signed
+            Mail::send('pages.receipt.referral.mail.signed', $data, function ($message) use ($data, $receiptAttachment) {
+                $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
+                    ->subject($data['title'])
+                    ->attach(public_path($receiptAttachment->attachment));
+            });
+
+            DB::commit();
+        } catch (Exception $e) {
+            Log::error('Failed to update status after being signed : ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Failed to update'], 500);
         }
+
+        return response()->json(['status' => 'success', 'message' => 'Receipt signed successfully']);
     }
 
     public function sendToClient(Request $request)
@@ -352,12 +387,17 @@ class ReceiptReferralController extends Controller
         $program_name = $receipt->invoiceB2b->referral->additional_prog_name;
 
         $data['email'] = $receipt->invoiceB2b->referral->user->email;
-        $data['cc'] = ['test1@example.com', 'test2@example.com'];
-        $data['recipient'] = 'Test Name';
+        $data['cc'] = [
+            env('CEO_CC'),
+            env('FINANCE_CC')
+        ];
+        $data['recipient'] = $receipt->invoiceB2b->referral->user->email;
         $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
+            'fullname' => $receipt->invoiceB2b->referral->partner->corp_name,
+            'program_name' => $receipt->invoiceB2b->referral->additional_prog_name,
         ];
 
         try {

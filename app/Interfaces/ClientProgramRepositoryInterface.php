@@ -30,4 +30,7 @@ interface ClientProgramRepositoryInterface
     public function getSuccessProgramByMonth($cp_filter);
     public function getTotalRevenueByProgramAndMonth($cp_filter);
     public function getComparisonBetweenYears($cp_filter);
+
+    # CRM
+    public function getClientProgramFromV1();
 }

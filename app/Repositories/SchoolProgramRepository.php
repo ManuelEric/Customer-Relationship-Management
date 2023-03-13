@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Models\SchoolProgram;
+use App\Models\v1\SchoolProgram as V1SchoolProgram;
 use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
@@ -221,6 +222,11 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
         return SchoolProgram::create($schoolPrograms);
     }
 
+    public function createSchoolPrograms(array $schoolPrograms)
+    {
+        return SchoolProgram::insert($schoolPrograms);
+    }
+
     public function updateSchoolProgram($schoolProgramId, array $newPrograms)
     {
         return SchoolProgram::find($schoolProgramId)->update($newPrograms);
@@ -295,5 +301,11 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
             ->groupBy('prog_id')
             ->groupBy(DB::raw('year(success_date)'))
             ->get();
+    }
+
+    # CRM
+    public function getAllSchoolProgramFromCRM()
+    {
+        return V1SchoolProgram::all();
     }
 }

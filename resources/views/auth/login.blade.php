@@ -20,38 +20,35 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-6 h-100 bg-dark">
                     <div class="container h-100">
                         <div class="row align-items-center justify-content-center h-100">
                             <div class="col-6 text-white">
-                                <form action="" method="POST">
+                                <form action="{{ route('login.action') }}" method="POST">
                                     @csrf
                                     <h3 class="text-center">
                                         <i class="bi bi-box-arrow-in-right me-1"></i>
                                         LOG IN
                                     </h3>
+                                        @if ($errors->any())
+                                            <div class="alert alert-danger">
+                                                <ul>
+                                                    @foreach ($errors->all() as $error)
+                                                        <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endif
                                     <div class="my-3">
                                         <label for="">Email</label>
                                         <input type="text" class="form-control @error('email') is-invalid @enderror"
                                             name="email">
-                                        @error('email')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-                                        <div class="invalid-feedback">
-                                            Test
-                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="">Password</label>
-                                        <input type="text" class="form-control  @error('password') is-invalid @enderror"
+                                        <input type="password" class="form-control  @error('password') is-invalid @enderror"
                                             name="password">
-                                        @error('password')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
                                     </div>
                                     <div class="pt-3">
                                         <button class="btn btn-primary w-100" type="submit">

@@ -69,8 +69,7 @@
                     </div>
                     <div class="border p-1 text-center flex-fill">
                         <div class="d-flex gap-1 justify-content-center">
-                            @if (isset($invoice) &&
-                                    !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
+                            @if (isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Request Sign" id="request-acc">
                                     <a href="" class="text-info">
@@ -100,10 +99,7 @@
                     @if ($invoice->currency != 'idr')
                         <div class="border p-1 text-center flex-fill">
                             <div class="d-flex gap-1 justify-content-center">
-                                @if (
-                                    !isset($invoice->refund) &&
-                                        isset($invoice) &&
-                                        !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
+                                @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Request Sign" id="request-acc-other">
                                         <a href="" class="text-info">
@@ -119,7 +115,7 @@
                                         </a>
                                     </div>
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Send to Client">
+                                        data-bs-title="Send to Client" id="send-inv-client-other">
                                         <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
@@ -143,43 +139,117 @@
                     </div>
                     <div class="card-body position-relative h-auto pb-5">
                         {{-- IDR  --}}
+                        @php
+                            $invoiceHasBeenRequested = $invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first();
+                            $invoiceHasBeenSigned = $invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
+                            $invoiceHasSentToClient = $invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->where('send_to_client', 'sent')->first();
+                        @endphp
                         <div class="text-center">
                             <h6>IDR</h6>
                             <section class="step-indicator">
-                                <div class="step step1 active">
-                                    <div class="step-icon">1</div>
+                                <div @class([
+                                    'step-one',
+                                    'step',
+                                    'step1',
+                                    'active' => $invoiceHasBeenRequested || $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                ])>
+                                    <div @class([
+                                        'step-one',
+                                        'step-icon',
+                                        'active' => $invoiceHasBeenRequested || $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                    ])>1</div>
                                     <p>Request Sign</p>
                                 </div>
-                                <div class="indicator-line active"></div>
-                                <div class="step step2">
-                                    <div class="step-icon">2</div>
+                                <div @class([
+                                    'step-one',
+                                    'indicator-line',
+                                    'active' => $invoiceHasBeenRequested || $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                ])></div>
+                                <div @class([
+                                    'step',
+                                    'step2',
+                                    'active' => $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                ])>
+                                    <div @class([
+                                        'step-icon',
+                                        'active' => $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                    ])>2</div>
                                     <p>Signed</p>
                                 </div>
-                                <div class="indicator-line"></div>
-                                <div class="step step3">
-                                    <div class="step-icon">3</div>
+                                <div @class([
+                                    'indicator-line',
+                                    'active' => $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                ])></div>
+                                <div @class([
+                                    'step-three',
+                                    'step',
+                                    'step3',
+                                    'active' => $invoiceHasSentToClient
+                                ])>
+                                    <div @class([
+                                        'step-three',
+                                        'step-icon',
+                                        'active' => $invoiceHasSentToClient
+                                    ])>3</div>
                                     <p>Print or Send to Client</p>
                                 </div>
                             </section>
                         </div>
 
                         {{-- Other  --}}
+                        @php
+                            $invoiceHasBeenRequested_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
+                            $invoiceHasBeenSigned_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
+                            $invoiceHasSentToClient_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->where('send_to_client', 'sent')->first();
+                        @endphp
                         <div class="text-center mt-5">
                             <hr>
                             <h6>Other Currency</h6>
                             <section class="step-indicator">
-                                <div class="step step1 active">
-                                    <div class="step-icon">1</div>
+                                <div @class([
+                                    'step-one-other',
+                                    'step',
+                                    'step1',
+                                    'active' => $invoiceHasBeenRequested_other || $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
+                                ])>
+                                    <div @class([
+                                        'step-one-other',
+                                        'step-icon',
+                                        'active' => $invoiceHasBeenRequested_other || $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
+                                    ])>1</div>
                                     <p>Request Sign</p>
                                 </div>
-                                <div class="indicator-line active"></div>
-                                <div class="step step2">
-                                    <div class="step-icon">2</div>
+                                <div @class([
+                                    'step-one-other',
+                                    'indicator-line',
+                                    'active' => $invoiceHasBeenRequested_other || $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
+                                ])></div>
+                                <div @class([
+                                    'step',
+                                    'step2',
+                                    'active' => $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
+                                ])>
+                                    <div @class([
+                                        'step-icon',
+                                        'active' => $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
+                                    ])>2</div>
                                     <p>Signed</p>
                                 </div>
-                                <div class="indicator-line"></div>
-                                <div class="step step3">
-                                    <div class="step-icon">3</div>
+                                <div  @class([
+                                    'indicator-line',
+                                    'active' => $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
+                                ])></div>
+                                <div @class([
+                                    'step-three-other',
+                                    'step',
+                                    'step3',
+                                    'active' => $invoiceHasSentToClient_other
+                                ])>
+                                    <div @class([
+                                        'step-three-other',
+                                        'step-icon',
+                                        'active' => $invoiceHasSentToClient_other
+                                    ])>3</div>
                                     <p>Print or Send to Client</p>
                                 </div>
                             </section>
@@ -744,6 +814,7 @@
 
                         swal.close()
                         notification('success', 'Sign has been requested')
+                        $(".step-one").addClass('active')
                     })
                     .catch(error => {
                         console.log(error)
@@ -765,9 +836,10 @@
                             }
                         })
                     .then(response => {
-                        console.log(response)
+                        
                         swal.close()
                         notification('success', 'Sign has been requested')
+                        $(".step-one-other").addClass('active')
                     })
                     .catch(error => {
                         console.log(error)
@@ -787,6 +859,7 @@
                     .then(response => {
                         swal.close()
                         notification('success', 'Invoice has been send to client')
+                        $('.step-three').addClass('active');
                     })
                     .catch(error => {
                         notification('error',
@@ -806,6 +879,7 @@
                     .then(response => {
                         swal.close()
                         notification('success', 'Invoice has been send to client')
+                        $('.step-three-other').addClass('active');
                     })
                     .catch(error => {
                         notification('error',

@@ -4,6 +4,26 @@
 
 @section('content')
 
+  {{-- @php
+        $exportIdr = '<a href="#export" id="export_idr"
+                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                            <i class="bi bi-printer me-1"></i> Export IDR
+                      </a>';
+        $uploadIdr = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
+                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_idr">
+                            <i class="bi bi-file-arrow-up me-1"></i> Upload IDR
+                      </button>';
+        $exportOther = '<a href="#export" id="export_other"
+                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
+                            <i class="bi bi-printer me-1"></i> Export Other
+                        </a>';
+        $uploadOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
+                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_other">
+                            <i class="bi bi-file-arrow-up me-1"></i> Upload Other
+                        </button>';
+
+    @endphp --}}
+
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('receipt/corporate-program') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Receipt
@@ -13,101 +33,6 @@
 
     <div class="row">
         <div class="col-md-4 mb-3">
-            {{-- Tools  --}}
-            <div class="bg-white rounded p-2 mb-2 d-flex gap-2 shadow-sm justify-content-start">
-                <div class="d-flex align-items-stretch">
-                    <div class="bg-secondary px-3 text-white" style="padding-top:10px ">General</div>
-                    <div class="border p-1 text-center">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Delete"
-                                onclick="">
-                                <a href="#" class="text-danger">
-                                    <i class="bi bi-trash2"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- IDR  --}}
-                <div class="d-flex align-items-stretch">
-                    <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
-                    <div class="border p-1 text-center">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Download">
-                                <a href="#" class="text-info">
-                                    <i class="bi bi-download"></i>
-                                </a>
-                            </div>
-                            <div id="upload-idr" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
-                                class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Upload">
-                                <a href="#" class="text-info">
-                                    <i class="bi bi-upload"></i>
-                                </a>
-                            </div>
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Request Sign" id="request-acc">
-                                <a href="" class="text-info">
-                                    <i class="bi bi-pen-fill"></i>
-                                </a>
-                            </div>
-
-                            <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Print Invoice">
-                                <a href="#" class="text-info">
-                                    <i class="bi bi-printer"></i>
-                                </a>
-                            </div>
-                            <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Send to Client" id="send-inv-client-idr">
-                                <a href="#" class="text-info">
-                                    <i class="bi bi-send"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Other  --}}
-                <div class="d-flex align-items-stretch">
-                    <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
-                    <div class="border p-1 text-center">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <div id="print-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Download">
-                                <a href="" class="text-info">
-                                    <i class="bi bi-download"></i>
-                                </a>
-                            </div>
-                            <div id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
-                                class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Upload">
-                                <a href="" class="text-info">
-                                    <i class="bi bi-upload"></i>
-                                </a>
-                            </div>
-                            <div id="request-acc-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Request Sign" id="request-acc-other">
-                                <a href="" class="text-info">
-                                    <i class="bi bi-pen-fill"></i>
-                                </a>
-                            </div>
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="Print Invoice">
-                                <a href="#" class="text-info">
-                                    <i class="bi bi-printer"></i>
-                                </a>
-                            </div>
-                            <div id="send-rec-client-other" class="btn btn-sm py-1 border btn-light"
-                                data-bs-toggle="tooltip" data-bs-title="Send to Client">
-                                <a href="#" class="text-info">
-                                    <i class="bi bi-send"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
@@ -124,6 +49,126 @@
         </div>
 
         <div class="col-md-8">
+             {{-- Tools  --}}
+            <div class="bg-white rounded p-2 mb-2 d-flex gap-2 shadow-sm justify-content-start">
+                <div class="d-flex align-items-stretch">
+                    <div class="bg-secondary px-3 text-white" style="padding-top:10px ">General</div>
+                    <div class="border p-1 text-center">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Delete"
+                                onclick="confirmDelete('{{'receipt/corporate-program'}}', {{$receiptPartner->id}})">
+                                <a href="#" class="text-danger">
+                                    <i class="bi bi-trash2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (!isset($receiptPartner->invoiceB2b->refund))
+                    {{-- IDR  --}}
+                    <div class="d-flex align-items-stretch">
+                        <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
+                        <div class="border p-1 text-center">
+                            <div class="d-flex gap-1 justify-content-center">
+                                @php
+                                    $receiptAttachment = $receiptPartner->receiptAttachment()->where('currency', 'idr')->first();
+                                    $receiptAttachmentRequested = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('request_status', 'requested')->first();
+                                    $receiptAttachmentSigned = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
+                                    $receiptAttachmentNotYet = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first();
+                                    $receiptAttachmentSent = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
+                                @endphp
+                                @if(!$receiptAttachment)
+                                    <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Download">
+                                        <a href="#" class="text-info" id="export_idr">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                    </div>
+                                    <div id="upload-idr" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
+                                        class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Upload">
+                                        <a href="#" class="text-info" id="upload_idr">
+                                            <i class="bi bi-upload"></i>
+                                        </a>
+                                    </div>
+                                @elseif(isset($receiptAttachmentNotYet))
+                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Request Sign" id="request-acc">
+                                        <a href="#" class="text-info">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </a>
+                                    </div>
+                                @else
+                                    <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Print Invoice">
+                                        <a href="{{ route('receipt.corporate.print', ['receipt' => $receiptPartner->id, 'currency' => 'idr']) }}" class="text-info" target="blank">
+                                            <i class="bi bi-printer"></i>
+                                        </a>
+                                    </div>
+                                    <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Send to Client">
+                                        <a href="#" class="text-info" id="send-inv-client-idr">
+                                            <i class="bi bi-send"></i>
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Other  --}}
+                    @if($receiptPartner->invoiceB2b->currency != 'idr')
+                        <div class="d-flex align-items-stretch">
+                            <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
+                            <div class="border p-1 text-center">
+                                <div class="d-flex gap-1 justify-content-center">
+                                    @php
+                                        $receiptAttachmentOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->first();
+                                        $receiptAttachmentRequestedOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('request_status', 'requested')->first();
+                                        $receiptAttachmentSignedOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
+                                        $receiptAttachmentNotYetOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
+                                        $receiptAttachmentSentOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
+                                    @endphp
+                                    @if(!$receiptAttachmentOther)
+                                        <div id="print-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                            data-bs-title="Download">
+                                            <a href="#" class="text-info" id="export_other">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        </div>
+                                        <div id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
+                                            class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Upload">
+                                            <a href="#" class="text-info" id="upload_other">
+                                                <i class="bi bi-upload"></i>
+                                            </a>
+                                        </div>
+                                    @elseif(isset($receiptAttachmentNotYetOther))
+                                        <div id="request-acc-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                            data-bs-title="Request Sign" id="request-acc-other">
+                                            <a href="#" class="text-info">
+                                                <i class="bi bi-pen-fill"></i>
+                                            </a>
+                                        </div>
+                                    @else
+                                        <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                            data-bs-title="Print Invoice">
+                                            <a href="{{ route('receipt.corporate.print', ['receipt' => $receiptPartner->id, 'currency' => 'other']) }}" class="text-info" target="blank">
+                                                <i class="bi bi-printer"></i>
+                                            </a>
+                                        </div>
+                                        <div id="send-rec-client-other" class="btn btn-sm py-1 border btn-light"
+                                            data-bs-toggle="tooltip" data-bs-title="Send to Client">
+                                            <a href="#" class="text-info" id="send-inv-client-other">
+                                                <i class="bi bi-send"></i>
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                @endif
+            </div>
             <div class="card rounded mb-3">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="">
@@ -183,177 +228,118 @@
 
             @include('pages.receipt.corporate-program.form-detail.invoice')
 
-            {{-- Receipt Progress  --}}
-            <div class="card shadow-sm mb-3">
-                <div class="card-header">
-                    <h6 class="my-0">
-                        Receipt Progress
-                    </h6>
-                </div>
-                <div class="card-body position-relative h-auto pb-5">
-                    {{-- IDR  --}}
-                    <div class="text-center">
-                        <h6>IDR</h6>
-                        <section class="step-indicator">
-                            <div class="step step1 active">
-                                <div class="step-icon">1</div>
-                                <p>Download</p>
-                            </div>
-                            <div class="indicator-line active"></div>
-                            <div class="step step2">
-                                <div class="step-icon">2</div>
-                                <p>Upload</p>
-                            </div>
-                            <div class="indicator-line"></div>
-                            <div class="step step3">
-                                <div class="step-icon">3</div>
-                                <p>Request Sign</p>
-                            </div>
-                            <div class="indicator-line"></div>
-                            <div class="step step4">
-                                <div class="step-icon">4</div>
-                                <p>Signed</p>
-                            </div>
-                            <div class="indicator-line"></div>
-                            <div class="step step5">
-                                <div class="step-icon">5</div>
-                                <p>Print or Send to Client</p>
-                            </div>
-                        </section>
+            @if (!isset($receiptPartner->invoiceB2b->refund))
+                {{-- Receipt Progress  --}}
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header">
+                        <h6 class="my-0">
+                            Receipt Progress
+                        </h6>
                     </div>
+                    <div class="card-body position-relative h-auto pb-5">
+                        {{-- IDR  --}}
+                        <div class="text-center">
+                            <h6>IDR</h6>
+                            <section class="step-indicator">
+                                <div class="step step1 {{$receiptPartner->download_idr == 1 ? 'active' : ''}}">
+                                    <div class="step-icon">1</div>
+                                    <p>Download</p>
+                                </div>
+                                <div class="indicator-line {{$receiptPartner->download_idr == 1 ? 'active' : ''}}"></div>
+                                <div class="step step2 {{isset($receiptAttachmentNotYet) || $receiptAttachmentSigned ? 'active' : ''}}">
+                                    <div class="step-icon">2</div>
+                                    <p>Upload</p>
+                                </div>
+                                <div class="indicator-line {{isset($receiptAttachmentNotYet) || $receiptAttachmentSigned ? 'active' : ''}}"></div>
+                                <div class="step step3 {{$receiptAttachmentRequested ? 'active' : ''}}">
+                                    <div class="step-icon">3</div>
+                                    <p>Request Sign</p>
+                                </div>
+                                <div class="indicator-line {{$receiptAttachmentRequested ? 'active' : ''}}"></div>
+                                <div class="step step4 {{$receiptAttachmentSigned ? 'active' : ''}}">
+                                    <div class="step-icon">4</div>
+                                    <p>Signed</p>
+                                </div>
+                                <div class="indicator-line {{$receiptAttachmentSigned ? 'active' : ''}}"></div>
+                                <div class="step step5 {{$receiptAttachmentSent ? 'active' : ''}}">
+                                    <div class="step-icon">5</div>
+                                    <p>Print or Send to Client</p>
+                                </div>
+                            </section>
+                        </div>
 
-                    {{-- Other  --}}
-                    <div class="text-center mt-5">
-                        <hr>
-                        <h6>Other Currency</h6>
-                        <section class="step-indicator">
-                            <div class="step step1 active">
-                                <div class="step-icon">1</div>
-                                <p>Download</p>
+                        {{-- Other  --}}
+                        @if($receiptPartner->invoiceB2b->currency != 'idr')
+                            <div class="text-center mt-5">
+                                <hr>
+                                <h6>Other Currency</h6>
+                                <section class="step-indicator">
+                                    <div class="step step1 {{$receiptPartner->download_other == 1 ? 'active' : ''}}">
+                                        <div class="step-icon">1</div>
+                                        <p>Download</p>
+                                    </div>
+                                    <div class="indicator-line {{$receiptPartner->download_other == 1 ? 'active' : ''}}"></div>
+                                    <div class="step step2 {{isset($receiptAttachmentNotYetOther) || $receiptAttachmentSignedOther ? 'active' : ''}}">
+                                        <div class="step-icon">2</div>
+                                        <p>Upload</p>
+                                    </div>
+                                    <div class="indicator-line {{isset($receiptAttachmentNotYetOther) || $receiptAttachmentSignedOther ? 'active' : ''}}"></div>
+                                    <div class="step step3 {{$receiptAttachmentRequestedOther ? 'active' : ''}}">
+                                        <div class="step-icon">3</div>
+                                        <p>Request Sign</p>
+                                    </div>
+                                    <div class="indicator-line {{$receiptAttachmentRequestedOther ? 'active' : ''}}"></div>
+                                    <div class="step step4 {{$receiptAttachmentSignedOther ? 'active' : ''}}">
+                                        <div class="step-icon">4</div>
+                                        <p>Signed</p>
+                                    </div>
+                                    <div class="indicator-line {{$receiptAttachmentSignedOther ? 'active' : ''}}"></div>
+                                    <div class="step step5 {{$receiptAttachmentSentOther ? 'active' : ''}}">
+                                        <div class="step-icon">5</div>
+                                        <p>Print or Send to Client</p>
+                                    </div>
+                                </section>
                             </div>
-                            <div class="indicator-line active"></div>
-                            <div class="step step2">
-                                <div class="step-icon">2</div>
-                                <p>Upload</p>
-                            </div>
-                            <div class="indicator-line"></div>
-                            <div class="step step3">
-                                <div class="step-icon">3</div>
-                                <p>Request Sign</p>
-                            </div>
-                            <div class="indicator-line"></div>
-                            <div class="step step4">
-                                <div class="step-icon">4</div>
-                                <p>Signed</p>
-                            </div>
-                            <div class="indicator-line"></div>
-                            <div class="step step5">
-                                <div class="step-icon">5</div>
-                                <p>Print or Send to Client</p>
-                            </div>
-                        </section>
+                        @endif
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 
-    {{-- Add Receipt  --}}
-    <div class="modal fade" id="addReceipt" data-bs-backdrop="static" data-bs-keyboard="false"
+    {{-- Upload Receipt  --}}
+    <div class="modal fade" id="uploadReceipt" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-between">
                     <span>
-                        Add Receipt
+                        Upload Receipt
                     </span>
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="#" method="POST" id="receipt">
+                    <form action="{{ route('receipt.corporate.upload', ['receipt' => $receiptPartner->id]) }}" method="POST" id="receipt" enctype="multipart/form-data">
                         @csrf
                         <div class="put"></div>
                         <div class="row g-2">
-                            <div class="col-md-3 receipt-other d-none">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Amount <sup class="text-danger">*</sup>
-                                    </label>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text currency-icon" id="basic-addon1">
-                                            $
-                                        </span>
-                                        <input type="text" name="receipt" id="receipt_amount_other"
-                                            class="form-control" required value="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Amount <sup class="text-danger">*</sup>
-                                    </label>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text" id="basic-addon1">
-                                            Rp
-                                        </span>
-                                        <input type="text" name="receipt" id="receipt_amount" class="form-control"
-                                            required value="">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Date <sup class="text-danger">*</sup>
-                                    </label>
-                                    <input type="date" name="receipt" id="receipt_date"
-                                        class="form-control form-control-sm rounded" required value="">
-                                </div>
-                            </div>
-                            <div class="col-md-12 receipt-other d-none">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Word <sup class="text-danger">*</sup>
-                                    </label>
-                                    <input type="text" name="receipt" id="receipt_word_other"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
-                                </div>
-                            </div>
+                            <input type="hidden" name="currency" id="currency">
                             <div class="col-md-12">
                                 <div class="mb-1">
                                     <label for="">
-                                        Word <sup class="text-danger">*</sup>
+                                        File <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="text" name="receipt" id="receipt_word"
-                                        class="form-control form-control-sm rounded" required value="" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Payment Method <sup class="text-danger">*</sup>
-                                    </label>
-                                    <select name="" class="modal-select w-100" id="receipt_payment"
-                                        onchange="checkPaymentReceipt()">
-                                        <option value="Wire Transfer">Wire Transfer</option>
-                                        <option value="Cash">Cash</option>
-                                        <option value="Cheque">Cheque</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-1">
-                                    <label for="">
-                                        Cheque No <sup class="text-danger">*</sup>
-                                    </label>
-                                    <input type="text" name="receipt" id="receipt_cheque"
-                                        class="form-control form-control-sm rounded" required value="" disabled>
+                                    <div class="input-group input-group-sm">
+                                        <input type="file" name="attachment" id="attachment" class="form-control"
+                                            required value="">
+                                    </div>
+                                        @error('attachment')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
                                 </div>
                             </div>
                         </div>
-                        <hr>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-4">
                             <a href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
                                 <i class="bi bi-x-square me-1"></i>
                                 Cancel</a>
@@ -367,6 +353,17 @@
         </div>
     </div>
 
+    @if($errors->has('attachment') )
+                
+        <script>
+            $(document).ready(function(){
+                $('#uploadReceipt').modal('show'); 
+                              
+            })
+        </script>
+
+    @endif
+
     <script>
         $(document).ready(function() {
             $('.modal-select').select2({
@@ -374,7 +371,164 @@
                 placeholder: "Select value",
                 allowClear: true
             });
+
+            $("#send-inv-client-idr").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+                axios
+                    .get('{{ route('receipt.corporate.send_to_client', ['receipt' => $receiptPartner->id, 'currency' => 'idr']) }}')
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Receipt has been send to client')
+                        setTimeout(location.reload.bind(location), 3000);
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
+                        swal.close()
+                    })
+            })
+
+            $("#send-inv-client-other").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+                axios
+                    .get('{{ route('receipt.corporate.send_to_client', ['receipt' => $receiptPartner->id, 'currency' => 'other']) }}')
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Receipt has been send to client')
+                        setTimeout(location.reload.bind(location), 3000);
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
+                        swal.close()
+                    })
+            })
+
+            $("#export_other").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('receipt.corporate.export', ['receipt' => $receiptPartner->id, 'currency' => 'other']) }}', {
+                        responseType: 'arraybuffer'
+                    })
+                    .then(response => {
+                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+                             // create <a> tag dinamically
+                            var fileLink = document.createElement('a');
+                            fileLink.href = url;
+
+                            // it forces the name of the downloaded file
+                            fileLink.download = '{{ $receiptPartner->receipt_id }}' + '_other';;
+
+                            // triggers the click event
+                            fileLink.click();
+
+                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                        setTimeout(location.reload.bind(location), 3000);
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+                })
+
+            $("#export_idr").on('click', function(e) {
+                e.preventDefault();
+
+                Swal.showLoading()                
+                axios
+                    .get('{{ route('receipt.corporate.export', ['receipt' => $receiptPartner->id, 'currency' => 'idr']) }}', {
+                        responseType: 'arraybuffer'
+                    })
+                    .then(response => {
+                        console.log(response)
+
+                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                            url = window.URL.createObjectURL(blob)
+                            // create <a> tag dinamically
+                            var fileLink = document.createElement('a');
+                            fileLink.href = url;
+
+                            // it forces the name of the downloaded file
+                            fileLink.download = '{{ $receiptPartner->receipt_id }}' + '_idr';;
+
+                            // triggers the click event
+                            fileLink.click();
+
+                        window.open(url)
+                         // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        swal.close()
+                        notification('success', 'Invoice has been exported')
+                        setTimeout(location.reload.bind(location), 3000);
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while exporting the invoice')
+                        swal.close()
+                    })
+                })
         });
+
+        $("#upload-idr").on('click', function(e) {
+            e.preventDefault();
+
+            $("#currency").val('idr')
+        });
+
+        $("#upload-other").on('click', function(e) {
+            e.preventDefault();
+
+            $("#currency").val('other')
+        });
+
+        $("#request-acc").on('click', function(e) {
+            e.preventDefault();
+
+            Swal.showLoading()                
+                axios
+                    .get('{{ route('receipt.corporate.request_sign', ['receipt' => $receiptPartner->id, 'currency' => 'idr']) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'idr'
+                        }
+                    })
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                        setTimeout(location.reload.bind(location), 3000);
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+                })
+
+        $("#request-acc-other").on('click', function(e) {
+            e.preventDefault();
+
+            Swal.showLoading()                
+                axios
+                    .get('{{  route('receipt.corporate.request_sign', ['receipt' => $receiptPartner->id, 'currency' => 'other']) }}', {
+                        responseType: 'arraybuffer',
+                        params: {
+                            type: 'other'
+                        }
+                    })
+                    .then(response => {
+                        swal.close()
+                        notification('success', 'Sign has been requested')
+                        setTimeout(location.reload.bind(location), 3000);
+                    })
+                    .catch(error => {
+                        notification('error', 'Something went wrong while send email')
+                        swal.close()
+                    })
+        })
 
         function checkCurrency() {
             let cur = $('#currency').val()

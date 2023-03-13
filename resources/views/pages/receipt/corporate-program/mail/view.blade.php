@@ -9,17 +9,17 @@
         <tr>
             <td>Full Name</td>
             <td>:</td>
-            <td>{Full Name}</td>
+            <td>{{ ucwords($param['fullname']) }}</td>
         </tr>
         <tr>
             <td>Program Name</td>
             <td>:</td>
-            <td>{Main Program - Prog Program}</td>
+            <td>{{ $param['program_name'] }}</td>
         </tr>
         <tr>
             <td>Receipt Date</td>
             <td>:</td>
-            <td>{Receipt Date}</td>
+            <td>{{ $param['receipt_date'] }}</td>
         </tr>
     </table>
     <p>
@@ -28,7 +28,7 @@
 
     <p style="text-align: center;margin: 2.5em auto;">
         <a class="button"
-            href="#"
+            href="{{ route('receipt.corporate.sign_document', ['receipt' => $param['receipt_identifier'], 'currency' => $param['currency']]) }}?token={{ csrf_token() }}"
             style="background: #3b6cde; 
              text-decoration: none; 
              padding: .5em 1.5em;

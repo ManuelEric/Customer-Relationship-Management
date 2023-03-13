@@ -28,6 +28,8 @@
                             Success
                         @elseif ($partnerProgram->status == 2)
                             Denied
+                        @elseif ($partnerProgram->status == 3)
+                            Refund
                         @endif
                     </td>
                 </tr>

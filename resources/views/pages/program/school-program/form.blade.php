@@ -443,18 +443,17 @@
                                     
                                     <select name="empl_id" id="" class="select w-100" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
-                                        @if(isset($schoolProgram->empl_id))
-                                            @if(isset($edit))
+                                         @if(isset($edit))
                                                 @foreach ($employees as $employee)
                                                     <option value="{{ $employee->id }}" 
                                                         {{ $schoolProgram->empl_id ==  $employee->id ? 'selected' : ''}}>
                                                         {{ $employee->first_name }} {{ $employee->last_name }}</option>
                                                 @endforeach    
-                                            @else
+                                        @endif
+                                        @if(isset($schoolProgram->empl_id))
                                                 <option value="{{ $schoolProgram->empl_id }}" selected>
                                                     {{ $schoolProgram->user->first_name }} {{ $schoolProgram->user->last_name }}
                                                 </option>
-                                            @endif
                                         @elseif(empty($schoolProgram))
                                             @foreach ($employees as $employee)
                                                 <option value="{{ $employee->id }}" {{ old('empl_id') == $employee->id ? "selected" : "" }}>{{ $employee->first_name }} {{ $employee->last_name }}</option>

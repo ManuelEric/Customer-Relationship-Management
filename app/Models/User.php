@@ -76,7 +76,7 @@ class User extends Authenticatable
     {
         parent::boot();
 
-        self::creating(function($model) {
+        self::creating(function ($model) {
             $model->uuid = (string) Str::uuid();
         });
     }
@@ -84,7 +84,7 @@ class User extends Authenticatable
     public static function whereExtendedId($id)
     {
         if (is_array($id) && empty($id)) return new Collection();
-        
+
         $instance = new static;
 
         return $instance->newQuery()->where('extended_id', $id)->first();
@@ -93,16 +93,16 @@ class User extends Authenticatable
     public static function whereFullName($name)
     {
         if (is_array($name) && empty($name)) return new Collection();
-        
+
         $instance = new static;
 
-        return $instance->newQuery()->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ['%'.$name.'%'])->first();
+        return $instance->newQuery()->whereRaw("CONCAT(first_name, ' ', last_name) like ?", ['%' . $name . '%'])->first();
     }
 
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->first_name.' '.$this->last_name,
+            get: fn ($value) => $this->first_name . ' ' . $this->last_name,
         );
     }
 
@@ -112,11 +112,21 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'tbl_user_roles', 'user_id', 'role_id')->using(UserRole::class)->withPivot(
             [
                 'extended_id',
-                'tutor_subject', 
-                'feehours', 
+                'tutor_subject',
+                'feehours',
                 'feesession'
             ]
         )->withTimestamps();
+    }
+
+    public function department()
+    {
+        return $this->belongsToMany(Department::class, 'tbl_user_type_detail', 'user_id', 'department_id')->withTimestamps();
+    }
+
+    public function access_menus()
+    {
+        return $this->belongsToMany(Menu::class, 'tbl_menus_user', 'user_id', 'menu_id')->withPivot(['copy', 'export'])->withTimestamps();
     }
 
     public function position()
@@ -127,8 +137,8 @@ class User extends Authenticatable
     public function educations()
     {
         return $this->belongsToMany(University::class, 'tbl_user_educations', 'user_id', 'univ_id')
-                    ->withPivot('major_id', 'degree', 'graduation_date')->withTimestamps()
-                    ->join('tbl_major', 'major_id', '=', 'tbl_major.id');
+            ->withPivot('major_id', 'degree', 'graduation_date')->withTimestamps()
+            ->join('tbl_major', 'major_id', '=', 'tbl_major.id');
     }
 
     public function assetUsed()

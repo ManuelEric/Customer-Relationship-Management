@@ -15,7 +15,9 @@ interface PartnerProgramRepositoryInterface
     public function getPartnerProgramById($partnerProgId);
     public function deletePartnerProgram($partnerProgId);
     public function createPartnerProgram(array $partnerPrograms);
+    public function createPartnerPrograms(array $partnerPrograms);
     public function updatePartnerProgram($partnerProgId, array $partnerPrograms);
     public function getTotalPartnerProgramComparison($startYear, $endYear);
     public function getPartnerProgramComparison($startYear, $endYear);
+    public function getAllPartnerProgramFromCRM();
 }
