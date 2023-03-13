@@ -75,26 +75,11 @@ class AppServiceProvider extends ServiceProvider
                     ]);
                 }
 
-                $grouped = $collection->sortBy(['order_no', 'order_no_submenu'])->values()->mapToGroups(function (array $item, int $key) {
-                    return [
-                        $item['mainmenu_name'] => [
-                            'order_no_submenu' => $item['order_no_submenu'],
-                            'mainmenu_name' => $item['mainmenu_name'],
-                            'menu_id' => $item['menu_id'],
-                            'submenu_name' => $item['submenu_name'],
-                            'submenu_link' => $item['submenu_link'],
-                            'copy' => $item['copy'],
-                            'export' => $item['export'],
-                            'icon' => $item['icon'],
-                        ]
-
-                    ];
-                });
-
                 # if logged in user is admin
                 if ($user->roles()->where('role_name', 'admin')->exists()) {
                     $isAdmin = true;
-                    $grouped = app('menu-repository-services')->getMenu();
+                    $collection = [];
+                    $collection = app('menu-repository-services')->getMenu();
                 }
 
                 # if logged in user is from department sales
@@ -111,6 +96,22 @@ class AppServiceProvider extends ServiceProvider
                 if ($user->department()->where('dept_name', 'Finance & Operation')->exists()) {
                     $isFinance = true;
                 }
+
+                $grouped = $collection->sortBy(['order_no', 'order_no_submenu'])->values()->mapToGroups(function (array $item, int $key) {
+                    return [
+                        $item['mainmenu_name'] => [
+                            'order_no_submenu' => $item['order_no_submenu'],
+                            'mainmenu_name' => $item['mainmenu_name'],
+                            'menu_id' => $item['menu_id'],
+                            'submenu_name' => $item['submenu_name'],
+                            'submenu_link' => $item['submenu_link'],
+                            'copy' => $item['copy'],
+                            'export' => $item['export'],
+                            'icon' => $item['icon'],
+                        ]
+
+                    ];
+                });
 
                 $view->with(
                     [

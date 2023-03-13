@@ -61,10 +61,10 @@ class AssetController extends Controller
 
             DB::rollBack();
             Log::error('Store asset failed : ' . $e->getMessage());
-            return Redirect::to('master/asset/'.$asset_id_with_label)->withError('Failed to create asset');
+            return Redirect::to('master/asset/' . $asset_id_with_label)->withError('Failed to create asset');
         }
 
-        return Redirect::to('master/asset/'.$asset_id_with_label)->withSuccess('Asset successfully created');
+        return Redirect::to('master/asset/' . $asset_id_with_label)->withSuccess('Asset successfully created');
     }
 
     public function create()
