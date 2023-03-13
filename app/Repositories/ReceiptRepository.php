@@ -285,4 +285,11 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     {
         return V1Receipt::all();
     }
+
+    public function getReceiptDifferences()
+    {
+        $receipt_v2 = Receipt::pluck('receipt_id')->toArray();
+
+        return V1Receipt::whereNotIn('receipt_id', $receipt_v2)->get();
+    }
 }

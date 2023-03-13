@@ -15,6 +15,9 @@ use App\Interfaces\RefundRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\Lead;
 use App\Models\Program;
+use App\Models\School;
+use App\Models\UserClient;
+use App\Models\v1\Student;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -98,12 +101,15 @@ class ImportClientProg extends Command
                 if (!isset($crm_clientprog->student->st_firstname)) 
                     continue; # st num 146 not found in table students v1
                 
-
-                $crm_student_name = $crm_clientprog->student->st_firstname.' '.$crm_clientprog->student->st_lastname;
+                $crm_clientprog_student = $crm_clientprog->student;
+                $crm_student_id = $studentId = $crm_clientprog_student->st_id;
+                $crm_student_name = $crm_clientprog_student->st_firstname.' '.$crm_clientprog_student->st_lastname;
                 
+                # when the student hasn't be registered in the database v2
+                # then store as a new student
                 if (!$student_v2 = $this->clientRepository->getStudentByStudentName($crm_student_name))
                 {
-                    echo 'tidak menemukan student '.$crm_student_name;
+                    $this->info('Please running a function import:student');
                 }
     
                 $student_v2_id = $student_v2->id;

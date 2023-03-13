@@ -328,4 +328,11 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->get();
     }
 
+    public function getInvoiceDifferences()
+    {
+        $invoice_v2 = InvoiceProgram::pluck('inv_id')->toArray();
+
+        return CRMInvoice::whereNotIn('inv_id', $invoice_v2)->get();
+    }
+
 }

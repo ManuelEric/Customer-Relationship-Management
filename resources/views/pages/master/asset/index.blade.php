@@ -38,10 +38,6 @@
             </table>
         </div>
     </div>
-    {{ json_encode($menus['Master']) }}
-    @php
-        exit;
-    @endphp
     <script>
         $(document).ready(function() {
             var table = $('#assetTable').DataTable({
