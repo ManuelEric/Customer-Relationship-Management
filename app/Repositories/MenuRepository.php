@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class MenuRepository implements MenuRepositoryInterface 
 {
-
     public function getMenu()
     {
         $data = [];
@@ -23,6 +22,7 @@ class MenuRepository implements MenuRepositoryInterface
                         'tbl_menus.submenu_name',
                         'tbl_menus.submenu_link',
                         'tbl_menus.order_no',
+                        'tbl_main_menus.icon',
                     ])->orderBy('tbl_main_menus.order_no', 'asc')->orderBy('tbl_menus.order_no', 'asc')->get();
         foreach ($menus as $menu) {
 
@@ -31,14 +31,21 @@ class MenuRepository implements MenuRepositoryInterface
                 'main_menu_id' => $menu->main_menu_id,
                 'submenu_name' => $menu->submenu_name,
                 'submenu_link' => $menu->submenu_link,
+
+                # add new 
+                # used when logged in user is admin
+                'order_no_submenu' => $menu->order_no,
+                'copy' => true,
+                'export' => true,
+                'icon' => $menu->icon,
+                
             ];
 
         }
 
         return $data;
-        
     }
-
+    
     public function getUserAccess($userId)
     {
         $user = User::where('uuid', $userId)->first();

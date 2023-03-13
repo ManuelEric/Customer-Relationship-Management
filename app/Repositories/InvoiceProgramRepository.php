@@ -5,9 +5,10 @@ namespace App\Repositories;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Models\ClientProgram;
 use App\Models\InvoiceProgram;
+use App\Models\v1\Invoice as CRMInvoice;
 use App\Models\ViewClientProgram;
-use Carbon\Carbon;
 use DataTables;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
@@ -88,6 +89,11 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
     public function getInvoiceByClientProgId($clientProgId)
     {
         return InvoiceProgram::where('clientprog_id', $clientProgId)->first();
+    }
+
+    public function getInvoiceByInvoiceId($invoiceId)
+    {
+        return InvoiceProgram::where('inv_id', $invoiceId)->first();
     }
 
     public function createInvoice(array $invoiceDetails)
@@ -321,4 +327,5 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->groupBy(DB::raw('MONTH(tbl_inv.inv_duedate)'))
             ->get();
     }
+
 }

@@ -43,6 +43,7 @@ class UserClient extends Authenticatable
         'st_abryear',
         // 'st_abrcountry',
         'st_statusact',
+        'st_statuscli',
         'st_note',
         'st_prospect_status',
         'password',

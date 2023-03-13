@@ -38,7 +38,10 @@
             </table>
         </div>
     </div>
-
+    {{ json_encode($menus['Master']) }}
+    @php
+        exit;
+    @endphp
     <script>
         $(document).ready(function() {
             var table = $('#assetTable').DataTable({
@@ -121,7 +124,7 @@
                 
             });
 
-            @php            
+            @php         
                 $privilage = $menus['Master']->where('submenu_name', 'Assets')->first();
             @endphp
 

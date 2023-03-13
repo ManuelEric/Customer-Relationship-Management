@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Interfaces\MenuRepositoryInterface;
+use App\Repositories\MenuRepository;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +13,7 @@ use PDO;
 
 class AppServiceProvider extends ServiceProvider
 {
+
     /**
      * Register any application services.
      *
@@ -18,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind('menu-repository-services', MenuRepository::class);
     }
 
     /**
@@ -88,7 +91,36 @@ class AppServiceProvider extends ServiceProvider
                     ];
                 });
 
-                $view->with('menus', $grouped);
+                # if logged in user is admin
+                if ($user->roles()->where('role_name', 'admin')->exists()) {
+                    $isAdmin = true;
+                    $grouped = app('menu-repository-services')->getMenu();
+                }
+
+                # if logged in user is from department sales
+                if ($user->department()->where('dept_name', 'Client Management')->exists()) {
+                    $isSales = true;
+                }
+
+                # if logged in user is from department partnership
+                if ($user->department()->where('dept_name', 'Client Management')->exists()) {
+                    $isPartnership = true;
+                }
+
+                # if logged in user is from department finance
+                if ($user->department()->where('dept_name', 'Finance & Operation')->exists()) {
+                    $isFinance = true;
+                }
+
+                $view->with(
+                    [
+                        'menus' => $grouped,
+                        'isAdmin' => $isAdmin ?? false,
+                        'isSales' => $isSales ?? false,
+                        'isPartnership' => $isPartnership ?? false,
+                        'isFinance' => $isFinance ?? false,
+                    ]
+                );
             }
         });
     }

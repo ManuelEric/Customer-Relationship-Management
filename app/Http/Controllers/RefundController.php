@@ -50,6 +50,7 @@ class RefundController extends Controller
         DB::beginTransaction();
         try {
 
+            # default refund status is 1
             $this->refundRepository->createRefund(['inv_id' => $clientProg->invoice->inv_id, 'status' => 1] + $refundDetails);
             DB::commit();
 

@@ -5,11 +5,17 @@
 @section('content')
 
     {{-- Sales --}}
-    {{-- @include('pages.dashboard.sales.index') --}}
+    @if ($isSales || $isAdmin)
+        @include('pages.dashboard.sales.index')
+    @endif
     {{-- Partnership --}}
-    @include('pages.dashboard.partnership.index')
+    @if ($isPartnership || $isAdmin)
+        @include('pages.dashboard.partnership.index')
+    @endif
     {{-- Finance  --}}
-    {{-- @include('pages.dashboard.finance.index') --}}
+    @if ($isFinance || $isAdmin)
+        @include('pages.dashboard.finance.index')
+    @endif
 
 
     <script>
