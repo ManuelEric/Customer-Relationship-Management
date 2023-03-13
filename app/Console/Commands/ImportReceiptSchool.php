@@ -65,8 +65,8 @@ class ImportReceiptSchool extends Command
                             'receipt_words_idr' => $invDetail->receipt->receipt_words,
                             'receipt_notes' => $invDetail->receipt->receipt_notes == '' || $invDetail->receipt->receipt_notes == '-' ? null : $invDetail->receipt->receipt_notes,
                             'receipt_status' => $invDetail->receipt->receipt_status,
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now(),
+                            'created_at' => $invDetail->receipt->receipt_date,
+                            'updated_at' => $invDetail->receipt->receipt_date,
                         ];
                     }
                 }
@@ -85,8 +85,8 @@ class ImportReceiptSchool extends Command
                         'receipt_words_idr' => $invSch->receipt->receipt_words,
                         'receipt_notes' => $invSch->receipt->receipt_notes == '' || $invSch->receipt->receipt_notes == '-' ? null : $invSch->receipt->receipt_notes,
                         'receipt_status' => $invSch->receipt->receipt_status,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
+                        'created_at' => $invSch->receipt->receipt_date,
+                        'updated_at' => $invSch->receipt->receipt_date,
                     ];
                 }
             }
