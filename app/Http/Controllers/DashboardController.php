@@ -74,9 +74,11 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
-        // return $this->indexSales($request);
-        return $this->indexPartnership($request);
-        // return $this->indexFinance($request);
+        $data = $this->indexSales($request);
+        $data = array_merge($data, $this->indexPartnership($request));
+        $data = array_merge($data, $this->indexFinance($request));
+
+        return view('pages.dashboard.index')->with($data);
     }
 
     # sales dashboard
@@ -179,49 +181,47 @@ class DashboardController extends Controller
 
         $conversion_lead_of_event = $this->clientEventRepository->getConversionLead($cp_filter);
 
-        return view('pages.dashboard.index')->with(
-            [
-                'totalClientInformation' => $totalClientByStatus,
-                'followUpReminder' => $followUpReminder,
-                'menteesBirthday' => $menteesBirthday,
-                'filter_bymonth' => $filter,
+        return [
+            'totalClientInformation' => $totalClientByStatus,
+            'followUpReminder' => $followUpReminder,
+            'menteesBirthday' => $menteesBirthday,
+            'filter_bymonth' => $filter,
 
-                # client program tab
-                'employees' => $employees,
-                'clientProgramGroupByStatus' => $totalAllClientProgramByStatus,
-                'admissionsMentoring' => $admissionsMentoring,
-                'initialConsultation' => $initialConsultation,
-                'totalInitialConsultation' => $totalInitialConsultation,
-                'successProgram' => $successProgram,
-                'initialAssessmentMaking' => $initialAssessmentMaking,
-                'conversionTimeProgress' => $conversionTimeProgress,
-                'successPercentage' => $successPercentage,
-                'allSuccessProgramByMonth' => $allSuccessProgramByMonth,
-                'totalRevenueAdmissionMentoring' => $totalRevenueAdmMentoringByProgramAndMonth,
-                'academicTestPrep' => $academicTestPrep,
-                'totalRevenueAcadTestPrepByMonth' => $totalRevenueAcadTestPrepByMonth,
-                'careerExploration' => $careerExploration,
-                'totalRevenueCareerExplorationByMonth' => $totalRevenueCareerExplorationByMonth,
-                'leadSource' => $leadSource,
-                'conversionLeads' => $conversionLeads,
-                'adminssionMentoringConvLead' => $adminssionMentoringConvLead,
-                'academicTestPrepConvLead' => $academicTestPrepConvLead,
-                'careerExplorationConvLead' => $careerExplorationConvLead,
+            # client program tab
+            'employees' => $employees,
+            'clientProgramGroupByStatus' => $totalAllClientProgramByStatus,
+            'admissionsMentoring' => $admissionsMentoring,
+            'initialConsultation' => $initialConsultation,
+            'totalInitialConsultation' => $totalInitialConsultation,
+            'successProgram' => $successProgram,
+            'initialAssessmentMaking' => $initialAssessmentMaking,
+            'conversionTimeProgress' => $conversionTimeProgress,
+            'successPercentage' => $successPercentage,
+            'allSuccessProgramByMonth' => $allSuccessProgramByMonth,
+            'totalRevenueAdmissionMentoring' => $totalRevenueAdmMentoringByProgramAndMonth,
+            'academicTestPrep' => $academicTestPrep,
+            'totalRevenueAcadTestPrepByMonth' => $totalRevenueAcadTestPrepByMonth,
+            'careerExploration' => $careerExploration,
+            'totalRevenueCareerExplorationByMonth' => $totalRevenueCareerExplorationByMonth,
+            'leadSource' => $leadSource,
+            'conversionLeads' => $conversionLeads,
+            'adminssionMentoringConvLead' => $adminssionMentoringConvLead,
+            'academicTestPrepConvLead' => $academicTestPrepConvLead,
+            'careerExplorationConvLead' => $careerExplorationConvLead,
 
-                # sales target tab
-                'salesTarget' => $salesTarget,
-                'salesActual' => $salesActual,
-                'salesDetail' => $salesDetail,
+            # sales target tab
+            'salesTarget' => $salesTarget,
+            'salesActual' => $salesActual,
+            'salesDetail' => $salesDetail,
 
-                # program comparison
-                'allPrograms' => $allPrograms,
-                'comparisons' => $comparisons,
+            # program comparison
+            'allPrograms' => $allPrograms,
+            'comparisons' => $comparisons,
 
-                # client event tab
-                'events' => $events,
-                'conversion_lead_of_event' => $conversion_lead_of_event
-            ]
-        );
+            # client event tab
+            'events' => $events,
+            'conversion_lead_of_event' => $conversion_lead_of_event
+        ];
     }
 
     public function indexPartnership($request)
@@ -265,24 +265,22 @@ class DashboardController extends Controller
 
         $conversion_lead_of_event = $this->clientEventRepository->getConversionLead($cp_filter);
 
-        return view('pages.dashboard.index')->with(
-            [
-                'totalPartner' => $totalPartner,
-                'totalSchool' => $totalSchool,
-                'totalUniversity' => $totalUniversity,
-                'totalAgreement' => $totalAgreement,
-                'newPartner' => $newPartner,
-                'newSchool' => $newSchool,
-                'newUniversity' => $newUniversity,
-                'speakers' => $speakers,
-                'speakerToday' => $speakerToday,
-                'partnerPrograms' => $partnerPrograms,
-                'programComparisons' => $programComparisons,
-                # client event tab
-                'events' => $events,
-                'conversion_lead_of_event' => $conversion_lead_of_event
-            ]
-        );
+        return [
+            'totalPartner' => $totalPartner,
+            'totalSchool' => $totalSchool,
+            'totalUniversity' => $totalUniversity,
+            'totalAgreement' => $totalAgreement,
+            'newPartner' => $newPartner,
+            'newSchool' => $newSchool,
+            'newUniversity' => $newUniversity,
+            'speakers' => $speakers,
+            'speakerToday' => $speakerToday,
+            'partnerPrograms' => $partnerPrograms,
+            'programComparisons' => $programComparisons,
+            # client event tab
+            'events' => $events,
+            'conversion_lead_of_event' => $conversion_lead_of_event
+        ];
     }
 
     protected function mappingProgramComparison($data)
@@ -347,16 +345,14 @@ class DashboardController extends Controller
             }
         );
 
-        return view('pages.dashboard.index')->with(
-            [
-                'totalInvoiceNeeded' => $totalInvoiceNeeded,
-                'totalInvoice' => $totalInvoice,
-                'totalReceipt' => $totalReceipt,
-                'totalRefundRequest' => $totalRefundRequest,
-                'paidPayments' => $paidPayments,
-                'unpaidPayments' => $unpaidPayments,
-                'revenue' => $revenue,
-            ]
-        );
+        return [
+            'totalInvoiceNeeded' => $totalInvoiceNeeded,
+            'totalInvoice' => $totalInvoice,
+            'totalReceipt' => $totalReceipt,
+            'totalRefundRequest' => $totalRefundRequest,
+            'paidPayments' => $paidPayments,
+            'unpaidPayments' => $unpaidPayments,
+            'revenue' => $revenue,
+        ];
     }
 }

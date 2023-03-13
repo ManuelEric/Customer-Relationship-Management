@@ -130,6 +130,7 @@
                     </li>
                     @endforeach
 
+                    @if ($isAdmin)
                     <li class="nav-item nav-category">Settings</li>
                     <li class="nav-item">
                         <a href="{{url('menus')}}" class="nav-link {{ Request::is('menus') ? 'text-primary' : '' }}">
@@ -138,6 +139,7 @@
                             <i class="menu-arrow bi bi-arrow-right"></i>
                         </a>
                     </li>
+                    @endif
                 </ul>
             </nav>
             <!-- partial -->

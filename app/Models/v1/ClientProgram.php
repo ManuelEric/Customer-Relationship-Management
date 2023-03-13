@@ -99,4 +99,9 @@ class ClientProgram extends Model
     {
         return $this->hasMany(FollowUp::class, 'stprog_id', 'stprog_id');
     }
+
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class, 'stprog_id', 'stprog_id');
+    }
 }

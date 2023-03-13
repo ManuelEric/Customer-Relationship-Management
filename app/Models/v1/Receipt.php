@@ -40,4 +40,14 @@ class Receipt extends Model
         'receipt_status',
         'receipt_refund',
     ];
+
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class, 'inv_id', 'inv_id');
+    }
+
+    public function installment()
+    {
+        return $this->belongsTo(InvoiceDtl::class, 'invdtl_id', 'invdtl_id');
+    }
 }

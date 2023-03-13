@@ -151,6 +151,11 @@ class ReceiptRepository implements ReceiptRepositoryInterface
         })->first();
     }
 
+    public function getReceiptByReceiptId($receiptId)
+    {
+        return Receipt::where('receipt_id', $receiptId)->first();
+    }
+
     public function createReceipt(array $receiptDetails)
     {
         return Receipt::create($receiptDetails);

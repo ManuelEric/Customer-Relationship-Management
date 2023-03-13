@@ -5,9 +5,13 @@ namespace App\Console\Commands;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
+use App\Interfaces\InvoiceDetailRepositoryInterface;
+use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
+use App\Interfaces\ReceiptRepositoryInterface;
+use App\Interfaces\RefundRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\Lead;
 use App\Models\Program;
@@ -16,6 +20,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Terbilang;
 
 class ImportClientProg extends Command
 {
@@ -40,8 +45,12 @@ class ImportClientProg extends Command
     protected ReasonRepositoryInterface $reasonRepository;
     protected UserRepositoryInterface $userRepository;
     protected FollowupRepositoryInterface $followupRepository;
+    protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
+    protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
+    protected ReceiptRepositoryInterface $receiptRepository;
+    protected RefundRepositoryInterface $refundRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, ReasonRepositoryInterface $reasonRepository, UserRepositoryInterface $userRepository, FollowupRepositoryInterface $followupRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, ReasonRepositoryInterface $reasonRepository, UserRepositoryInterface $userRepository, FollowupRepositoryInterface $followupRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository)
     {
         parent::__construct();
         $this->clientRepository = $clientRepository;
@@ -51,6 +60,10 @@ class ImportClientProg extends Command
         $this->reasonRepository = $reasonRepository;
         $this->userRepository = $userRepository;
         $this->followupRepository = $followupRepository;
+        $this->invoiceProgramRepository = $invoiceProgramRepository;
+        $this->invoiceDetailRepository = $invoiceDetailRepository;
+        $this->receiptRepository = $receiptRepository;
+        $this->refundRepository = $refundRepository;
         
         $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
@@ -74,8 +87,8 @@ class ImportClientProg extends Command
      */
     public function handle()
     {
-        DB::beginTransaction();
-        try {
+        // DB::beginTransaction();
+        // try {
 
             $crm_clientprogs = $this->clientProgramRepository->getClientProgramFromV1();
             foreach ($crm_clientprogs as $crm_clientprog)
@@ -183,6 +196,14 @@ class ImportClientProg extends Command
                     'total_price_tutor' => $crm_clientprog->stprog_total_price_tutor,
                     'duration_notes' => $crm_clientprog->stprog_duration,
                 ];
+
+                # additional
+                $clientProgramDetails['total_uni'] = $crm_clientprog->stprog_tot_uni;
+                $clientProgramDetails['total_foreign_currency'] = $crm_clientprog->stprog_tot_dollar;
+                $clientProgramDetails['foreign_currency'] = 'usd';
+                $clientProgramDetails['foreign_currency_exchange'] = $crm_clientprog->stprog_kurs;
+                $clientProgramDetails['total_idr'] = $crm_clientprog->stprog_tot_idr;
+                $clientProgramDetails['installment_notes'] = $crm_clientprog->stprog_install_plan;
     
                 $success_date = $failed_date = $created_at = null;
                 switch ($crm_clientprog->stprog_status) {
@@ -303,18 +324,195 @@ class ImportClientProg extends Command
                     }
         
                 }
+
+                //!
+                # import invoice program to v2
+                $crm_clientprog_invoice = $crm_clientprog->invoice;
+                if ($crm_clientprog_invoice)
+                {
+                    $crm_invoiceId = $crm_clientprog_invoice->inv_id;
+                    if (!$invoice_v2 = $this->invoiceProgramRepository->getInvoiceByInvoiceId($crm_invoiceId))
+                    {
+                        $inv_words = $crm_clientprog_invoice->inv_wordsusd;
+                        if ($crm_clientprog_invoice->inv_wordsusd != "") {
+                            $inv_words = Terbilang::make($crm_clientprog_invoice->inv_totprusd, 'dollars'); 
+                        }
+        
+                        # it supposed to be : one hundred and fifty-three thousand, two hundred
+                        # so we removed the and & commas
+                        $inv_words = str_replace('and', '', $inv_words);
+                        $inv_words = str_replace(',', '', $inv_words);
+    
+                        $invoiceDetails = [
+                            'inv_id' => $crm_clientprog_invoice->inv_id,
+                            'clientprog_id' => $clientprog_v2->clientprog_id,
+                            'inv_category' => $crm_clientprog_invoice->inv_category == "usd" ? "Other" : $crm_clientprog_invoice->inv_category,
+                            'inv_price' => $crm_clientprog_invoice->inv_priceusd,
+                            'inv_earlybird' => $crm_clientprog_invoice->inv_earlybirdusd,
+                            'inv_discount' => $crm_clientprog_invoice->inv_discusd,
+                            'inv_totalprice' => $crm_clientprog_invoice->inv_totprusd,
+                            'inv_words' => $inv_words,
+                            'inv_price_idr' => $crm_clientprog_invoice->inv_priceidr,
+                            'inv_earlybird_idr' => $crm_clientprog_invoice->inv_earlybirdidr,
+                            'inv_discount_idr' => $crm_clientprog_invoice->inv_discidr,
+                            'inv_totalprice_idr' => $crm_clientprog_invoice->inv_totpridr,
+                            'inv_words_idr' => $crm_clientprog_invoice->inv_words,
+                            'session' => $crm_clientprog_invoice->inv_session,
+                            'duration' => $crm_clientprog_invoice->inv_duration,
+                            'inv_paymentmethod' => $crm_clientprog_invoice->inv_paymentmethod,
+                            'inv_duedate' => $crm_clientprog_invoice->inv_duedate,
+                            'inv_notes' => $crm_clientprog_invoice->inv_notes == "" ? NULL : $crm_clientprog_invoice->inv_notes,
+                            'inv_tnc' => $crm_clientprog_invoice->inv_tnc == "" ? NULL : $crm_clientprog_invoice->inv_tnc,
+                            'inv_status' => $crm_clientprog_invoice->inv_status,
+                            'curs_rate' => $crm_clientprog->stprog_kurs, # take the value from stprog
+                            'currency' => $crm_clientprog_invoice->inv_category,
+                        ];
+    
+                        $invoice_v2 = $this->invoiceProgramRepository->createInvoice($invoiceDetails);
+                        $this->info('Invoice stored : '.$invoice_v2->inv_id);
+    
+                        # if the invoice has some installments
+                        // $this->info('Ini installment : '.$crm_clientprog_invoice->installment);
+                        if (count($crm_clientprog_invoice->installment) > 0)
+                        {
+                            $crm_clientprog_installment = $crm_clientprog_invoice->installment;
+                            $installmentDetails = [];
+                            foreach ($crm_clientprog_installment as $installment)
+                            {
+                                $installmentDetails = [
+                                    'inv_id' => $invoice_v2->inv_id,
+                                    'invdtl_installment' => $installment->invdtl_statusname,
+                                    'invdtl_duedate' => $installment->invdtl_duedate,
+                                    'invdtl_percentage' => $installment->invdtl_percentage,
+                                    'invdtl_amount' => $installment->invdtl_amountusd,
+                                    'invdtl_amountidr' => $installment->invdtl_amountidr,
+                                    'invdtl_status' => $installment->invdtl_status == "" ? 0 : $installment->invdtl_status,
+                                    'invdtl_cursrate' => $crm_clientprog->stprog_kurs, # take the value from stprog
+                                    'invdtl_currency' => $crm_clientprog_invoice->inv_category,
+                                ];
+    
+                                # import invoice installment to v2
+                                $installment_v2 = $this->invoiceDetailRepository->createOneInvoiceDetail($installmentDetails);
+                                $this->info('Installment stored : '.json_encode($installment_v2));
+    
+                                if (isset($installment->receipt))
+                                {
+                                    $receiptDetails = [
+                                        'receipt_id' => $installment->receipt->receipt_id,
+                                        'receipt_cat' => 'student',
+                                        'inv_id' => $invoice_v2->inv_id,
+                                        'receipt_method' => $installment->receipt->receipt_mtd,
+                                        'receipt_cheque' => $installment->receipt->receipt_cheque == "" ? NULL : $installment->receipt->receipt_cheque,
+                                        'receipt_amount' => $installment->receipt->receipt_amountusd,
+                                        'receipt_words' => $installment->receipt->receipt_wordsusd,
+                                        'receipt_amount_idr' => $installment->receipt->receipt_amount,
+                                        'receipt_words_idr' => $installment->receipt->receipt_word,
+                                        'receipt_notes' => $installment->receipt->receipt_notes == "" ? NULL : $installment->receipt->receipt_notes,
+                                        'receipt_status' => $installment->receipt->receipt_status,
+                                        'invdtl_id' => $installment_v2->invdtl_id
+                                    ];
+        
+                                    # import receipt installment to v2
+                                    if ($this->receiptRepository->getReceiptByReceiptId($installment->receipt->receipt_id)){
+                                        $receiptDetails['receipt_id'] = $installment->receipt->receipt_id.'-1';
+                                    }
+
+                                    $receipt_v2 = $this->receiptRepository->createReceipt($receiptDetails);
+                                    $this->info('Receipt installment stored : '.$receipt_v2->receipt_id);
+
+                                    # check if the receipt has refund
+                                    if ($installment->receipt->receipt_status == 2 && $installment->receipt->receipt_refund != 0)
+                                    {
+        
+                                        $total_paid = $installment->receipt->receipt_amount;
+                                        $refund_amount = $installment->receipt->receipt_refund;
+                                        $percentage_refund = ($refund_amount/$total_paid)*100;
+        
+                                        $refundDetails = [
+                                            'inv_id' => $invoice_v2->inv_id,
+                                            'total_payment' => $invoice_v2->inv_totalprice_idr,
+                                            'total_paid' => $total_paid,
+                                            'refund_amount' => $refund_amount,
+                                            'percentage_refund' => $percentage_refund,
+                                            'tax_amount' => 0,
+                                            'tax_percentage' => 0,
+                                            'total_refunded' => $refund_amount,
+                                            'status' => 1, # //?
+                                        ];
+        
+                                        $refund_v2 = $this->refundRepository->createRefund($refundDetails);
+                                        $this->info('Refund installment stored : '.$refund_v2->id);
+                                        
+                                    }
+                                }
+    
+                                
+                            }
+                        }
+    
+                        # if the invoice has receipt
+                        if ($crm_clientprog_invoice->receipt && count($crm_clientprog_invoice->installment) == 0)
+                        {
+                            $crm_clientprog_receipt = $crm_clientprog_invoice->receipt;
+                            foreach ($crm_clientprog_receipt as $crm_receipt)
+                            {
+                                $this->info('ini Receipt master : '.$crm_receipt);
+                                # store into receipt v2
+                                $receiptDetails = [
+                                    'receipt_id' => $crm_receipt->receipt_id,
+                                    'receipt_cat' => 'student',
+                                    'inv_id' => $invoice_v2->inv_id,
+                                    'receipt_method' => $crm_receipt->receipt_mtd,
+                                    'receipt_cheque' => $crm_receipt->receipt_cheque == "" ? NULL : $crm_receipt->receipt_cheque,
+                                    'receipt_amount' => $crm_receipt->receipt_amountusd,
+                                    'receipt_words' => $crm_receipt->receipt_wordsusd,
+                                    'receipt_amount_idr' => $crm_receipt->receipt_amount,
+                                    'receipt_words_idr' => $crm_receipt->receipt_word,
+                                    'receipt_notes' => $crm_receipt->receipt_notes == "" ? NULL : $crm_receipt->receipt_notes,
+                                    'receipt_status' => $crm_receipt->receipt_status,
+                                ];
+    
+                                $receipt_v2 = $this->receiptRepository->createReceipt($receiptDetails);
+    
+                                # check if the receipt has refund
+                                if ($crm_receipt->receipt_status == 2 && $crm_receipt->receipt_refund != 0)
+                                {
+    
+                                    $total_paid = $crm_receipt->receipt_amount;
+                                    $refund_amount = $crm_receipt->receipt_refund;
+                                    $percentage_refund = ($refund_amount/$total_paid)*100;
+    
+                                    $refundDetails = [
+                                        'inv_id' => $receipt_v2->inv_id,
+                                        'total_payment' => $invoice_v2->inv_totalprice_idr,
+                                        'total_paid' => $total_paid,
+                                        'refund_amount' => $refund_amount,
+                                        'percentage_refund' => $percentage_refund,
+                                        'tax_amount' => 0,
+                                        'tax_percentage' => 0,
+                                        'total_refunded' => $refund_amount,
+                                        'status' => 1, # //?
+                                    ];
+    
+                                    $this->refundRepository->createRefund($refundDetails);
+                                }
+                            }
+                        }
+                    }
+                }
+                
             }
 
-            DB::commit();
-            Log::info('Import client program works fine');
+        //     DB::commit();
+        //     Log::info('Import client program works fine');
             
-        } catch (Exception $e) {
+        // } catch (Exception $e) {
             
-            DB::rollBack();
-            $this->info($e->getMessage().' | line '.$e->getLine());
-            Log::warning('Failed to import client program '. $e->getMessage());
+        //     DB::rollBack();
+        //     $this->info($e->getMessage().' | line '.$e->getLine());
+        //     Log::warning('Failed to import client program '. $e->getMessage());
 
-        }
+        // }
 
         return Command::SUCCESS;
     }

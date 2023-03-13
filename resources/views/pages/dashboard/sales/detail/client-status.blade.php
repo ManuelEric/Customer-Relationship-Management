@@ -5,8 +5,8 @@
                 <div class="row g-1">
                     <div class="col-md-6">
                         <select name="" id="period" class="select w-100" onchange="checkPeriod()">
-                            <option value="all" @selected($filter_bymonth == null)>All</option>
-                            <option value="monthly" @selected($filter_bymonth != null)>Monthly</option>
+                            <option value="all" @selected(isset($filter_bymonth) && $filter_bymonth == null)>All</option>
+                            <option value="monthly" @selected(isset($filter_bymonth) && $filter_bymonth != null)>Monthly</option>
                         </select>
                     </div>
                     <div class="col-md-6 text-end d-none" id="monthly" onchange="checkMonthly()">
@@ -22,7 +22,7 @@
                     Follow Up Reminder
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                         style="font-size: 11px">
-                        {{ count($followUpReminder) }}
+                        {{ isset($followUpReminder) ? count($followUpReminder) : 0 }}
                     </span>
                 </button>
 
@@ -31,7 +31,7 @@
                     Mentee's Birthday
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                         style="font-size: 11px">
-                        {{ $menteesBirthday->count() }}
+                        {{ isset($menteesBirthday) ? $menteesBirthday->count() : 0 }}
                     </span>
                 </button>
             </div>

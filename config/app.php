@@ -211,6 +211,11 @@ return [
          * Excel Service Providers... 
          */
         Maatwebsite\Excel\ExcelServiceProvider::class,
+
+        /*
+         * Terbilang Service Providers... 
+         */
+        Riskihajar\Terbilang\TerbilangServiceProvider::class,
     ],
 
     /*
@@ -227,9 +232,12 @@ return [
     'Datatables' => Yajra\Datatables\Facades\Datatables::class,
 
     'aliases' => Facade::defaultAliases()->merge([
+
         // 'ExampleClass' => App\Example\ExampleClass::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'Terbilang' => Riskihajar\Terbilang\Facades\Terbilang::class,
+        
     ])->toArray(),
 
 ];

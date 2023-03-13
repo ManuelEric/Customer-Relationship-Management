@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Interfaces\MenuRepositoryInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -23,6 +24,7 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        # check credentials
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             $user_type = $user->user_type->first();
