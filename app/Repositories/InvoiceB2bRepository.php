@@ -240,6 +240,11 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         return Invb2b::create($invoices);
     }
 
+    public function insertInvoiceB2b(array $invoices)
+    {
+        return Invb2b::insert($invoices);
+    }
+
     public function updateInvoiceB2b($invb2b_num, array $newInvoices)
     {
         return Invb2b::find($invb2b_num)->update($newInvoices);

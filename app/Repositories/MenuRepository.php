@@ -5,47 +5,46 @@ namespace App\Repositories;
 use App\Interfaces\MenuRepositoryInterface;
 use App\Models\Department;
 use App\Models\MainMenus;
+use Illuminate\Support\Collection;
 use App\Models\Menu;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-class MenuRepository implements MenuRepositoryInterface 
+class MenuRepository implements MenuRepositoryInterface
 {
     public function getMenu()
     {
-        $data = [];
+        $collection = new Collection();
         $menus = Menu::join('tbl_main_menus', 'tbl_main_menus.id', '=', 'tbl_menus.mainmenu_id')
-                    ->select([
-                        'tbl_main_menus.mainmenu_name',
-                        'tbl_menus.id as menu_id',
-                        'tbl_main_menus.id as main_menu_id',
-                        'tbl_menus.submenu_name',
-                        'tbl_menus.submenu_link',
-                        'tbl_menus.order_no',
-                        'tbl_main_menus.icon',
-                    ])->orderBy('tbl_main_menus.order_no', 'asc')->orderBy('tbl_menus.order_no', 'asc')->get();
-        foreach ($menus as $menu) {
+            ->select([
+                'tbl_main_menus.mainmenu_name',
+                'tbl_main_menus.order_no as order_no_mainmenu',
+                'tbl_menus.id as menu_id',
+                'tbl_main_menus.id as main_menu_id',
+                'tbl_menus.submenu_name',
+                'tbl_menus.submenu_link',
+                'tbl_menus.order_no',
+                'tbl_main_menus.icon',
+            ])->orderBy('tbl_main_menus.order_no', 'asc')->orderBy('tbl_menus.order_no', 'asc')->get();
 
-            $data[$menu->mainmenu_name][] = [
+        foreach ($menus as $menu) {
+            $collection->push([
+                'order_no' => $menu->order_no_mainmenu,
+                'order_no_submenu' => $menu->order_no,
                 'menu_id' => $menu->menu_id,
-                'main_menu_id' => $menu->main_menu_id,
+                'mainmenu_id' => $menu->main_menu_id,
+                'mainmenu_name' => $menu->mainmenu_name,
                 'submenu_name' => $menu->submenu_name,
                 'submenu_link' => $menu->submenu_link,
-
-                # add new 
-                # used when logged in user is admin
-                'order_no_submenu' => $menu->order_no,
                 'copy' => true,
                 'export' => true,
                 'icon' => $menu->icon,
-                
-            ];
-
+            ]);
         }
 
-        return $data;
+        return $collection;
     }
-    
+
     public function getUserAccess($userId)
     {
         $user = User::where('uuid', $userId)->first();
@@ -89,14 +88,14 @@ class MenuRepository implements MenuRepositoryInterface
 
         return $user->access_menus;
     }
-    
+
     public function createAccessToDepartment($departmentId, $newDetails)
     {
         $menu_id = $newDetails['menu_id'];
         $copy = $newDetails['copy'];
         $export = $newDetails['export'];
         $department = Department::find($departmentId);
-        
+
         if ($menu_id && $copy === false && $export === false)
             $department->access_menus()->syncWithoutDetaching($menu_id, ['copy' => $copy, 'export' => $export]);
 
@@ -106,14 +105,14 @@ class MenuRepository implements MenuRepositoryInterface
         return $department->access_menus;
     }
 
-    public function deleteUserAccess($userId, $deletedDetails) 
+    public function deleteUserAccess($userId, $deletedDetails)
     {
         $user = User::where('uuid', $userId)->first();
         $user->access_menus()->detach($deletedDetails);
         return $user->access_menus;
     }
 
-    public function deleteDepartmentAccess($departmentId, $deletedDetails) 
+    public function deleteDepartmentAccess($departmentId, $deletedDetails)
     {
         $department = Department::find($departmentId);
         $department->access_menus()->detach($deletedDetails);

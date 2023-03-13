@@ -38,6 +38,7 @@
             </table>
         </div>
     </div>
+    
     <script>
         $(document).ready(function() {
             var table = $('#assetTable').DataTable({

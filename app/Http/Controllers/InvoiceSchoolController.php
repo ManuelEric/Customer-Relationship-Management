@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use PDF;
 
+use function PHPUnit\Framework\isEmpty;
 
 class InvoiceSchoolController extends Controller
 {
@@ -52,6 +53,22 @@ class InvoiceSchoolController extends Controller
 
     public function index(Request $request)
     {
+
+        $invoiceSchools = $this->invoiceB2bRepository->getAllInvoiceSchoolFromCRM();
+        $new_receipts = [];
+
+        foreach ($invoiceSchools as $invSch) {
+            $invoiceDetails = $invSch->invoice_detail;
+            if (count($invoiceDetails) > 0) {
+                foreach ($invoiceDetails as $invDetail) {
+                    if (!$this->receiptRepository->getReceiptByInvoiceIdentifier('Installment', $invDetail->invdtl_id)) {
+                        echo json_encode(isset($invDetail->receipt));
+                        echo '<br>';
+                    }
+                }
+            }
+        }
+        exit;
         $status = $request->route('status');
 
         if ($request->ajax()) {
