@@ -132,11 +132,16 @@ class ReportController extends Controller
             $totalReceipt = substr($totalReceipt, 0, -2);
         }
 
+        $data_receipts = $receipts->filter(function ($item) {
+            // Return true if you want this item included in the resultant collection
+            return $item->status_where === 1 || $item->referral_type === 'Out';
+        });
+
         return view('pages.report.invoice.index')->with(
             [
                 'invoices' => $invoices,
                 'totalReceipt' => $totalReceipt,
-                'receipts' => $receipts,
+                'receipts' => $data_receipts,
             ]
         );
     }

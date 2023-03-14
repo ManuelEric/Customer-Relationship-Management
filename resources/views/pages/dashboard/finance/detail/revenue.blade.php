@@ -159,7 +159,7 @@
         var revenue_chart = new Chart(rc, {
             type: 'line',
             data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
                 datasets: [{
                     label: 'Revenue',
                     data: dataset_revenue,
@@ -228,14 +228,14 @@
                                 html += "<td>" + item.program_name + "</td>"
                                 html += "<td class='text-center'>" + (item.installment_name !== null ? item.installment_name : "-") + "</td>"
                                 html += "<td>" + rupiah(item.total) + (diff > 0 ? " ("+ rupiah(diff) +")" : '') + "</td>"
-                                total_paid += item.total_price_inv;
+                                total_paid += item.total;
                                 total_paid_diff += diff;
                                 $('#tbl_revenue').append(html);
                                 no++;
                             })
 
                             
-                            $('#tot_paid_revenue').empty().append(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
+                            $('#tot_paid_revenue').html(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
 
                         }, (error) => {
                             console.log(error)
