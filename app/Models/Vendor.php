@@ -40,6 +40,6 @@ class Vendor extends Model
         
         $instance = new static;
 
-        return $instance->newQuery()->find($id, 'vendor_id');
+        return $instance->newQuery()->where('vendor_id', $id)->first();
     }
 }
