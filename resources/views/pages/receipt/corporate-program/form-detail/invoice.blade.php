@@ -8,7 +8,7 @@
         </div>
         <div class="">
             <a class="btn btn-sm btn-outline-warning py-1"
-                href="{{ route('invoice-corp.detail.show',  ['corp_prog' => $receiptPartner->invoiceB2b->partnerprog_id, 'detail' => $receiptPartner->invoiceB2b->invb2b_num]) }}">
+                href="{{ route('invoice-corp.detail.show',  ['corp_prog' => $invoicePartner->partnerprog_id, 'detail' => $invoicePartner->invb2b_num]) }}">
                 <i class="bi bi-eye"></i> View Invoice
             </a>
         </div>
@@ -18,50 +18,50 @@
         <table class="table table-hover">
             <tr>
                 <td width="20%">Invoice ID :</td>
-                <td>{{ $receiptPartner->invoiceB2b->invb2b_id }}</td>
+                <td>{{ $invoicePartner->invb2b_id }}</td>
             </tr>
-            @if ($receiptPartner->invoiceB2b->currency != "idr")
+            @if ($invoicePartner->currency != "idr")
                 <tr>
                     <td>Curs Rate :</td>
-                    <td>{{ $receiptPartner->invoiceB2b->rate }}</td>
+                    <td>{{ $invoicePartner->rate }}</td>
                 </tr>
             @endif
             <tr>
                 <td>Price :</td>
                 <td>
-                    @if ($receiptPartner->invoiceB2b->invb2b_price != NULL)
-                        {{ $receiptPartner->invoiceB2b->invoicePrice }}
-                        ( {{ $receiptPartner->invoiceB2b->invoicePriceIdr }} )
+                    @if ($invoicePartner->invb2b_price != NULL)
+                        {{ $invoicePartner->invoicePrice }}
+                        ( {{ $invoicePartner->invoicePriceIdr }} )
                     @else
-                        {{ $receiptPartner->invoiceB2b->invoicePriceIdr }}
+                        {{ $invoicePartner->invoicePriceIdr }}
                     @endif
                 </td>
             </tr>
             <tr>
                 <td>Participants :</td>
                 <td>
-                    {{ $receiptPartner->invoiceB2b->invb2b_participants }}
+                    {{ $invoicePartner->invb2b_participants }}
                 </td>
             </tr>
             <tr>
                 <td>Discount :</td>
                 <td>
-                    @if ($receiptPartner->invoiceB2b->invb2b_disc != NULL)
-                        {{ $receiptPartner->invoiceB2b->invoiceDiscount }}
-                        ( {{ $receiptPartner->invoiceB2b->invoiceDiscountIdr }} )
+                    @if ($invoicePartner->invb2b_disc != NULL)
+                        {{ $invoicePartner->invoiceDiscount }}
+                        ( {{ $invoicePartner->invoiceDiscountIdr }} )
                     @else
-                        {{ $receiptPartner->invoiceB2b->invoiceDiscountIdr }}
+                        {{ $invoicePartner->invoiceDiscountIdr }}
                     @endif
                 </td>
             </tr>
             <tr>
                 <td>Total Price :</td>
                 <td>
-                    @if ($receiptPartner->invoiceB2b->invb2b_totprice != NULL)
-                        {{ $receiptPartner->invoiceB2b->invoiceTotalprice }}
-                        ( {{ $receiptPartner->invoiceB2b->invoiceTotalpriceIdr }} )
+                    @if ($invoicePartner->invb2b_totprice != NULL)
+                        {{ $invoicePartner->invoiceTotalprice }}
+                        ( {{ $invoicePartner->invoiceTotalpriceIdr }} )
                     @else
-                        {{ $receiptPartner->invoiceB2b->invoiceTotalpriceIdr }}
+                        {{ $invoicePartner->invoiceTotalpriceIdr }}
                     @endif
                 </td>
             </tr>
@@ -69,7 +69,7 @@
 
         {{-- IF INSTALLMENT EXIST  --}}
         <div class="mt-3">
-            @if($receiptPartner->invoiceB2b->inv_detail->count() > 0)
+            @if($invoicePartner->inv_detail->count() > 0)
                 Installment List
                 <table class="table table-bordered table-hover" id="installment-list">
                     <thead class="text-center">
@@ -82,7 +82,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-center">
-                        @foreach ($receiptPartner->invoiceB2b->inv_detail as $detail)
+                        @foreach ($invoicePartner->inv_detail as $detail)
                             <tr style="cursor:pointer"
                                 @if (isset($detail->receipt) && $detail->receipt->id == $receiptPartner->id)
                                     class="bg-success text-light detail" data-recid="{{ $detail->receipt->id }}"

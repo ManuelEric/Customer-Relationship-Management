@@ -8,7 +8,7 @@
         </div>
         <div class="">
             <a class="btn btn-sm btn-outline-warning py-1"
-                href="{{ route('invoice-sch.detail.show',  ['sch_prog' => $receiptSch->invoiceB2b->schprog_id, 'detail' => $receiptSch->invoiceB2b->invb2b_num]) }}">
+                href="{{ route('invoice-sch.detail.show',  ['sch_prog' => $invoiceSch->schprog_id, 'detail' => $invoiceSch->invb2b_num]) }}">
                 <i class="bi bi-eye"></i> View Invoice
             </a>
         </div>
@@ -18,50 +18,50 @@
         <table class="table table-hover">
             <tr>
                 <td width="20%">Invoice ID :</td>
-                <td>{{ $receiptSch->invoiceB2b->invb2b_id }}</td>
+                <td>{{ $invoiceSch->invb2b_id }}</td>
             </tr>
-            @if ($receiptSch->invoiceB2b->currency != "idr")
+            @if ($invoiceSch->currency != "idr")
                 <tr>
                     <td>Curs Rate :</td>
-                    <td>{{ $receiptSch->invoiceB2b->rate }}</td>
+                    <td>{{ $invoiceSch->rate }}</td>
                 </tr>
             @endif
             <tr>
                 <td>Price :</td>
                 <td>
-                    @if ($receiptSch->invoiceB2b->invb2b_price != NULL)
-                        {{ $receiptSch->invoiceB2b->invoicePrice }}
-                        ( {{ $receiptSch->invoiceB2b->invoicePriceIdr }} )
+                    @if ($invoiceSch->invb2b_price != NULL)
+                        {{ $invoiceSch->invoicePrice }}
+                        ( {{ $invoiceSch->invoicePriceIdr }} )
                     @else
-                        {{ $receiptSch->invoiceB2b->invoicePriceIdr }}
+                        {{ $invoiceSch->invoicePriceIdr }}
                     @endif
                 </td>
             </tr>
             <tr>
                 <td>Participants :</td>
                 <td>
-                    {{ $receiptSch->invoiceB2b->invb2b_participants }}
+                    {{ $invoiceSch->invb2b_participants }}
                 </td>
             </tr>
             <tr>
                 <td>Discount :</td>
                 <td>
-                    @if ($receiptSch->invoiceB2b->invb2b_disc != NULL)
-                        {{ $receiptSch->invoiceB2b->invoiceDiscount }}
-                        ( {{ $receiptSch->invoiceB2b->invoiceDiscountIdr }} )
+                    @if ($invoiceSch->invb2b_disc != NULL)
+                        {{ $invoiceSch->invoiceDiscount }}
+                        ( {{ $invoiceSch->invoiceDiscountIdr }} )
                     @else
-                        {{ $receiptSch->invoiceB2b->invoiceDiscountIdr }}
+                        {{ $invoiceSch->invoiceDiscountIdr }}
                     @endif
                 </td>
             </tr>
             <tr>
                 <td>Total Price :</td>
                 <td>
-                    @if ($receiptSch->invoiceB2b->invb2b_totprice != NULL)
-                        {{ $receiptSch->invoiceB2b->invoiceTotalprice }}
-                        ( {{ $receiptSch->invoiceB2b->invoiceTotalpriceIdr }} )
+                    @if ($invoiceSch->invb2b_totprice != NULL)
+                        {{ $invoiceSch->invoiceTotalprice }}
+                        ( {{ $invoiceSch->invoiceTotalpriceIdr }} )
                     @else
-                        {{ $receiptSch->invoiceB2b->invoiceTotalpriceIdr }}
+                        {{ $invoiceSch->invoiceTotalpriceIdr }}
                     @endif
                 </td>
             </tr>
@@ -69,7 +69,7 @@
 
         {{-- IF INSTALLMENT EXIST  --}}
         <div class="mt-3">
-            @if ($receiptSch->invoiceB2b->inv_detail->count() > 0)
+            @if ($invoiceSch->inv_detail->count() > 0)
                 Installment List
                 <table class="table table-bordered table-hover" id="installment-list">
                     <thead class="text-center">
@@ -82,7 +82,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-center">
-                        @foreach ($receiptSch->invoiceB2b->inv_detail as $detail)
+                        @foreach ($invoiceSch->inv_detail as $detail)
                             <tr style="cursor:pointer"
                                 @if (isset($detail->receipt) && $detail->receipt->id == $receiptSch->id)
                                     class="bg-success text-light detail" data-recid="{{ $detail->receipt->id }}"

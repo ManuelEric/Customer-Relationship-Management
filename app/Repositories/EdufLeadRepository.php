@@ -18,6 +18,18 @@ class EdufLeadRepository implements EdufLeadRepositoryInterface
                 DB::raw("IF (tbl_eduf_lead.sch_id IS NULL, tbl_corp.corp_name, tbl_sch.sch_name) as organizer_name"),
                 DB::raw("CONCAT(users.first_name, ' ', users.last_name) AS fullname")
             ])
+        )->filterColumn(
+            'organizer_name',
+            function ($query, $keyword) {
+                $sql = 'IF (tbl_eduf_lead.sch_id IS NULL, tbl_corp.corp_name, tbl_sch.sch_name) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            }
+        )->filterColumn(
+            'fullname',
+            function ($query, $keyword) {
+                $sql = 'CONCAT(users.first_name, " ", users.last_name) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            }
         )->make(true);
     }
 

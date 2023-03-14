@@ -133,8 +133,6 @@
                             <strong> {{ $invoiceRef->referral->additional_prog_name }} </strong>
                         </p>
                         <p>
-                            {{-- USD 5,400 (IDR 80,460,000) for Yeriel Abinawa Handoyo. <br>
-                            USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo. --}}
                             {!! $invoiceRef->invb2b_notes !!}
                         </p>
                     </td>

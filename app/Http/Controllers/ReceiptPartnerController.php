@@ -158,7 +158,8 @@ class ReceiptPartnerController extends Controller
         $receiptId = $request->route('detail');
 
         $receiptPartner = $this->receiptRepository->getReceiptById($receiptId);
-        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bByInvId($receiptPartner->invb2b_id);
+        $invb2b_id = isset($receiptPartner->invdtl_id) ? $receiptPartner->invoiceInstallment->invb2b_id : $receiptPartner->invb2b_id;
+        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
 
         return view('pages.receipt.corporate-program.form')->with(

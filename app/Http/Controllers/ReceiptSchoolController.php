@@ -157,8 +157,8 @@ class ReceiptSchoolController extends Controller
         $receiptId = $request->route('detail');
 
         $receiptSch = $this->receiptRepository->getReceiptById($receiptId);
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($receiptSch->invb2b_id);
-
+        $invb2b_id = isset($receiptSch->invdtl_id) ? $receiptSch->invoiceInstallment->invb2b_id : $receiptSch->invb2b_id;
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
         return view('pages.receipt.school-program.form')->with(
             [
@@ -206,6 +206,8 @@ class ReceiptSchoolController extends Controller
         ];
 
         $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receiptSch, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+
+
 
         # Update status download
         $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);

@@ -135,8 +135,6 @@
                                 <strong> {{ (($invoicePartner->partner_prog->program->prog_sub != '-')) ? $invoicePartner->partner_prog->program->prog_sub . ': ' . $invoicePartner->partner_prog->program->prog_program : $invoicePartner->partner_prog->program->prog_program }} </strong>
                             </p>
                             <p>
-                                {{-- USD 5,400 (IDR 80,460,000) for Yeriel Abinawa Handoyo. <br>
-                                USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo. --}}
                                 {!! $invoicePartner->invb2b_notes !!}
                             </p>
                         </div>
@@ -169,7 +167,7 @@
                         <div style="height:80px;width: 150px">
                             <p> 
                                 <strong>
-                                    {{ $currency == 'other' ? $invoicePartner->invoiceSubTotalprice :  $invoicePartner->invoiceSubTotalpriceIdr }}
+                                    {{ $currency == 'other' ? $invoicePartner->invoicePrice :  $invoicePartner->invoicePriceIdr }}
                                 </strong>
                             </p>
                         </div>
