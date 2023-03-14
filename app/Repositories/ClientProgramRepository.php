@@ -462,7 +462,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $q->where('empl_id', $userId);
             })
             ->where('tbl_client_prog.status', 1)
-            ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])))
+            // ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('lead_source')
             ->get();
     }
@@ -499,13 +500,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $query->whereHas('program', function ($query) use ($program) {
                     $query->whereHas('main_prog', function ($query2) use ($program) {
                         $query2->where('prog_name', 'like', '%'.$program.'%');
-                    })->whereHas('sub_prog', function ($query2) use ($program) {
+                    })->orWhereHas('sub_prog', function ($query2) use ($program) {
                         $query2->where('sub_prog_name', 'like', '%'.$program.'%');
                     });
                 });
             })
             ->where('tbl_client_prog.status', 1)
-            ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])))
+            // ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('conversion_lead')
             ->get();
     }
