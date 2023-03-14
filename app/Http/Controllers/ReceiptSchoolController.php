@@ -453,6 +453,39 @@ class ReceiptSchoolController extends Controller
 
         $receiptAttachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
 
+        $file_name = str_replace('/', '_', $receipt_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
+        $path = 'uploaded_file/receipt/sch_prog/';
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $attachmentDetails = [
+            'receipt_id' => $receipt_id,
+            'attachment' => 'storage/' . $path . $file_name,
+            'currency' => $currency,
+        ];
+
+        if (isset($receiptAttachment) || !Storage::disk('public')->exists($path . $file_name)) {
+            $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receipt, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+
+            # Generate PDF file
+            $content = $pdf->download();
+            Storage::disk('public')->put($path . $file_name, $content);
+
+            try {
+
+                $this->receiptAttachmentRepository->createReceiptAttachment($attachmentDetails);
+            } catch (Exception $e) {
+
+                Log::info('Failed to insert attachment : ' . $e->getMessage());
+                return $e->getMessage();
+            }
+        }
+
         return view('pages.receipt.view-pdf')->with([
             'receiptAttachment' => $receiptAttachment,
         ]);

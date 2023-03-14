@@ -186,7 +186,7 @@
                     html += "<td>" + item.program_name + "</td>"
                     html += "<td class='text-center'>" + (item.installment_name !== null ? item.installment_name : "-") + "</td>"
                     html += "<td>" + rupiah(item.total) + (diff > 0 ? " ("+ rupiah(diff) +")" : '') + "</td>"
-                    total_paid += item.total_price_inv;
+                    total_paid += item.total;
                     total_paid_diff += diff;
                     $('#tbl_paid_payment').append(html);
                     no++;

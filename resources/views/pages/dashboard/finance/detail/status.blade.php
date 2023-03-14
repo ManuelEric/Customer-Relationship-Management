@@ -2,7 +2,7 @@
     <div class="card-body">
         <div class="row justify-content-end g-1 mb-2">
             <div class="col-md-2 text-end">
-                <input type="month" name="" id="partner_status_month" class="form-control form-control-sm"
+                <input type="month" name="" id="finance_status_month" class="form-control form-control-sm"
                     onchange="checkPartnerStatusbyMonth()" value="{{ date('Y-m') }}">
             </div>
         </div>
@@ -76,7 +76,7 @@
 
 <script>
     function checkPartnerStatusbyMonth() {
-        let month = $('#partner_status_month').val()
+        let month = $('#finance_status_month').val()
 
         const rupiah = (number)=>{
             return new Intl.NumberFormat("id-ID", {
@@ -117,7 +117,7 @@
                 var html = ""
                 var no = 1;
 
-                // console.log(result)
+                console.log(result)
 
 
                 data['invoiceNeeded']['total'] = result.totalInvoiceNeeded
