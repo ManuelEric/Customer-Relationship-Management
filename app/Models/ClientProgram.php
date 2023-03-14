@@ -61,6 +61,8 @@ class ClientProgram extends Model
         'refund_notes',
         'timesheet_link',
         'trial_date',
+        'created_at',
+        'updated_at'
     ];
 
     public static function whereClientProgramId($id)

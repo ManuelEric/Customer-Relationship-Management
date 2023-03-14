@@ -34,6 +34,8 @@ class Receipt extends Model
         'total_refunded',
         'download_idr',
         'download_other',
+        'created_at',
+        'updated_at'
     ];
 
     public function getCurrencyUnit()

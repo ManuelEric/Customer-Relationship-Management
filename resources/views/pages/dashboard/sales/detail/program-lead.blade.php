@@ -155,7 +155,7 @@
         formatter: (value, ctx) => {
             let datasets = ctx.chart.data.datasets;
             if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
-                let sum = datasets[0].data.reduce((a, b) => a + b, 0);
+                let sum = datasets[0].data.reduce((a, b) => Number(a) + Number(b), 0);
                 let percentage = Math.round((value / sum) * 100) + '%';
                 return percentage;
             } else {

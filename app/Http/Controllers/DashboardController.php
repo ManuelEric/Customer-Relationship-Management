@@ -137,7 +137,8 @@ class DashboardController extends Controller
         # initial consultation
         $initialConsultation = $this->clientProgramRepository->getInitialConsultationInformation($cp_filter);
         $totalInitialConsultation = array_sum($initialConsultation);
-        $successProgram = $admissionsMentoring[2];
+        $successProgram = $initialConsultation[2];
+        $successProgram;
 
         $initialAssessmentMaking = $this->clientProgramRepository->getInitialMaking($dateDetails, $cp_filter);
         $conversionTimeProgress = $this->clientProgramRepository->getConversionTimeProgress($dateDetails, $cp_filter);
@@ -152,7 +153,7 @@ class DashboardController extends Controller
         $leadSource = $this->clientProgramRepository->getLeadSource($dateDetails, $cp_filter);
         $conversionLeads = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter);
 
-        $adminssionMentoringConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Admissions Mentoring']);
+        $admissionMentoringConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Admissions Mentoring']);
         $academicTestPrepConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Academic & Test Preparation']);
         $careerExplorationConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Career Exploration']);
 
@@ -205,7 +206,7 @@ class DashboardController extends Controller
             'totalRevenueCareerExplorationByMonth' => $totalRevenueCareerExplorationByMonth,
             'leadSource' => $leadSource,
             'conversionLeads' => $conversionLeads,
-            'adminssionMentoringConvLead' => $adminssionMentoringConvLead,
+            'adminssionMentoringConvLead' => $admissionMentoringConvLead,
             'academicTestPrepConvLead' => $academicTestPrepConvLead,
             'careerExplorationConvLead' => $careerExplorationConvLead,
 
