@@ -68,8 +68,8 @@ class ImportInvoiceSchool extends Command
                     'invb2b_status' => 1,
                     'curs_rate' => null,
                     'currency' => 'idr',
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
+                    'created_at' => $invSch->invsch_date,
+                    'updated_at' => $invSch->invsch_date,
                 ];
             }
         }

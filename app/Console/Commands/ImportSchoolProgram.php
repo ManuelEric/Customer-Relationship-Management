@@ -85,15 +85,14 @@ class ImportSchoolProgram extends Command
                         'place' => $schoolProgram->schoolProgFix->schprogfix_eventplace,
                         'end_program_date' => $schoolProgram->schoolProgFix->schprogfix_eventenddate,
                         'start_program_date' => $schoolProgram->schoolProgFix->schprogfix_eventstartdate,
-                        'success_date' => null,
+                        'success_date' => $schoolProgram->schprog_datelastdis,
                         'reason_id' => null,
                         'denied_date' => null,
                         'empl_id' => isset($empl) ? $empl->id : null,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
+                        'created_at' => $schoolProgram->schprog_datefirstdis,
+                        'updated_at' => $schoolProgram->schprog_datefirstdis
                     ];
                 } else {
-
                     $schoolProgramDetails[] = [
                         'id' => $schoolProgram->schprog_id,
                         'sch_id' => $schoolProgram->sch_id,
@@ -113,10 +112,10 @@ class ImportSchoolProgram extends Command
                         'start_program_date' => null,
                         'success_date' => null,
                         'reason_id' => null,
-                        'denied_date' => null,
+                        'denied_date' => $schoolProgram->schprog_status == 2 ? $schoolProgram->schprog_datelastdis : null,
                         'empl_id' => isset($empl) ? $empl->id : null,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
+                        'created_at' => $schoolProgram->schprog_datefirstdis,
+                        'updated_at' => $schoolProgram->schprog_datefirstdis
                     ];
                 }
             }

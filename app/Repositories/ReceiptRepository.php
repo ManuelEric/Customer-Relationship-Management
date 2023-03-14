@@ -192,37 +192,62 @@ class ReceiptRepository implements ReceiptRepositoryInterface
         $firstDay = Carbon::now()->startOfMonth()->toDateString();
         $lastDay = Carbon::now()->endOfMonth()->toDateString();
 
-        $queryReceipt = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
-            ->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_receipt.invb2b_id')
+        $queryReceipt = Receipt::leftJoin('tbl_invdtl', 'tbl_invdtl.invdtl_id', '=', 'tbl_receipt.invdtl_id')
+            ->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', DB::raw('(CASE WHEN tbl_receipt.invdtl_id is not null THEN tbl_invdtl.invb2b_id ELSE tbl_receipt.invb2b_id END)'))
+            ->leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', DB::raw('(CASE WHEN tbl_receipt.invdtl_id is not null THEN tbl_invdtl.inv_id ELSE tbl_receipt.inv_id END)'))
             ->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
             ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
             ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
-            ->where(
+            ->select(
+                'tbl_receipt.id',
+                'tbl_receipt.receipt_id',
+                'tbl_receipt.invdtl_id',
+                'tbl_receipt.receipt_method',
+                'tbl_invb2b.ref_id',
+                'tbl_receipt.created_at',
+                'tbl_receipt.receipt_amount_idr',
                 DB::raw('(CASE
-                            WHEN tbl_receipt.inv_id IS NULL THEN 
-                                CASE 
-                                    WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
-                                    WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
-                                    WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type
-                                END
-                            WHEN  tbl_receipt.invb2b_id IS NULL THEN 
-                                CASE
-                                    WHEN tbl_inv.clientprog_id > 0 THEN tbl_client_prog.status
-                                END
-                            END)'),
+                            WHEN tbl_receipt.invb2b_id is not null THEN tbl_receipt.invb2b_id
+                            WHEN tbl_receipt.invdtl_id is not null THEN 
+                                (CASE
+                                    WHEN tbl_invdtl.invb2b_id is not null THEN tbl_invdtl.invb2b_id
+                                END)
+                            END) as invb2b_id'),
                 DB::raw('(CASE
-                            WHEN tbl_receipt.inv_id IS NULL THEN 
-                                CASE 
-                                    WHEN tbl_invb2b.ref_id > 0 THEN "Out"
-                                    ELSE 1
-                                END
-                            WHEN  tbl_receipt.invb2b_id IS NULL THEN 
-                                CASE
-                                    WHEN tbl_inv.clientprog_id > 0 THEN 1
-                                END
-                            END)')
+                            WHEN tbl_receipt.inv_id is not null THEN tbl_receipt.inv_id
+                            WHEN tbl_receipt.invdtl_id is not null THEN 
+                                (CASE
+                                    WHEN tbl_invdtl.inv_id is not null THEN tbl_invdtl.inv_id
+                                END)
+                            END) as inv_id'),
+                DB::raw('(CASE
+                            WHEN tbl_receipt.invdtl_id is not null THEN 
+                            (CASE
+                                WHEN tbl_invdtl.invb2b_id is not null THEN  
+                                    (CASE 
+                                        WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
+                                        WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
+                                    END)
+                                WHEN tbl_invdtl.inv_id is not null THEN tbl_client_prog.status
+                            END)
+                            WHEN tbl_receipt.inv_id is not null THEN tbl_client_prog.status
+                            WHEN tbl_invb2b.schprog_id is not null THEN tbl_sch_prog.status
+                            WHEN tbl_invb2b.partnerprog_id is not null THEN tbl_partner_prog.status
+                    END) as status_where'),
+                DB::raw('(CASE
+                            WHEN tbl_receipt.invdtl_id is not null THEN 
+                            (CASE
+                                WHEN tbl_invdtl.invb2b_id is not null THEN  
+                                    (CASE 
+                                        WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type
+                                    END)
+                            END)
+                            WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type
+                            ELSE NULL
+                    END) as referral_type'),
             );
+
 
         if (isset($start_date) && isset($end_date)) {
             $queryReceipt->whereDate('tbl_receipt.created_at', '>=', $start_date)
@@ -247,32 +272,41 @@ class ReceiptRepository implements ReceiptRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        return Receipt::leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_receipt.invb2b_id')
-            ->leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
+        return Receipt::leftJoin('tbl_invdtl', 'tbl_invdtl.invdtl_id', '=', 'tbl_receipt.invdtl_id')
+            ->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', DB::raw('(CASE WHEN tbl_receipt.invdtl_id is not null THEN tbl_invdtl.invb2b_id ELSE tbl_receipt.invb2b_id END)'))
+            ->leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', DB::raw('(CASE WHEN tbl_receipt.invdtl_id is not null THEN tbl_invdtl.inv_id ELSE tbl_receipt.inv_id END)'))
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
             ->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
             ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
             ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
             ->select(DB::raw('COUNT(tbl_receipt.id) as count_receipt'), DB::raw('CAST(SUM(receipt_amount_idr) as integer) as total'))
             ->whereYear(DB::raw('(CASE
+                                    WHEN tbl_receipt.invdtl_id is not null AND tbl_invb2b.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
                                     WHEN tbl_receipt.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
                                     WHEN tbl_receipt.inv_id is not null THEN tbl_inv.inv_duedate
                                 END)'), '=', $year)
             ->whereMonth(DB::raw('(CASE
+                                    WHEN tbl_receipt.invdtl_id is not null AND tbl_invb2b.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
                                     WHEN tbl_receipt.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
                                     WHEN tbl_receipt.inv_id is not null THEN tbl_inv.inv_duedate
                                 END)'), '=', $month)
             ->where(
                 DB::raw('(CASE
-                                WHEN tbl_receipt.invb2b_id is not null THEN 
-                                    (CASE
+                            WHEN tbl_receipt.invdtl_id is not null THEN 
+                            (CASE
+                                WHEN tbl_invdtl.invb2b_id is not null THEN  
+                                    (CASE 
                                         WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
                                         WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_partner_prog.status
                                         WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type
                                     END)
-                                WHEN tbl_inv.inv_id is not null THEN tbl_client_prog.status
-                            ELSE NULL
-                            END)'),
+                                WHEN tbl_invdtl.inv_id is not null THEN tbl_client_prog.status
+                            END)
+                            WHEN tbl_receipt.inv_id is not null THEN tbl_client_prog.status
+                            WHEN tbl_invb2b.schprog_id is not null THEN tbl_sch_prog.status
+                            WHEN tbl_invb2b.partnerprog_id is not null THEN tbl_partner_prog.status
+                            WHEN tbl_invb2b.ref_id > 0 THEN tbl_referral.referral_type
+                    END)'),
                 DB::raw('(CASE
                                 WHEN tbl_invb2b.ref_id > 0 THEN "Out"
                                 ELSE 1

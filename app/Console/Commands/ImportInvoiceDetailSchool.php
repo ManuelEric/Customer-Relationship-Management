@@ -61,8 +61,8 @@ class ImportInvoiceDetailSchool extends Command
                             'invdtl_status' => $invDetail->invdtl_status,
                             'invdtl_cursrate' => null,
                             'invdtl_currency' => 'idr',
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now(),
+                            'created_at' => $invSch->invsch_date,
+                            'updated_at' => $invSch->invsch_date,
                         ];
                     }
                 }

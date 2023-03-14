@@ -57,6 +57,8 @@ class FinanceDashboardController extends Controller
             'totalReceipt' => $totalReceipt,
             'totalRefundRequest' => $totalRefundRequest,
             'totalOutstanding' => $totalOutstanding,
+            'monthYear' => $monthYear,
+
         ];
 
         if ($data) {
