@@ -68,6 +68,7 @@ class ImportInvoiceSchool extends Command
                     'invb2b_status' => 1,
                     'curs_rate' => null,
                     'currency' => 'idr',
+                    'is_full_amount' => (($invSch->invsch_price - $invSch->invsch_disc) == $invSch->invsch_totprice ? 1 : 0),
                     'created_at' => $invSch->invsch_date,
                     'updated_at' => $invSch->invsch_date,
                 ];

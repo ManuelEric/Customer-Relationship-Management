@@ -47,6 +47,7 @@ class Invb2b extends Model
         'send_to_client',
         'sign_status',
         'approve_date',
+        'is_full_amount',
     ];
 
     public function getCurrencyUnit()
