@@ -23,13 +23,17 @@ Route::get('/', function () {
     return view('home');
 });
 
+Route::get('404', function() {
+    return view('auth.404');
+})->name('auth.404');
+
 Route::get('login', function () {
     return view('auth.login');
 })->name('login');
 
 Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
 
-Route::group(['middleware' => ['auth']], function() {
+Route::group(['middleware' => ['auth', 'auth.department']], function() {
     Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
     
     Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
