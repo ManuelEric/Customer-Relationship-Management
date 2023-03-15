@@ -20,7 +20,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                {{ $receiptRef->invoiceB2b->referral->partner->corp_mail ? $receiptRef->invoiceB2b->referral->partner->corp_mail : 'Not Available' }}
+                                {{ $invoiceRef->referral->partner->corp_mail ? $invoiceRef->referral->partner->corp_mail : 'Not Available' }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -31,7 +31,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                {{ $receiptRef->invoiceB2b->referral->partner->corp_phone ? $receiptRef->invoiceB2b->referral->partner->corp_phone : 'Not Available' }}
+                                {{ $invoiceRef->referral->partner->corp_phone ? $invoiceRef->referral->partner->corp_phone : 'Not Available' }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -42,8 +42,8 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                {!! $receiptRef->invoiceB2b->referral->partner->corp_address !!}
-                                {{ $receiptRef->invoiceB2b->referral->partner->corp_region }}
+                                {!! $invoiceRef->referral->partner->corp_address !!}
+                                {{ $invoiceRef->referral->partner->corp_region }}
                             </div>
                         </div>
                     </div>

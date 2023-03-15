@@ -231,6 +231,15 @@
                                     <option value="other">Other Currency</option>
                                 </select>
                             </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="">Is Full Amount</label>
+                                <select id="currency" name="is_full_amount" class="select w-100"
+                                    onchange="checkCurrency()"
+                                    {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
                                 <label for="">Currency Detail</label>
                                 <select class="select w-100" name="currency" id="currency_detail"

@@ -20,7 +20,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                  {{ $receiptSch->invoiceB2b->sch_prog->school->sch_mail ? $receiptSch->invoiceB2b->sch_prog->school->sch_mail : 'Not Available' }}
+                                  {{ $invoiceSch->sch_prog->school->sch_mail ? $invoiceSch->sch_prog->school->sch_mail : 'Not Available' }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -31,7 +31,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                {{ $receiptSch->invoiceB2b->sch_prog->school->sch_phone ? $receiptSch->invoiceB2b->sch_prog->school->sch_phone : 'Not Available' }}
+                                {{ $invoiceSch->sch_prog->school->sch_phone ? $invoiceSch->sch_prog->school->sch_phone : 'Not Available' }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -42,8 +42,8 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                 {!! $receiptSch->invoiceB2b->sch_prog->school->sch_location !!}
-                                    {{ $receiptSch->invoiceB2b->sch_prog->school->sch_city }}
+                                 {!! $invoiceSch->sch_prog->school->sch_location !!}
+                                    {{ $invoiceSch->sch_prog->school->sch_city }}
                             </div>
                         </div>
                     </div>

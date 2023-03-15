@@ -37,9 +37,9 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>{{ $receiptPartner->invoiceB2b->partner_prog->corp->corp_name }}</h4>
-                    <h6>{{ $receiptPartner->invoiceB2b->partner_prog->program->sub_prog ? $receiptPartner->invoiceB2b->partner_prog->program->sub_prog->sub_prog_name . ' - ' : '' }}
-                        {{ $receiptPartner->invoiceB2b->partner_prog->program->prog_program }}</h6>
+                    <h4>{{ $invoicePartner->partner_prog->corp->corp_name }}</h4>
+                    <h6>{{ $invoicePartner->partner_prog->program->sub_prog ? $invoicePartner->partner_prog->program->sub_prog->sub_prog_name . ' - ' : '' }}
+                        {{ $invoicePartner->partner_prog->program->prog_program }}</h6>
                 </div>
             </div>
 
@@ -65,7 +65,7 @@
                     </div>
                 </div>
 
-                @if (!isset($receiptPartner->invoiceB2b->refund))
+                @if (!isset($invoicePartner->refund))
                     {{-- IDR  --}}
                     <div class="d-flex align-items-stretch">
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
@@ -117,7 +117,7 @@
                     </div>
 
                     {{-- Other  --}}
-                    @if($receiptPartner->invoiceB2b->currency != 'idr')
+                    @if($invoicePartner->currency != 'idr')
                         <div class="d-flex align-items-stretch">
                             <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                             <div class="border p-1 text-center">
@@ -205,16 +205,16 @@
                                 <td>{{ $receiptPartner->receipt_cheque }}</td>
                             </tr>
                         @endif
-                        @if ($receiptPartner->invoiceB2b->currency != 'idr')
+                        @if ($invoicePartner->currency != 'idr')
                             <tr>
                                 <td>Curs Rate :</td>
-                                <td>{{ $receiptPartner->invoiceB2b->rate }}</td>
+                                <td>{{ $invoicePartner->rate }}</td>
                             </tr>
                         @endif
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                @if ($receiptPartner->receipt_amount != null && $receiptPartner->invoiceB2b->currency != 'idr')
+                                @if ($receiptPartner->receipt_amount != null && $invoicePartner->currency != 'idr')
                                     {{ $receiptPartner->receipt_amount }}
                                     ( {{ $receiptPartner->receipt_amount_idr }} )
                                 @else
@@ -228,7 +228,7 @@
 
             @include('pages.receipt.corporate-program.form-detail.invoice')
 
-            @if (!isset($receiptPartner->invoiceB2b->refund))
+            @if (!isset($invoicePartner->refund))
                 {{-- Receipt Progress  --}}
                 <div class="card shadow-sm mb-3">
                     <div class="card-header">
@@ -269,7 +269,7 @@
                         </div>
 
                         {{-- Other  --}}
-                        @if($receiptPartner->invoiceB2b->currency != 'idr')
+                        @if($invoicePartner->currency != 'idr')
                             <div class="text-center mt-5">
                                 <hr>
                                 <h6>Other Currency</h6>

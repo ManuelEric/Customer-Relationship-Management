@@ -47,6 +47,7 @@ class Invb2b extends Model
         'send_to_client',
         'sign_status',
         'approve_date',
+        'is_full_amount',
     ];
 
     public function getCurrencyUnit()
@@ -94,7 +95,7 @@ class Invb2b extends Model
     protected function invoiceSubTotalprice(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . number_format($this->invb2b_price * $this->invb2b_participants, '2', ',', '.')
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . number_format($this->invb2b_price * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants), '2', ',', '.')
         );
     }
 
@@ -130,7 +131,7 @@ class Invb2b extends Model
     protected function invoiceSubTotalpriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invb2b_priceidr * $this->invb2b_participants, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->invb2b_priceidr * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants), '2', ',', '.')
         );
     }
 
