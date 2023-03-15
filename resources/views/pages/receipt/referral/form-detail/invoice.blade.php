@@ -8,7 +8,7 @@
         </div>
         <div class="">
             <a class="btn btn-sm btn-outline-warning py-1"
-                href="{{ route('invoice-ref.detail.show',  ['referral' => $receiptRef->invoiceB2b->ref_id, 'detail' => $receiptRef->invoiceB2b->invb2b_num]) }}">
+                href="{{ route('invoice-ref.detail.show',  ['referral' => $invoiceRef->ref_id, 'detail' => $invoiceRef->invb2b_num]) }}">
                 <i class="bi bi-eye"></i> View Invoice
             </a>
         </div>
@@ -18,12 +18,12 @@
         <table class="table table-hover">
             <tr>
                 <td width="20%">Invoice ID :</td>
-                <td>{{ $receiptRef->invoiceB2b->invb2b_id }}</td>
+                <td>{{ $invoiceRef->invb2b_id }}</td>
             </tr>
-            @if ($receiptRef->invoiceB2b->currency != "idr")
+            @if ($invoiceRef->currency != "idr")
                 <tr>
                     <td>Curs Rate :</td>
-                    <td>{{ $receiptRef->invoiceB2b->rate }}</td>
+                    <td>{{ $invoiceRef->rate }}</td>
                 </tr>
             @endif
             {{-- <tr>
@@ -35,11 +35,11 @@
              <tr>
                 <td>Total Price :</td>
                 <td>
-                    @if ($receiptRef->invoiceB2b->invb2b_totprice != NULL)
-                        {{ $receiptRef->invoiceB2b->invoiceTotalprice }}
-                        ( {{ $receiptRef->invoiceB2b->invoiceTotalpriceIdr }} )
+                    @if ($invoiceRef->invb2b_totprice != NULL)
+                        {{ $invoiceRef->invoiceTotalprice }}
+                        ( {{ $invoiceRef->invoiceTotalpriceIdr }} )
                     @else
-                        {{ $receiptRef->invoiceB2b->invoiceTotalpriceIdr }}
+                        {{ $invoiceRef->invoiceTotalpriceIdr }}
                     @endif
                 </td>
             </tr>

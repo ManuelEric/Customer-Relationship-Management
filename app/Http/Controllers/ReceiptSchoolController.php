@@ -157,8 +157,8 @@ class ReceiptSchoolController extends Controller
         $receiptId = $request->route('detail');
 
         $receiptSch = $this->receiptRepository->getReceiptById($receiptId);
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($receiptSch->invb2b_id);
-
+        $invb2b_id = isset($receiptSch->invdtl_id) ? $receiptSch->invoiceInstallment->invb2b_id : $receiptSch->invb2b_id;
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
         return view('pages.receipt.school-program.form')->with(
             [
@@ -206,6 +206,8 @@ class ReceiptSchoolController extends Controller
         ];
 
         $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receiptSch, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+
+
 
         # Update status download
         $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
@@ -452,6 +454,39 @@ class ReceiptSchoolController extends Controller
         $receipt_id = $receipt->receipt_id;
 
         $receiptAttachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
+
+        $file_name = str_replace('/', '_', $receipt_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
+        $path = 'uploaded_file/receipt/sch_prog/';
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $attachmentDetails = [
+            'receipt_id' => $receipt_id,
+            'attachment' => 'storage/' . $path . $file_name,
+            'currency' => $currency,
+        ];
+
+        if (isset($receiptAttachment) || !Storage::disk('public')->exists($path . $file_name)) {
+            $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receipt, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+
+            # Generate PDF file
+            $content = $pdf->download();
+            Storage::disk('public')->put($path . $file_name, $content);
+
+            try {
+
+                $this->receiptAttachmentRepository->createReceiptAttachment($attachmentDetails);
+            } catch (Exception $e) {
+
+                Log::info('Failed to insert attachment : ' . $e->getMessage());
+                return $e->getMessage();
+            }
+        }
 
         return view('pages.receipt.view-pdf')->with([
             'receiptAttachment' => $receiptAttachment,

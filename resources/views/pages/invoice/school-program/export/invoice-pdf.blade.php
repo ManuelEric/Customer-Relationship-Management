@@ -170,7 +170,7 @@
                         <div style="height:80px;width: 150px;">
                             <p>
                                 <strong>
-                                     {{ $currency == 'other' ? $invoiceSch->invoiceSubTotalprice :  $invoiceSch->invoiceSubTotalpriceIdr }}
+                                     {{ $currency == 'other' ? $invoiceSch->invoicePrice : $invoiceSch->invoicePriceIdr }}
                                 </strong>
                             </p>
                         </div>

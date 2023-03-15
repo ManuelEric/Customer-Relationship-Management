@@ -140,14 +140,15 @@ class ReceiptReferralController extends Controller
         $receiptId = $request->route('detail');
 
         $receiptRef = $this->receiptRepository->getReceiptById($receiptId);
-        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($receiptRef->invb2b_id);
+        $invb2b_id = isset($receiptRef->invdtl_id) ? $receiptRef->invoiceInstallment->invb2b_id : $receiptRef->invb2b_id;
+        $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
 
         return view('pages.receipt.referral.form')->with(
             [
 
                 'receiptRef' => $receiptRef,
-                'invoiceSch' => $invoiceSch,
+                'invoiceRef' => $invoiceRef,
                 'status' => 'show',
             ]
         );

@@ -43,12 +43,12 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $detail->prog_id }}</td>
                                         <td class="text-start">{{ $detail->program_name_sales }}</td>
-                                        <td>{{ $detail->total_target_participant }}</td>
+                                        <td>{{ $detail->total_target_participant ?? 0 }}</td>
                                         <td>{{ number_format($detail->total_target_amount,'2',',','.') }}</td>
                                         <td>{{ $detail->total_actual_participant }}</td>
                                         <td>{{ number_format($detail->total_actual_amount,'2',',','.') }}</td>
-                                        <td>{{ ($detail->total_actual_participant/$detail->total_target_participant) * 100 }}%</td>
-                                        <td>{{ ($detail->total_actual_amount/$detail->total_target_amount) * 100 }}%</td>
+                                        <td>{{ $detail->total_target_participant != 0 ? ($detail->total_actual_participant/$detail->total_target_participant) * 100 : 0 }}%</td>
+                                        <td>{{ $detail->total_target_amount != 0 ? ($detail->total_actual_amount/$detail->total_target_amount) * 100 : 0 }}%</td>
                                     </tr>
                                     @endforeach
                                 </tbody>

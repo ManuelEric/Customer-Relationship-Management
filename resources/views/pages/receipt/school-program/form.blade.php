@@ -5,25 +5,6 @@
 @section('content')
 
 
-    {{-- @php
-        $exportIdr = '<a href="#export" id="export_idr"
-                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Export IDR
-                      </a>';
-        $uploadIdr = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
-                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_idr">
-                            <i class="bi bi-file-arrow-up me-1"></i> Upload IDR
-                      </button>';
-        $exportOther = '<a href="#export" id="export_other"
-                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Export Other
-                        </a>';
-        $uploadOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
-                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_other">
-                            <i class="bi bi-file-arrow-up me-1"></i> Upload Other
-                        </button>';
-
-    @endphp --}}
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('receipt/school-program') }}" class="text-decoration-none text-muted">
@@ -38,49 +19,10 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>{{ $receiptSch->invoiceB2b->sch_prog->school->sch_name }}</h4>
-                    <h6>{{ $receiptSch->invoiceB2b->sch_prog->program->sub_prog ? $receiptSch->invoiceB2b->sch_prog->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $receiptSch->invoiceB2b->sch_prog->program->prog_program }}
+                    <h4>{{ $invoiceSch->sch_prog->school->sch_name }}</h4>
+                    <h6>{{ $invoiceSch->sch_prog->program->sub_prog ? $invoiceSch->sch_prog->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $invoiceSch->sch_prog->program->prog_program }}
                     <div class="d-flex flex-wrap justify-content-center mt-3">
-                        {{-- <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1"
-                            onclick="confirmDelete('{{'receipt/school-program'}}', {{$receiptSch->id}})">
-                            <i class="bi bi-trash2 me-1"></i> Delete
-                        </button> --}}
-                        {{-- @if (!$receiptSch->receiptAttachment()->where('currency', 'idr')->first())
-                            {!! $exportIdr !!}
-                            {!! $uploadIdr !!}
-                        @elseif ($receiptSch->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first())
-                            <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc">
-                                <i class="bi bi-pen me-1"></i> Request Sign IDR
-                            </button>
-                        @else
-                            <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}" 
-                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                <i class="bi bi-printer me-1"></i> Print IDR
-                            </a>
-                            <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-idr">
-                                <i class="bi bi-printer me-1"></i> Send Receipt IDR to Client
-                            </button>
-                        @endif
-
-                        @if ($receiptSch->invoiceB2b->currency != "idr")
-                            @if (!$receiptSch->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
-                                {!! $exportOther !!}
-                                {!! $uploadOther !!}
-                            @elseif ($receiptSch->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
-                                <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc-other">
-                                    <i class="bi bi-pen me-1"></i> Request Sign Other
-                                </button>
-                            @else
-                                <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}" 
-                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                    <i class="bi bi-printer me-1"></i> Print Other
-                                </a>
-                                <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-other">
-                                    <i class="bi bi-printer me-1"></i> Send Receipt Other to Client
-                                </button>
-                            @endif
-                        @endif --}}
-
+                       
                     </div>
                 </div>
             </div>
@@ -107,7 +49,7 @@
                     </div>
                 </div>
 
-                @if (!isset($receiptSch->invoiceB2b->refund))
+                @if (!isset($invoiceSch->refund))
                     {{-- IDR  --}}
                     <div class="d-flex align-items-stretch">
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
@@ -159,7 +101,7 @@
                     </div>
 
                     {{-- Other  --}}
-                    @if($receiptSch->invoiceB2b->currency != 'idr')
+                    @if($invoiceSch->currency != 'idr')
                         <div class="d-flex align-items-stretch">
                             <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                             <div class="border p-1 text-center">
@@ -247,16 +189,16 @@
                                 <td>{{ $receiptSch->receipt_cheque }}</td>
                             </tr>
                         @endif
-                        @if ($receiptSch->invoiceB2b->currency != "idr")
+                        @if ($invoiceSch->currency != "idr")
                             <tr>
                                 <td>Curs Rate :</td>
-                                <td>{{ $receiptSch->invoiceB2b->rate }}</td>
+                                <td>{{ $invoiceSch->rate }}</td>
                             </tr>
                         @endif
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                @if ($receiptSch->receipt_amount != null && $receiptSch->invoiceB2b->currency != "idr")
+                                @if ($receiptSch->receipt_amount != null && $invoiceSch->currency != "idr")
                                     {{ $receiptSch->receipt_amount }}
                                      ( {{ $receiptSch->receipt_amount_idr }} )
                                 @else
@@ -270,7 +212,7 @@
 
             @include('pages.receipt.school-program.form-detail.invoice')
 
-            @if (!isset($receiptSch->invoiceB2b->refund))
+            @if (!isset($invoiceSch->refund))
                 {{-- Receipt Progress  --}}
                 <div class="card shadow-sm mb-3">
                     <div class="card-header">
@@ -311,7 +253,7 @@
                         </div>
 
                         {{-- Other  --}}
-                        @if($receiptSch->invoiceB2b->currency != 'idr')
+                        @if($invoiceSch->currency != 'idr')
                             <div class="text-center mt-5">
                                 <hr>
                                 <h6>Other Currency</h6>

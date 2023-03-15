@@ -64,13 +64,13 @@ class ImportPartnerProgram extends Command
                     'start_date' => null,
                     'start_date' => null,
                     'denied_date' => null,
-                    'success_date' => null,
+                    'success_date' => $partnerProgram->corprog_datelastdiscuss,
                     'total_fee' => null,
                     'is_corporate_scheme' => $partnerProgram->corprog != 1 ? 2 : 1,
                     'reason_id' => null,
                     'empl_id' => null,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
+                    'created_at' => $partnerProgram->corprog_datefirstdiscuss,
+                    'updated_at' => $partnerProgram->corprog_datefirstdiscuss
                 ];
             }
         }

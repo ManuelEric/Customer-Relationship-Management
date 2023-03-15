@@ -4,7 +4,7 @@
             Installment
         </div>
         @if(empty($invoicePartner->inv_detail) || $status == 'edit')
-            <button class="btn btn-sm btn-outline-primary" onclick="addInstallmentOther()">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addInstallmentOther()">
                 <i class="bi bi-plus"></i>
             </button>
         @endif

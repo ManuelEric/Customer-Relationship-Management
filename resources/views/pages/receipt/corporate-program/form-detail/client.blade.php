@@ -20,7 +20,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                {{ $receiptPartner->invoiceB2b->partner_prog->corp->corp_mail ? $receiptPartner->invoiceB2b->partner_prog->corp->corp_mail : 'Not Available' }}
+                                {{ $invoicePartner->partner_prog->corp->corp_mail ? $invoicePartner->partner_prog->corp->corp_mail : 'Not Available' }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -31,7 +31,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                {{ $receiptPartner->invoiceB2b->partner_prog->corp->corp_phone ? $receiptPartner->invoiceB2b->partner_prog->corp->corp_phone : 'Not Available' }}
+                                {{ $invoicePartner->partner_prog->corp->corp_phone ? $invoicePartner->partner_prog->corp->corp_phone : 'Not Available' }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
@@ -42,8 +42,8 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                {!! $receiptPartner->invoiceB2b->partner_prog->corp->corp_address !!}
-                                    {{ $receiptPartner->invoiceB2b->partner_prog->corp->corp_region }}
+                                {!! $invoicePartner->partner_prog->corp->corp_address !!}
+                                    {{ $invoicePartner->partner_prog->corp->corp_region }}
                             </div>
                         </div>
                     </div>

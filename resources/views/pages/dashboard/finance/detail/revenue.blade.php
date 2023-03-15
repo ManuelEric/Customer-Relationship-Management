@@ -69,6 +69,13 @@
     
     var revenue_chart = null;
 
+        const rupiah = (number)=>{
+            return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR"
+            }).format(number);
+        }
+
     function checkRevenueMode() {
         let mode = $('#revenue_mode').val()
         $('.revenue-period').addClass('d-none')
@@ -88,16 +95,17 @@
             
                 $('#tbl_revenue').empty();
                 $('#tot_paid_revenue').empty();
-
+                
                 let revenue = [0,0,0,0,0,0,0,0,0,0,0,0];
                 var result = response.data.data
+                
                 revenue_chart.data.datasets[0].data = revenue;
                 
                 var index =0;
                 Object.entries(result.totalRevenue).forEach(entry => {
                     const [key, value] = entry;
-                    revenue[index] = value;
-                    revenue_chart.data.datasets[0].data[key-1] = value              
+                    revenue[key-1] = value;
+                    revenue_chart.data.datasets[0].data[key-1] = revenue[key-1];
                     index++;
                 });
                 
@@ -130,8 +138,9 @@
             var scaled = number / scale;
 
             // format number and add suffix
-            return scaled.toFixed(0) + ' ' + suffix;
+            return scaled.toFixed(1) + ' ' + suffix;
         }
+        
 
         const rc = document.getElementById('revenue_chart');
         const dataset_revenue = new Array();
@@ -150,7 +159,7 @@
         var revenue_chart = new Chart(rc, {
             type: 'line',
             data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
                 datasets: [{
                     label: 'Revenue',
                     data: dataset_revenue,
@@ -173,7 +182,7 @@
                         callbacks: {
                             label: function(value, context) {
                                 let revenue = value.raw
-                                return ' Rp. ' + number_format(revenue);
+                                return rupiah(revenue);
                             }
                         }
                     },
@@ -197,12 +206,7 @@
                     let month = new Date(`${label} 1, 2023`).getMonth() + 1;
                     let year = $('#revenue_year').val()
 
-                    const rupiah = (number)=>{
-                        return new Intl.NumberFormat("id-ID", {
-                        style: "currency",
-                        currency: "IDR"
-                        }).format(number);
-                    }
+                   
 
                     axios.get('{{ url("api/finance/revenue/detail") }}/' + year + '/' +  month)
                         .then((response) => {
@@ -224,14 +228,14 @@
                                 html += "<td>" + item.program_name + "</td>"
                                 html += "<td class='text-center'>" + (item.installment_name !== null ? item.installment_name : "-") + "</td>"
                                 html += "<td>" + rupiah(item.total) + (diff > 0 ? " ("+ rupiah(diff) +")" : '') + "</td>"
-                                total_paid += item.total_price_inv;
+                                total_paid += item.total;
                                 total_paid_diff += diff;
                                 $('#tbl_revenue').append(html);
                                 no++;
                             })
 
                             
-                            $('#tot_paid_revenue').empty().append(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
+                            $('#tot_paid_revenue').html(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
 
                         }, (error) => {
                             console.log(error)

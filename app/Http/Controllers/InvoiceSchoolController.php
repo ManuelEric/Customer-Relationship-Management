@@ -54,21 +54,7 @@ class InvoiceSchoolController extends Controller
     public function index(Request $request)
     {
 
-        $invoiceSchools = $this->invoiceB2bRepository->getAllInvoiceSchoolFromCRM();
-        $new_receipts = [];
 
-        foreach ($invoiceSchools as $invSch) {
-            $invoiceDetails = $invSch->invoice_detail;
-            if (count($invoiceDetails) > 0) {
-                foreach ($invoiceDetails as $invDetail) {
-                    if (!$this->receiptRepository->getReceiptByInvoiceIdentifier('Installment', $invDetail->invdtl_id)) {
-                        echo json_encode(isset($invDetail->receipt));
-                        echo '<br>';
-                    }
-                }
-            }
-        }
-        exit;
         $status = $request->route('status');
 
         if ($request->ajax()) {
@@ -399,6 +385,43 @@ class InvoiceSchoolController extends Controller
         $invoice_id = $invoiceSch->invb2b_id;
 
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
+
+        $file_name = str_replace('/', '_', $invoice_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
+        $path = 'uploaded_file/invoice/sch_prog/';
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $attachmentDetails = [
+            'invb2b_id' => $invoice_id,
+            'currency' => $currency,
+            'attachment' => 'storage/' . $path . $file_name,
+        ];
+
+        if (!isset($invoiceAttachment) || !Storage::disk('public')->exists($path . $file_name)) {
+            $pdf = PDF::loadView('pages.invoice.school-program.export.invoice-pdf', [
+                'invoiceSch' => $invoiceSch,
+                'currency' => $currency,
+                'companyDetail' => $companyDetail
+            ]);
+
+            # Generate PDF file
+            $content = $pdf->download();
+            Storage::disk('public')->put($path . $file_name, $content);
+
+            try {
+
+                $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
+            } catch (Exception $e) {
+
+                Log::info('Failed to insert attachment : ' . $e->getMessage());
+                return $e->getMessage();
+            }
+        }
 
         return view('pages.invoice.view-pdf')->with([
             'invoiceAttachment' => $invoiceAttachment,

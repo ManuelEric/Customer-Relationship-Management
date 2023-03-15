@@ -4,26 +4,6 @@
 
 @section('content')
 
-    {{-- @php
-        $exportIdr = '<a href="#export" id="export_idr"
-                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Export IDR
-                      </a>';
-        $uploadIdr = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
-                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_idr">
-                            <i class="bi bi-file-arrow-up me-1"></i> Upload IDR
-                      </button>';
-        $exportOther = '<a href="#export" id="export_other"
-                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Export Other
-                        </a>';
-        $uploadOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
-                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_other">
-                            <i class="bi bi-file-arrow-up me-1"></i> Upload Other
-                        </button>';
-
-    @endphp --}}
-
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('receipt/referral') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Receipt
@@ -37,49 +17,8 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4> {{ $receiptRef->invoiceB2b->referral->partner->corp_name }} </h4>
-                    <h6> {{ $receiptRef->invoiceB2b->referral->additional_prog_name }} </h6>
-                    {{-- <div class="d-flex flex-wrap justify-content-center mt-3">
-                        <button class="btn btn-sm btn-outline-danger rounded mx-1 my-1"
-                            onclick="confirmDelete('{{'receipt/referral'}}', {{$receiptRef->id}})">
-                            <i class="bi bi-trash2 me-1"></i> Delete
-                        </button>
-                        @if (!$receiptRef->receiptAttachment()->where('currency', 'idr')->first())
-                            {!! $exportIdr !!}
-                            {!! $uploadIdr !!}
-                        @elseif ($receiptRef->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first())
-                            <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc">
-                                <i class="bi bi-pen me-1"></i> Request Sign IDR
-                            </button>
-                        @else
-                            <a href="{{ route('receipt.referral.print', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}" 
-                                class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                <i class="bi bi-printer me-1"></i> Print IDR
-                            </a>
-                            <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-idr">
-                                <i class="bi bi-printer me-1"></i> Send Receipt IDR to Client
-                            </button>
-                        @endif
-
-                        @if ($receiptRef->invoiceB2b->currency != "idr")
-                            @if (!$receiptRef->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
-                                {!! $exportOther !!}
-                                {!! $uploadOther !!}
-                            @elseif ($receiptRef->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
-                                <button class="btn btn-sm btn-outline-warning rounded mx-1 my-1" id="request-acc-other">
-                                    <i class="bi bi-pen me-1"></i> Request Sign Other
-                                </button>
-                            @else
-                                <a href="{{ route('receipt.referral.print', ['receipt' => $receiptRef->id, 'currency' => 'other']) }}" 
-                                    class="btn btn-sm btn-outline-info rounded mx-1 my-1" target="blank">
-                                    <i class="bi bi-printer me-1"></i> Print Other
-                                </a>
-                                <button class="btn btn-sm btn-outline-info rounded mx-1 my-1" id="send-inv-client-other">
-                                    <i class="bi bi-printer me-1"></i> Send Receipt Other to Client
-                                </button>
-                            @endif
-                        @endif
-                    </div> --}}
+                    <h4> {{ $invoiceRef->referral->partner->corp_name }} </h4>
+                    <h6> {{ $invoiceRef->referral->additional_prog_name }} </h6>
                 </div>
             </div>
 
@@ -104,7 +43,7 @@
                     </div>
                 </div>
 
-                @if (!isset($receiptRef->invoiceB2b->refund))
+                @if (!isset($invoiceRef->refund))
                     {{-- IDR  --}}
                     <div class="d-flex align-items-stretch">
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
@@ -156,7 +95,7 @@
                     </div>
 
                     {{-- Other  --}}
-                    @if($receiptRef->invoiceB2b->currency != 'idr')
+                    @if($invoiceRef->currency != 'idr')
                         <div class="d-flex align-items-stretch">
                             <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                             <div class="border p-1 text-center">
@@ -238,16 +177,16 @@
                                 <td>{{ $receiptRef->receipt_cheque }}</td>
                             </tr>
                         @endif
-                        @if ($receiptRef->invoiceB2b->currency != "idr")
+                        @if ($invoiceRef->currency != "idr")
                             <tr>
                                 <td>Curs Rate :</td>
-                                <td>{{ $receiptRef->invoiceB2b->rate }}</td>
+                                <td>{{ $invoiceRef->rate }}</td>
                             </tr>
                         @endif
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                @if ($receiptRef->receipt_amount != null && $receiptRef->invoiceB2b->currency != "idr")
+                                @if ($receiptRef->receipt_amount != null && $invoiceRef->currency != "idr")
                                     {{ $receiptRef->receipt_amount }}
                                      ( {{ $receiptRef->receipt_amount_idr }} )
                                 @else
@@ -261,7 +200,7 @@
 
             @include('pages.receipt.referral.form-detail.invoice')
 
-            @if (!isset($receiptRef->invoiceB2b->refund))
+            @if (!isset($invoiceRef->refund))
                 {{-- Receipt Progress  --}}
                 <div class="card shadow-sm mb-3">
                     <div class="card-header">
@@ -302,7 +241,7 @@
                         </div>
 
                         {{-- Other  --}}
-                        @if($receiptRef->invoiceB2b->currency != 'idr')
+                        @if($invoiceRef->currency != 'idr')
                             <div class="text-center mt-5">
                                 <hr>
                                 <h6>Other Currency</h6>

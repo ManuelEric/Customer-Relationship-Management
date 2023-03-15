@@ -7,6 +7,7 @@ use App\Repositories\MenuRepository;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use PDO;
@@ -31,13 +32,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
         view()->composer('*', function ($view) {
 
             $user = auth()->user();
             $collection = new Collection();
 
-            if (isset($user) && $user->department->count() > 0) {
+            if (isset($user) && ($user->department->count() > 0 || $user->roles()->where('role_name', 'admin')->count() > 0) ) {
                 foreach ($user->department as $menus) {
                     foreach ($menus->access_menus as $menu) {
                         $collection->push([

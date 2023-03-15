@@ -393,7 +393,7 @@
         data: {
             labels: ['Pending', 'Failed', 'Success', 'Refund'],
             datasets: [{
-                label: 'Client Program',
+                // label: 'Client Program',
                 data: dataset_admentoring,
                 backgroundColor: [
                     '#fd7e14',

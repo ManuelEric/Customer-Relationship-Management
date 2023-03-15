@@ -155,7 +155,7 @@
                                     @if ($receiptSch->invoiceB2b->invb2b_pm == "Installment")
                                         {{ $currency == 'other' ? $receiptSch->invoiceInstallment->invoicedtl_amount :  $receiptSch->invoiceInstallment->invoicedtl_amountidr }}
                                     @else
-                                        {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceSubTotalprice : $receiptSch->invoiceB2b->invoiceSubTotalpriceIdr }}
+                                        {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoicePrice : $receiptSch->invoiceB2b->invoicePriceIdr }}
                                     @endif
                                 </strong>
                             </p>
@@ -168,7 +168,7 @@
                                     @if ($receiptSch->invoiceB2b->invb2b_pm == "Installment")
                                         {{ $currency == 'other' ? $receiptSch->invoiceInstallment->invoicedtl_amount :  $receiptSch->invoiceInstallment->invoicedtl_amountidr }}
                                     @else
-                                        {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceSubTotalprice : $receiptSch->invoiceB2b->invoiceSubTotalpriceIdr }}
+                                        {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoicePrice : $receiptSch->invoiceB2b->invoicePriceIdr }}
                                     @endif
                                 </strong>
                             </p>

@@ -82,7 +82,7 @@
                                         
                                         {{-- Client Name --}}
                                         @if(isset($invoice->clientprog_id))
-                                            <td>{{ $invoice->clientprog->client->first_name }} {{ $invoice->clientprog->client->last_name }}</td>
+                                            <td>{{ $invoice->clientprog->client->first_name }} {{ $invoice->clientprog->client->last_name }}</td> 
                                         @elseif(isset($invoice->schprog_id))
                                             <td>{{ $invoice->sch_prog->school->sch_name }}</td>
                                         @elseif(isset($invoice->partnerprog_id))

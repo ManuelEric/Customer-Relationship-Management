@@ -91,7 +91,7 @@
                                         $invoiceAttachmentOther = $invoicePartner->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
                                         $invoiceAttachmentOtherSent = $invoicePartner->invoiceAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
                                     @endphp
-                                    @if (!$invoiceSchAttachmentOther)
+                                    @if (!$invoiceAttachmentOther)
                                         <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                             data-bs-title="Request Sign">
                                             <a href="#" class="text-info" id="request-acc-other">

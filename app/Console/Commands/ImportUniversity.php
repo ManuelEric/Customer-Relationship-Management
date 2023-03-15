@@ -58,7 +58,10 @@ class ImportUniversity extends Command
             $univDetails = [];
             foreach ($universities as $university) {
     
-                if (!$this->universityRepository->getUniversityByName($university->univ_name) && $university->univ_name != "" && $university->univ_name != NULL) {
+                $this->info($university->univ_name);
+                $this->info($this->universityRepository->getUniversityByName($university->univ_name));
+                if (!$this->universityRepository->getUniversityByName($university->univ_name) && $university->univ_name != "" && $university->univ_name != NULL) 
+                {
     
                     # initialize
                     $last_id = University::max('univ_id');
@@ -98,7 +101,7 @@ class ImportUniversity extends Command
                         $tag = $this->tagRepository->getTagByName($regionName);
                     }
                     
-                    $univDetails[] = [
+                    $univDetails = [
                         'univ_id' => $university->univ_id,
                         'univ_name' => $university->univ_name,
                         'univ_address' => $university->univ_address == '' ? null : strip_tags($university->univ_address),
@@ -108,12 +111,14 @@ class ImportUniversity extends Command
                         'updated_at' => Carbon::now()
                     ];
                     $count++;
+
+                    $this->universityRepository->createUniversity($univDetails);
                 }
             }
     
-            if (count($univDetails) > 0) {
-                $this->universityRepository->createuniversities($univDetails);
-            }
+            // if (count($univDetails) > 0) {
+            //     $this->universityRepository->createuniversities($univDetails);
+            // }
             DB::commit();
             Log::info('Import universities works fine');
 
