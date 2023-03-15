@@ -42,6 +42,8 @@ class InvoiceProgram extends Model
         'curs_rate',
         'currency',
         'send_to_client',
+        'created_at',
+        'updated_at'
     ];
 
     public function getCurrencyUnit()

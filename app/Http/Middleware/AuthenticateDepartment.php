@@ -2,32 +2,26 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
-class RedirectIfAuthenticated
+class AuthenticateDepartment
 {
     /**
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @param  string|null  ...$guards
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next, ...$guards)
+    public function handle(Request $request, Closure $next)
     {
-        $guards = empty($guards) ? [null] : $guards;
-
-        foreach ($guards as $guard) {
-            if (Auth::guard($guard)->check()) {
-                
-                return redirect(RouteServiceProvider::HOME);
-            }
+        if (Auth::user() && (Auth::user()->department->count() > 0 || Auth::user()->roles()->where('role_name', 'admin')->count() > 0)) {
+            return $next($request);
         }
 
-        return $next($request);
+        return Redirect::to('login')->withErrors('No department access');
     }
 }

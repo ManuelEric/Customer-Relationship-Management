@@ -31,7 +31,9 @@ class InvDetail extends Model
         'invdtl_amountidr',
         'invdtl_status',
         'invdtl_cursrate',
-        'invdtl_currency'
+        'invdtl_currency',
+        'created_at',
+        'updated_at'
     ];
 
     public function getCurrencyUnit()

@@ -162,7 +162,7 @@ class ImportStudent extends Command
                 # initialize
                 $last_id = Lead::max('lead_id');
                 $lead_id_without_label = $this->remove_primarykey_label($last_id, 2);
-                $lead_id_with_label = 'LS' . $this->add_digit($lead_id_without_label + 1, 3);
+                $lead_id_with_label = 'LS' . $this->add_digit((int) $lead_id_without_label + 1, 3);
 
                 $leadDetails = [
                     'lead_id' => $lead_id_with_label,
@@ -474,11 +474,16 @@ class ImportStudent extends Command
                     # initialize
                     $last_id = University::max('univ_id');
                     $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
-                    $univ_id_with_label = 'LS' . $this->add_digit($univ_id_without_label + 1, 3);
+                    $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label + 1, 3);
+
+                    if ($university_v2 = $this->universityRepository->getUniversityByUnivId($univ_id_with_label))
+                        $univ_id_with_label = $university_v2->univ_id;
+
+                    $new_universityId = $univ_id_with_label;
     
                     # if not exists, create a new university
                     $universityDetails = [
-                        'univ_id' => $univ_id_with_label,
+                        'univ_id' => $new_universityId,
                         'univ_name' => $crm_universityName,
                         'univ_address' => $crm_university->univ_address,
                         'univ_country' => $crm_university->univ_country,

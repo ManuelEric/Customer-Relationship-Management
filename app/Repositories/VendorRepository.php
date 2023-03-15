@@ -6,6 +6,7 @@ use App\Interfaces\VendorRepositoryInterface;
 use App\Models\Vendor;
 use App\Models\v1\Vendor as V1Vendor;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 
 class VendorRepository implements VendorRepositoryInterface
 {
@@ -21,7 +22,9 @@ class VendorRepository implements VendorRepositoryInterface
 
     public function getVendorById($vendorId)
     {
-        return Vendor::findOrFail($vendorId);
+        // return Vendor::findOrFail($vendorId);
+        // return Vendor::whereVendorId($vendorId);
+        return Vendor::where('vendor_id', $vendorId)->first();
     }
 
     public function deleteVendor($vendorId)
@@ -81,6 +84,29 @@ class VendorRepository implements VendorRepositoryInterface
     # CRM
     public function getAllVendorFromCRM()
     {
-        return V1Vendor::all();
+        return V1Vendor::select([
+            'vendor_id',
+            'vendor_name',
+            DB::raw('(CASE
+                WHEN vendor_address = "" THEN NULL ELSE vendor_address
+            END) as vendor_address'),
+            DB::raw('(CASE
+                WHEN vendor_phone = "" THEN NULL ELSE vendor_phone
+            END) as vendor_phone'),
+            'vendor_type',
+            DB::raw('(CASE
+                WHEN vendor_material = "" THEN NULL ELSE vendor_material
+            END) as vendor_material'),
+            DB::raw('(CASE
+                WHEN vendor_size = "" THEN NULL ELSE vendor_size
+            END) as vendor_size'),
+            'vendor_unitprice',
+            DB::raw('(CASE
+                WHEN vendor_processingtime = "" THEN NULL ELSE vendor_processingtime
+            END) as vendor_processingtime'),
+            DB::raw('(CASE
+                WHEN vendor_notes = "" THEN NULL ELSE vendor_notes
+            END) as vendor_notes'),
+        ])->get();
     }
 }

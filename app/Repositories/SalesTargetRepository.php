@@ -44,7 +44,7 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             $query->where('tbl_client_prog.empl_id', $userId);
         })->
         when($filter['qdate'], function ($query) use ($filter) {
-            $query->whereMonth('tbl_client_prog.created_at', date('m', strtotime($filter['qdate'])))->whereYear('tbl_client_prog.created_at', date('Y', strtotime($filter['qdate'])));
+            $query->whereMonth('tbl_client_prog.success_date', date('m', strtotime($filter['qdate'])))->whereYear('tbl_client_prog.success_date', date('Y', strtotime($filter['qdate'])));
         })->when(isset($filter['quuid']), function ($q) use ($userId) {
             $q->where('tbl_client_prog.empl_id', $userId);
         })->select([
@@ -70,10 +70,17 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
                     $query->where('prog_id', $programId);
                 })->
                 when($filter['qdate'], function ($query) use ($filter) {
-                    $query->whereMonth('tbl_client_prog.created_at', date('m', strtotime($filter['qdate'])))->
-                    whereYear('tbl_client_prog.created_at', date('Y', strtotime($filter['qdate'])))->
-                    whereMonth('tbl_sales_target.month_year', date('m', strtotime($filter['qdate'])))->
-                    whereYear('tbl_sales_target.month_year', date('Y', strtotime($filter['qdate'])));
+                    $query->where(function($q) use ($filter) {
+                        $q->whereMonth('tbl_client_prog.success_date', date('m', strtotime($filter['qdate'])))->
+                        whereYear('tbl_client_prog.success_date', date('Y', strtotime($filter['qdate'])));
+                    })->orWhere(function ($q) use ($filter) {
+                        $q->whereMonth('tbl_sales_target.month_year', date('m', strtotime($filter['qdate'])))->
+                        whereYear('tbl_sales_target.month_year', date('Y', strtotime($filter['qdate'])));
+                    });
+                    // $query->whereMonth('tbl_client_prog.success_date', date('m', strtotime($filter['qdate'])))->
+                    // whereYear('tbl_client_prog.success_date', date('Y', strtotime($filter['qdate'])))->
+                    // whereMonth('tbl_sales_target.month_year', date('m', strtotime($filter['qdate'])))->
+                    // whereYear('tbl_sales_target.month_year', date('Y', strtotime($filter['qdate'])));
                 })->
                 when(isset($filter['quuid']), function ($q) use ($userId) {
                     $q->where('tbl_client_prog.empl_id', $userId);

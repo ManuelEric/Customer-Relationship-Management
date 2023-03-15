@@ -38,14 +38,14 @@ class ImportVendor extends Command
      */
     public function handle()
     {
-        $vendor = $this->vendorRepository->getAllVendorFromCRM();
+        $vendors = $this->vendorRepository->getAllVendorFromCRM();
         $vendorDetails = [];
-        foreach ($vendor as $vendor) {
-
+        foreach ($vendors as $vendor) {
+            
             if (!$this->vendorRepository->getVendorById($vendor->vendor_id) && $vendor->vendor_name != "" && $vendor->vendor_name != NULL) {
 
 
-                $vendorDetails[] = [
+                $vendorDetails = [
                     'vendor_id' => $vendor->vendor_id,
                     'vendor_name' => $vendor->vendor_name,
                     'vendor_address' => $vendor->vendor_address,
@@ -60,11 +60,10 @@ class ImportVendor extends Command
                     'updated_at' => Carbon::now()
                 ];
             }
-        }
 
-        if (count($vendorDetails) > 0) {
             $this->vendorRepository->createVendor($vendorDetails);
         }
+
         return Command::SUCCESS;
     }
 }

@@ -29,6 +29,7 @@ class RouteServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         $this->routes(function () {
+
             Route::middleware('api')
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
@@ -36,50 +37,54 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
 
-            Route::middleware('web')
-                ->prefix('master')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/master.php'));
-
-            Route::middleware('web')
-                ->prefix('client')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/client.php'));
-
-            Route::middleware('web')
-                ->prefix('user')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/user.php'));
-
-            Route::middleware('web')
-                ->prefix('instance')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/instance.php'));
-
-            Route::middleware('web')
-                ->prefix('program')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/program.php'));
-
-            Route::middleware('web')
-                ->prefix('invoice')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/invoice.php'));
-
-            Route::middleware('web')
-                ->prefix('receipt')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/receipt.php'));
-
-            Route::middleware('web')
-                ->prefix('report')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/report.php'));
+            Route::group(['middleware' => ['web', 'auth', 'auth.department']], function() {
 
                 Route::middleware('web')
-                ->prefix('menus')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/menus.php'));
+                    ->prefix('master')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/master.php'));
+    
+                Route::middleware('web')
+                    ->prefix('client')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/client.php'));
+    
+                Route::middleware('web')
+                    ->prefix('user')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/user.php'));
+    
+                Route::middleware('web')
+                    ->prefix('instance')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/instance.php'));
+    
+                Route::middleware('web')
+                    ->prefix('program')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/program.php'));
+    
+                Route::middleware('web')
+                    ->prefix('invoice')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/invoice.php'));
+    
+                Route::middleware('web')
+                    ->prefix('receipt')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/receipt.php'));
+    
+                Route::middleware('web')
+                    ->prefix('report')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/report.php'));
+    
+                Route::middleware('web')
+                    ->prefix('menus')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/menus.php'));
+            });
+
         });
     }
 

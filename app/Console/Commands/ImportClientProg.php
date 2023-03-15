@@ -201,6 +201,8 @@ class ImportClientProg extends Command
                     'our_price_tutor' => $crm_clientprog->stprog_our_price_tutor,
                     'total_price_tutor' => $crm_clientprog->stprog_total_price_tutor,
                     'duration_notes' => $crm_clientprog->stprog_duration,
+                    'created_at' => $crm_clientprog->stprog_firstdisdate,
+                    'updated_at' => $crm_clientprog->stprog_firstdisdate
                 ];
 
                 # additional
@@ -233,7 +235,7 @@ class ImportClientProg extends Command
     
                         # declare default variable
                         $clientProgramDetails['prog_running_status'] = $crm_clientprog->stprog_runningstatus;
-    
+                        $clientProgramDetails['success_date'] = $crm_clientprog->stprog_statusprogdate;
                         # and submitted prog_id is admission mentoring
                         if (in_array($progId, $this->admission_prog_list)) {
     
@@ -372,6 +374,8 @@ class ImportClientProg extends Command
                             'inv_status' => $crm_clientprog_invoice->inv_status,
                             'curs_rate' => $crm_clientprog->stprog_kurs, # take the value from stprog
                             'currency' => $crm_clientprog_invoice->inv_category,
+                            'created_at' => $crm_clientprog_invoice->inv_date,
+                            'updated_at' => $crm_clientprog_invoice->inv_date
                         ];
     
                         $invoice_v2 = $this->invoiceProgramRepository->createInvoice($invoiceDetails);
@@ -415,7 +419,9 @@ class ImportClientProg extends Command
                                         'receipt_words_idr' => $installment->receipt->receipt_word,
                                         'receipt_notes' => $installment->receipt->receipt_notes == "" ? NULL : $installment->receipt->receipt_notes,
                                         'receipt_status' => $installment->receipt->receipt_status,
-                                        'invdtl_id' => $installment_v2->invdtl_id
+                                        'invdtl_id' => $installment_v2->invdtl_id,
+                                        'created_at' => $installment->receipt->receipt_date,
+                                        'updated_at' => $installment->receipt->receipt_date
                                     ];
         
                                     # import receipt installment to v2
@@ -476,6 +482,8 @@ class ImportClientProg extends Command
                                     'receipt_words_idr' => $crm_receipt->receipt_word,
                                     'receipt_notes' => $crm_receipt->receipt_notes == "" ? NULL : $crm_receipt->receipt_notes,
                                     'receipt_status' => $crm_receipt->receipt_status,
+                                    'created_at' => $crm_receipt->receipt_date,
+                                    'updated_at' => $crm_receipt->receipt_date
                                 ];
     
                                 $receipt_v2 = $this->receiptRepository->createReceipt($receiptDetails);
