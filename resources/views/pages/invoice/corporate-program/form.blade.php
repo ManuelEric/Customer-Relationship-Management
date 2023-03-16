@@ -235,6 +235,18 @@
                                     <option value="other">Other Currency</option>
                                 </select>
                             </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="">Is Full Amount</label>
+                                <select id="is_full_amount" name="is_full_amount" class="select w-100"
+                                    oninput="checkFullAmount()"
+                                    {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                                @error('is_full_amount')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
                                 <label for="">Currency Detail</label>
                                 <select class="select w-100" name="currency" id="currency_detail"
@@ -529,6 +541,16 @@
             }
         }
 
+        function checkFullAmount(){
+            let cur = $('#currency').val()
+
+            if(cur == 'other'){
+                checkInvoiceOther()
+            }else{
+                checkInvoiceIDR() 
+            }
+        }
+
         function checkCurrencyDetail() {
             let detail = $('#currency_detail').val()
             $('#current_rate').removeAttr('disabled')
@@ -589,6 +611,21 @@
         </script>
     @endif
 
+    @if (isset($invoicePartner->is_full_amount) && $invoicePartner->is_full_amount == 1)
+        <script>
+            $(document).ready(function() {
+                $('#is_full_amount').val('1').trigger('change')
+            })
+        </script>
+    @else
+        <script>
+            $(document).ready(function() {
+                $('#is_full_amount').val('0').trigger('change')
+            })
+        </script>
+    @endif
+
+
     @if (isset($invoicePartner->invb2b_pm))
         <script>
             $(document).ready(function() {
@@ -609,6 +646,14 @@
         <script>
             $(document).ready(function() {
                 $('#currency').val("{{ old('select_currency') }}").trigger('change')
+            })
+        </script>
+    @endif
+
+    @if (!empty(old('is_full_amount')))
+        <script>
+            $(document).ready(function() {
+                $('#is_full_amount').val("{{ old('is_full_amount') }}").trigger('change')
             })
         </script>
     @endif

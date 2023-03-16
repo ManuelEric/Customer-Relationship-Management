@@ -122,27 +122,33 @@
             <table width="100%" class="table-detail" style="padding:8px 5px;">
                 <tr align="center">
                     <th width="5%">No</th>
-                    <th width="45%">Description</th>
-                    <th width="25%">Price</th>
-                    <th width="10%">Participants</th>
+                    <th width="{{$invoiceSch->is_full_amount == 0 ? '45%' : '80%' }}">Description</th>
+                    @if($invoiceSch->is_full_amount == 0)
+                        <th width="25%">Price</th>
+                        <th width="10%">Participants</th>
+                    @endif
                     <th width="15%">Total</th>
                 </tr>
                 <tr>
-                    <td valign="top" align="center">1</td>
+                    {{-- No --}}
+                    <td valign="top" align="center">1</td> 
+                    
+                    {{-- Description --}}
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
                             <p>
                                 <strong> {{ (($invoiceSch->sch_prog->program->prog_sub != '-')) ? $invoiceSch->sch_prog->program->prog_sub . ': ' . $invoiceSch->sch_prog->program->prog_program : $invoiceSch->sch_prog->program->prog_program }} </strong>
                             </p>
                             <p>
-                               
-                                {{-- USD 5,400 (IDR 80,460,000) for Yeriel Abinawa Handoyo. <br>
-                                USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo. --}}
+                                {{ $invoiceSch->invb2b_participants > 0 || $invoiceSch->invb2b_participants != null ? 'Participants: ' . $invoiceSch->invb2b_participants : ''}}
+                            </p>
+                            <br>
+                            <p>
                                 {!! $invoiceSch->invb2b_notes !!}
                             </p>
                         </div>
 
-                        @if($invoiceSch->invb2b_discidr != 0)
+                        @if($invoiceSch->invb2b_discidr != 0 && $invoiceSch->invb2b_discidr != null)
                             <div style="margin-top:5px;">
                                 <p>
                                     <strong> Discount</strong>
@@ -150,6 +156,9 @@
                             </div>
                         @endif
                     </td>
+
+                    @if($invoiceSch->is_full_amount == 0)
+                        {{-- Price --}}
                         <td valign="top" align="center">
                             <div style="height:80px;">
                                 <p>
@@ -159,22 +168,33 @@
                                 </p>
                             </div>
                         </td>
-                    <td valign="top" align="center">
-                        <p>
-                            <strong>
-                                {{ $invoiceSch->invb2b_participants }}
-                            </strong>
-                        </p>
-                    </td>
+
+                        {{-- Participants --}}
+                        <td valign="top" align="center">
+                            <p>
+                                <strong>
+                                    {{ $invoiceSch->invb2b_participants }}
+                                </strong>
+                            </p>
+                        </td>
+                    @endif
+
+                    {{-- Total --}}
                     <td valign="top" align="center">
                         <div style="height:80px;width: 150px;">
                             <p>
-                                <strong>
-                                     {{ $currency == 'other' ? $invoiceSch->invoicePrice : $invoiceSch->invoicePriceIdr }}
-                                </strong>
+                                @if($invoiceSch->is_full_amount == 0)
+                                    <strong>
+                                        {{ $currency == 'other' ? $invoiceSch->invoiceSubTotalprice : $invoiceSch->invoiceSubTotalpriceIdr }}
+                                    </strong>
+                                @else
+                                    <strong>
+                                        {{ $currency == 'other' ? $invoiceSch->invoicePrice : $invoiceSch->invoicePriceIdr }}
+                                    </strong>
+                                @endif
                             </p>
                         </div>
-                        @if($invoiceSch->invb2b_discidr != 0)
+                        @if($invoiceSch->invb2b_discidr != 0 && $invoiceSch->invb2b_discidr != null)
                             <div style="margin-top:5px;">
                                 <p>
                                     <strong> - {{ $currency == 'other' ? $invoiceSch->invoiceDiscount : $invoiceSch->invoiceDiscountIdr }}</strong>
@@ -183,8 +203,10 @@
                         @endif
                     </td>
                 </tr>
+
+                {{-- Grand Total --}}
                 <tr>
-                    <td colspan="4" align="right"><b>Total</b></td>
+                    <td colspan="{{$invoiceSch->is_full_amount == 0 ? '4' : '2'}}" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
                         <b>{{ $currency == 'other' ? $invoiceSch->invoiceTotalprice : $invoiceSch->invoiceTotalpriceIdr }}</b>
                     </td>
