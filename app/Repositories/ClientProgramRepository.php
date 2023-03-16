@@ -462,7 +462,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $q->where('empl_id', $userId);
             })
             ->where('tbl_client_prog.status', 1)
-            ->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])))
+            ->when(isset($cp_filter['qdate']), function ($q) use ($cp_filter) {
+                $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
+            })
+            
             // ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('lead_source')
             ->get();
@@ -506,7 +509,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 });
             })
             ->where('tbl_client_prog.status', 1)
-            ->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])))
+            ->when(isset($cp_filter['qdate']), function ($q) use ($cp_filter) {
+                $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
+            })
             // ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('conversion_lead')
             ->get();
@@ -645,7 +650,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
             ->select([
-                DB::raw('AVG(DATEDIFF(assessmentsent_date, initconsult_date)) as initialMaking'),
+                // DB::raw('AVG(DATEDIFF(assessmentsent_date, initconsult_date)) as initialMaking'),
+                DB::raw('(CASE 
+                    WHEN initconsult_date > assessmentsent_date THEN AVG(DATEDIFF(initconsult_date, assessmentsent_date)) ELSE AVG(DATEDIFF(assessmentsent_date, initconsult_date))
+                END) as initialMaking')
             ])
             ->whereHas('program', function ($query) {
                 $query->whereHas('main_prog', function ($query2) {

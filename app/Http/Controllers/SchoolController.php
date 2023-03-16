@@ -51,8 +51,7 @@ class SchoolController extends Controller
 
     public function index(Request $request)
     {
-        // echo $this->schoolRepository->getAllSchoolDataTables();
-        // exit;
+        
         if ($request->ajax()) {
             return $this->schoolRepository->getAllSchoolDataTables();
         }

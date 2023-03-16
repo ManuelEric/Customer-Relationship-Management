@@ -212,7 +212,7 @@ class ImportClientProg extends Command
         if ($crm_clientprog->reason != NULL)
         {
             $crm_clientprog_reasonname = $crm_clientprog->reason->reason_name;
-            if ($reason_v2 = $this->reasonRepository->getReasonByReasonName($crm_clientprog_reasonname))
+            if (!$reason_v2 = $this->reasonRepository->getReasonByReasonName($crm_clientprog_reasonname))
             {
                 $reasonDetails = [
                     'reason_name' => $crm_clientprog_reasonname

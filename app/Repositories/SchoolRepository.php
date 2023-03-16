@@ -30,7 +30,7 @@ class SchoolRepository implements SchoolRepositoryInterface
             })
             ->filterColumn('curriculum', function ($query, $keyword) {
                 $query->whereHas('curriculum', function ($q) use ($keyword) {
-                    $q->where('name', $keyword);
+                    $q->where('name', 'like', '%'.$keyword.'%');
                 });
             })
             ->make(true);

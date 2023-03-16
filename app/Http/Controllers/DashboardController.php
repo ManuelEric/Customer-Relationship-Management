@@ -106,7 +106,7 @@ class DashboardController extends Controller
         $menteesBirthday = $this->clientRepository->getMenteesBirthdayMonthly($month);
 
         # data at the body of dashboard
-        $employees = $this->userRepository->getAllUsersByRole('employee');
+        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('employee', 'Client Management');
 
         # on client program tab
         $cp_filter['qdate'] = $request->get('qdate') ?? date('Y-m');
