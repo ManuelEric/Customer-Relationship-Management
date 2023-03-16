@@ -83,6 +83,8 @@ class ImportStudent extends Command
         try {
 
             $crm_students = $this->clientRepository->getStudentFromV1();
+            $progressBar = $this->output->createProgressBar($crm_students->count());
+            $progressBar->start();
             foreach ($crm_students as $student) 
             {
 
@@ -103,8 +105,10 @@ class ImportStudent extends Command
                 $this->attachDreamUniversities($student, $studentNumPrimaryKey);
 
                 $this->attachDreamMajors($student, $studentNumPrimaryKey);
+                $progressBar->advance();
 
             }
+            $progressBar->finish();
             DB::commit();
             Log::info('Import Student works fine');
             
@@ -306,7 +310,7 @@ class ImportStudent extends Command
 
             $selectedStudent = $this->clientRepository->createClient('Student', $studentDetails);
         }  
-        $this->info('Child Name : '.$selectedStudent->first_name.' '.$selectedStudent->last_name.'\n');
+        // $this->info('Child Name : '.$selectedStudent->first_name.' '.$selectedStudent->last_name.'\n');
         return $selectedStudent->id;
         
     }
@@ -381,7 +385,9 @@ class ImportStudent extends Command
                     'insta' => $this->getValueWithoutSpace($studentHasParent->pr_insta),
                     'state' => $this->getValueWithoutSpace($studentHasParent->pr_state),
                     'address' => $this->getValueWithoutSpace($studentHasParent->pr_address),
-                    'st_password' => $this->getValueWithoutSpace($studentHasParent->pr_password)
+                    'st_password' => $this->getValueWithoutSpace($studentHasParent->pr_password),
+                    'created_at' => $student->st_datecreate,
+                    'updated_at' => $student->st_datelastedit
                 ];
                 
                 $parent = $this->clientRepository->createClient('Parent', $parentDetails);
@@ -445,8 +451,8 @@ class ImportStudent extends Command
                     
                 }
             }
-            $this->info('Ini milik : '.$studentNumPrimaryKey.' dengan nama '.$student->st_firstname);
-            $this->info(json_encode($destinationCountryDetails));
+            // $this->info('Ini milik : '.$studentNumPrimaryKey.' dengan nama '.$student->st_firstname);
+            // $this->info(json_encode($destinationCountryDetails));
 
             if (isset($destinationCountryDetails))
                 $this->clientRepository->createDestinationCountry($studentNumPrimaryKey, $destinationCountryDetails);

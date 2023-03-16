@@ -204,15 +204,15 @@
                 createdRow: function(row, data, index) {
                     // temporary condition
                     // while change soon
-                    if (data['total_score'] < 2.5) {
+                    if (data['total_score'] < 2) {
                         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Low)');
-                    } else if ((data['total_score'] >= 2.5) && (data['total_score'] < 6)) {
+                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Cold)');
+                    } else if ((data['total_score'] >= 2) && (data['total_score'] < 4)) {
                         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Middle)');
+                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Warm)');
                     } else {
                         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (High)');
+                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Hot)');
                     }
                 }
             });

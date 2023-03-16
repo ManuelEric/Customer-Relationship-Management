@@ -71,6 +71,12 @@ class SchoolRepository implements SchoolRepositoryInterface
         return School::create($schoolDetails);
     }
 
+    public function attachCurriculum($schoolId, array $curriculums)
+    {
+        $school = School::whereSchoolId($schoolId);
+        return $school->curriculum()->attach($curriculums);
+    }
+
     public function createSchools(array $schoolDetails)
     {
         return School::insert($schoolDetails);

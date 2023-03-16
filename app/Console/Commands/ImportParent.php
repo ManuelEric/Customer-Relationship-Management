@@ -41,6 +41,8 @@ class ImportParent extends Command
         try {
 
             $crm_parents = $this->clientRepository->getParentFromV1();
+            $progressBar = $this->output->createProgressBar($crm_parents->count());
+            $progressBar->start();
             foreach ($crm_parents as $crm_parent)
             {
                 $parentName = $crm_parent->pr_firstname.' '.$crm_parent->pr_lastname;
@@ -60,7 +62,9 @@ class ImportParent extends Command
     
                     $this->clientRepository->createClient('Parent', $parentDetails);
                 }
+                $progressBar->advance();
             }
+            $progressBar->finish();
             DB::commit();
             Log::info('Import parent works fine');
 
