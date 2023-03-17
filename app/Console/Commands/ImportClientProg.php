@@ -90,8 +90,8 @@ class ImportClientProg extends Command
      */
     public function handle()
     {
-        DB::beginTransaction();
-        try {
+        // DB::beginTransaction();
+        // try {
 
             $crm_clientprogs = $this->clientProgramRepository->getClientProgramFromV1();
             $progressBar = $this->output->createProgressBar($crm_clientprogs->count());
@@ -142,16 +142,16 @@ class ImportClientProg extends Command
 
             $progressBar->finish();
 
-            DB::commit();
-            Log::info('Import client program works fine');
+        //     DB::commit();
+        //     Log::info('Import client program works fine');
             
-        } catch (Exception $e) {
+        // } catch (Exception $e) {
             
-            DB::rollBack();
-            $this->info($e->getMessage().' | line '.$e->getLine());
-            Log::warning('Failed to import client program '. $e->getMessage());
+        //     DB::rollBack();
+        //     $this->info($e->getMessage().' | line '.$e->getLine());
+        //     Log::warning('Failed to import client program '. $e->getMessage());
 
-        }
+        // }
 
         return Command::SUCCESS;
     }
@@ -432,7 +432,7 @@ class ImportClientProg extends Command
                     'session' => $crm_clientprog_invoice->inv_session,
                     'duration' => $crm_clientprog_invoice->inv_duration,
                     'inv_paymentmethod' => $crm_clientprog_invoice->inv_paymentmethod,
-                    'inv_duedate' => $crm_clientprog_invoice->inv_paymentmethod == "Full Payment" ? $crm_clientprog_invoice->inv_duedate : null,
+                    'inv_duedate' => $crm_clientprog_invoice->inv_duedate,
                     'inv_notes' => $crm_clientprog_invoice->inv_notes == "" ? NULL : $crm_clientprog_invoice->inv_notes,
                     'inv_tnc' => $crm_clientprog_invoice->inv_tnc == "" ? NULL : $crm_clientprog_invoice->inv_tnc,
                     'inv_status' => $crm_clientprog_invoice->inv_status,
