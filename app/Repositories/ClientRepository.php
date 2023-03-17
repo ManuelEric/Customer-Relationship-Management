@@ -347,11 +347,14 @@ class ClientRepository implements ClientRepositoryInterface
     # dashboard
     public function getCountTotalClientByStatus($status, $month = null)
     {
-        return Client::where('st_statuscli', $status)->when($month, function($query) use ($month) {
-            $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-        })->whereHas('roles', function($query) {
-            $query->where('role_name', 'Student');
-        })->count();
+
+        return Client::
+            where('st_statuscli', $status)->
+            when($month, function($query) use ($month) {
+                $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+            })->whereHas('roles', function($query) {
+                $query->where('role_name', 'Student');
+            })->count();
     }
 
     public function getMenteesBirthdayMonthly($month)

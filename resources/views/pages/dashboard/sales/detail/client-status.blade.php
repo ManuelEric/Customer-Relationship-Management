@@ -1,3 +1,8 @@
+@if ($totalClientInformation['potential']['new'] == 0)
+    @php
+        $potentialHidden = "d-none";
+    @endphp
+@endif
 <div class="card mb-3">
     <div class="card-body">
         <div class="row justify-content-between g-1 mb-2">
@@ -5,8 +10,8 @@
                 <div class="row g-1">
                     <div class="col-md-6">
                         <select name="" id="period" class="select w-100" onchange="checkPeriod()">
-                            <option value="all" @selected(isset($filter_bymonth) && $filter_bymonth == null)>All</option>
-                            <option value="monthly" @selected(isset($filter_bymonth) && $filter_bymonth != null)>Monthly</option>
+                            <option value="all">All</option>
+                            <option value="monthly">Monthly</option>
                         </select>
                     </div>
                     <div class="col-md-6 text-end d-none" id="monthly" onchange="checkMonthly()">
@@ -40,65 +45,262 @@
         <div class="row g-3">
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center text-warning">
-                        <h5 class="p-0 m-0">Prospective <br> Client</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['prospective'] }}</h3>
+                    <div class="card-body d-flex justify-content-between text-warning w-full d-flex flex-column">
+                        <div class="d-flex">
+                            <h5 class="p-0 m-0">Prospective <br> Client</h5>
+                            <h3 class="p-0 client-status ms-auto">
+                                {{ $totalClientInformation['prospective']['old'] }}
+                                @if ($totalClientInformation['prospective']['new'] != 0)
+                                <sup class="text-primary fs-6">({{ $totalClientInformation['prospective']['new'] }} New)</sup>    
+                                @endif
+                            </h3>
+                        </div>
+                        <div class="mt-3 border-top pt-3">
+                            <p class="mb-0 text-muted client-status-detail">
+                                <span @class([
+                                    'me-2',
+                                    'text-success' => $totalClientInformation['prospective']['new'] > 0,
+                                    'text-danger' => $totalClientInformation['prospective']['new'] == 0
+
+                                ])>
+                                    <i @class([
+                                        'bi',
+                                        'bi-arrow-up-short' => $totalClientInformation['prospective']['new'] > 0,
+                                        'bi-arrow-down-short' => $totalClientInformation['prospective']['new'] == 0
+                                    ])></i>
+                                    {{ $totalClientInformation['prospective']['percentage'] }}%
+                                </span>
+                                <span>Since before</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center text-info">
-                        <h5 class="p-0 m-0">Potential <br> Client</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['potential'] }}</h3>
+                    <div class="card-body d-flex justify-content-between text-info w-full d-flex flex-column">
+                        <div class="d-flex">
+                            <h5 class="p-0 m-0">Potential <br> Client</h5>
+                            <h3 class="p-0 m-0 client-status ms-auto">{{ $totalClientInformation['potential']['old'] }}
+                                <sup class="text-primary fs-6 {{ $potentialHidden }}">({{ $totalClientInformation['potential']['new'] }} New)</sup>
+                            </h3>
+                        </div>
+                        <div class="mt-3 border-top pt-3">
+                            <p class="mb-0 text-muted client-status-detail">
+                                <span @class([
+                                    'me-2',
+                                    'text-success' => $totalClientInformation['potential']['new'] > 0,
+                                    'text-danger' => $totalClientInformation['potential']['new'] == 0
+
+                                ])>
+                                    <i @class([
+                                        'bi',
+                                        'bi-arrow-up-short' => $totalClientInformation['potential']['new'] > 0,
+                                        'bi-arrow-down-short' => $totalClientInformation['potential']['new'] == 0
+                                    ])></i>
+                                    {{ $totalClientInformation['potential']['percentage'] }}%
+                                </span>
+                                <span>Since before</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center text-success">
-                        <h5 class="p-0 m-0">Current <br> Client</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['current'] }}</h3>
+                    <div class="card-body d-flex justify-content-between text-success w-full d-flex flex-column">
+                        <div class="d-flex">
+                            <h5 class="p-0 m-0">Current <br> Client</h5>
+                            <h3 class="p-0 client-status ms-auto">
+                                {{ $totalClientInformation['current']['old'] }}
+                                @if ($totalClientInformation['current']['new'] != 0)
+                                <sup class="text-primary fs-6">({{ $totalClientInformation['current']['new'] }} New)</sup>    
+                                @endif
+                            </h3>
+                        </div>
+                        <div class="mt-3 border-top pt-3">
+                            <p class="mb-0 text-muted client-status-detail">
+                                <span @class([
+                                    'me-2',
+                                    'text-success' => $totalClientInformation['current']['new'] > 0,
+                                    'text-danger' => $totalClientInformation['current']['new'] == 0
+
+                                ])>
+                                    <i @class([
+                                        'bi',
+                                        'bi-arrow-up-short' => $totalClientInformation['current']['new'] > 0,
+                                        'bi-arrow-down-short' => $totalClientInformation['current']['new'] == 0
+                                    ])></i>
+                                    {{ $totalClientInformation['current']['percentage'] }}%
+                                </span>
+                                <span>Since before</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center text-primary">
-                        <h5 class="p-0 m-0">Completed <br> Client</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['completed'] }}</h3>
+                    <div class="card-body d-flex justify-content-between text-primary w-full d-flex flex-column">
+                        <div class="d-flex">
+                            <h5 class="p-0 m-0">Completed <br> Client</h5>
+                            <h3 class="p-0 client-status ms-auto">
+                                {{ $totalClientInformation['completed']['old'] }}
+                                @if ($totalClientInformation['completed']['new'] != 0)
+                                <sup class="text-primary fs-6">({{ $totalClientInformation['completed']['new'] }} New)</sup>    
+                                @endif
+                            </h3>
+                        </div>
+                        <div class="mt-3 border-top pt-3">
+                            <p class="mb-0 text-muted client-status-detail">
+                                <span @class([
+                                    'me-2',
+                                    'text-success' => $totalClientInformation['completed']['new'] > 0,
+                                    'text-danger' => $totalClientInformation['completed']['new'] == 0
+
+                                ])>
+                                    <i @class([
+                                        'bi',
+                                        'bi-arrow-up-short' => $totalClientInformation['completed']['new'] > 0,
+                                        'bi-arrow-down-short' => $totalClientInformation['completed']['new'] == 0
+                                    ])></i>
+                                    {{ $totalClientInformation['completed']['percentage'] }}%
+                                </span>
+                                <span>Since before</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <h5 class="p-0 m-0">Mentee <br> Total</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['mentee'] }}</h3>
+                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column">
+                        <div class="d-flex">
+                            <h5 class="p-0 m-0">Mentee <br> Total</h5>
+                            <h3 class="p-0 client-status ms-auto">
+                                {{ $totalClientInformation['mentee']['old'] }}
+                                @if ($totalClientInformation['mentee']['new'] != 0)
+                                <sup class="text-primary fs-6">({{ $totalClientInformation['mentee']['new'] }} New)</sup>    
+                                @endif
+                            </h3>
+                        </div>
+                        <div class="mt-3 border-top pt-3">
+                            <p class="mb-0 text-muted client-status-detail">
+                                <span @class([
+                                    'me-2',
+                                    'text-success' => $totalClientInformation['mentee']['new'] > 0,
+                                    'text-danger' => $totalClientInformation['mentee']['new'] == 0
+
+                                ])>
+                                    <i @class([
+                                        'bi',
+                                        'bi-arrow-up-short' => $totalClientInformation['mentee']['new'] > 0,
+                                        'bi-arrow-down-short' => $totalClientInformation['mentee']['new'] == 0
+                                    ])></i>
+                                    {{ $totalClientInformation['mentee']['percentage'] }}%
+                                </span>
+                                <span>Since before</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <h5 class="p-0 m-0">Alumni <br> Total</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['alumni'] }}</h3>
+                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column">
+                        <div class="d-flex">
+                            <h5 class="p-0 m-0">Alumni <br> Total</h5>
+                            <h3 class="p-0 client-status ms-auto">
+                                {{ $totalClientInformation['alumni']['old'] }}
+                                @if ($totalClientInformation['alumni']['new'] != 0)
+                                <sup class="text-primary fs-6">({{ $totalClientInformation['alumni']['new'] }} New)</sup>    
+                                @endif
+                            </h3>
+                        </div>
+                        <div class="mt-3 border-top pt-3">
+                            <p class="mb-0 text-muted client-status-detail">
+                                <span @class([
+                                    'me-2',
+                                    'text-success' => $totalClientInformation['alumni']['new'] > 0,
+                                    'text-danger' => $totalClientInformation['alumni']['new'] == 0
+
+                                ])>
+                                    <i @class([
+                                        'bi',
+                                        'bi-arrow-up-short' => $totalClientInformation['alumni']['new'] > 0,
+                                        'bi-arrow-down-short' => $totalClientInformation['alumni']['new'] == 0
+                                    ])></i>
+                                    {{ $totalClientInformation['alumni']['percentage'] }}%
+                                </span>
+                                <span>Since before</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <h5 class="p-0 m-0">Parents <br> Total</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['parent'] }}</h3>
+                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column">
+                        <div class="d-flex">
+                            <h5 class="p-0 m-0">Parents <br> Total</h5>
+                            <h3 class="p-0 client-status ms-auto">
+                                {{ $totalClientInformation['parent']['old'] }}
+                                @if ($totalClientInformation['parent']['new'] != 0)
+                                <sup class="text-primary fs-6">({{ $totalClientInformation['parent']['new'] }} New)</sup>    
+                                @endif
+                            </h3>
+                        </div>
+                        <div class="mt-3 border-top pt-3">
+                            <p class="mb-0 text-muted client-status-detail">
+                                <span @class([
+                                    'me-2',
+                                    'text-success' => $totalClientInformation['parent']['new'] > 0,
+                                    'text-danger' => $totalClientInformation['parent']['new'] == 0
+
+                                ])>
+                                    <i @class([
+                                        'bi',
+                                        'bi-arrow-up-short' => $totalClientInformation['parent']['new'] > 0,
+                                        'bi-arrow-down-short' => $totalClientInformation['parent']['new'] == 0
+                                    ])></i>
+                                    {{ $totalClientInformation['parent']['percentage'] }}%
+                                </span>
+                                <span>Since before</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <h5 class="p-0 m-0">Teacher/Counselor <br> Total</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['teacher_counselor'] }}</h3>
+                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column">
+                        <div class="d-flex">
+                            <h5 class="p-0 m-0">Teacher/Counselor <br> Total</h5>
+                            <h3 class="p-0 client-status ms-auto">
+                                {{ $totalClientInformation['teacher_counselor']['old'] }}
+                                @if ($totalClientInformation['teacher_counselor']['new'] != 0)
+                                <sup class="text-primary fs-6">({{ $totalClientInformation['teacher_counselor']['new'] }} New)</sup>    
+                                @endif
+                            </h3>
+                        </div>
+                        <div class="mt-3 border-top pt-3">
+                            <p class="mb-0 text-muted client-status-detail">
+                                <span @class([
+                                    'me-2',
+                                    'text-success' => $totalClientInformation['teacher_counselor']['new'] > 0,
+                                    'text-danger' => $totalClientInformation['teacher_counselor']['new'] == 0
+
+                                ])>
+                                    <i @class([
+                                        'bi',
+                                        'bi-arrow-up-short' => $totalClientInformation['teacher_counselor']['new'] > 0,
+                                        'bi-arrow-down-short' => $totalClientInformation['teacher_counselor']['new'] == 0
+                                    ])></i>
+                                    {{ $totalClientInformation['teacher_counselor']['percentage'] }}%
+                                </span>
+                                <span>Since before</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -266,9 +468,6 @@
 
 <script src="http://www.datejs.com/build/date.js" type="text/javascript"></script>
 <script>
-    @if ($filter_bymonth != null)
-        $('#monthly').removeClass('d-none')
-    @endif
 
     function checkPeriod() {
         let period = $('#period').val()
@@ -276,6 +475,7 @@
             $('#monthly').removeClass('d-none')
             checkMonthly()
         } else {
+            console.log('masuk ke all')
             $('#monthly').addClass('d-none')
             checkClientStatus()
         }
@@ -286,22 +486,60 @@
         checkClientStatus(month)
     }
 
-    function checkClientStatus(month = null) {
+    function checkClientStatus(month = false) {
         // Axios here... 
         showLoading()
 
         var today = new Date()
 
         if (!month)
-            month = moment(today).format('YYYY-MM')
+            month = 'all'
+            // month = moment(today).format('YYYY-MM')
+
         var url = window.location.origin + '/api/get/client-status/' + month
 
+        console.log(url)
         axios.get(url)
             .then(function (response) {
+                console.log(response)
                 
                 var obj = response.data.data
+                console.log(obj)
                 $(".client-status").each(function(index) {
-                    $(this).html(obj[index])
+
+                    var title = obj[index]['old']+'<sup class="text-primary fs-6">('+ obj[index]['new'] +' New)</sup>   '
+                    $(this).html(title)
+                })
+
+                $(".client-status-detail").each(function(index) {
+                    if (obj[index]['new'] > obj[index]['old'] && obj[index]['new'] != 0 && obj[index]['old'] != 0) {
+
+                        var textStyling = 'text-success'
+                        var icon = "bi-arrow-up-short"
+
+                    } else if (obj[index]['old'] == 0 && obj[index]['new'] != 0) {
+
+                        var textStyling = 'text-success'
+                        var icon = "bi-arrow-up-short"
+                    
+                    } else if (obj[index]['old'] == 0 && obj[index]['new'] == 0) {
+
+                        var textStyling = ''
+                        var icon = ""
+
+                    } else {
+
+                        var textStyling = 'text-danger'
+                        var icon = "bi-arrow-down-short"
+
+                    }
+
+                    var html = '<span class="me-2 '+ textStyling +'">'+
+                                    '<i class="bi '+ icon +'"></i>' +
+                                    obj[index]['percentage'] + '%' +
+                                '</span><span>Since last month</span>'
+
+                    $(this).html(html)
                 })
                 swal.close()
 
