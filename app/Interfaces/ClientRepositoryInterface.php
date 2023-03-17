@@ -11,6 +11,7 @@ interface ClientRepositoryInterface
     public function getAllClientByRoleAndStatus($roleName, $statusClient);
     public function getAllChildrenWithNoParents($parentId);
     public function getClientById($clientId);
+    public function checkIfClientIsMentee($clientId);
     public function deleteClient($clientId);
     public function createClient($role, array $clientDetails);
     public function addRole($clientId, $role);

@@ -25,6 +25,8 @@
 <section id="program-comparison" class="dashboard-partnership d-none">
     @include('pages.dashboard.partnership.detail.program-comparison')
 </section>
+@if (!$isAdmin)
 <section id="client-event" class="dashboard-partnership d-none">
     @include('pages.dashboard.sales.detail.client-event')
 </section>
+@endif

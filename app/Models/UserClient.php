@@ -47,6 +47,8 @@ class UserClient extends Authenticatable
         'st_note',
         'st_prospect_status',
         'password',
+        'created_at', 
+        'updated_at',
     ];
 
     # attributes

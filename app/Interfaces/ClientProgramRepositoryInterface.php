@@ -18,8 +18,8 @@ interface ClientProgramRepositoryInterface
     public function getCountProgramByStatus($status, array $dateDetails);
     public function getSummaryProgramByStatus($status, array $dateDetails);
     public function getInitAssessmentProgress($dateDetails);
-    public function getConversionLead($dateDetails, $cp_filter);
-    public function getLeadSource($dateDetails, $cp_filter);
+    public function getConversionLead($dateDetails, $cp_filter = null);
+    public function getLeadSource($dateDetails, $cp_filter = null);
     public function getConversionTimeSuccessfulPrograms($dateDetails);
 
     # dashboard
