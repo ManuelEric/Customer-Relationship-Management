@@ -30,9 +30,11 @@ interface ClientRepositoryInterface
     public function checkAllProgramStatus($clientId);
     # dashboard
     public function getCountTotalClientByStatus($status, $month = null);
+    public function getClientByStatus($status, $month = null);
     public function getMenteesBirthdayMonthly($month);
     public function getStudentByStudentId($studentId);
     public function getStudentByStudentName($studentName);
+    public function getAllClientByRoleAndDate($roleName, $month = null);
 
     # CRM
     public function getStudentFromV1();

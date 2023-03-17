@@ -45,7 +45,7 @@
         <div class="row g-3">
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between text-warning w-full d-flex flex-column">
+                    <div class="card-body d-flex justify-content-between text-warning w-full d-flex flex-column cursor-pointer card-client" data-f-date="all" data-f-client-type="prospective">
                         <div class="d-flex">
                             <h5 class="p-0 m-0">Prospective <br> Client</h5>
                             <h3 class="p-0 client-status ms-auto">
@@ -59,14 +59,11 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class([
                                     'me-2',
-                                    'text-success' => $totalClientInformation['prospective']['new'] > 0,
-                                    'text-danger' => $totalClientInformation['prospective']['new'] == 0
-
+                                    'text-success'
                                 ])>
                                     <i @class([
                                         'bi',
-                                        'bi-arrow-up-short' => $totalClientInformation['prospective']['new'] > 0,
-                                        'bi-arrow-down-short' => $totalClientInformation['prospective']['new'] == 0
+                                        'bi-arrow-up-short'
                                     ])></i>
                                     {{ $totalClientInformation['prospective']['percentage'] }}%
                                 </span>
@@ -78,7 +75,7 @@
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between text-info w-full d-flex flex-column">
+                    <div class="card-body d-flex justify-content-between text-info w-full d-flex flex-column cursor-pointer card-client" data-f-date="all" data-f-client-type="potential">
                         <div class="d-flex">
                             <h5 class="p-0 m-0">Potential <br> Client</h5>
                             <h3 class="p-0 m-0 client-status ms-auto">{{ $totalClientInformation['potential']['old'] }}
@@ -89,14 +86,12 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class([
                                     'me-2',
-                                    'text-success' => $totalClientInformation['potential']['new'] > 0,
-                                    'text-danger' => $totalClientInformation['potential']['new'] == 0
+                                    'text-success'
 
                                 ])>
                                     <i @class([
                                         'bi',
-                                        'bi-arrow-up-short' => $totalClientInformation['potential']['new'] > 0,
-                                        'bi-arrow-down-short' => $totalClientInformation['potential']['new'] == 0
+                                        'bi-arrow-up-short'
                                     ])></i>
                                     {{ $totalClientInformation['potential']['percentage'] }}%
                                 </span>
@@ -108,7 +103,7 @@
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between text-success w-full d-flex flex-column">
+                    <div class="card-body d-flex justify-content-between text-success w-full d-flex flex-column cursor-pointer card-client" data-f-date="all" data-f-client-type="current">
                         <div class="d-flex">
                             <h5 class="p-0 m-0">Current <br> Client</h5>
                             <h3 class="p-0 client-status ms-auto">
@@ -122,14 +117,12 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class([
                                     'me-2',
-                                    'text-success' => $totalClientInformation['current']['new'] > 0,
-                                    'text-danger' => $totalClientInformation['current']['new'] == 0
+                                    'text-success'
 
                                 ])>
                                     <i @class([
                                         'bi',
-                                        'bi-arrow-up-short' => $totalClientInformation['current']['new'] > 0,
-                                        'bi-arrow-down-short' => $totalClientInformation['current']['new'] == 0
+                                        'bi-arrow-up-short'
                                     ])></i>
                                     {{ $totalClientInformation['current']['percentage'] }}%
                                 </span>
@@ -141,7 +134,7 @@
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between text-primary w-full d-flex flex-column">
+                    <div class="card-body d-flex justify-content-between text-primary w-full d-flex flex-column cursor-pointer card-client" data-f-date="all" data-f-client-type="completed">
                         <div class="d-flex">
                             <h5 class="p-0 m-0">Completed <br> Client</h5>
                             <h3 class="p-0 client-status ms-auto">
@@ -155,14 +148,12 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class([
                                     'me-2',
-                                    'text-success' => $totalClientInformation['completed']['new'] > 0,
-                                    'text-danger' => $totalClientInformation['completed']['new'] == 0
+                                    'text-success'
 
                                 ])>
                                     <i @class([
                                         'bi',
-                                        'bi-arrow-up-short' => $totalClientInformation['completed']['new'] > 0,
-                                        'bi-arrow-down-short' => $totalClientInformation['completed']['new'] == 0
+                                        'bi-arrow-up-short'
                                     ])></i>
                                     {{ $totalClientInformation['completed']['percentage'] }}%
                                 </span>
@@ -174,7 +165,7 @@
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column">
+                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client" data-f-date="all" data-f-client-type="mentee">
                         <div class="d-flex">
                             <h5 class="p-0 m-0">Mentee <br> Total</h5>
                             <h3 class="p-0 client-status ms-auto">
@@ -188,14 +179,12 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class([
                                     'me-2',
-                                    'text-success' => $totalClientInformation['mentee']['new'] > 0,
-                                    'text-danger' => $totalClientInformation['mentee']['new'] == 0
+                                    'text-success'
 
                                 ])>
                                     <i @class([
                                         'bi',
-                                        'bi-arrow-up-short' => $totalClientInformation['mentee']['new'] > 0,
-                                        'bi-arrow-down-short' => $totalClientInformation['mentee']['new'] == 0
+                                        'bi-arrow-up-short'
                                     ])></i>
                                     {{ $totalClientInformation['mentee']['percentage'] }}%
                                 </span>
@@ -207,7 +196,7 @@
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column">
+                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client" data-f-date="all" data-f-client-type="alumni">
                         <div class="d-flex">
                             <h5 class="p-0 m-0">Alumni <br> Total</h5>
                             <h3 class="p-0 client-status ms-auto">
@@ -221,14 +210,12 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class([
                                     'me-2',
-                                    'text-success' => $totalClientInformation['alumni']['new'] > 0,
-                                    'text-danger' => $totalClientInformation['alumni']['new'] == 0
+                                    'text-success'
 
                                 ])>
                                     <i @class([
                                         'bi',
-                                        'bi-arrow-up-short' => $totalClientInformation['alumni']['new'] > 0,
-                                        'bi-arrow-down-short' => $totalClientInformation['alumni']['new'] == 0
+                                        'bi-arrow-up-short'
                                     ])></i>
                                     {{ $totalClientInformation['alumni']['percentage'] }}%
                                 </span>
@@ -240,7 +227,7 @@
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column">
+                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client" data-f-date="all" data-f-client-type="parent">
                         <div class="d-flex">
                             <h5 class="p-0 m-0">Parents <br> Total</h5>
                             <h3 class="p-0 client-status ms-auto">
@@ -254,14 +241,12 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class([
                                     'me-2',
-                                    'text-success' => $totalClientInformation['parent']['new'] > 0,
-                                    'text-danger' => $totalClientInformation['parent']['new'] == 0
+                                    'text-success'
 
                                 ])>
                                     <i @class([
                                         'bi',
-                                        'bi-arrow-up-short' => $totalClientInformation['parent']['new'] > 0,
-                                        'bi-arrow-down-short' => $totalClientInformation['parent']['new'] == 0
+                                        'bi-arrow-up-short'
                                     ])></i>
                                     {{ $totalClientInformation['parent']['percentage'] }}%
                                 </span>
@@ -273,7 +258,7 @@
             </div>
             <div class="col-md-3">
                 <div class="card shadow-sm">
-                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column">
+                    <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client" data-f-date="all" data-f-client-type="teacher-counselor">
                         <div class="d-flex">
                             <h5 class="p-0 m-0">Teacher/Counselor <br> Total</h5>
                             <h3 class="p-0 client-status ms-auto">
@@ -287,14 +272,12 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class([
                                     'me-2',
-                                    'text-success' => $totalClientInformation['teacher_counselor']['new'] > 0,
-                                    'text-danger' => $totalClientInformation['teacher_counselor']['new'] == 0
+                                    'text-success'
 
                                 ])>
                                     <i @class([
                                         'bi',
-                                        'bi-arrow-up-short' => $totalClientInformation['teacher_counselor']['new'] > 0,
-                                        'bi-arrow-down-short' => $totalClientInformation['teacher_counselor']['new'] == 0
+                                        'bi-arrow-up-short'
                                     ])></i>
                                     {{ $totalClientInformation['teacher_counselor']['percentage'] }}%
                                 </span>
@@ -302,6 +285,42 @@
                             </p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detail -->
+<div class="modal modal-lg fade" id="list-detail-client" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel"><!-- title here --></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ">
+                <div class="row justify-content-end mb-2">
+                    <div class="col-md-3">
+                        {{-- <input type="month" name="" id="menteesBirthdayMonth" class="form-control form-control-sm"
+                            value="{{ date('Y-m') }}"> --}}
+                    </div>
+                </div>
+                <div class="overflow-auto" style="height: 400px">
+                    <table class="table table-bordered table-hover" id="listClientTable">
+                        <thead class="text-center">
+                            <tr>
+                                <th>No</th>
+                                <th>Client's Name</th>
+                                <th>Client's Mail</th>
+                                <th>Client's Phone</th>
+                                <th>Register Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- content here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -469,11 +488,43 @@
 <script src="http://www.datejs.com/build/date.js" type="text/javascript"></script>
 <script>
 
+    $(".card-client").each(function() {
+        $(this).click(function() {
+            showLoading()
+
+            let f_date = $(this).data('f-date')
+            let f_type = $(this).data('f-client-type')
+
+            let url = window.location.origin + '/api/get/client/'+ f_date +'/type/' + f_type;
+
+            axios.get(url)
+                .then(function(response) {
+                    console.log(response)
+                    var obj = response.data;
+
+                    $('#list-detail-client .modal-title').html(obj.title)
+                    $('#listClientTable tbody').html(obj.html_ctx)
+                    swal.close()
+
+                    $('#list-detail-client').modal('show')
+
+                }).catch(function(error) {
+                    
+                    notification('error', 'There was an error while processing your request. Please try again or contact your administrator.');
+
+                })
+        })
+    })
+
     function checkPeriod() {
         let period = $('#period').val()
         if (period == 'monthly') {
             $('#monthly').removeClass('d-none')
             checkMonthly()
+
+            // new
+            let month = $('#client_status_month').val()
+            $(".card-client").data('f-date', month);
         } else {
             console.log('masuk ke all')
             $('#monthly').addClass('d-none')
@@ -498,47 +549,59 @@
 
         var url = window.location.origin + '/api/get/client-status/' + month
 
-        console.log(url)
         axios.get(url)
             .then(function (response) {
-                console.log(response)
                 
                 var obj = response.data.data
-                console.log(obj)
-                $(".client-status").each(function(index) {
 
+                $(".client-status").each(function(index) {
                     var title = obj[index]['old']+'<sup class="text-primary fs-6">('+ obj[index]['new'] +' New)</sup>   '
                     $(this).html(title)
                 })
-
+                
                 $(".client-status-detail").each(function(index) {
-                    if (obj[index]['new'] > obj[index]['old'] && obj[index]['new'] != 0 && obj[index]['old'] != 0) {
+                    if (response.data.type == "all")
+                    {
 
                         var textStyling = 'text-success'
                         var icon = "bi-arrow-up-short"
-
-                    } else if (obj[index]['old'] == 0 && obj[index]['new'] != 0) {
-
-                        var textStyling = 'text-success'
-                        var icon = "bi-arrow-up-short"
-                    
-                    } else if (obj[index]['old'] == 0 && obj[index]['new'] == 0) {
-
-                        var textStyling = ''
-                        var icon = ""
+                        var html = '<span class="me-2 '+ textStyling +'">'+
+                                        '<i class="bi '+ icon +'"></i>' +
+                                        obj[index]['percentage'] + '%' +
+                                    '</span><span>Since last month</span>'
 
                     } else {
-
-                        var textStyling = 'text-danger'
-                        var icon = "bi-arrow-down-short"
-
+                    
+                        if (obj[index]['new'] > obj[index]['old'] && obj[index]['new'] != 0 && obj[index]['old'] != 0) {
+    
+                            var textStyling = 'text-success'
+                            var icon = "bi-arrow-up-short"
+    
+                        } else if (obj[index]['old'] == 0 && obj[index]['new'] != 0) {
+    
+                            var textStyling = 'text-success'
+                            var icon = "bi-arrow-up-short"
+                        
+                        } else if (obj[index]['old'] == 0 && obj[index]['new'] == 0) {
+    
+                            var textStyling = ''
+                            var icon = ""
+    
+                        } else {
+    
+                            var textStyling = 'text-danger'
+                            var icon = "bi-arrow-down-short"
+    
+                        }
+    
+                        var html = '<span class="me-2 '+ textStyling +'">'+
+                                        '<i class="bi '+ icon +'"></i>' +
+                                        obj[index]['percentage'] + '%' +
+                                    '</span><span>Since last month</span>'
+    
+                    
                     }
-
-                    var html = '<span class="me-2 '+ textStyling +'">'+
-                                    '<i class="bi '+ icon +'"></i>' +
-                                    obj[index]['percentage'] + '%' +
-                                '</span><span>Since last month</span>'
-
+                    
                     $(this).html(html)
                 })
                 swal.close()

@@ -118,42 +118,42 @@ class DashboardController extends Controller
             'prospective' => [
                 'old' => $total_prospective_client-$monthly_new_prospective_client,
                 'new' => $monthly_new_prospective_client,
-                'percentage' => number_format(($monthly_new_prospective_client/$total_prospective_client)*100, 2, ',', '.')
+                'percentage' => $this->calculatePercentage($total_prospective_client, $monthly_new_prospective_client)
             ], # prospective
             'potential' => [
                 'old' => $total_potential_client-$monthly_new_potential_client, 
                 'new' => $monthly_new_potential_client, 
-                'percentage' => number_format(($monthly_new_potential_client/$total_potential_client)*100, 2, ',', '.')
+                'percentage' => $this->calculatePercentage($total_potential_client, $monthly_new_potential_client)
             ], # potential
             'current' => [
                 'old' => $total_current_client-$monthly_new_current_client,
                 'new' => $monthly_new_current_client,
-                'percentage' => number_format(($monthly_new_current_client/$total_current_client)*100, 2, ',', '.')
+                'percentage' => $this->calculatePercentage($total_current_client, $monthly_new_current_client)
             ], # current
             'completed' => [
                 'old' => $total_completed_client-$monthly_new_completed_client,
                 'new' => $monthly_new_completed_client,
-                'percentage' => number_format(($monthly_new_completed_client/$total_completed_client)*100, 2, ',', '.')
+                'percentage' => $this->calculatePercentage($total_completed_client, $monthly_new_completed_client)
             ], # current
             'mentee' => [
                 'old' => $total_mentee-$monthly_new_mentee,
                 'new' => $monthly_new_mentee,
-                'percentage' => number_format(($monthly_new_mentee/$total_mentee)*100, 2, ',', '.')
+                'percentage' => $this->calculatePercentage($total_mentee, $monthly_new_mentee)
             ],
             'alumni' => [
                 'old' => $total_alumni-$monthly_new_alumni,
                 'new' => $monthly_new_alumni,
-                'percentage' => number_format(($monthly_new_alumni/$total_alumni)*100, 2, ',', '.')
+                'percentage' => $this->calculatePercentage($total_alumni, $monthly_new_alumni)
             ],
             'parent' => [
                 'old' => $total_parent-$monthly_new_parent,
                 'new' => $monthly_new_parent,
-                'percentage' => number_format(($monthly_new_parent/$total_parent)*100, 2, ',', '.')
+                'percentage' => $this->calculatePercentage($total_parent, $monthly_new_parent)
             ],
             'teacher_counselor' => [
                 'old' => $total_teacher-$monthly_new_teacher,
                 'new' => $monthly_new_teacher,
-                'percentage' => $monthly_new_teacher == 0 ? '0,00' : number_format(($monthly_new_teacher/$total_teacher)*100, 2, ',', '.')
+                'percentage' => $this->calculatePercentage($total_teacher, $monthly_new_teacher)
             ]
         ];
         $followUpReminder = $this->followupRepository->getAllFollowupWithin(7);
@@ -276,6 +276,14 @@ class DashboardController extends Controller
             'events' => $events,
             'conversion_lead_of_event' => $conversion_lead_of_event
         ];
+    }
+
+    private function calculatePercentage($total_data, $monthly_data)
+    {
+        if ($total_data == 0)
+            return "0,00";
+
+        return number_format(($monthly_data/$total_data)*100, 2, ',', '.');
     }
 
     public function indexPartnership($request)
