@@ -11,14 +11,15 @@
                     </div>
                     <div class="col-md-6 text-end d-none" id="monthly" onchange="checkMonthly()">
                         <input type="month" name="" id="client_status_month"
-                            class="form-control form-control-sm" value="{{ isset($filter_bymonth) ? $filter_bymonth : date('Y-m') }}">
+                            class="form-control form-control-sm"
+                            value="{{ isset($filter_bymonth) ? $filter_bymonth : date('Y-m') }}">
                     </div>
                 </div>
             </div>
             <div class="col-md-4 text-end">
-                
-                <button type="button" id="btn-follow-up" class="btn btn-sm btn-info position-relative pe-3" style="font-size: 11px"
-                    data-bs-toggle="modal" data-bs-target="#follow_up">
+
+                <button type="button" id="btn-follow-up" class="btn btn-sm btn-info position-relative pe-3"
+                    style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#follow_up">
                     Follow Up Reminder
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                         style="font-size: 11px">
@@ -26,8 +27,8 @@
                     </span>
                 </button>
 
-                <button type="button" id="btn-mentees-birthday" class="btn btn-sm btn-info position-relative ms-3 pe-3" style="font-size: 11px"
-                    data-bs-toggle="modal" data-bs-target="#birthday">
+                <button type="button" id="btn-mentees-birthday" class="btn btn-sm btn-info position-relative ms-3 pe-3"
+                    style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#birthday">
                     Mentee's Birthday
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                         style="font-size: 11px">
@@ -42,7 +43,19 @@
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between align-items-center text-warning">
                         <h5 class="p-0 m-0">Prospective <br> Client</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['prospective'] }}</h3>
+                        <h3 class="p-0 m-0 client-status">
+                            {{ $totalClientInformation['prospective'] }}
+                            <sup>
+                                <span class="badge bg-primary text-white p-1 px-2">
+                                    <small>123 New</small>
+                                </span>
+                            </sup>
+                        </h3>
+                    </div>
+                    <hr class="my-0">
+                    <div class="px-3 py-1 pb-2 d-flex justify-content-between align-items-center">
+                        <small>Percentage Increase</small>
+                        <small class="badge badge-info py-1">100%</small>
                     </div>
                 </div>
             </div>
@@ -50,7 +63,18 @@
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between align-items-center text-info">
                         <h5 class="p-0 m-0">Potential <br> Client</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['potential'] }}</h3>
+                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['potential'] }}
+                            <sup>
+                                <span class="badge bg-primary text-white p-1 px-2">
+                                    <small>123 New</small>
+                                </span>
+                            </sup>
+                        </h3>
+                    </div>
+                    <hr class="my-0">
+                    <div class="px-3 py-1 pb-2 d-flex justify-content-between align-items-center">
+                        <small>Percentage Increase</small>
+                        <small class="badge badge-info py-1">100%</small>
                     </div>
                 </div>
             </div>
@@ -58,7 +82,18 @@
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between align-items-center text-success">
                         <h5 class="p-0 m-0">Current <br> Client</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['current'] }}</h3>
+                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['current'] }}
+                            <sup>
+                                <span class="badge bg-primary text-white p-1 px-2">
+                                    <small>123 New</small>
+                                </span>
+                            </sup>
+                        </h3>
+                    </div>
+                    <hr class="my-0">
+                    <div class="px-3 py-1 pb-2 d-flex justify-content-between align-items-center">
+                        <small>Percentage Increase</small>
+                        <small class="badge badge-info py-1">100%</small>
                     </div>
                 </div>
             </div>
@@ -66,7 +101,18 @@
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between align-items-center text-primary">
                         <h5 class="p-0 m-0">Completed <br> Client</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['completed'] }}</h3>
+                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['completed'] }}
+                            <sup>
+                                <span class="badge bg-primary text-white p-1 px-2">
+                                    <small>123 New</small>
+                                </span>
+                            </sup>
+                        </h3>
+                    </div>
+                    <hr class="my-0">
+                    <div class="px-3 py-1 pb-2 d-flex justify-content-between align-items-center">
+                        <small>Percentage Increase</small>
+                        <small class="badge badge-info py-1">100%</small>
                     </div>
                 </div>
             </div>
@@ -74,7 +120,18 @@
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="p-0 m-0">Mentee <br> Total</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['mentee'] }}</h3>
+                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['mentee'] }}
+                        <sup>
+                                <span class="badge bg-primary text-white p-1 px-2">
+                                    <small>123 New</small>
+                                </span>
+                            </sup>
+                        </h3>
+                    </div>
+                    <hr class="my-0">
+                    <div class="px-3 py-1 pb-2 d-flex justify-content-between align-items-center">
+                        <small>Percentage Increase</small>
+                        <small class="badge badge-info py-1">100%</small>
                     </div>
                 </div>
             </div>
@@ -82,7 +139,18 @@
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="p-0 m-0">Alumni <br> Total</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['alumni'] }}</h3>
+                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['alumni'] }}
+                        <sup>
+                                <span class="badge bg-primary text-white p-1 px-2">
+                                    <small>123 New</small>
+                                </span>
+                            </sup>
+                        </h3>
+                    </div>
+                    <hr class="my-0">
+                    <div class="px-3 py-1 pb-2 d-flex justify-content-between align-items-center">
+                        <small>Percentage Increase</small>
+                        <small class="badge badge-info py-1">100%</small>
                     </div>
                 </div>
             </div>
@@ -90,7 +158,18 @@
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="p-0 m-0">Parents <br> Total</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['parent'] }}</h3>
+                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['parent'] }}
+                        <sup>
+                                <span class="badge bg-primary text-white p-1 px-2">
+                                    <small>123 New</small>
+                                </span>
+                            </sup>
+                        </h3>
+                    </div>
+                    <hr class="my-0">
+                    <div class="px-3 py-1 pb-2 d-flex justify-content-between align-items-center">
+                        <small>Percentage Increase</small>
+                        <small class="badge badge-info py-1">100%</small>
                     </div>
                 </div>
             </div>
@@ -98,7 +177,18 @@
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="p-0 m-0">Teacher/Counselor <br> Total</h5>
-                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['teacher_counselor'] }}</h3>
+                        <h3 class="p-0 m-0 client-status">{{ $totalClientInformation['teacher_counselor'] }}
+                        <sup>
+                                <span class="badge bg-primary text-white p-1 px-2">
+                                    <small>123 New</small>
+                                </span>
+                            </sup>
+                        </h3>
+                    </div>
+                    <hr class="my-0">
+                    <div class="px-3 py-1 pb-2 d-flex justify-content-between align-items-center">
+                        <small>Percentage Increase</small>
+                        <small class="badge badge-info py-1">100%</small>
                     </div>
                 </div>
             </div>
@@ -149,7 +239,8 @@
 </div>
 
 <!-- Follow Up -->
-<div class="modal modal-lg fade" id="follow_up" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal modal-lg fade" id="follow_up" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -158,55 +249,54 @@
             </div>
             <div class="modal-body" id="modal-body">
                 @foreach ($followUpReminder as $key => $detail)
-                <h6>
-                    @php
-                        $opener = "(";
-                        $closer = ")";
-                    @endphp
-                    @switch(date('d', strtotime($key))-date('d'))
-                        @case(0)
-                            Today
-                            @break
-
-                        @case(1)
-                            Tomorrow
-                            @break
-
-                        @case(2)
-                            The day after tomorrow
-                            @break
-
-                        @default
+                    <h6>
                         @php
-                            $opener = null;
-                            $closer = null;
+                            $opener = '(';
+                            $closer = ')';
                         @endphp
-                            
-                    @endswitch
-                    {{ $opener. date('D, d M Y', strtotime($key)). $closer }}
-                </h6>
-                <div class="overflow-auto mb-3" style="height: 150px">
-                    <ul class="list-group">
-                        @foreach($detail as $info)
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div class="">
-                                    <p class="m-0 p-0 lh-1">{{ $info->clientProgram->client->full_name }}</p>
-                                    <small class="m-0">{{ $info->clientProgram->program_name }}</small>
-                                </div>
-                                <div class="">
-                                    <input class="form-check-input me-1" type="checkbox" value="1" @checked($info->status == 1)
-                                        id="mark_{{ $loop->index }}" 
-                                            data-student="{{ $info->clientProgram->client->id }}" 
+                        @switch(date('d', strtotime($key))-date('d'))
+                            @case(0)
+                                Today
+                            @break
+
+                            @case(1)
+                                Tomorrow
+                            @break
+
+                            @case(2)
+                                The day after tomorrow
+                            @break
+
+                            @default
+                                @php
+                                    $opener = null;
+                                    $closer = null;
+                                @endphp
+                        @endswitch
+                        {{ $opener . date('D, d M Y', strtotime($key)) . $closer }}
+                    </h6>
+                    <div class="overflow-auto mb-3" style="height: 150px">
+                        <ul class="list-group">
+                            @foreach ($detail as $info)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="">
+                                        <p class="m-0 p-0 lh-1">{{ $info->clientProgram->client->full_name }}</p>
+                                        <small class="m-0">{{ $info->clientProgram->program_name }}</small>
+                                    </div>
+                                    <div class="">
+                                        <input class="form-check-input me-1" type="checkbox" value="1"
+                                            @checked($info->status == 1) id="mark_{{ $loop->index }}"
+                                            data-student="{{ $info->clientProgram->client->id }}"
                                             data-program="{{ $info->clientProgram->clientprog_id }}"
                                             data-followup="{{ $info->id }}"
                                             onchange="marked({{ $loop->index }})">
-                                    <label class="form-check-label" for="mark_{{ $loop->index }}">Done</label>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-                <hr>
+                                        <label class="form-check-label" for="mark_{{ $loop->index }}">Done</label>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <hr>
                 @endforeach
             </div>
         </div>
@@ -230,7 +320,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <button type="button" class="btn btn-sm btn-outline-danger"
                             onclick="cancelMarked()">Cancel</button>
-                        <button type="submit" id="btn-submit-followup" class="btn btn-sm btn-primary" onclick="tinyMCE.triggerSave(true,true);">Submit</button>
+                        <button type="submit" id="btn-submit-followup" class="btn btn-sm btn-primary"
+                            onclick="tinyMCE.triggerSave(true,true);">Submit</button>
                     </div>
                 </form>
             </div>
@@ -255,7 +346,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <button type="button" class="btn btn-sm btn-outline-danger"
                             onclick="backMarked()">No</button>
-                        <button type="submit" id="btn-cancel-followup" class="btn btn-sm btn-primary">Yes, Cancel</button>
+                        <button type="submit" id="btn-cancel-followup" class="btn btn-sm btn-primary">Yes,
+                            Cancel</button>
                     </div>
                 </form>
             </div>
@@ -297,25 +389,25 @@
         var url = window.location.origin + '/api/get/client-status/' + month
 
         axios.get(url)
-            .then(function (response) {
-                
+            .then(function(response) {
+
                 var obj = response.data.data
                 $(".client-status").each(function(index) {
                     $(this).html(obj[index])
                 })
                 swal.close()
 
-            }).catch(function (error) {
+            }).catch(function(error) {
                 swal.close()
                 notification('error', 'Ooops! Something went wrong. Please try again.')
             })
-        
+
         getFollowUpReminder(month)
         getMenteesBirthday(month)
     }
 
     function getFollowUpReminder(month) {
-        
+
         var today = new Date()
 
         if (!month)
@@ -324,8 +416,8 @@
         var url = window.location.origin + '/api/get/follow-up-reminder/' + month
 
         axios.get(url)
-            .then(function (response) {
-                
+            .then(function(response) {
+
                 var obj = response.data.data
                 if (obj.length == 0) {
 
@@ -341,8 +433,8 @@
                 }
                 $("#modal-body").html(obj.html_txt)
 
-            }).catch(function (error) {
-                
+            }).catch(function(error) {
+
                 notification('error', 'Ooops! Something went wrong. Please try again.')
             })
     }
@@ -357,8 +449,8 @@
         var url = window.location.origin + '/api/get/mentee-birthday/' + month
 
         axios.get(url)
-            .then(function (response) {
-            
+            .then(function(response) {
+
                 var obj = response.data.data
                 var total_menteesbirthday = Object.keys(obj).length
 
@@ -371,18 +463,18 @@
                     var dob_str = moment(item['dob']).format('ddd, DD MMM yyyy')
 
                     html += "<tr class='text-center'>" +
-                                "<td>" + no++ + "</td>" +
-                                "<td>" + item['full_name'] + "</td>" +
-                                "<td>" + dob_str + "</td>" +
-                                "<td>" + item['address'] + "</td>" +
-                            "</tr>"
+                        "<td>" + no++ + "</td>" +
+                        "<td>" + item['full_name'] + "</td>" +
+                        "<td>" + dob_str + "</td>" +
+                        "<td>" + item['address'] + "</td>" +
+                        "</tr>"
                 })
 
                 $("#menteesBirthdayTable tbody").html('');
                 $("#menteesBirthdayTable tbody").append(html);
 
-            }).catch(function (error) {
-            
+            }).catch(function(error) {
+
                 notification('error', 'Ooops! Something went wrong. Please try again.')
 
             })
@@ -399,7 +491,7 @@
             var student = mark.data('student')
             var program = mark.data('program')
             var followup = mark.data('followup')
-            var link = 'client/student/'+ student +'/program/'+ program +'/followup/'+ followup;
+            var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
 
             $("#followUpForm").attr('action', link)
 
@@ -409,7 +501,7 @@
             var student = mark.data('student')
             var program = mark.data('program')
             var followup = mark.data('followup')
-            var link = 'client/student/'+ student +'/program/'+ program +'/followup/'+ followup;
+            var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
 
             $("#cancelFollowUpForm").attr('action', link)
         }
@@ -435,13 +527,15 @@
         var link = $('#followUpForm').attr('action')
         var data = $('#followUpForm').serialize()
 
-        var obj = [{ "mark" : true }]
+        var obj = [{
+            "mark": true
+        }]
 
         axios.post(link, data + '&' + $.param(obj[0]))
             .then((response) => {
                 Swal.close()
                 notification('success', 'Follow-up has been marked as done')
-                
+
                 $('#follow_up_notes').modal('hide')
 
             }, (error) => {
@@ -458,13 +552,15 @@
         var link = $('#cancelFollowUpForm').attr('action')
         var data = $('#cancelFollowUpForm').serialize()
 
-        var obj = [{ "mark" : false }]
+        var obj = [{
+            "mark": false
+        }]
 
         axios.post(link, data + '&' + $.param(obj[0]))
             .then((response) => {
                 Swal.close()
                 notification('success', 'Follow-up has been marked as waiting')
-                
+
                 $('#cancel_follow_up_notes').modal('hide')
 
             }, (error) => {
@@ -476,8 +572,8 @@
     $("#menteesBirthdayMonth").on('change', function() {
 
         var date = $(this).val()
-        
-        axios.get('{{ url("api/mentee/birthday/") }}/' + date)
+
+        axios.get('{{ url('api/mentee/birthday/') }}/' + date)
             .then((response) => {
                 // console.log(response)
                 var data = response.data.data
@@ -487,11 +583,11 @@
                     var dob_str = moment(item['dob']).format('ddd, DD MMM yyyy')
 
                     html += "<tr class='text-center'>" +
-                                "<td>" + no++ + "</td>" +
-                                "<td>" + item['full_name'] + "</td>" +
-                                "<td>" + dob_str + "</td>" +
-                                "<td>" + item['address'] + "</td>" +
-                            "</tr>"
+                        "<td>" + no++ + "</td>" +
+                        "<td>" + item['full_name'] + "</td>" +
+                        "<td>" + dob_str + "</td>" +
+                        "<td>" + item['address'] + "</td>" +
+                        "</tr>"
                 })
 
                 $("#menteesBirthdayTable tbody").html('');

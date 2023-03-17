@@ -236,8 +236,8 @@ class SalesDashboardController extends Controller
             } else {
                 
                 foreach ($allSuccessProgramByMonth as $program) {
-                    $html .= '<li class="list-group-item d-flex justify-content-between">
-                                <div class="">'.$program->program_name_st.'</div>
+                    $html .= '<li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="text-start">'.$program->program_name_st.'</div>
                                 <span class="badge badge-primary">'.$program->total_client_per_program.'</span>
                             </li>';
                 }

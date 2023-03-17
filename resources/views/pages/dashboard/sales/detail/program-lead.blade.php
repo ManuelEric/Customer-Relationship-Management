@@ -43,10 +43,17 @@
 </div>
 
 <script>
+    // Background Custom 
+    let background = []
+    let jmlColor = 50
+    for (let index = 0; index < jmlColor; index++) {
+        background.push('#'+Math.floor(Math.random()*16777215).toString(16))
+    }
+    
+
     var lead_source_chart, conversion_lead_chart, admission_lead_chart, academic_prep_chart, career_exp_chart = null;
 
-    function get_conversion_leads(month = null, user = null)
-    {
+    function get_conversion_leads(month = null, user = null) {
         var today = new Date()
 
         if (!month)
@@ -58,8 +65,8 @@
         var url = window.location.origin + '/api/get/conversion-lead/' + month + '/' + user
 
         axios.get(url)
-           .then(function (response) {
-            
+            .then(function(response) {
+
                 var obj = response.data.data
                 lead_source_chart.data.labels = obj.ctx_leadsource.label
                 lead_source_chart.data.datasets[0].data = obj.ctx_leadsource.dataset
@@ -69,13 +76,12 @@
                 conversion_lead_chart.data.datasets[0].data = obj.ctx_conversionlead.dataset
                 conversion_lead_chart.update();
 
-            }).catch(function (error) {
+            }).catch(function(error) {
                 notification('error', 'Ooops! Something went wrong. Please try again.')
             })
     }
 
-    function get_admission_mentoring_lead(month = null, user = null)
-    {
+    function get_admission_mentoring_lead(month = null, user = null) {
         var today = new Date()
 
         if (!month)
@@ -87,20 +93,19 @@
         var url = window.location.origin + '/api/get/lead/admissions-mentoring/' + month + '/' + user
 
         axios.get(url)
-           .then(function (response) {
-            
+            .then(function(response) {
+
                 var obj = response.data.data
                 admission_lead_chart.data.labels = obj.ctx.label
                 admission_lead_chart.data.datasets[0].data = obj.ctx.dataset
                 admission_lead_chart.update();
 
-            }).catch(function (error) {
+            }).catch(function(error) {
                 notification('error', 'Ooops! Something went wrong. Please try again.')
             })
     }
 
-    function get_academic_prep_lead(month = null, user = null)
-    {
+    function get_academic_prep_lead(month = null, user = null) {
         var today = new Date()
 
         if (!month)
@@ -112,20 +117,19 @@
         var url = window.location.origin + '/api/get/lead/academic-prep/' + month + '/' + user
 
         axios.get(url)
-           .then(function (response) {
-            
+            .then(function(response) {
+
                 var obj = response.data.data
                 academic_prep_chart.data.labels = obj.ctx.label
                 academic_prep_chart.data.datasets[0].data = obj.ctx.dataset
                 academic_prep_chart.update();
 
-            }).catch(function (error) {
+            }).catch(function(error) {
                 notification('error', 'Ooops! Something went wrong. Please try again.')
             })
     }
 
-    function get_career_exp_lead(month = null, user = null)
-    {
+    function get_career_exp_lead(month = null, user = null) {
         var today = new Date()
 
         if (!month)
@@ -137,14 +141,14 @@
         var url = window.location.origin + '/api/get/lead/career-exploration/' + month + '/' + user
 
         axios.get(url)
-           .then(function (response) {
-            
+            .then(function(response) {
+
                 var obj = response.data.data
                 career_exp_chart.data.labels = obj.ctx.label
                 career_exp_chart.data.datasets[0].data = obj.ctx.dataset
                 career_exp_chart.update();
 
-            }).catch(function (error) {
+            }).catch(function(error) {
                 notification('error', 'Ooops! Something went wrong. Please try again.')
             })
     }
@@ -195,6 +199,7 @@
             datasets: [{
                 label: '',
                 data: dataset_leadsource,
+                backgroundColor: background,
                 borderWidth: 1,
                 borderRadius: 20,
             }]
@@ -240,6 +245,7 @@
             datasets: [{
                 label: '',
                 data: dataset_conversion,
+                backgroundColor: background,
                 borderWidth: 1,
                 borderRadius: 20,
             }]
@@ -274,18 +280,19 @@
 
     const dataset_admconversion_label = [];
     const dataset_admconversion = [];
+    const dataset_admbackground = [];
     @foreach ($adminssionMentoringConvLead as $source)
         dataset_admconversion_label.push('{{ $source->conversion_lead }}')
         dataset_admconversion.push('{{ $source->conversion_lead_count }}')
     @endforeach
-
     var admission_lead_chart = new Chart(admLead, {
         type: 'pie',
         data: {
             labels: dataset_admconversion_label,
             datasets: [{
-                label: '',
+                label: 'Total',
                 data: dataset_admconversion,
+                backgroundColor: background,
                 borderWidth: 1,
                 borderRadius: 3,
             }]
@@ -320,8 +327,9 @@
         data: {
             labels: dataset_acaconversion_label,
             datasets: [{
-                label: '',
+                label: 'Total',
                 data: dataset_acaconversion,
+                backgroundColor: background,
                 borderWidth: 1,
                 borderRadius: 3,
             }]
@@ -356,8 +364,9 @@
         data: {
             labels: dataset_carconversion_label,
             datasets: [{
-                label: '',
+                label: 'Total',
                 data: dataset_carconversion,
+                backgroundColor: background,
                 borderWidth: 1,
                 borderRadius: 3,
             }]
