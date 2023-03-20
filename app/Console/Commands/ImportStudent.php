@@ -23,6 +23,7 @@ use App\Models\UserClient;
 use App\Models\v1\Student;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -115,7 +116,7 @@ class ImportStudent extends Command
         } catch (Exception $e) {
             
             DB::rollBack();
-            Log::warning('Failed to import student : '. $e->getMessage());
+            Log::warning('Failed to import student : '. $e->getMessage() .' | Line : '. $e->getLine());
 
         }
 
@@ -283,13 +284,165 @@ class ImportStudent extends Command
                 }
             }
 
+            $sec_phone_info = $sec_mail_info = null;
+            $student_phone = $phone1 = $this->getValueWithoutSpace($student->st_phone);
+            if ($student_phone != NULL) 
+            {
+                # check the phone number
+                # if it's more than one phone number 
+                # then split into 2 variables
+                if (stripos($student_phone, ','))
+                {
+                    $exp_phone = explode(',', $student_phone);
+                    $combination1 = $phone1 = trim($exp_phone[0]);
+                    $combination2 = $phone2 = trim($exp_phone[1]);
+
+                    if (preg_match('#(?<=\d) (?=[a-z]|\()#i', $combination1)) {
+                        [$phone1, $phone1_desc] = preg_split('#(?<=\d) (?=[a-z]|\()#i', $combination1);
+                    }
+
+                    if (preg_match('#(?<=\d) (?=[a-z]|\()#i', $combination2) && $combination2 != NULL && $combination2 != '') {
+                        [$phone2, $phone2_desc] = preg_split('#(?<=\d) (?=[a-z]|\()#i', $combination2);
+                    }
+                    
+                } elseif (stripos($student_phone, ';')) {
+
+                    $exp_phone = explode(';', $student_phone);
+                    $combination1 = $phone1 = $exp_phone[0];
+                    $combination2 = $phone2 = $exp_phone[1];
+
+                    if (preg_match('#(?<=\d) (?=[a-z]|\()#i', $combination1)) {
+                        [$phone1, $phone1_desc] = preg_split('#(?<=\d) (?=[a-z]|\()#i', $combination1);
+                    }
+
+                    if (preg_match('#(?<=\d) (?=[a-z]|\()#i', $combination2) && $combination2 != NULL && $combination2 != '') {
+                        [$phone2, $phone2_desc] = preg_split('#(?<=\d) (?=[a-z]|\()#i', $combination2);
+                    }
+                    
+                } else {
+                    if (preg_match('#(?<=\d) (?=[a-z]|\()#i', $student_phone)) {
+                        if (count(preg_split('#(?<=\d) (?=[a-z]|\()#i', $student_phone)) > 2) {
+                            [$phone1, $combination, $phone2_desc] = preg_split('#(?<=\d) (?=[a-z]|\()#i', $student_phone);
+                            [$phone1_desc, $phone_2] = preg_split('#(?<=) (?=[0-9])#i', $combination);
+                        } else {
+                            [$phone1, $phone1_desc] = preg_split('#(?<=\d) (?=[a-z]|\()#i', $student_phone);
+                        }
+                    }
+                }
+                
+                # remove , from phone number
+                $phone1 = str_replace(',', '', $phone1);
+
+                # remove - from phone number
+                $phone1 = str_replace('-', '', $phone1);
+                
+                # remove space from phone number
+                $phone1 = str_replace(' ', '', $phone1);
+    
+                # add the normalization indonesian number +62
+                switch (substr($phone1, 0, 1)) {
+                    
+                    # check if the first character is 0
+                    case 0:
+                        $phone1 = "+62".substr($phone1, 1);
+                        break;
+
+                    # check if the first character is 6 like 62
+                    case 6: 
+                        $phone1 = "+".$phone1;
+                        break;
+
+                }
+            
+                if (isset($phone2) && $phone2 != "" && $phone2 != NULL)
+                {
+                    # remove , from phone number
+                    $phone2 = str_replace(',', '', $phone2);
+                
+                    # remove - from phone number
+                    $phone2 = str_replace('-', '', $phone2);
+                    
+                    # remove space from phone number
+                    $phone2 = str_replace(' ', '', $phone2);
+    
+                    # check if the first character is 0
+                    switch (substr($phone2, 0, 1)) {
+                    
+                        # check if the first character is 0
+                        case 0:
+                            $phone2 = "+62".substr($phone2, 1);
+                            break;
+    
+                        # check if the first character is 6 like 62
+                        case 6: 
+                            $phone2 = "+".$phone2;
+                            break;
+    
+                    }
+
+                    $sec_phone_info = [
+                        'category' => 'phone',
+                        'value' => $phone2,
+                        'description' => $phone2_desc ?? NULL,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ];
+                }
+            }
+
+            # check the email
+            # if he/she has more than one email address
+            if ($mail1 = $this->getValueWithoutSpace($student->st_mail))
+            {
+                $student_mail = $mail1;
+                if (stripos($student_mail, ','))
+                {
+                    $exp_mail = explode(',', $student_mail);
+                    $mail1 = trim($exp_mail[0]);
+                    $mail2 = trim($exp_mail[1]);
+
+                    if ($mail2 != NULL && $mail2 != "" && !empty($mail2)) {
+                        $sec_mail_info = [
+                            'category' => 'mail',
+                            'value' => $mail2,
+                            'description' => NULL,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
+                        ];
+                    }
+                } 
+                else if (stripos($student_mail, ';'))
+                {
+                    $exp_mail = explode(';', $student_mail);
+                    $mail1 = trim($exp_mail[0]);
+                    $mail2 = trim($exp_mail[1]);
+
+                    if ($mail2 != NULL && $mail2 != "") {
+                        $sec_mail_info = [
+                            'category' => 'mail',
+                            'value' => $mail2,
+                            'description' => NULL,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
+                        ];
+                    }
+                }
+                
+            }
+
+            if (isset($phone1_desc))
+            {
+                $phone1_desc = preg_match('#([a-z])#i', $phone1_desc) ? $phone1_desc : NULL;
+            }
+
             # import a new student
             $studentDetails = [
                 'st_id' => $studentId ?? null,
                 'first_name' => $this->getValueWithoutSpace($student->st_firstname),
                 'last_name' => $this->getValueWithoutSpace($student->st_lastname),
-                'mail' => $this->getValueWithoutSpace($student->st_mail),
-                'phone' => $this->getValueWithoutSpace($student->st_phone),
+                'mail' => $mail1,
+                'phone' => $phone1,
+                'phone_desc' => $phone1_desc ?? null,
                 'dob' => $this->getValueWithoutSpace($student->st_dob),
                 'insta' => $this->getValueWithoutSpace($student->st_insta),
                 'state' => $this->getValueWithoutSpace($student->st_state),
@@ -309,6 +462,24 @@ class ImportStudent extends Command
             ];
 
             $selectedStudent = $this->clientRepository->createClient('Student', $studentDetails);
+
+            if ($sec_mail_info || $sec_phone_info)
+            {
+                $additionalInfo = [];
+                if ($sec_mail_info) {
+                    $sec_mail_info['client_id'] = $selectedStudent->id;
+                    array_push($additionalInfo, $sec_mail_info);
+                }
+
+                if ($sec_phone_info) {
+                    $sec_phone_info['client_id'] = $selectedStudent->id;
+                    array_push($additionalInfo, $sec_phone_info);
+                }
+
+                # insert secondary email or phone number 
+                # into student additional info
+                $this->clientRepository->createClientAdditionalInfo($additionalInfo);
+            }
         }  
         // $this->info('Child Name : '.$selectedStudent->first_name.' '.$selectedStudent->last_name.'\n');
         return $selectedStudent->id;
@@ -376,6 +547,25 @@ class ImportStudent extends Command
             # if the parent does not exist in database v2
             if (!$parent = $this->clientRepository->getParentByParentName($parentName))
             {
+                $parents_phone = $this->getValueWithoutSpace($studentHasParent->pr_phone);
+                if ($parents_phone != NULL)
+                {
+                    $parents_phone = str_replace('-', '', $parents_phone);
+                    $parents_phone = str_replace(' ', '', $parents_phone);
+
+                    switch (substr($parents_phone, 0, 1)) {
+
+                        case 0:
+                            $parents_phone = "+62".substr($parents_phone, 1);
+                            break;
+
+                        case 6:
+                            $parents_phone = "+".$parents_phone;
+                            break;
+
+                    }
+                }
+
                 $parentDetails = [
                     'first_name' => $this->getValueWithoutSpace($studentHasParent->pr_firstname),
                     'last_name' => $this->getValueWithoutSpace($studentHasParent->pr_lastname),
@@ -534,6 +724,6 @@ class ImportStudent extends Command
 
     private function getValueWithoutSpace($value)
     {
-        return $value == "" || $value == "0000-00-00" ? NULL : $value;
+        return $value == "" || $value == "0000-00-00" || $value == 'N/A' ? NULL : $value;
     }
 }

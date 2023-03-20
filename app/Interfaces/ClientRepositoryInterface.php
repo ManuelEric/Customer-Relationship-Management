@@ -14,6 +14,7 @@ interface ClientRepositoryInterface
     public function checkIfClientIsMentee($clientId);
     public function deleteClient($clientId);
     public function createClient($role, array $clientDetails);
+    public function createClientAdditionalInfo(array $infoDetails);
     public function addRole($clientId, $role);
     public function removeRole($clientId, $role);
     public function getParentsByStudentId($studentId);

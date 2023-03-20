@@ -568,7 +568,7 @@
                         var html = '<span class="me-2 '+ textStyling +'">'+
                                         '<i class="bi '+ icon +'"></i>' +
                                         obj[index]['percentage'] + '%' +
-                                    '</span><span>Since last month</span>'
+                                    '</span><span>Since before</span>'
 
                     } else {
                     

@@ -29,7 +29,7 @@ Route::get('404', function() {
 
 Route::get('login', function () {
     return view('auth.login');
-})->name('login');
+})->middleware('guest')->name('login');
 
 Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
 

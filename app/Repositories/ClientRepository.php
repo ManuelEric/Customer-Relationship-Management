@@ -9,6 +9,7 @@ use App\Interfaces\RoleRepositoryInterface;
 use App\Models\Client;
 use App\Models\Tag;
 use App\Models\UserClient;
+use App\Models\UserClientAdditionalInfo;
 use App\Models\v1\Student as CRMStudent;
 use App\Models\v1\StudentParent as CRMParent;
 use DataTables;
@@ -262,6 +263,11 @@ class ClientRepository implements ClientRepositoryInterface
             ]);   
 
         return $client;
+    }
+
+    public function createClientAdditionalInfo(array $infoDetails)
+    {
+        return UserClientAdditionalInfo::insert($infoDetails);
     }
 
     public function addRole($clientId, $role)

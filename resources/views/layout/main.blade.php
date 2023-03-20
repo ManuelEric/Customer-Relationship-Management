@@ -28,7 +28,7 @@
                 </div>
                 <div>
                     <a class="navbar-brand brand-logo" href="{{ url('dashboard') }}">
-                        <img src="{{ asset('library/dashboard/images/logo.svg') }}" alt="logo" />
+                        <img src="{{ asset('img/logo.png') }}" alt="logo" class="h-auto" />
                     </a>
                     <a class="navbar-brand brand-logo-mini" href="{{ url('dashboard') }}">
                         <img src="{{ asset('library/dashboard/images/logo-mini.svg') }}" alt="logo" />
