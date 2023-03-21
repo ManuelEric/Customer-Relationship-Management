@@ -14,9 +14,9 @@
      </div>
      <div class="card-body">
          <div class="list-group">
-                @forelse ($speakers as $speaker)    
+                @forelse ($speakers as $speaker)   
                     <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class="">
+                        <div class=""> 
                             @switch($speaker->speaker_type)
                                 @case('partner')
                                     <div class="">{{ $speaker->partner_pic_name }}</div>
@@ -42,6 +42,7 @@
                                     </option>
                                 @endif
                             </select>
+
                             <i class="bi bi-trash2 text-danger cursor-pointer ms-2"
                                 onclick="confirmDelete('program/school/{{ $school->sch_id }}/detail/{{ $schoolProgram->id }}/speaker', '{{ $speaker->agenda_id }}')">
 

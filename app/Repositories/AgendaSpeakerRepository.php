@@ -91,7 +91,7 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
 
     public function getAllSpeakerByPartnerProgram($partnerProgId)
     {
-        return AgendaSpeaker::where('partner_prog_id', $partnerProgId)->get();
+        return Agenda::where('partner_prog_id', $partnerProgId)->get();
     }
 
     public function getAllSpeakerByEventAndMonthAndYear($eventId, $month, $year): JsonResponse

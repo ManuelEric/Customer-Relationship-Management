@@ -111,6 +111,9 @@
     
                     @foreach ($menus as $key => $menu)
                     <li class="nav-item">
+                        @php
+                            $key = $key == 'Users' ? 'User' : $key;
+                        @endphp
                         <a class="nav-link  {{ Request::is(strtolower($key).'*') ? 'text-primary' : '' }}" data-bs-toggle="collapse"
                             href="#{{strtolower($key)}}" aria-expanded="false" aria-controls="{{strtolower($key)}}">
                             <i class="{{$menu[0]['icon']}} mx-2"></i>
@@ -120,8 +123,16 @@
                         <div class="collapse {{ Request::is(strtolower($key).'*') ? 'show' : 'hide' }}" id="{{strtolower($key)}}">
                             <ul class="nav flex-column sub-menu">
                                 @foreach ($menu as $key => $submenu)
-                                    <li class="nav-item"> <a
-                                        class="nav-link {{ Request::is($submenu['submenu_link'] . '*') ? 'active' : '' }}"
+                                    @php
+                                        $submenu_link = $submenu['submenu_link'];
+                                    @endphp
+                                    @if ($position = strpos($submenu['submenu_link'], '?'))
+                                        @php
+                                            $submenu_link = substr($submenu['submenu_link'], 0, $position);
+                                        @endphp
+                                    @endif
+                                    <li class="nav-item"> 
+                                        <a class="nav-link {{ Request::is($submenu_link . '*') ? 'active' : '' }}"
                                         href="{{ url($submenu['submenu_link']) }}">{{$submenu['submenu_name']}}</a>
                                     </li>
                                 @endforeach
