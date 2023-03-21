@@ -445,6 +445,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client.eduf_id')
             ->leftJoin('tbl_events', 'tbl_events.event_id', 'tbl_client.event_id')
             ->select([
+                'color_code',
                 DB::raw('(CASE 
                     WHEN tbl_lead.main_lead = "KOL" THEN CONCAT("KOL: ", tbl_lead.sub_lead)
                     WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT("External Edufair: ", tbl_eduf_lead.title)
@@ -483,6 +484,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->leftJoin('tbl_client_event', 'tbl_client_event.clientevent_id', '=', 'tbl_client_prog.clientevent_id')
             ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
             ->select([
+                'color_code',
                 DB::raw('(CASE 
                     WHEN tbl_lead.main_lead = "KOL" THEN CONCAT("KOL: ", tbl_lead.sub_lead)
                     WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT("External Edufair: ", tbl_eduf_lead.title)

@@ -22,7 +22,22 @@ class Lead extends Model
         'main_lead',
         'sub_lead',
         'score',
+        'color_code',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($query) {
+            $query->color_code = self::getColorCodeAttribute();
+        });
+    }
+
+    public static function getColorCodeAttribute()
+    {
+        return '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+    }
 
     public static function whereLeadId($id)
     {

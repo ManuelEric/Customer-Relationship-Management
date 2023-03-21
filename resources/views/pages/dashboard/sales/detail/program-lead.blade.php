@@ -232,12 +232,13 @@
     const progLead = document.getElementById('programLead');
 
     const dataset_conversion_label = [];
-    const dataset_conversion = [];
+    const dataset_conversion = []; 
+    const bgset_conversion = [];
     @foreach ($conversionLeads as $source)
+        bgset_conversion.push('{{ $source->color_code }}')
         dataset_conversion_label.push('{{ $source->conversion_lead }}')
         dataset_conversion.push('{{ $source->conversion_lead_count }}')
     @endforeach
-
     var conversion_lead_chart = new Chart(progLead, {
         type: 'bar',
         data: {
@@ -245,7 +246,7 @@
             datasets: [{
                 label: '',
                 data: dataset_conversion,
-                backgroundColor: background,
+                backgroundColor: bgset_conversion,
                 borderWidth: 1,
                 borderRadius: 20,
             }]
@@ -281,7 +282,9 @@
     const dataset_admconversion_label = [];
     const dataset_admconversion = [];
     const dataset_admbackground = [];
+    const bgset_admconversion = [];
     @foreach ($adminssionMentoringConvLead as $source)
+        bgset_admconversion.push('{{ $source->color_code }}')
         dataset_admconversion_label.push('{{ $source->conversion_lead }}')
         dataset_admconversion.push('{{ $source->conversion_lead_count }}')
     @endforeach
@@ -292,7 +295,7 @@
             datasets: [{
                 label: 'Total',
                 data: dataset_admconversion,
-                backgroundColor: background,
+                backgroundColor: bgset_admconversion,
                 borderWidth: 1,
                 borderRadius: 3,
             }]
@@ -317,7 +320,9 @@
 
     const dataset_acaconversion_label = [];
     const dataset_acaconversion = [];
+    const bgset_acaconversion = [];
     @foreach ($academicTestPrepConvLead as $source)
+        bgset_acaconversion.push('{{ $source->color_code }}')
         dataset_acaconversion_label.push('{{ $source->conversion_lead }}')
         dataset_acaconversion.push('{{ $source->conversion_lead_count }}')
     @endforeach
@@ -329,7 +334,7 @@
             datasets: [{
                 label: 'Total',
                 data: dataset_acaconversion,
-                backgroundColor: background,
+                backgroundColor: bgset_acaconversion,
                 borderWidth: 1,
                 borderRadius: 3,
             }]
@@ -354,7 +359,9 @@
 
     const dataset_carconversion_label = [];
     const dataset_carconversion = [];
+    const bgset_carconversion = [];
     @foreach ($careerExplorationConvLead as $source)
+        bgset_carconversion.push('{{ $source->color_code }}')
         dataset_carconversion_label.push('{{ $source->conversion_lead }}')
         dataset_carconversion.push('{{ $source->conversion_lead_count }}')
     @endforeach
@@ -366,7 +373,7 @@
             datasets: [{
                 label: 'Total',
                 data: dataset_carconversion,
-                backgroundColor: background,
+                backgroundColor: bgset_carconversion,
                 borderWidth: 1,
                 borderRadius: 3,
             }]
