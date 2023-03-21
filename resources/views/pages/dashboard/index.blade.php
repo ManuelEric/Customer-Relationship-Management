@@ -6,21 +6,32 @@
 
     {{-- Sales --}}
     @if ($isSales || $isAdmin)
+        <h3 class="my-3">
+            <i class="bi bi-person me-2"></i>
+            Sales Dashboard</h3>
         @include('pages.dashboard.sales.index')
     @endif
     {{-- Partnership --}}
     @if ($isPartnership || $isAdmin)
+        <h3 class="my-3">
+            <i class="bi bi-building me-2"></i>
+            Partnership Dashboard
+        </h3>
         @include('pages.dashboard.partnership.index')
     @endif
     {{-- Finance  --}}
     @if ($isFinance || $isAdmin)
+        <h3 class="my-3">
+            <i class="bi bi-currency-dollar me-2"></i>
+            Finance Dashboard
+        </h3>
         @include('pages.dashboard.finance.index')
     @endif
 
 
     <script>
         $(".btn-compare").on('click', function() {
-            
+
             let prog = $("select[name='q-program']").val();
             var first_year = $("select[name='q-first-year']").val();
             var second_year = $("select[name='q-second-year']").val();
@@ -35,26 +46,28 @@
             url.searchParams.append('u', user)
 
             axios.get(url)
-            .then(function (response) {
-                
-                let html = null
-                const obj = response.data.data
+                .then(function(response) {
 
-                var no = 1;
-                obj.forEach(function(item, index) {
-                    html += "<tr>" +
+                    let html = null
+                    const obj = response.data.data
+
+                    var no = 1;
+                    obj.forEach(function(item, index) {
+                        html += "<tr>" +
                             "<td class='text-center'>" + no++ + "</td>" +
                             "<td>" + item.prog_name + ": " + item.prog_program + "</td>" +
-                            "<td class='text-center'>" + formatRupiah(item.revenue_year1).replace('Rp', '') + "</td>" +
-                            "<td class='text-center'>" + formatRupiah(item.revenue_year2).replace('Rp', '')  + "</td>" +
-                        "</tr>"
+                            "<td class='text-center'>" + formatRupiah(item.revenue_year1).replace('Rp',
+                                '') + "</td>" +
+                            "<td class='text-center'>" + formatRupiah(item.revenue_year2).replace('Rp',
+                                '') + "</td>" +
+                            "</tr>"
+                    })
+
+                    $("#comparison-table tbody").html(html)
+
+                }).catch(function(error) {
+                    console.log(error)
                 })
-
-                $("#comparison-table tbody").html(html)
-
-            }).catch(function (error) {
-                console.log(error)
-            })
 
         })
 
@@ -70,13 +83,14 @@
             urlParams.set('type', type)
             urlParams.set('tab', tab)
             window.location.search = urlParams
-            return            
+            return
         }
-        
+
         const formatRupiah = (money) => {
-            return new Intl.NumberFormat('id-ID',
-                { style: 'currency', currency: 'IDR' }
-            ).format(money);
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR'
+            }).format(money);
         }
     </script>
     <script type="text/javascript">
@@ -88,7 +102,7 @@
             var year = $("#qclient-event-year").val()
 
             reloadChart(month, uuid, year)
-            
+
         })
 
         $('.select-pc').select2({
@@ -97,7 +111,7 @@
         });
 
         $(".qdate").on('change', function() {
-    
+
             var month = $(this).val()
             $(".qdate").val(month)
             var uuid = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()

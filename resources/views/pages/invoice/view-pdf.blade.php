@@ -44,6 +44,8 @@
             var file = "{{ asset($invoiceAttachment->attachment) }}"
         @endif
 
+        var file = '{{asset('')}}'
+
         var pdf = new PDFAnnotate("pdf-container", file, {
             onPageUpdated(page, oldData, newData) {
                 console.log(page, oldData, newData);

@@ -1,8 +1,3 @@
-@if ($totalClientInformation['potential']['new'] == 0)
-    @php
-        $potentialHidden = "d-none";
-    @endphp
-@endif
 <div class="card mb-3">
     <div class="card-body">
         <div class="row justify-content-between g-1 mb-2">
@@ -16,14 +11,15 @@
                     </div>
                     <div class="col-md-6 text-end d-none" id="monthly" onchange="checkMonthly()">
                         <input type="month" name="" id="client_status_month"
-                            class="form-control form-control-sm" value="{{ isset($filter_bymonth) ? $filter_bymonth : date('Y-m') }}">
+                            class="form-control form-control-sm"
+                            value="{{ isset($filter_bymonth) ? $filter_bymonth : date('Y-m') }}">
                     </div>
                 </div>
             </div>
             <div class="col-md-4 text-end">
-                
-                <button type="button" id="btn-follow-up" class="btn btn-sm btn-info position-relative pe-3" style="font-size: 11px"
-                    data-bs-toggle="modal" data-bs-target="#follow_up">
+
+                <button type="button" id="btn-follow-up" class="btn btn-sm btn-info position-relative pe-3"
+                    style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#follow_up">
                     Follow Up Reminder
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                         style="font-size: 11px">
@@ -31,8 +27,8 @@
                     </span>
                 </button>
 
-                <button type="button" id="btn-mentees-birthday" class="btn btn-sm btn-info position-relative ms-3 pe-3" style="font-size: 11px"
-                    data-bs-toggle="modal" data-bs-target="#birthday">
+                <button type="button" id="btn-mentees-birthday" class="btn btn-sm btn-info position-relative ms-3 pe-3"
+                    style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#birthday">
                     Mentee's Birthday
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                         style="font-size: 11px">
@@ -51,7 +47,11 @@
                             <h3 class="p-0 client-status ms-auto">
                                 {{ $totalClientInformation['prospective']['old'] }}
                                 @if ($totalClientInformation['prospective']['new'] != 0)
-                                <sup class="text-primary fs-6">({{ $totalClientInformation['prospective']['new'] }} New)</sup>    
+                                <sup>
+                                    <span class="badge bg-primary text-white p-1 px-2">
+                                        <small>{{ $totalClientInformation['prospective']['new'] }} New</small>
+                                    </span>
+                                </sup>
                                 @endif
                             </h3>
                         </div>
@@ -79,7 +79,13 @@
                         <div class="d-flex">
                             <h5 class="p-0 m-0">Potential <br> Client</h5>
                             <h3 class="p-0 m-0 client-status ms-auto">{{ $totalClientInformation['potential']['old'] }}
-                                <sup class="text-primary fs-6 {{ $potentialHidden }}">({{ $totalClientInformation['potential']['new'] }} New)</sup>
+                                @if ($totalClientInformation['potential']['new'] != 0)
+                                <sup>
+                                    <span class="badge bg-primary text-white p-1 px-2">
+                                        <small>{{ $totalClientInformation['potential']['new'] }} New</small>
+                                    </span>
+                                </sup>
+                                @endif
                             </h3>
                         </div>
                         <div class="mt-3 border-top pt-3">
@@ -109,7 +115,11 @@
                             <h3 class="p-0 client-status ms-auto">
                                 {{ $totalClientInformation['current']['old'] }}
                                 @if ($totalClientInformation['current']['new'] != 0)
-                                <sup class="text-primary fs-6">({{ $totalClientInformation['current']['new'] }} New)</sup>    
+                                <sup>
+                                    <span class="badge bg-primary text-white p-1 px-2">
+                                        <small>{{ $totalClientInformation['current']['new'] }} New</small>
+                                    </span>
+                                </sup>
                                 @endif
                             </h3>
                         </div>
@@ -140,7 +150,11 @@
                             <h3 class="p-0 client-status ms-auto">
                                 {{ $totalClientInformation['completed']['old'] }}
                                 @if ($totalClientInformation['completed']['new'] != 0)
-                                <sup class="text-primary fs-6">({{ $totalClientInformation['completed']['new'] }} New)</sup>    
+                                <sup>
+                                    <span class="badge bg-primary text-white p-1 px-2">
+                                        <small>{{ $totalClientInformation['completed']['new'] }} New</small>
+                                    </span>
+                                </sup>
                                 @endif
                             </h3>
                         </div>
@@ -171,7 +185,11 @@
                             <h3 class="p-0 client-status ms-auto">
                                 {{ $totalClientInformation['mentee']['old'] }}
                                 @if ($totalClientInformation['mentee']['new'] != 0)
-                                <sup class="text-primary fs-6">({{ $totalClientInformation['mentee']['new'] }} New)</sup>    
+                                <sup>
+                                    <span class="badge bg-primary text-white p-1 px-2">
+                                        <small>{{ $totalClientInformation['mentee']['new'] }} New</small>
+                                    </span>
+                                </sup>
                                 @endif
                             </h3>
                         </div>
@@ -202,7 +220,11 @@
                             <h3 class="p-0 client-status ms-auto">
                                 {{ $totalClientInformation['alumni']['old'] }}
                                 @if ($totalClientInformation['alumni']['new'] != 0)
-                                <sup class="text-primary fs-6">({{ $totalClientInformation['alumni']['new'] }} New)</sup>    
+                                <sup>
+                                    <span class="badge bg-primary text-white p-1 px-2">
+                                        <small>{{ $totalClientInformation['alumni']['new'] }} New</small>
+                                    </span>
+                                </sup>
                                 @endif
                             </h3>
                         </div>
@@ -233,7 +255,11 @@
                             <h3 class="p-0 client-status ms-auto">
                                 {{ $totalClientInformation['parent']['old'] }}
                                 @if ($totalClientInformation['parent']['new'] != 0)
-                                <sup class="text-primary fs-6">({{ $totalClientInformation['parent']['new'] }} New)</sup>    
+                                <sup>
+                                    <span class="badge bg-primary text-white p-1 px-2">
+                                        <small>{{ $totalClientInformation['parent']['new'] }} New</small>
+                                    </span>
+                                </sup>
                                 @endif
                             </h3>
                         </div>
@@ -263,8 +289,12 @@
                             <h5 class="p-0 m-0">Teacher/Counselor <br> Total</h5>
                             <h3 class="p-0 client-status ms-auto">
                                 {{ $totalClientInformation['teacher_counselor']['old'] }}
-                                @if ($totalClientInformation['teacher_counselor']['new'] != 0)
-                                <sup class="text-primary fs-6">({{ $totalClientInformation['teacher_counselor']['new'] }} New)</sup>    
+                                @if ($totalClientInformation['teacher_counselor']['new'] != 0)  
+                                <sup>
+                                    <span class="badge bg-primary text-white p-1 px-2">
+                                        <small>{{ $totalClientInformation['teacher_counselor']['new'] }} New</small>
+                                    </span>
+                                </sup>
                                 @endif
                             </h3>
                         </div>
@@ -370,7 +400,8 @@
 </div>
 
 <!-- Follow Up -->
-<div class="modal modal-lg fade" id="follow_up" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal modal-lg fade" id="follow_up" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -379,55 +410,54 @@
             </div>
             <div class="modal-body" id="modal-body">
                 @foreach ($followUpReminder as $key => $detail)
-                <h6>
-                    @php
-                        $opener = "(";
-                        $closer = ")";
-                    @endphp
-                    @switch(date('d', strtotime($key))-date('d'))
-                        @case(0)
-                            Today
-                            @break
-
-                        @case(1)
-                            Tomorrow
-                            @break
-
-                        @case(2)
-                            The day after tomorrow
-                            @break
-
-                        @default
+                    <h6>
                         @php
-                            $opener = null;
-                            $closer = null;
+                            $opener = '(';
+                            $closer = ')';
                         @endphp
-                            
-                    @endswitch
-                    {{ $opener. date('D, d M Y', strtotime($key)). $closer }}
-                </h6>
-                <div class="overflow-auto mb-3" style="height: 150px">
-                    <ul class="list-group">
-                        @foreach($detail as $info)
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div class="">
-                                    <p class="m-0 p-0 lh-1">{{ $info->clientProgram->client->full_name }}</p>
-                                    <small class="m-0">{{ $info->clientProgram->program_name }}</small>
-                                </div>
-                                <div class="">
-                                    <input class="form-check-input me-1" type="checkbox" value="1" @checked($info->status == 1)
-                                        id="mark_{{ $loop->index }}" 
-                                            data-student="{{ $info->clientProgram->client->id }}" 
+                        @switch(date('d', strtotime($key))-date('d'))
+                            @case(0)
+                                Today
+                            @break
+
+                            @case(1)
+                                Tomorrow
+                            @break
+
+                            @case(2)
+                                The day after tomorrow
+                            @break
+
+                            @default
+                                @php
+                                    $opener = null;
+                                    $closer = null;
+                                @endphp
+                        @endswitch
+                        {{ $opener . date('D, d M Y', strtotime($key)) . $closer }}
+                    </h6>
+                    <div class="overflow-auto mb-3" style="height: 150px">
+                        <ul class="list-group">
+                            @foreach ($detail as $info)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="">
+                                        <p class="m-0 p-0 lh-1">{{ $info->clientProgram->client->full_name }}</p>
+                                        <small class="m-0">{{ $info->clientProgram->program_name }}</small>
+                                    </div>
+                                    <div class="">
+                                        <input class="form-check-input me-1" type="checkbox" value="1"
+                                            @checked($info->status == 1) id="mark_{{ $loop->index }}"
+                                            data-student="{{ $info->clientProgram->client->id }}"
                                             data-program="{{ $info->clientProgram->clientprog_id }}"
                                             data-followup="{{ $info->id }}"
                                             onchange="marked({{ $loop->index }})">
-                                    <label class="form-check-label" for="mark_{{ $loop->index }}">Done</label>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-                <hr>
+                                        <label class="form-check-label" for="mark_{{ $loop->index }}">Done</label>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <hr>
                 @endforeach
             </div>
         </div>
@@ -451,7 +481,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <button type="button" class="btn btn-sm btn-outline-danger"
                             onclick="cancelMarked()">Cancel</button>
-                        <button type="submit" id="btn-submit-followup" class="btn btn-sm btn-primary" onclick="tinyMCE.triggerSave(true,true);">Submit</button>
+                        <button type="submit" id="btn-submit-followup" class="btn btn-sm btn-primary"
+                            onclick="tinyMCE.triggerSave(true,true);">Submit</button>
                     </div>
                 </form>
             </div>
@@ -476,7 +507,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <button type="button" class="btn btn-sm btn-outline-danger"
                             onclick="backMarked()">No</button>
-                        <button type="submit" id="btn-cancel-followup" class="btn btn-sm btn-primary">Yes, Cancel</button>
+                        <button type="submit" id="btn-cancel-followup" class="btn btn-sm btn-primary">Yes,
+                            Cancel</button>
                     </div>
                 </form>
             </div>
@@ -550,8 +582,8 @@
         var url = window.location.origin + '/api/get/client-status/' + month
 
         axios.get(url)
-            .then(function (response) {
-                
+            .then(function(response) {
+
                 var obj = response.data.data
 
                 $(".client-status").each(function(index) {
@@ -606,17 +638,17 @@
                 })
                 swal.close()
 
-            }).catch(function (error) {
+            }).catch(function(error) {
                 swal.close()
                 notification('error', 'Ooops! Something went wrong. Please try again.')
             })
-        
+
         getFollowUpReminder(month)
         getMenteesBirthday(month)
     }
 
     function getFollowUpReminder(month) {
-        
+
         var today = new Date()
 
         if (!month)
@@ -625,8 +657,8 @@
         var url = window.location.origin + '/api/get/follow-up-reminder/' + month
 
         axios.get(url)
-            .then(function (response) {
-                
+            .then(function(response) {
+
                 var obj = response.data.data
                 if (obj.length == 0) {
 
@@ -642,8 +674,8 @@
                 }
                 $("#modal-body").html(obj.html_txt)
 
-            }).catch(function (error) {
-                
+            }).catch(function(error) {
+
                 notification('error', 'Ooops! Something went wrong. Please try again.')
             })
     }
@@ -658,8 +690,8 @@
         var url = window.location.origin + '/api/get/mentee-birthday/' + month
 
         axios.get(url)
-            .then(function (response) {
-            
+            .then(function(response) {
+
                 var obj = response.data.data
                 var total_menteesbirthday = Object.keys(obj).length
 
@@ -672,18 +704,18 @@
                     var dob_str = moment(item['dob']).format('ddd, DD MMM yyyy')
 
                     html += "<tr class='text-center'>" +
-                                "<td>" + no++ + "</td>" +
-                                "<td>" + item['full_name'] + "</td>" +
-                                "<td>" + dob_str + "</td>" +
-                                "<td>" + item['address'] + "</td>" +
-                            "</tr>"
+                        "<td>" + no++ + "</td>" +
+                        "<td>" + item['full_name'] + "</td>" +
+                        "<td>" + dob_str + "</td>" +
+                        "<td>" + item['address'] + "</td>" +
+                        "</tr>"
                 })
 
                 $("#menteesBirthdayTable tbody").html('');
                 $("#menteesBirthdayTable tbody").append(html);
 
-            }).catch(function (error) {
-            
+            }).catch(function(error) {
+
                 notification('error', 'Ooops! Something went wrong. Please try again.')
 
             })
@@ -700,7 +732,7 @@
             var student = mark.data('student')
             var program = mark.data('program')
             var followup = mark.data('followup')
-            var link = 'client/student/'+ student +'/program/'+ program +'/followup/'+ followup;
+            var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
 
             $("#followUpForm").attr('action', link)
 
@@ -710,7 +742,7 @@
             var student = mark.data('student')
             var program = mark.data('program')
             var followup = mark.data('followup')
-            var link = 'client/student/'+ student +'/program/'+ program +'/followup/'+ followup;
+            var link = 'client/student/' + student + '/program/' + program + '/followup/' + followup;
 
             $("#cancelFollowUpForm").attr('action', link)
         }
@@ -736,13 +768,15 @@
         var link = $('#followUpForm').attr('action')
         var data = $('#followUpForm').serialize()
 
-        var obj = [{ "mark" : true }]
+        var obj = [{
+            "mark": true
+        }]
 
         axios.post(link, data + '&' + $.param(obj[0]))
             .then((response) => {
                 Swal.close()
                 notification('success', 'Follow-up has been marked as done')
-                
+
                 $('#follow_up_notes').modal('hide')
 
             }, (error) => {
@@ -759,13 +793,15 @@
         var link = $('#cancelFollowUpForm').attr('action')
         var data = $('#cancelFollowUpForm').serialize()
 
-        var obj = [{ "mark" : false }]
+        var obj = [{
+            "mark": false
+        }]
 
         axios.post(link, data + '&' + $.param(obj[0]))
             .then((response) => {
                 Swal.close()
                 notification('success', 'Follow-up has been marked as waiting')
-                
+
                 $('#cancel_follow_up_notes').modal('hide')
 
             }, (error) => {
@@ -777,8 +813,8 @@
     $("#menteesBirthdayMonth").on('change', function() {
 
         var date = $(this).val()
-        
-        axios.get('{{ url("api/mentee/birthday/") }}/' + date)
+
+        axios.get('{{ url('api/mentee/birthday/') }}/' + date)
             .then((response) => {
                 // console.log(response)
                 var data = response.data.data
@@ -788,11 +824,11 @@
                     var dob_str = moment(item['dob']).format('ddd, DD MMM yyyy')
 
                     html += "<tr class='text-center'>" +
-                                "<td>" + no++ + "</td>" +
-                                "<td>" + item['full_name'] + "</td>" +
-                                "<td>" + dob_str + "</td>" +
-                                "<td>" + item['address'] + "</td>" +
-                            "</tr>"
+                        "<td>" + no++ + "</td>" +
+                        "<td>" + item['full_name'] + "</td>" +
+                        "<td>" + dob_str + "</td>" +
+                        "<td>" + item['address'] + "</td>" +
+                        "</tr>"
                 })
 
                 $("#menteesBirthdayTable tbody").html('');
