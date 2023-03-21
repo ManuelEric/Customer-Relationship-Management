@@ -160,7 +160,7 @@
                                         <td>{{ $programComparison[0]['type'] }}</td>
                                         @if (count($programComparison) > 1)
                                             @foreach ($programComparison as $yearData)
-                                                <td>{{ $yearData['year'] == $startYear ? $yearData[$startYear]['participants'] . ' (Rp. ' . number_format($yearData[$startYear]['total'], '2', ',', '.') . ')' : $yearData['2023']['participants'] . ' (Rp. ' . number_format($yearData['2023']['total'], '2', ',', '.') . ')' }}
+                                                <td>{{ $yearData['year'] == $startYear ? $yearData[$startYear]['participants'] . ' (Rp. ' . number_format($yearData[$startYear]['total'], '2', ',', '.') . ')' : $yearData[$endYear]['participants'] . ' (Rp. ' . number_format($yearData[$endYear]['total'], '2', ',', '.') . ')' }}
                                                 </td>
                                             @endforeach
                                         @else
@@ -309,16 +309,16 @@
                         if (value.length > 1) {
                             Object.entries(value).forEach(entry => {
                                 const [key, value] = entry;
-                                html += "<td>" + (value['year'] === start ? value[start][
-                                    'participants'
-                                ] + ' (' + rupiah(value[start]['total']) + ')' : value[end][
-                                    'participants'
+                                html += "<td>" + (value['year'] === start ?  value[start]['count_program'] + ' | ' + 
+                                    value[start]['participants'
+                                ] + ' (' + rupiah(value[start]['total']) + ')' : value[end]['count_program'] + ' | ' +  
+                                    value[end]['participants'
                                 ] + ' (' + rupiah(value[end]['total']) + ')') + "</td>"
                             })
                         } else {
-                            html += "<td>" + (value[0]['year'] === start ? value[0][start]['participants'] +
+                            html += "<td>" + (value[0]['year'] === start ? value[0][start]['count_program'] + ' | ' + value[0][start]['participants'] +
                                 ' (' + rupiah(value[0][start]['total']) + ')' : '-') + "</td>";
-                            html += "<td>" + (value[0]['year'] === end ? value[0][end]['participants'] +
+                            html += "<td>" + (value[0]['year'] === end ? value[0][end]['count_program'] + ' | ' + value[0][end]['participants'] +
                                 ' (' + rupiah(value[0][end]['total']) + ')' : '-') + "</td>";
                         }
                         html += '</tr>'

@@ -101,6 +101,7 @@ class StoreInvoiceB2bRequest extends FormRequest
             'invdtl_duedate.*' => 'required_if:invb2b_pm,Installment|nullable|date|before_or_equal:invb2b_duedate|after_or_equal:invb2b_date',
             'invdtl_percentage.*' => 'required_if:invb2b_pm,Installment',
             'invdtl_amountidr.*' => 'required_if:invb2b_pm,Installment',
+            'is_full_amount' => 'required|in:0,1'
             // 'date', 'before_or_equal:invb2b_duedate', 'after_or_equal:invb2b_date'
 
 
@@ -142,6 +143,7 @@ class StoreInvoiceB2bRequest extends FormRequest
             'invdtl_percentage_other.*' => 'required_if:invb2b_pm,Installment',
             'invdtl_amount_other.*' => 'required_if:invb2b_pm,Installment',
             'invdtl_amountidr_other.*' => 'required_if:invb2b_pm,Installment',
+            'is_full_amount' => 'required|in:0,1'
 
 
         ];

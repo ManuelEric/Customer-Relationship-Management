@@ -184,8 +184,26 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                             ELSE tbl_prog.prog_program
                         END) AS program_name')
             )
-            ->whereYear('tbl_partner_prog.created_at', '=', $year)
-            ->whereMonth('tbl_partner_prog.created_at', '=', $month)
+            ->whereYear(
+                DB::raw('(CASE
+                            WHEN tbl_partner_prog.status = 0 THEN tbl_partner_prog.created_at
+                            WHEN tbl_partner_prog.status = 1 THEN tbl_partner_prog.success_date
+                            WHEN tbl_partner_prog.status = 2 THEN tbl_partner_prog.denied_date
+                            WHEN tbl_partner_prog.status = 3 THEN tbl_partner_prog.refund_date
+                        END)'),
+                '=',
+                $year
+            )
+            ->whereMonth(
+                DB::raw('(CASE
+                            WHEN tbl_partner_prog.status = 0 THEN tbl_partner_prog.created_at
+                            WHEN tbl_partner_prog.status = 1 THEN tbl_partner_prog.success_date
+                            WHEN tbl_partner_prog.status = 2 THEN tbl_partner_prog.denied_date
+                            WHEN tbl_partner_prog.status = 3 THEN tbl_partner_prog.refund_date
+                        END)'),
+                '=',
+                $month
+            )
             ->where('tbl_partner_prog.status', $status)
             ->get();
     }
@@ -196,9 +214,26 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
         $month = date('m', strtotime($monthYear));
 
         return PartnerProg::select('status', DB::raw('sum(total_fee) as total_fee'), DB::raw('count(*) as count_status'))
-            ->whereYear('created_at', '=', $year)
-            ->whereMonth('created_at', '=', $month)
-            ->groupBy('status')
+            ->whereYear(
+                DB::raw('(CASE
+                            WHEN status = 0 THEN created_at
+                            WHEN status = 1 THEN success_date
+                            WHEN status = 2 THEN denied_date
+                            WHEN status = 3 THEN refund_date
+                        END)'),
+                '=',
+                $year
+            )
+            ->whereMonth(
+                DB::raw('(CASE
+                            WHEN status = 0 THEN created_at
+                            WHEN status = 1 THEN success_date
+                            WHEN status = 2 THEN denied_date
+                            WHEN status = 3 THEN refund_date
+                        END)'),
+                '=',
+                $month
+            )
             ->get();
     }
 
@@ -281,9 +316,13 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                             ELSE tbl_prog.prog_program
                         END) AS program_name'),
                 DB::raw("'Partner Program' as type"),
-                DB::raw('SUM(participants) as participants'),
+                DB::raw('(CASE 
+                            WHEN SUM(participants) is null THEN 0
+                            ELSE SUM(participants)
+                        END) as participants'),
                 DB::raw('DATE_FORMAT(success_date, "%Y") as year'),
                 DB::raw("SUM(total_fee) as total"),
+                DB::raw('count(tbl_partner_prog.prog_id) as count_program')
             )
             ->where('status', 1)
             ->whereYear(
@@ -294,7 +333,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                                 when ' . $endYear . ' then ' . $endYear . '
                             end)')
             )
-            ->groupBy('prog_id')
+            ->groupBy('tbl_partner_prog.prog_id')
             ->groupBy(DB::raw('year(success_date)'))
             ->get();
     }

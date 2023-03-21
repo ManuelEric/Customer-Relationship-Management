@@ -56,6 +56,7 @@ Route::post('/upload', [InvoiceProgramController::class, 'upload']);
 Route::get('mentee/birthday/{month}', [SalesDashboardController::class, 'getMenteesBirthdayByMonth']);
 
 # dashboard partnership
+Route::get('partner/detail/{month}/{type}', [PartnerDashboardController::class, 'getPartnerDetailByMonth']);
 Route::get('partner/total/{month}', [PartnerDashboardController::class, 'getTotalByMonth']);
 Route::get('partner/agenda/{date}', [PartnerDashboardController::class, 'getSpeakerByDate']);
 Route::get('partner/partnership-program/{month}', [PartnerDashboardController::class, 'getPartnershipProgramByMonth']);

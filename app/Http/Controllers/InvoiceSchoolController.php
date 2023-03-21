@@ -53,8 +53,6 @@ class InvoiceSchoolController extends Controller
 
     public function index(Request $request)
     {
-
-
         $status = $request->route('status');
 
         if ($request->ajax()) {
@@ -118,6 +116,7 @@ class InvoiceSchoolController extends Controller
             'invb2b_duedate',
             'invb2b_notes',
             'invb2b_tnc',
+            'is_full_amount'
         ]);
 
         $installments = $request->only(
@@ -280,6 +279,7 @@ class InvoiceSchoolController extends Controller
             'invb2b_duedate',
             'invb2b_notes',
             'invb2b_tnc',
+            'is_full_amount',
         ]);
 
         $installments = $request->only(

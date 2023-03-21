@@ -116,6 +116,7 @@ class InvoicePartnerController extends Controller
             'invb2b_duedate',
             'invb2b_notes',
             'invb2b_tnc',
+            'is_full_amount'
         ]);
 
         $installments = $request->only(
@@ -276,6 +277,7 @@ class InvoicePartnerController extends Controller
             'invb2b_duedate',
             'invb2b_notes',
             'invb2b_tnc',
+            'is_full_amount'
         ]);
 
         $installments = $request->only(

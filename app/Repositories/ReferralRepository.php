@@ -61,8 +61,8 @@ class ReferralRepository implements ReferralRepositoryInterface
                     END AS program_name'
                 )
             )
-            ->whereYear('tbl_referral.created_at', '=', $year)
-            ->whereMonth('tbl_referral.created_at', '=', $month)
+            ->whereYear('tbl_referral.ref_date', '=', $year)
+            ->whereMonth('tbl_referral.ref_date', '=', $month)
             ->where('tbl_referral.referral_type', $type)
             ->get();
     }
@@ -73,8 +73,8 @@ class ReferralRepository implements ReferralRepositoryInterface
         $month = date('m', strtotime($monthYear));
 
         return Referral::select('referral_type', 'revenue', DB::raw('COUNT(*) as count_referral_type'))
-            ->whereYear('created_at', '=', $year)
-            ->whereMonth('created_at', '=', $month)
+            ->whereYear('ref_date', '=', $year)
+            ->whereMonth('ref_date', '=', $month)
             ->groupBy('referral_type')
             ->get();
     }
@@ -123,8 +123,19 @@ class ReferralRepository implements ReferralRepositoryInterface
                     END AS type'
                 ),
                 DB::raw('SUM(number_of_student) as participants'),
+                DB::raw('(CASE 
+                            WHEN SUM(number_of_student) is null THEN 0
+                            ELSE SUM(number_of_student)
+                        END) as participants'),
                 DB::raw('DATE_FORMAT(ref_date, "%Y") as year'),
                 DB::raw("SUM(revenue) as total"),
+                // DB::raw('count(tbl_referral.prog_id) as count_program')
+                DB::raw(
+                    'CASE tbl_referral.referral_type
+                            WHEN "Out" THEN count(tbl_referral.additional_prog_name)
+                            WHEN "In" THEN count(tbl_referral.prog_id)
+                        END AS count_program'
+                ),
             )
             ->whereYear(
                 'ref_date',
@@ -134,7 +145,7 @@ class ReferralRepository implements ReferralRepositoryInterface
                                 when ' . $endYear . ' then ' . $endYear . '
                             end)')
             )
-            ->groupBy('prog_id')
+            ->groupBy('tbl_referral.prog_id')
             ->groupBy(DB::raw('year(ref_date)'))
             ->get();
     }

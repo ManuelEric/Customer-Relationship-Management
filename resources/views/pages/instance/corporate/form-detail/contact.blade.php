@@ -74,6 +74,15 @@
                     </h4>
                 </div>
                 <div class="modal-body">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <form action="{{ route('corporate.detail.store', ['corporate' => $corporate->corp_id]) }}"
                         id="detailForm" method="POST">
                         @csrf

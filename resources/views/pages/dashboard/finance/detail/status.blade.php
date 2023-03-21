@@ -3,7 +3,7 @@
         <div class="row justify-content-end g-1 mb-2">
             <div class="col-md-2 text-end">
                 <input type="month" name="" id="finance_status_month" class="form-control form-control-sm"
-                    onchange="checkPartnerStatusbyMonth()" value="{{ date('Y-m') }}">
+                    onchange="checkInvoiceStatusbyMonth()" value="{{ date('Y-m') }}">
             </div>
         </div>
         <div class="row align-items-stretch g-3">
@@ -75,7 +75,7 @@
 </div>
 
 <script>
-    function checkPartnerStatusbyMonth() {
+    function checkInvoiceStatusbyMonth() {
         let month = $('#finance_status_month').val()
 
         const rupiah = (number)=>{
@@ -169,5 +169,5 @@
             
     }
 
-    checkPartnerStatusbyMonth()
+    checkInvoiceStatusbyMonth()
 </script>

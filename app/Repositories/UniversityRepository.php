@@ -26,13 +26,24 @@ class UniversityRepository implements UniversityRepositoryInterface
         return University::whereNotNull('univ_name')->orderBy('univ_name', 'asc')->get();
     }
 
-    public function getCountTotalUniversityByMonthly($monthYear)
+    public function getUniversityByMonthly($monthYear, $type)
     {
-        $year = date('Y',strtotime($monthYear));
-        $month = date('m',strtotime($monthYear));
-        
-        return University::whereYear('created_at', '=', $year)
-              ->whereMonth('created_at', '=', $month)->count();
+        $year = date('Y', strtotime($monthYear));
+        $month = date('m', strtotime($monthYear));
+
+        $query = University::query();
+
+        $query->whereYear('created_at', '=', $year)
+            ->whereMonth('created_at', '=', $month);
+
+        switch ($type) {
+            case 'total':
+                return $query->count();
+                break;
+            case 'list':
+                return $query->get();
+                break;
+        }
     }
 
     public function getAllUniversitiesByCountries(array $countries)
@@ -126,6 +137,4 @@ class UniversityRepository implements UniversityRepositoryInterface
     {
         return V1University::whereRaw('univ_id = ?', [trim($univId)])->first();
     }
-
-    
 }

@@ -118,12 +118,14 @@ class ReportController extends Controller
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
 
-        $invoiceB2b = $this->invoiceB2bRepository->getReportInvoiceB2b($start_date, $end_date, 'created_at');
-        $invoiceB2c = $this->invoiceProgramRepository->getReportInvoiceB2c($start_date, $end_date, 'created_at');
+        $invoiceB2b = $this->invoiceB2bRepository->getReportInvoiceB2b($start_date, $end_date);
+        $invoiceB2c = $this->invoiceProgramRepository->getReportInvoiceB2c($start_date, $end_date);
         $invoices = $invoiceB2c->merge($invoiceB2b);
         $receipts = $this->receiptRepository->getReportReceipt($start_date, $end_date);
 
         $totalReceipt = 0;
+        $countInvoice = 0;
+        $totalInvoice = 0;
         foreach ($receipts as $receipt) {
             $totalReceipt += (int)filter_var($receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
         }
@@ -137,9 +139,17 @@ class ReportController extends Controller
             return $item->status_where === 1 || $item->referral_type === 'Out';
         });
 
+
+        $countInvoice = count($invoiceB2b->where('invb2b_pm', 'Full Payment')) + $invoiceB2b->sum('inv_detail_count');
+        $countInvoice += count($invoiceB2c->where('inv_paymentmethod', 'Full Payment')) + $invoiceB2c->sum('invoice_detail_count');
+
+        $totalInvoice = $invoiceB2b->sum('invb2b_totpriceidr') + $invoiceB2c->sum('inv_totalprice_idr');
+
         return view('pages.report.invoice.index')->with(
             [
                 'invoices' => $invoices,
+                'countInvoice' => $countInvoice,
+                'totalInvoice' => $totalInvoice,
                 'totalReceipt' => $totalReceipt,
                 'receipts' => $data_receipts,
             ]
@@ -160,10 +170,7 @@ class ReportController extends Controller
         $invoiceMerge = $collection->merge($invoiceB2c);
         $invoices = $invoiceMerge->all();
 
-        $invoiceB2bReport = $this->invoiceB2bRepository->getReportInvoiceB2b($start_date, $end_date, 'invb2b_duedate');
-        $invoiceB2cReport = $this->invoiceProgramRepository->getReportInvoiceB2c($start_date, $end_date, 'inv_duedate');
-
-        $totalAmount = $invoiceB2bReport->sum('invb2b_totpriceidr') + $invoiceB2cReport->sum('inv_totalprice_idr');
+        $totalAmount = $invoiceMerge->sum('total_price_inv');
 
         $totalUnpaid = $invoiceMerge->where('receipt_id', null)->sum('total_price_inv');
 
@@ -181,7 +188,7 @@ class ReportController extends Controller
             $totalPaid = $totalReceipt;
         }
 
-        // return $totalDiff;
+        // return $invoiceB2bReport;
         // exit;
 
         return view('pages.report.unpaid-payment.index')->with(

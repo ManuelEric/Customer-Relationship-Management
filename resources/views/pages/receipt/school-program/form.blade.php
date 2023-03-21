@@ -225,17 +225,17 @@
                         <div class="text-center">
                             <h6>IDR</h6>
                             <section class="step-indicator">
-                                <div class="step step1 {{$receiptSch->download_idr == 1 ? 'active' : ''}}">
+                                <div class="step step1 {{$receiptSch->download_idr == 1 || $receiptAttachmentSigned? 'active' : ''}}">
                                     <div class="step-icon">1</div>
                                     <p>Download</p>
                                 </div>
-                                <div class="indicator-line {{$receiptSch->download_idr == 1 ? 'active' : ''}}"></div>
+                                <div class="indicator-line {{$receiptSch->download_idr == 1 || $receiptAttachmentSigned ? 'active' : ''}}"></div>
                                 <div class="step step2 {{isset($receiptAttachmentNotYet) || $receiptAttachmentSigned ? 'active' : ''}}">
                                     <div class="step-icon">2</div>
                                     <p>Upload</p>
                                 </div>
                                 <div class="indicator-line {{isset($receiptAttachmentNotYet) || $receiptAttachmentSigned ? 'active' : ''}}"></div>
-                                <div class="step step3 {{$receiptAttachmentRequested ? 'active' : ''}}">
+                                <div class="step step3 {{$receiptAttachmentRequested || $receiptAttachmentSigned ? 'active' : ''}}">
                                     <div class="step-icon">3</div>
                                     <p>Request Sign</p>
                                 </div>

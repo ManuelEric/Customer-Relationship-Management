@@ -125,15 +125,27 @@
         let participant = $('#invoice_other_participant').val()
         let discount = $('#invoice_other_discount').val()
         let total = (price * participant) - discount
+        let is_full_amount = $('#is_full_amount').val()
 
         $('#invoice_other_price_idr').val(price * kurs)
         $('#invoice_other_discount_idr').val(discount * kurs)
-        $('#invoice_other_total_idr').val(total * kurs)
-        $('#invoice_other_total').val(total)
-        $('#total_idr').val(total * kurs)
-        $('#total_other').val(total)
+        
+         if(is_full_amount == 1){
+            $('#invoice_other_total_idr').val((price * kurs)-(discount * kurs))
+            $('#invoice_other_total').val(price - discount)
+            $('#total_idr').val((price * kurs)-(discount * kurs))
+            $('#total_other').val(price)
 
-        $('#invoice_other_word').val(wordConverter(total) + ' ' + currencyText(detail))
-        $('#invoice_other_word_idr').val(wordConverter(total * kurs) + ' Rupiah')
+            $('#invoice_other_word').val(wordConverter(price - discount) + ' ' + currencyText(detail))
+            $('#invoice_other_word_idr').val(wordConverter((price * kurs)-(discount * kurs))+' Rupiah')
+         }else{
+            $('#invoice_other_total_idr').val(total * kurs)
+            $('#invoice_other_total').val(total)
+            $('#total_idr').val(total * kurs)
+            $('#total_other').val(total)
+
+            $('#invoice_other_word').val(wordConverter(total) + ' ' + currencyText(detail))
+            $('#invoice_other_word_idr').val(wordConverter(total * kurs)+' Rupiah')
+         }
     }
 </script>

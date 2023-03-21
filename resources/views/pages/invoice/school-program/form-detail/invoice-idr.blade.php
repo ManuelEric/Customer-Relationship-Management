@@ -82,13 +82,23 @@
          let price = $('#invoice_idr_price').val()
          let participant = $('#invoice_idr_participants').val()
          let discount = $('#invoice_idr_discount').val()
+         let is_full_amount = $('#is_full_amount').val()
          let total = (price * participant)- discount
 
-         $('#invoice_idr_total').val(total)
-
-         $('#total_idr').val(total)
-         $('#total_other').val(0)
-
-         $('#invoice_idr_word').val(wordConverter(total)+ ' Rupiah')
+         if(is_full_amount == 1){
+            $('#invoice_idr_total').val(price-discount)
+    
+            $('#total_idr').val(price-discount)
+            $('#total_other').val(0)
+    
+            $('#invoice_idr_word').val(wordConverter(price-discount)+ ' Rupiah')
+         }else{
+            $('#invoice_idr_total').val(total)
+    
+            $('#total_idr').val(total)
+            $('#total_other').val(0)
+    
+            $('#invoice_idr_word').val(wordConverter(total)+ ' Rupiah')
+         }
      }
  </script>

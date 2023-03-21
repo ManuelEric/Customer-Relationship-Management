@@ -142,6 +142,7 @@
 
                 school_program_chart.data.datasets[0].data = [0,0,0,0]
 
+                // console.log(result.statusSchoolPrograms)
                 result.statusSchoolPrograms.forEach(function (item, index, arr) {
 
                     switch (item['status']) {                        
@@ -165,6 +166,7 @@
                 })
                 school_program_chart.update()
 
+                console.log(result.totalSchoolProgram)
                 $('#tot_school_program').html(rupiah(result.totalSchoolProgram))
                 
                 partner_program_chart.data.datasets[0].data = [0,0,0,0]

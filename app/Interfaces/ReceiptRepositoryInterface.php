@@ -11,6 +11,7 @@ interface ReceiptRepositoryInterface
     public function getReceiptByInvoiceIdentifier($invoiceType, $identifier);
     public function getReceiptByReceiptId($receiptId);
     public function getReceiptById($receiptId);
+    public function getAllReceiptSchool();
     public function createReceipt(array $receiptDetails);
     public function insertReceipt(array $receiptDetails);
     public function updateReceipt($receiptId, array $newDetails);

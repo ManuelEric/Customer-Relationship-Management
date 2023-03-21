@@ -122,24 +122,35 @@
             <table width="100%" class="table-detail" style="padding:8px 5px;">
                 <tr align="center">
                     <th width="5%">No</th>
-                    <th width="45%">Description</th>
-                    <th width="25%">Price</th>
-                    <th width="10%">Participants</th>
-                    <th width="15%">Total</th>
+                    <th width="{{$invoicePartner->is_full_amount == 0 ? '35%' : '40%' }}">Description</th>
+                    @if($invoicePartner->is_full_amount == 0)
+                        <th width="25%">Price</th>
+                        <th width="10%">Participants</th>
+                    @endif
+                    <th width="25%">Total</th>
                 </tr>
                 <tr>
+                    {{-- No --}}
                     <td valign="top" align="center">1</td>
+
+                    {{-- Description --}}
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
                             <p>
                                 <strong> {{ (($invoicePartner->partner_prog->program->prog_sub != '-')) ? $invoicePartner->partner_prog->program->prog_sub . ': ' . $invoicePartner->partner_prog->program->prog_program : $invoicePartner->partner_prog->program->prog_program }} </strong>
                             </p>
+                            @if($invoicePartner->is_full_amount == 1)
+                                <p>
+                                    {{ $invoicePartner->invb2b_participants > 0 || $invoicePartner->invb2b_participants != null ? 'Participants: ' . $invoicePartner->invb2b_participants : ''}}
+                                </p>
+                                <br>
+                            @endif
                             <p>
                                 {!! $invoicePartner->invb2b_notes !!}
                             </p>
                         </div>
 
-                        @if(isset($invoicePartner->invb2b_discidr))
+                        @if($invoicePartner->invb2b_discidr != 0 && $invoicePartner->invb2b_discidr != null)
                             <div style="margin-top:5px;">
                                 <p>
                                     <strong> Discount</strong>
@@ -147,31 +158,45 @@
                             </div>
                         @endif
                     </td>
-                    <td valign="top" align="center">
-                        <div style="height:80px;">
+
+                    @if($invoicePartner->is_full_amount == 0)
+                        {{-- Price --}}
+                        <td valign="top" align="center">
+                            <div style="height:80px;">
+                                <p>
+                                    <strong>
+                                        {{ $currency == 'other' ? $invoicePartner->invoicePrice : $invoicePartner->invoicePriceIdr }}
+                                    </strong>
+                                </p>
+                            </div>
+                        </td>
+
+                        {{-- Participants --}}
+                        <td valign="top" align="center">
                             <p>
                                 <strong>
-                                    {{ $currency == 'other' ? $invoicePartner->invoicePrice : $invoicePartner->invoicePriceIdr }}
+                                    {{ $invoicePartner->invb2b_participants }}
                                 </strong>
                             </p>
-                        </div>
-                    </td>
-                    <td valign="top" align="center">
-                        <p>
-                            <strong>
-                                {{ $invoicePartner->invb2b_participants }}
-                            </strong>
-                        </p>
-                    </td>
+                        </td>
+                    @endif
+
+                    {{-- Total --}}
                     <td valign="top" align="center">
                         <div style="height:80px;width: 150px">
                             <p> 
-                                <strong>
-                                    {{ $currency == 'other' ? $invoicePartner->invoicePrice :  $invoicePartner->invoicePriceIdr }}
-                                </strong>
+                                @if($invoicePartner->is_full_amount == 0)
+                                    <strong>
+                                        {{ $currency == 'other' ? $invoicePartner->invoiceSubTotalprice : $invoicePartner->invoiceSubTotalpriceIdr }}
+                                    </strong>
+                                @else
+                                    <strong>
+                                        {{ $currency == 'other' ? $invoicePartner->invoicePrice : $invoicePartner->invoicePriceIdr }}
+                                    </strong>
+                                @endif
                             </p>
                         </div>
-                        @if($invoicePartner->invb2b_discidr != 0)
+                        @if($invoicePartner->invb2b_discidr != 0 && $invoicePartner->invb2b_discidr != null)
                             <div style="margin-top:5px;">
                                 <p>
                                     <strong> - {{ $currency == 'other' ? $invoicePartner->invoiceDiscount : $invoicePartner->invoiceDiscountIdr }}</strong>
@@ -180,8 +205,10 @@
                         @endif
                     </td>
                 </tr>
+
+                {{-- Grand Total --}}
                 <tr>
-                    <td colspan="4" align="right"><b>Total</b></td>
+                    <td colspan="{{$invoicePartner->is_full_amount == 0 ? '4' : '2'}}" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
                         <b>{{ $currency == 'other' ? $invoicePartner->invoiceTotalprice : $invoicePartner->invoiceTotalpriceIdr }}</b>
                     </td>
