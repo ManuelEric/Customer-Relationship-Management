@@ -2,6 +2,10 @@
     @php
         $potentialHidden = "d-none";
     @endphp
+@else
+    @php
+        $potentialHidden = '';
+    @endphp
 @endif
 <div class="card mb-3">
     <div class="card-body">

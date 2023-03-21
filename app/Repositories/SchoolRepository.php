@@ -30,7 +30,7 @@ class SchoolRepository implements SchoolRepositoryInterface
             })
             ->filterColumn('curriculum', function ($query, $keyword) {
                 $query->whereHas('curriculum', function ($q) use ($keyword) {
-                    $q->where('name', 'like', '%'.$keyword.'%');
+                    $q->where('name', 'like', '%' . $keyword . '%');
                 });
             })
             ->make(true);
@@ -41,13 +41,24 @@ class SchoolRepository implements SchoolRepositoryInterface
         return School::orderBy('sch_id', 'asc')->get();
     }
 
-    public function getCountTotalSchoolByMonthly($monthYear)
+    public function getSchoolByMonthly($monthYear, $type)
     {
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        return School::whereYear('created_at', '=', $year)
-            ->whereMonth('created_at', '=', $month)->count();
+        $query = School::query();
+
+        $query->whereYear('created_at', '=', $year)
+            ->whereMonth('created_at', '=', $month);
+
+        switch ($type) {
+            case 'total':
+                return $query->count();
+                break;
+            case 'list':
+                return $query->get();
+                break;
+        }
     }
 
     public function getSchoolById($schoolId)

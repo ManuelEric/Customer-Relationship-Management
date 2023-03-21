@@ -116,42 +116,42 @@ class DashboardController extends Controller
         # data at the top of dashboard
         $totalClientByStatus = [
             'prospective' => [
-                'old' => $total_prospective_client-$monthly_new_prospective_client,
+                'old' => $total_prospective_client - $monthly_new_prospective_client,
                 'new' => $monthly_new_prospective_client,
                 'percentage' => $this->calculatePercentage($total_prospective_client, $monthly_new_prospective_client)
             ], # prospective
             'potential' => [
-                'old' => $total_potential_client-$monthly_new_potential_client, 
-                'new' => $monthly_new_potential_client, 
+                'old' => $total_potential_client - $monthly_new_potential_client,
+                'new' => $monthly_new_potential_client,
                 'percentage' => $this->calculatePercentage($total_potential_client, $monthly_new_potential_client)
             ], # potential
             'current' => [
-                'old' => $total_current_client-$monthly_new_current_client,
+                'old' => $total_current_client - $monthly_new_current_client,
                 'new' => $monthly_new_current_client,
                 'percentage' => $this->calculatePercentage($total_current_client, $monthly_new_current_client)
             ], # current
             'completed' => [
-                'old' => $total_completed_client-$monthly_new_completed_client,
+                'old' => $total_completed_client - $monthly_new_completed_client,
                 'new' => $monthly_new_completed_client,
                 'percentage' => $this->calculatePercentage($total_completed_client, $monthly_new_completed_client)
             ], # current
             'mentee' => [
-                'old' => $total_mentee-$monthly_new_mentee,
+                'old' => $total_mentee - $monthly_new_mentee,
                 'new' => $monthly_new_mentee,
                 'percentage' => $this->calculatePercentage($total_mentee, $monthly_new_mentee)
             ],
             'alumni' => [
-                'old' => $total_alumni-$monthly_new_alumni,
+                'old' => $total_alumni - $monthly_new_alumni,
                 'new' => $monthly_new_alumni,
                 'percentage' => $this->calculatePercentage($total_alumni, $monthly_new_alumni)
             ],
             'parent' => [
-                'old' => $total_parent-$monthly_new_parent,
+                'old' => $total_parent - $monthly_new_parent,
                 'new' => $monthly_new_parent,
                 'percentage' => $this->calculatePercentage($total_parent, $monthly_new_parent)
             ],
             'teacher_counselor' => [
-                'old' => $total_teacher-$monthly_new_teacher,
+                'old' => $total_teacher - $monthly_new_teacher,
                 'new' => $monthly_new_teacher,
                 'percentage' => $this->calculatePercentage($total_teacher, $monthly_new_teacher)
             ]
@@ -283,7 +283,7 @@ class DashboardController extends Controller
         if ($total_data == 0)
             return "0,00";
 
-        return number_format(($monthly_data/$total_data)*100, 2, ',', '.');
+        return number_format(($monthly_data / $total_data) * 100, 2, ',', '.');
     }
 
     public function indexPartnership($request)
@@ -293,10 +293,10 @@ class DashboardController extends Controller
         $totalPartner = $this->corporateRepository->getAllCorporate()->count();
         $totalSchool = $this->schoolRepository->getAllSchools()->count();
         $totalUniversity = $this->universityRepository->getAllUniversities()->count();
-        $totalAgreement = $this->partnerAgreementRepository->getCountTotalPartnerAgreementByMonthly(date('Y-m'));
-        $newPartner = $this->corporateRepository->getCountTotalCorporateByMonthly(date('Y-m'), 'monthly');
-        $newSchool = $this->schoolRepository->getCountTotalSchoolByMonthly(date('Y-m'));
-        $newUniversity = $this->universityRepository->getCountTotalUniversityByMonthly(date('Y-m'));
+        $totalAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly(date('Y-m'), 'total');
+        $newPartner = $this->corporateRepository->getCorporateByMonthly(date('Y-m'), 'total');
+        $newSchool = $this->schoolRepository->getSchoolByMonthly(date('Y-m'), 'total');
+        $newUniversity = $this->universityRepository->getUniversityByMonthly(date('Y-m'), 'total');
 
         // Tab Agenda
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerDashboard('all', $date);
