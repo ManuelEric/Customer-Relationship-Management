@@ -9,6 +9,7 @@ use App\Interfaces\RoleRepositoryInterface;
 use App\Models\Client;
 use App\Models\Tag;
 use App\Models\UserClient;
+use App\Models\UserClientAdditionalInfo;
 use App\Models\v1\Student as CRMStudent;
 use App\Models\v1\StudentParent as CRMParent;
 use DataTables;
@@ -169,24 +170,51 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllClientByRole($roleName, $month = null) # mentee, parent, teacher
     {
+        return UserClient::
+            when($roleName == "alumni", function($query) {
+                $query->whereHas('clientProgram', function ($q2) {
+                    $q2->whereIn('prog_running_status', [2]);
+                })->withCount([
+                    'clientProgram as client_program_count' => function ($query) {
+                        $query->whereIn('prog_running_status', [0, 1, 2]);   
+                    },
+                    'clientProgram as client_program_finish_count' => function ($query) {
+                        $query->where('prog_running_status', 2);
+                    }
+                ])->havingRaw('client_program_count = client_program_finish_count');
+            }, function ($query) use ($roleName) {
+                $query->whereHas('roles', function ($query2) use ($roleName) {
+                    $query2->where('role_name', $roleName);
+                });
+            })->when($month, function ($query) use ($month) {
+                $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
+            })->get();
+    }
+
+    # function below
+    # is used on the dashboard to fetch the list client 
+    # and the difference between the above function 
+    # is that the above function is not using ordering by created at
+    public function getAllClientByRoleAndDate($roleName, $month = null) # mentee, parent, teacher
+    {
         return UserClient::when($roleName == "alumni", function($query) {
-            $query->whereHas('clientProgram', function ($q2) {
-                $q2->whereIn('prog_running_status', [2]);
-            })->withCount([
-                'clientProgram as client_program_count' => function ($query) {
-                    $query->whereIn('prog_running_status', [0, 1, 2]);   
-                },
-                'clientProgram as client_program_finish_count' => function ($query) {
-                    $query->where('prog_running_status', 2);
-                }
-            ])->havingRaw('client_program_count = client_program_finish_count');
-        }, function ($query) use ($roleName) {
-            $query->whereHas('roles', function ($query2) use ($roleName) {
-                $query2->where('role_name', $roleName);
-            });
-        })->when($month, function ($query) use ($month) {
-            $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
-        })->get();
+                $query->whereHas('clientProgram', function ($q2) {
+                    $q2->whereIn('prog_running_status', [2]);
+                })->withCount([
+                    'clientProgram as client_program_count' => function ($query) {
+                        $query->whereIn('prog_running_status', [0, 1, 2]);   
+                    },
+                    'clientProgram as client_program_finish_count' => function ($query) {
+                        $query->where('prog_running_status', 2);
+                    }
+                ])->havingRaw('client_program_count = client_program_finish_count');
+            }, function ($query) use ($roleName) {
+                $query->whereHas('roles', function ($query2) use ($roleName) {
+                    $query2->where('role_name', $roleName);
+                });
+            })->when($month, function ($query) use ($month) {
+                $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
+            })->orderBy('tbl_client.created_at', 'desc')->get();
     }
 
     public function getAllClientByRoleAndStatus($roleName, $statusClient)
@@ -213,6 +241,13 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::find($clientId);
     }
 
+    public function checkIfClientIsMentee($clientId)
+    {
+        return UserClient::whereHas('roles', function($query) {
+            $query->where('role_name', 'mentee');
+        })->where('id', $clientId)->first();
+    }
+
     public function deleteClient($clientId)
     {
 
@@ -228,6 +263,11 @@ class ClientRepository implements ClientRepositoryInterface
             ]);   
 
         return $client;
+    }
+
+    public function createClientAdditionalInfo(array $infoDetails)
+    {
+        return UserClientAdditionalInfo::insert($infoDetails);
     }
 
     public function addRole($clientId, $role)
@@ -339,11 +379,24 @@ class ClientRepository implements ClientRepositoryInterface
     # dashboard
     public function getCountTotalClientByStatus($status, $month = null)
     {
-        return Client::where('st_statuscli', $status)->when($month, function($query) use ($month) {
-            $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-        })->whereHas('roles', function($query) {
-            $query->where('role_name', 'Student');
-        })->count();
+        return Client::
+            where('st_statuscli', $status)->
+            when($month, function($query) use ($month) {
+                $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+            })->whereHas('roles', function($query) {
+                $query->where('role_name', 'Student');
+            })->count();
+    }
+
+    public function getClientByStatus($status, $month = null)
+    {
+        return Client::
+            where('st_statuscli', $status)->
+            when($month, function($query) use ($month) {
+                $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+            })->whereHas('roles', function($query) {
+                $query->where('role_name', 'Student');
+            })->orderBy('created_at', 'desc')->get();
     }
 
     public function getMenteesBirthdayMonthly($month)

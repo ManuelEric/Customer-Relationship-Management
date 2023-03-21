@@ -30,7 +30,7 @@ class SchoolRepository implements SchoolRepositoryInterface
             })
             ->filterColumn('curriculum', function ($query, $keyword) {
                 $query->whereHas('curriculum', function ($q) use ($keyword) {
-                    $q->where('name', $keyword);
+                    $q->where('name', 'like', '%'.$keyword.'%');
                 });
             })
             ->make(true);
@@ -69,6 +69,12 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function createSchool(array $schoolDetails)
     {
         return School::create($schoolDetails);
+    }
+
+    public function attachCurriculum($schoolId, array $curriculums)
+    {
+        $school = School::whereSchoolId($schoolId);
+        return $school->curriculum()->attach($curriculums);
     }
 
     public function createSchools(array $schoolDetails)

@@ -74,6 +74,7 @@
                     },
                     {
                         data: 'curriculum',
+                        name: 'curriculum'
                     },
                     {
                         data: 'sch_city',

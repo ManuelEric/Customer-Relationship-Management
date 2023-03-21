@@ -47,6 +47,7 @@
                                 {{ $clientProg->client->city }}
                             </div>
                         </div>
+                        @if (isset($clientProg->client->school->sch_name))
                         <div class="row mb-2 g-1">
                             <div class="col-md-4 d-flex justify-content-between">
                                 <label>
@@ -58,6 +59,7 @@
                                 {{ $clientProg->client->school->sch_name }}
                             </div>
                         </div>
+                        @endif
                         <div class="row mb-2 g-1">
                             <div class="col-md-4 d-flex justify-content-between">
                                 <label>
@@ -111,41 +113,46 @@
             <div class="accordion-body p-2">
                 <div class="card">
                     <div class="card-body">
-                        @foreach($clientProg->client->parents as $parent)
-                        <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
-                                <label>
-                                    Parents Name
-                                </label>
-                                <label>:</label>
+                        
+                        @if ($clientProg->client->parents()->count() > 0)
+                            @foreach($clientProg->client->parents as $parent)
+                            <div class="row mb-2 g-1">
+                                <div class="col-md-4 d-flex justify-content-between">
+                                    <label>
+                                        Parents Name
+                                    </label>
+                                    <label>:</label>
+                                </div>
+                                <div class="col-md-8">
+                                    {{ $parent->full_name }}
+                                </div>
                             </div>
-                            <div class="col-md-8">
-                                {{ $parent->full_name }}
+                            <div class="row mb-2 g-1">
+                                <div class="col-md-4 d-flex justify-content-between">
+                                    <label>
+                                        Parents Email
+                                    </label>
+                                    <label>:</label>
+                                </div>
+                                <div class="col-md-8">
+                                    {{ $parent->mail }}
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
-                                <label>
-                                    Parents Email
-                                </label>
-                                <label>:</label>
+                            <div class="row mb-2 g-1">
+                                <div class="col-md-4 d-flex justify-content-between">
+                                    <label>
+                                        Parents Phone
+                                    </label>
+                                    <label>:</label>
+                                </div>
+                                <div class="col-md-8">
+                                    {{ $parent->phone }}
+                                </div>
                             </div>
-                            <div class="col-md-8">
-                                {{ $parent->mail }}
-                            </div>
-                        </div>
-                        <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
-                                <label>
-                                    Parents Phone
-                                </label>
-                                <label>:</label>
-                            </div>
-                            <div class="col-md-8">
-                                {{ $parent->phone }}
-                            </div>
-                        </div>
-                        @endforeach
+                            @endforeach
+                        @else
+                            No parents data
+                        @endif
                     </div>
                 </div>
             </div>

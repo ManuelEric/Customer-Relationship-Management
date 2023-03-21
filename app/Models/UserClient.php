@@ -27,6 +27,7 @@ class UserClient extends Authenticatable
         'last_name',
         'mail',
         'phone',
+        'phone_desc',
         'dob',
         'insta',
         'state',
@@ -47,6 +48,8 @@ class UserClient extends Authenticatable
         'st_note',
         'st_prospect_status',
         'password',
+        'created_at', 
+        'updated_at',
     ];
 
     # attributes
@@ -85,6 +88,11 @@ class UserClient extends Authenticatable
     }
 
     # relation
+    public function additionalInfo()
+    {
+        return $this->hasMany(UserClientAdditionalInfo::class, 'client_id', 'id');
+    }
+
     public function parents()
     {
         return $this->belongsToMany(UserClient::class, 'tbl_client_relation', 'child_id', 'parent_id')->withTimestamps();

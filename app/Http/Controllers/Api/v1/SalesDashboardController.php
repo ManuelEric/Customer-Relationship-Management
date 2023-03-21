@@ -33,22 +33,177 @@ class SalesDashboardController extends Controller
 
     }
 
+    public function getClientByMonthAndType(Request $request)
+    {
+        $month = null;
+        if ($request->route('month') != "all") 
+            $month = $request->route('month');
+        
+
+        $type = $request->route('type');
+        
+        switch ($type) {
+            case "prospective":
+                $title = $type.' Client';
+                $clientType = 0;
+                break;
+
+            case "potential":
+                $title = $type.' Client';
+                $clientType = 1;
+                break;
+
+            case "current":
+                $title = $type.' Client';
+                $clientType = 2;
+                break;
+
+            case "completed":
+                $title = $type.' Client';
+                $clientType = 3;
+                break;
+
+            default:
+                $title = $clientType = $type;
+        }
+
+        # when type is teacher/counselor
+        if ($clientType == "teacher-counselor")
+            $clientType = "teacher/counselor";
+
+        # this to make sure the clients that being fetch
+        # is the client filter by [prospective, potential, current, completed]
+        if (gettype($clientType) == "integer") {
+
+            $clients = $this->clientRepository->getClientByStatus($clientType, $month);
+            if ($month != null) {
+                
+                $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
+                $clients = $clients->merge($this->clientRepository->getClientByStatus($clientType, $last_month));
+            }
+        }
+        else {
+
+            $clients = $this->clientRepository->getAllClientByRoleAndDate($clientType, $month); 
+            if ($month != null) {
+                $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
+                $clients = $clients->merge($this->clientRepository->getAllClientByRoleAndDate($clientType, $last_month));
+            }
+        }
+
+
+        $index = 1;
+        $html = '';
+        if ($clients->count() == 0)
+            return response()->json(['title' => 'List of '.ucwords(str_replace('-', ' ', $title)), 'html_ctx' => '<tr align="center"><td colspan="5">No '.str_replace('-', ' ', $title).' data</td></tr>']);
+
+        foreach ($clients as $client) {
+
+            $client_register_date = date('Y-m', strtotime($client->created_at));
+            $now = date('Y-m');
+            $styling = $client_register_date == $now ? 'class="bg-primary"' : null;
+
+            $html .= '<tr '.$styling.'>
+                        <td>'.$index++.'</td>
+                        <td>'.$client->full_name.'</td>
+                        <td>'.$client->mail.'</td>
+                        <td>'.$client->phone.'</td>
+                        <td>'.$client->created_at.'</td>
+                    </tr>';
+
+        }
+
+        return response()->json(
+            [
+                'title' => 'List of '.ucwords($title),
+                'html_ctx' => $html
+            ]
+        );
+
+    }
+
     public function getClientStatus(Request $request)
     {
-        
-        $month = $request->route('month') ?? date('Y-m');
+        if ($request->route('month') != "all") {
+            $month = $request->route('month') ?? date('Y-m');
+            $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
+            $type = 'monthly';
+        } else {
+
+            $last_month = null;
+            $month = date('Y-m');
+            $type = 'all';
+
+        }   
 
         try {
 
+            $last_month_prospective_client = $this->clientRepository->getCountTotalClientByStatus(0, $last_month);
+            $monthly_new_prospective_client = $this->clientRepository->getCountTotalClientByStatus(0, $month);
+
+            $last_month_potential_client = $this->clientRepository->getCountTotalClientByStatus(1, $last_month);
+            $monthly_new_potential_client = $this->clientRepository->getCountTotalClientByStatus(1, $month);
+
+            $last_month_current_client = $this->clientRepository->getCountTotalClientByStatus(2, $last_month);
+            $monthly_new_current_client = $this->clientRepository->getCountTotalClientByStatus(2, $month);
+
+            $last_month_completed_client = $this->clientRepository->getCountTotalClientByStatus(3, $last_month);
+            $monthly_new_completed_client = $this->clientRepository->getCountTotalClientByStatus(3, $month);
+
+            $last_month_mentee = $this->clientRepository->getAllClientByRole('mentee', $last_month)->count();
+            $monthly_new_mentee = $this->clientRepository->getAllClientByRole('mentee', $month)->count();
+
+            $last_month_alumni = $this->clientRepository->getAllClientByRole('alumni', $last_month)->count();
+            $monthly_new_alumni = $this->clientRepository->getAllClientByRole('alumni', $month)->count();
+
+            $last_month_parent = $this->clientRepository->getAllClientByRole('parent', $last_month)->count();
+            $monthly_new_parent = $this->clientRepository->getAllClientByRole('parent', $month)->count();
+
+            $last_month_teacher = $this->clientRepository->getAllClientByRole('Teacher/Counselor', $last_month)->count();
+            $monthly_new_teacher = $this->clientRepository->getAllClientByRole('Teacher/Counselor', $month)->count();
+
             $data = [
-                $this->clientRepository->getCountTotalClientByStatus(0, $month), # prospective
-                $this->clientRepository->getCountTotalClientByStatus(1, $month), # potential
-                $this->clientRepository->getCountTotalClientByStatus(2, $month), # current
-                $this->clientRepository->getCountTotalClientByStatus(3, $month), # current
-                $this->clientRepository->getAllClientByRole('Mentee', $month)->count(),
-                $this->clientRepository->getAllClientByRole('Alumni', $month)->count(),
-                $this->clientRepository->getAllClientByRole('Parent', $month)->count(),
-                $this->clientRepository->getAllClientByRole('Teacher/Counselor', $month)->count()
+                [
+                    'old' => $type == "all" ? $last_month_prospective_client-$monthly_new_prospective_client : $last_month_prospective_client,
+                    'new' => $monthly_new_prospective_client,
+                    'percentage' => $this->calculatePercentage($type, $last_month_prospective_client, $monthly_new_prospective_client)
+                    
+                ], # prospective
+                [
+                    'old' => $type == "all" ? $last_month_potential_client-$monthly_new_potential_client : $last_month_potential_client, 
+                    'new' => $monthly_new_potential_client, 
+                    'percentage' => $this->calculatePercentage($type, $last_month_potential_client, $monthly_new_potential_client)
+                ], # potential
+                [
+                    'old' => $type == "all" ? $last_month_current_client-$monthly_new_current_client : $last_month_current_client,
+                    'new' => $monthly_new_current_client,
+                    'percentage' => $this->calculatePercentage($type, $last_month_current_client, $monthly_new_current_client)
+                ], # current
+                [
+                    'old' =>  $type == "all" ? $last_month_completed_client-$monthly_new_completed_client :$last_month_completed_client,
+                    'new' => $monthly_new_completed_client,
+                    'percentage' => $this->calculatePercentage($type, $last_month_completed_client, $monthly_new_completed_client)
+                ], # completed
+                [
+                    'old' => $type == "all" ? $last_month_mentee-$monthly_new_mentee : $last_month_mentee,
+                    'new' => $monthly_new_mentee,
+                    'percentage' => $this->calculatePercentage($type, $last_month_mentee, $monthly_new_mentee)
+                ], # mentee
+                [
+                    'old' => $type == "all" ? $last_month_alumni-$monthly_new_alumni : $last_month_alumni,
+                    'new' => $monthly_new_alumni,
+                    'percentage' => $this->calculatePercentage($type, $last_month_alumni, $monthly_new_alumni)
+                ], # alumni
+                [
+                    'old' => $type == "all" ? $last_month_parent-$monthly_new_parent : $last_month_parent,
+                    'new' => $monthly_new_parent,
+                    'percentage' => $this->calculatePercentage($type, $last_month_parent, $monthly_new_parent)
+                ], # parent
+                [
+                    'old' => $type == "all" ? $last_month_teacher-$monthly_new_teacher : $last_month_teacher,
+                    'new' => $monthly_new_teacher,
+                    'percentage' => $this->calculatePercentage($type, $last_month_teacher, $monthly_new_teacher)
+                ] # teacher / counselor
             ];
 
         } catch (Exception $e) {
@@ -64,9 +219,33 @@ class SalesDashboardController extends Controller
         return response()->json(
             [
                 'success' => true,
-                'data' => $data
+                'data' => $data,
+                'type' => $type
             ]
         );
+    }
+
+    private function calculatePercentage($type, $last_month_data, $monthly_data)
+    {
+        switch ($type) {
+            case "all":
+                # last month data is total data
+                if ($last_month_data == 0) {
+                    return "0,00";
+                }
+                return number_format(($monthly_data/$last_month_data)*100, 2, ',', '.');
+                break;
+
+            default:
+                if ($monthly_data == 0 && $last_month_data == 0)
+                    return "0,00";
+                else if ($last_month_data == 0)
+                    return number_format((abs($last_month_data-$monthly_data)/$monthly_data)*100, 2, ',', '.');
+                    
+                return number_format((abs($last_month_data-$monthly_data)/$last_month_data)*100, 2, ',', '.');
+
+        }
+        
     }
 
     public function getFollowUpReminder(Request $request)
@@ -620,8 +799,8 @@ class SalesDashboardController extends Controller
         $html = '';
         $no = 1;
         foreach ($salesDetail as $detail) {
-            $percentage_participant = ($detail->total_actual_participant/$detail->total_target_participant) * 100;
-            $percentage_revenue = ($detail->total_actual_amount/$detail->total_target_amount) * 100;
+            $percentage_participant = $detail->total_target_participant != 0 ? ($detail->total_actual_participant/$detail->total_target_participant) * 100 : 0;
+            $percentage_revenue = $detail->total_target_amount != 0 ? ($detail->total_actual_amount/$detail->total_target_amount) * 100 : 0;
 
             $html .= '<tr class="text-center">
                     <td>'.$no++.'</td>

@@ -78,8 +78,17 @@ class UserRepository implements UserRepositoryInterface
 
     public function getAllUsersByRole($role)
     {
+        return User::with('department')->whereHas('roles', function ($query) use ($role) {
+            $query->where('role_name', 'like', '%'.$role);
+        })->where('active', 1)->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
+    }
+
+    public function getAllUsersByDepartmentAndRole($role, $department)
+    {
         return User::whereHas('roles', function ($query) use ($role) {
             $query->where('role_name', 'like', '%'.$role);
+        })->whereHas('department', function ($query) use ($department) {
+            $query->where('dept_name', 'like', '%'.$department.'%');
         })->where('active', 1)->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
 

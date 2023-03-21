@@ -24,6 +24,16 @@ class CurriculumRepository implements CurriculumRepositoryInterface
         return Curriculum::find($curriculumId);
     }
 
+    public function getCurriculumByName($curriculumName)
+    {
+        return Curriculum::where('name', $curriculumName)->first();
+    }
+
+    public function createOneCurriculum(array $curriculumDetails)
+    {
+        return Curriculum::create($curriculumDetails);
+    }
+
     public function createCurriculum(array $curriculumDetails)
     {
         return Curriculum::insert($curriculumDetails);
