@@ -46,8 +46,20 @@ class PartnerDashboardController extends Controller
     {
         $monthYear = $request->route('month');
 
+
+        $newPartner = $this->corporateRepository->getCountTotalCorporateByMonthly($monthYear, 'monthly');
+        $totalPartner = $this->corporateRepository->getCountTotalCorporateByMonthly($monthYear, 'total');
+        $beforeMonthPartner = $this->corporateRepository->getCountTotalCorporateByMonthly($monthYear, 'beforeMonth');
+
+        if ($beforeMonthPartner > 0) {
+            $percentage = ($totalPartner - $beforeMonthPartner) * 100 / $beforeMonthPartner;
+        } else if ($totalPartner > 0) {
+            $percentage = 100;
+        }
+
         $data = [
-            'newPartner' => $this->corporateRepository->getCountTotalCorporateByMonthly($monthYear),
+            'percentagePartner' => $percentage,
+            'newPartner' => $newPartner,
             'newSchool' => $this->schoolRepository->getCountTotalSchoolByMonthly($monthYear),
             'newUniversity' => $this->universityRepository->getCountTotalUniversityByMonthly($monthYear),
             'totalAgreement' => $this->partnerAgreementRepository->getCountTotalPartnerAgreementByMonthly($monthYear)
@@ -99,13 +111,14 @@ class PartnerDashboardController extends Controller
         $totalPartnership = $this->invoiceB2bRepository->getTotalPartnershipProgram($monthYear);
         $totalPartnerProgram = $totalPartnership->where('type', 'partner_prog')->sum('invb2b_totpriceidr');
         $totalSchoolProgram = $totalPartnership->where('type', 'sch_prog')->sum('invb2b_totpriceidr');
+        $schoolPrograms = $this->schoolProgramRepository->getStatusSchoolProgramByMonthly($monthYear);
 
         $data = [
-            'statusSchoolPrograms' => $this->schoolProgramRepository->getStatusSchoolProgramByMonthly($monthYear),
+            'statusSchoolPrograms' => $schoolPrograms,
             'statusPartnerPrograms' => $this->partnerProgramRepository->getStatusPartnerProgramByMonthly($monthYear),
             'referralTypes' => $this->referralRepository->getReferralTypeByMonthly($monthYear),
             'totalPartnerProgram' => $totalPartnerProgram,
-            'totalSchoolProgram' => $totalSchoolProgram,
+            'totalSchoolProgram' => $schoolPrograms->sum('total_fee'),
         ];
 
         if ($data) {
@@ -228,6 +241,7 @@ class PartnerDashboardController extends Controller
                     [
                         'participants' => $item['participants'],
                         'total' => $item['total'],
+                        'count_program' => $item['count_program']
                     ]
                 ],
             ];

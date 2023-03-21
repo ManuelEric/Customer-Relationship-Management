@@ -122,12 +122,12 @@
             <table width="100%" class="table-detail" style="padding:8px 5px;">
                 <tr align="center">
                     <th width="5%">No</th>
-                    <th width="{{$invoiceSch->is_full_amount == 0 ? '45%' : '80%' }}">Description</th>
+                    <th width="{{$invoiceSch->is_full_amount == 0 ? '35%' : '70%' }}">Description</th>
                     @if($invoiceSch->is_full_amount == 0)
                         <th width="25%">Price</th>
                         <th width="10%">Participants</th>
                     @endif
-                    <th width="15%">Total</th>
+                    <th width="25%">Total</th>
                 </tr>
                 <tr>
                     {{-- No --}}
@@ -139,10 +139,12 @@
                             <p>
                                 <strong> {{ (($invoiceSch->sch_prog->program->prog_sub != '-')) ? $invoiceSch->sch_prog->program->prog_sub . ': ' . $invoiceSch->sch_prog->program->prog_program : $invoiceSch->sch_prog->program->prog_program }} </strong>
                             </p>
-                            <p>
-                                {{ $invoiceSch->invb2b_participants > 0 || $invoiceSch->invb2b_participants != null ? 'Participants: ' . $invoiceSch->invb2b_participants : ''}}
-                            </p>
-                            <br>
+                            @if($invoiceSch->is_full_amount == 1)
+                                <p>
+                                    {{ $invoiceSch->invb2b_participants > 0 || $invoiceSch->invb2b_participants != null ? 'Participants: ' . $invoiceSch->invb2b_participants : ''}}
+                                </p>
+                                <br>
+                            @endif
                             <p>
                                 {!! $invoiceSch->invb2b_notes !!}
                             </p>

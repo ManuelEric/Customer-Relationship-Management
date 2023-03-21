@@ -39,17 +39,25 @@ class FinanceDashboardController extends Controller
         $totalReceipt = $this->receiptRepository->getTotalReceipt($monthYear);
 
         $totalInvoiceNeeded = collect($totalInvoiceNeededB2b)->merge($totalInvoiceNeededB2c)->sum('count_invoice_needed');
-        $totalInvoice = collect($totalInvoiceB2b)->merge($totalInvoiceB2c);
 
         $totalRefundRequest = collect($totalRefundRequestB2b)->merge($totalRefundRequestB2c)->sum('count_refund_request');
 
-        $unpaidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid', null, null);
+        $unpaidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
         $unpaidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
 
         $unpaidPayments = collect($unpaidPaymentB2b)->merge($unpaidPaymentB2c);
 
         $totalOutstanding = $unpaidPayments->count();
 
+        $totalInvoice[0] = [
+            'count_invoice' => count($totalInvoiceB2b) + count($totalInvoiceB2b),
+            'total' => $totalInvoiceB2b->where('invb2b_pm', 'Full Payment')->sum('invb2b_totpriceidr') + $totalInvoiceB2b->where('invb2b_pm', 'Installment')->sum('invdtl_amountidr')
+        ];
+
+        $totalInvoice[1] = [
+            'count_invoice' => count($totalInvoiceB2c),
+            'total' => $totalInvoiceB2c->where('inv_paymentmethod', 'Full Payment')->sum('inv_totalprice_idr') + $totalInvoiceB2c->where('inv_paymentmethod', 'Installment')->sum('invdtl_amountidr')
+        ];
 
         $data = [
             'totalInvoiceNeeded' => $totalInvoiceNeeded,

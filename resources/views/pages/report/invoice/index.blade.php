@@ -32,9 +32,9 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
-                        <strong>Total Invoice ({{count($invoices)}})</strong>
+                        <strong>Total Invoice ({{$countInvoice}})</strong>
                         <div class="text-end">
-                           Rp. {{ number_format($invoices->sum('inv_totalprice_idr')+$invoices->sum('invb2b_totpriceidr'), '2', ',', '.') }}
+                           Rp. {{ number_format($totalInvoice, '2', ',', '.') }}
                         </div>
                     </div>
                     <hr class="my-2">

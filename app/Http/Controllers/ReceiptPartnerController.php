@@ -199,6 +199,8 @@ class ReceiptPartnerController extends Controller
         $currency = $request->route('currency');
 
         $receiptPartner = $this->receiptRepository->getReceiptById($receipt_id);
+        $invb2b_id = isset($receiptPartner->invdtl_id) ? $receiptPartner->invoiceInstallment->invb2b_id : $receiptPartner->invb2b_id;
+        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
@@ -207,7 +209,7 @@ class ReceiptPartnerController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView('pages.receipt.corporate-program.export.receipt-pdf', ['receiptPartner' => $receiptPartner, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+        $pdf = PDF::loadView('pages.receipt.corporate-program.export.receipt-pdf', ['receiptPartner' => $receiptPartner, 'invoicePartner' => $invoicePartner, 'currency' => $currency, 'companyDetail' => $companyDetail]);
 
         # Update status download
         $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);

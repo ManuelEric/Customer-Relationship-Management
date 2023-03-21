@@ -72,7 +72,7 @@
                 var result = response.data.data
                 var html = ""
                 var no = 1;
-
+                console.log(result)
                 swal.close()
                 data.partner.new = result.newPartner
                 data.school.new = result.newSchool

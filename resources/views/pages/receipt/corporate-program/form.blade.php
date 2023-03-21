@@ -4,26 +4,6 @@
 
 @section('content')
 
-  {{-- @php
-        $exportIdr = '<a href="#export" id="export_idr"
-                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Export IDR
-                      </a>';
-        $uploadIdr = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
-                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_idr">
-                            <i class="bi bi-file-arrow-up me-1"></i> Upload IDR
-                      </button>';
-        $exportOther = '<a href="#export" id="export_other"
-                            class="btn btn-sm btn-outline-info rounded mx-1 my-1">
-                            <i class="bi bi-printer me-1"></i> Export Other
-                        </a>';
-        $uploadOther = '<button class="btn btn-sm btn-outline-warning rounded mx-1 my-1"
-                            data-bs-toggle="modal" data-bs-target="#uploadReceipt" id="upload_other">
-                            <i class="bi bi-file-arrow-up me-1"></i> Upload Other
-                        </button>';
-
-    @endphp --}}
-
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('receipt/corporate-program') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Receipt
@@ -241,7 +221,7 @@
                         <div class="text-center">
                             <h6>IDR</h6>
                             <section class="step-indicator">
-                                <div class="step step1 {{$receiptPartner->download_idr == 1 ? 'active' : ''}}">
+                                <div class="step step1 {{$receiptPartner->download_idr == 1 || $receiptAttachmentSigned ? 'active' : ''}}">
                                     <div class="step-icon">1</div>
                                     <p>Download</p>
                                 </div>
@@ -251,7 +231,7 @@
                                     <p>Upload</p>
                                 </div>
                                 <div class="indicator-line {{isset($receiptAttachmentNotYet) || $receiptAttachmentSigned ? 'active' : ''}}"></div>
-                                <div class="step step3 {{$receiptAttachmentRequested ? 'active' : ''}}">
+                                <div class="step step3 {{$receiptAttachmentRequested || $receiptAttachmentSigned ? 'active' : ''}}">
                                     <div class="step-icon">3</div>
                                     <p>Request Sign</p>
                                 </div>

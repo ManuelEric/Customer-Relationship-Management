@@ -38,13 +38,15 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'users.id as pic_id',
                     DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
                 )->where('tbl_sch_prog.status', 1)->whereNull('tbl_invb2b.schprog_id')
+                ->orderBy('tbl_sch_prog.success_date', 'DESC')
         )->filterColumn(
             'pic_name',
             function ($query, $keyword) {
                 $sql = 'CONCAT(users.first_name," ",users.last_name) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
-        )->make(true);
+        )
+            ->make(true);
     }
 
     public function getAllInvoiceSchDataTables()
@@ -99,6 +101,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'users.id as pic_id',
                     DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
                 )->where('tbl_partner_prog.status', 1)->whereNull('tbl_invb2b.partnerprog_id')
+                ->orderBy('tbl_partner_prog.success_date', 'DESC')
         )->filterColumn(
             'pic_name',
             function (
@@ -169,6 +172,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'users.id as pic_id',
                     DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
                 )->where('tbl_referral.referral_type', 'Out')->whereNull('tbl_invb2b.ref_id')
+                ->orderBy('tbl_referral.ref_date', 'DESC')
         )->filterColumn(
             'pic_name',
             function (
@@ -230,6 +234,11 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         return Invb2b::find($invb2b_num);
     }
 
+    public function getAllInvoiceSchool()
+    {
+        return Invb2b::whereNotNull('schprog_id')->get();
+    }
+
     public function deleteInvoiceB2b($invb2b_num)
     {
         return Invb2b::destroy($invb2b_num);
@@ -250,7 +259,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         return Invb2b::find($invb2b_num)->update($newInvoices);
     }
 
-    public function getReportInvoiceB2b($start_date = null, $end_date = null, $whereBy)
+    public function getReportInvoiceB2b($start_date = null, $end_date = null)
     {
         $firstDay = Carbon::now()->startOfMonth()->toDateString();
         $lastDay = Carbon::now()->endOfMonth()->toDateString();
@@ -271,17 +280,17 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             );
 
         if (isset($start_date) && isset($end_date)) {
-            $queryInv->whereDate('tbl_invb2b.' . $whereBy, '>=', $start_date)
-                ->whereDate('tbl_invb2b.' . $whereBy, '<=', $end_date);
+            $queryInv->whereDate('tbl_invb2b.created_at', '>=', $start_date)
+                ->whereDate('tbl_invb2b.created_at', '<=', $end_date);
         } else if (isset($start_date) && !isset($end_date)) {
-            $queryInv->whereDate('tbl_invb2b.' . $whereBy, '>=', $start_date);
+            $queryInv->whereDate('tbl_invb2b.created_at', '>=', $start_date);
         } else if (!isset($start_date) && isset($end_date)) {
-            $queryInv->whereDate('tbl_invb2b.' . $whereBy, '<=', $end_date);
+            $queryInv->whereDate('tbl_invb2b.created_at', '<=', $end_date);
         } else {
-            $queryInv->whereBetween('tbl_invb2b.' . $whereBy, [$firstDay, $lastDay]);
+            $queryInv->whereBetween('tbl_invb2b.created_at', [$firstDay, $lastDay]);
         }
 
-        return $queryInv->get();
+        return $queryInv->withCount('inv_detail')->get();
     }
 
 
@@ -289,6 +298,18 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
     {
         $firstDay = Carbon::now()->startOfMonth()->toDateString();
         $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        $whereBy = DB::raw('(CASE 
+                            WHEN tbl_receipt.id is not null THEN
+                                tbl_receipt.created_at
+                            ELSE 
+                                (CASE 
+                                    WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN 
+                                        tbl_invb2b.invb2b_duedate 
+                                    WHEN tbl_invb2b.invb2b_pm = "Installment" THEN 
+                                        tbl_invdtl.invdtl_duedate
+                                END)
+                        END)');
 
         $invoiceB2b = Invb2b::leftJoin('tbl_invdtl', 'tbl_invdtl.invb2b_id', '=', 'tbl_invb2b.invb2b_id')
             ->leftJoin(
@@ -345,22 +366,22 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             );
 
         if (isset($start_date) && isset($end_date)) {
-            return $invoiceB2b->whereBetween('invb2b_duedate', [$start_date, $end_date])
+            return $invoiceB2b->whereBetween($whereBy, [$start_date, $end_date])
                 ->orderBy('invb2b_id', 'asc')
                 ->orderBy('invdtl_id', 'asc')
                 ->get();
         } else if (isset($start_date) && !isset($end_date)) {
-            return $invoiceB2b->whereDate('invb2b_duedate', '>=', $start_date)
+            return $invoiceB2b->whereDate($whereBy, '>=', $start_date)
                 ->orderBy('invb2b_id', 'asc')
                 ->orderBy('invdtl_id', 'asc')
                 ->get();
         } else if (!isset($start_date) && isset($end_date)) {
-            return $invoiceB2b->whereDate('invb2b_duedate', '<=', $end_date)
+            return $invoiceB2b->whereDate($whereBy, '<=', $end_date)
                 ->orderBy('invb2b_id', 'asc')
                 ->orderBy('invdtl_id', 'asc')
                 ->get();
         } else {
-            return $invoiceB2b->whereBetween('invb2b_duedate', [$firstDay, $lastDay])
+            return $invoiceB2b->whereBetween($whereBy, [$firstDay, $lastDay])
                 ->orderBy('invb2b_id', 'asc')
                 ->orderBy('invdtl_id', 'asc')
                 ->get();
@@ -425,12 +446,27 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        return Invb2b::leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+        $whereBy = DB::raw('(CASE
+                            WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN 
+                                tbl_invb2b.invb2b_duedate 
+                            WHEN tbl_invb2b.invb2b_pm = "Installment" THEN 
+                                tbl_invdtl.invdtl_duedate
+                        END)');
+
+        return Invb2b::leftJoin('tbl_invdtl', 'tbl_invdtl.invb2b_id', '=', 'tbl_invb2b.invb2b_id')
+            ->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
             ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
             ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
-            ->select(DB::raw('COUNT(invb2b_num) as count_invoice'), DB::raw('CAST(sum(invb2b_totpriceidr) as integer) as total'))
-            ->whereYear('tbl_invb2b.invb2b_duedate', '=', $year)
-            ->whereMonth('tbl_invb2b.invb2b_duedate', '=', $month)
+            // ->select(DB::raw('COUNT(invb2b_num) as count_invoice'), DB::raw('CAST(sum(invb2b_totpriceidr) as integer) as total'))
+            ->select(
+                'tbl_invb2b.invb2b_num',
+                'tbl_invdtl.invdtl_id',
+                'tbl_invb2b.invb2b_totpriceidr',
+                'tbl_invb2b.invb2b_pm',
+                'tbl_invdtl.invdtl_amountidr'
+            )
+            ->whereYear($whereBy, '=', $year)
+            ->whereMonth($whereBy, '=', $month)
             ->where(
                 DB::raw('(CASE
                                 WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
@@ -455,16 +491,16 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             ->select(DB::raw("count('tbl_sch_prog.id') as count_refund_request"))
             ->where('tbl_sch_prog.status', 3)
             ->where('tbl_invb2b.invb2b_status', 1)
-            ->whereYear('tbl_invb2b.invb2b_duedate', '=', $year)
-            ->whereMonth('tbl_invb2b.invb2b_duedate', '=', $month)
+            ->whereYear('tbl_sch_prog.refund_date', '=', $year)
+            ->whereMonth('tbl_sch_prog.refund_date', '=', $month)
             ->get();
 
         $partnerProg = PartnerProg::leftJoin('tbl_invb2b', 'tbl_invb2b.partnerprog_id', '=', 'tbl_partner_prog.id')
             ->select(DB::raw("count('tbl_partner_prog.id') as count_refund_request"))
             ->where('tbl_partner_prog.status', 3)
             ->where('tbl_invb2b.invb2b_status', 1)
-            ->whereYear('tbl_invb2b.invb2b_duedate', '=', $year)
-            ->whereMonth('tbl_invb2b.invb2b_duedate', '=', $month)
+            ->whereYear('tbl_partner_prog.refund_date', '=', $year)
+            ->whereMonth('tbl_partner_prog.refund_date', '=', $month)
             ->get();
 
         $collection = collect($schProg);
@@ -473,6 +509,12 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
     public function getInvoiceOutstandingPayment($monthYear, $type, $start_date = null, $end_date = null)
     {
+        $whereBy = DB::raw('(CASE
+                            WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN 
+                                tbl_invb2b.invb2b_duedate 
+                            WHEN tbl_invb2b.invb2b_pm = "Installment" THEN 
+                                tbl_invdtl.invdtl_duedate
+                        END)');
 
         if (isset($monthYear)) {
             $year = date('Y', strtotime($monthYear));
@@ -517,6 +559,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         switch ($type) {
             case 'paid':
                 $queryInv->select(
+                    'tbl_invb2b.invb2b_id as invoice_id',
                     DB::raw('(CASE 
                                 WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch.sch_name
                                 WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_corp.corp_name
@@ -534,12 +577,20 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'tbl_invb2b.invb2b_totpriceidr as total_price_inv',
                     'tbl_invdtl.invdtl_installment as installment_name',
                     DB::raw("'B2B' as type"),
-                    DB::raw('tbl_receipt.receipt_amount_idr as total')
+                    DB::raw('tbl_receipt.receipt_amount_idr as total'),
                 )->whereNotNull('tbl_receipt.id');
+
+                if (isset($monthYear)) {
+                    $queryInv->whereYear('tbl_receipt.created_at', '=', $year)
+                        ->whereMonth('tbl_receipt.created_at', '=', $month);
+                } else {
+                    $queryInv->whereBetween('tbl_receipt.created_at', [$start_date, $end_date]);
+                }
                 break;
 
             case 'unpaid':
                 $queryInv->select(
+                    'tbl_invb2b.invb2b_id as invoice_id',
                     DB::raw('(CASE 
                                 WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch.sch_name
                                 WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_corp.corp_name
@@ -566,14 +617,14 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     // DB::raw("'start_data '" . $start_date . "as start_date"),
 
                 )->whereNull('tbl_receipt.id');
-                break;
-        }
 
-        if (isset($monthYear)) {
-            $queryInv->whereYear('tbl_invb2b.invb2b_duedate', '=', $year)
-                ->whereMonth('tbl_invb2b.invb2b_duedate', '=', $month);
-        } else {
-            $queryInv->whereBetween('tbl_invb2b.invb2b_duedate', [$start_date, $end_date]);
+                if (isset($monthYear)) {
+                    $queryInv->whereYear($whereBy, '=', $year)
+                        ->whereMonth($whereBy, '=', $month);
+                } else {
+                    $queryInv->whereBetween($whereBy, [$start_date, $end_date]);
+                }
+                break;
         }
 
         $queryInv->where(
@@ -617,7 +668,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             ->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
             ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
             ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
-            ->select(DB::raw('SUM(tbl_receipt.receipt_amount_idr) as total'), DB::raw('MONTH(tbl_invb2b.invb2b_duedate) as month'))
+            ->select(DB::raw('SUM(tbl_receipt.receipt_amount_idr) as total'), DB::raw('MONTH(tbl_receipt.created_at) as month'))
             ->where(
                 DB::raw('(CASE
                                 WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch_prog.status
@@ -631,8 +682,8 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                             END)')
             )
             ->whereNotNull('tbl_receipt.id')
-            ->whereYear('tbl_invb2b.invb2b_duedate', '=', $year)
-            ->groupBy(DB::raw('MONTH(tbl_invb2b.invb2b_duedate)'))
+            ->whereYear('tbl_receipt.created_at', '=', $year)
+            ->groupBy(DB::raw('MONTH(tbl_receipt.created_at)'))
             ->get();
     }
 

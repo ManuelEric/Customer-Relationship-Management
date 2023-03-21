@@ -122,12 +122,12 @@
             <table width="100%" class="table-detail" style="padding:8px 5px;">
                 <tr align="center">
                     <th width="5%">No</th>
-                    <th width="{{$invoicePartner->is_full_amount == 0 ? '45%' : '80%' }}">Description</th>
+                    <th width="{{$invoicePartner->is_full_amount == 0 ? '35%' : '40%' }}">Description</th>
                     @if($invoicePartner->is_full_amount == 0)
                         <th width="25%">Price</th>
                         <th width="10%">Participants</th>
                     @endif
-                    <th width="15%">Total</th>
+                    <th width="25%">Total</th>
                 </tr>
                 <tr>
                     {{-- No --}}
@@ -143,8 +143,8 @@
                                 <p>
                                     {{ $invoicePartner->invb2b_participants > 0 || $invoicePartner->invb2b_participants != null ? 'Participants: ' . $invoicePartner->invb2b_participants : ''}}
                                 </p>
+                                <br>
                             @endif
-                            <br>
                             <p>
                                 {!! $invoicePartner->invb2b_notes !!}
                             </p>

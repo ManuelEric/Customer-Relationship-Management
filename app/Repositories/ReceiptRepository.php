@@ -17,11 +17,12 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     public function getAllReceiptSchDataTables()
     {
         return Datatables::eloquent(
-            Invb2b::rightJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+            Receipt::leftJoin('tbl_invdtl', 'tbl_invdtl.invdtl_id', '=', 'tbl_receipt.invdtl_id')
+                ->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', DB::raw('(CASE WHEN tbl_receipt.invdtl_id is not null THEN tbl_invdtl.invb2b_id ELSE tbl_receipt.invb2b_id END)'))
+                ->rightJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
                 ->leftJoin('tbl_sch', 'tbl_sch_prog.sch_id', '=', 'tbl_sch.sch_id')
                 ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
                 ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-                ->leftJoin('tbl_receipt', 'tbl_receipt.invb2b_id', '=', 'tbl_invb2b.invb2b_id')
                 ->select(
                     'tbl_receipt.id as increment_receipt',
                     'tbl_sch.sch_name as school_name',
@@ -31,7 +32,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                         ELSE tbl_prog.prog_program
                     END) AS program_name'),
                     'tbl_receipt.receipt_id',
-                    'tbl_receipt.invb2b_id',
+                    'tbl_invb2b.invb2b_id',
                     'tbl_receipt.receipt_method',
                     'tbl_receipt.created_at',
                     'tbl_invb2b.invb2b_num',
@@ -46,11 +47,12 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     public function getAllReceiptCorpDataTables()
     {
         return Datatables::eloquent(
-            Invb2b::rightJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
+            Receipt::leftJoin('tbl_invdtl', 'tbl_invdtl.invdtl_id', '=', 'tbl_receipt.invdtl_id')
+                ->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', DB::raw('(CASE WHEN tbl_receipt.invdtl_id is not null THEN tbl_invdtl.invb2b_id ELSE tbl_receipt.invb2b_id END)'))
+                ->rightJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
                 ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
                 ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_partner_prog.prog_id')
                 ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-                ->leftJoin('tbl_receipt', 'tbl_receipt.invb2b_id', '=', 'tbl_invb2b.invb2b_id')
                 ->select(
                     'tbl_receipt.id as increment_receipt',
                     'tbl_corp.corp_name',
@@ -60,7 +62,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                         ELSE tbl_prog.prog_program
                     END) AS program_name'),
                     'tbl_receipt.receipt_id',
-                    'tbl_receipt.invb2b_id',
+                    'tbl_invb2b.invb2b_id',
                     'tbl_receipt.receipt_method',
                     'tbl_receipt.created_at',
                     'tbl_invb2b.invb2b_num',
@@ -75,9 +77,9 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     public function getAllReceiptReferralDataTables()
     {
         return Datatables::eloquent(
-            Invb2b::rightJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
+            Receipt::leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_receipt.invb2b_id')
+                ->rightJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
                 ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
-                ->leftJoin('tbl_receipt', 'tbl_receipt.invb2b_id', '=', 'tbl_invb2b.invb2b_id')
                 ->select(
                     'tbl_receipt.id as increment_receipt',
                     'tbl_corp.corp_name',
@@ -154,6 +156,15 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     public function getReceiptByReceiptId($receiptId)
     {
         return Receipt::where('receipt_id', $receiptId)->first();
+    }
+
+    public function getAllReceiptSchool()
+    {
+        return Receipt::leftJoin('tbl_invdtl', 'tbl_invdtl.invdtl_id', '=', 'tbl_receipt.invdtl_id')
+            ->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', DB::raw('(CASE WHEN tbl_receipt.invdtl_id is not null THEN tbl_invdtl.invb2b_id ELSE tbl_receipt.invb2b_id END)'))
+            ->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+            ->whereNotNull('tbl_sch_prog.id')
+            ->get();
     }
 
     public function createReceipt(array $receiptDetails)
@@ -280,16 +291,8 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             ->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
             ->leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
             ->select(DB::raw('COUNT(tbl_receipt.id) as count_receipt'), DB::raw('CAST(SUM(receipt_amount_idr) as integer) as total'))
-            ->whereYear(DB::raw('(CASE
-                                    WHEN tbl_receipt.invdtl_id is not null AND tbl_invb2b.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
-                                    WHEN tbl_receipt.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
-                                    WHEN tbl_receipt.inv_id is not null THEN tbl_inv.inv_duedate
-                                END)'), '=', $year)
-            ->whereMonth(DB::raw('(CASE
-                                    WHEN tbl_receipt.invdtl_id is not null AND tbl_invb2b.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
-                                    WHEN tbl_receipt.invb2b_id is not null THEN tbl_invb2b.invb2b_duedate
-                                    WHEN tbl_receipt.inv_id is not null THEN tbl_inv.inv_duedate
-                                END)'), '=', $month)
+            ->whereYear('tbl_receipt.created_at', '=', $year)
+            ->whereMonth('tbl_receipt.created_at', '=', $month)
             ->where(
                 DB::raw('(CASE
                             WHEN tbl_receipt.invdtl_id is not null THEN 

@@ -183,14 +183,33 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
             ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
             ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->select(
+                'tbl_sch_prog.status',
                 'tbl_sch.sch_name as school_name',
                 DB::raw('(CASE
                             WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
                             ELSE tbl_prog.prog_program
                         END) AS program_name')
             )
-            ->whereYear('tbl_sch_prog.created_at', '=', $year)
-            ->whereMonth('tbl_sch_prog.created_at', '=', $month)
+            ->whereYear(
+                DB::raw('(CASE
+                            WHEN tbl_sch_prog.status = 0 THEN tbl_sch_prog.created_at
+                            WHEN tbl_sch_prog.status = 1 THEN tbl_sch_prog.success_date
+                            WHEN tbl_sch_prog.status = 2 THEN tbl_sch_prog.denied_date
+                            WHEN tbl_sch_prog.status = 3 THEN tbl_sch_prog.refund_date
+                        END)'),
+                '=',
+                $year
+            )
+            ->whereMonth(
+                DB::raw('(CASE
+                            WHEN tbl_sch_prog.status = 0 THEN tbl_sch_prog.created_at
+                            WHEN tbl_sch_prog.status = 1 THEN tbl_sch_prog.success_date
+                            WHEN tbl_sch_prog.status = 2 THEN tbl_sch_prog.denied_date
+                            WHEN tbl_sch_prog.status = 3 THEN tbl_sch_prog.refund_date
+                        END)'),
+                '=',
+                $month
+            )
             ->where('tbl_sch_prog.status', $status)
             ->get();
     }
@@ -201,8 +220,26 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
         $month = date('m', strtotime($monthYear));
 
         return SchoolProgram::select('status', DB::raw('sum(total_fee) as total_fee'), DB::raw('count(*) as count_status'))
-            ->whereYear('created_at', '=', $year)
-            ->whereMonth('created_at', '=', $month)
+            ->whereYear(
+                DB::raw('(CASE
+                            WHEN status = 0 THEN created_at
+                            WHEN status = 1 THEN success_date
+                            WHEN status = 2 THEN denied_date
+                            WHEN status = 3 THEN refund_date
+                        END)'),
+                '=',
+                $year
+            )
+            ->whereMonth(
+                DB::raw('(CASE
+                            WHEN status = 0 THEN created_at
+                            WHEN status = 1 THEN success_date
+                            WHEN status = 2 THEN denied_date
+                            WHEN status = 3 THEN refund_date
+                        END)'),
+                '=',
+                $month
+            )
             ->groupBy('status')
             ->get();
     }
@@ -284,9 +321,13 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                             ELSE tbl_prog.prog_program
                         END) AS program_name'),
                 DB::raw("'School Program' as type"),
-                DB::raw('SUM(participants) as participants'),
+                DB::raw('(CASE 
+                            WHEN SUM(participants) is null THEN 0
+                            ELSE SUM(participants)
+                        END) as participants'),
                 DB::raw('DATE_FORMAT(success_date, "%Y") as year'),
                 DB::raw("SUM(total_fee) as total"),
+                DB::raw('count(tbl_sch_prog.prog_id) as count_program')
             )
             ->where('status', 1)
             // ->whereYear('success_date', '=', $startYear)
@@ -298,7 +339,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                                 when ' . $endYear . ' then ' . $endYear . '
                             end)')
             )
-            ->groupBy('prog_id')
+            ->groupBy('tbl_sch_prog.prog_id')
             ->groupBy(DB::raw('year(success_date)'))
             ->get();
     }

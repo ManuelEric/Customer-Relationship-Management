@@ -48,6 +48,7 @@
                                 <table class="table table-hover">
                                     <tr>
                                         <th>ID</th>
+                                        <th>Invoice ID</th>
                                         <th>Full Name</th>
                                         <th>Type</th>
                                         <th>Program Name</th>
@@ -58,6 +59,7 @@
                                             @foreach ($paidPayments as $paidPayment)
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $paidPayment->invoice_id }}</td>
                                                     <td>{{ $paidPayment->full_name }}</td>
                                                     <td>{{ $paidPayment->type }}</td>
                                                     <td>{{ $paidPayment->program_name }}</td>
@@ -83,6 +85,7 @@
                                 <table class="table table-hover">
                                     <tr>
                                         <th>ID</th>
+                                        <th>Invoice ID</th>
                                         <th>Full Name</th>
                                         <th>Type</th>
                                         <th>Program Name</th>
@@ -93,6 +96,7 @@
                                         @foreach ($unpaidPayments as $unpaidPayment)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $unpaidPayment->invoice_id }}</td>
                                                 <td>{{ $unpaidPayment->full_name }}</td>
                                                 <td>{{ $unpaidPayment->type }}</td>
                                                 <td>{{ $unpaidPayment->program_name }}</td>
@@ -164,6 +168,8 @@
 
                 var result = response.data.data
 
+                console.log(result);
+
                 outstanding_chart.data.datasets[0].data = [];
                 outstanding_chart.data.datasets[0].data.push(result.paidPayments.length)                
                 outstanding_chart.data.datasets[0].data.push(result.unpaidPayments.length)                
@@ -181,6 +187,7 @@
                     var diff = (item.total > item.total_price_inv ? item.total - item.total_price_inv : 0);
                     html = "<tr>";
                     html += "<td>" + no + "</td>"
+                    html += "<td>" + item.invoice_id + "</td>"
                     html += "<td>" + item.full_name + "</td>"
                     html += "<td>" + item.type + "</td>"
                     html += "<td>" + item.program_name + "</td>"
@@ -201,6 +208,7 @@
                 result.unpaidPayments.forEach(function (item, index) {
                     html = "<tr>";
                     html += "<td>" + no + "</td>"
+                    html += "<td>" + item.invoice_id + "</td>"
                     html += "<td>" + item.full_name + "</td>"
                     html += "<td>" + item.type + "</td>"
                     html += "<td>" + item.program_name + "</td>"

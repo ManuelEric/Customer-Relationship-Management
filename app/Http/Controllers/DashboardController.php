@@ -233,7 +233,7 @@ class DashboardController extends Controller
         $totalSchool = $this->schoolRepository->getAllSchools()->count();
         $totalUniversity = $this->universityRepository->getAllUniversities()->count();
         $totalAgreement = $this->partnerAgreementRepository->getCountTotalPartnerAgreementByMonthly(date('Y-m'));
-        $newPartner = $this->corporateRepository->getCountTotalCorporateByMonthly(date('Y-m'));
+        $newPartner = $this->corporateRepository->getCountTotalCorporateByMonthly(date('Y-m'), 'monthly');
         $newSchool = $this->schoolRepository->getCountTotalSchoolByMonthly(date('Y-m'));
         $newUniversity = $this->universityRepository->getCountTotalUniversityByMonthly(date('Y-m'));
 
@@ -337,6 +337,8 @@ class DashboardController extends Controller
 
         $unpaidPayments = collect($unpaidPaymentB2b)->merge($unpaidPaymentB2c);
 
+        $totalOutstanding = $unpaidPayments->count();
+
         $revenueB2b = $this->invoiceB2bRepository->getRevenueByYear(date('Y'));
         $revenueB2c = $this->invoiceProgramRepository->getRevenueByYear(date('Y'));
 
@@ -353,6 +355,7 @@ class DashboardController extends Controller
             'totalRefundRequest' => $totalRefundRequest,
             'paidPayments' => $paidPayments,
             'unpaidPayments' => $unpaidPayments,
+            'totalOutstanding' => $totalOutstanding,
             'revenue' => $revenue,
         ];
     }

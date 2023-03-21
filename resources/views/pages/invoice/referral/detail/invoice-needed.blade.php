@@ -87,6 +87,10 @@
                     {
                         data: 'ref_date',
                         name: 'tbl_referral.ref_date',
+                        render: function(data, type, row) {
+                            let ref_date = data ? moment(data).format("MMMM Do YYYY") : '-'
+                            return ref_date
+                        },
                     },
                     {
                         data: 'pic_name',

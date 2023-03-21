@@ -14,11 +14,12 @@ interface InvoiceB2bRepositoryInterface
     public function getInvoiceB2bBySchProg($schprog_id);
     public function getInvoiceB2bByPartnerProg($partnerprog_id);
     public function getInvoiceB2bById($invb2b_num);
+    public function getAllInvoiceSchool();
     public function deleteInvoiceB2b($invb2b_num);
     public function createInvoiceB2b(array $invoices);
     public function insertInvoiceB2b(array $invoices);
     public function updateInvoiceB2b($invb2b_num, array $invoices);
-    public function getReportInvoiceB2b($start_date, $end_date, $whereBy);
+    public function getReportInvoiceB2b($start_date, $end_date);
     public function getReportUnpaidInvoiceB2b($start_date, $end_date);
     public function getTotalPartnershipProgram($monthYear);
     public function getTotalInvoiceNeeded($monthYear);

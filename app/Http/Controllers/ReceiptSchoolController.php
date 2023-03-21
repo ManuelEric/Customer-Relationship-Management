@@ -197,6 +197,8 @@ class ReceiptSchoolController extends Controller
         $currency = $request->route('currency');
 
         $receiptSch = $this->receiptRepository->getReceiptById($receipt_id);
+        $invb2b_id = isset($receiptSch->invdtl_id) ? $receiptSch->invoiceInstallment->invb2b_id : $receiptSch->invb2b_id;
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
@@ -205,7 +207,7 @@ class ReceiptSchoolController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receiptSch, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+        $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receiptSch, 'invoiceSch' => $invoiceSch, 'currency' => $currency, 'companyDetail' => $companyDetail]);
 
 
 
@@ -453,6 +455,10 @@ class ReceiptSchoolController extends Controller
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
         $receipt_id = $receipt->receipt_id;
 
+        $invb2b_id = isset($receipt->invdtl_id) ? $receipt->invoiceInstallment->invb2b_id : $receipt->invb2b_id;
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
+
+
         $receiptAttachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
 
         $file_name = str_replace('/', '_', $receipt_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
@@ -472,7 +478,7 @@ class ReceiptSchoolController extends Controller
         ];
 
         if (isset($receiptAttachment) || !Storage::disk('public')->exists($path . $file_name)) {
-            $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receipt, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+            $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receipt, 'invoiceSch' => $invoiceSch, 'currency' => $currency, 'companyDetail' => $companyDetail]);
 
             # Generate PDF file
             $content = $pdf->download();

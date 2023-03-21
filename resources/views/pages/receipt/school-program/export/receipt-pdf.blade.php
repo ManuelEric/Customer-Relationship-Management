@@ -88,9 +88,9 @@
                                     Received from :
                                 </td>
                                 <td>
-                                    {{ $receiptSch->invoiceB2b->sch_prog->school->sch_name }}
+                                    {{ $invoiceSch->sch_prog->school->sch_name }}
                                     <br>
-                                    {{ $receiptSch->invoiceB2b->sch_prog->school->sch_city }}
+                                    {{ $invoiceSch->sch_prog->school->sch_city }}
                                 </td>
                             </tr>
                         </table>
@@ -128,65 +128,102 @@
             <table width="100%" class="table-detail" style="padding:8px 5px;">
                 <tr align="center">
                     <th width="5%">No</th>
-                    <th width="50%">Description</th>
+                    <th width="{{$invoiceSch->is_full_amount == 0 ? '35%' : '70%' }}">Description</th>
                     <th width="25%">Price</th>
-                    {{-- <th width="10%">Participants</th> --}}
-                    <th width="20%">Total</th>
+                    @if($invoiceSch->is_full_amount == 0 && $invoiceSch->invb2b_pm == 'Full Payment')
+                        <th width="10%">Participants</th>
+                    @endif
+                    <th width="25%">Total</th>
                 </tr>
-                <tr>
+                <tr>    
+                    {{-- No --}}
                     <td valign="top" align="center">1</td>
+                    
+                    {{-- Description --}}
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
                             <p>
-                                <strong> {{ (($receiptSch->invoiceB2b->sch_prog->program->prog_sub != '-')) ? $receiptSch->invoiceB2b->sch_prog->program->prog_sub . ': ' . $receiptSch->invoiceB2b->sch_prog->program->prog_program : $receiptSch->invoiceB2b->sch_prog->program->prog_program }} </strong>
+                                <strong> {{ (($invoiceSch->sch_prog->program->prog_sub != '-')) ? $invoiceSch->sch_prog->program->prog_sub . ': ' . $invoiceSch->sch_prog->program->prog_program : $invoiceSch->sch_prog->program->prog_program }} </strong>
                             </p>
-                            @if ($receiptSch->invoiceB2b->invb2b_pm == "Installment")
+                            @if ($invoiceSch->invb2b_pm == "Installment")
                                 <p>
                                     {{ $receiptSch->invoiceInstallment->invdtl_installment }} ( {{ $receiptSch->invoiceInstallment->invdtl_percentage }}% )
                                 </p>
+                                <br>
                             @endif
+                            @if($invoiceSch->is_full_amount == 1)
+                                <p>
+                                    {{ $invoiceSch->invb2b_participants > 0 && $invoiceSch->invb2b_participants != null ? 'Participants: ' . $invoiceSch->invb2b_participants : ''}}
+                                </p>
+                                <br>
+                            @endif
+                             <p>
+                                {!! $invoiceSch->invb2b_notes !!}
+                            </p>
                         </div>
 
+                         @if($invoiceSch->invb2b_discidr != 0 && $invoiceSch->invb2b_discidr != null)
+                            <div style="margin-top:5px;">
+                                <p>
+                                    <strong> Discount</strong>
+                                </p>
+                            </div>
+                        @endif
                     </td>
+
+                    {{-- Price --}}
                     <td valign="top" align="center">
                         <div style="height:80px;">
                             <p>
                                 <strong>
-                                    @if ($receiptSch->invoiceB2b->invb2b_pm == "Installment")
+                                    @if ($invoiceSch->invb2b_pm == "Installment")
                                         {{ $currency == 'other' ? $receiptSch->invoiceInstallment->invoicedtl_amount :  $receiptSch->invoiceInstallment->invoicedtl_amountidr }}
                                     @else
-                                        {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoicePrice : $receiptSch->invoiceB2b->invoicePriceIdr }}
+                                        {{ $currency == 'other' ? $invoiceSch->invoicePrice : $invoiceSch->invoicePriceIdr }}
                                     @endif
                                 </strong>
                             </p>
                         </div>
                     </td>
+                    @if($invoiceSch->is_full_amount == 0 && $invoiceSch->invb2b_pm == 'Full Payment')
+                        {{-- Participants --}}
+                        <td valign="top" align="center">
+                            <p>
+                                <strong>
+                                    {{ $invoiceSch->invb2b_participants }}
+                                </strong>
+                            </p>
+                        </td>
+                    @endif
+
+                    {{-- Total --}}
                     <td valign="top" align="center">
                         <div style="height:80px;">
                             <p>
                                 <strong>
-                                    @if ($receiptSch->invoiceB2b->invb2b_pm == "Installment")
+                                    @if ($invoiceSch->invb2b_pm == "Installment")
                                         {{ $currency == 'other' ? $receiptSch->invoiceInstallment->invoicedtl_amount :  $receiptSch->invoiceInstallment->invoicedtl_amountidr }}
                                     @else
-                                        {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoicePrice : $receiptSch->invoiceB2b->invoicePriceIdr }}
+                                        @if($invoiceSch->is_full_amount == 0)
+                                            {{ $currency == 'other' ? $invoiceSch->invoiceSubTotalprice : $invoiceSch->invoiceSubTotalpriceIdr }}
+                                        @else
+                                            {{ $currency == 'other' ? $invoiceSch->invoicePrice : $invoiceSch->invoicePriceIdr }}
+                                        @endif                                    
                                     @endif
                                 </strong>
                             </p>
                         </div>
+                        @if($invoiceSch->invb2b_discidr != 0 && $invoiceSch->invb2b_discidr != null)
+                            <div style="margin-top:5px;">
+                                <p>
+                                    <strong> - {{ $currency == 'other' ? $invoiceSch->invoiceDiscount : $invoiceSch->invoiceDiscountIdr }}</strong>
+                                </p>
+                            </div>
+                        @endif
                     </td>
                 </tr>
-                @if($receiptSch->invoiceB2b->invb2b_discidr != 0)
-                    <tr>
-                        <td colspan="3" align="right"><b>Discount</b></td>
-                        <td valign="middle" align="center">
-                            <b> 
-                                <strong> - {{ $currency == 'other' ? $receiptSch->invoiceB2b->invoiceDiscount : $receiptSch->invoiceB2b->invoiceDiscountIdr }}</strong>
-                            </b>
-                        </td>
-                    </tr>
-                @endif
                 <tr>
-                    <td colspan="3" align="right"><b>Total</b></td>
+                    <td colspan="{{$invoiceSch->is_full_amount == 0 && $invoiceSch->invb2b_pm == 'Full Payment' ? '4' : '3'}}" align="right"><b>Total</b></td>
                     <td valign="middle" align="center">
                         <b> 
                             {{ $currency == 'other' ? $receiptSch->receipt_amount : $receiptSch->receipt_amount_idr }}
