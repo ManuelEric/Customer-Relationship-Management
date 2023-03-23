@@ -360,8 +360,25 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
     public function getRevenueByYear($year)
     {
-        return InvoiceProgram::leftJoin('tbl_receipt', 'tbl_receipt.inv_id', '=', 'tbl_inv.inv_id')
-            ->select(DB::raw('SUM(tbl_receipt.receipt_amount_idr) as total'), DB::raw('MONTH(tbl_inv.inv_duedate) as month'))
+        return InvoiceProgram::leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')
+            ->leftJoin(
+                'tbl_receipt',
+                DB::raw('(CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                            tbl_receipt.inv_id 
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                tbl_receipt.invdtl_id
+                        ELSE null
+                    END )'),
+                DB::raw('CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                            tbl_inv.inv_id 
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                tbl_invdtl.invdtl_id
+                        ELSE null
+                    END')
+            )
+            ->select(DB::raw('SUM(tbl_receipt.receipt_amount_idr) as total'), DB::raw('MONTH(tbl_receipt.created_at) as month'))
             ->whereYear('tbl_receipt.created_at', '=', $year)
             ->whereRelation('clientprog', 'status', 1)
             ->whereNotNull('tbl_receipt.id')

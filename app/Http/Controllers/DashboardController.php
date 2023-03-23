@@ -75,6 +75,7 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
+
         $data = $this->indexSales($request);
         $data = array_merge($data, $this->indexPartnership($request));
         $data = array_merge($data, $this->indexFinance($request));
