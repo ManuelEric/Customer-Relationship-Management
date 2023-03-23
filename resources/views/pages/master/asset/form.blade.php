@@ -73,7 +73,7 @@
                                     <label for="">
                                         Asset Merk/Type
                                     </label>
-                                    <input type="text" name="asset_merktype" class="form-control form-control-sm rounded"
+                                    <input type="text" placeholder="ex : Apple / Hewlett Packard" name="asset_merktype" class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_merktype) ? $asset->asset_merktype : old('asset_merktype') }}"
                                          {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
@@ -92,27 +92,33 @@
                             <div class="col-md-4">
                                 <div class="mb-2">
                                     <label for="">
-                                        Amount
+                                        Amount <sup class="text-warning">*</sup>
                                     </label>
-                                    <input type="number" name="asset_amount" class="form-control form-control-sm rounded"
+                                    <input type="number" placeholder="ex : Quantity" name="asset_amount" class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_amount) ? $asset->asset_amount : old('asset_amount') }}"
                                          {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
+                                    @error('asset_amount')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-2">
                                     <label for="">
-                                        Unit(s)
+                                        Unit(s) <sup class="text-warning">*</sup>
                                     </label>
-                                    <input type="text" name="asset_unit" class="form-control form-control-sm rounded"
+                                    <input type="text" placeholder="ex : Unit / etc " name="asset_unit" class="form-control form-control-sm rounded"
                                         value="{{ isset($asset->asset_unit) ? $asset->asset_unit : old('asset_unit') }}" 
                                         {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
+                                    @error('asset_unit')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-2">
                                     <label for="">
-                                        Condition
+                                        Condition <sup class="text-warning">*</sup>
                                     </label>
                                     <select name="asset_condition" class="select w-100"
                                         {{ empty($asset) || isset($edit) ? '' : 'disabled' }}>
@@ -132,6 +138,9 @@
                                             Good
                                         </option>
                                     </select>
+                                    @error('asset_condition')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -388,7 +397,7 @@
                                 </ul>
                             </div>
                         @endif --}}
-                        <form action="#" method="POST" id="formReturn">
+                        <form action="" method="POST" id="formReturn">
                             @csrf
                             <input type="hidden" name="user" id="userId">
                             <input type="hidden" name="usedId" id="usedId">
@@ -400,7 +409,7 @@
                                         Amount
                                     </label>
                                     <input type="hidden" name="old_amount_used" id="oldAmountUsed">
-                                    <input type="number" name="amount_returned"
+                                    <input type="number" name="amount_returned" value="{{ old('amount_returned') }}"
                                         class="form-control form-control-sm rounded" id="amountReturned" min=0>
                                     @error('amount_returned')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -412,7 +421,7 @@
                                     </label>
                                     <input type="hidden" name="old_used_date" id="oldUsedDate">
                                     <input type="date" name="returned_date"
-                                        class="form-control form-control-sm rounded" id="returnedDate" value="">
+                                        class="form-control form-control-sm rounded" id="returnedDate" value="{{ old('returned_date') }}">
                                     @error('returned_date')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -423,8 +432,8 @@
                                     </label>
                                     <select name="condition" class="modal-select2 w-100">
                                         <option data-placeholder="true"></option>
-                                        <option value="Good">Good</option>
-                                        <option value="Not Good">Not Good</option>
+                                        <option value="Good" @selected(old('condition') == 'Good')>Good</option>
+                                        <option value="Not Good" @selected(old('condition') == 'Not Good')>Not Good</option>
                                     </select>
                                     @error('condition')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -447,6 +456,7 @@
     @endif
 
     <script>
+        
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#picForm .modal-content'),
@@ -461,6 +471,9 @@
                 placeholder: "Select value",
                 allowClear: true
             });
+
+            if (sessionStorage.getItem('asset_link'))
+                $("#formReturn").attr('action', sessionStorage.getItem('asset_link'))
         });
 
 
@@ -480,12 +493,17 @@
                     $('#amountReturned').val(data.user.pivot.amount_used - data.amount_returned)
                     $('#oldUsedDate').val(data.user.pivot.used_date)
 
-                    $('#formReturn').attr('action', '{{ url('master/asset') }}/' + data.asset.asset_id + '/used/' +
-                        data.usedId + '/returned')
+                    var action = '{{ url('master/asset') }}/' + data.asset.asset_id + '/used/' +
+                        data.usedId + '/returned'
+
+                    $('#formReturn').attr('action', action)
+
+
+                    sessionStorage.setItem('asset_link', action)
                 })
                 .catch(function(error) {
                     // handle error
-                    console.log(error);
+                    notification('error', error)
                 })
         }
     </script>

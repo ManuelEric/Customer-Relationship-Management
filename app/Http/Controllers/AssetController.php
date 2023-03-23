@@ -113,6 +113,7 @@ class AssetController extends Controller
 
     public function update(StoreAssetRequest $request)
     {
+        $assetId = $request->route('asset');
         $assetDetails = $request->only([
             'asset_name',
             'asset_merktype',
@@ -135,10 +136,10 @@ class AssetController extends Controller
 
             DB::rollBack();
             Log::error('Update asset failed : ' . $e->getMessage());
-            return Redirect::to('master/asset')->withError('Failed to update asset');
+            return Redirect::to('master/asset/'.$assetId)->withError('Failed to update asset');
         }
 
-        return Redirect::to('master/asset')->withSuccess('Asset successfully updated');;
+        return Redirect::to('master/asset/'.$assetId)->withSuccess('Asset successfully updated');;
     }
 
     public function destroy(Request $request)

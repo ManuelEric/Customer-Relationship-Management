@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -72,7 +73,7 @@ class UserController extends Controller
 
 
         # generate default password which is 12345678
-        $userDetails['password'] = Crypt::encrypt('12345678');
+        $userDetails['password'] = Hash::make('12345678'); # update
         $userDetails['position_id'] = $request->position;
 
         # generate extended_id
