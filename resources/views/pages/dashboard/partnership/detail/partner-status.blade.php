@@ -12,7 +12,7 @@
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="m-0 p-0">Total Partner</h5>
                         <h4 class="m-0 p-0" id="tot_partner">
-                            {{ $totalPartner }}<sup class="text-primary">({{$newPartner}} New)</sup>
+                            {{ $totalPartner }}<sup></sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>{{$newPartner}} New</small></span></sup>
                         </h4>
                     </div>
                     <div class="mb-2 ms-3 border-top pt-3" id="parent_percentage_partner">
@@ -37,7 +37,7 @@
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="m-0 p-0">Total School</h5>
                         <h4 class="m-0 p-0" id="tot_school">
-                            {{ $totalSchool }}<sup class="text-primary">({{$newSchool}} New)</sup>
+                            {{ $totalSchool }}<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>{{$newSchool}} New</small></span></sup>
                         </h4>
                     </div>
                     <div class="mb-2 ms-3 border-top pt-3" id="parent_percentage_partner">
@@ -62,7 +62,7 @@
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="m-0 p-0">Total Univeristy</h5>
                         <h4 class="m-0 p-0" id="tot_univ">
-                            {{ $totalUniversity }}<sup class="text-primary">({{$newUniversity}} New)</sup>
+                            {{ $totalUniversity }}<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>{{$newUniversity}} New</small></span></sup>
                         </h4>
                     </div>
                     <div class="mb-2 ms-3 border-top pt-3" id="parent_percentage_partner">
@@ -92,21 +92,6 @@
                         <h4 class="m-0 p-0 text-danger" id="tot_agreement">
                             {{ $totalAgreement }}
                         </h4>
-                    </div>
-                    <div class="mb-2 ms-3 border-top pt-3" id="parent_percentage_partner">
-                        <p class="mb-0 text-muted partner-status-detail">
-                            <span @class([
-                                'me-2',
-                                'text-success'
-                            ])>
-                                <i @class([
-                                    'bi',
-                                    'bi-arrow-up-short'
-                                ])></i>
-                                0%
-                            </span>
-                            <span>Since before</span>
-                        </p>
                     </div>
                 </div>
             </div>
@@ -246,6 +231,8 @@
                 var html = ""
                 var no = 1;
                 var percentage;
+                var old;
+                var news;
 
                 console.log(result)
                 swal.close()
@@ -266,31 +253,55 @@
                     switch (index) {
                         case 0:
                             percentage = data.partner.percentage
+                            old = data.partner.total
+                            news = data.partner.new
                             break;
                         case 1:
                             percentage = data.school.percentage
+                            old = data.school.total
+                            news = data.school.new
                             break;
                         case 2:
                             percentage = data.university.percentage
-                            break;
-                        case 3:
-                            percentage = data.agreement.percentage
+                            old = data.university.total
+                            news = data.university.new
                             break;
                   
                     }
-                        var textStyling = 'text-success'
-                        var icon = "bi-arrow-up-short"
+
+                        if (news > old && news != 0 && old != 0) {
+    
+                            var textStyling = 'text-success'
+                            var icon = "bi-arrow-up-short"
+    
+                        } else if (old == 0 && news != 0) {
+    
+                            var textStyling = 'text-success'
+                            var icon = "bi-arrow-up-short"
+                        
+                        }else if (old == 0 && news == 0) {
+    
+                            var textStyling = ''
+                            var icon = ""
+    
+                        } else {
+    
+                            var textStyling = 'text-danger'
+                            var icon = "bi-arrow-down-short"
+    
+                        }
+    
                         var html = '<span class="me-2 '+ textStyling +'">'+
                                         '<i class="bi '+ icon +'"></i>' +
                                         percentage + '%' +
-                                    '</span><span>Since before</span>'
+                                    '</span><span>Since last month</span>'
                     
                     $(this).html(html)
                 })
 
-                $('#tot_partner').html(data.partner.total + (!!data.partner.new ? '<sup class="text-primary">(' + data.partner.new + ' New)</sup>' : ''))
-                $('#tot_school').html(data.school.total + (!!data.school.new ? '<sup class="text-primary">(' + data.school.new + ' New)</sup>' : ''))
-                $('#tot_univ').html(data.university.total + (!!data.university.new ? '<sup class="text-primary">(' + data.university.new + ' New)</sup>' : ''))
+                $('#tot_partner').html(data.partner.total + (!!data.partner.new ? '<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.partner.new + ' New</small></span></sup>' : ''))
+                $('#tot_school').html(data.school.total + (!!data.school.new ? '<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.school.new + ' New</small></span></sup>' : ''))
+                $('#tot_univ').html(data.university.total + (!!data.university.new ? '<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.university.new + ' New</small></span></sup>' : ''))
                 $('#tot_agreement').html(data.agreement.total)
             }, (error) => {
                 console.log(error)

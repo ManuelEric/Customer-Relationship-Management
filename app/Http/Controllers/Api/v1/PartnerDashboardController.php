@@ -94,7 +94,7 @@ class PartnerDashboardController extends Controller
         if ($monthly_data == 0 && $last_month_data == 0)
             return "0,00";
         else if ($last_month_data == 0)
-            return number_format((abs($last_month_data - $monthly_data) / $monthly_data) * 100, 2, ',', '.');
+            return number_format((abs($last_month_data - $monthly_data)) * 100, 2, ',', '.');
 
         return number_format((abs($last_month_data - $monthly_data) / $last_month_data) * 100, 2, ',', '.');
     }
