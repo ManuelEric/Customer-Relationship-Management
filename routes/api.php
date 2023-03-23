@@ -3,7 +3,10 @@
 use App\Http\Controllers\Api\v1\SalesDashboardController;
 use App\Http\Controllers\Api\v1\PartnerDashboardController;
 use App\Http\Controllers\Api\v1\FinanceDashboardController;
+use App\Http\Controllers\ClientEventController;
+use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\ExcelTemplateController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\InvoiceProgramController;
 use App\Http\Controllers\InvoiceSchoolController;
@@ -83,3 +86,6 @@ Route::post('receipt-corp/{receipt}/upload/{currency}', [ReceiptPartnerControlle
 # menus
 Route::get('employee/department/{department}', [DepartmentController::class, 'getEmployeeByDepartment']);
 Route::get('department/access/{department}/{user?}', [MenuController::class, 'getDepartmentAccess']);
+
+# import student, # import client event
+Route::get('download/excel-template/{type}', [ExcelTemplateController::class, 'generateTemplate']);

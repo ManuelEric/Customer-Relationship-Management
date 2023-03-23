@@ -3,19 +3,28 @@
 @section('title', 'Client Event - Bigdata Platform')
 
 @section('content')
+<style>
+    .btn-download span, .btn-import span {
+        display: none;
+    }
+    .btn-download:hover > span, .btn-import:hover > span {
+        display: inline-block;
+    }
+</style>
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Client Event
         </a>
         <div class="">
-            <a href="#" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#importData"><i
-                    class="bi bi-upload me-1"></i>
-                Import</a>
+
+            <a href="{{ url('api/download/excel-template/client-event') }}" class="btn btn-sm btn-outline-info btn-download"><i
+                    class="bi bi-download me-1"></i> <span>Download Templates</span></a>
+            <a href="#" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal" data-bs-target="#importData"><i
+                    class="bi bi-cloud-upload me-1"></i> <span>Import</span></a>
             <a href="{{ url('program/event/create') }}" class="btn btn-sm btn-primary"><i
                     class="bi bi-plus-square me-1"></i>
-                Add
-                Client Event </a>
+                Add Client Event </a>
         </div>
     </div>
 

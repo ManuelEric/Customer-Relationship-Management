@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\StoreNewSchoolException;
+use App\Exports\StudentTemplate;
 use App\Http\Requests\StoreClientStudentRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
@@ -20,7 +21,9 @@ use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\Lead;
 use App\Models\School;
+use App\Models\UserClient;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +31,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ClientStudentController extends Controller
 {
