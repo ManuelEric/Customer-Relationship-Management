@@ -133,9 +133,14 @@ class UserController extends Controller
             ]);
 
             # upload curriculum vitae
-            $CV_file_format = $request->file('curriculum_vitae')->getClientOriginalExtension();
-            $CV_file_name = 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-            $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $CV_file_name . '.' . $CV_file_format);
+            $CV_file_path = null;
+            if ($request->hasFile('curriculum_vitae'))
+            {
+                $CV_file_format = $request->file('curriculum_vitae')->getClientOriginalExtension();
+                $CV_file_name = 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+                $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $CV_file_name . '.' . $CV_file_format);
+            }
+
 
             # upload KTP / idcard
             $ID_file_format = $request->file('idcard')->getClientOriginalExtension();

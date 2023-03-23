@@ -587,8 +587,16 @@
                 var obj = response.data.data
 
                 $(".client-status").each(function(index) {
-                    var title = obj[index]['old']+'<sup class="text-primary fs-6">('+ obj[index]['new'] +' New)</sup>   '
-                    $(this).html(title)
+                    if (obj[index]['new'] != 0)
+                    {
+                        var title = obj[index]['old']+'<sup>'+
+                                        '<span class="badge bg-primary text-white p-1 px-2">' +
+                                            '<small>' + obj[index]['new'] + ' New</small>' +
+                                        '</span>' +
+                                    '</sup>'
+                        $(this).html(title)
+                    }
+
                 })
                 
                 $(".client-status-detail").each(function(index) {
