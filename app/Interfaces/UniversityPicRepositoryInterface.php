@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface UniversityPicRepositoryInterface 
+interface UniversityPicRepositoryInterface
 {
     public function getAllUniversityPicByUniversityId($universityId);
     public function getUniversityPicById($picId);
@@ -10,4 +10,5 @@ interface UniversityPicRepositoryInterface
     public function deleteUniversityPic($picId);
     public function createUniversityPic(array $picDetails);
     public function updateUniversityPic($picId, array $newDetails);
+    public function deleteAgendaSpeaker($universityId, $eventId);
 }

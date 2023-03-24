@@ -10,7 +10,7 @@ use App\Models\v1\Program as CRMProgram;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
-class ProgramRepository implements ProgramRepositoryInterface 
+class ProgramRepository implements ProgramRepositoryInterface
 {
 
     protected MainProgRepositoryInterface $mainProgRepository;
@@ -55,15 +55,18 @@ class ProgramRepository implements ProgramRepositoryInterface
         $programDetails['main_prog_id'] = $programDetails['prog_main'];
         unset($programDetails['prog_main']);
 
-        $programDetails['sub_prog_id'] = $programDetails['prog_sub'];
-        unset($programDetails['prog_sub']);
-        
         $mainProg = $this->mainProgRepository->getMainProgById($programDetails['main_prog_id']);
-        $subProg = $this->subProgRepository->getSubProgById($programDetails['sub_prog_id']);
-        
+
+        if (isset($programDetails['prog_sub'])) {
+            $programDetails['sub_prog_id'] = $programDetails['prog_sub'];
+            unset($programDetails['prog_sub']);
+
+            $subProg = $this->subProgRepository->getSubProgById($programDetails['sub_prog_id']);
+            $programDetails['prog_sub'] = $subProg->sub_prog_name;
+        }
+
         # fetch prog name & sub prog name
         $programDetails['prog_main'] = $mainProg->prog_name;
-        $programDetails['prog_sub'] = $subProg->sub_prog_name;
 
         # disesuaikan dengan main_prog_id & sub_prog_id
         return Program::create($programDetails);
@@ -73,7 +76,7 @@ class ProgramRepository implements ProgramRepositoryInterface
     {
         return Program::create($programDetails);
     }
-    
+
     public function updateProgram($programId, array $newDetails)
     {
         # initialize
@@ -83,15 +86,18 @@ class ProgramRepository implements ProgramRepositoryInterface
         $newDetails['main_prog_id'] = $newDetails['prog_main'];
         unset($newDetails['prog_main']);
 
-        $newDetails['sub_prog_id'] = $newDetails['prog_sub'];
-        unset($newDetails['prog_sub']);
-        
         $mainProg = $this->mainProgRepository->getMainProgById($newDetails['main_prog_id']);
-        $subProg = $this->subProgRepository->getSubProgById($newDetails['sub_prog_id']);
-        
+
+        if (isset($newDetails['prog_sub'])) {
+            $newDetails['sub_prog_id'] = $newDetails['prog_sub'];
+            unset($newDetails['prog_sub']);
+
+            $subProg = $this->subProgRepository->getSubProgById($newDetails['sub_prog_id']);
+            $newDetails['prog_sub'] = $subProg->sub_prog_name;
+        }
+
         # fetch prog name & sub prog name
         $newDetails['prog_main'] = $mainProg->prog_name;
-        $newDetails['prog_sub'] = $subProg->sub_prog_name;
 
         # disesuaikan dengan main_prog_id & sub_prog_id
         return Program::whereProgId($programId)->update($newDetails);
@@ -100,8 +106,7 @@ class ProgramRepository implements ProgramRepositoryInterface
     public function cleaningProgram()
     {
         $programs = Program::all();
-        foreach ($programs as $program) 
-        {
+        foreach ($programs as $program) {
             # fetch the detail
             $detail = Program::where('prog_id', $program->prog_id)->first();
 
@@ -120,7 +125,6 @@ class ProgramRepository implements ProgramRepositoryInterface
 
             # update
             $detail->save();
-            
         }
     }
 
@@ -159,9 +163,8 @@ class ProgramRepository implements ProgramRepositoryInterface
                 'prog_mentor' => $program->prog_mentor,
                 'prog_payment' => $program->prog_payment
             ];
-
         }
 
         return $response;
-    } 
+    }
 }

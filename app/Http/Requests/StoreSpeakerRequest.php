@@ -46,7 +46,6 @@ class StoreSpeakerRequest extends FormRequest
 
                     if ($this->input('speaker_type') == 'partner' && AgendaSpeaker::where('partner_pic_id', $value)->where('event_id', $eventId)->first())
                         $fail('The partner speaker has already added before, cannot add same speaker');
-                    
                 }
             ],
             'school_speaker' => [
@@ -55,7 +54,6 @@ class StoreSpeakerRequest extends FormRequest
 
                     if ($this->input('speaker_type') == 'school' && AgendaSpeaker::where('sch_pic_id', $value)->where('event_id', $eventId)->where('start_time', '=', $this->input('start_time'))->where('end_time', '=', $this->input('end_time'))->first())
                         $fail('The school speaker has already added before, cannot add same speaker');
-
                 }
             ],
             'university_speaker' => [
@@ -64,12 +62,10 @@ class StoreSpeakerRequest extends FormRequest
 
                     if ($this->input('speaker_type') == 'university' && AgendaSpeaker::where('univ_pic_id', $value)->where('event_id', $eventId)->where('start_time', '=', $this->input('start_time'))->where('end_time', '=', $this->input('end_time'))->first())
                         $fail('The university speaker has already added before, cannot add same speaker');
-
-                    
                 }
             ],
             'start_time' => [
-                'required',
+                'required', 'before_or_equal:end_time'
                 // function ($attribute, $value, $fail) use ($eventId, $endTime) {
                 //     if (!Event::where('event_startdate', 'like', $value.'%')->whereEventId($eventId)) {
 
@@ -83,7 +79,7 @@ class StoreSpeakerRequest extends FormRequest
                 // }
             ],
             'end_time' => [
-                'required',
+                'required', 'after_or_equal:start_time'
                 // function ($attribute, $value, $fail) use ($eventId, $startTime) {
                 //     if (!Event::where('event_enddate', 'like', $value.'%')->whereEventId($eventId)) {
 
@@ -101,28 +97,26 @@ class StoreSpeakerRequest extends FormRequest
         switch ($this->input('speaker_type')) {
             case "internal":
                 $rules['allin_speaker'][] = function ($attribute, $value, $fail) use ($eventId) {
-                    if (!User::whereHas('roles', function($query) {
-                            $query->where('role_name', 'employee');
-                        })->find($value)) {
+                    if (!User::whereHas('roles', function ($query) {
+                        $query->where('role_name', 'employee');
+                    })->find($value)) {
 
-                            $fail('The partner name is invalid'. $value);
-
+                        $fail('The partner name is invalid' . $value);
                     } elseif ($this->input('speaker_type') == 'internal' && AgendaSpeaker::where('empl_id', $value)->where('event_id', $eventId)->where('start_time', '=', $this->input('start_time'))->where('end_time', '=', $this->input('end_time'))->first()) {
 
                         $fail('The ALL-In speaker has already added before, cannot add same speaker at the same schedule');
-
                     }
                 };
                 break;
 
             case "partner":
                 $rules['partner_speaker'][] = 'exists:tbl_corp_pic,id';
-                break; 
-                
+                break;
+
             case "school":
                 $rules['school_speaker'][] = 'exists:tbl_schdetail,schdetail_id';
                 break;
-                
+
             case "university":
                 $rules['university_speaker'][] = 'exists:tbl_univ_pic,id';
                 break;

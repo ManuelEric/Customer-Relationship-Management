@@ -52,4 +52,5 @@ Route::prefix('student')->name('student.')->group(function () {
 });
 Route::resource('mentee', ClientMenteeController::class);
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
+Route::get('parent/export_excel', [ClientParentController::class, 'download_template']);
 Route::resource('parent', ClientParentController::class);

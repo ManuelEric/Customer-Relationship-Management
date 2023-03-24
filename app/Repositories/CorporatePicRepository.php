@@ -22,6 +22,14 @@ class CorporatePicRepository implements CorporatePicRepositoryInterface
         return CorporatePic::find($picId);
     }
 
+    public function deleteAgendaSpeaker($corporateId, $eventId)
+    {
+        $speakers = CorporatePic::where('corp_id', $corporateId)->get();
+        foreach ($speakers as $speaker) {
+            $speaker->as_event_speaker()->detach($eventId);
+        }
+    }
+
     public function deleteCorporatePic($picId)
     {
         return CorporatePic::destroy($picId);

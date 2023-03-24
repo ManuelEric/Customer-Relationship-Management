@@ -41,35 +41,39 @@ class GenerateLeadColorCode extends Command
     public function handle()
     {
 
-        $progressBar = $this->output->createProgressBar();
-        $progressBar->start();
+        // $progressBar = $this->output->createProgressBar();
+        // $progressBar->start();
 
-        DB::beginTransaction();
-        try {
+        // DB::beginTransaction();
+        // try {
 
-            $leads = $this->leadRepository->getAllLead();
-            foreach ($leads as $lead) {
-                if ($lead->color_code != NULL)
-                    continue;
-    
-                $leadId = $lead->lead_id;
-                $leadDetails = [
-                    'color_code' => $this->generateColorCode(),
-                ];
-    
-                $this->leadRepository->updateLead($leadId, $leadDetails);
-                $progressBar->advance();
-            }
-            $progressBar->finish();
-            DB::commit();
-            Log::info('Generate lead color code works fine');
+        $leads = $this->leadRepository->getAllLead();
+        foreach ($leads as $lead) {
+            // echo $lead->color_code;
+            // exit;
+            // if ($lead->color_code != NULL)
+            //     continue;
 
-        } catch (Exception $e) {
+            $leadId = $lead->lead_id;
+            $leadDetails = [
+                'color_code' => $this->generateColorCode(),
+            ];
+            // echo json_encode($leadDetails);
+            // exit;
 
-            DB::rollBack();
-            Log::warning('Failed to generate lead color code : '. $e->getMessage() .' | Line : '. $e->getLine());
-
+            $this->leadRepository->updateLead($leadId, $leadDetails);
+            // $progressBar->advance();
         }
+        //     $progressBar->finish();
+        //     DB::commit();
+        //     Log::info('Generate lead color code works fine');
+
+        // } catch (Exception $e) {
+
+        //     DB::rollBack();
+        //     Log::warning('Failed to generate lead color code : '. $e->getMessage() .' | Line : '. $e->getLine());
+
+        // }
 
 
         return Command::SUCCESS;

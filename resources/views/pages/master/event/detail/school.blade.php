@@ -60,6 +60,9 @@
                                         @endforeach
                                     @endif
                                 </select>
+                                @error('sch_id')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -77,3 +80,13 @@
         </div>
     </div>
 </div>
+
+@if (
+        $errors->has('sch_id'))
+        <script>
+            $(document).ready(function() {
+                $('#school').modal('show');
+
+            })
+        </script>
+    @endif

@@ -8,9 +8,14 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Parent
         </a>
-        <a href="{{ url('client/parent/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
-            Parent</a>
+        <div>
+            <a href="{{ url('client/parent/export_excel') }}" class="btn btn-sm btn-warning"><i class="bi bi-download me-1"></i> Download Template
+            </a>
+            <a href="{{ url('client/parent/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
+                Parent</a>
+        </div>
     </div>
+       
 
 
     <div class="card rounded">

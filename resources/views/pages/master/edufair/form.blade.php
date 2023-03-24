@@ -136,7 +136,7 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($schools as $school)
                                         <option value="{{ $school->sch_id }}"
-                                            {{ isset($edufair->sch_id) && $edufair->sch_id == $school->sch_id ? 'selected' : null }}>
+                                            {{ isset($edufair->sch_id) && $edufair->sch_id == $school->sch_id || (old('sch_id') == $school->sch_id) ? 'selected' : null }}>
                                             {{ $school->sch_name }}</option>
                                     @endforeach
                                 </select>
@@ -152,7 +152,7 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($corporates as $corporate)
                                         <option value="{{ $corporate->corp_id }}"
-                                            {{ isset($edufair->corp_id) && $edufair->corp_id == $corporate->corp_id ? 'selected' : null }}>
+                                            {{ isset($edufair->corp_id) && $edufair->corp_id == $corporate->corp_id || (old('corp_id') == $corporate->corp_id) ? 'selected' : null }}>
                                             {{ $corporate->corp_name }}</option>
                                     @endforeach
                                 </select>
@@ -168,7 +168,7 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($internal_pic as $pic)
                                         <option value="{{ $pic->id }}"
-                                            {{ isset($edufair->intr_pic) && $edufair->intr_pic == $pic->id ? 'selected' : null }}>
+                                            {{ isset($edufair->intr_pic) && $edufair->intr_pic == $pic->id || (old('intr_pic') == $pic->id) ? 'selected' : null }}>
                                             {{ $pic->first_name . ' ' . $pic->last_name }}</option>
                                     @endforeach
                                 </select>
@@ -179,7 +179,7 @@
 
                             <div class="col-md-12 my-2">
                                 <label>Title <sup class="text-danger">*</sup></label>
-                                <input type="text" class="form-control form-control-sm rounded" name="title" value="{{ isset($edufair->title) ? $edufair->title : null }}" {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
+                                <input type="text" class="form-control form-control-sm rounded" name="title" value="{{ isset($edufair->title) ? $edufair->title : old('title') }}" {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                                 @error('title')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -187,7 +187,7 @@
 
                             <div class="col-md-12 my-2">
                                 <label>Location <sup class="text-danger">*</sup></label>
-                                <textarea name="location" cols="30" rows="10">{{ isset($edufair->location) ? $edufair->location : null }}</textarea>
+                                <textarea name="location" cols="30" rows="10">{{ isset($edufair->location) ? $edufair->location : old('location') }}</textarea>
                                 @error('location')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -202,7 +202,7 @@
                                                 <label>Name <sup class="text-danger">*</sup></label>
                                                 <input class="form-control form-control-sm rounded" type="text"
                                                     name="ext_pic_name"
-                                                    value="{{ isset($edufair->ext_pic_name) ? $edufair->ext_pic_name : null }}"
+                                                    value="{{ isset($edufair->ext_pic_name) ? $edufair->ext_pic_name : old('ext_pic_name') }}"
                                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                                                 @error('ext_pic_name')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -213,7 +213,7 @@
                                                 <label>Email <sup class="text-danger">*</sup></label>
                                                 <input class="form-control form-control-sm rounded" type="email"
                                                     name="ext_pic_mail"
-                                                    value="{{ isset($edufair->ext_pic_mail) ? $edufair->ext_pic_mail : null }}"
+                                                    value="{{ isset($edufair->ext_pic_mail) ? $edufair->ext_pic_mail : old('ext_pic_mail') }}"
                                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                                                 @error('ext_pic_mail')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -224,7 +224,7 @@
                                                 <label>Phone <sup class="text-danger">*</sup></label>
                                                 <input class="form-control form-control-sm rounded" type="text"
                                                     name="ext_pic_phone"
-                                                    value="{{ isset($edufair->ext_pic_phone) ? $edufair->ext_pic_phone : null }}"
+                                                    value="{{ isset($edufair->ext_pic_phone) ? $edufair->ext_pic_phone : old('ext_pic_phone') }}"
                                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                                                 @error('ext_pic_phone')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -239,7 +239,7 @@
                                 <label>First Discussion</label>
                                 <input class="form-control form-control-sm rounded" type="date"
                                     name="first_discussion_date"
-                                    value="{{ isset($edufair->first_discussion_date) ? $edufair->first_discussion_date : null }}"
+                                    value="{{ isset($edufair->first_discussion_date) ? $edufair->first_discussion_date : old('first_discussion_date') }}"
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                             </div>
@@ -248,21 +248,21 @@
                                 <label>Last Discussion</label>
                                 <input class="form-control form-control-sm rounded" type="date"
                                     name="last_discussion_date"
-                                    value="{{ isset($edufair->last_discussion_date) ? $edufair->last_discussion_date : null }}"
+                                    value="{{ isset($edufair->last_discussion_date) ? $edufair->last_discussion_date : old('last_discussion_date') }}"
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                             </div>
 
                             <div class="col-md-3 mb-2 mt-4">
                                 <label>Event Start</label>
                                 <input class="form-control form-control-sm rounded" type="date" name="event_start"
-                                    value="{{ isset($edufair->event_start) ? $edufair->event_start : null }}"
+                                    value="{{ isset($edufair->event_start) ? $edufair->event_start : old('event_start') }}"
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                             </div>
 
                             <div class="col-md-3 mb-2 mt-4">
                                 <label>Event End</label>
                                 <input class="form-control form-control-sm rounded" type="date" name="event_end"
-                                    value="{{ isset($edufair->event_end) ? $edufair->event_end : null }}"
+                                    value="{{ isset($edufair->event_end) ? $edufair->event_end : old('event_end') }}"
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                             </div>
 
@@ -287,7 +287,7 @@
 
                             <div class="col-md-12 mb-2">
                                 <label>Notes</label>
-                                <textarea name="notes" cols="30" rows="10">{{ isset($edufair->notes) ? $edufair->notes : null }}</textarea>
+                                <textarea name="notes" cols="30" rows="10">{{ isset($edufair->notes) ? $edufair->notes : old('notes') }}</textarea>
                             </div>
 
                             @if (empty($edufair) || isset($edit))
@@ -530,6 +530,14 @@
         <script>
             $(document).ready(function() {
                 $('#reviewForm').modal('show');
+            })
+        </script>
+    @endif
+
+    @if(!empty(old('organizer')))
+        <script>
+            $(document).ready(function(){
+                $('input[name=organizer][value="{{old('organizer')}}"]').prop('checked', true).trigger('change')
             })
         </script>
     @endif

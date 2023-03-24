@@ -23,6 +23,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ParentTemplate;
 
 class ClientParentController extends Controller
 {
@@ -62,7 +64,6 @@ class ClientParentController extends Controller
         if ($request->ajax()) {
 
             return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Parent');
-
         }
 
         return view('pages.client.parent.index');
@@ -115,10 +116,10 @@ class ClientParentController extends Controller
 
     public function store(StoreClientParentRequest $request)
     {
-        $qChildrenId = isset($request->queryChildId) ? "?child=".$request->queryChildId : null;
-        $qClientProgId = isset($request->queryClientProgId) ? "&client_prog=".$request->queryClientProgId : null;
-        
-        $query = $qChildrenId.$qClientProgId;
+        $qChildrenId = isset($request->queryChildId) ? "?child=" . $request->queryChildId : null;
+        $qClientProgId = isset($request->queryClientProgId) ? "&client_prog=" . $request->queryClientProgId : null;
+
+        $query = $qChildrenId . $qClientProgId;
 
         $parentDetails = $request->only([
             'pr_firstname',
@@ -196,14 +197,14 @@ class ClientParentController extends Controller
                     'sch_type',
                     'sch_score',
                 ]);
-    
+
                 $last_id = School::max('sch_id');
                 $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
                 $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
 
                 if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
                     throw new Exception('Failed to store new school', 1);
-                
+
                 # insert school curriculum
                 if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
                     throw new Exception('Failed to store school curriculum', 1);
@@ -213,13 +214,12 @@ class ClientParentController extends Controller
                 # filled with a new school id that was inserted before
                 unset($parentDetails['sch_id']);
                 $studentDetails['sch_id'] = $school->sch_id;
-
             }
 
             # case 2
             # create new user client as student
             # when child_id is "add-new" 
-            if (isset($request->child_id) && $request->child_id == "add-new") {                
+            if (isset($request->child_id) && $request->child_id == "add-new") {
 
                 if (!$student = $this->clientRepository->createClient('Student', $studentDetails))
                     throw new Exception('Failed to store new student', 2);
@@ -250,7 +250,7 @@ class ClientParentController extends Controller
                 if (!$this->clientRepository->createClientRelation($parentId, $childrenId))
                     throw new Exception('Failed to store relation between student and parent', 4);
             }
-        
+
 
             # case 5
             # create destination countries
@@ -260,7 +260,7 @@ class ClientParentController extends Controller
 
                 # hari senin lanjutin utk insert destination countries
                 # dan hubungin score nya melalui client view
-                for ($i = 0 ; $i < count($request->st_abrcountry) ; $i++) {
+                for ($i = 0; $i < count($request->st_abrcountry); $i++) {
                     $destinationCountryDetails[] = [
                         'tag_id' => $this->tagRepository->getTagById($request->st_abrcountry[$i])->id,
                         'created_at' => Carbon::now(),
@@ -279,14 +279,14 @@ class ClientParentController extends Controller
             # then skip this case
             if (isset($request->prog_id) && count($request->prog_id) > 0) {
 
-                for ($i = 0 ; $i < count($request->prog_id) ; $i++) {
+                for ($i = 0; $i < count($request->prog_id); $i++) {
                     $interestProgramDetails[] = [
                         'prog_id' => $request->prog_id[$i],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ];
                 }
-    
+
                 if (!$this->clientRepository->createInterestProgram($parentId, $interestProgramDetails))
                     throw new Exception('Failed to store interest program', 6);
             }
@@ -298,14 +298,14 @@ class ClientParentController extends Controller
             # then skip this case
             if (isset($request->st_abruniv) && count($request->st_abruniv) > 0) {
 
-                for ($i = 0 ; $i < count($request->st_abruniv) ; $i++) {
+                for ($i = 0; $i < count($request->st_abruniv); $i++) {
                     $interestUnivDetails[] = [
                         'univ_id' => $request->st_abruniv[$i],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ];
                 }
-    
+
                 if (!$this->clientRepository->createInterestUniversities($newStudentId, $interestUnivDetails))
                     throw new Exception('Failed to store interest universities', 7);
             }
@@ -317,21 +317,20 @@ class ClientParentController extends Controller
             # then skip this case
             if (isset($request->st_abrmajor) && count($request->st_abrmajor) > 0) {
 
-                for ($i = 0 ; $i < count($request->st_abrmajor) ; $i++) {
+                for ($i = 0; $i < count($request->st_abrmajor); $i++) {
                     $interestMajorDetails[] = [
                         'major_id' => $request->st_abrmajor[$i],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ];
                 }
-    
+
                 if (!$this->clientRepository->createInterestMajor($newStudentId, $interestMajorDetails))
                     throw new Exception('Failed to store interest major', 8);
             }
 
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -368,18 +367,17 @@ class ClientParentController extends Controller
                 case 8:
                     Log::error('Store interest major failed : ' . $e->getMessage());
                     break;
-                }
-                
-            Log::error('Store a new parent failed : ' . $e->getMessage());
-            return Redirect::to('client/parent/create'.$query)->withError($e->getMessage());
+            }
 
+            Log::error('Store a new parent failed : ' . $e->getMessage());
+            return Redirect::to('client/parent/create' . $query)->withError($e->getMessage());
         }
-        
+
         if ($query != NULL) {
             if ($qChildrenId != NULL && $qClientProgId == NULL)
-                $link = "client/student/".$request->queryChildId."/program/create/";
+                $link = "client/student/" . $request->queryChildId . "/program/create/";
             elseif ($qChildrenId != NULL && $qClientProgId != NULL)
-                $link = 'client/student/'.$request->queryChildId.'/program/'.$request->queryClientProgId;
+                $link = 'client/student/' . $request->queryChildId . '/program/' . $request->queryClientProgId;
 
             return Redirect::to($link)->withSuccess("Parent Information has been added.");
         }
@@ -407,7 +405,7 @@ class ClientParentController extends Controller
             $universities = $this->universityRepository->getAllUniversitiesByTag($request->country);
             return response()->json($universities);
         }
-        
+
         $parentId = $request->route('parent');
         $parent = $this->clientRepository->getClientById($parentId);
 
@@ -529,7 +527,7 @@ class ClientParentController extends Controller
                 if (!$this->clientRepository->createManyClientRelation($parentId, $childrens))
                     throw new Exception('Failed to update relation between student and parent', 1);
             }
-        
+
 
             # case 2
             # create interested program
@@ -537,14 +535,14 @@ class ClientParentController extends Controller
             # then skip this case
             if (isset($request->prog_id) && count($request->prog_id) > 0) {
 
-                for ($i = 0 ; $i < count($request->prog_id) ; $i++) {
+                for ($i = 0; $i < count($request->prog_id); $i++) {
                     $interestProgramDetails[] = [
                         'prog_id' => $request->prog_id[$i],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ];
                 }
-    
+
                 if (!$this->clientRepository->createInterestProgram($parentId, $interestProgramDetails))
                     throw new Exception('Failed to update interest program', 2);
             }
@@ -555,7 +553,6 @@ class ClientParentController extends Controller
                 throw new Exception('Failed to update parent', 3);
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -572,13 +569,17 @@ class ClientParentController extends Controller
                 case 3:
                     Log::error('Update parent failed : ' . $e->getMessage());
                     break;
-                }
-                
-            Log::error('Update a parent failed : ' . $e->getMessage());
-            return Redirect::to('client/parent/'.$parentId.'/edit')->withError($e->getMessage());
+            }
 
+            Log::error('Update a parent failed : ' . $e->getMessage());
+            return Redirect::to('client/parent/' . $parentId . '/edit')->withError($e->getMessage());
         }
 
-        return Redirect::to('client/parent/'.$parentId)->withSuccess('A parent has been updated.');
+        return Redirect::to('client/parent/' . $parentId)->withSuccess('A parent has been updated.');
+    }
+
+    public function download_template()
+    {
+        return Excel::download(new ParentTemplate, 'parent.xlsx');
     }
 }
