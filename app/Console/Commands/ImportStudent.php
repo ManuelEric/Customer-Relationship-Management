@@ -352,6 +352,13 @@ class ImportStudent extends Command
                         $phone1 = "+".$phone1;
                         break;
 
+                    case "+":
+                        $phone1 = $phone1;
+                        break;
+                        
+                    default:
+                        $phone1 = "+62".$phone1;
+
                 }
             
                 if (isset($phone2) && $phone2 != "" && $phone2 != NULL)
@@ -377,6 +384,13 @@ class ImportStudent extends Command
                         case 6: 
                             $phone2 = "+".$phone2;
                             break;
+
+                        case "+":
+                            $phone2 = $phone2;
+                            break;
+                            
+                        default:
+                            $phone2 = "+62".$phone2;
     
                     }
 
@@ -570,7 +584,7 @@ class ImportStudent extends Command
                     'first_name' => $this->getValueWithoutSpace($studentHasParent->pr_firstname),
                     'last_name' => $this->getValueWithoutSpace($studentHasParent->pr_lastname),
                     'mail' => $this->getValueWithoutSpace($studentHasParent->pr_mail),
-                    'phone' => $this->getValueWithoutSpace($studentHasParent->pr_phone),
+                    'phone' => $parents_phone,
                     'dob' => $this->getValueWithoutSpace($studentHasParent->pr_dob),
                     'insta' => $this->getValueWithoutSpace($studentHasParent->pr_insta),
                     'state' => $this->getValueWithoutSpace($studentHasParent->pr_state),
@@ -724,6 +738,6 @@ class ImportStudent extends Command
 
     private function getValueWithoutSpace($value)
     {
-        return $value == "" || $value == "0000-00-00" || $value == 'N/A' ? NULL : $value;
+        return $value == "" || $value == "-" || $value == "0000-00-00" || $value == 'N/A' ? NULL : $value;
     }
 }
