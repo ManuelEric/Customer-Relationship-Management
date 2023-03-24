@@ -16,6 +16,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ReceiptSchoolController;
 use App\Http\Controllers\ReceiptPartnerController;
 use App\Http\Controllers\ReceiptReferralController;
+use App\Http\Controllers\SchoolEventController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -89,3 +90,6 @@ Route::get('department/access/{department}/{user?}', [MenuController::class, 'ge
 
 # import student, # import client event
 Route::get('download/excel-template/{type}', [ExcelTemplateController::class, 'generateTemplate']);
+
+# master / event
+Route::get('master/event/{event}/school/{school}', [SchoolEventController::class ]);

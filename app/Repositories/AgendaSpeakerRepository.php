@@ -84,6 +84,11 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
         return Agenda::where('event_id', $eventId)->get();
     }
 
+    public function getAllSpeakersByEventAndSchool($eventId, $schoolId)
+    {
+        return Agenda::where('event_id', $eventId)->where('school_id', $schoolId)->first();
+    }
+
     public function getAllSpeakerBySchoolProgram($schProgId)
     {
         return Agenda::where('sch_prog_id', $schProgId)->get();

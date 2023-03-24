@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSchoolEventRequest;
+use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\SchoolEventRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,10 +15,14 @@ use Illuminate\Support\Facades\Redirect;
 class SchoolEventController extends Controller
 {
     private SchoolEventRepositoryInterface $schoolEventRepository;
+    private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
+    private SchoolRepositoryInterface $schoolRepository;
 
-    public function __construct(SchoolEventRepositoryInterface $schoolEventRepository)
+    public function __construct(SchoolEventRepositoryInterface $schoolEventRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, SchoolRepositoryInterface $schoolRepository)
     {
         $this->schoolEventRepository = $schoolEventRepository;
+        $this->agendaSpeakerRepository = $agendaSpeakerRepository;
+        $this->schoolRepository = $schoolRepository;
     }
 
     public function store(StoreSchoolEventRequest $request)
@@ -48,6 +54,14 @@ class SchoolEventController extends Controller
     {
         $eventId = $request->route('event');
         $schoolId = $request->route('school');
+
+        
+
+        if ($this->agendaSpeakerRepository->getAllSpeakersByEventAndSchool($eventId, $schoolId))
+        {
+            $schoolInfo = $this->schoolRepository->getSchoolById($schoolId);
+            return Redirect::back()->withError('You cannot remove the "'.$schoolInfo->sch_name.'" because there are speakers from the school. Do double check the agenda.');
+        }
 
         DB::beginTransaction();
         try {
