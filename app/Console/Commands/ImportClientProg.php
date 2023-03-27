@@ -8,10 +8,12 @@ use App\Interfaces\FollowupRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
+use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
+use App\Interfaces\SubProgRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\Lead;
 use App\Models\Program;
@@ -52,8 +54,10 @@ class ImportClientProg extends Command
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
     protected RefundRepositoryInterface $refundRepository;
+    protected MainProgRepositoryInterface $mainProgRepository;
+    protected SubProgRepositoryInterface $subProgRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, ReasonRepositoryInterface $reasonRepository, UserRepositoryInterface $userRepository, FollowupRepositoryInterface $followupRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, ReasonRepositoryInterface $reasonRepository, UserRepositoryInterface $userRepository, FollowupRepositoryInterface $followupRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository, MainProgRepositoryInterface $mainProgRepository, SubProgRepositoryInterface $subProgRepository)
     {
         parent::__construct();
         $this->clientRepository = $clientRepository;
@@ -67,6 +71,8 @@ class ImportClientProg extends Command
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->receiptRepository = $receiptRepository;
         $this->refundRepository = $refundRepository;
+        $this->mainProgRepository = $mainProgRepository;
+        $this->subProgRepository =  $subProgRepository;
         
         $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
@@ -90,8 +96,8 @@ class ImportClientProg extends Command
      */
     public function handle()
     {
-        // DB::beginTransaction();
-        // try {
+        DB::beginTransaction();
+        try {
 
             $crm_clientprogs = $this->clientProgramRepository->getClientProgramFromV1();
             $progressBar = $this->output->createProgressBar($crm_clientprogs->count());
@@ -142,16 +148,16 @@ class ImportClientProg extends Command
 
             $progressBar->finish();
 
-        //     DB::commit();
-        //     Log::info('Import client program works fine');
+            DB::commit();
+            Log::info('Import client program works fine');
             
-        // } catch (Exception $e) {
+        } catch (Exception $e) {
             
-        //     DB::rollBack();
-        //     $this->info($e->getMessage().' | line '.$e->getLine());
-        //     Log::warning('Failed to import client program '. $e->getMessage());
+            DB::rollBack();
+            $this->info($e->getMessage().' | line '.$e->getLine());
+            Log::warning('Failed to import client program '. $e->getMessage());
 
-        // }
+        }
 
         return Command::SUCCESS;
     }
@@ -160,25 +166,49 @@ class ImportClientProg extends Command
     {
         # check if prog id is exists
         $crm_clientprog_progid = $crm_clientprog->prog_id;
+        
         if (!$program_v2 = $this->programRepository->getProgramById($crm_clientprog_progid))
         {
-            $main_prog = $this->mainProgRepository->getMainProgByName($crm_clientprog->prog_main);
-            $sub_prog = $this->subProgRepository->getSubProgBySubProgName($crm_clientprog->prog_sub);
+
+            if (!$main_prog = $this->mainProgRepository->getMainProgByName($crm_clientprog->program->prog_main))
+            {
+                $mainProgDetails = [
+                    'prog_name' => $crm_clientprog->program->prog_main,
+                    'prog_status' => 1
+                ];
+
+                $main_prog = $this->mainProgRepository->createMainProg($mainProgDetails);
+            }
+            
+            if ($crm_clientprog->program->prog_sub != "" && $crm_clientprog->program->prog_sub != NULL)
+            {
+                if (!$sub_prog = $this->subProgRepository->getSubProgBySubProgName($crm_clientprog->program->prog_sub))
+                {
+                    $subProgDetails = [
+                        'main_prog_id' => $main_prog->id,
+                        'sub_prog_name' => $crm_clientprog->program->prog_sub,
+                        'sub_prog_status' => 1,
+                    ];
+
+                    $sub_prog = $this->subProgRepository->createSubProg($subProgDetails);
+                }
+            }
 
             $programDetails = [
                 'prog_id' => $crm_clientprog_progid,
                 'main_prog_id' => $main_prog->id, //!
                 'sub_prog_id'=> $sub_prog->id, //!
-                'prog_main' => $crm_clientprog->prog_main,
-                'main_number' => $crm_clientprog->main_number,
-                'prog_sub' => $crm_clientprog->prog_sub,
-                'prog_program' => $crm_clientprog->prog_program,
-                'prog_type' => $crm_clientprog->prog_type,
-                'prog_mentor' => $crm_clientprog->prog_mentor,
-                'prog_payment' => $crm_clientprog->prog_payment,
+                'prog_main' => $crm_clientprog->program->prog_main,
+                'main_number' => $crm_clientprog->program->main_number,
+                'prog_sub' => $crm_clientprog->program->prog_sub,
+                'prog_program' => $crm_clientprog->program->prog_program,
+                'prog_type' => $crm_clientprog->program->prog_type,
+                'prog_mentor' => $crm_clientprog->program->prog_mentor,
+                'prog_payment' => $crm_clientprog->program->prog_payment,
             ];
 
             $program_v2 = $this->programRepository->createProgram($programDetails);
+            $this->info(json_encode($program_v2));
         }
 
         return $program_v2->prog_id;

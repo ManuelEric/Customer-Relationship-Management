@@ -127,7 +127,7 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             )
             ->filterColumn('program_name', function($query, $keyword){
                 $sql = '(CASE
-                        WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
+                        WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(COALESCE(tbl_sub_prog.sub_prog_name COLLATE utf8mb4_unicode_ci, "")," - ",tbl_prog.prog_program COLLATE utf8mb4_unicode_ci)
                         ELSE tbl_prog.prog_program
                     END) like ? ';
                 $query->whereRaw($sql, ["%{$keyword}%"]);

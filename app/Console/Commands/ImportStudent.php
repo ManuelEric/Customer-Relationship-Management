@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\CountryRepositoryInterface;
@@ -30,6 +31,7 @@ use Illuminate\Support\Facades\Log;
 class ImportStudent extends Command
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
     /**
      * The name and signature of the console command.
      *
@@ -237,7 +239,7 @@ class ImportStudent extends Command
                 $extEdufairDetails['location'] = strip_tags($studentHasEduf->eduf_place);
                 $extEdufairDetails['ext_pic_name'] = $this->getValueWithoutSpace($studentHasEduf->eduf_picname);
                 $extEdufairDetails['ext_pic_mail'] = $this->getValueWithoutSpace($studentHasEduf->eduf_picmail);
-                $extEdufairDetails['ext_pic_phone'] = $this->getValueWithoutSpace($studentHasEduf->eduf_picphone);
+                $extEdufairDetails['ext_pic_phone'] = $this->getValueWithoutSpace($studentHasEduf->eduf_picphone) != NULL ? $this->setPhoneNumber($this->getValueWithoutSpace($studentHasEduf->eduf_picphone)) : NULL;
                 $extEdufairDetails['first_discussion_date'] = $this->getValueWithoutSpace($studentHasEduf->eduf_firstdisdate);
                 $extEdufairDetails['last_discussion_date'] = $this->getValueWithoutSpace($studentHasEduf->eduf_lastdisdate);
                 $extEdufairDetails['event_start'] = $studentHasEduf->eduf_eventstartdate;
@@ -624,6 +626,10 @@ class ImportStudent extends Command
         
                     switch ($countryName) {
             
+                        case preg_match('/australia/i', $countryName) == 1:
+                            $regionName = "Australia";
+                            break;
+
                         case preg_match("/United State|State|US/i", $countryName) == 1:
                             $regionName = "US";
                             break;
@@ -634,10 +640,6 @@ class ImportStudent extends Command
         
                         case preg_match('/canada/i', $countryName) == 1:
                             $regionName = "Canada";
-                            break;
-        
-                        case preg_match('/australia/i', $countryName) == 1:
-                            $regionName = "Australia";
                             break;
 
                         default: 
@@ -690,6 +692,42 @@ class ImportStudent extends Command
                         $univ_id_with_label = $university_v2->univ_id;
 
                     $new_universityId = $univ_id_with_label;
+
+                    $tag = null;
+                    if ($countryTranslations = $this->countryRepository->getCountryNameByUnivCountry($crm_university->univ_country)) {
+    
+                        $countryName = strtolower($countryTranslations->name);
+                            
+                        $regionId = $countryTranslations->has_country->lc_region_id;
+                        $region = $this->countryRepository->getRegionByRegionId($regionId);
+                        $iso_alpha_2 = $countryTranslations->has_country->iso_alpha_2; # US 
+                        $regionName = $region->name;
+                        
+                        switch ($countryName) {
+            
+                            case preg_match('/australia/i', $countryName) == 1:
+                                $regionName = "Australia";
+                                break;
+
+                            case preg_match("/United State|State|US/i", $countryName) == 1:
+                                $regionName = "US";
+                                break;
+            
+                            case preg_match('/United Kingdom|Kingdom|UK/i', $countryName) == 1:
+                                $regionName = "UK";
+                                break;
+            
+                            case preg_match('/canada/i', $countryName) == 1:
+                                $regionName = "Canada";
+                                break;
+    
+                            default: 
+                                $regionName = "Other";
+            
+                        }
+    
+                        $tag = $this->tagRepository->getTagByName($regionName);
+                    }
     
                     # if not exists, create a new university
                     $universityDetails = [
@@ -697,6 +735,7 @@ class ImportStudent extends Command
                         'univ_name' => $crm_universityName,
                         'univ_address' => $crm_university->univ_address,
                         'univ_country' => $crm_university->univ_country,
+                        'tag' => isset($tag) ? $tag->id : 7, # 7 means Tag : Other
                     ];
     
                     $university = $this->universityRepository->createUniversity($universityDetails);

@@ -55,7 +55,7 @@ class UniversityRepository implements UniversityRepositoryInterface
     {
         $universities = University::whereIn('tag', $tags)->get();
 
-        if (in_array('7', $tags)) {
+        if (in_array('7', $tags)) { # 7 means Tag : Other
             $tags = ['1', '2', '3', '4', '5', '6'];
             $other_universities = University::whereNotIn('tag', $tags)->orWhereNull('tag')->get();
 

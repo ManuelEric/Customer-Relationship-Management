@@ -417,7 +417,7 @@
                                             @else
                                                 {{ old('eduf_id') == $edufair->id ? "selected" : null }}
                                             @endif
-                                            >{{ $edufair->title }}</option>
+                                            >{{ $edufair->organizer_name.' - '.date('d M Y', strtotime($edufair->event_start)) }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -715,6 +715,9 @@
             Swal.showLoading()
             await axios.get(link)
                 .then(function(response) {
+
+                    console.log(response)
+
                     // handle success
                     let data = response.data
                     data.forEach(function(currentValue, index, arr) {

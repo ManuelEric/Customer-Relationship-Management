@@ -49,14 +49,23 @@ class ProgramRepository implements ProgramRepositoryInterface
 
     public function createProgram(array $programDetails)
     {
-        $programDetails['prog_program'] = $programDetails['prog_name'];
-        unset($programDetails['prog_name']);
+        if (array_key_exists('prog_name', $programDetails))
+        {
+            $programDetails['prog_program'] = $programDetails['prog_name'];
+            unset($programDetails['prog_name']);
+        }
 
-        $programDetails['main_prog_id'] = $programDetails['prog_main'];
-        unset($programDetails['prog_main']);
+        if (!array_key_exists('main_prog_id', $programDetails))
+        {
+            $programDetails['main_prog_id'] = $programDetails['prog_main'];
+            unset($programDetails['prog_main']);
+        }
 
-        $programDetails['sub_prog_id'] = $programDetails['prog_sub'];
-        unset($programDetails['prog_sub']);
+        if (!array_key_exists('sub_prog_id', $programDetails))
+        {
+            $programDetails['sub_prog_id'] = $programDetails['prog_sub'];
+            unset($programDetails['prog_sub']);
+        }
         
         $mainProg = $this->mainProgRepository->getMainProgById($programDetails['main_prog_id']);
         $subProg = $this->subProgRepository->getSubProgById($programDetails['sub_prog_id']);

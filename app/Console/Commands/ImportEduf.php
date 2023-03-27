@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
@@ -15,6 +16,7 @@ use Illuminate\Support\Carbon;
 class ImportEduf extends Command
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
     /**
      * The name and signature of the console command.
      *
@@ -107,9 +109,9 @@ class ImportEduf extends Command
                     'title' => null,
                     'location' => $edufLead->eduf_place,
                     'intr_pic' => $pic->id,
-                    'ext_pic_name' => $edufLead->eduf_picname,
-                    'ext_pic_mail' => $edufLead->eduf_picmail,
-                    'ext_pic_phone' => $edufLead->eduf_picphone,
+                    'ext_pic_name' => $this->getValueWithoutSpace($edufLead->eduf_picname),
+                    'ext_pic_mail' => $this->getValueWithoutSpace($edufLead->eduf_picmail),
+                    'ext_pic_phone' => $this->getValueWithoutSpace($edufLead->eduf_picphone) != NULL ? $this->setPhoneNumber($this->getValueWithoutSpace($edufLead->eduf_picphone)) : NULL,
                     'first_discussion_date' => $edufLead->eduf_firstdisdate,
                     'last_discussion_date' => $edufLead->eduf_lastdisdate,
                     'event_start' => $edufLead->eduf_eventstartdate,
@@ -119,6 +121,18 @@ class ImportEduf extends Command
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ];
+            } else {
+
+                # update if edufair lead exists
+                $edufLeadNewDetails = [
+                    'id' => $edufLead->eduf_id,
+                    'ext_pic_name' => $this->getValueWithoutSpace($edufLead->eduf_picname),
+                    'ext_pic_mail' => $this->getValueWithoutSpace($edufLead->eduf_picmail),
+                    'ext_pic_phone' => $this->getValueWithoutSpace($edufLead->eduf_picphone) != NULL ? $this->setPhoneNumber($this->getValueWithoutSpace($edufLead->eduf_picphone)) : NULL,
+                ];
+
+                $this->edufLeadRepository->updateEdufairLead($edufLead->eduf_id, $edufLeadNewDetails);
+
             }
         }
 
@@ -126,5 +140,10 @@ class ImportEduf extends Command
         if (count($edufLeadDetails) > 0) {
         }
         return Command::SUCCESS;
+    }
+
+    private function getValueWithoutSpace($value)
+    {
+        return $value == "" || $value == "-" || $value == "0000-00-00" || $value == 'N/A' ? NULL : $value;
     }
 }

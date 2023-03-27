@@ -7,6 +7,7 @@ use App\Exports\StudentTemplate;
 use App\Http\Requests\StoreClientStudentRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
@@ -37,6 +38,7 @@ class ClientStudentController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
     use FindStatusClientTrait;
+    use StandardizePhoneNumberTrait;
 
     private ClientRepositoryInterface $clientRepository;
     private SchoolRepositoryInterface $schoolRepository;
@@ -105,7 +107,6 @@ class ClientStudentController extends Controller
             'first_name',
             'last_name',
             'mail',
-            'phone',
             'dob',
             'insta',
             'state',
@@ -124,6 +125,8 @@ class ClientStudentController extends Controller
             // 'st_abrcountry',
             'st_note',
         ]);
+
+        $studentDetails['phone'] = $this->setPhoneNumber($request->phone);
 
         // $studentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
         $parentId = $request->pr_id;
@@ -181,11 +184,13 @@ class ClientStudentController extends Controller
             # when pr_id is "add-new" 
             if (isset($request->pr_id) && $request->pr_id == "add-new") {
 
+                $parents_phone = $this->setPhoneNumber($request->pr_phone);
+
                 $parentDetails = [
                     'first_name' => $request->pr_firstname,
                     'last_name' => $request->pr_lastname,
                     'mail' => $request->pr_mail,
-                    'phone' => $request->pr_phone,
+                    'phone' => $parents_phone,
                     'state' => $studentDetails['state'],
                     'city' => $studentDetails['city'],
                     'postal_code' => $studentDetails['postal_code'],
@@ -357,6 +362,7 @@ class ClientStudentController extends Controller
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
+
         $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
         $programsB2C = $this->programRepository->getAllProgramByType('B2C');
         $programs = $programsB2BB2C->merge($programsB2C);

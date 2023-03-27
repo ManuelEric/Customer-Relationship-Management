@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,6 +33,21 @@ class EdufLead extends Model
         'status',
         'notes'
     ];
+
+    protected function organizerName(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getOrganizerName()
+        );
+    }
+
+    public function getOrganizerName()
+    {
+        if ($this->sch_id != NULL && $this->corp_id == NULL) 
+            return $this->schools->sch_name;
+        else if ($this->sch_id == NULL && $this->corp_id != NULL)
+            return $this->corps->corp_name;
+    }
 
     public function client()
     {
