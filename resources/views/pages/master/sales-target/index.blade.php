@@ -166,6 +166,13 @@
                     {
                         data: 'total_target',
                         className: 'text-center',
+                        render: function(data, type) {
+                            var number = $.fn.dataTable.render
+                                .number(',', '.', 2, 'Rp. ')
+                                .display(data);
+
+                            return number;
+                        },
                     },
                     {
                         data: 'month',

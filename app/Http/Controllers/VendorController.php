@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreVendorRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\CreateVendorIdTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\VendorRepositoryInterface;
 use App\Interfaces\VendorTypeRepositoryInterface;
 use App\Models\Vendor;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Redirect;
 class VendorController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
 
     private VendorRepositoryInterface $vendorRepository;
     private VendorTypeRepositoryInterface $vendorTypeRepository;
@@ -53,6 +55,8 @@ class VendorController extends Controller
             'vendor_processingtime',
             'vendor_notes',
         ]);
+        unset($vendorDetails['vendor_phone']);
+        $vendorDetails['vendor_phone'] = $this->setPhoneNumber($request->vendor_phone);
 
         $last_id = Vendor::max('vendor_id');
         $vendor_id_without_label = $this->remove_primarykey_label($last_id, 3);
@@ -115,6 +119,8 @@ class VendorController extends Controller
             'vendor_processingtime',
             'vendor_notes',
         ]);
+        unset($vendorDetails['vendor_phone']);
+        $vendorDetails['vendor_phone'] = $this->setPhoneNumber($request->vendor_phone);
 
         # retrieve vendor id from url
         $vendorId = $request->route('vendor');

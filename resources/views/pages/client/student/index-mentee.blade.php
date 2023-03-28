@@ -47,7 +47,7 @@
                         <th>Interest Major</th>
                         <th>Last Update</th>
                         <th>Status</th>
-                        <th class="bg-info text-white">Priority</th>
+                        <th class="bg-info text-white">Score</th>
                         <th class="bg-info text-white"># Action</th>
                     </tr>
                 </thead>
@@ -173,7 +173,7 @@
                     {
                         data: 'st_statusact',
                         render: function(data, type, row, meta) {
-                            return data == 1 ? "active" : "nonactive";
+                            return data == 1 ? "Active" : "Non-active";
                         }
                     },
                     {

@@ -8,8 +8,10 @@ use App\Http\Requests\StoreClientStudentRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\CountryRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
@@ -52,8 +54,10 @@ class ClientStudentController extends Controller
     private TagRepositoryInterface $tagRepository;
     private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
+    private CountryRepositoryInterface $countryRepository;
+    private ClientEventRepositoryInterface $clientEventRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository, CountryRepositoryInterface $countryRepository, ClientEventRepositoryInterface $clientEventRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
@@ -67,6 +71,8 @@ class ClientStudentController extends Controller
         $this->tagRepository = $tagRepository;
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
         $this->clientProgramRepository = $clientProgramRepository;
+        $this->countryRepository = $countryRepository;
+        $this->clientEventRepository = $clientEventRepository;
     }
 
     public function index(Request $request)
@@ -89,7 +95,11 @@ class ClientStudentController extends Controller
     {
         $studentId = $request->route('student');
         if ($request->ajax())
-            return $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => $studentId]);
+        {
+            $data['client_programs'] = $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => $studentId]);
+            $data['client_events'] = $this->clientEventRepository->getAllClientEventByUserIdDataTables($studentId);
+            return $data;
+        }
 
         $student = $this->clientRepository->getClientById($studentId);
 
@@ -368,6 +378,7 @@ class ClientStudentController extends Controller
         $programs = $programsB2BB2C->merge($programsB2C);
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
+        $regions = $this->countryRepository->getAllRegionByLocale('en');
 
         return view('pages.client.student.form')->with(
             [
@@ -381,6 +392,7 @@ class ClientStudentController extends Controller
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
+                'regions' => $regions
             ]
         );
     }

@@ -356,9 +356,9 @@
                                 <input type="number" name="curs_rate" id="current_rate"
                                     value="{{ isset($invoice->curs_rate) ? $invoice->curs_rate : old('curs_rate') }}"
                                     {{ $disabled }} class="form-control form-control-sm rounded">
-                                {{-- @error('curs_rate')
+                                @error('curs_rate')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror --}}
+                                @enderror
                             </div>
 
                             <div class="col-md-3 mb-3">

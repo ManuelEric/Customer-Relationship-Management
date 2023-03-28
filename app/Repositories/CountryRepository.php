@@ -23,4 +23,9 @@ class CountryRepository implements CountryRepositoryInterface
     {
         return RegionTranslations::where('lc_region_id', $regionId)->where('locale', 'en')->first();
     }
+
+    public function getAllRegionByLocale($locale)
+    {
+        return RegionTranslations::where('locale', $locale)->get();
+    }
 }

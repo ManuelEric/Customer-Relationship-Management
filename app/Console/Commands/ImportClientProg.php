@@ -208,7 +208,6 @@ class ImportClientProg extends Command
             ];
 
             $program_v2 = $this->programRepository->createProgram($programDetails);
-            $this->info(json_encode($program_v2));
         }
 
         return $program_v2->prog_id;

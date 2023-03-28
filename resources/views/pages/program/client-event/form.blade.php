@@ -350,7 +350,12 @@
                                                 @else
                                                     {{ old('eduf_id') == $edufair->id ? "selected" : null }}
                                                 @endif
-                                                >{{ $edufair->title }}
+                                                >
+                                                @if ($edufair->title != NULL)
+                                                    {{ $edufair->title }}
+                                                @else
+                                                    {{ $edufair->organizer_name }}
+                                                @endif
                                             </option>
                                         @endforeach
                                     @endif

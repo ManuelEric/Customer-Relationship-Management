@@ -1,4 +1,7 @@
 @extends('layout.main')
+<style>
+    .lcs_wrap { scale: 0.7; margin-top: -4px; margin-left: -10px; }
+</style>
 
 @section('title', 'Student - Bigdata Platform')
 
@@ -116,10 +119,11 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9">
-                            <select name="st_status" id="status">
+                            <input type="checkbox" name="st_status" id="status" value="" @checked($student->st_statusact == 1)>
+                            {{-- <select name="st_status" id="status">
                                 <option value="1" {{ $student->st_statusact == 1 ? "selected" : null }}>Active</option>
                                 <option value="0" {{ $student->st_statusact == 0 ? "selected" : null }}>Inactive</option>
-                            </select>
+                            </select> --}}
                         </div>
                     </div>
                 </div>
@@ -271,9 +275,52 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-12">
+            <div class="card rounded">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="">
+                        <h5 class="m-0 p-0">Events</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-hover nowrap align-middle w-100" id="eventTable">
+                        <thead class="bg-dark text-white">
+                            <tr class="text-center" role="row">
+                                <th class="text-dark">No</th>
+                                <th class="bg-info text-white">Event Name</th>
+                                <th>Event Start Date</th>
+                                <th>Joined Date</th>
+                            </tr>
+                        </thead>
+                        <tfoot class="bg-light text-white">
+                            <tr>
+                                <td colspan="8"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
-
+    <script src="{{ asset('js/lc_switch.min.js') }}"></script>
+    <script>
+    lc_switch('input[type=checkbox]', {
+    
+        // ON text
+        on_txt: 'ON',
+    
+        // OFF text
+        off_txt: 'OFF',
+    
+        // Custom ON color. Supports gradients
+        on_color: '#0083B8',
+    
+        // enable compact mode
+        compact_mode: false
+    
+    });
+    </script>
     {{-- Need Changing --}}
     <script>
         var url = "{{ url('client/student').'/'.$student->id.'/program' }}"
@@ -358,28 +405,105 @@
                 var data = table.row($(this).parents('tr')).data();
                 confirmDelete('asset', data.asset_id)
             });
+
+            var table = $('#eventTable').DataTable({
+                dom: 'Bfrtip',
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+                ],
+                buttons: [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                    }
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: 2,
+                    right: 2
+                },
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'prog_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'program_name',
+                    },
+                    {
+                        data: 'conversion_lead',
+                    },
+                    {
+                        data: 'last_discuss_date',
+                    },
+                    {
+                        data: 'pic_name',
+                    },
+                    {
+                        data: 'program_status',
+                    },
+                    {
+                        data: 'prog_running_status',
+                        render: function(data, type, row, meta) {
+                            switch(data) {
+                                case 0:
+                                    return "not yet"
+                                    break;
+
+                                case 1:
+                                    return "ongoing"
+                                    break;
+
+                                case 2:
+                                    return "done"
+                                    break;
+                            }
+                        }
+                        
+                    },
+                    {
+                        data: 'clientprog_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return '<a href="' + url + '/' + data +'" class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>'
+                        }
+                    }
+                ]
+            });
         });
     </script>
 
 
 
     <script type="text/javascript">
-        $("#status").on('change', async function() {
+        // $("#status").on('change', async function() {
+            $('.lcs_switch').on('click', async function() {
             
-            Swal.fire({
-                width: 100,
-                backdrop: '#4e4e4e7d',
-                allowOutsideClick: false,
-            })
-            swal.showLoading()
+            // Swal.fire({
+            //     width: 100,
+            //     backdrop: '#4e4e4e7d',
+            //     allowOutsideClick: false,
+            // })
+            // swal.showLoading()
 
-            var val = $(this).val()
+            // var val = $(this).val() // for select option
+            var class_names = $(this).attr('class');
+            var getLcsStatus = class_names.split(' ');
+            var current_value = getLcsStatus[2];
+            
+            var val = current_value == "lcs_off" ? 0 : 1;
 
             var link = "{{ url('/') }}/client/student/{{ $student->id }}/status/" + val
             
             await axios.get(link)
                 .then(function(response) {
-                    console.log(response)
+                    
                     Swal.close()
                     notification("success", response.data.message)
                 })

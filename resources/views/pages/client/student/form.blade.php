@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ route('student.index') }}" class="text-decoration-none text-muted">
+        <a href="{{ route('student.index') }}?st=potential" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Student
         </a>
     </div>
@@ -90,7 +90,17 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <div class="mb-2">
+                                    <label>Country <i class="text-danger font-weight-bold">*</i></label>
+                                    <input name="country" type="text" class="form-control form-control-sm"
+                                        placeholder="Country" id="country" value="{{ isset($student->state) ? $student->state : old('state') }}">
+                                    @error('state')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="mb-2">
                                     <label>State / Region <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="state" type="text" class="form-control form-control-sm"
@@ -100,9 +110,9 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-2">
-                                    <label>City</label>
+                                    <label>City <i class='text-danger font-weight-bold'>*</i></label>
                                     <input name="city" type="text" class="form-control form-control-sm"
                                         placeholder="City" id="city" value="{{ isset($student->city) ? $student->city : old('city') }}">
                                     @error('city')
@@ -110,7 +120,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-2">
                                     <label>Postal Code</label>
                                     <input name="postal_code" type="text" class="form-control form-control-sm"

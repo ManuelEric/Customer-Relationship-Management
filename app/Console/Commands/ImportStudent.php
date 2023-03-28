@@ -476,7 +476,7 @@ class ImportStudent extends Command
                 'created_at' => $student->st_datecreate,
                 'updated_at' => $student->st_datelastedit,
             ];
-
+            
             $selectedStudent = $this->clientRepository->createClient('Student', $studentDetails);
 
             if ($sec_mail_info || $sec_phone_info)
