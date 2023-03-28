@@ -65,7 +65,6 @@ class InvoiceProgramController extends Controller
 
     public function store(StoreInvoiceProgramRequest $request)
     {
-        return $request->all();
         $clientProgId = $request->clientprog_id;
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientProgId);
 
@@ -231,11 +230,12 @@ class InvoiceProgramController extends Controller
             return Redirect::to('invoice/client-program?s=needed');
         }
 
+        
         return view('pages.invoice.client-program.form')->with(
             [
                 'status' => 'create',
                 'clientProg' => $clientProg,
-                'invoice' => null,
+                'invoice' => null
             ]
         );
     }
@@ -516,8 +516,8 @@ class InvoiceProgramController extends Controller
                     ->subject($data['title'])
                     ->attachData($pdf->output(), $invoice_id . '.pdf');
             });
-
-            return response()->json(['message' => 'Invoice has already been requested to be signed.'], 500);
+            
+            return response()->json(['success' => false, 'message' => 'Invoice has already been requested to be signed.']);
         }
 
         try {
@@ -546,7 +546,7 @@ class InvoiceProgramController extends Controller
             
         } catch (Exception $e) {
 
-            Log::info('Failed to request sign invoice : ' . $e->getMessage());
+            Log::info('Failed to request sign invoice : ' . $e->getMessage().' | Line '.$e->getLine());
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
 

@@ -55,7 +55,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         )->make(true);
     }
 
-    public function getAllClientEventByUserIdDataTables($userId)
+    public function getAllClientEventByStudentIdDataTables($clientId)
     {
         return datatables::eloquent(
             ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
@@ -63,7 +63,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_event.lead_id')
                 ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
                 ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
-                ->where('tbl_client_event.client_id', '=', $userId)
+                ->where('tbl_client_event.client_id', '=', $clientId)
                 ->select(
                     'tbl_client_event.clientevent_id',
                     // 'tbl_client_event.event_id',
@@ -72,6 +72,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     // 'tbl_lead.main_lead',
                     'tbl_client_event.joined_date',
                     'tbl_client_event.status',
+                    'tbl_events.event_startdate',
                     DB::raw('(CASE
                     WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
                     WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)
@@ -80,23 +81,6 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 END) AS conversion_lead'),
                     DB::raw('CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) as client_name')
                 )
-        )->filterColumn(
-            'client_name',
-            function ($query, $keyword) {
-                $sql = 'CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) like ?';
-                $query->whereRaw($sql, ["%{$keyword}%"]);
-            }
-        )->filterColumn(
-            'conversion_lead',
-            function ($query, $keyword) {
-                $sql = '(CASE
-                            WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
-                            WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)
-                            WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
-                            ELSE tbl_lead.main_lead
-                        END) like ?';
-                $query->whereRaw($sql, ["%{$keyword}%"]);
-            }
         )->make(true);
     }
 
