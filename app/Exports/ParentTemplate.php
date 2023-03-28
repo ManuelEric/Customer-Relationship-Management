@@ -12,40 +12,32 @@ use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Models\Lead;
 use App\Models\UserClient;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class ParentTemplate implements FromCollection, WithEvents, WithTitle
+class ParentTemplate implements WithEvents, WithTitle, WithHeadings
 {
 
 
-    protected $headers;
-
-    // public function __construct(ClientRepositoryInterface $clientRepository)
-    // {
-    //     $this->clientRepository = $clientRepository;
-    // }
-
-    public function collection()
+    public function headings(): array
     {
-        $this->headers = collect([[
+        $columns = [
             'First Name',
             'Last Name',
-            'E-mail',
+            'Email',
             'Phone Number',
             'Date of Birth',
             'Instagram',
-            'State/Region',
+            'State',
             'City',
             'Postal Code',
             'Address',
             'Lead Source',
             'Level of Interest',
-            'Interested Program',
-            'Children Name',
-        ]]);
+            'Interest Program',
+            'Childrens Name'
+        ];
 
-        // $this->headers = $this->getActionItems();
-
-        return $this->headers;
+        return $columns;
     }
 
     public function title(): string
@@ -63,45 +55,42 @@ class ParentTemplate implements FromCollection, WithEvents, WithTitle
 
                 // get layout counts (add 1 to rows for heading row)
                 $row_count = 2;
-                $column_count = 1;
+                $column_count = 14;
 
-                // set dropdown column
-                $drop_column = [
-                    'N',
-                    'K',
+                $lead_options = Lead::get()->pluck('main_lead')->toArray();
+                $levelOfInterest_options = [
+                    'High',
+                    'Medium',
+                    'Low',
                 ];
 
-                // set dropdown options
-                // foreach ($childrens as $children) {
-                $options = UserClient::whereHas(
-                    'roles',
-                    function ($query2) {
-                        $query2->where('role_name', 'student');
-                    }
-                )->limit(10)->get()->pluck('fullName')->toArray();
+                // set dropdown list for first data row
+                $validation = $event->sheet->getCell("K2")->getDataValidation();
+                $validation->setType(DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+                $validation->setAllowBlank(false);
+                $validation->setShowInputMessage(true);
+                $validation->setShowErrorMessage(true);
+                $validation->setShowDropDown(true);
+                $validation->setErrorTitle('Input error');
+                $validation->setError('Value is not in list.');
+                $validation->setPromptTitle('Pick from list');
+                $validation->setPrompt('Please pick a value from the drop-down list.');
+                $validation->setFormula1(sprintf('"%s"', implode(',', $lead_options)));
 
-
-                /**
-                 * validation for bulkuploadsheet
-                 */
-
-                $objValidation = $event->sheet->getCell("{$drop_column[0]}2")->getDataValidation();
-                $objValidation->setType(DataValidation::TYPE_LIST);
-                $objValidation->setErrorStyle(DataValidation::STYLE_INFORMATION);
-                $objValidation->setAllowBlank(false);
-                $objValidation->setShowInputMessage(true);
-                $objValidation->setShowErrorMessage(true);
-                $objValidation->setShowDropDown(true);
-                $objValidation->setErrorTitle('Input error');
-                $objValidation->setError('Value is not in list.');
-                $objValidation->setPromptTitle('Pick from list');
-                $objValidation->setPrompt('Please pick a value from the drop-down list.');
-                $objValidation->setFormula1(sprintf('"%s"', implode(',', $options)));
-
-                // clone validation to remaining rows
-                for ($i = 3; $i <= $row_count; $i++) {
-                    $event->sheet->getCell("{$drop_column[0]}{$i}")->setDataValidation(clone $objValidation);
-                }
+                // set dropdown list for first data row
+                $validation = $event->sheet->getCell("L2")->getDataValidation();
+                $validation->setType(DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+                $validation->setAllowBlank(false);
+                $validation->setShowInputMessage(true);
+                $validation->setShowErrorMessage(true);
+                $validation->setShowDropDown(true);
+                $validation->setErrorTitle('Input error');
+                $validation->setError('Value is not in list.');
+                $validation->setPromptTitle('Pick from list');
+                $validation->setPrompt('Please pick a value from the drop-down list.');
+                $validation->setFormula1(sprintf('"%s"', implode(',', $levelOfInterest_options)));
 
                 // set columns to autosize
                 for ($i = 1; $i <= $column_count; $i++) {

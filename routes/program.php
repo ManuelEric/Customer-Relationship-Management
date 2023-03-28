@@ -24,6 +24,7 @@ use App\Http\Controllers\SchoolDetailController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
 Route::resource('referral', ReferralController::class);
 
 // Route::get('event', function () {
@@ -67,6 +68,9 @@ Route::resource('event', ClientEventController::class, [
         'destroy' => 'program.event.destroy',
     ]
 ]);
+
+Route::post('event/import', [ClientEventController::class, 'import'])->name('program.event.import');
+
 
 Route::get('corporate', [PartnerProgramController::class, 'index'])->name('program.corporate.index');
 Route::prefix('corporate')->name('corporate_prog.')->group(function () {

@@ -9,9 +9,9 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ExcelTemplateController extends Controller
 {
-    
+
     public function generateTemplate(Request $request)
-    {        
+    {
         $type = $request->route('type');
         switch ($type) {
 
