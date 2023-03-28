@@ -285,6 +285,23 @@
     </div>
 </div>
 
+@if (
+        $errors->has('speaker_type') ||
+        $errors->has('allin_speaker') ||
+        $errors->has('partner_speaker') ||
+        $errors->has('school_speaker') ||
+        $errors->has('university_speaker') ||
+        $errors->has('start_time') ||
+        $errors->has('end_time') 
+        )
+        <script>
+            $(document).ready(function() {
+                $('#speaker').modal('show');
+
+            })
+        </script>
+    @endif
+
 <script>
     $(document).ready(function() {
         $('.modal-select').select2({

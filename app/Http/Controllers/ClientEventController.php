@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientEventRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Imports\ClientEventImport;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -407,5 +408,14 @@ class ClientEventController extends Controller
         }
 
         return Redirect::to('program/event')->withSuccess('Client event successfully deleted');
+    }
+
+    public function import(Request $request)
+    {
+        $file = $request->file('file');
+        $import = new ClientEventImport;
+        $import->import($file);
+
+        return back()->withSuccess('Client event successfully imported');
     }
 }

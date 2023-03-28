@@ -152,9 +152,7 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($schools as $school)
                                         <option value="{{ $school->sch_id }}"
-                                            {{ isset($edufair->sch_id) && $edufair->sch_id == $school->sch_id ? 'selected' : null }}
-                                            @selected(old('sch_id') == $school->sch_id)
-                                            >
+                                            {{ isset($edufair->sch_id) && $edufair->sch_id == $school->sch_id || (old('sch_id') == $school->sch_id) ? 'selected' : null }}>
                                             {{ $school->sch_name }}</option>
                                     @endforeach
                                 </select>
@@ -170,9 +168,7 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($corporates as $corporate)
                                         <option value="{{ $corporate->corp_id }}"
-                                            {{ isset($edufair->corp_id) && $edufair->corp_id == $corporate->corp_id ? 'selected' : null }}
-                                            @selected(old('corp_id') == $corporate->corp_id)
-                                            >
+                                            {{ isset($edufair->corp_id) && $edufair->corp_id == $corporate->corp_id || (old('corp_id') == $corporate->corp_id) ? 'selected' : null }}>
                                             {{ $corporate->corp_name }}</option>
                                     @endforeach
                                 </select>
@@ -188,9 +184,7 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($internal_pic as $pic)
                                         <option value="{{ $pic->id }}"
-                                            {{ isset($edufair->intr_pic) && $edufair->intr_pic == $pic->id ? 'selected' : null }}
-                                            @selected(old('intr_pic') == $pic->id)
-                                            >
+                                            {{ isset($edufair->intr_pic) && $edufair->intr_pic == $pic->id || (old('intr_pic') == $pic->id) ? 'selected' : null }}>
                                             {{ $pic->first_name . ' ' . $pic->last_name }}</option>
                                     @endforeach
                                 </select>
@@ -565,6 +559,14 @@
         <script>
             $(document).ready(function() {
                 $('#reviewForm').modal('show');
+            })
+        </script>
+    @endif
+
+    @if(!empty(old('organizer')))
+        <script>
+            $(document).ready(function(){
+                $('input[name=organizer][value="{{old('organizer')}}"]').prop('checked', true).trigger('change')
             })
         </script>
     @endif

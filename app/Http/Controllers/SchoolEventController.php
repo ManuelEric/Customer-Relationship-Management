@@ -5,7 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSchoolEventRequest;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\SchoolEventRepositoryInterface;
+<<<<<<< HEAD
 use App\Interfaces\SchoolRepositoryInterface;
+=======
+use App\Interfaces\AgendaSpeakerRepositoryInterface;
+use App\Interfaces\SchoolDetailRepositoryInterface;
+use App\Models\Event;
+>>>>>>> 1af2a8d0e1362a5092bb8ed8e8c96b84b7729cc9
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +22,7 @@ class SchoolEventController extends Controller
 {
     private SchoolEventRepositoryInterface $schoolEventRepository;
     private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
+<<<<<<< HEAD
     private SchoolRepositoryInterface $schoolRepository;
 
     public function __construct(SchoolEventRepositoryInterface $schoolEventRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, SchoolRepositoryInterface $schoolRepository)
@@ -23,6 +30,15 @@ class SchoolEventController extends Controller
         $this->schoolEventRepository = $schoolEventRepository;
         $this->agendaSpeakerRepository = $agendaSpeakerRepository;
         $this->schoolRepository = $schoolRepository;
+=======
+    private SchoolDetailRepositoryInterface $schoolDetailRepository;
+
+    public function __construct(SchoolEventRepositoryInterface $schoolEventRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, SchoolDetailRepositoryInterface $schoolDetailRepository)
+    {
+        $this->schoolEventRepository = $schoolEventRepository;
+        $this->agendaSpeakerRepository = $agendaSpeakerRepository;
+        $this->schoolDetailRepository = $schoolDetailRepository;
+>>>>>>> 1af2a8d0e1362a5092bb8ed8e8c96b84b7729cc9
     }
 
     public function store(StoreSchoolEventRequest $request)
@@ -38,16 +54,14 @@ class SchoolEventController extends Controller
 
             $this->schoolEventRepository->addSchoolEvent($eventId, $schoolDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Add school event failed : ' . $e->getMessage());
             return Redirect::to('master/event/' . $eventId . '')->withError('Failed to add new school to event');
-
         }
 
-        return Redirect::to('master/event/'.$eventId)->withSuccess('School successfully added to event');
+        return Redirect::to('master/event/' . $eventId)->withSuccess('School successfully added to event');
     }
 
     public function destroy(Request $request)
@@ -66,17 +80,22 @@ class SchoolEventController extends Controller
         DB::beginTransaction();
         try {
 
-            $this->schoolEventRepository->destroySchoolEvent($eventId, $schoolId);
-            DB::commit();
+            $event = Event::whereEventId($eventId);
 
+            if (count($event->school_speaker()->where('sch_id', $schoolId)->get()) > 0) {
+                $this->schoolDetailRepository->deleteAgendaSpeaker($schoolId, $eventId);
+            }
+
+            $this->schoolEventRepository->destroySchoolEvent($eventId, $schoolId);
+
+            DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Remove school event failed : ' . $e->getMessage());
-            return Redirect::to('master/event/'.$eventId)->withError('Failed to remove school from event');
+            return Redirect::to('master/event/' . $eventId)->withError('Failed to remove school from event');
         }
 
-        return Redirect::to('master/event/'.$eventId)->withSuccess('School successfully removed from event');
-
+        return Redirect::to('master/event/' . $eventId)->withSuccess('School successfully removed from event');
     }
 }

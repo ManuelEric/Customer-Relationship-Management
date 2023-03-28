@@ -158,6 +158,8 @@
                     {
                         data: 'program_name',
                         // name: 'program_name',
+                        name: 'tbl_prog.prog_program'
+
                     },
                     {
                         data: 'total_participant',

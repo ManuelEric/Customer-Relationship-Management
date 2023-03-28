@@ -48,7 +48,7 @@ class UserClient extends Authenticatable
         'st_note',
         'st_prospect_status',
         'password',
-        'created_at', 
+        'created_at',
         'updated_at',
     ];
 
@@ -56,7 +56,7 @@ class UserClient extends Authenticatable
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->first_name.' '.$this->last_name,
+            get: fn ($value) => isset($this->last_name) ? $this->first_name . ' ' . $this->last_name : $this->first_name,
         );
     }
 
@@ -71,18 +71,22 @@ class UserClient extends Authenticatable
     {
         switch ($parameter) {
             case "All-In Event":
-                return "ALL-In Event - ".$this->event->event_title;
+                return "ALL-In Event - " . $this->event->event_title;
                 break;
 
             case "External Edufair":
+<<<<<<< HEAD
                 if ($this->external_edufair->title != NULL)
                     return "External Edufair - ".$this->external_edufair->title;
                 else
                     return "External Edufair - ".$this->external_edufair->organizerName;
+=======
+                return "External Edufair - " . $this->external_edufair->title;
+>>>>>>> 1af2a8d0e1362a5092bb8ed8e8c96b84b7729cc9
                 break;
 
             case "KOL":
-                return "KOL - ".$this->lead->sub_lead;
+                return "KOL - " . $this->lead->sub_lead;
                 break;
 
             default:

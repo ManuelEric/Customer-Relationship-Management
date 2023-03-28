@@ -61,6 +61,9 @@
                                         @endforeach
                                     @endif
                                 </select>
+                                @error('corp_id')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -78,3 +81,13 @@
         </div>
     </div>
 </div>
+
+@if (
+        $errors->has('corp_id'))
+        <script>
+            $(document).ready(function() {
+                $('#partner').modal('show');
+
+            })
+        </script>
+    @endif

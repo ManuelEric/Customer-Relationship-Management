@@ -30,6 +30,14 @@ class SchoolDetailRepository implements SchoolDetailRepositoryInterface
         return SchoolDetail::find($schoolDetailId);
     }
 
+    public function deleteAgendaSpeaker($schoolId, $eventId)
+    {
+        $speakers = SchoolDetail::where('sch_id', $schoolId)->get();
+        foreach ($speakers as $speaker) {
+            $speaker->as_event_speaker()->detach($eventId);
+        }
+    }
+
     public function deleteSchoolDetail($schoolDetailId)
     {
         return SchoolDetail::destroy($schoolDetailId);

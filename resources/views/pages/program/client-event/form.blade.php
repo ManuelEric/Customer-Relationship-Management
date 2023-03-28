@@ -404,7 +404,7 @@
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label>Joined Date <sup class="text-danger">*</sup></label>
-                                <input type="date" name="joined_date" value="{{ date('Y-m-d') }}" readonly      
+                                <input type="date" name="joined_date" value="{{ isset($clientEvent) ? $clientEvent->joined_date : date('Y-m-d') }}" readonly      
                                     class="form-control form-control-sm rounded" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
                                 @error('joined_date')
                                     <small class="text-danger fw-light">{{ $message }}</small>
