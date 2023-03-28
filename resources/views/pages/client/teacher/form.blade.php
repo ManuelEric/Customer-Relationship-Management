@@ -149,7 +149,7 @@
                                     @foreach ($schools as $school)
                                         <option value="{{ $school->sch_id }}"
                                             @if (isset($teacher_counselor->school))
-                                                {{ $teacher_counselor->sch_id = $school->sch_id ? "selected" : null }}
+                                                {{ $teacher_counselor->sch_id == $school->sch_id ? "selected" : null }}
                                             @else
                                                 {{ old('sch_id') == $school->sch_id ? "selected" : null }}
                                             @endif

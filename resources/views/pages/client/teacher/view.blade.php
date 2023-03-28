@@ -26,6 +26,8 @@
                         <div class="">
                             <a href="{{ route('teacher-counselor.edit', ['teacher_counselor' => $teacher_counselor->id]) }}" class="btn btn-warning btn-sm rounded"><i
                                     class="bi bi-pencil"></i></a>
+                            <button type="button" onclick="confirmDelete('{{'client/teacher-counselor'}}', {{$teacher_counselor->id}})" class="btn btn-danger btn-sm rounded">
+                                <i class="bi bi-trash2"></i></button>
                         </div>
                     </div>
                     <hr>
@@ -84,6 +86,20 @@
                         </div>
                         <div class="col-md-9">
                             {{ $teacher_counselor->leadSource }}
+                        </div>
+                    </div>
+                    <div class="row mb-2 g-1">
+                        <div class="col-md-3 d-flex justify-content-between">
+                            <label>
+                                Active Status
+                            </label>
+                            <label>:</label>
+                        </div>
+                        <div class="col-md-9">
+                            <select name="st_status" id="status">
+                                <option value="1" {{ $teacher_counselor->st_statusact == 1 ? "selected" : null }}>Active</option>
+                                <option value="0" {{ $teacher_counselor->st_statusact == 0 ? "selected" : null }}>Inactive</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -236,6 +252,36 @@
                 allowClear: true
             });
         });
+    </script>
+
+    <script type="text/javascript">
+        $("#status").on('change', async function() {
+            
+            Swal.fire({
+                width: 100,
+                backdrop: '#4e4e4e7d',
+                allowOutsideClick: false,
+            })
+            swal.showLoading()
+
+            var val = $(this).val()
+
+            var link = "{{ url('/') }}/client/teacher-counselor/{{ $teacher_counselor->id }}/status/" + val
+            
+        
+
+            await axios.get(link)
+                .then(function(response) {
+                    console.log(response)
+                    Swal.close()
+                    notification("success", response.data.message)
+                })
+                .catch(function(error) {
+                    // handle error
+                    Swal.close()
+                    notification("error", error.response.data.message)
+                })
+        })
     </script>
 
     {{-- Need Changing --}}

@@ -376,7 +376,7 @@
             var val = $(this).val()
 
             var link = "{{ url('/') }}/client/student/{{ $student->id }}/status/" + val
-            
+            console.log(link)
             await axios.get(link)
                 .then(function(response) {
                     console.log(response)
