@@ -3,15 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSchoolEventRequest;
-use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\SchoolEventRepositoryInterface;
-<<<<<<< HEAD
-use App\Interfaces\SchoolRepositoryInterface;
-=======
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Models\Event;
->>>>>>> 1af2a8d0e1362a5092bb8ed8e8c96b84b7729cc9
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,15 +17,6 @@ class SchoolEventController extends Controller
 {
     private SchoolEventRepositoryInterface $schoolEventRepository;
     private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
-<<<<<<< HEAD
-    private SchoolRepositoryInterface $schoolRepository;
-
-    public function __construct(SchoolEventRepositoryInterface $schoolEventRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, SchoolRepositoryInterface $schoolRepository)
-    {
-        $this->schoolEventRepository = $schoolEventRepository;
-        $this->agendaSpeakerRepository = $agendaSpeakerRepository;
-        $this->schoolRepository = $schoolRepository;
-=======
     private SchoolDetailRepositoryInterface $schoolDetailRepository;
 
     public function __construct(SchoolEventRepositoryInterface $schoolEventRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, SchoolDetailRepositoryInterface $schoolDetailRepository)
@@ -38,7 +24,6 @@ class SchoolEventController extends Controller
         $this->schoolEventRepository = $schoolEventRepository;
         $this->agendaSpeakerRepository = $agendaSpeakerRepository;
         $this->schoolDetailRepository = $schoolDetailRepository;
->>>>>>> 1af2a8d0e1362a5092bb8ed8e8c96b84b7729cc9
     }
 
     public function store(StoreSchoolEventRequest $request)

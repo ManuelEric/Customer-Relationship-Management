@@ -61,15 +61,12 @@ class ProgramRepository implements ProgramRepositoryInterface
             unset($programDetails['prog_main']);
         }
 
-<<<<<<< HEAD
         if (!array_key_exists('sub_prog_id', $programDetails))
         {
             $programDetails['sub_prog_id'] = $programDetails['prog_sub'];
             unset($programDetails['prog_sub']);
         }
         
-=======
->>>>>>> 1af2a8d0e1362a5092bb8ed8e8c96b84b7729cc9
         $mainProg = $this->mainProgRepository->getMainProgById($programDetails['main_prog_id']);
 
         if (isset($programDetails['prog_sub'])) {

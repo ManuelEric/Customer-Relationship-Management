@@ -107,21 +107,11 @@ class SalesTargetRepository implements SalesTargetRepositoryInterface
             function ($query, $keyword) {
                 $sql = 'MONTHNAME(tbl_sales_target.month_year) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
-<<<<<<< HEAD
                 }
             )
             ->filterColumn('program_name', function($query, $keyword){
                 $sql = '(CASE
                         WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(COALESCE(tbl_sub_prog.sub_prog_name COLLATE utf8mb4_unicode_ci, "")," - ",tbl_prog.prog_program COLLATE utf8mb4_unicode_ci)
-=======
-            }
-        )
-            ->filterColumn(
-                'program_name',
-                function ($query, $keyword) {
-                    $sql = '(CASE
-                        WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
->>>>>>> 1af2a8d0e1362a5092bb8ed8e8c96b84b7729cc9
                         ELSE tbl_prog.prog_program
                     END) like ? ';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
