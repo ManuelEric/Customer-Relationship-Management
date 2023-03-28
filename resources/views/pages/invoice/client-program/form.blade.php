@@ -14,16 +14,6 @@
         </a>
     </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
@@ -356,9 +346,9 @@
                                 <input type="number" name="curs_rate" id="current_rate"
                                     value="{{ isset($invoice->curs_rate) ? $invoice->curs_rate : old('curs_rate') }}"
                                     {{ $disabled }} class="form-control form-control-sm rounded">
-                                {{-- @error('curs_rate')
+                                @error('curs_rate')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror --}}
+                                @enderror
                             </div>
 
                             <div class="col-md-3 mb-3">

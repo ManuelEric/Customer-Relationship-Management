@@ -20,7 +20,7 @@
                         @enderror
                     </div>
                     <div class="col-md-6">
-                        <small>Initial Assessment Sent <sup class="text-danger">*</sup></small>
+                        <small>Initial Assessment Sent</small>
                         <input type="date" name="pend_assessmentsent_date" {{ $disabled }} 
                             class="form-control form-control-sm rounded" value="{{ isset($clientProgram->assessmentsent_date) ? $clientProgram->assessmentsent_date : old('pend_assessmentsent_date') }}">
                         @error('pend_assessmentsent_date')

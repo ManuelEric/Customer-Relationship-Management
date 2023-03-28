@@ -69,7 +69,8 @@ class StoreClientProgramRequest extends FormRequest
                                 $query->where('sub_prog_name', 'like', '%SAT%')->orWhere('sub_prog_name', 'like', '%ACT%');
                             })->pluck('prog_id')->toArray();
 
-        $student = $this->clientRepository->getClientById($this->route('student'));
+        $studentId = $this->route('student');
+        $student = $this->clientRepository->getClientById($studentId);
         $isMentee = $student->roles()->where('role_name', 'like', '%mentee%')->count();
 
         $clientProg = $this->clientProgramRepository->getClientProgramById($this->route('program'));
@@ -143,7 +144,7 @@ class StoreClientProgramRequest extends FormRequest
                 
                 if (in_array($this->input('prog_id'), $admission_prog_id)) {
 
-                    $rules = $this->store_admission_success($isMentee);
+                    $rules = $this->store_admission_success($isMentee, $studentId);
 
                     $rules['status'] = [
                         'required',
@@ -167,7 +168,7 @@ class StoreClientProgramRequest extends FormRequest
                 } elseif (in_array($this->input('prog_id'), $tutoring_prog_id))
                     $rules = $this->store_tutoring_success($isMentee);
                 elseif (in_array($this->input('prog_id'), $satact_prog_id))
-                    $rules = $this->store_satact_success($isMentee);
+                    $rules = $this->store_satact_success($isMentee, $studentId);
 
                 
                 break;
@@ -279,7 +280,7 @@ class StoreClientProgramRequest extends FormRequest
 
     public function store_admission_pending($isMentee)
     {
-        return [
+        $rules = [
             'prog_id' => [
                 'required',
                 'exists:tbl_prog,prog_id',
@@ -302,11 +303,11 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'partner_id' => 'required_if:lead_id,LS015',
-            'first_discuss_date' => 'required|date',
+            'first_discuss_date' => 'required|date|before_or_equal:pend_initconsult_date',
             'meeting_notes' => 'nullable',
             'status' => 'required|in:0,1,2,3',
-            'pend_initconsult_date' => 'required|date',
-            'pend_assessmentsent_date' => 'nullable|date',
+            'pend_initconsult_date' => 'required|date|after_or_equal:first_discuss_date',
+            'pend_assessmentsent_date' => 'nullable|date|after_or_equal:pend_initconsult_date',
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
@@ -318,10 +319,14 @@ class StoreClientProgramRequest extends FormRequest
                 },
             ]
         ];
+
+        if ($this->input('pend_assessmentsent_date') != NULL)
+            $rules['pend_initconsult_date'] .= '|before_or_equal:pend_assessmentsent_date';
         
+        return $rules;
     }
 
-    public function store_admission_success($isMentee)
+    public function store_admission_success($isMentee, $studentId)
     {
         return [
             'prog_id' => [
@@ -359,10 +364,10 @@ class StoreClientProgramRequest extends FormRequest
                     }
                 },
             ],
-            'success_date' => 'required_if:status,1',
+            'success_date' => 'required_if:status,1|after_or_equal:assessmentsent_date',
             'initconsult_date' => 'required',
             'assessmentsent_date' => 'required', # update v1.4 : <= 1.3 required
-            'mentoring_prog_end_date' => 'required',
+            'mentoring_prog_end_date' => 'required|date|after_or_equal:success_date',
             'total_uni' => 'required|numeric',
             'total_foreign_currency' => 'required|numeric',
             'foreign_currency_exchange' => 'required|numeric',
@@ -379,7 +384,7 @@ class StoreClientProgramRequest extends FormRequest
                 'different:backup_mentor',
             ],
             'backup_mentor' => [
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail) use ($studentId) {
                     if (!User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Mentor');
                     })->find($value)) {
@@ -388,11 +393,12 @@ class StoreClientProgramRequest extends FormRequest
 
                     if (UserClient::whereHas('clientMentor', function($query) use ($value) {
                         $query->where('users.id', $value);
-                    })->count() > 0) {
+                    })->where('id', $studentId)->count() > 0) {
                         $fail('The choosen backup mentor has already exist');
                     }
                 },
-                'required_if:status,1',
+                'nullable',
+                // 'required_if:status,1',
                 'different:main_mentor'
             ],
             'installment_notes' => 'nullable',
@@ -500,7 +506,7 @@ class StoreClientProgramRequest extends FormRequest
         ];
     }
 
-    public function store_satact_success($isMentee)
+    public function store_satact_success($isMentee, $studentId)
     {
         return [
             'prog_id' => [
@@ -556,7 +562,7 @@ class StoreClientProgramRequest extends FormRequest
             ],
             'tutor_2' => [
                 'nullable',
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail) use ($studentId) {
 
                     if (!User::with('roles')->whereHas('roles', function ($q) {
                         $q->where('role_name', 'Tutor');
@@ -566,7 +572,7 @@ class StoreClientProgramRequest extends FormRequest
 
                     if (UserClient::whereHas('clientMentor', function($query) use ($value) {
                         $query->where('users.id', $value);
-                    })->count() > 0) {
+                    })->where('id', $studentId)->count() > 0) {
                         $fail('The choosen tutor has already exist');
                     }
                 },

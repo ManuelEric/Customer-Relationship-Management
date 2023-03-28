@@ -56,10 +56,10 @@ class ImportUniversity extends Command
             $count = 1;
             $universities = $this->universityRepository->getAllUniversitiesFromCRM();
             $univDetails = [];
+            $progressBar = $this->output->createProgressBar($universities->count());
+            $progressBar->start();
             foreach ($universities as $university) {
     
-                $this->info($university->univ_name);
-                $this->info($this->universityRepository->getUniversityByName($university->univ_name));
                 if (!$this->universityRepository->getUniversityByName($university->univ_name) && $university->univ_name != "" && $university->univ_name != NULL) 
                 {
     
@@ -70,7 +70,6 @@ class ImportUniversity extends Command
     
                     $tag = null;
                     if ($countryTranslations = $this->countryRepository->getCountryNameByUnivCountry($university->univ_country)) {
-    
                         $countryName = strtolower($countryTranslations->name);
                             
                         $regionId = $countryTranslations->has_country->lc_region_id;
@@ -79,23 +78,26 @@ class ImportUniversity extends Command
                         $regionName = $region->name;
                         
                         switch ($countryName) {
-        
-                            case preg_match("/united|state/i", $countryName) == 1:
+
+                            case preg_match('/Australia/i', $countryName) == 1:
+                                $regionName = "Australia";
+                                break;
+            
+                            case preg_match("/United State|State|US/i", $countryName) == 1:
                                 $regionName = "US";
                                 break;
-        
-                            case preg_match('/United|Kingdom/i', $countryName) == 1:
+            
+                            case preg_match('/United Kingdom|Kingdom|UK/i', $countryName) == 1:
                                 $regionName = "UK";
                                 break;
-    
-                            case preg_match('/canada/i', $countryName) == 1:
+            
+                            case preg_match('/Canada/i', $countryName) == 1:
                                 $regionName = "Canada";
                                 break;
     
-                            case preg_match('/australia/i', $countryName) == 1:
-                                $regionName = "Australia";
-                                break;
-    
+                            default: 
+                                $regionName = "Other";
+            
                         }
     
                         $tag = $this->tagRepository->getTagByName($regionName);
@@ -114,11 +116,14 @@ class ImportUniversity extends Command
 
                     $this->universityRepository->createUniversity($univDetails);
                 }
+
+                $progressBar->advance();
             }
     
             // if (count($univDetails) > 0) {
             //     $this->universityRepository->createuniversities($univDetails);
             // }
+            $progressBar->finish();
             DB::commit();
             Log::info('Import universities works fine');
 

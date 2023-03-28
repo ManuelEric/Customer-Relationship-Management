@@ -75,7 +75,10 @@ class UserClient extends Authenticatable
                 break;
 
             case "External Edufair":
-                return "External Edufair - " . $this->external_edufair->title;
+                if ($this->external_edufair->title != NULL)
+                    return "External Edufair - ".$this->external_edufair->title;
+                else
+                    return "External Edufair - ".$this->external_edufair->organizerName;
                 break;
 
             case "KOL":

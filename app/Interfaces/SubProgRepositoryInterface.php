@@ -8,4 +8,5 @@ interface SubProgRepositoryInterface
     public function getSubProgById($subProgId);
     public function getSubProgByMainProgName($mainProg);
     public function getSubProgBySubProgName($subProgName);
+    public function createSubProg($subProgDetails);
 }

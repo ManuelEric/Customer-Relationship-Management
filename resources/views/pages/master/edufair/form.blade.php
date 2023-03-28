@@ -18,12 +18,22 @@
                     @if (isset($edufair))
                         <div class="card mt-2">
                             <div class="card-body">
-                                @for ($i = 0; $i < 4; $i++)
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="">Prospective Client</div>
-                                        <div class="">10</div>
-                                    </div>
-                                @endfor
+                                <div class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-1">
+                                    <div class="">Prospective Client</div>
+                                    <div class="text-primary">{{ $edufair->client()->where('st_statuscli', 0)->count() }}</div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-1">
+                                    <div class="">Potential Client</div>
+                                    <div class="text-primary">{{ $edufair->client()->where('st_statuscli', 1)->count() }}</div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center border-bottom pb-1 mb-1">
+                                    <div class="">Current Client</div>
+                                    <div class="text-primary">{{ $edufair->client()->where('st_statuscli', 2)->count() }}</div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="">Completed Client</div>
+                                    <div class="text-primary">{{ $edufair->client()->where('st_statuscli', 3)->count() }}</div>
+                                </div>
                             </div>
                         </div>
                         <div class="mt-2">
@@ -59,8 +69,7 @@
                         </div>
                     </div>
                     <div class="card-body" style="max-height: 200px; overflow:auto;">
-                        @if (isset($reviews))
-                            @foreach ($reviews as $reviews)
+                            @forelse ($reviews as $reviews)
                                 <div class="item mb-3">
                                     <div class="d-flex justify-content-between">
                                         <div class="">
@@ -86,8 +95,12 @@
                                     </div>
                                     <hr class="my-1">
                                 </div>
-                            @endforeach
-                        @endif
+
+                                @empty
+                                <div class="item">
+                                    No review yet
+                                </div>
+                            @endforelse
                     </div>
                 </div>
             @endif
@@ -114,15 +127,18 @@
                         <div class="row">
                             <div class="col-md-3 mb-2">
                                 <label>Organizer</label>
+                                {{ old('organizer') }}
                                 <div class="mt-1">
                                     <input class="form-check-input" type="radio" id="school" name="organizer"
                                         value="school"
+                                        @checked(old('organizer') == 'school')
                                         {{ isset($edufair) ? (isset($edufair->sch_id) && $edufair->sch_id != null ? 'checked' : null) : 'checked' }}
                                         {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                                     <label for="school">School</label>
 
                                     <input class="form-check-input ms-2" type="radio" id="corporate" name="organizer"
                                         value="corporate"
+                                        @checked(old('organizer') == 'corporate')
                                         {{ isset($edufair->corp_id) && $edufair->corp_id != null ? 'checked' : null }}
                                         {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                                     <label for="corporate">Corporate</label>
@@ -179,7 +195,8 @@
 
                             <div class="col-md-12 my-2">
                                 <label>Title <sup class="text-danger">*</sup></label>
-                                <input type="text" class="form-control form-control-sm rounded" name="title" value="{{ isset($edufair->title) ? $edufair->title : old('title') }}" {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
+                                <input type="text" class="form-control form-control-sm rounded" name="title" 
+                                    value="{{ isset($edufair->title) ? $edufair->title : old('title') }}" {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
                                 @error('title')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -242,6 +259,9 @@
                                     value="{{ isset($edufair->first_discussion_date) ? $edufair->first_discussion_date : old('first_discussion_date') }}"
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
+                                @error('first_discussion_date')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <div class="col-md-3 mb-2 mt-4">
@@ -250,6 +270,9 @@
                                     name="last_discussion_date"
                                     value="{{ isset($edufair->last_discussion_date) ? $edufair->last_discussion_date : old('last_discussion_date') }}"
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
+                                @error('last_discussion_date')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <div class="col-md-3 mb-2 mt-4">
@@ -257,6 +280,9 @@
                                 <input class="form-control form-control-sm rounded" type="date" name="event_start"
                                     value="{{ isset($edufair->event_start) ? $edufair->event_start : old('event_start') }}"
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
+                                @error('event_start')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <div class="col-md-3 mb-2 mt-4">
@@ -264,21 +290,18 @@
                                 <input class="form-control form-control-sm rounded" type="date" name="event_end"
                                     value="{{ isset($edufair->event_end) ? $edufair->event_end : old('event_end') }}"
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
+                                @error('event_end')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <div class="col-md-4 mb-2">
                                 <label>Status <sup class="text-danger">*</sup></label>
                                 <select name="status" class="select w-100"
                                     {{ isset($edufair) && empty($edit) ? 'disabled' : '' }}>
-                                    <option value="0"
-                                        {{ isset($edufair->status) && $edufair->status == 0 ? 'selected' : null }}>
-                                        Pending</option>
-                                    <option value="1"
-                                        {{ isset($edufair->status) && $edufair->status == 1 ? 'selected' : null }}>
-                                        Success</option>
-                                    <option value="2"
-                                        {{ isset($edufair->status) && $edufair->status == 2 ? 'selected' : null }}>
-                                        Denied</option>
+                                    <option value="0" @selected(isset($edufair) && $edufair->status == 0 || old('status') == 0)>Pending</option>
+                                    <option value="1" @selected(isset($edufair) && $edufair->status == 1 || old('status') == 1)>Success</option>
+                                    <option value="2" @selected(isset($edufair) && $edufair->status == 2 || old('status') == 2)>Denied</option>
                                 </select>
                                 @error('status')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -456,6 +479,12 @@
                 })
         }
     </script>
+
+    @if (old('organizer'))
+    <script>
+        change_organizer('{{ old('organizer') }}')
+    </script>
+    @endif
 
     @if (isset($edufair))
         <script>

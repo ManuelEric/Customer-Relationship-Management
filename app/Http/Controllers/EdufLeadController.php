@@ -80,6 +80,30 @@ class EdufLeadController extends Controller
         DB::beginTransaction();
         try {
 
+            $ext_pic_phone = $request->only('ext_pic_phone');
+
+            switch (substr($ext_pic_phone, 0, 1)) {
+
+                case 0:
+                    $ext_pic_phone = "+62".substr($ext_pic_phone, 1);
+                    break;
+
+                case 6:
+                    $ext_pic_phone = "+".$ext_pic_phone;
+                    break;
+
+                case "+":
+                    $ext_pic_phone = $ext_pic_phone;
+                    break;
+
+                default:
+                    $ext_pic_phone = "+62".$ext_pic_phone;
+            }
+
+            unset($edufairLeadDetails['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
+            $edufairLeadDetails['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
+            
+
             $this->edufLeadRepository->createEdufairLead($edufairLeadDetails);
             DB::commit();
         } catch (Exception $e) {
@@ -111,6 +135,29 @@ class EdufLeadController extends Controller
             'status',
             'notes'
         ]);
+
+        $ext_pic_phone = $request->only('ext_pic_phone');
+
+        switch (substr($ext_pic_phone, 0, 1)) {
+
+            case 0:
+                $ext_pic_phone = "+62".substr($ext_pic_phone, 1);
+                break;
+
+            case 6:
+                $ext_pic_phone = "+".$ext_pic_phone;
+                break;
+
+            case "+":
+                $ext_pic_phone = $ext_pic_phone;
+                break;
+
+            default:
+                $ext_pic_phone = "+62".$ext_pic_phone;
+        }
+
+        unset($edufairLeadDetails['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
+        $edufairLeadDetails['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
 
         $edufLeadId = $request->route('edufair');
         if ($request->organizer == "school")

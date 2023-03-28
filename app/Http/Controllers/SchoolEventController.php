@@ -54,6 +54,14 @@ class SchoolEventController extends Controller
         $eventId = $request->route('event');
         $schoolId = $request->route('school');
 
+        
+
+        if ($this->agendaSpeakerRepository->getAllSpeakersByEventAndSchool($eventId, $schoolId))
+        {
+            $schoolInfo = $this->schoolRepository->getSchoolById($schoolId);
+            return Redirect::back()->withError('You cannot remove the "'.$schoolInfo->sch_name.'" because there are speakers from the school. Do double check the agenda.');
+        }
+
         DB::beginTransaction();
         try {
 

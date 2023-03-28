@@ -65,6 +65,7 @@ class InvoiceProgramController extends Controller
 
     public function store(StoreInvoiceProgramRequest $request)
     {
+        return $request->all();
         $clientProgId = $request->clientprog_id;
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientProgId);
 

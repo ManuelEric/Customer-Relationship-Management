@@ -7,8 +7,11 @@ use App\Exports\StudentTemplate;
 use App\Http\Requests\StoreClientStudentRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\CountryRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
@@ -37,6 +40,7 @@ class ClientStudentController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
     use FindStatusClientTrait;
+    use StandardizePhoneNumberTrait;
 
     private ClientRepositoryInterface $clientRepository;
     private SchoolRepositoryInterface $schoolRepository;
@@ -50,8 +54,10 @@ class ClientStudentController extends Controller
     private TagRepositoryInterface $tagRepository;
     private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
+    private CountryRepositoryInterface $countryRepository;
+    private ClientEventRepositoryInterface $clientEventRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository, CountryRepositoryInterface $countryRepository, ClientEventRepositoryInterface $clientEventRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
@@ -65,6 +71,8 @@ class ClientStudentController extends Controller
         $this->tagRepository = $tagRepository;
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
         $this->clientProgramRepository = $clientProgramRepository;
+        $this->countryRepository = $countryRepository;
+        $this->clientEventRepository = $clientEventRepository;
     }
 
     public function index(Request $request)
@@ -87,7 +95,11 @@ class ClientStudentController extends Controller
     {
         $studentId = $request->route('student');
         if ($request->ajax())
-            return $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => $studentId]);
+        {
+            $data['client_programs'] = $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => $studentId]);
+            $data['client_events'] = $this->clientEventRepository->getAllClientEventByUserIdDataTables($studentId);
+            return $data;
+        }
 
         $student = $this->clientRepository->getClientById($studentId);
 
@@ -105,7 +117,6 @@ class ClientStudentController extends Controller
             'first_name',
             'last_name',
             'mail',
-            'phone',
             'dob',
             'insta',
             'state',
@@ -124,6 +135,8 @@ class ClientStudentController extends Controller
             // 'st_abrcountry',
             'st_note',
         ]);
+
+        $studentDetails['phone'] = $this->setPhoneNumber($request->phone);
 
         // $studentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
         $parentId = $request->pr_id;
@@ -181,11 +194,13 @@ class ClientStudentController extends Controller
             # when pr_id is "add-new" 
             if (isset($request->pr_id) && $request->pr_id == "add-new") {
 
+                $parents_phone = $this->setPhoneNumber($request->pr_phone);
+
                 $parentDetails = [
                     'first_name' => $request->pr_firstname,
                     'last_name' => $request->pr_lastname,
                     'mail' => $request->pr_mail,
-                    'phone' => $request->pr_phone,
+                    'phone' => $parents_phone,
                     'state' => $studentDetails['state'],
                     'city' => $studentDetails['city'],
                     'postal_code' => $studentDetails['postal_code'],
@@ -357,11 +372,13 @@ class ClientStudentController extends Controller
         $events = $this->eventRepository->getAllEvents();
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
+
         $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
         $programsB2C = $this->programRepository->getAllProgramByType('B2C');
         $programs = $programsB2BB2C->merge($programsB2C);
         $countries = $this->tagRepository->getAllTags();
         $majors = $this->majorRepository->getAllMajors();
+        $regions = $this->countryRepository->getAllRegionByLocale('en');
 
         return view('pages.client.student.form')->with(
             [
@@ -375,6 +392,7 @@ class ClientStudentController extends Controller
                 'programs' => $programs,
                 'countries' => $countries,
                 'majors' => $majors,
+                'regions' => $regions
             ]
         );
     }

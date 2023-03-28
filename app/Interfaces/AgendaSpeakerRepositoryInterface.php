@@ -6,6 +6,7 @@ interface AgendaSpeakerRepositoryInterface
 {
     public function getAllSpeakerByMonthAndYear($month, $year);
     public function getAllSpeakerByEvent($eventId);
+    public function getAllSpeakersByEventAndSchool($eventId, $schoolId);
     public function getAllSpeakerDashboard($type, $date = null);
     public function getAllSpeakerBySchoolProgram($schProgId);
     public function getAllSpeakerByPartnerProgram($partnerProgId);

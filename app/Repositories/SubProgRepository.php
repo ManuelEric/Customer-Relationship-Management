@@ -39,4 +39,9 @@ class SubProgRepository implements SubProgRepositoryInterface
     {
         return SubProg::where('sub_prog_name', $subProgName)->first();
     }
+
+    public function createSubProg($subProgDetails)
+    {
+        return SubProg::create($subProgDetails);
+    }
 }

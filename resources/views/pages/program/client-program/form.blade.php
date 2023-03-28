@@ -167,7 +167,12 @@
                                                     @if (old('eduf_id') == $edufair->id) {{ 'selected' }}
                                                     @elseif (isset($clientProgram) && $clientProgram->eduf_lead_id)
                                                         {{ 'selected' }} @endif>
-                                                    {{ $edufair->title }}</option>
+                                                    @if ($edufair->title != NULL)
+                                                        {{ $edufair->title }}
+                                                    @else
+                                                        {{ $edufair->organizer_name }}
+                                                    @endif
+                                                </option>
                                             @empty
                                                 <option>There's no data</option>
                                             @endforelse
@@ -442,7 +447,7 @@
                             <div class="row mb-3">
                                 <div class="col-md-3">
                                     <label for="">
-                                        Backup Mentor <sup class="text-danger">*</sup>
+                                        Backup Mentor
                                     </label>
                                 </div>
                                 <div class="col-md-9">

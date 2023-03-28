@@ -23,7 +23,7 @@
                 @php
                     $no = 1
                 @endphp
-                @foreach ($purchaseRequest->detail as $detail)
+                @forelse ($purchaseRequest->detail as $detail)
                 <tr>
                     <td>{{ $no++ }}</td>
                     <td>{{ $detail->item }}</td>
@@ -35,7 +35,12 @@
                         <button type="button" onclick="confirmDelete('master/purchase/{{ $detail->purchase_id }}/detail', '{{ $detail->id }}')" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="6" align="center">There's no listing item</td>
+                </tr>
+
+                @endforelse
             </tbody>
         </table>
     </div>

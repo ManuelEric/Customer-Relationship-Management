@@ -39,7 +39,6 @@ class PurchaseRequestController extends Controller
 
     public function index(Request $request)
     {
-
         if ($request->ajax()) {
             return $this->purchaseRequestRepository->getAllPurchaseRequestDataTables();
         }
@@ -198,7 +197,9 @@ class PurchaseRequestController extends Controller
             $purchase = $this->purchaseRequestRepository->getPurchaseRequestById($purchaseId);
             if ($this->purchaseRequestRepository->deletePurchaseRequest($purchaseId)) {
 
-                unlink(public_path('storage/uploaded_file/finance/' . $purchase->purchase_attachment));
+                # check if file does exist
+                if (file_exists(public_path('storage/uploaded_file/finance/' . $purchase->purchase_attachment)))
+                    unlink(public_path('storage/uploaded_file/finance/' . $purchase->purchase_attachment));
             }
             DB::commit();
         } catch (Exception $e) {

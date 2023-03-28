@@ -93,7 +93,7 @@
                 <td width="3%">:</td>
                 <td width="85%">
                     @if ($purchase->purchase_attachment != NULL)
-                        {{ URL::to('/').'/public/uploaded_file/finance/'.$purchase->purchase_attachment }} 
+                        <a href="{{ URL::to('/').'/storage/uploaded_file/finance/'.$purchase->purchase_attachment }}">Download here</a>
                     @else
                         {{ "none" }}
                     @endif

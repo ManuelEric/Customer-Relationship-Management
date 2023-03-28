@@ -21,7 +21,7 @@
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Organizer Name</th>
-                        <th>Title</th>
+                        <th>Event Name</th>
                         <th>PIC Name</th>
                         <th>PIC Contact</th>
                         <th>PIC Email</th>
