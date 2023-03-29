@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreClientTeacherCounselorRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\School;
 use Exception;
 use Illuminate\Http\Request;
@@ -22,6 +24,7 @@ use Illuminate\Support\Facades\Redirect;
 class ClientTeacherCounselorController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
     private SchoolRepositoryInterface $schoolRepository;
     private CurriculumRepositoryInterface $curriculumRepository;
     private LeadRepositoryInterface $leadRepository;
@@ -29,8 +32,9 @@ class ClientTeacherCounselorController extends Controller
     private EdufLeadRepositoryInterface $edufLeadRepository;
     private ClientRepositoryInterface $clientRepository;
     private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+    private ClientEventRepositoryInterface $clientEventRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ClientRepositoryInterface $clientRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ClientRepositoryInterface $clientRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientEventRepositoryInterface $clientEventRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->curriculumRepository = $curriculumRepository;
@@ -39,6 +43,7 @@ class ClientTeacherCounselorController extends Controller
         $this->edufLeadRepository = $edufLeadRepository;
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
         $this->clientRepository = $clientRepository;
+        $this->clientEventRepository = $clientEventRepository;
     }
 
     public function index(Request $request)
@@ -92,6 +97,8 @@ class ClientTeacherCounselorController extends Controller
             'st_levelinterest',
         ]);
 
+        $teacherCounselorDetails['phone'] = $this->setPhoneNumber($request->phone);
+
         # set lead_id based on lead_id & kol_lead_id
         # when lead_id is kol
         # then put kol_lead_id to lead_id
@@ -103,6 +110,7 @@ class ClientTeacherCounselorController extends Controller
             unset($teacherCounselorDetails['lead_id']);
             $teacherCounselorDetails['lead_id'] = $request->kol_lead_id;
         }
+        unset($newTeacherCounselorDetails['kol_lead_id']);
 
         DB::beginTransaction();
         try {
@@ -172,6 +180,11 @@ class ClientTeacherCounselorController extends Controller
         $teacher_counselorId = $request->route('teacher_counselor');
         $teacher_counselor = $this->clientRepository->getClientById($teacher_counselorId);
 
+        if ($request->ajax()) {
+            $data['client_events'] = $this->clientEventRepository->getAllClientEventByUserIdDataTables($teacher_counselorId);
+            return $data;
+        }
+
         return view('pages.client.teacher.view')->with(
             [
                 'teacher_counselor' => $teacher_counselor
@@ -223,6 +236,8 @@ class ClientTeacherCounselorController extends Controller
             'event_id',
             'st_levelinterest',
         ]);
+
+        $teacherCounselorDetails['phone'] = $this->setPhoneNumber($request->phone);
 
         # set lead_id based on lead_id & kol_lead_id
         # when lead_id is kol
@@ -305,7 +320,7 @@ class ClientTeacherCounselorController extends Controller
 
     public function updateStatus(Request $request)
     {
-        $teacherId = $request->route('teacher-counselor');
+        $teacherId = $request->route('teacher');
         $newStatus = $request->route('status');
 
         # validate status
@@ -342,24 +357,5 @@ class ClientTeacherCounselorController extends Controller
                 'message' => "Status has been updated",
             ]
         );
-    }
-
-    public function destroy(Request $request)
-    {
-        $teacherId = $request->route('teacher-counselor');
-
-        DB::beginTransaction();
-        try {
-
-            $this->clientRepository->deleteClient($teacherId);
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::error('Delete teacher / counselor failed : ' . $e->getMessage());
-            return Redirect::to('client/teacher-counselor' . $teacherId)->withError('Failed to delete teacher / counselor');
-        }
-
-        return Redirect::to('client/teacher-counselor/')->withSuccess('Teacher / counselor successfully deleted');
     }
 }

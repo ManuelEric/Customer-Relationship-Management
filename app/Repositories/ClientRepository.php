@@ -136,10 +136,10 @@ class ClientRepository implements ClientRepositoryInterface
 
         return Datatables::eloquent(
             Client::whereHas('roles', function ($query) use ($roleName) {
-                    $query->where('role_name', $roleName);
-                })->when($roleName == "Student", function ($q) use ($client) {
-                    $q->whereNotIn('client.id', $client);
-                })
+                $query->where('role_name', $roleName);
+            })->when($roleName == "Student", function ($q) use ($client) {
+                $q->whereNotIn('client.id', $client);
+            })
 
                 ->when(is_int($statusClient) && $statusClient !== NULL, function ($query) use ($statusClient) {
                     $query->where('st_statuscli', $statusClient);
@@ -164,7 +164,7 @@ class ClientRepository implements ClientRepositoryInterface
                             }
                         ])->havingRaw('client_program_count = client_program_finish_count');
                     });
-                })
+                })->orderBy('client.created_at', 'DESC')
         )
             ->addColumn('parent_name', function ($data) {
                 return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
@@ -182,23 +182,23 @@ class ClientRepository implements ClientRepositoryInterface
     public function getAllClientByRole($roleName, $month = null) # mentee, parent, teacher
     {
         return UserClient::when($roleName == "alumni", function ($query) {
-                $query->whereHas('clientProgram', function ($q2) {
-                    $q2->whereIn('prog_running_status', [2]);
-                })->withCount([
-                    'clientProgram as client_program_count' => function ($query) {
-                        $query->whereIn('prog_running_status', [0, 1, 2]);
-                    },
-                    'clientProgram as client_program_finish_count' => function ($query) {
-                        $query->where('prog_running_status', 2);
-                    }
-                ])->havingRaw('client_program_count = client_program_finish_count');
-            }, function ($query) use ($roleName) {
-                $query->whereHas('roles', function ($query2) use ($roleName) {
-                    $query2->where('role_name', $roleName);
-                });
-            })->when($month, function ($query) use ($month) {
-                $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
-            })->get();
+            $query->whereHas('clientProgram', function ($q2) {
+                $q2->whereIn('prog_running_status', [2]);
+            })->withCount([
+                'clientProgram as client_program_count' => function ($query) {
+                    $query->whereIn('prog_running_status', [0, 1, 2]);
+                },
+                'clientProgram as client_program_finish_count' => function ($query) {
+                    $query->where('prog_running_status', 2);
+                }
+            ])->havingRaw('client_program_count = client_program_finish_count');
+        }, function ($query) use ($roleName) {
+            $query->whereHas('roles', function ($query2) use ($roleName) {
+                $query2->where('role_name', $roleName);
+            });
+        })->when($month, function ($query) use ($month) {
+            $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
+        })->get();
     }
 
     # function below
@@ -390,19 +390,19 @@ class ClientRepository implements ClientRepositoryInterface
     public function getCountTotalClientByStatus($status, $month = null)
     {
         return Client::where('st_statuscli', $status)->when($month, function ($query) use ($month) {
-                $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-            })->whereHas('roles', function ($query) {
-                $query->where('role_name', 'Student');
-            })->count();
+            $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+        })->whereHas('roles', function ($query) {
+            $query->where('role_name', 'Student');
+        })->count();
     }
 
     public function getClientByStatus($status, $month = null)
     {
         return Client::where('st_statuscli', $status)->when($month, function ($query) use ($month) {
-                $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-            })->whereHas('roles', function ($query) {
-                $query->where('role_name', 'Student');
-            })->orderBy('created_at', 'desc')->get();
+            $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+        })->whereHas('roles', function ($query) {
+            $query->where('role_name', 'Student');
+        })->orderBy('created_at', 'desc')->get();
     }
 
     public function getMenteesBirthdayMonthly($month)
