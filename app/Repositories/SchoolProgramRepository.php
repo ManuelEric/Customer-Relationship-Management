@@ -33,7 +33,7 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                 'tbl_sch_prog.end_program_date',
                 'users.id as pic_id',
                 DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
-            )
+            )->orderBy('tbl_sch_prog.first_discuss', 'DESC')
                 ->when($filter && isset($filter['school_name']), function ($query) use ($filter) {
                     $query->whereIn('tbl_sch.sch_name', $filter['school_name']);
                 })

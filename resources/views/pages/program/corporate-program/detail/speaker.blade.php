@@ -28,7 +28,8 @@
                                     <div class="">{{ $speaker->school_pic_name }}</div>
                                 @break
                             @endswitch
-                                <small>{{ $speaker->start_time }}</small>
+                                <small>{{ date("M d, Y H.i", strtotime($speaker->start_time)) }} - {{ date("M d, Y H.i", strtotime($speaker->end_time)) }}</small>
+                              
                         </div>
                         <div class="text-end d-flex align-items-center">
                             <select name="status_speaker" class="select w-100 status-form" onchange="checkStatusSpeaker('{{ $speaker->agenda_id }}')"

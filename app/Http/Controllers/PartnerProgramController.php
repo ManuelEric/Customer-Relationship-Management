@@ -186,7 +186,7 @@ class PartnerProgramController extends Controller
         $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         return view('pages.program.corporate-program.form')->with(
             [
@@ -299,7 +299,7 @@ class PartnerProgramController extends Controller
         $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partner_progId);
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         # retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();

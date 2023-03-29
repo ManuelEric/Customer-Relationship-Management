@@ -170,7 +170,7 @@ class StoreSchoolProgramRequest extends FormRequest
             'place' => 'required|string',
             'end_program_date' => 'required|date|after_or_equal:start_program_date',
             'start_program_date' => 'required|date|before_or_equal:end_program_date',
-            'success_date' => 'required|date',
+            'success_date' => 'required|date|before_or_equal:end_program_date',
         ];
 
 
