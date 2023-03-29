@@ -605,6 +605,30 @@
 
         $(document).ready(function() {
 
+            $("#currency_detail").on('change', function() {
+
+                showLoading()
+                var base_currency = $(this).val();
+                var to_currency = 'IDR';
+
+                var link = "{{ url('/') }}/api/current/rate/"+base_currency+"/"+to_currency
+
+                axios.get(link)
+                    .then(function (response) {
+
+                        var rate = response.data.rate;
+                        $("#current_rate").val(rate)
+                        swal.close()
+
+                    }).catch(function (error) {
+
+                        swal.close()
+                        notification('error', 'Something went wrong. Please try again');
+
+                    })
+
+            })
+
             $("#receipt_amount_other").on('keyup', function() {
                 var val = $(this).val()
                 var currency = $("#receipt input[name=currency]").val()
@@ -808,9 +832,9 @@
                     })
                     .catch(error => {
                         console.log(error)
+                        swal.close()
                         notification('error', error.message)
                         // notification('error', 'Something went wrong while send email')
-                        swal.close()
                     })
             })
 

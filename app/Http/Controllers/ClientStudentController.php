@@ -75,6 +75,19 @@ class ClientStudentController extends Controller
         $this->clientEventRepository = $clientEventRepository;
     }
 
+    # ajax
+    public function getClientProgramByStudentId(Request $request)
+    {
+        $studentId = $request->route('client');
+        return $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => $studentId]);
+    }
+
+    public function getClientEventByStudentId(Request $request)
+    {
+        $studentId = $request->route('client');
+        return $this->clientEventRepository->getAllClientEventByStudentIdDataTables($studentId);
+    }
+
     public function index(Request $request)
     {
         // $statusClient = $request->get('st');
@@ -94,13 +107,6 @@ class ClientStudentController extends Controller
     public function show(Request $request)
     {
         $studentId = $request->route('student');
-        if ($request->ajax())
-        {
-            $data['client_programs'] = $this->clientProgramRepository->getAllClientProgramDataTables(['clientId' => $studentId]);
-            $data['client_events'] = $this->clientEventRepository->getAllClientEventByUserIdDataTables($studentId);
-            return $data;
-        }
-
         $student = $this->clientRepository->getClientById($studentId);
 
         return view('pages.client.student.view')->with(

@@ -67,6 +67,7 @@
                             {{ $student->city }} {{ $student->state }}
                         </div>
                     </div>
+                    @if ($student->school != NULL)
                     <div class="row mb-2 g-1">
                         <div class="col-md-3 d-flex justify-content-between">
                             <label>
@@ -78,6 +79,7 @@
                             {{ $student->school->sch_name }}
                         </div>
                     </div>
+                    @endif
                     <div class="row mb-2 g-1">
                         <div class="col-md-3 d-flex justify-content-between">
                             <label>
@@ -275,11 +277,11 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-12">
+        <div class="col-md-12 mt-2">
             <div class="card rounded">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="">
-                        <h5 class="m-0 p-0">Events</h5>
+                        <h5 class="m-0 py-2">Events</h5>
                     </div>
                 </div>
                 <div class="card-body">
@@ -288,13 +290,13 @@
                             <tr class="text-center" role="row">
                                 <th class="text-dark">No</th>
                                 <th class="bg-info text-white">Event Name</th>
-                                <th>Event Start Date</th>
-                                <th>Joined Date</th>
+                                <th class="text-dark">Event Start Date</th>
+                                <th class="text-dark">Joined Date</th>
                             </tr>
                         </thead>
                         <tfoot class="bg-light text-white">
                             <tr>
-                                <td colspan="8"></td>
+                                <td colspan="4"></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -344,7 +346,7 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '',
+                ajax: '{{ url('api/client/'.$student->id.'/programs') }}',
                 columns: [{
                         data: 'prog_id',
                         className: 'text-center',
@@ -406,7 +408,7 @@
                 confirmDelete('asset', data.asset_id)
             });
 
-            var table = $('#eventTable').DataTable({
+            var table_event = $('#eventTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -425,55 +427,31 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '',
+                ajax: '{{ url('api/client/'.$student->id.'/events') }}',
                 columns: [{
-                        data: 'prog_id',
+                        data: 'clientevent_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
                     {
-                        data: 'program_name',
+                        data: 'event_name',
+                        name: 'tbl_events.event_title'
                     },
                     {
-                        data: 'conversion_lead',
-                    },
-                    {
-                        data: 'last_discuss_date',
-                    },
-                    {
-                        data: 'pic_name',
-                    },
-                    {
-                        data: 'program_status',
-                    },
-                    {
-                        data: 'prog_running_status',
-                        render: function(data, type, row, meta) {
-                            switch(data) {
-                                case 0:
-                                    return "not yet"
-                                    break;
-
-                                case 1:
-                                    return "ongoing"
-                                    break;
-
-                                case 2:
-                                    return "done"
-                                    break;
-                            }
+                        data: 'event_startdate',
+                        name: 'tbl_events.event_startdate',
+                        render: function(data, type, row) {
+                            return moment(data).format('DD MMMM YYYY HH:mm:ss')
                         }
-                        
                     },
                     {
-                        data: 'clientprog_id',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return '<a href="' + url + '/' + data +'" class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>'
+                        data: 'joined_date',
+                        render: function(data, type, row) {
+                            return moment(data).format('DD MMMM YYYY')
                         }
-                    }
+                    },
                 ]
             });
         });

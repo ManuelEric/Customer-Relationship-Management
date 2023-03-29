@@ -63,7 +63,7 @@ class UserClient extends Authenticatable
     protected function leadSource(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->lead != null ? $this->getLeadSource($this->lead->main_lead) : null
+            get: fn ($value) => $this->lead != NULL ? $this->getLeadSource($this->lead->main_lead) : NULL
         );
     }
 
