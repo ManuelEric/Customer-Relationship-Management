@@ -67,6 +67,7 @@
                             {{ $student->city }} {{ $student->state }}
                         </div>
                     </div>
+                    @if ($student->school != NULL)
                     <div class="row mb-2 g-1">
                         <div class="col-md-3 d-flex justify-content-between">
                             <label>
@@ -78,6 +79,7 @@
                             {{ $student->school->sch_name }}
                         </div>
                     </div>
+                    @endif
                     <div class="row mb-2 g-1">
                         <div class="col-md-3 d-flex justify-content-between">
                             <label>
