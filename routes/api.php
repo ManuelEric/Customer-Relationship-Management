@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\v1\PartnerDashboardController;
 use App\Http\Controllers\Api\v1\FinanceDashboardController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientStudentController;
+use App\Http\Controllers\ClientTeacherCounselorController;
 use App\Http\Controllers\CurrencyRateController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ExcelTemplateController;
@@ -93,11 +94,14 @@ Route::get('department/access/{department}/{user?}', [MenuController::class, 'ge
 Route::get('download/excel-template/{type}', [ExcelTemplateController::class, 'generateTemplate']);
 
 # master / event
-Route::get('master/event/{event}/school/{school}', [SchoolEventController::class ]);
+Route::get('master/event/{event}/school/{school}', [SchoolEventController::class]);
 
 # client student menu
 Route::get('client/{client}/programs', [ClientStudentController::class, 'getClientProgramByStudentId']);
 Route::get('client/{client}/events', [ClientStudentController::class, 'getClientEventByStudentId']);
+
+# Client teacher menu
+Route::get('teacher/{teacher}/events', [ClientTeacherCounselorController::class, 'getClientEventByTeacherId']);
 
 # invoice program menu
 Route::get('current/rate/{base_currency}/{to_currency}', [CurrencyRateController::class, 'getCurrencyRate']);

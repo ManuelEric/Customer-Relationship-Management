@@ -31,7 +31,7 @@ class StoreClientParentRequest extends FormRequest
             'pr_firstname' => 'required',
             'pr_lastname' => 'nullable',
             'pr_mail' => 'required|email|unique:tbl_client,mail,' . $parentId . ',id',
-            'pr_phone' => 'required|min:10|max:12',
+            'pr_phone' => 'required|min:10|max:15',
             'pr_dob' => 'required',
             'pr_insta' => 'nullable|unique:tbl_client,insta,' . $parentId . ',id',
             'state' => 'required',
@@ -81,7 +81,7 @@ class StoreClientParentRequest extends FormRequest
             'first_name' => 'required_if:child_id,add-new',
             'last_name' => 'nullable',
             'mail' => 'nullable|email',
-            'phone' => 'required_if:child_id,add-new|min:10|max:15',
+            'phone' => 'required_if:child_id,add-new|nullable|min:10|max:15',
         ];
 
         if ($this->input('lead_id') != "kol") {

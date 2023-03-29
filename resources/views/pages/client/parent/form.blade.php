@@ -19,6 +19,7 @@
             </h5>
         </div>
         <div class="card-body">
+           
             <form action="{{ isset($parent) ? route('parent.update', ['parent' => $parent->id]) : route('parent.store') }}" method="post">
                 @csrf
                 @if (isset($parent))
@@ -37,7 +38,7 @@
                                     <label>First Name <i class="text-danger font-weight-bold">*</i>
                                     </label>
                                     <input name="pr_firstname" type="text" class="form-control form-control-sm"
-                                        placeholder="First name" value="{{ isset($parent->first_name) ? $parent->first_name : old('pr_first_name') }}">
+                                        placeholder="First name" value="{{ isset($parent->first_name) ? $parent->first_name : old('pr_firstname') }}">
                                     @error('pr_firstname')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -47,7 +48,7 @@
                                 <div class="mb-2">
                                     <label>Last Name</label>
                                     <input name="pr_lastname" type="text" class="form-control form-control-sm"
-                                        placeholder="Last name" value="{{ isset($parent->last_name) ? $parent->last_name : old('pr_last_name') }}">
+                                        placeholder="Last name" value="{{ isset($parent->last_name) ? $parent->last_name : old('pr_lastname') }}">
                                     @error('pr_lastname')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -96,8 +97,8 @@
                                 <div class="mb-2">
                                     <label>State / Region <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="state" type="text" class="form-control form-control-sm"
-                                        placeholder="State / Region" id="state" value="{{ isset($parent->state) ? $parent->state : old('pr_state') }}{{ isset($student->state) ? $student->state : null }}">
-                                    @error('pr_state')
+                                        placeholder="State / Region" id="state" value="{{ isset($parent->state) ? $parent->state : old('state') }}{{ isset($student->state) ? $student->state : null }}">
+                                    @error('state')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -709,9 +710,19 @@
                 @endif
 
                 @if (old('child_id') !== NULL && old('child_id') == "add-new")
-                    $("#chName").select2().val("{{ old('child_id') }}").trigger('change')
+                    var child_id = new Array();
+                    @foreach (old('child_id') as $key => $val)
+                        child_id.push("{{ $val }}")
+                    @endforeach
+                    
+                    $("#chName").select2().val(child_id).trigger('change')
                 @elseif (old('child_id') !== NULL )
-                    $("#chName").select2().val("{{ old('child_id') }}").trigger('change')
+                    var child_id = new Array();
+                    @foreach (old('child_id') as $key => $val)
+                        child_id.push("{{ $val }}")
+                    @endforeach
+                    
+                    $("#chName").select2().val(child_id).trigger('change')
                 @endif
 
                 @if (isset($parent->childrens) && count($parent->childrens) > 0)

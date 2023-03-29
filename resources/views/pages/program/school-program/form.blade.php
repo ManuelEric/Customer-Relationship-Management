@@ -535,8 +535,6 @@
 
         function otherOption(value) {
 
-            console.log(value)
-
             if(value == 'other_reason_refund'){
                 $('.classReasonRefund').addClass('d-none')
                 $('#inputReasonRefund').removeClass('d-none')

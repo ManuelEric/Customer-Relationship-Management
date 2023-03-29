@@ -119,10 +119,10 @@
                     <table class="table table-bordered table-hover nowrap align-middle w-100" id="eventTable">
                         <thead class="bg-dark text-white">
                             <tr class="text-center" role="row">
-                                <th class="text-white">No</th>
+                                <th class="bg-dark text-white">No</th>
                                 <th class="bg-info text-white">Event Name</th>
-                                <th>Event Start Date</th>
-                                <th>Joined Date</th>
+                                <th class="bg-dark text-white">Event Start Date</th>
+                                <th class="bg-dark text-white">Joined Date</th>
                             </tr>
                         </thead>
                         <tfoot class="bg-light text-white">
@@ -157,7 +157,7 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '',
+                ajax: '{{ url('api/teacher/'.$teacher_counselor->id.'/events') }}',
                 columns: [{
                         data: 'clientevent_id',
                         className: 'text-center',
@@ -167,45 +167,21 @@
                     },
                     {
                         data: 'event_name',
+                        name: 'tbl_events.event_title'
                     },
                     {
-                        data: 'conversion_lead',
-                    },
-                    {
-                        data: 'last_discuss_date',
-                    },
-                    {
-                        data: 'pic_name',
-                    },
-                    {
-                        data: 'program_status',
-                    },
-                    {
-                        data: 'prog_running_status',
-                        render: function(data, type, row, meta) {
-                            switch(data) {
-                                case 0:
-                                    return "not yet"
-                                    break;
-
-                                case 1:
-                                    return "ongoing"
-                                    break;
-
-                                case 2:
-                                    return "done"
-                                    break;
-                            }
+                        data: 'event_startdate',
+                        name: 'tbl_events.event_startdate',
+                        render: function(data, type, row) {
+                            return moment(data).format('DD MMMM YYYY HH:mm:ss')
                         }
-                        
                     },
                     {
-                        data: 'clientprog_id',
-                        className: 'text-center',
-                        render: function(data, type, row, meta) {
-                            return '<a href="' + url + '/' + data +'" class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>'
+                        data: 'joined_date',
+                        render: function(data, type, row) {
+                            return moment(data).format('DD MMMM YYYY')
                         }
-                    }
+                    },
                 ]
             });
         });

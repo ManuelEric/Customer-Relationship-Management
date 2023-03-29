@@ -110,7 +110,7 @@ class ClientTeacherCounselorController extends Controller
             unset($teacherCounselorDetails['lead_id']);
             $teacherCounselorDetails['lead_id'] = $request->kol_lead_id;
         }
-        unset($newTeacherCounselorDetails['kol_lead_id']);
+        unset($teacherCounselorDetails['kol_lead_id']);
 
         DB::beginTransaction();
         try {
@@ -180,11 +180,6 @@ class ClientTeacherCounselorController extends Controller
         $teacher_counselorId = $request->route('teacher_counselor');
         $teacher_counselor = $this->clientRepository->getClientById($teacher_counselorId);
 
-        if ($request->ajax()) {
-            $data['client_events'] = $this->clientEventRepository->getAllClientEventByUserIdDataTables($teacher_counselorId);
-            return $data;
-        }
-
         return view('pages.client.teacher.view')->with(
             [
                 'teacher_counselor' => $teacher_counselor
@@ -237,7 +232,7 @@ class ClientTeacherCounselorController extends Controller
             'st_levelinterest',
         ]);
 
-        $teacherCounselorDetails['phone'] = $this->setPhoneNumber($request->phone);
+        $newTeacherCounselorDetails['phone'] = $this->setPhoneNumber($request->phone);
 
         # set lead_id based on lead_id & kol_lead_id
         # when lead_id is kol
@@ -357,5 +352,11 @@ class ClientTeacherCounselorController extends Controller
                 'message' => "Status has been updated",
             ]
         );
+    }
+
+    public function getClientEventByTeacherId(Request $request)
+    {
+        $teacherId = $request->route('teacher');
+        return $this->clientEventRepository->getAllClientEventByStudentIdDataTables($teacherId);
     }
 }
