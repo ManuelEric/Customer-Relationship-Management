@@ -16,12 +16,21 @@
 
     <div class="card-body">
         <table class="table table-borderless table-hover">
+            <tr>
+                <th>No.</th>
+                <th>Program Name</th>
+                <th class="text-center">ALL-in PIC</th>
+                <th class="text-center">First Discuss</th>
+                <th class="text-center">Status</th>
+                <th class="text-end">Action</th>
+            </tr>
             @forelse ($partnerPrograms as $partnerProgram)
                 <tr>
+                    <td>{{ $loop->iteration }}.</td>
                     <td>{{ $partnerProgram->program->prog_program }}</td>
                     <td class="text-center">{{ $partnerProgram->user->first_name }} {{ $partnerProgram->user->last_name }}</td>
                     <td class="text-center">{{ $partnerProgram->first_discuss }}</td>
-                    <td class="text-end">
+                    <td class="text-center">
                         @if ($partnerProgram->status == 0)
                             Pending
                         @elseif ($partnerProgram->status == 1)
@@ -31,6 +40,11 @@
                         @elseif ($partnerProgram->status == 3)
                             Refund
                         @endif
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ route('corporate_prog.detail.show', ['corp' => $corporate->corp_id, 'detail' => $partnerProgram->id]) }}">
+                            <button type="button" class="btn btn-sm btn-outline-warning editCorporate"><i class="bi bi-eye"></i></button>
+                        </a>
                     </td>
                 </tr>
             @empty

@@ -74,25 +74,15 @@
                     </h4>
                 </div>
                 <div class="modal-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-                    <form action="{{ route('corporate.detail.store', ['corporate' => $corporate->corp_id]) }}"
-                        id="detailForm" method="POST">
+                    <form action="{{ route('corporate.detail.store', ['corporate' => $corporate->corp_id]) }}" id="picDetailForm" method="POST">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-2">
-                                    <label for="">Full Name</label>
-                                    <input type="text" name="pic_name" id="pic_name"
+                                    <label for="">Full Name <sup class="text-danger">*</sup></label>
+                                    <input type="text" name="pic_name" id="pic_fullname"
                                         class="form-control form-control-sm rounded">
-                                    @error('name')
+                                    @error('pic_name')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -102,17 +92,17 @@
                                     <label for="">Email</label>
                                     <input type="email" name="pic_mail" id="pic_mail"
                                         class="form-control form-control-sm rounded">
-                                    @error('email')
+                                    @error('pic_mail')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-2">
-                                    <label for="">Phone Number</label>
+                                    <label for="">Phone Number <sup class="text-danger">*</sup></label>
                                     <input type="text" name="pic_phone" id="pic_phone"
                                         class="form-control form-control-sm rounded">
-                                    @error('phone')
+                                    @error('pic_phone')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -122,7 +112,7 @@
                                     <label for="">Linkedin</label>
                                     <input type="text" name="pic_linkedin" id="pic_linkedin"
                                         class="form-control form-control-sm rounded">
-                                    @error('linkedin')
+                                    @error('pic_linkedin')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -149,9 +139,16 @@
 @endif
 
 <script type="text/javascript">
+$(document).ready(function() {
+
+    @if ($errors->first('pic_name') || $errors->first('pic_phone'))
+        $("#picForm").modal('show');
+    @endif
+})
+
     function returnData(corporate_id, pic_id) {
 
-        $("#detailForm").append('<input type="hidden" name="_method" value="PUT">');
+        $("#picDetailForm").append('<input type="hidden" name="_method" value="PUT">');
         Swal.showLoading()
         let link = "{{ url('instance/corporate') }}/" + corporate_id + '/detail/' + pic_id
 
@@ -159,12 +156,12 @@
             .then(function(response) {
                 // handle success
                 let data = response.data.data
-                $('#pic_name').val(data.pic_name)
+                $('#pic_fullname').val(data.pic_name)
                 $('#pic_mail').val(data.pic_mail)
                 $('#pic_phone').val(data.pic_phone)
                 $('#pic_linkedin').val(data.pic_linkedin)
 
-                $('#detailForm').attr('action', '{{ url('instance/corporate') }}/' + corporate_id + '/detail/' +
+                $('#picDetailForm').attr('action', '{{ url('instance/corporate') }}/' + corporate_id + '/detail/' +
                     data.id)
                 Swal.close()
                 $("#picForm").modal('show')
@@ -178,10 +175,10 @@
 
     @if (isset($corporate))
         function resetForm() {
-            $("#detailForm").trigger('reset');
-            $("#detailForm").attr('action',
+            $("#picDetailForm").trigger('reset');
+            $("#picDetailForm").attr('action',
                 "{{ route('corporate.detail.store', ['corporate' => $corporate->corp_id]) }}")
-            $("#detailForm").find('input[name=_method]').remove()
+            $("#picDetailForm").find('input[name=_method]').remove()
         }
     @endif
 </script>

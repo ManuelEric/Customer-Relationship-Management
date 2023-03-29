@@ -190,7 +190,7 @@
 
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('client/student') }}/" + data.id ;
+                window.location.href = "{{ url('client/mentee') }}/" + data.id ;
             });
         });
     </script>

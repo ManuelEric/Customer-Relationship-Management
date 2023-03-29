@@ -33,6 +33,8 @@ class Corp extends Model
         'corp_address',
         'corp_note',
         'corp_password',
+        'crop_datecreated',
+        'corp_datelastedit',
     ];
 
     public function detail()

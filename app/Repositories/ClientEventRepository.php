@@ -55,7 +55,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         )->make(true);
     }
 
-    public function getAllClientEventByStudentIdDataTables($clientId)
+    public function getAllClientEventByClientIdDataTables($clientId)
     {
         return datatables::eloquent(
             ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')

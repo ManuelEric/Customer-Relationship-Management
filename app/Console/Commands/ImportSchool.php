@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\School;
 use Illuminate\Console\Command;
@@ -11,6 +12,8 @@ use Illuminate\Support\Carbon;
 class ImportSchool extends Command
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -80,7 +83,7 @@ class ImportSchool extends Command
                     'sch_city' => $school->sch_city == '' || $school->sch_city == '-' ? null : $school->sch_city,
                     'sch_location' => $school->sch_location == '' || $school->sch_location == '-' ? null : $school->sch_location,
                     'sch_score' => 0,
-                    'created_at' => Carbon::now(),
+                    'created_at' => $this->getValueWithoutSpace($school->sch_lastupdate) ?? Carbon::now(), 
                     'updated_at' => Carbon::now(),
                 ];
             }
@@ -94,6 +97,6 @@ class ImportSchool extends Command
 
     private function getValueWithoutSpace($value)
     {
-        return $value == "" || $value == "-" || $value == "tidak ada" || $value == "no contact" || $value == "0000-00-00" || $value == 'N/A' ? NULL : $value;
+        return $value == "" || $value == "-" || $value == "tidak ada" || $value == "no contact" || $value == "0000-00-00" || $value == "0000-00-00 00:00:00" || $value == 'N/A' ? NULL : $value;
     }
 }

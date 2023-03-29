@@ -85,7 +85,7 @@ class ClientStudentController extends Controller
     public function getClientEventByStudentId(Request $request)
     {
         $studentId = $request->route('client');
-        return $this->clientEventRepository->getAllClientEventByStudentIdDataTables($studentId);
+        return $this->clientEventRepository->getAllClientEventByClientIdDataTables($studentId);
     }
 
     public function index(Request $request)

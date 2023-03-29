@@ -607,25 +607,32 @@
 
             $("#currency_detail").on('change', function() {
 
-                showLoading()
-                var base_currency = $(this).val();
-                var to_currency = 'IDR';
+                var current_rate = $("#current_rate").val()
 
-                var link = "{{ url('/') }}/api/current/rate/"+base_currency+"/"+to_currency
+                checkCurrencyDetail()
+                if (current_rate == null || current_rate == 0)
+                {
 
-                axios.get(link)
-                    .then(function (response) {
-
-                        var rate = response.data.rate;
-                        $("#current_rate").val(rate)
-                        swal.close()
-
-                    }).catch(function (error) {
-
-                        swal.close()
-                        notification('error', 'Something went wrong. Please try again');
-
-                    })
+                    showLoading()
+                    var base_currency = $(this).val();
+                    var to_currency = 'IDR';
+    
+                    var link = "{{ url('/') }}/api/current/rate/"+base_currency+"/"+to_currency
+    
+                    axios.get(link)
+                        .then(function (response) {
+    
+                            var rate = response.data.rate;
+                            $("#current_rate").val(rate)
+                            swal.close()
+    
+                        }).catch(function (error) {
+    
+                            swal.close()
+                            notification('error', 'Something went wrong. Please try again');
+    
+                        })
+                }
 
             })
 

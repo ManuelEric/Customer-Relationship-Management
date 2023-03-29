@@ -186,7 +186,8 @@ class PartnerProgramController extends Controller
         $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        # because for now 29/03/2023 there aren't partnership team, so we use client management
+        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         return view('pages.program.corporate-program.form')->with(
             [

@@ -37,7 +37,7 @@
                                     <label>First Name <i class="text-danger font-weight-bold">*</i>
                                     </label>
                                     <input name="pr_firstname" type="text" class="form-control form-control-sm"
-                                        placeholder="First name" value="{{ isset($parent->first_name) ? $parent->first_name : old('pr_first_name') }}">
+                                        placeholder="First name" value="{{ isset($parent->first_name) ? $parent->first_name : old('pr_firstname') }}">
                                     @error('pr_firstname')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -47,7 +47,7 @@
                                 <div class="mb-2">
                                     <label>Last Name</label>
                                     <input name="pr_lastname" type="text" class="form-control form-control-sm"
-                                        placeholder="Last name" value="{{ isset($parent->last_name) ? $parent->last_name : old('pr_last_name') }}">
+                                        placeholder="Last name" value="{{ isset($parent->last_name) ? $parent->last_name : old('pr_lastname') }}">
                                     @error('pr_lastname')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -96,8 +96,8 @@
                                 <div class="mb-2">
                                     <label>State / Region <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="state" type="text" class="form-control form-control-sm"
-                                        placeholder="State / Region" id="state" value="{{ isset($parent->state) ? $parent->state : old('pr_state') }}{{ isset($student->state) ? $student->state : null }}">
-                                    @error('pr_state')
+                                        placeholder="State / Region" id="state" value="{{ isset($parent->state) ? $parent->state : old('state') }}{{ isset($student->state) ? $student->state : null }}">
+                                    @error('state')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>

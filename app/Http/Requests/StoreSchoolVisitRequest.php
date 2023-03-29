@@ -36,7 +36,7 @@ class StoreSchoolVisitRequest extends FormRequest
                 },
             ],
             'school_pic' => 'required|exists:tbl_schdetail,schdetail_id',
-            'visit_date' => 'required',
+            'visit_date' => 'required|unique:tbl_sch_visit,visit_date',
             'notes' => 'nullable',
             'status' => 'nullable|in:waiting,visited',
         ];

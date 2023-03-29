@@ -40,7 +40,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         'tbl_inv.created_at',
                         'inv_duedate',
                         'inv_totalprice_idr',
-                    ]);
+                    ])->orderBy('tbl_inv.updated_at', 'desc');
                 break;
 
             case "reminder":
