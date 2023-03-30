@@ -30,10 +30,10 @@ class StoreClientParentRequest extends FormRequest
         $rules = [
             'pr_firstname' => 'required',
             'pr_lastname' => 'nullable',
-            'pr_mail' => 'required|email|unique:tbl_client,mail,'.$parentId.',id',
-            'pr_phone' => 'required|min:10|max:12',
+            'pr_mail' => 'required|email|unique:tbl_client,mail,' . $parentId . ',id',
+            'pr_phone' => 'required|min:10|max:15',
             'pr_dob' => 'required',
-            'pr_insta' => 'nullable|unique:tbl_client,insta,'.$parentId.',id',
+            'pr_insta' => 'nullable|unique:tbl_client,insta,' . $parentId . ',id',
             'state' => 'required',
             'city' => 'nullable',
             'postal_code' => 'nullable',
@@ -60,7 +60,7 @@ class StoreClientParentRequest extends FormRequest
                     if ($this->input('lead_id') == 'kol' && empty($value))
                         $fail('The KOL name field is required');
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get())
                         $fail('The KOL name is invalid');
                 }
             ],
@@ -68,8 +68,8 @@ class StoreClientParentRequest extends FormRequest
             'prog_id.*' => 'sometimes|required|exists:tbl_prog,prog_id',
             'st_abryear' => [
                 'sometimes',
-                function($attribute, $value, $fail) {
-                    if ( ($value <= date('Y')) && ($value >= date('Y', strtotime("+5 years"))) ) {
+                function ($attribute, $value, $fail) {
+                    if (($value <= date('Y')) && ($value >= date('Y', strtotime("+5 years")))) {
                         $fail('The abroad year is invalid');
                     }
                 }
@@ -81,7 +81,7 @@ class StoreClientParentRequest extends FormRequest
             'first_name' => 'required_if:child_id,add-new',
             'last_name' => 'nullable',
             'mail' => 'nullable|email',
-            'phone' => 'required_if:child_id,add-new',
+            'phone' => 'required_if:child_id,add-new|nullable|min:10|max:15',
         ];
 
         if ($this->input('lead_id') != "kol") {

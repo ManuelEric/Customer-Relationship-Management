@@ -478,7 +478,7 @@
             var val = current_value == "lcs_off" ? 0 : 1;
 
             var link = "{{ url('/') }}/client/student/{{ $student->id }}/status/" + val
-            
+
             await axios.get(link)
                 .then(function(response) {
                     

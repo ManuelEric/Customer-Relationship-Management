@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreClientParentRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
@@ -32,6 +33,7 @@ class ClientParentController extends Controller
 
     use CreateCustomPrimaryKeyTrait;
     use FindStatusClientTrait;
+    use StandardizePhoneNumberTrait;
 
     private ClientRepositoryInterface $clientRepository;
     private ClientEventRepositoryInterface $clientEventRepository;
@@ -149,7 +151,7 @@ class ClientParentController extends Controller
         $parentDetails['first_name'] = $request->pr_firstname;
         $parentDetails['last_name'] = $request->pr_lastname;
         $parentDetails['mail'] = $request->pr_mail;
-        $parentDetails['phone'] = $request->pr_phone;
+        $parentDetails['phone'] = $this->setPhoneNumber($request->pr_phone);
         $parentDetails['dob'] = $request->pr_dob;
         $parentDetails['insta'] = $request->pr_insta;
 
@@ -172,7 +174,7 @@ class ClientParentController extends Controller
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'mail' => $request->mail,
-            'phone' => $request->phone,
+            'phone' => $this->setPhoneNumber($request->phone),
             'state' => $parentDetails['state'],
             'city' => $parentDetails['city'],
             'postal_code' => $parentDetails['postal_code'],
@@ -474,7 +476,7 @@ class ClientParentController extends Controller
         $parentDetails['first_name'] = $request->pr_firstname;
         $parentDetails['last_name'] = $request->pr_lastname;
         $parentDetails['mail'] = $request->pr_mail;
-        $parentDetails['phone'] = $request->pr_phone;
+        $parentDetails['phone'] = $this->setPhoneNumber($request->pr_phone);
         $parentDetails['dob'] = $request->pr_dob;
         $parentDetails['insta'] = $request->pr_insta;
         unset($parentDetails['pr_firstname']);
@@ -504,7 +506,7 @@ class ClientParentController extends Controller
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'mail' => $request->mail,
-            'phone' => $request->phone,
+            'phone' => $this->setPhoneNumber($request->phone),
             'state' => $parentDetails['state'],
             'city' => $parentDetails['city'],
             'postal_code' => $parentDetails['postal_code'],

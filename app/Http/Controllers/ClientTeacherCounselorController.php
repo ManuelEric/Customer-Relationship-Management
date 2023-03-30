@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreClientTeacherCounselorRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\School;
 use Exception;
 use Illuminate\Http\Request;
@@ -22,6 +24,7 @@ use Illuminate\Support\Facades\Redirect;
 class ClientTeacherCounselorController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
     private SchoolRepositoryInterface $schoolRepository;
     private CurriculumRepositoryInterface $curriculumRepository;
     private LeadRepositoryInterface $leadRepository;
@@ -29,8 +32,9 @@ class ClientTeacherCounselorController extends Controller
     private EdufLeadRepositoryInterface $edufLeadRepository;
     private ClientRepositoryInterface $clientRepository;
     private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+    private ClientEventRepositoryInterface $clientEventRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ClientRepositoryInterface $clientRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository)
+    public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ClientRepositoryInterface $clientRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientEventRepositoryInterface $clientEventRepository)
     {
         $this->schoolRepository = $schoolRepository;
         $this->curriculumRepository = $curriculumRepository;
@@ -39,14 +43,15 @@ class ClientTeacherCounselorController extends Controller
         $this->edufLeadRepository = $edufLeadRepository;
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
         $this->clientRepository = $clientRepository;
+        $this->clientEventRepository = $clientEventRepository;
     }
 
     public function index(Request $request)
     {
-        if ($request->ajax()) 
+        if ($request->ajax())
             return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Teacher/Counselor');
 
-        
+
         return view('pages.client.teacher.index');
     }
 
@@ -92,6 +97,8 @@ class ClientTeacherCounselorController extends Controller
             'st_levelinterest',
         ]);
 
+        $teacherCounselorDetails['phone'] = $this->setPhoneNumber($request->phone);
+
         # set lead_id based on lead_id & kol_lead_id
         # when lead_id is kol
         # then put kol_lead_id to lead_id
@@ -103,6 +110,7 @@ class ClientTeacherCounselorController extends Controller
             unset($teacherCounselorDetails['lead_id']);
             $teacherCounselorDetails['lead_id'] = $request->kol_lead_id;
         }
+        unset($teacherCounselorDetails['kol_lead_id']);
 
         DB::beginTransaction();
         try {
@@ -118,14 +126,14 @@ class ClientTeacherCounselorController extends Controller
                     'sch_type',
                     'sch_score',
                 ]);
-    
+
                 $last_id = School::max('sch_id');
                 $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
                 $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
 
                 if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
                     throw new Exception('Failed to store new school', 1);
-                
+
                 # insert school curriculum
                 if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
                     throw new Exception('Failed to store school curriculum', 1);
@@ -137,7 +145,6 @@ class ClientTeacherCounselorController extends Controller
                 # create index sch_id to student details
                 # filled with a new school id that was inserted before
                 $teacherCounselorDetails['sch_id'] = $school->sch_id;
-
             }
 
 
@@ -147,7 +154,6 @@ class ClientTeacherCounselorController extends Controller
                 throw new Exception('Failed to store new teacher / counselor', 2);
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -160,11 +166,10 @@ class ClientTeacherCounselorController extends Controller
                 case 2:
                     Log::error('Store a new client failed : ' . $e->getMessage());
                     break;
-                }
-                
+            }
+
             Log::error('Store a new teacher / counselor failed : ' . $e->getMessage());
             return Redirect::to('client/teacher-counselor/create')->withError($e->getMessage());
-
         }
 
         return Redirect::to('client/teacher-counselor')->withSuccess('A new teacher / counselor has been registered.');
@@ -174,7 +179,7 @@ class ClientTeacherCounselorController extends Controller
     {
         $teacher_counselorId = $request->route('teacher_counselor');
         $teacher_counselor = $this->clientRepository->getClientById($teacher_counselorId);
-        
+
         return view('pages.client.teacher.view')->with(
             [
                 'teacher_counselor' => $teacher_counselor
@@ -227,6 +232,8 @@ class ClientTeacherCounselorController extends Controller
             'st_levelinterest',
         ]);
 
+        $newTeacherCounselorDetails['phone'] = $this->setPhoneNumber($request->phone);
+
         # set lead_id based on lead_id & kol_lead_id
         # when lead_id is kol
         # then put kol_lead_id to lead_id
@@ -238,6 +245,9 @@ class ClientTeacherCounselorController extends Controller
             unset($newTeacherCounselorDetails['lead_id']);
             $newTeacherCounselorDetails['lead_id'] = $request->kol_lead_id;
         }
+        unset($newTeacherCounselorDetails['kol_lead_id']);
+        // return $newTeacherCounselorDetails;
+        // exit;
 
         DB::beginTransaction();
         try {
@@ -253,14 +263,14 @@ class ClientTeacherCounselorController extends Controller
                     'sch_type',
                     'sch_score',
                 ]);
-    
+
                 $last_id = School::max('sch_id');
                 $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
                 $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
 
                 if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
                     throw new Exception('Failed to store new school', 1);
-                
+
                 # insert school curriculum
                 if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
                     throw new Exception('Failed to store school curriculum', 1);
@@ -272,7 +282,6 @@ class ClientTeacherCounselorController extends Controller
                 # create index sch_id to student details
                 # filled with a new school id that was inserted before
                 $newTeacherCounselorDetails['sch_id'] = $school->sch_id;
-
             }
 
 
@@ -283,7 +292,6 @@ class ClientTeacherCounselorController extends Controller
                 throw new Exception('Failed to store new teacher / counselor', 2);
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -296,13 +304,59 @@ class ClientTeacherCounselorController extends Controller
                 case 2:
                     Log::error('Update a client failed : ' . $e->getMessage());
                     break;
-                }
-                
-            Log::error('Update a new teacher / counselor failed : ' . $e->getMessage());
-            return Redirect::to('client/teacher-counselor/create')->withError($e->getMessage());
+            }
 
+            Log::error('Update a new teacher / counselor failed : ' . $e->getMessage());
+            return Redirect::to('client/teacher-counselor/')->withError($e->getMessage());
         }
 
-        return Redirect::to('client/teacher-counselor/'.$teacher_counselorId)->withSuccess('A teacher / counselor\'s profile has been updated.');
+        return Redirect::to('client/teacher-counselor/' . $teacher_counselorId)->withSuccess('A teacher / counselor\'s profile has been updated.');
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $teacherId = $request->route('teacher');
+        $newStatus = $request->route('status');
+
+        # validate status
+        if (!in_array($newStatus, [0, 1])) {
+
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => "Status is invalid"
+                ]
+            );
+        }
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientRepository->updateActiveStatus($teacherId, $newStatus);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Update active status client failed : ' . $e->getMessage());
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]
+            );
+        }
+
+        return response()->json(
+            [
+                'success' => true,
+                'message' => "Status has been updated",
+            ]
+        );
+    }
+
+    public function getClientEventByTeacherId(Request $request)
+    {
+        $teacherId = $request->route('teacher');
+        return $this->clientEventRepository->getAllClientEventByStudentIdDataTables($teacherId);
     }
 }

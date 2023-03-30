@@ -16,7 +16,7 @@ use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ClientRepository implements ClientRepositoryInterface 
+class ClientRepository implements ClientRepositoryInterface
 {
     use FindSchoolYearLeftScoreTrait;
     use FindDestinationCountryScore;
@@ -43,69 +43,77 @@ class ClientRepository implements ClientRepositoryInterface
         return Datatables::eloquent(UserClient::whereHas('roles', function ($query) use ($roleName) {
             $query->where('role_name', $roleName);
         })->where('st_statuscli', $statusClient))
-            ->addColumn('full_name', function ($data) { return $data->fullname; })
-            ->addColumn('parent_name', function ($data) { return $data->parents()->count() > 0 ? $data->parents()->first()->first_name.' '.$data->parents()->first()->last_name : null; })
-            ->addColumn('parent_phone', function ($data) { return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null; })
-            ->addColumn('school_name', function ($data) { return $data->school->sch_name; })
-            ->addColumn('lead_source', function ($data) { 
+            ->addColumn('full_name', function ($data) {
+                return $data->fullname;
+            })
+            ->addColumn('parent_name', function ($data) {
+                return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
+            })
+            ->addColumn('parent_phone', function ($data) {
+                return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
+            })
+            ->addColumn('school_name', function ($data) {
+                return $data->school->sch_name;
+            })
+            ->addColumn('lead_source', function ($data) {
                 switch ($lead_source = $data->lead->main_lead) {
                     case "KOL":
-                        return "KOL - ".$data->lead->sub_lead;
+                        return "KOL - " . $data->lead->sub_lead;
                         break;
-                    
+
                     case str_contains($lead_source, 'External Edufair'):
-                        return $lead_source.' - '.$data->external_edufair->title;
+                        return $lead_source . ' - ' . $data->external_edufair->title;
                         break;
-                    
+
                     case str_contains($lead_source, 'All-In Event'):
-                        return $lead_source.' - '.$data->event->event_title;
+                        return $lead_source . ' - ' . $data->event->event_title;
                         break;
 
                     default:
                         return $lead_source;
-                    
-
                 }
                 // return $data->lead->main_lead == "KOL" ? "KOL - ".$data->lead->sub_lead : $data->lead->main_lead.' - '.$data->event->event_title; 
             })
-            ->addColumn('interest_programs', function ($data) { 
+            ->addColumn('interest_programs', function ($data) {
                 $no = 1;
                 $render = '';
                 foreach ($data->interestPrograms as $program) {
-                    $render .= $no == 1 ? $program->prog_program : ", ".$program->prog_program;
+                    $render .= $no == 1 ? $program->prog_program : ", " . $program->prog_program;
                     $no++;
                 }
-                return $render; 
+                return $render;
             })
             ->addColumn('st_abrcountry', function ($data) {
                 $st_abrcountry = json_decode($data->st_abrcountry);
                 $no = 1;
                 $render = '';
                 foreach ($st_abrcountry as $key => $val) {
-                    $render .= $no == 1 ? $val : ', '.$val;
+                    $render .= $no == 1 ? $val : ', ' . $val;
                     $no++;
-                }  
+                }
                 return $render;
             })
             ->addColumn('dream_universities', function ($data) {
                 $no = 1;
                 $render = '';
                 foreach ($data->interestUniversities as $university) {
-                    $render .= $no == 1 ? $university->univ_name : ", ".$university->univ_name;
+                    $render .= $no == 1 ? $university->univ_name : ", " . $university->univ_name;
                     $no++;
                 }
-                return $render; 
+                return $render;
             })
             ->addColumn('interest_majors', function ($data) {
                 $no = 1;
                 $render = '';
                 foreach ($data->interestMajor as $major) {
-                    $render .= $no == 1 ? $major->name : ", ".$major->name;
+                    $render .= $no == 1 ? $major->name : ", " . $major->name;
                     $no++;
                 }
-                return $render; 
+                return $render;
             })
-            ->addColumn('updated_at', function ($data) { return date('d M Y H:i:s', strtotime($data->updated_at)); })
+            ->addColumn('updated_at', function ($data) {
+                return date('d M Y H:i:s', strtotime($data->updated_at));
+            })
             ->orderColumn('full_name', function ($query, $order) {
                 $query->orderBy(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), $order);
             })
@@ -121,74 +129,85 @@ class ClientRepository implements ClientRepositoryInterface
         # then use not in all mentee
         $client = [];
         if ($roleName == "Student" && $statusClient == 0) {
-            $client = UserClient::whereHas('roles', function($query) {
+            $client = UserClient::whereHas('roles', function ($query) {
                 $query->where('role_name', 'mentee');
             })->pluck('id')->toArray();
         }
 
         return Datatables::eloquent(
-                Client::
-                whereHas('roles', function ($query) use ($roleName) {
-                    $query->where('role_name', $roleName);
-                })->when($roleName == "Student", function ($q) use ($client) {
-                    $q->whereNotIn('client.id', $client);
-                })
-                
-                ->when(is_int($statusClient) && $statusClient !== NULL, function($query) use ($statusClient) {
+            Client::whereHas('roles', function ($query) use ($roleName) {
+                $query->where('role_name', $roleName);
+            })->when($roleName == "Student", function ($q) use ($client) {
+                $q->whereNotIn('client.id', $client);
+            })
+
+                ->when(is_int($statusClient) && $statusClient !== NULL, function ($query) use ($statusClient) {
                     $query->where('st_statuscli', $statusClient);
                 })
-                ->when(is_string($statusClient) && $statusClient !== NULL, function($query) use ($statusClient) {
+                ->when(is_string($statusClient) && $statusClient !== NULL, function ($query) use ($statusClient) {
 
                     $query->when($statusClient == "active", function ($query1) {
-    
+
                         $query1->whereHas('clientProgram', function ($q2) {
-                            $q2->whereIn('prog_running_status', [0,1]);
+                            $q2->whereIn('prog_running_status', [0, 1]);
                         })->withCount('clientProgram')->having('client_program_count', '>', 0);
-                    
                     }, function ($query1) {
-    
+
                         $query1->whereHas('clientProgram', function ($q2) {
                             $q2->whereIn('prog_running_status', [2]);
                         })->withCount([
                             'clientProgram as client_program_count' => function ($query) {
-                                $query->whereIn('prog_running_status', [0, 1, 2]);   
+                                $query->whereIn('prog_running_status', [0, 1, 2]);
                             },
                             'clientProgram as client_program_finish_count' => function ($query) {
                                 $query->where('prog_running_status', 2);
                             }
                         ])->havingRaw('client_program_count = client_program_finish_count');
-    
                     });
-                })->orderBy('client.updated_at', 'DESC')
-            )
-            ->addColumn('parent_name', function ($data) { return $data->parents()->count() > 0 ? $data->parents()->first()->first_name.' '.$data->parents()->first()->last_name : null; })
-            ->addColumn('parent_phone', function ($data) { return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null; })
-            ->addColumn('children_name', function ($data) { return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name.' '.$data->childrens()->first()->last_name : null; })
+                })->orderBy('client.created_at', 'DESC')->orderBy('client.updated_at', 'DESC')
+        )
+            ->addColumn('parent_name', function ($data) {
+                return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
+            })
+            ->addColumn('parent_phone', function ($data) {
+                return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
+            })
+            ->addColumn('children_name', function ($data) {
+                return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
+            })
+            ->addColumn('parent_name', function ($data) {
+                return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
+            })
+            ->addColumn('parent_phone', function ($data) {
+                return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
+            })
+            ->addColumn('children_name', function ($data) {
+                return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
+            })
             ->rawColumns(['address'])
             ->make(true);
     }
 
     public function getAllClientByRole($roleName, $month = null) # mentee, parent, teacher
     {
-        return UserClient::
-            when($roleName == "alumni", function($query) {
-                $query->whereHas('clientProgram', function ($q2) {
-                    $q2->whereIn('prog_running_status', [2]);
-                })->withCount([
-                    'clientProgram as client_program_count' => function ($query) {
-                        $query->whereIn('prog_running_status', [0, 1, 2]);   
-                    },
-                    'clientProgram as client_program_finish_count' => function ($query) {
-                        $query->where('prog_running_status', 2);
-                    }
-                ])->havingRaw('client_program_count = client_program_finish_count');
-            }, function ($query) use ($roleName) {
-                $query->whereHas('roles', function ($query2) use ($roleName) {
-                    $query2->where('role_name', $roleName);
-                });
-            })->when($month, function ($query) use ($month) {
-                $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
-            })->get();
+        return UserClient::when($roleName == "alumni", function ($query) {
+            $query->whereHas('clientProgram', function ($q2) {
+                $q2->whereIn('prog_running_status', [2]);
+            })->withCount([
+                'clientProgram as client_program_count' => function ($query) {
+                    $query->whereIn('prog_running_status', [0, 1, 2]);
+                },
+                'clientProgram as client_program_finish_count' => function ($query) {
+                    $query->where('prog_running_status', 2);
+                }
+            ])->havingRaw('client_program_count = client_program_finish_count');
+        }, function ($query) use ($roleName) {
+            $query->whereHas('roles', function ($query2) use ($roleName) {
+                $query2->where('role_name', $roleName);
+            });
+        })->when($month, function ($query) use ($month) {
+            $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
+        })->get();
     }
 
     # function below
@@ -197,24 +216,24 @@ class ClientRepository implements ClientRepositoryInterface
     # is that the above function is not using ordering by created at
     public function getAllClientByRoleAndDate($roleName, $month = null) # mentee, parent, teacher
     {
-        return UserClient::when($roleName == "alumni", function($query) {
-                $query->whereHas('clientProgram', function ($q2) {
-                    $q2->whereIn('prog_running_status', [2]);
-                })->withCount([
-                    'clientProgram as client_program_count' => function ($query) {
-                        $query->whereIn('prog_running_status', [0, 1, 2]);   
-                    },
-                    'clientProgram as client_program_finish_count' => function ($query) {
-                        $query->where('prog_running_status', 2);
-                    }
-                ])->havingRaw('client_program_count = client_program_finish_count');
-            }, function ($query) use ($roleName) {
-                $query->whereHas('roles', function ($query2) use ($roleName) {
-                    $query2->where('role_name', $roleName);
-                });
-            })->when($month, function ($query) use ($month) {
-                $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
-            })->orderBy('tbl_client.created_at', 'desc')->get();
+        return UserClient::when($roleName == "alumni", function ($query) {
+            $query->whereHas('clientProgram', function ($q2) {
+                $q2->whereIn('prog_running_status', [2]);
+            })->withCount([
+                'clientProgram as client_program_count' => function ($query) {
+                    $query->whereIn('prog_running_status', [0, 1, 2]);
+                },
+                'clientProgram as client_program_finish_count' => function ($query) {
+                    $query->where('prog_running_status', 2);
+                }
+            ])->havingRaw('client_program_count = client_program_finish_count');
+        }, function ($query) use ($roleName) {
+            $query->whereHas('roles', function ($query2) use ($roleName) {
+                $query2->where('role_name', $roleName);
+            });
+        })->when($month, function ($query) use ($month) {
+            $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
+        })->orderBy('tbl_client.created_at', 'desc')->get();
     }
 
     public function getAllClientByRoleAndStatus($roleName, $statusClient)
@@ -231,7 +250,7 @@ class ClientRepository implements ClientRepositoryInterface
 
         return UserClient::whereHas('roles', function ($query) {
             $query->where('role_name', 'Student');
-        })->doesntHave('parents')->when($parentChilds, function($query) use ($parentChilds) {
+        })->doesntHave('parents')->when($parentChilds, function ($query) use ($parentChilds) {
             $query->orWhereIn('id', $parentChilds);
         })->get();
     }
@@ -243,14 +262,14 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function checkIfClientIsMentee($clientId)
     {
-        return UserClient::whereHas('roles', function($query) {
+        return UserClient::whereHas('roles', function ($query) {
             $query->where('role_name', 'mentee');
         })->where('id', $clientId)->first();
     }
 
     public function deleteClient($clientId)
     {
-
+        return UserClient::destroy($clientId);
     }
 
     public function createClient($role, array $clientDetails)
@@ -258,9 +277,9 @@ class ClientRepository implements ClientRepositoryInterface
         $roleId = $this->roleRepository->getRoleByName($role);
         $client = UserClient::create($clientDetails);
         $client->roles()->attach($roleId, [
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
-            ]);   
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
 
         return $client;
     }
@@ -291,7 +310,7 @@ class ClientRepository implements ClientRepositoryInterface
         }
         return $client;
     }
-    
+
     public function updateClient($clientId, array $newDetails)
     {
         return UserClient::whereId($clientId)->update($newDetails);
@@ -305,7 +324,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getParentByParentName($parentName)
     {
-        return UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'like', '%'.$parentName.'%')->whereHas('roles', function ($query) {
+        return UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), 'like', '%' . $parentName . '%')->whereHas('roles', function ($query) {
             $query->where('role_name', 'Parent');
         })->first();
     }
@@ -313,7 +332,7 @@ class ClientRepository implements ClientRepositoryInterface
     # connecting student with parents
     public function createClientRelation($parentId, $studentId)
     {
-        $student = UserClient::where('id',$studentId)->first();
+        $student = UserClient::where('id', $studentId)->first();
 
         # why sync?
         # to create and update all at once
@@ -327,8 +346,8 @@ class ClientRepository implements ClientRepositoryInterface
 
         # why sync?
         # to create and update all at once
-        $parent->childrens()->sync($studentId);  
-        return $parent; 
+        $parent->childrens()->sync($studentId);
+        return $parent;
     }
 
     public function createDestinationCountry($studentId, $destinationCountryDetails)
@@ -379,29 +398,25 @@ class ClientRepository implements ClientRepositoryInterface
     # dashboard
     public function getCountTotalClientByStatus($status, $month = null)
     {
-        return Client::
-            where('st_statuscli', $status)->
-            when($month, function($query) use ($month) {
-                $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-            })->whereHas('roles', function($query) {
-                $query->where('role_name', 'Student');
-            })->count();
+        return Client::where('st_statuscli', $status)->when($month, function ($query) use ($month) {
+            $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+        })->whereHas('roles', function ($query) {
+            $query->where('role_name', 'Student');
+        })->count();
     }
 
     public function getClientByStatus($status, $month = null)
     {
-        return Client::
-            where('st_statuscli', $status)->
-            when($month, function($query) use ($month) {
-                $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-            })->whereHas('roles', function($query) {
-                $query->where('role_name', 'Student');
-            })->orderBy('created_at', 'desc')->get();
+        return Client::where('st_statuscli', $status)->when($month, function ($query) use ($month) {
+            $query->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+        })->whereHas('roles', function ($query) {
+            $query->where('role_name', 'Student');
+        })->orderBy('created_at', 'desc')->get();
     }
 
     public function getMenteesBirthdayMonthly($month)
     {
-        return Client::whereMonth('dob', date('m', strtotime($month)))->whereHas('roles', function($query) {
+        return Client::whereMonth('dob', date('m', strtotime($month)))->whereHas('roles', function ($query) {
             $query->where('role_name', 'Student');
         })->where('st_statusact', 1)->get();
     }
@@ -421,14 +436,12 @@ class ClientRepository implements ClientRepositoryInterface
 
             # search word by word 
             # and loop based on name length
-            for ($i = 0 ; $i < count($studentName) ; $i++) {
+            for ($i = 0; $i < count($studentName); $i++) {
 
                 # looping at least two times
                 if ($i <= 1)
-                    $extquery = $extquery->whereRaw("CONCAT(first_name, ' ', COALESCE(last_name, '')) like ?", ['%'.$studentName[$i].'%']);
-
+                    $extquery = $extquery->whereRaw("CONCAT(first_name, ' ', COALESCE(last_name, '')) like ?", ['%' . $studentName[$i] . '%']);
             }
-
         })->first();
     }
 

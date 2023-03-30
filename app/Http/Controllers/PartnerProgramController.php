@@ -300,7 +300,7 @@ class PartnerProgramController extends Controller
         $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partner_progId);
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         # retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();

@@ -19,6 +19,7 @@
             </h5>
         </div>
         <div class="card-body">
+           
             <form action="{{ isset($parent) ? route('parent.update', ['parent' => $parent->id]) : route('parent.store') }}" method="post">
                 @csrf
                 @if (isset($parent))
@@ -709,9 +710,19 @@
                 @endif
 
                 @if (old('child_id') !== NULL && old('child_id') == "add-new")
-                    $("#chName").select2().val("{{ old('child_id') }}").trigger('change')
+                    var child_id = new Array();
+                    @foreach (old('child_id') as $key => $val)
+                        child_id.push("{{ $val }}")
+                    @endforeach
+                    
+                    $("#chName").select2().val(child_id).trigger('change')
                 @elseif (old('child_id') !== NULL )
-                    $("#chName").select2().val("{{ old('child_id') }}").trigger('change')
+                    var child_id = new Array();
+                    @foreach (old('child_id') as $key => $val)
+                        child_id.push("{{ $val }}")
+                    @endforeach
+                    
+                    $("#chName").select2().val(child_id).trigger('change')
                 @endif
 
                 @if (isset($parent->childrens) && count($parent->childrens) > 0)

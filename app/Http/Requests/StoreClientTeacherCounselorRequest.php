@@ -30,10 +30,10 @@ class StoreClientTeacherCounselorRequest extends FormRequest
         $rules = [
             'first_name' => 'required',
             'last_name' => 'nullable',
-            'mail' => 'required|email|unique:tbl_client,mail,'.$teacher_counsellorId.',id',
-            'phone' => 'required|min:10|max:12',
+            'mail' => 'required|email|unique:tbl_client,mail,' . $teacher_counsellorId . ',id',
+            'phone' => 'required|min:10|max:15',
             'dob' => 'required',
-            'insta' => 'nullable|unique:tbl_client,insta,'.$teacher_counsellorId.',id',
+            'insta' => 'nullable|unique:tbl_client,insta,' . $teacher_counsellorId . ',id',
             'state' => 'required',
             'city' => 'nullable',
             'postal_code' => 'nullable',
@@ -58,7 +58,7 @@ class StoreClientTeacherCounselorRequest extends FormRequest
                     if ($this->input('lead_id') == 'kol' && empty($value))
                         $fail('The KOL name field is required');
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get())
                         $fail('The KOL name is invalid');
                 }
             ],

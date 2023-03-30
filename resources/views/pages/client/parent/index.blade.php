@@ -29,13 +29,12 @@
                         <th>Parents Number</th>
                         <th>Birthday</th>
                         <th>Childs Name</th>
-                        <th class="bg-info text-white">Priority</th>
                         <th class="bg-info text-white">#</th>
                     </tr>
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="8"></td>
+                        <td colspan="7"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -60,7 +59,7 @@
                 scrollX: true,
                 fixedColumns: {
                     left: 2,
-                    right: 2
+                    right: 1
                 },
                 processing: true,
                 serverSide: true,
@@ -93,10 +92,6 @@
                         defaultContent: '-',
                         orderable:true,
                         searchable:true,
-                    },
-                    {
-                        data: 'total_score',
-                        className: 'text-primary',
                     },
                     {
                         data: '',

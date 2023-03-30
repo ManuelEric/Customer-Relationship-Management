@@ -397,7 +397,10 @@
                                 </label>
                             </div>
                             <div class="col-md-9">
-                                <textarea name="notes" id="" class="w-100"></textarea>
+                                <textarea name="notes" id="" class="w-100" {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>{{ isset($partnerProgram->notes) ? $partnerProgram->notes :  old('notes') }}</textarea>
+                                @error('notess')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
                         <div class="row mb-2">
