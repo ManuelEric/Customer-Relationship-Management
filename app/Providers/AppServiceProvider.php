@@ -88,7 +88,7 @@ class AppServiceProvider extends ServiceProvider
                 }
 
                 # if logged in user is from department partnership
-                if ($user->department()->where('dept_name', 'Client Management')->exists()) {
+                if ($user->department()->where('dept_name', 'Business Development')->exists()) {
                     $isPartnership = true;
                 }
 

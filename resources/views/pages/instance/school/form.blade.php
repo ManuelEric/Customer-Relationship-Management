@@ -244,7 +244,7 @@
                                                 {{ $curriculum->name }}</option>
                                         @endforeach
                                     </select>
-                                    @error('sch_curriculum.*')
+                                    @error('sch_curriculum')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -288,6 +288,7 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        @if ($details->count() > 0)
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
@@ -330,6 +331,11 @@
                                 </tbody>
                             </table>
                         </div>
+                        @else
+                        <div>
+                            There's no contact person
+                        </div>
+                        @endif
                     </div>
                 </div>
             @endif

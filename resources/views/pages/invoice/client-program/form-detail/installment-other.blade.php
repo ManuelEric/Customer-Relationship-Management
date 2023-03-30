@@ -8,7 +8,7 @@
         </button>
     </div>
     <div class="card-body " id="installment_content_other">
-        @if (old('invdtl_installment__other') || $invoice->invoiceDetail()->count() > 0)
+        @if (old('invdtl_installment__other') || (isset($invoice) &&  $invoice->invoiceDetail()->count() > 0))
         @php
             $limit = isset($invoice->invoiceDetail) ? count($invoice->invoiceDetail) : count(old('invdtl_installment__other'))
         @endphp
