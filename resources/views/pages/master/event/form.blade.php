@@ -174,6 +174,13 @@
                 placeholder: "Select value",
                 allowClear: true
             });
+
+            $(".btn-delete-school").on('click', function() {
+
+                $eventId = $(this).data('event');
+                $schoolId = $(this).data('school');
+
+            })
         });
     </script>
 @endsection

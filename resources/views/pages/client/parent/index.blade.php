@@ -8,9 +8,14 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Parent
         </a>
-        <a href="{{ url('client/parent/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
-            Parent</a>
+        <div>
+            <a href="{{ url('client/parent/export_excel') }}" class="btn btn-sm btn-warning"><i class="bi bi-download me-1"></i> Download Template
+            </a>
+            <a href="{{ url('client/parent/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
+                Parent</a>
+        </div>
     </div>
+       
 
 
     <div class="card rounded">
@@ -24,13 +29,12 @@
                         <th>Parents Number</th>
                         <th>Birthday</th>
                         <th>Childs Name</th>
-                        <th class="bg-info text-white">Priority</th>
                         <th class="bg-info text-white">#</th>
                     </tr>
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="8"></td>
+                        <td colspan="7"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -55,7 +59,7 @@
                 scrollX: true,
                 fixedColumns: {
                     left: 2,
-                    right: 2
+                    right: 1
                 },
                 processing: true,
                 serverSide: true,
@@ -88,10 +92,6 @@
                         defaultContent: '-',
                         orderable:true,
                         searchable:true,
-                    },
-                    {
-                        data: 'total_score',
-                        className: 'text-primary',
                     },
                     {
                         data: '',

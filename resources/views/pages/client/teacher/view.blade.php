@@ -1,6 +1,8 @@
 @extends('layout.main')
-
-@section('title', 'Parent - Bigdata Platform')
+<style>
+    .lcs_wrap { scale: 0.7; margin-top: -4px; margin-left: -10px; }
+</style>
+@section('title', 'Teacher - Bigdata Platform')
 
 @section('content')
 
@@ -36,7 +38,7 @@
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                    <div class="col-md-9">
                             {{ $teacher_counselor->mail }}
                         </div>
                     </div>
@@ -86,6 +88,17 @@
                             {{ $teacher_counselor->leadSource }}
                         </div>
                     </div>
+                    <div class="row mb-2 g-1">
+                        <div class="col-md-3 d-flex justify-content-between">
+                            <label>
+                                Active Status
+                            </label>
+                            <label>:</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="checkbox" name="st_status" id="status" value="" @checked($teacher_counselor->st_statusact == 1)>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -94,50 +107,27 @@
                 <img src="{{ asset('img/teacher.jpg') }}" alt="" class="w-50 rounded-circle">
             </div>
         </div>
+
         <div class="col-md-12">
             <div class="card rounded">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="">
-                        <h5 class="m-0 p-0">Programs</h5>
-                    </div>
-                    <div class="">
-                        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#programForm">Add Program</a>
+                        <h5 class="m-0 p-0">Events</h5>
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
+                    <table class="table table-bordered table-hover nowrap align-middle w-100" id="eventTable">
                         <thead class="bg-dark text-white">
                             <tr class="text-center" role="row">
-                                <th class="text-dark">No</th>
-                                <th class="bg-info text-white">Program Name</th>
-                                <th>Conversion Lead</th>
-                                <th>Last Discuss</th>
-                                <th>PIC</th>
-                                <th>Program Status</th>
-                                <th class="text-dark">Status</th>
-                                <th class="text-dark">#</th>
+                                <th class="bg-dark text-white">No</th>
+                                <th class="bg-info text-white">Event Name</th>
+                                <th class="bg-dark text-white">Event Start Date</th>
+                                <th class="bg-dark text-white">Joined Date</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @for ($i = 0; $i < 5; $i++)
-                                <tr>
-                                    <td class="text-center">{{ $i + 1 }}</td>
-                                    <td>Program Name</td>
-                                    <td>Instagram</td>
-                                    <td>22 Sept 2022</td>
-                                    <td>Anggita</td>
-                                    <td>Interest</td>
-                                    <td class="text-center">Hot</td>
-                                    <td class="text-center"><a href="{{ url('client/mentee/1') }}"
-                                            class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>
-                                    </td>
-                                </tr>
-                            @endfor
-                        </tbody>
                         <tfoot class="bg-light text-white">
                             <tr>
-                                <td colspan="7"></td>
+                                <td colspan="4"></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -146,102 +136,9 @@
         </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal modal-md fade" id="programForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="m-0 p-0">
-                        <i class="bi bi-plus me-2"></i>
-                        Add Program
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-2">
-                                <label for="">Program Name</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">Lead Source</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">PIC</label>
-                                <select class="modal-select w-100" name="program_id">
-                                    <option data-placeholder="true"></option>
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <option value="{{ $i }}">Test {{ $i }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">First Discuss</label>
-                                <input type="date" name="" class="form-control form-control-sm rounded">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <label for="">Planned Follow Up</label>
-                                <input type="date" name="" class="form-control form-control-sm rounded">
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-2">
-                                <label for="">Notes</label>
-                                <textarea name="" id="" class="form-control"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-12 mt-2">
-                            <div class="d-flex justify-content-between">
-                                <button class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
-                                    <i class="bi bi-x me-1"></i>
-                                    Cancel
-                                </button>
-                                <button class="btn btn-sm btn-primary rounded-3">
-                                    <i class="bi bi-save2"></i>
-                                    Save
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Select2 Modal 
-        $(document).ready(function() {
-            $('.modal-select').select2({
-                dropdownParent: $('#programForm .modal-content'),
-                placeholder: "Select value",
-                allowClear: true
-            });
-        });
-    </script>
-
-    {{-- Need Changing --}}
-    {{-- <script>
-        $(document).ready(function() {
-            var table = $('#programTable').DataTable({
+        $(document).ready(function(){
+            var table = $('#eventTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -258,21 +155,91 @@
                     left: 2,
                     right: 2
                 },
-            });
-
-            $('#programTable tbody').on('click', '.editClient ', function() {
-                var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('asset') }}/" + data.asset_id.toLowerCase() + '/edit';
-            });
-
-            $('#programTable tbody').on('click', '.deleteClient ', function() {
-                var data = table.row($(this).parents('tr')).data();
-                confirmDelete('asset', data.asset_id)
+                processing: true,
+                serverSide: true,
+                ajax: '{{ url('api/teacher/'.$teacher_counselor->id.'/events') }}',
+                columns: [{
+                        data: 'clientevent_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'event_name',
+                        name: 'tbl_events.event_title'
+                    },
+                    {
+                        data: 'event_startdate',
+                        name: 'tbl_events.event_startdate',
+                        render: function(data, type, row) {
+                            return moment(data).format('DD MMMM YYYY HH:mm:ss')
+                        }
+                    },
+                    {
+                        data: 'joined_date',
+                        render: function(data, type, row) {
+                            return moment(data).format('DD MMMM YYYY')
+                        }
+                    },
+                ]
             });
         });
-    </script> --}}
+    </script>
+    <script src="{{ asset('js/lc_switch.min.js') }}"></script>
+    <script>
+    lc_switch('input[type=checkbox]', {
+    
+        // ON text
+        on_txt: 'ON',
+    
+        // OFF text
+        off_txt: 'OFF',
+    
+        // Custom ON color. Supports gradients
+        on_color: '#0083B8',
+    
+        // enable compact mode
+        compact_mode: false
+    
+    });
+    </script>
 
+    <script>
+        // Select2 Modal 
+        $(document).ready(function() {
+            $('.modal-select').select2({
+                dropdownParent: $('#programForm .modal-content'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+        });
+    </script>
 
+    <script type="text/javascript">
+        $('.lcs_switch').on('click', async function() {
+            
+            var class_names = $(this).attr('class');
+            var getLcsStatus = class_names.split(' ');
+            var current_value = getLcsStatus[2];
+            
+            var val = current_value == "lcs_off" ? 0 : 1;
+
+            var link = "{{ url('/') }}/client/teacher-counselor/{{ $teacher_counselor->id }}/status/" + val
+
+            await axios.get(link)
+                .then(function(response) {
+                    console.log(response)
+                    Swal.close()
+                    notification("success", response.data.message)
+                })
+                .catch(function(error) {
+                    // handle error
+                    Swal.close()
+                    notification("error", error.response.data.message)
+                })
+        })
+    </script>
 
 
 @endsection

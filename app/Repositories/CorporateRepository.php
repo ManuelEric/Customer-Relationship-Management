@@ -13,7 +13,7 @@ class CorporateRepository implements CorporateRepositoryInterface
 {
     public function getAllCorporateDataTables()
     {
-        return Datatables::eloquent(Corporate::query())->rawColumns(['corp_address'])->make(true);
+        return Datatables::eloquent(Corporate::orderBy('created_at', 'desc'))->rawColumns(['corp_address'])->make(true);
     }
 
     public function getAllCorporate()
@@ -181,6 +181,8 @@ class CorporateRepository implements CorporateRepositoryInterface
             DB::raw('(CASE
                 WHEN corp_password = "" THEN NULL ELSE corp_password
             END) AS corp_password'),
+            'crop_datecreated',
+            'corp_datelastedit',
         ])->get();
     }
 }

@@ -36,9 +36,9 @@ use Illuminate\Support\Facades\Route;
 //     return view('pages.client.student.index', ['status' => $status]);
 // });
 
-Route::get('mentee/{status}', function ($status) {
-    return view('pages.client.student.index-mentee', ['status' => $status]);
-});
+// Route::get('mentee/{status}', function ($status) {
+//     return view('pages.client.student.index-mentee', ['status' => $status]);
+// });
 
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
@@ -51,5 +51,11 @@ Route::prefix('student')->name('student.')->group(function () {
     });
 });
 Route::resource('mentee', ClientMenteeController::class);
+
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
+Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function () {
+    Route::get('{teacher}/status/{status}', [ClientTeacherCounselorController::class, 'updateStatus'])->name('update.status');
+});
+
+Route::get('parent/export_excel', [ClientParentController::class, 'download_template']);
 Route::resource('parent', ClientParentController::class);

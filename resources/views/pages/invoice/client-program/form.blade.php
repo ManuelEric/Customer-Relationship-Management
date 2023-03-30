@@ -14,16 +14,6 @@
         </a>
     </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
@@ -356,9 +346,9 @@
                                 <input type="number" name="curs_rate" id="current_rate"
                                     value="{{ isset($invoice->curs_rate) ? $invoice->curs_rate : old('curs_rate') }}"
                                     {{ $disabled }} class="form-control form-control-sm rounded">
-                                {{-- @error('curs_rate')
+                                @error('curs_rate')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror --}}
+                                @enderror
                             </div>
 
                             <div class="col-md-3 mb-3">
@@ -615,6 +605,37 @@
 
         $(document).ready(function() {
 
+            $("#currency_detail").on('change', function() {
+
+                var current_rate = $("#current_rate").val()
+
+                checkCurrencyDetail()
+                if (current_rate == null || current_rate == 0)
+                {
+
+                    showLoading()
+                    var base_currency = $(this).val();
+                    var to_currency = 'IDR';
+    
+                    var link = "{{ url('/') }}/api/current/rate/"+base_currency+"/"+to_currency
+    
+                    axios.get(link)
+                        .then(function (response) {
+    
+                            var rate = response.data.rate;
+                            $("#current_rate").val(rate)
+                            swal.close()
+    
+                        }).catch(function (error) {
+    
+                            swal.close()
+                            notification('error', 'Something went wrong. Please try again');
+    
+                        })
+                }
+
+            })
+
             $("#receipt_amount_other").on('keyup', function() {
                 var val = $(this).val()
                 var currency = $("#receipt input[name=currency]").val()
@@ -818,9 +839,9 @@
                     })
                     .catch(error => {
                         console.log(error)
+                        swal.close()
                         notification('error', error.message)
                         // notification('error', 'Something went wrong while send email')
-                        swal.close()
                     })
             })
 

@@ -291,65 +291,6 @@
                         Save</button>
                 </div>
 
-                {{-- <div class="row">
-                    <div class="col-12 mt-5">
-                        <div class="d-flex justify-content-between align-items-end">
-                            <h5 class="m-0 p-0"><i class="bi bi-list me-1"></i> Items</h5>
-                            <button type="button" class="btn btn-sm btn-secondary add_more_button"><i
-                                    class="bi bi-plus me-1"></i> Add
-                                Item</button>
-                        </div>
-                        <hr class="mt-2">
-                        <div class="container" id="item">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label for="">
-                                            Item Name <sup class="text-danger">*</sup>
-                                        </label>
-                                        <input type="text" name="item[]"
-                                            class="form-control form-control-sm rounded" value="">
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label for="">
-                                            Price <sup class="text-danger">*</sup>
-                                        </label>
-                                        <input type="number" name="price_per_unit[]" id="price"
-                                            class="form-control form-control-sm rounded" value="">
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label for="">
-                                            Amount <sup class="text-danger">*</sup>
-                                        </label>
-                                        <input type="number" name="amount[]" id="amount"
-                                            class="form-control form-control-sm rounded" value="">
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label for="">
-                                            Total <sup class="text-danger">*</sup>
-                                        </label>
-                                        <input type="text" name="total[]" id="total" readonly
-                                            class="form-control form-control-sm rounded" value="">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary btn-sm">
-                                <i class="bi bi-save2 me-1"></i>
-                                Save</button>
-                        </div>
-                    </div>
-                </div> --}}
-
                 @if (!isset($edit) && isset($purchaseRequest))
 
                     @include('pages.master.purchase.detail.list')

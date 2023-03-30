@@ -158,6 +158,8 @@
                     {
                         data: 'program_name',
                         // name: 'program_name',
+                        name: 'tbl_prog.prog_program'
+
                     },
                     {
                         data: 'total_participant',
@@ -166,6 +168,13 @@
                     {
                         data: 'total_target',
                         className: 'text-center',
+                        render: function(data, type) {
+                            var number = $.fn.dataTable.render
+                                .number(',', '.', 2, 'Rp. ')
+                                .display(data);
+
+                            return number;
+                        },
                     },
                     {
                         data: 'month',

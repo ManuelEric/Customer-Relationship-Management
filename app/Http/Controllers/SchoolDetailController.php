@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSchoolDetailRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\SchoolDetailRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use Exception;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Redirect;
 class SchoolDetailController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
 
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
@@ -37,6 +39,11 @@ class SchoolDetailController extends Controller
             'schdetail_position',
             'schdetail_phone',
         ]);
+        
+        # using index 0
+        # because there is only one data in the array
+        unset($validated['schdetail_phone'][0]);
+        $validated['schdetail_phone'][0] = $this->setPhoneNumber($request->schdetail_phone[0]);
 
 
         DB::beginTransaction();
@@ -102,6 +109,8 @@ class SchoolDetailController extends Controller
             'schdetail_position',
             'schdetail_phone',
         ]);
+        unset($validated['schdetail_phone'][0]);
+        $validated['schdetail_phone'][0] = $this->setPhoneNumber($request->schdetail_phone[0]);
 
         $schoolDetailId = $request->route('detail');
 

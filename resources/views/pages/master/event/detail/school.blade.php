@@ -20,7 +20,7 @@
                         <div class="">
                             {{ $school->sch_name }}
                         </div>
-                        <div class="" style="cursor:pointer" onclick="confirmDelete('master/event/{{ $event->event_id }}/school', '{{ $school->sch_id }}')">
+                        <div class="btn-delete-school" style="cursor:pointer" onclick="confirmDelete('master/event/{{ $event->event_id }}/school', '{{ $school->sch_id }}')">
                             <i class="bi bi-trash2"></i>
                         </div>
                     </div>
@@ -60,6 +60,9 @@
                                         @endforeach
                                     @endif
                                 </select>
+                                @error('sch_id')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -77,3 +80,13 @@
         </div>
     </div>
 </div>
+
+@if (
+        $errors->has('sch_id'))
+        <script>
+            $(document).ready(function() {
+                $('#school').modal('show');
+
+            })
+        </script>
+    @endif

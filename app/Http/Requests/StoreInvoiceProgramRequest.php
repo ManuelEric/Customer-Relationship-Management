@@ -35,15 +35,13 @@ class StoreInvoiceProgramRequest extends FormRequest
         $currency[1] = $this->input('currency_detail');
 
         if (in_array('idr', $currency) && $this->input('is_session') == "no") {
-
             return $this->rupiahInvoiceWithNoSession($currency); 
 
         } elseif (in_array('idr', $currency) && $this->input('is_session') == "yes") {
-
+            
             return $this->rupiahInvoiceWithYesSession($currency);
         
         } elseif (in_array('other', $currency) && $this->input('is_session') == "no") {
-
             return $this->otherCurrencyInvoiceWithNoSession($currency);
 
         } elseif (in_array('other', $currency) && $this->input('is_session') == "yes") {
@@ -112,7 +110,7 @@ class StoreInvoiceProgramRequest extends FormRequest
 
         $addQuery = $this->isMethod('POST') ? '|unique:tbl_inv,clientprog_id' : null;
 
-        return [
+        $rules = [
             'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id' . $addQuery,
             'currency' => [
                 'required',
@@ -161,10 +159,15 @@ class StoreInvoiceProgramRequest extends FormRequest
                 //         return $query->where('inv_id', $inv_id);
                 // })
             ],
-            'invdtl_duedate__other.*' => 'required_if:inv_paymentmethod,installment|max:inv_duedate',
+            'invdtl_duedate__other.*' => 'required_if:inv_paymentmethod,installment',
             'invdtl_percentage__other.*' => 'required_if:inv_paymentmethod,installment',
             'invdtl_amountidr__other.*' => 'required_if:inv_paymentmethod,installment',
         ];
+
+        if ($this->input('inv_duedate') != NULL)
+            $rules['invdtl_duedate__other'] .= '|max:inv_duedate';
+
+        return $rules;
     }
 
     protected function otherCurrencyInvoiceWithNoSession($currency)
@@ -174,7 +177,7 @@ class StoreInvoiceProgramRequest extends FormRequest
 
         $addQuery = $this->isMethod('POST') ? '|unique:tbl_inv,clientprog_id' : null;
 
-        return [
+        $rules = [
             'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id' . $addQuery,
             'currency' => [
                 'required',
@@ -208,7 +211,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             'inv_words_idr__nso' => Rule::requiredIf(in_array('idr', $currency)),
             'inv_paymentmethod' => 'required|in:full,installment',
             'invoice_date' => 'required',
-            'inv_duedate' => 'required',
+            // 'inv_duedate' => 'required',
             'inv_notes' => 'nullable',
             'inv_tnc' => 'nullable',
 
@@ -221,10 +224,15 @@ class StoreInvoiceProgramRequest extends FormRequest
                 //         return $query->where('inv_id', $inv_id);
                 // })
             ],
-            'invdtl_duedate__other.*' => 'required_if:inv_paymentmethod,installment|max:inv_duedate',
+            'invdtl_duedate__other.*' => 'required_if:inv_paymentmethod,installment',
             'invdtl_percentage__other.*' => 'required_if:inv_paymentmethod,installment',
             'invdtl_amountidr__other.*' => 'required_if:inv_paymentmethod,installment',
         ];
+
+        if ($this->input('inv_duedate') != NULL)
+            $rules['invdtl_duedate__other'] .= '|max:inv_duedate';
+
+        return $rules;
     }
 
     protected function rupiahInvoiceWithNoSession($currency)

@@ -67,7 +67,8 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
                     END) AS speaker_name'),
                 'tbl_agenda_speaker.start_time',
                 'tbl_agenda_speaker.end_time',
-            );
+            )
+            ->where('tbl_agenda_speaker.status', 1);
 
         switch ($type) {
             case "all":
@@ -82,6 +83,11 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
     public function getAllSpeakerByEvent($eventId)
     {
         return Agenda::where('event_id', $eventId)->get();
+    }
+
+    public function getAllSpeakersByEventAndSchool($eventId, $schoolId)
+    {
+        return Agenda::where('event_id', $eventId)->where('school_id', $schoolId)->first();
     }
 
     public function getAllSpeakerBySchoolProgram($schProgId)

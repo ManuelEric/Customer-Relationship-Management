@@ -48,11 +48,31 @@ class ImportParent extends Command
                 $parentName = $crm_parent->pr_firstname.' '.$crm_parent->pr_lastname;
                 if (!$parent = $this->clientRepository->getParentByParentName($parentName))
                 {
+
+                    $parents_phone = $this->getValueWithoutSpace($crm_parent->pr_phone);
+                    if ($parents_phone != NULL)
+                    {
+                        $parents_phone = str_replace('-', '', $parents_phone);
+                        $parents_phone = str_replace(' ', '', $parents_phone);
+
+                        switch (substr($parents_phone, 0, 1)) {
+
+                            case 0:
+                                $parents_phone = "+62".substr($parents_phone, 1);
+                                break;
+
+                            case 6:
+                                $parents_phone = "+".$parents_phone;
+                                break;
+
+                        }
+                    }
+
                     $parentDetails = [
                         'first_name' => $crm_parent->pr_firstname,
                         'last_name' => $crm_parent->pr_lastname,
                         'mail' => $crm_parent->pr_mail,
-                        'phone' => $crm_parent->pr_phone,
+                        'phone' => $parents_phone,
                         'dob' => $crm_parent->pr_dob,
                         'insta' => $crm_parent->pr_insta,
                         'state' => $crm_parent->pr_state,
@@ -76,5 +96,10 @@ class ImportParent extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    private function getValueWithoutSpace($value)
+    {
+        return $value == "" || $value == "-" || $value == "0000-00-00" || $value == 'N/A' ? NULL : $value;
     }
 }

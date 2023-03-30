@@ -122,10 +122,10 @@
                         <small>Installment Plan</small>
                         <textarea name="installment_notes" {{ $disabled }}>
                             @if (old('installment_notes'))
-{{ old('installment_notes') }}
-@elseif (isset($clientProgram->installment_notes))
-{{ $clientProgram->installment_notes }}
-@endif
+                            {{ old('installment_notes') }}
+                            @elseif (isset($clientProgram->installment_notes))
+                            {{ $clientProgram->installment_notes }}
+                            @endif
                         </textarea>
                         @error('installment_notes')
                             <small class="text-danger fw-light">{{ $message }}</small>

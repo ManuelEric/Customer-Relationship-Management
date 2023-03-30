@@ -12,7 +12,7 @@ class VendorRepository implements VendorRepositoryInterface
 {
     public function getAllVendorDataTables()
     {
-        return Datatables::eloquent(Vendor::query())->make(true);
+        return Datatables::eloquent(Vendor::query())->rawColumns(['vendor_address'])->make(true);
     }
 
     public function getAllVendor()

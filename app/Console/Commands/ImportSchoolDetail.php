@@ -47,6 +47,27 @@ class ImportSchoolDetail extends Command
         foreach ($schoolDetails as $schoolDetail) {
             $school = $this->schoolRepository->getSchoolById($schoolDetail->sch_id);
             if (!$this->schoolDetailRepository->getSchoolDetailById($schoolDetail->schdetail_id) && $school != null && $schoolDetail->schdetail_fullname != "" && $schoolDetail->schdetail_fullname !=  null) {
+
+                $schdetail_phone = $this->getValueWithoutSpace($schoolDetail->schdetail_phone);
+                if ($schdetail_phone != NULL)
+                {
+                    $schdetail_phone = str_replace('-', '', $schdetail_phone);
+                    $schdetail_phone = str_replace(' ', '', $schdetail_phone);
+                    $schdetail_phone = str_replace(array('(', ')'), '', $schdetail_phone);
+
+                    switch (substr($schdetail_phone, 0, 1)) {
+
+                        case 0:
+                            $schdetail_phone = "+62".substr($schdetail_phone, 1);
+                            break;
+
+                        case 6:
+                            $schdetail_phone = "+".$schdetail_phone;
+                            break;
+
+                    }
+                }
+
                 $newSchoolDetails[] = [
                     'schdetail_id' => $schoolDetail->schdetail_id,
                     'sch_id' => $schoolDetail->sch_id,
@@ -54,7 +75,7 @@ class ImportSchoolDetail extends Command
                     'schdetail_email' => $schoolDetail->schdetail_email == '' || $schoolDetail->schdetail_email == '-' ? null : $schoolDetail->schdetail_email,
                     'schdetail_grade' => $schoolDetail->schdetail_grade,
                     'schdetail_position' => $schoolDetail->schdetail_position,
-                    'schdetail_phone' => $schoolDetail->schdetail_phone == '' || $schoolDetail->schdetail_phone == '-' ? null : $schoolDetail->schdetail_phone,
+                    'schdetail_phone' => $schdetail_phone,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ];
@@ -65,5 +86,10 @@ class ImportSchoolDetail extends Command
             $this->schoolDetailRepository->createSchoolDetail($newSchoolDetails);
         }
         return Command::SUCCESS;
+    }
+
+    private function getValueWithoutSpace($value)
+    {
+        return $value == "" || $value == "-" || $value == "0000-00-00" || $value == 'N/A' ? NULL : $value;
     }
 }

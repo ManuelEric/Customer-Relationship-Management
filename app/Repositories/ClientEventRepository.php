@@ -55,6 +55,35 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         )->make(true);
     }
 
+    public function getAllClientEventByClientIdDataTables($clientId)
+    {
+        return datatables::eloquent(
+            ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+                ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
+                ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_event.lead_id')
+                ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
+                ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
+                ->where('tbl_client_event.client_id', '=', $clientId)
+                ->select(
+                    'tbl_client_event.clientevent_id',
+                    // 'tbl_client_event.event_id',
+                    // 'tbl_client_event.eduf_id',
+                    'tbl_events.event_title as event_name',
+                    // 'tbl_lead.main_lead',
+                    'tbl_client_event.joined_date',
+                    'tbl_client_event.status',
+                    'tbl_events.event_startdate',
+                    DB::raw('(CASE
+                    WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
+                    WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)
+                    WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
+                    ELSE tbl_lead.main_lead
+                END) AS conversion_lead'),
+                    DB::raw('CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) as client_name')
+                )
+        )->make(true);
+    }
+
     public function getAllClientEventByClientId($clientId)
     {
         return ClientEvent::where('client_id', $clientId)->get();

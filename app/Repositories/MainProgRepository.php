@@ -21,4 +21,9 @@ class MainProgRepository implements MainProgRepositoryInterface
     {
         return MainProg::where('prog_name', $progName)->first();
     }
+
+    public function createMainProg($mainProgDetails)
+    {
+        return MainProg::create($mainProgDetails);
+    }
 }

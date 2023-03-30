@@ -48,7 +48,7 @@ class UserClient extends Authenticatable
         'st_note',
         'st_prospect_status',
         'password',
-        'created_at', 
+        'created_at',
         'updated_at',
     ];
 
@@ -56,14 +56,14 @@ class UserClient extends Authenticatable
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->first_name.' '.$this->last_name,
+            get: fn ($value) => isset($this->last_name) ? $this->first_name . ' ' . $this->last_name : $this->first_name,
         );
     }
 
     protected function leadSource(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getLeadSource($this->lead->main_lead)
+            get: fn ($value) => $this->lead != NULL ? $this->getLeadSource($this->lead->main_lead) : NULL
         );
     }
 
@@ -71,15 +71,18 @@ class UserClient extends Authenticatable
     {
         switch ($parameter) {
             case "All-In Event":
-                return "ALL-In Event - ".$this->event->event_title;
+                return "ALL-In Event - " . $this->event->event_title;
                 break;
 
             case "External Edufair":
-                return "External Edufair - ".$this->external_edufair->title;
+                if ($this->external_edufair->title != NULL)
+                    return "External Edufair - " . $this->external_edufair->title;
+                else
+                    return "External Edufair - " . $this->external_edufair->organizerName;
                 break;
 
             case "KOL":
-                return "KOL - ".$this->lead->sub_lead;
+                return "KOL - " . $this->lead->sub_lead;
                 break;
 
             default:

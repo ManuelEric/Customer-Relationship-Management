@@ -34,8 +34,8 @@ class StoreEventRequest extends FormRequest
             'event_title' => 'required|unique:tbl_events,event_title',
             'event_description' => 'required',
             'event_location' => 'required|max:250',
-            'event_startdate' => 'required',
-            'event_enddate' => 'required',
+            'event_startdate' => 'required|before_or_equal:event_enddate',
+            'event_enddate' => 'required|after_or_equal:event_startdate',
             'user_id.*' => [
                 'required',
                 function ($attribute, $value, $fail) {
@@ -53,13 +53,13 @@ class StoreEventRequest extends FormRequest
     protected function update()
     {
         $eventId = $this->route('event');
-        
+
         return [
-            'event_title' => 'required|unique:tbl_events,event_title,'.$eventId.',event_id',
+            'event_title' => 'required|unique:tbl_events,event_title,' . $eventId . ',event_id',
             'event_description' => 'required',
             'event_location' => 'required|max:250',
-            'event_startdate' => 'required',
-            'event_enddate' => 'required',
+            'event_startdate' => 'required|before_or_equal:event_enddate',
+            'event_enddate' => 'required|after_or_equal:event_startdate',
             'user_id.*' => [
                 'required',
                 function ($attribute, $value, $fail) {

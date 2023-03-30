@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\School;
 use Illuminate\Console\Command;
@@ -11,6 +12,8 @@ use Illuminate\Support\Carbon;
 class ImportSchool extends Command
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -50,17 +53,37 @@ class ImportSchool extends Command
 
             if (!$schoolIdV2 && !$schoolNameV2 && $school->sch_id != null && $school->sch_name != null && $school->sch_name != '' && $school->sch_name != ' ' && $school->sch_name != '-') {
 
+                $schoolPhoneV1 = $this->getValueWithoutSpace($school->sch_phone);
+                if ($schoolPhoneV1 != NULL)
+                {
+                    $schoolPhoneV1 = str_replace('-', '', $schoolPhoneV1);
+                    $schoolPhoneV1 = str_replace(' ', '', $schoolPhoneV1);
+                    $schoolPhoneV1 = str_replace(array('(', ')'), '', $schoolPhoneV1);
+
+                    switch (substr($schoolPhoneV1, 0, 1)) {
+
+                        case 0:
+                            $schoolPhoneV1 = "+62".substr($schoolPhoneV1, 1);
+                            break;
+
+                        case 6:
+                            $schoolPhoneV1 = "+".$schoolPhoneV1;
+                            break;
+
+                    }
+                }
+
                 $new_schools[] = [
                     'sch_id' => $school->sch_id,
                     'sch_name' => $school->sch_name,
                     'sch_type' => $school->sch_type == '' || $school->sch_type == '-' ? null : $school->sch_type,
                     'sch_mail' => $school->sch_mail == '' || $school->sch_mail == '-' ? null : $school->sch_mail,
-                    'sch_phone' => $school->sch_phone == '' || $school->sch_phone == '-' ? null : $school->sch_phone,
+                    'sch_phone' => $schoolPhoneV1,
                     'sch_insta' => $school->sch_insta == '' || $school->sch_insta == '-' ? null : $school->sch_insta,
                     'sch_city' => $school->sch_city == '' || $school->sch_city == '-' ? null : $school->sch_city,
                     'sch_location' => $school->sch_location == '' || $school->sch_location == '-' ? null : $school->sch_location,
                     'sch_score' => 0,
-                    'created_at' => Carbon::now(),
+                    'created_at' => $this->getValueWithoutSpace($school->sch_lastupdate) ?? Carbon::now(), 
                     'updated_at' => Carbon::now(),
                 ];
             }
@@ -70,5 +93,10 @@ class ImportSchool extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    private function getValueWithoutSpace($value)
+    {
+        return $value == "" || $value == "-" || $value == "tidak ada" || $value == "no contact" || $value == "0000-00-00" || $value == "0000-00-00 00:00:00" || $value == 'N/A' ? NULL : $value;
     }
 }

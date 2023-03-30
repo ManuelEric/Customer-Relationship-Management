@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCorporatePicRequest;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Redirect;
 
 class CorporatePicController extends Controller
 {
+    use StandardizePhoneNumberTrait;
+
     private CorporatePicRepositoryInterface $corporatePicRepository;
 
     public function __construct(CorporatePicRepositoryInterface $corporatePicRepository)
@@ -43,6 +46,8 @@ class CorporatePicController extends Controller
             'pic_phone',
             'pic_linkedin',
         ]);
+        unset($picDetails['pic_phone']);
+        $picDetails['pic_phone'] = $this->setPhoneNumber($request->pic_phone);
 
         $picDetails['corp_id'] = $corporateId = $request->route('corporate');
 
@@ -71,6 +76,8 @@ class CorporatePicController extends Controller
             'pic_phone',
             'pic_linkedin',
         ]);
+        unset($newDetails['pic_phone']);
+        $picDetails['pic_phone'] = $this->setPhoneNumber($request->pic_phone);
 
         $newDetails['corp_id'] = $corporateId = $request->route('corporate');
         $picId = $request->route('detail');

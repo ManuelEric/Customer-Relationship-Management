@@ -3,6 +3,21 @@
 @section('title', 'School - Bigdata Platform')
 
 @section('content')
+
+@php
+    $error_pic = $error_visit = false;
+@endphp
+@if ($errors->first('schdetail_name') || $errors->first('schdetail_mail') || $errors->first('schdetail_phone') || $errors->first('schdetail_position') || $errors->first('schdetail_grade'))
+    @php
+        $error_pic = true;
+    @endphp
+
+@elseif ($errors->first('internal_pic') || $errors->first('school_pic') || $errors->first('visit_date'))
+    @php
+        $error_visit = true;
+    @endphp
+@endif
+
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('instance/school') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> School
@@ -229,7 +244,7 @@
                                                 {{ $curriculum->name }}</option>
                                         @endforeach
                                     </select>
-                                    @error('sch_curriculum.*')
+                                    @error('sch_curriculum')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -273,6 +288,7 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        @if ($details->count() > 0)
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
@@ -315,6 +331,11 @@
                                 </tbody>
                             </table>
                         </div>
+                        @else
+                        <div>
+                            There's no contact person
+                        </div>
+                        @endif
                     </div>
                 </div>
             @endif
@@ -334,16 +355,26 @@
                         </h4>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url('instance/school/' . $school->sch_id . '/detail') }}" method="POST"
+                        <form
+                            @if ($error_pic === true)
+                                action="{{ url('instance/school/' . $school->sch_id . '/detail/' . old('schdetail_id')) }}"
+                            @else
+                                action="{{ url('instance/school/' . $school->sch_id . '/detail') }}"
+                            @endif method="POST"
                             id="picAction">
                             @csrf
-                            <div class="put"></div>
+                            <div class="put">
+                                @if ($error_pic === true)
+                                    @method('put')
+                                    <input type="hidden" readonly name="schdetail_id" value="{{ old('schdetail_id') }}">
+                                @endif
+                            </div>
                             <input type="hidden" readonly name="sch_id" value="{{ $school->sch_id }}">
                             <div class="row mb-2">
                                 <div class="col-md-6 mb-2">
                                     <label>Fullname <sup class="text-danger">*</sup></label>
                                     <input type="text" name="schdetail_name[]"
-                                        class="form-control form-control-sm rounded" id="cp_fullname">
+                                        class="form-control form-control-sm rounded" id="cp_fullname" value="{{ old('schdetail_name') ? old('schdetail_name')[0] : null }}">
                                     @error('schdetail_name.0')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -351,7 +382,7 @@
                                 <div class="col-md-6 mb-2">
                                     <label>E-mail <sup class="text-danger">*</sup></label>
                                     <input type="email" name="schdetail_mail[]"
-                                        class="form-control form-control-sm rounded" id="cp_mail">
+                                        class="form-control form-control-sm rounded" id="cp_mail" value="{{ old('schdetail_mail') ? old('schdetail_mail')[0] : null }}">
                                     @error('schdetail_mail.0')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -359,7 +390,7 @@
                                 <div class="col-md-6 mb-2">
                                     <label>Phone Number <sup class="text-danger">*</sup></label>
                                     <input type="text" name="schdetail_phone[]"
-                                        class="form-control form-control-sm rounded" id="cp_phone">
+                                        class="form-control form-control-sm rounded" id="cp_phone" value="{{ old('schdetail_phone') ? old('schdetail_phone')[0] : null }}">
                                     @error('schdetail_phone.0')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -368,13 +399,13 @@
                                     <label>Status <sup class="text-danger">*</sup></label>
                                     <select name="schdetail_position[]" class="modal-select w-100" id="cp_status">
                                         <option data-placeholder="true"></option>
-                                        <option value="Principal">
+                                        <option value="Principal" @selected(old('schdetail_position') && old('schdetail_position')[0] == 'Principal')>
                                             Principal</option>
-                                        <option value="Counselor">
+                                        <option value="Counselor" @selected(old('schdetail_position') && old('schdetail_position')[0] == 'Counselor')>
                                             Counselor</option>
-                                        <option value="Teacher">
+                                        <option value="Teacher" @selected(old('schdetail_position') && old('schdetail_position')[0] == 'Teacher')>
                                             Teacher</option>
-                                        <option value="Marketing">
+                                        <option value="Marketing" @selected(old('schdetail_position') && old('schdetail_position')[0] == 'Marketing')>
                                             Marketing</option>
                                     </select>
                                     @error('schdetail_position.0')
@@ -385,11 +416,11 @@
                                     <label>School Grade <sup class="text-danger">*</sup></label>
                                     <select name="schdetail_grade[]" class="modal-select w-100" id="cp_grade">
                                         <option data-placeholder="true"></option>
-                                        <option value="Middle School">
+                                        <option value="Middle School" @selected(old('schdetail_grade') && old('schdetail_grade')[0] == 'Middle School')>
                                             Middle School</option>
-                                        <option value="High School">
+                                        <option value="High School" @selected(old('schdetail_grade') && old('schdetail_grade')[0] == 'High School')>
                                             High School</option>
-                                        <option value="Middle School & High School">
+                                        <option value="Middle School & High School" @selected(old('schdetail_grade') && old('schdetail_grade')[0] == 'Middle School & High School')>
                                             Middle School & High School</option>
                                     </select>
                                     @error('schdetail_grade.0')
@@ -426,14 +457,18 @@
                 placeholder: "Select value",
                 allowClear: true
             });
-        });
 
-        $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#picForm .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
             });
+
+            @if ($error_pic === true)
+                $("#picForm").modal('show')
+            @elseif ($error_visit === true)
+                $("#school_visit").modal('show')
+            @endif
         });
     </script>
 

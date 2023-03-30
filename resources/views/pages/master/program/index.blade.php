@@ -86,12 +86,18 @@
                     },
                     {
                         data: 'prog_payment',
+                        render: function(data, type, row, meta) {
+                            return row.prog_payment.toUpperCase()
+                        }
                     },
                     {
                         data: 'prog_mentor',
                     },
                     {
                         data: 'prog_scope',
+                        render: function(data, type, row, meta) {
+                            return row.prog_scope.charAt(0).toUpperCase() + row.prog_scope.slice(1);
+                        }
                     },
                     {
                         data: '',

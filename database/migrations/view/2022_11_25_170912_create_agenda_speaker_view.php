@@ -30,6 +30,7 @@ return new class extends Migration
             corp.corp_name,
             sd.schdetail_fullname as school_pic_name,
             sd.schdetail_phone as school_pic_phone,
+            s.sch_id as school_id,
             s.sch_name as school_name,
             asp.sch_pic_id,
             asp.univ_pic_id,

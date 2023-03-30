@@ -29,9 +29,10 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                 'tbl_partner_prog.total_fee',
                 'tbl_partner_prog.status',
                 DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
-            )->when($filter && isset($filter['partner_name']), function ($query) use ($filter) {
-                $query->whereIn('tbl_corp.corp_name', $filter['partner_name']);
-            })
+            )->orderBy('tbl_partner_prog.first_discuss', 'DESC')
+                ->when($filter && isset($filter['partner_name']), function ($query) use ($filter) {
+                    $query->whereIn('tbl_corp.corp_name', $filter['partner_name']);
+                })
                 ->when($filter && isset($filter['program_name']), function ($query) use ($filter) {
                     $query->whereIn('tbl_prog.prog_program', $filter['program_name']);
                 })

@@ -186,7 +186,7 @@ class StorePartnerProgramRequest extends FormRequest
             'total_fee' => 'required|numeric',
             'end_date' => 'required|date|after_or_equal:start_date',
             'start_date' => 'required|date|before_or_equal:end_date',
-            'success_date' => 'required|date',
+            'success_date' => 'required|date|before_or_equal:end_date',
             'is_corporate_scheme' => 'required|in:1,2',
 
         ];

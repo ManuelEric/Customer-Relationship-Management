@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Models\UniversityPic;
 
-class UniversityPicRepository implements UniversityPicRepositoryInterface 
+class UniversityPicRepository implements UniversityPicRepositoryInterface
 {
 
     public function getAllUniversityPicByUniversityId($universityId)
@@ -36,5 +36,13 @@ class UniversityPicRepository implements UniversityPicRepositoryInterface
     public function updateUniversityPic($picId, array $newDetails)
     {
         return UniversityPic::whereId($picId, $newDetails)->update($newDetails);
+    }
+
+    public function deleteAgendaSpeaker($universityId, $eventId)
+    {
+        $speakers = UniversityPic::where('univ_id', $universityId)->get();
+        foreach ($speakers as $speaker) {
+            $speaker->asSpeaker()->detach($eventId);
+        }
     }
 }
