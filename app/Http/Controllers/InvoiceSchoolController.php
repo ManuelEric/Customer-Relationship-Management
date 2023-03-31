@@ -133,6 +133,13 @@ class InvoiceSchoolController extends Controller
             ]
         );
 
+
+        $cursrate = [
+            'invdtl_cursrate' => $invoices['curs_rate'],
+            'invdtl_currency' => $invoices['currency'],
+        ];
+
+
         switch ($invoices['select_currency']) {
             case 'other':
                 $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other'];
@@ -140,6 +147,11 @@ class InvoiceSchoolController extends Controller
                 $invoices['invb2b_participants'] = $invoices['invb2b_participants_other'];
                 $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other'];
                 $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other'];
+
+                unset($installments['invdtl_installment']);
+                unset($installments['invdtl_duedate']);
+                unset($installments['invdtl_percentage']);
+                unset($installments['invdtl_amountidr']);
                 break;
 
             case 'idr':
@@ -148,7 +160,13 @@ class InvoiceSchoolController extends Controller
                 unset($invoices['invb2b_disc']);
                 unset($invoices['invb2b_totprice']);
                 unset($invoices['invb2b_words']);
-                // unset($invoices['currency']);
+
+                unset($cursrate['invdtl_cursrate']);
+                unset($installments['invdtl_installment_other']);
+                unset($installments['invdtl_duedate_other']);
+                unset($installments['invdtl_percentage_other']);
+                unset($installments['invdtl_amount']);
+                unset($installments['invdtl_amountidr_other']);
                 break;
         }
 
@@ -159,7 +177,6 @@ class InvoiceSchoolController extends Controller
         unset($invoices['invb2b_discidr_other']);
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
-
 
         $now = Carbon::now();
         $thisMonth = $now->month;
@@ -176,7 +193,7 @@ class InvoiceSchoolController extends Controller
         $invoices['schprog_id'] = $schProgId;
 
         if ($invoices['invb2b_pm'] == 'Installment') {
-            $installment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
+            $installment = $this->extract_installment($inv_id, $invoices['select_currency'], $cursrate, $installments);
         }
         unset($installments);
 
@@ -296,6 +313,11 @@ class InvoiceSchoolController extends Controller
             ]
         );
 
+        $cursrate = [
+            'invdtl_cursrate' => $invoices['curs_rate'],
+            'invdtl_currency' => $invoices['currency'],
+        ];
+
         switch ($invoices['select_currency']) {
             case 'other':
                 $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other'];
@@ -303,6 +325,11 @@ class InvoiceSchoolController extends Controller
                 $invoices['invb2b_participants'] = $invoices['invb2b_participants_other'];
                 $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other'];
                 $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other'];
+
+                unset($installments['invdtl_installment']);
+                unset($installments['invdtl_duedate']);
+                unset($installments['invdtl_percentage']);
+                unset($installments['invdtl_amountidr']);
                 break;
 
             case 'idr':
@@ -311,6 +338,12 @@ class InvoiceSchoolController extends Controller
                 unset($invoices['invb2b_totprice']);
                 unset($invoices['invb2b_words']);
                 unset($invoices['currency']);
+
+                unset($installments['invdtl_installment_other']);
+                unset($installments['invdtl_duedate_other']);
+                unset($installments['invdtl_percentage_other']);
+                unset($installments['invdtl_amount']);
+                unset($installments['invdtl_amountidr_other']);
                 break;
         }
 
@@ -325,12 +358,9 @@ class InvoiceSchoolController extends Controller
         $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $inv_id = $inv_b2b->invb2b_id;
         if ($invoices['invb2b_pm'] == 'Installment') {
-            $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
+            $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $cursrate, $installments);
         }
         unset($installments);
-
-        // return $installment;
-        // exit;
 
         DB::beginTransaction();
         try {
@@ -340,7 +370,11 @@ class InvoiceSchoolController extends Controller
                 $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
                 $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
             }
-            // exit;
+
+            if (count($inv_b2b->invoiceAttachment) > 0) {
+                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceB2bId($inv_id);
+            }
+            // Storage::disk('public')->delete()
             DB::commit();
         } catch (Exception $e) {
 
@@ -385,43 +419,6 @@ class InvoiceSchoolController extends Controller
         $invoice_id = $invoiceSch->invb2b_id;
 
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
-
-        $file_name = str_replace('/', '_', $invoice_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
-        $path = 'uploaded_file/invoice/sch_prog/';
-
-        $companyDetail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
-        ];
-
-        $attachmentDetails = [
-            'invb2b_id' => $invoice_id,
-            'currency' => $currency,
-            'attachment' => 'storage/' . $path . $file_name,
-        ];
-
-        if (!isset($invoiceAttachment) || !Storage::disk('public')->exists($path . $file_name)) {
-            $pdf = PDF::loadView('pages.invoice.school-program.export.invoice-pdf', [
-                'invoiceSch' => $invoiceSch,
-                'currency' => $currency,
-                'companyDetail' => $companyDetail
-            ]);
-
-            # Generate PDF file
-            $content = $pdf->download();
-            Storage::disk('public')->put($path . $file_name, $content);
-
-            try {
-
-                $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
-            } catch (Exception $e) {
-
-                Log::info('Failed to insert attachment : ' . $e->getMessage());
-                return $e->getMessage();
-            }
-        }
 
         return view('pages.invoice.view-pdf')->with([
             'invoiceAttachment' => $invoiceAttachment,
@@ -645,7 +642,30 @@ class InvoiceSchoolController extends Controller
         return true;
     }
 
-    protected function extract_installment($inv_id, $currency,  array $installments)
+    public function previewPdf(Request $request)
+    {
+        $invNum = $request->route('invoice');
+        $currency = $request->route('currency');
+
+        $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $pdf = PDF::loadView('pages.invoice.school-program.export.invoice-pdf', [
+            'invoiceSch' => $invoiceSch,
+            'currency' => $currency,
+            'companyDetail' => $companyDetail
+        ]);
+
+        return $pdf->stream();
+    }
+
+    protected function extract_installment($inv_id, $currency, array $cursrate,  array $installments)
     {
         if ($currency == 'other') {
             for ($i = 0; $i < count($installments['invdtl_installment_other']); $i++) {
@@ -655,6 +675,8 @@ class InvoiceSchoolController extends Controller
                     'invdtl_percentage' => $installments['invdtl_percentage_other'][$i],
                     'invdtl_amount' => $installments['invdtl_amount'][$i],
                     'invdtl_amountidr' => $installments['invdtl_amountidr_other'][$i],
+                    'invdtl_cursrate' => $cursrate['invdtl_cursrate'],
+                    'invdtl_currency' => $cursrate['invdtl_currency'],
                     'invb2b_id' => $inv_id,
                 ];
             }
@@ -665,6 +687,7 @@ class InvoiceSchoolController extends Controller
                     'invdtl_duedate' => $installments['invdtl_duedate'][$i],
                     'invdtl_percentage' => $installments['invdtl_percentage'][$i],
                     'invdtl_amountidr' => $installments['invdtl_amountidr'][$i],
+                    'invdtl_currency' => $currency,
                     'invb2b_id' => $inv_id,
                 ];
             }

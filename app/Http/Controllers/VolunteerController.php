@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreVolunteerRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\VolunteerRepositoryInterface;
+use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\Volunteer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,10 +19,12 @@ class VolunteerController extends Controller
     use CreateCustomPrimaryKeyTrait;
 
     private VolunteerRepositoryInterface $volunteerRepository;
+    private UniversityRepositoryInterface $universityRepository;
 
-    public function __construct(VolunteerRepositoryInterface $volunteerRepository)
+    public function __construct(VolunteerRepositoryInterface $volunteerRepository, UniversityRepositoryInterface $universityRepository)
     {
         $this->volunteerRepository = $volunteerRepository;
+        $this->universityRepository = $universityRepository;
     }
 
     public function index(Request $request)
@@ -71,7 +74,12 @@ class VolunteerController extends Controller
 
     public function create()
     {
-        return view('pages.user.volunteer.form');
+        $universities = $this->universityRepository->getAllUniversities();
+        return view('pages.user.volunteer.form')->with(
+            [
+                'universities' => $universities
+            ]
+        );
     }
 
     public function edit(Request $request)
@@ -80,12 +88,14 @@ class VolunteerController extends Controller
 
         # retrieve volunteer data by id
         $volunteer = $this->volunteerRepository->getVolunteerById($volunteerId);
+        $universities = $this->universityRepository->getAllUniversities();
 
         # put the link to update volunteer form below
         # example
         return view('pages.user.volunteer.form')->with(
             [
                 'volunteer' => $volunteer,
+                'universities' => $universities
             ]
         );
     }

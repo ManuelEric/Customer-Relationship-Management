@@ -75,6 +75,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'tbl_invb2b.invb2b_totprice',
                 )
                 ->where('tbl_sch_prog.status', 1)
+                ->orderBy('tbl_invb2b.created_at', 'DESC')
 
         )->make(true);
     }
@@ -140,6 +141,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'tbl_invb2b.invb2b_totprice',
                 )
                 ->where('tbl_partner_prog.status', 1)
+                ->orderBy('tbl_invb2b.created_at', 'DESC')
             // ->where('tbl_invb2b.invb2b_status', 1)
 
         )->make(true);
@@ -210,6 +212,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'tbl_invb2b.invb2b_totprice',
                 )
                 ->where('tbl_referral.referral_type', 'Out')
+                ->orderBy('tbl_invb2b.created_at', 'DESC')
 
         )->make(true);
     }

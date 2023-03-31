@@ -438,4 +438,23 @@ class ReceiptReferralController extends Controller
             'receiptAttachment' => $receiptAttachment,
         ]);
     }
+
+    public function previewPdf(Request $request)
+    {
+        $receipt_identifier = $request->route('receipt');
+        $currency = $request->route('currency');
+
+        $receiptRef = $this->receiptRepository->getReceiptById($receipt_identifier);
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf', ['receiptRef' => $receiptRef, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+
+        return $pdf->stream();
+    }
 }

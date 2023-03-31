@@ -41,6 +41,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                     'tbl_receipt.receipt_amount_idr as total_price_idr',
                 )
                 ->where('tbl_receipt.receipt_status', 1)
+                ->orderBy('tbl_receipt.created_at', 'DESC')
         )->make(true);
     }
 
@@ -71,6 +72,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                     'tbl_receipt.receipt_amount_idr as total_price_idr',
                 )
                 ->where('tbl_receipt.receipt_status', 1)
+                ->orderBy('tbl_receipt.created_at', 'DESC')
         )->make(true);
     }
 
@@ -95,6 +97,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 )
                 ->where('tbl_receipt.receipt_status', 1)
                 ->where('tbl_referral.referral_type', 'Out')
+                ->orderBy('tbl_receipt.created_at', 'DESC')
         )->make(true);
     }
 

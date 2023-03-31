@@ -242,7 +242,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">New School</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_newsch">
                             <thead>
@@ -279,7 +279,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">New Partner</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_newpartner">
                             <thead>
@@ -316,7 +316,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">New University</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_newuniv">
                             <thead>

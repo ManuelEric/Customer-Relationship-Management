@@ -133,6 +133,11 @@ class InvoicePartnerController extends Controller
             ]
         );
 
+        $cursrate = [
+            'invdtl_cursrate' => $invoices['curs_rate'],
+            'invdtl_currency' => $invoices['currency'],
+        ];
+
         switch ($invoices['select_currency']) {
             case 'other':
                 $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other'];
@@ -140,6 +145,11 @@ class InvoicePartnerController extends Controller
                 $invoices['invb2b_participants'] = $invoices['invb2b_participants_other'];
                 $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other'];
                 $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other'];
+
+                unset($installments['invdtl_installment']);
+                unset($installments['invdtl_duedate']);
+                unset($installments['invdtl_percentage']);
+                unset($installments['invdtl_amountidr']);
                 break;
 
             case 'idr':
@@ -149,6 +159,13 @@ class InvoicePartnerController extends Controller
                 unset($invoices['invb2b_totprice']);
                 unset($invoices['invb2b_words']);
                 // unset($invoices['currency']);
+
+                unset($cursrate['invdtl_cursrate']);
+                unset($installments['invdtl_installment_other']);
+                unset($installments['invdtl_duedate_other']);
+                unset($installments['invdtl_percentage_other']);
+                unset($installments['invdtl_amount']);
+                unset($installments['invdtl_amountidr_other']);
                 break;
         }
 
@@ -176,7 +193,7 @@ class InvoicePartnerController extends Controller
         $invoices['partnerprog_id'] = $partnerProgId;
 
         if ($invoices['invb2b_pm'] == 'Installment') {
-            $installment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
+            $installment = $this->extract_installment($inv_id, $invoices['select_currency'], $cursrate, $installments);
         }
         unset($installments);
 
@@ -294,6 +311,11 @@ class InvoicePartnerController extends Controller
             ]
         );
 
+        $cursrate = [
+            'invdtl_cursrate' => $invoices['curs_rate'],
+            'invdtl_currency' => $invoices['currency'],
+        ];
+
         switch ($invoices['select_currency']) {
             case 'other':
                 $invoices['invb2b_priceidr'] = $invoices['invb2b_priceidr_other'];
@@ -301,6 +323,11 @@ class InvoicePartnerController extends Controller
                 $invoices['invb2b_participants'] = $invoices['invb2b_participants_other'];
                 $invoices['invb2b_totpriceidr'] = $invoices['invb2b_totpriceidr_other'];
                 $invoices['invb2b_wordsidr'] = $invoices['invb2b_wordsidr_other'];
+
+                unset($installments['invdtl_installment']);
+                unset($installments['invdtl_duedate']);
+                unset($installments['invdtl_percentage']);
+                unset($installments['invdtl_amountidr']);
                 break;
 
             case 'idr':
@@ -309,6 +336,13 @@ class InvoicePartnerController extends Controller
                 unset($invoices['invb2b_totprice']);
                 unset($invoices['invb2b_words']);
                 unset($invoices['currency']);
+
+
+                unset($installments['invdtl_installment_other']);
+                unset($installments['invdtl_duedate_other']);
+                unset($installments['invdtl_percentage_other']);
+                unset($installments['invdtl_amount']);
+                unset($installments['invdtl_amountidr_other']);
                 break;
         }
 
@@ -323,7 +357,7 @@ class InvoicePartnerController extends Controller
         $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $inv_id = $inv_b2b->invb2b_id;
         if ($invoices['invb2b_pm'] == 'Installment') {
-            $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $installments);
+            $NewInstallment = $this->extract_installment($inv_id, $invoices['select_currency'], $cursrate, $installments);
         }
         unset($installments);
 
@@ -337,6 +371,10 @@ class InvoicePartnerController extends Controller
             if ($invoices['invb2b_pm'] == 'Installment') {
                 $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
                 $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
+            }
+
+            if (count($inv_b2b->invoiceAttachment) > 0) {
+                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceB2bId($inv_id);
             }
             // exit;
             DB::commit();
@@ -602,8 +640,30 @@ class InvoicePartnerController extends Controller
         return true;
     }
 
+    public function previewPdf(Request $request)
+    {
+        $invNum = $request->route('invoice');
+        $currency = $request->route('currency');
 
-    protected function extract_installment($inv_id, $currency,  array $installments)
+        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $pdf = PDF::loadView('pages.invoice.corporate-program.export.invoice-pdf', [
+            'invoicePartner' => $invoicePartner,
+            'currency' => $currency,
+            'companyDetail' => $companyDetail
+        ]);
+
+        return $pdf->stream();
+    }
+
+    protected function extract_installment($inv_id, $currency, array $cursrate, array $installments)
     {
         if ($currency == 'other') {
             for ($i = 0; $i < count($installments['invdtl_installment_other']); $i++) {
@@ -613,6 +673,8 @@ class InvoicePartnerController extends Controller
                     'invdtl_percentage' => $installments['invdtl_percentage_other'][$i],
                     'invdtl_amount' => $installments['invdtl_amount'][$i],
                     'invdtl_amountidr' => $installments['invdtl_amountidr_other'][$i],
+                    'invdtl_cursrate' => $cursrate['invdtl_cursrate'],
+                    'invdtl_currency' => $cursrate['invdtl_currency'],
                     'invb2b_id' => $inv_id,
                 ];
             }
@@ -623,6 +685,7 @@ class InvoicePartnerController extends Controller
                     'invdtl_duedate' => $installments['invdtl_duedate'][$i],
                     'invdtl_percentage' => $installments['invdtl_percentage'][$i],
                     'invdtl_amountidr' => $installments['invdtl_amountidr'][$i],
+                    'invdtl_currency' => $currency,
                     'invb2b_id' => $inv_id,
                 ];
             }
