@@ -476,7 +476,7 @@ class ImportClientProg extends Command
                     'inv_tnc' => $crm_clientprog_invoice->inv_tnc == "" ? NULL : $crm_clientprog_invoice->inv_tnc,
                     'inv_status' => $crm_clientprog_invoice->inv_status,
                     'curs_rate' => $curs_rate, # take the value from stprog
-                    'currency' => $crm_clientprog_invoice->inv_category,
+                    'currency' => $crm_clientprog_invoice->inv_category == "session" ? $this->checkCurrencyBasedOnPrice($crm_clientprog_invoice->inv_totprusd) : $crm_clientprog_invoice->inv_category,
                     'created_at' => $crm_clientprog_invoice->inv_date,
                     'updated_at' => $crm_clientprog_invoice->inv_date
                 ];
@@ -617,5 +617,15 @@ class ImportClientProg extends Command
                 }
             }
         }
+    }
+
+    private function checkCurrencyBasedOnPrice($totprice_other)
+    {
+        if ($totprice_other == NULL)
+            $currency = "usd";
+        else
+            $currency = "idr";
+
+        return $currency;
     }
 }

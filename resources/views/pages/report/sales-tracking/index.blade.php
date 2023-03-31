@@ -288,7 +288,7 @@
                 <div class="card-header">
                     <h6 class="p-0 m-0">Conversion Lead</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body overflow-auto" style="height: 50vh;">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="text-center">

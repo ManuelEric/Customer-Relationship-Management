@@ -80,7 +80,7 @@ class EdufLeadController extends Controller
         DB::beginTransaction();
         try {
 
-            $ext_pic_phone = $request->only('ext_pic_phone');
+            $ext_pic_phone = $request->ext_pic_phone;
 
             switch (substr($ext_pic_phone, 0, 1)) {
 

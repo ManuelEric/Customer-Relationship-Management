@@ -60,7 +60,7 @@ class ReceiptController extends Controller
         $paymethod = $request->paymethod;
 
         $receiptDetails = $request->only([
-            'currency',
+            'rec_currency',
             'receipt_amount',
             'receipt_amount_idr',
             'receipt_date',

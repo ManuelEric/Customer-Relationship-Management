@@ -3,9 +3,11 @@
         <div class="">
             Installment
         </div>
+        @if ($status != "view")
         <button class="btn btn-sm btn-outline-primary" type="button" onclick="addInstallmentOther()">
             <i class="bi bi-plus"></i>
         </button>
+        @endif
     </div>
     <div class="card-body " id="installment_content_other">
         @if (old('invdtl_installment__other') || (isset($invoice) &&  $invoice->invoiceDetail()->count() > 0))

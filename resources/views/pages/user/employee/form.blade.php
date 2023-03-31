@@ -10,9 +10,6 @@
         </a>
     </div>
 
-    @if($errors->any())
-        {{ implode('', $errors->all('<div>:message</div>')) }}
-    @endif  
     <div class="row">
         <div class="col-md-3 mb-3">
             <div class="card rounded mb-3">
@@ -189,38 +186,44 @@
 
         function changeStatus(status)
         {
-            var message = "Are you sure want to " + status + " this user?"
-            if (confirm(message)) {
-                Swal.showLoading()
-                
-                axios.post('{{ route('user.update.status', ['user_role' => Request::route('user_role'), 'user' => $user->id]) }}', {
-                        _token: '{{ csrf_token() }}',
-                        params: {
-                            new_status: status
-                        },
-                    })
-                    .then((response) => {
+            // show modal 
+            var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
+            myModal.show()
 
-                        Swal.close()
-                        notification('success', response.data.message)
-                        switch(status) {
-                            case "activate":
-                                $("#activate-user").addClass('d-none')
-                                $("#deactivate-user").removeClass('d-none')
-                                break;
+            $("#deactivate-user--app-3103").attr('onclick', 'deactivateUser(\''+status+'\')')
+            
+        }
 
-                            case "deactivate":
-                                $("#activate-user").removeClass('d-none')
-                                $("#deactivate-user").addClass('d-none')
-                                break;
-                        }
+        function deactivateUser(subject, status) {
+            showLoading()
+            
+            axios.post('{{ route('user.update.status', ['user_role' => Request::route('user_role'), 'user' => $user->id]) }}', {
+                    _token: '{{ csrf_token() }}',
+                    params: {
+                        new_status: status
+                    },
+                })
+                .then((response) => {
 
-                    }, (error) => {
-                        Swal.close()
-                        notification('error', response.data.message)
-                    });
+                    Swal.close()
+                    $("#deactiveUser").modal('hide')
+                    notification('success', response.data.message)
+                    switch(status) {
+                        case "activate":
+                            $("#activate-user").addClass('d-none')
+                            $("#deactivate-user").removeClass('d-none')
+                            break;
 
-            }
+                        case "deactivate":
+                            $("#activate-user").removeClass('d-none')
+                            $("#deactivate-user").addClass('d-none')
+                            break;
+                    }
+
+                }, (error) => {
+                    Swal.close()
+                    notification('error', response.data.message)
+                });
         }
         @endif
 

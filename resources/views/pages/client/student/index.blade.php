@@ -73,7 +73,7 @@
                         <th>Interest Major</th>
                         <th>Last Update</th>
                         <th>Status</th>
-                        <th class="bg-info text-white">Score</th>
+                        {{-- <th class="bg-info text-white">Score</th> --}}
                         <th class="bg-info text-white"># Action</th>
                     </tr>
                 </thead>
@@ -91,7 +91,7 @@
         $(document).ready(function() {
             var table = $('#clientTable').DataTable({
                 order: [
-                    [20, 'desc'],
+                    // [20, 'desc'],
                     [1, 'asc']
                 ],
                 dom: 'Bfrtip',
@@ -108,7 +108,7 @@
                 scrollX: true,
                 fixedColumns: {
                     left: 2,
-                    right: 2
+                    right: 1
                 },
                 processing: true,
                 serverSide: true,
@@ -202,30 +202,30 @@
                             return data == 1 ? "Active" : "Non-active";
                         }
                     },
-                    {
-                        data: 'total_score',
-                        className: 'text-primary text-center',
-                    },
+                    // {
+                    //     data: 'total_score',
+                    //     className: 'text-primary text-center',
+                    // },
                     {
                         data: '',
                         className: 'text-center',
                         defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
                     }
                 ],
-                createdRow: function(row, data, index) {
-                    // temporary condition
-                    // while change soon
-                    if (data['total_score'] < 2) {
-                        $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Cold)');
-                    } else if ((data['total_score'] >= 2) && (data['total_score'] < 4)) {
-                        $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Warm)');
-                    } else {
-                        $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
-                        $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Hot)');
-                    }
-                }
+                // createdRow: function(row, data, index) {
+                //     // temporary condition
+                //     // while change soon
+                //     if (data['total_score'] < 2) {
+                //         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
+                //         $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Cold)');
+                //     } else if ((data['total_score'] >= 2) && (data['total_score'] < 4)) {
+                //         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
+                //         $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Warm)');
+                //     } else {
+                //         $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
+                //         $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Hot)');
+                //     }
+                // }
             });
 
             $('#clientTable tbody').on('click', '.editClient ', function() {

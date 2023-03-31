@@ -47,6 +47,7 @@
                                 {{ $client_prog->client->city }}
                             </div>
                         </div>
+                        @if ($client_prog->client->school)
                         <div class="row mb-2 g-1">
                             <div class="col-md-4 d-flex justify-content-between">
                                 <label>
@@ -58,6 +59,7 @@
                                 {{ $client_prog->client->school->sch_name }}
                             </div>
                         </div>
+                        @endif
                         <div class="row mb-2 g-1">
                             <div class="col-md-4 d-flex justify-content-between">
                                 <label>
