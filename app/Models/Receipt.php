@@ -40,7 +40,7 @@ class Receipt extends Model
 
     public function getCurrencyUnit()
     {
-        switch ($this->currency) {
+        switch ($this->invoiceB2b->currency) {
 
             case "usd":
             default:

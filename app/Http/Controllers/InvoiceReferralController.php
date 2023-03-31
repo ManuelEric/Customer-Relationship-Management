@@ -244,11 +244,18 @@ class InvoiceReferralController extends Controller
         unset($invoices['invb2b_wordsidr_other']);
 
         $invoices['ref_id'] = $ref_id;
+        $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+        $inv_id = $inv_b2b->invb2b_id;
 
         DB::beginTransaction();
         try {
 
             $this->invoiceB2bRepository->updateInvoiceB2b($invNum, $invoices);
+
+            if (count($inv_b2b->invoiceAttachment) > 0) {
+                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceB2bId($inv_id);
+            }
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -506,5 +513,28 @@ class InvoiceReferralController extends Controller
         }
 
         return true;
+    }
+
+    public function previewPdf(Request $request)
+    {
+        $invNum = $request->route('invoice');
+        $currency = $request->route('currency');
+
+        $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $pdf = PDF::loadView('pages.invoice.referral.export.invoice-pdf', [
+            'invoiceRef' => $invoiceRef,
+            'currency' => $currency,
+            'companyDetail' => $companyDetail
+        ]);
+
+        return $pdf->stream();
     }
 }

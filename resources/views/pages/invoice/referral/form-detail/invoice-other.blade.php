@@ -38,7 +38,7 @@
                     readonly {{ empty($invoiceRef) || $status == 'edit' ? '' : 'disabled' }}>
                 @error('invb2b_words')
                     <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror>
+                @enderror
                 <input type="text" name="invb2b_wordsidr_other" id="invoice_other_word_idr"
                     class="form-control form-control-sm rounded" 
                     value="{{ (isset($invoiceRef)) ? $invoiceRef->invb2b_wordsidr : old('invb2b_wordsidr_other') }}"

@@ -10,4 +10,5 @@ interface InvoiceAttachmentRepositoryInterface
     public function createInvoiceAttachment(array $invoiceAttachments);
     public function updateInvoiceAttachment($invAttachment_id, array $newDetails);
     public function deleteInvoiceAttachment($invAttachment_id);
+    public function deleteInvoiceAttachmentByInvoiceB2bId($invb2b_id);
 }

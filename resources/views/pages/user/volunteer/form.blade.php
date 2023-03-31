@@ -17,14 +17,16 @@
                     <img src="{{ asset('img/mentee.jpg') }}" class="w-100">
                     <h4 class="text-center">Add Volunteer</h4>
 
-                    <div class="text-center mt-2">
-                        <button class="btn btn-sm btn-success">
-                            <i class="bi bi-check"></i>
-                            Activate</button>
-                        <button class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-x"></i>
-                            Deactivate</button>
-                    </div>
+                    @if(isset($volunteer))
+                        <div class="text-center mt-2">
+                            <button class="btn btn-sm btn-success">
+                                <i class="bi bi-check"></i>
+                                Activate</button>
+                            <button class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-x"></i>
+                                Deactivate</button>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -34,7 +36,7 @@
                     <h5 class="p-0 m-0">Volunteer Detail</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ isset($volunteer) ? '/volunteer/' . $volunteer->volunt_id : '/volunteer' }}"
+                    <form action="{{ url(isset($volunteer) ? 'user/volunteer/' . $volunteer->volunt_id : 'user/volunteer') }}"
                         method="POST">
                         @csrf
                         @if (isset($volunteer))
@@ -47,6 +49,9 @@
                                 </label>
                                 <input type="text" name="volunt_firstname" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_firstname) ? $volunteer->volunt_firstname : old('volunt_firstname') }}">
+                                @error('volunt_firstname')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="">
@@ -54,6 +59,9 @@
                                 </label>
                                 <input type="text" name="volunt_lastname" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_lastname) ? $volunteer->volunt_lastname : old('volunt_lastname') }}">
+                                @error('volunt_lastname')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="">
@@ -61,13 +69,19 @@
                                 </label>
                                 <input type="email" name="volunt_mail" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_mail) ? $volunteer->volunt_mail : old('volunt_mail') }}">
+                                @error('email')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="">
                                     Phone Number
                                 </label>
-                                <input type="email" name="volunt_phone" class="form-control form-control-sm rounded"
+                                <input type="number" name="volunt_phone" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_phone) ? $volunteer->volunt_phone : old('volunt_phone') }}">
+                                @error('volunt_phone')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label for="">
@@ -75,6 +89,9 @@
                                 </label>
                                 <textarea name="volunt_address" cols="30" rows="10">{{ isset($volunteer->volunt_address) ? $volunteer->volunt_address : old('volunt_address') }}
                                 </textarea>
+                                @error('volunt_address')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="">
@@ -82,7 +99,15 @@
                                 </label>
                                 <select name="volunt_graduatedfr" id="" class="select w-100">
                                     <option data-placeholder="true"></option>
+                                    @foreach ($universities as $university)
+                                        <option value="{{ $university->univ_id }}">
+                                            {{ $university->univ_name }}
+                                        </option>
+                                    @endforeach
                                 </select>
+                                @error('volunt_graduatedfr')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <div class="col-md-4 mb-3">
@@ -91,6 +116,9 @@
                                 </label>
                                 <input type="text" name="volunt_major" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_major) ? $volunteer->volunt_major : old('volunt_major') }}">
+                                @error('volunt_major')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <div class="col-md-4 mb-3">
@@ -99,6 +127,9 @@
                                 </label>
                                 <input type="text" name="volunt_position" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_position) ? $volunteer->volunt_position : old('volunt_position') }}">
+                                @error('volunt_position')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <div class="col-md-12 mb-3">

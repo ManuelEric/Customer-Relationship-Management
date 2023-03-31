@@ -49,6 +49,12 @@
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                         <div class="border p-1 text-center">
                             <div class="d-flex gap-1 justify-content-center">
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="Preview Invoice">
+                                        <a href="{{ route('receipt.referral.preview_pdf', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}" class="text-info" target="blank">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
+                                </div>
                                 @php
                                     $receiptAttachment = $receiptRef->receiptAttachment()->where('currency', 'idr')->first();
                                     $receiptAttachmentRequested = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('request_status', 'requested')->first();
@@ -100,6 +106,12 @@
                             <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                             <div class="border p-1 text-center">
                                 <div class="d-flex gap-1 justify-content-center">
+                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Preview Invoice">
+                                            <a href="{{ route('receipt.referral.preview_pdf', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}" class="text-info" target="blank">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </a>
+                                    </div>
                                     @php
                                         $receiptAttachmentOther = $receiptRef->receiptAttachment()->where('currency', 'other')->first();
                                         $receiptAttachmentRequestedOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('request_status', 'requested')->first();
@@ -334,6 +346,7 @@
 
             $("#send-inv-client-idr").on('click', function(e) {
                 e.preventDefault()
+                confirm("Are yo sure send to client?");
                 Swal.showLoading()
                 axios
                     .get('{{ route('receipt.referral.send_to_client', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}')
@@ -350,6 +363,7 @@
 
             $("#send-inv-client-other").on('click', function(e) {
                 e.preventDefault()
+                confirm("Are yo sure send to client?");
                 Swal.showLoading()
                 axios
                     .get('{{ route('receipt.referral.send_to_client', ['receipt' => $receiptRef->id, 'currency' => 'other']) }}')

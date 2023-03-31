@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Sales Tracking - Bigdata Platform')
+@section('title', 'Event Tracking - Bigdata Platform')
 
 @section('content')
     <div class="row">
@@ -81,7 +81,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="card-body overflow-auto" style="height: 500px">
+                <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover nowrap align-middle w-100 table2excel" id="tbl_event">
                             <thead>
