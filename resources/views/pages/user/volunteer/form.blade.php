@@ -19,12 +19,13 @@
 
                     @if(isset($volunteer))
                         <div class="text-center mt-2">
-                            <button class="btn btn-sm btn-success">
-                                <i class="bi bi-check"></i>
-                                Activate</button>
-                            <button class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-x"></i>
-                                Deactivate</button>
+                                <a class="btn btn-sm btn-success {{$volunteer->volunt_status == 1 ? 'disabled' : ''}}" id="update-status-active">
+                                    <i class="bi bi-check"></i>
+                                    Activate</a>
+                            
+                                <a class="btn btn-sm btn-outline-danger {{$volunteer->volunt_status == 0 ? 'disabled' : ''}}" id="update-status-deactive">
+                                    <i class="bi bi-x"></i>
+                                    Deactivate</a>
                         </div>
                     @endif
                 </div>
@@ -36,8 +37,17 @@
                     <h5 class="p-0 m-0">Volunteer Detail</h5>
                 </div>
                 <div class="card-body">
+                    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
                     <form action="{{ url(isset($volunteer) ? 'user/volunteer/' . $volunteer->volunt_id : 'user/volunteer') }}"
-                        method="POST">
+                        method="POST" enctype="multipart/form-data">
                         @csrf
                         @if (isset($volunteer))
                             @method('put')
@@ -97,14 +107,21 @@
                                 <label for="">
                                     Graduated From
                                 </label>
-                                <select name="volunt_graduatedfr" id="" class="select w-100">
+                                <input type="text" name="volunt_graduatedfr" class="form-control form-control-sm rounded"
+                                    value="{{ isset($volunteer->volunt_graduatedfr) ? $volunteer->volunt_graduatedfr : old('volunt_graduatedfr') }}">
+
+                                {{-- <select name="volunt_graduatedfr" id="" class="select w-100">
                                     <option data-placeholder="true"></option>
                                     @foreach ($universities as $university)
-                                        <option value="{{ $university->univ_id }}">
+                                        <option value="{{ $university->univ_id }}"
+                                            @if((isset($volunteer) && $volunteer->volunt_graduatedfr == $university->univ_id) || (!empty(old('volunt_graduatedfr')) && old('volunt_graduatedfr') == $university->univ_id))
+                                                {{'selected'}}
+                                            @endif
+                                            >
                                             {{ $university->univ_name }}
                                         </option>
                                     @endforeach
-                                </select>
+                                </select> --}}
                                 @error('volunt_graduatedfr')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -150,4 +167,48 @@
         </div>
     </div>
 
+    {{-- href="{{route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id, 'status' => 1])}}" --}}
+    <script>
+        @if (isset($volunteer))
+            $("#update-status-active").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+                axios
+                    .get(
+                        '{{ route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id, 'status' => 1]) }}'
+                    )
+                    .then(response => {
+                        swal.close()
+                        console.log(response)
+                        notification('success', response.data.message)
+                        setTimeout(location.reload.bind(location), 3000);
+                    })
+                    .catch(error => {
+                        notification('error',
+                            response.data.message);
+                        swal.close()
+                    })
+            })
+
+             $("#update-status-deactive").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+                axios
+                    .get(
+                        '{{ route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id, 'status' => 0]) }}'
+                    )
+                    .then(response => {
+                        swal.close()
+                        // console.log(response)
+                        notification('success', response.data.message)
+                        setTimeout(location.reload.bind(location), 3000);
+                    })
+                    .catch(error => {
+                        notification('error',
+                            response.data.message);
+                        swal.close()
+                    })
+            })
+        @endif
+    </script>
 @endsection

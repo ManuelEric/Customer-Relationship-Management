@@ -28,10 +28,19 @@ class StoreVolunteerRequest extends FormRequest
             'volunt_lastname' => 'nullable',
             'volunt_mail' => 'required|email',
             'volunt_address' => 'nullable',
-            'volunt_phone' => 'required',
+            'volunt_phone' => 'required|min:10|max:15',
             'volunt_graduatedfr' => 'nullable',
             'volunt_major' => 'nullable',
             'volunt_position' => 'nullable',
+            // 'volunt_cv' => 'required|mimes:jpeg,bmp,png,gif,svg,pdf',
+            'volunt_bank_accname' => 'required',
+            'volunt_bank_accnumber' => 'required',
+            'volunt_nik' => 'required|integer',
+            // 'volunt_idcard' => 'required|mimes:jpeg,bmp,png,gif,svg,pdf',
+            'volunt_npwp_number' => 'nullable|integer',
+            'volunt_npwp' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
+            'volunt_bpjs_kesehatan' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
+            'volunt_bpjs_ketenagakerjaan' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
         ];
     }
 }

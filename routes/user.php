@@ -30,10 +30,13 @@ Route::resource('{user_role}', UserController::class, [
 ])->parameters([
     '{user_role}' => 'user'
 ]);
-Route::prefix('{user_role}/{user}')->name('user.')->group(function() {
+Route::prefix('{user_role}/{user}')->name('user.')->group(function () {
     Route::get('download/{filetype}', [UserController::class, 'download'])->name('file.download');
     Route::post('update/status', [UserController::class, 'changeStatus'])->name('update.status');
     Route::delete('{user_type}', [UserController::class, 'destroyUserType'])->name('type.destroy');
 });
 
 Route::resource('volunteer', VolunteerController::class);
+Route::prefix('volunteer')->name('volunteer.')->group(function () {
+    Route::get('{volunteer}/status/{status}', [VolunteerController::class, 'updateStatus'])->name('update.status');
+});
