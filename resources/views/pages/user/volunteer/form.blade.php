@@ -37,15 +37,6 @@
                     <h5 class="p-0 m-0">Volunteer Detail</h5>
                 </div>
                 <div class="card-body">
-                    @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
                     <form action="{{ url(isset($volunteer) ? 'user/volunteer/' . $volunteer->volunt_id : 'user/volunteer') }}"
                         method="POST" enctype="multipart/form-data">
                         @csrf
@@ -55,7 +46,7 @@
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label for="">
-                                    First Name
+                                    First Name <sup class="text-danger">*</sup>
                                 </label>
                                 <input type="text" name="volunt_firstname" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_firstname) ? $volunteer->volunt_firstname : old('volunt_firstname') }}">
@@ -75,7 +66,7 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="">
-                                    Email
+                                    Email <sup class="text-danger">*</sup>
                                 </label>
                                 <input type="email" name="volunt_mail" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_mail) ? $volunteer->volunt_mail : old('volunt_mail') }}">
@@ -85,9 +76,9 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="">
-                                    Phone Number
+                                    Phone Number <sup class="text-danger">*</sup>
                                 </label>
-                                <input type="number" name="volunt_phone" class="form-control form-control-sm rounded"
+                                <input type="text" name="volunt_phone" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_phone) ? $volunteer->volunt_phone : old('volunt_phone') }}">
                                 @error('volunt_phone')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -167,7 +158,6 @@
         </div>
     </div>
 
-    {{-- href="{{route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id, 'status' => 1])}}" --}}
     <script>
         @if (isset($volunteer))
             $("#update-status-active").on('click', function(e) {
@@ -179,7 +169,6 @@
                     )
                     .then(response => {
                         swal.close()
-                        console.log(response)
                         notification('success', response.data.message)
                         setTimeout(location.reload.bind(location), 3000);
                     })
@@ -199,7 +188,6 @@
                     )
                     .then(response => {
                         swal.close()
-                        // console.log(response)
                         notification('success', response.data.message)
                         setTimeout(location.reload.bind(location), 3000);
                     })

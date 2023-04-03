@@ -17,11 +17,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 
 
 class VolunteerController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
 
     private VolunteerRepositoryInterface $volunteerRepository;
     private UniversityRepositoryInterface $universityRepository;
@@ -66,6 +68,8 @@ class VolunteerController extends Controller
             'volunt_bpjs_kesehatan',
             'volunt_bpjs_ketenagakerjaan',
         ]);
+
+        $volunteerDetails['volunt_phone'] = $this->setPhoneNumber($request->volunt_phone);
 
         $last_id = Volunteer::max('volunt_id');
         $volunteer_id_without_label = $this->remove_primarykey_label($last_id, 4);
@@ -149,6 +153,8 @@ class VolunteerController extends Controller
             'volunt_bpjs_kesehatan',
             'volunt_bpjs_ketenagakerjaan',
         ]);
+
+        $volunteerDetails['volunt_phone'] = $this->setPhoneNumber($request->volunt_phone);
 
         # retrieve vendor id from url
         $volunteerId = $request->route('volunteer');
