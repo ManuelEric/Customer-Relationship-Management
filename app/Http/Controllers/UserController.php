@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\PositionRepositoryInterface;
@@ -27,6 +28,8 @@ use Illuminate\Support\Facades\Storage;
 class UserController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
+
     private UserRepositoryInterface $userRepository;
     private UniversityRepositoryInterface $universityRepository;
     private MajorRepositoryInterface $majorRepository;
@@ -69,8 +72,10 @@ class UserController extends Controller
             'bankacc',
             'npwp',
         ]);
-
-
+        unset($userDetails['phone']);
+        unset($userDetails['emergency_contact']);
+        $userDetails['phone'] = $this->setPhoneNumber($request->phone);
+        $userDetails['emergency_contact'] = $this->setPhoneNumber($request->emergency_contact);
 
         # generate default password which is 12345678
         $userDetails['password'] = Hash::make('12345678'); # update
@@ -249,6 +254,10 @@ class UserController extends Controller
             'bankacc',
             'npwp',
         ]);
+        unset($newDetails['phone']);
+        unset($newDetails['emergency_contact']);
+        $newDetails['phone'] = $this->setPhoneNumber($request->phone);
+        $newDetails['emergency_contact'] = $this->setPhoneNumber($request->emergency_contact);
 
         $newDetails['position_id'] = $request->position;
 
@@ -299,11 +308,14 @@ class UserController extends Controller
                     'feesession' => isset($request->feesession) ? $request->feesession : null,
                 ];
             }
-            $user->roles()->sync($roleDetails);
+            $user->roles()->syncWithoutDetaching($roleDetails);
 
             # validate
             # in order to avoid double data
-            if ($user->user_type()->wherePivot('user_type_id', 2)->wherePivot('department_id', 3)->wherePivot('start_date', '2022-12-01')->wherePivot('end_date', '2023-01-01')->count() == 0) {
+            $newUserType = $request->type;
+            $newDepartment = $request->department;
+            if ($user->user_type()->wherePivot('user_type_id', $newUserType)->wherePivot('department_id', $newDepartment)->wherePivot('status', 1)->wherePivot('deactivated_at', NULL)->count() == 0) {
+            // if ($user->user_type()->wherePivot('user_type_id', 2)->wherePivot('department_id', 3)->wherePivot('start_date', '2022-12-01')->wherePivot('end_date', '2023-01-01')->count() == 0) {
 
                 # deactivate the latest active type
                 $activeType = $user->user_type()->where('tbl_user_type_detail.status', 1)->whereNull('deactivated_at')->pluck('tbl_user_type_detail.user_type_id')->toArray();
@@ -436,6 +448,27 @@ class UserController extends Controller
         }
 
         return response($file)->header('Content-Type', 'application/pdf');
+    }
+
+    public function destroy(Request $request)
+    {
+        $userId = $request->user;
+        $newStatus = 0; # inactive
+        DB::beginTransaction();
+        try {
+
+            $this->userRepository->updateStatusUser($userId, $newStatus);
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Deactive user failed : ' . $e->getMessage());
+            return Redirect::back()->withError('Failed to deactive user');
+
+        }
+
+        return Redirect::back()->withSuccess('User successfully deactivated');
     }
 
     public function destroyUserType(Request $request)

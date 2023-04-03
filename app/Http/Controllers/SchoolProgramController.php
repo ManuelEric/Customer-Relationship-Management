@@ -177,7 +177,7 @@ class SchoolProgramController extends Controller
         $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.program.school-program.form')->with(
             [
@@ -289,7 +289,7 @@ class SchoolProgramController extends Controller
         $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         # retrieve corporate / partner
         $partners = $this->corporateRepository->getAllCorporate();

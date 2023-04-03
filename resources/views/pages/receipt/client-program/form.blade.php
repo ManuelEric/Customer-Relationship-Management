@@ -45,7 +45,7 @@
                     <div class="border p-1 text-center">
                         <div class="d-flex gap-1 justify-content-center">
                             <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Delete"
-                                onclick="confirmDelete('receipt/client-program/', '{{ $receipt->id }}')">
+                                onclick="confirmDelete('receipt/client-program', '{{ $receipt->id }}')">
                                 <a href="#" class="text-danger">
                                     <i class="bi bi-trash2"></i>
                                 </a>
@@ -55,12 +55,13 @@
                 </div>
 
                 {{-- IDR  --}}
+                @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'idr')->first())
                 <div class="d-flex align-items-stretch">
                     <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                     <div class="border p-1 text-center">
                         <div class="d-flex gap-1 justify-content-center">
                             @if (!$receipt->receiptAttachment()->where('currency', 'idr')->first())
-                                @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'idr')->first())
+                                
                                     <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Download">
                                         <a href="#" class="text-info">
@@ -74,7 +75,6 @@
                                             <i class="bi bi-upload"></i>
                                         </a>
                                     </div>
-                                @endif
                             @elseif ($receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first())
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Request Sign" id="request-acc">
@@ -99,6 +99,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
                 {{-- Other  --}}
                 @if ($receipt->invoiceProgram->currency != 'idr' && $receipt->invoiceProgram->invoiceAttachment->where('currency', 'other')->first())

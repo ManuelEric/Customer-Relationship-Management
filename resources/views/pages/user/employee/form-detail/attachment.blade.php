@@ -101,7 +101,7 @@
             </div>
             <div class="col-9 d-flex">
                 <div class="w-50 me-2">
-                    <small>NPWP Number <sup class="text-danger">*</sup></small>
+                    <small>NPWP Number</small>
                     <input type="text" name="npwp" id="" class="form-control form-control-sm rounded" value="{{ isset($user->npwp) ? $user->npwp : old('npwp') }}">
                     @error('npwp')
                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -109,13 +109,13 @@
                 </div>
                 <div class="w-50">
                     @if (!isset($user->tax))
-                        <small>Image <sup class="text-danger">*</sup></small>
+                        <small>Image </small>
                         <input type="file" name="tax" id="" class="form-control form-control-sm rounded" value="{{ old('tax') }}">
                         @error('tax')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     @else
-                        <small>Image <sup class="text-danger">*</sup></small>
+                        <small>Image </small>
                         <div class="tax-container">
                             <button type="button" class="btn btn-sm btn-info download">
                                 <i class="bi bi-download"></i>
@@ -138,7 +138,7 @@
         </div>
         <div class="row align-items-center border py-2 mx-1 mb-1">
             <div class="col-3">
-                <label for="">BPJS Kesehatan <sup class="text-danger">*</sup></label>
+                <label for="">BPJS Kesehatan </label>
             </div>
             <div class="col-9">
                 @if (!isset($user->health_insurance))
@@ -168,7 +168,7 @@
         </div>
         <div class="row align-items-center border py-2 mx-1 mb-1">
             <div class="col-3">
-                <label for="">BPJS Ketenagakerjaan <sup class="text-danger">*</sup></label>
+                <label for="">BPJS Ketenagakerjaan </label>
             </div>
             <div class="col-9">
                 @if (!isset($user->empl_insurance))

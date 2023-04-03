@@ -461,4 +461,26 @@ class ReceiptPartnerController extends Controller
             'receiptAttachment' => $receiptAttachment,
         ]);
     }
+
+    public function previewPdf(Request $request)
+    {
+        $receipt_identifier = $request->route('receipt');
+        $currency = $request->route('currency');
+
+        $receiptPartner = $this->receiptRepository->getReceiptById($receipt_identifier);
+
+        $invb2b_id = isset($receiptPartner->invdtl_id) ? $receiptPartner->invoiceInstallment->invb2b_id : $receiptPartner->invb2b_id;
+        $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $pdf = PDF::loadView('pages.receipt.corporate-program.export.receipt-pdf', ['receiptPartner' => $receiptPartner, 'invoicePartner' => $invoicePartner, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+
+        return $pdf->stream();
+    }
 }

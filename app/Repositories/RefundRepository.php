@@ -14,6 +14,7 @@ class RefundRepository implements RefundRepositoryInterface
 
     public function getAllRefundDataTables($status)
     {
+        $refunded_invoice = Refund::select('inv_id')->get();
         switch ($status) {
             case "needed":
             default:
@@ -41,10 +42,11 @@ class RefundRepository implements RefundRepositoryInterface
                             leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->
                             leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->
                             leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->
-                            where(DB::raw('(CASE 
+                            // whereRaw('tbl_receipt.inv_id NOT IN (SELECT inv_id FROM tbl_refund)')->
+                            whereRaw('(CASE 
                                 WHEN tbl_receipt.receipt_cat = "student" THEN tbl_receipt.inv_id NOT IN (SELECT inv_id FROM tbl_refund)
                                 WHEN tbl_receipt.receipt_cat = "school" OR tbl_receipt.receipt_cat = "partner" THEN tbl_receipt.inv_id NOT IN (SELECT invb2b_id FROM tbl_refund)
-                            END)'))->
+                            END)')->
                             where(function($q) {
                                 $q->where('tbl_client_prog.status', 3)->
                                 orWhere('tbl_sch_prog.status', 3)->
@@ -116,7 +118,7 @@ class RefundRepository implements RefundRepositoryInterface
                                 'tbl_receipt.invdtl_id',
                                 'tbl_receipt.invb2b_id',
                                 'tbl_receipt.receipt_cat'
-                                ]);          
+                            ])->groupBy('inv_id')->orderBy('tbl_receipt.updated_at', 'desc');          
                 
                 break;
 

@@ -7,7 +7,6 @@
     @php
         $disabled = isset($status) && $status == 'view' ? 'disabled' : null;
     @endphp
-
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/client-program?s=needed') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Invoice
@@ -38,6 +37,8 @@
             {{-- Tools  --}}
             @if (isset($invoice) && !isset($invoice->refund))
                 <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
+
+                    @if (isset($invoice) && !isset($invoice->receipt))
                     <div class="border p-1 text-center flex-fill">
                         <div class="d-flex gap-1 justify-content-center">
                             <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
@@ -57,6 +58,7 @@
                         <hr class="my-1">
                         <small>General</small>
                     </div>
+                    @endif
                     <div class="border p-1 text-center flex-fill">
                         <div class="d-flex gap-1 justify-content-center">
                             @if (isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
@@ -319,9 +321,8 @@
                             </div>
                             <div class="col-md-3 mb-3 currency-detail d-none">
                                 <label for="">Currency Detail <sup class="text-danger">*</sup></label>
-                                {{ old('currency') }}
                                 <select class="select w-100" name="currency_detail" id="currency_detail"
-                                    {{ $disabled !== null ? $disabled : 'onchange="checkCurrencyDetail()"' }}>
+                                    {{ $disabled !== null ? $disabled : 'onchange=checkCurrencyDetail()' }}>
                                     <option data-placeholder="true"></option>
                                     <option value="usd"
                                         @if (isset($invoice->currency) && $invoice->currency == 'usd') {{ 'selected' }}
@@ -500,8 +501,7 @@
                         <input type="hidden" name="clientprog_id" value="{{ $clientProg->clientprog_id }}">
                         <input type="hidden" name="identifier" id="identifier">
                         <input type="hidden" name="paymethod" id="paymethod">
-                        <input type="hidden" name="currency"
-                            value="{{ isset($invoice->currency) ? $invoice->currency : null }}">
+                        <input type="hidden" name="rec_currency" value="{{ isset($invoice->currency) ? $invoice->currency : null }}">
                         <div class="put"></div>
                         <div class="row g-2">
                             <div class="col-md-3 receipt-other d-none">
@@ -517,6 +517,9 @@
                                             class="form-control" value="">
                                     </div>
                                 </div>
+                                @error('receipt_amount')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-5">
                                 <div class="mb-1">
@@ -531,6 +534,9 @@
                                             class="form-control" value="">
                                     </div>
                                 </div>
+                                @error('receipt_amount_idr')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-1">
@@ -540,6 +546,9 @@
                                     <input type="date" name="receipt_date" value="{{ date('Y-m-d') }}"
                                         id="receipt_date" class="form-control form-control-sm rounded">
                                 </div>
+                                @error('receipt_date')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-12 receipt-other d-none">
                                 <div class="mb-1">
@@ -549,6 +558,9 @@
                                     <input type="text" name="receipt_words" id="receipt_word_other"
                                         class="form-control form-control-sm rounded" value="" readonly>
                                 </div>
+                                @error('receipt_words')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-1">
@@ -558,6 +570,9 @@
                                     <input type="text" name="receipt_words_idr" id="receipt_word"
                                         class="form-control form-control-sm rounded" value="" readonly>
                                 </div>
+                                @error('receipt_words_idr')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-1">
@@ -571,6 +586,9 @@
                                         <option value="Cheque">Cheque</option>
                                     </select>
                                 </div>
+                                @error('receipt_method')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-1">
@@ -580,6 +598,9 @@
                                     <input type="text" name="receipt_cheque" id="receipt_cheque"
                                         class="form-control form-control-sm rounded" value="" disabled>
                                 </div>
+                                @error('receipt_cheque')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
                         <hr>
@@ -598,26 +619,39 @@
     </div>
 
     <script>
+        $(document).ready(function() {
+            @if ($errors->first('receipt_amount') || $errors->first('receipt_amount_idr') || $errors->first('receipt_date') || $errors->first('receipt_words') || $errors->first('receipt_words_idr') || $errors->first('receipt_method') || $errors->first('receipt_cheque'))
+                $("button[data-idn='{{ old('identifier') }}']").click()
+            @endif
+        })
+    </script>
+    <script>
+
         function setIdentifier(paymethod, id) {
             $("#identifier").val(id);
             $("#paymethod").val(paymethod);
         }
 
+        function setDefault(other_amount, idr_amount) {
+            $("#receipt_amount").val(idr_amount).keyup()
+            if (other_amount > 0)
+                $("#receipt_amount_other").val(other_amount).keyup()
+        }
+
         $(document).ready(function() {
 
+            @if (!$disabled && !isset($invoice->curs_rate))
             $("#currency_detail").on('change', function() {
-
+                
                 var current_rate = $("#current_rate").val()
 
-                checkCurrencyDetail()
-                if (current_rate == null || current_rate == 0)
-                {
-
+                    checkCurrencyDetail();
+                    
                     showLoading()
                     var base_currency = $(this).val();
                     var to_currency = 'IDR';
     
-                    var link = "{{ url('/') }}/api/current/rate/"+base_currency+"/"+to_currency
+                    var link = "{{ url('/') }}/api/current/rate/" + base_currency + "/" + to_currency
     
                     axios.get(link)
                         .then(function (response) {
@@ -632,9 +666,12 @@
                             notification('error', 'Something went wrong. Please try again');
     
                         })
-                }
+                
+
+                
 
             })
+            @endif
 
             $("#receipt_amount_other").on('keyup', function() {
                 var val = $(this).val()
@@ -729,6 +766,7 @@
         });
 
         function checkCurrency() {
+            checkPayment()
             let cur = $('#currency').val()
             let session = $('#session').val()
 
@@ -975,36 +1013,43 @@
         $("#submit-form").click(function(e) {
             e.preventDefault();
 
-            var currency = $("#currency").val()
-            if (currency == "idr") {
+            var currency = $("#currency").val();
+            if (currency == "other")
+                currency = $("#currency_detail").val();
+            var payment_method = $("#payment_method").val();
+            if (payment_method == "installment")
+            {
 
-                var tot_percent = 0;
-                $('.percentage').each(function() {
-                    tot_percent += parseInt($(this).val())
-                })
-
-                if (tot_percent < 100) {
-                    notification('error',
-                        'Installment amount is not right. Please double check before create invoice')
-                    return;
+                if (currency == "idr") {
+    
+                    var tot_percent = 0;
+                    $('.percentage').each(function() {
+                        tot_percent += parseInt($(this).val())
+                    })
+    
+                    if (tot_percent < 100) {
+                        notification('error',
+                            'Installment amount is not right. Please double check before create invoice')
+                        return;
+                    }
+    
+                } else if (currency == "other") {
+    
+                    var tot_percent = 0;
+                    $('.percentage-other').each(function() {
+                        tot_percent += parseInt($(this).val())
+                    })
+    
+                    if (tot_percent < 100) {
+                        notification('error',
+                            'Installment amount is not right. Please double check before create invoice')
+                        return;
+                    }
+    
                 }
-
-            } else if (currency == "other") {
-
-                var tot_percent = 0;
-                $('.percentage-other').each(function() {
-                    tot_percent += parseInt($(this).val())
-                })
-
-                if (tot_percent < 100) {
-                    notification('error',
-                        'Installment amount is not right. Please double check before create invoice')
-                    return;
-                }
-
+    
+    
             }
-
-
             $("#invoice-form").submit()
 
 

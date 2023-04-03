@@ -34,8 +34,17 @@
                             @selected(Request::route('user_role') == 'tutor')
                         @endif
                         >Tutor</option>
+                    @if ($isAdmin)
+                    <option value="8" 
+                        @if (isset($user))
+                            @selected(in_array(8, $roles))
+                        @else
+                            @selected(Request::route('user_role') == 'admin')
+                        @endif
+                        >Admin</option>
+                    @endif
                 </select>
-                @error('role')
+                @error('role.*')
                     <small class="text-danger fw-light">{{ $message }}</small>
                 @enderror
             </div>

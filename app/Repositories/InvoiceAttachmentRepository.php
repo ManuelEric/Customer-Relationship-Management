@@ -49,4 +49,14 @@ class InvoiceAttachmentRepository implements InvoiceAttachmentRepositoryInterfac
     {
         return InvoiceAttachment::whereId($invAttachment_id)->delete();
     }
+
+    public function deleteInvoiceAttachmentByInvoiceId($invoiceId)
+    {
+        return InvoiceAttachment::where('inv_id', $invoiceId)->delete();
+    }
+    
+    public function deleteInvoiceAttachmentByInvoiceB2bId($invb2b_id)
+    {
+        return InvoiceAttachment::where('invb2b_id', $invb2b_id)->delete();
+    }
 }

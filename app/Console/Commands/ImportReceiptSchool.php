@@ -49,47 +49,47 @@ class ImportReceiptSchool extends Command
 
         foreach ($invoiceSchools as $invSch) {
             $invoiceDetails = $invSch->invoice_detail;
-            if (count($invoiceDetails) > 0) {
-                foreach ($invoiceDetails as $invDetail) {
-                    if (isset($invDetail->receipt) && !$this->receiptRepository->getReceiptByInvoiceIdentifier('Installment', $invDetail->invdtl_id)) {
-                        $new_receipts[] = [
-                            'id' => $invDetail->receipt->receipt_num,
-                            'receipt_id' => $invDetail->receipt->receipt_id,
-                            'receipt_cat' => 'school',
-                            'inv_id' => null,
-                            'invdtl_id' => $invDetail->invdtl_id,
-                            'invb2b_id' => null,
-                            'receipt_method' => $invDetail->receipt->receipt_mtd,
-                            'receipt_words' => null,
-                            'receipt_amount_idr' => $invDetail->receipt->receipt_amount,
-                            'receipt_words_idr' => $invDetail->receipt->receipt_words,
-                            'receipt_notes' => $invDetail->receipt->receipt_notes == '' || $invDetail->receipt->receipt_notes == '-' ? null : $invDetail->receipt->receipt_notes,
-                            'receipt_status' => $invDetail->receipt->receipt_status,
-                            'created_at' => $invDetail->receipt->receipt_date,
-                            'updated_at' => $invDetail->receipt->receipt_date,
-                        ];
-                    }
-                }
-            } else {
-                if (isset($invSch->receipt) && !$this->receiptRepository->getReceiptByInvoiceIdentifier('B2B', $invSch->invsch_id)) {
-                    $new_receipts[] = [
-                        'id' => $invSch->receipt->receipt_num,
-                        'receipt_id' => $invSch->receipt->receipt_id,
-                        'receipt_cat' => 'school',
-                        'inv_id' => null,
-                        'invdtl_id' => null,
-                        'invb2b_id' => $invSch->invsch_id,
-                        'receipt_method' => $invSch->receipt->receipt_mtd,
-                        'receipt_words' => null,
-                        'receipt_amount_idr' => $invSch->receipt->receipt_amount,
-                        'receipt_words_idr' => $invSch->receipt->receipt_words,
-                        'receipt_notes' => $invSch->receipt->receipt_notes == '' || $invSch->receipt->receipt_notes == '-' ? null : $invSch->receipt->receipt_notes,
-                        'receipt_status' => $invSch->receipt->receipt_status,
-                        'created_at' => $invSch->receipt->receipt_date,
-                        'updated_at' => $invSch->receipt->receipt_date,
-                    ];
-                }
+            // if (count($invoiceDetails) > 0) {
+            //     foreach ($invoiceDetails as $invDetail) {
+            //         if (isset($invDetail->receipt) && !$this->receiptRepository->getReceiptByInvoiceIdentifier('Installment', $invDetail->invdtl_id)) {
+            //             $new_receipts[] = [
+            //                 'id' => $invDetail->receipt->receipt_num,
+            //                 'receipt_id' => $invDetail->receipt->receipt_id,
+            //                 'receipt_cat' => 'school',
+            //                 'inv_id' => null,
+            //                 'invdtl_id' => $invDetail->invdtl_id,
+            //                 'invb2b_id' => null,
+            //                 'receipt_method' => $invDetail->receipt->receipt_mtd,
+            //                 'receipt_words' => null,
+            //                 'receipt_amount_idr' => $invDetail->receipt->receipt_amount,
+            //                 'receipt_words_idr' => $invDetail->receipt->receipt_words,
+            //                 'receipt_notes' => $invDetail->receipt->receipt_notes == '' || $invDetail->receipt->receipt_notes == '-' ? null : $invDetail->receipt->receipt_notes,
+            //                 'receipt_status' => $invDetail->receipt->receipt_status,
+            //                 'created_at' => $invDetail->receipt->receipt_date,
+            //                 'updated_at' => $invDetail->receipt->receipt_date,
+            //             ];
+            //         }
+            //     }
+            // } else {
+            if (isset($invSch->receipt) && !$this->receiptRepository->getReceiptByInvoiceIdentifier('B2B', $invSch->invsch_id) && count($invoiceDetails) == 0) {
+                $new_receipts[] = [
+                    'id' => $invSch->receipt->receipt_num,
+                    'receipt_id' => $invSch->receipt->receipt_id,
+                    'receipt_cat' => 'school',
+                    'inv_id' => null,
+                    'invdtl_id' => null,
+                    'invb2b_id' => $invSch->invsch_id,
+                    'receipt_method' => $invSch->receipt->receipt_mtd,
+                    'receipt_words' => null,
+                    'receipt_amount_idr' => $invSch->receipt->receipt_amount,
+                    'receipt_words_idr' => $invSch->receipt->receipt_words,
+                    'receipt_notes' => $invSch->receipt->receipt_notes == '' || $invSch->receipt->receipt_notes == '-' ? null : $invSch->receipt->receipt_notes,
+                    'receipt_status' => $invSch->receipt->receipt_status,
+                    'created_at' => $invSch->receipt->receipt_date,
+                    'updated_at' => $invSch->receipt->receipt_date,
+                ];
             }
+            // }
         }
         if (count($new_receipts) > 0) {
             $this->receiptRepository->insertReceipt($new_receipts);

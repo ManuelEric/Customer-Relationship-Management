@@ -86,6 +86,11 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         return DataTables::eloquent($query)->make(true);
     }
 
+    public function getAllInvoiceProgram()
+    {
+        return InvoiceProgram::all();
+    }
+
     public function getInvoiceByClientProgId($clientProgId)
     {
         return InvoiceProgram::where('clientprog_id', $clientProgId)->first();
