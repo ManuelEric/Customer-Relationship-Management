@@ -64,7 +64,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover nowrap align-middle w-100 table2excel" id="tbl_unpaid_payment">
                             <thead>
@@ -74,6 +74,7 @@
                                     <th>Type</th>
                                     <th>Client/Partner/School Name</th>
                                     <th>Program Name</th>
+                                    <th>Invoice Duedate</th>
                                     <th>Installment</th>
                                     <th>Status</th>
                                     <th>Receipt ID</th>
@@ -110,6 +111,11 @@
                                         @elseif(isset($invoice->ref_id))
                                             <td>{{ $invoice->referral->additional_prog_name }}</td>
                                         @endif 
+
+                                        {{-- Installment --}}
+                                        <td class="text-center">
+                                            {{ isset($invoice->invdtl_installment) ? $invoice->installment_duedate : $invoice->invoice_duedate }}
+                                        </td>
 
                                         {{-- Installment --}}
                                         <td class="text-center">

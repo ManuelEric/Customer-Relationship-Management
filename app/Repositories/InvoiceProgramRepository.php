@@ -136,7 +136,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             $queryInv->whereBetween('tbl_inv.created_at', [$firstDay, $lastDay]);
         }
 
-        return $queryInv->withCount('invoiceDetail')->get();
+        return $queryInv->orderBy('tbl_inv.created_at', 'DESC')->withCount('invoiceDetail')->get();
     }
 
 
@@ -179,7 +179,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->select(
                 'tbl_inv.inv_id',
                 'tbl_inv.clientprog_id',
-                'tbl_inv.inv_duedate',
+                'tbl_inv.inv_duedate as invoice_duedate',
+                'tbl_invdtl.invdtl_duedate as installment_duedate',
                 DB::raw('(CASE
                             WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
                                 tbl_inv.inv_totalprice_idr 

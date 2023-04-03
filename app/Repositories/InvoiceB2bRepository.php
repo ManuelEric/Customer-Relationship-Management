@@ -293,7 +293,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             $queryInv->whereBetween('tbl_invb2b.created_at', [$firstDay, $lastDay]);
         }
 
-        return $queryInv->withCount('inv_detail')->get();
+        return $queryInv->orderBy('tbl_invb2b.created_at', 'DESC')->withCount('inv_detail')->get();
     }
 
 
@@ -341,7 +341,8 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 'tbl_invb2b.schprog_id',
                 'tbl_invb2b.partnerprog_id',
                 'tbl_invb2b.ref_id',
-                'tbl_invb2b.invb2b_duedate',
+                'tbl_invb2b.invb2b_duedate as invoice_duedate',
+                'tbl_invdtl.invdtl_duedate as installment_duedate',
                 DB::raw('(CASE
                             WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN 
                                 tbl_invb2b.invb2b_totpriceidr 
