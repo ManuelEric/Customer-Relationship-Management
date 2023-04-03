@@ -14,6 +14,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
+            @if ($eventSpeakers->count() > 0)
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -27,62 +28,65 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (isset($eventSpeakers))
-                        @php
-                            $no = 1;
-                        @endphp
-                        @foreach ($eventSpeakers as $eventSpeaker)
-                            <tr>
-                                <td>{{ $no++ }}</td>
-                                @switch($eventSpeaker->speaker_type)
-                                    @case('partner')
-                                        <td>{{ $eventSpeaker->partner_pic_name }}</td>
-                                        <td>{{ $eventSpeaker->corp_name }}</td>
-                                    @break
+                    @php
+                        $no = 1;
+                    @endphp
+                    @foreach ($eventSpeakers as $eventSpeaker)
+                        <tr>
+                            <td>{{ $no++ }}</td>
+                            @switch($eventSpeaker->speaker_type)
+                                @case('partner')
+                                    <td>{{ $eventSpeaker->partner_pic_name }}</td>
+                                    <td>{{ $eventSpeaker->corp_name }}</td>
+                                @break
 
-                                    @case('school')
-                                        <td>{{ $eventSpeaker->school_pic_name }}</td>
-                                        <td>{{ $eventSpeaker->school_name }}</td>
-                                    @break
+                                @case('school')
+                                    <td>{{ $eventSpeaker->school_pic_name }}</td>
+                                    <td>{{ $eventSpeaker->school_name }}</td>
+                                @break
 
-                                    @case('university')
-                                        <td>{{ $eventSpeaker->university_pic_name }}</td>
-                                        <td>{{ $eventSpeaker->university_name }}</td>
-                                    @break
+                                @case('university')
+                                    <td>{{ $eventSpeaker->university_pic_name }}</td>
+                                    <td>{{ $eventSpeaker->university_name }}</td>
+                                @break
 
-                                    @case('internal')
-                                        <td>{{ $eventSpeaker->internal_pic }}</td>
-                                        <td>ALL-In Eduspace</td>
-                                    @break
+                                @case('internal')
+                                    <td>{{ $eventSpeaker->internal_pic }}</td>
+                                    <td>ALL-In Eduspace</td>
+                                @break
 
-                                    @default
-                                @endswitch
-                                <td>{{ $eventSpeaker->start_time }}</td>
-                                <td>{{ $eventSpeaker->end_time }}</td>
-                                <td nowrap>
-                                    <select name="status" class="select w-100 status-form"
-                                        onchange="checkStatusSpeaker('{{ $eventSpeaker->agenda_id }}')"
-                                        id="{{ 'speaker' . $eventSpeaker->agenda_id }}">
-                                        <option data-placeholder="true"></option>
-                                        <option value="1" {{ $eventSpeaker->status == 1 ? 'selected' : null }}>
-                                            Active</option>
-                                        <option value="2" {{ $eventSpeaker->status == 2 ? 'selected' : null }}>
-                                            Cancel</option>
-                                    </select>
-                                </td>
-                                <td class="text-center">
-                                    <a href="javascript:void(0)">
-                                        <div
-                                            onclick="confirmDelete('master/event/{{ $event->event_id }}/speaker', '{{ $eventSpeaker->agenda_id }}')">
-                                            <i class="bi bi-trash2 text-danger"></i>
-                                        </div>
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
+                                @default
+                            @endswitch
+                            <td>{{ $eventSpeaker->start_time }}</td>
+                            <td>{{ $eventSpeaker->end_time }}</td>
+                            <td nowrap>
+                                <select name="status" class="select w-100 status-form"
+                                    onchange="checkStatusSpeaker('{{ $eventSpeaker->agenda_id }}')"
+                                    id="{{ 'speaker' . $eventSpeaker->agenda_id }}">
+                                    <option data-placeholder="true"></option>
+                                    <option value="1" {{ $eventSpeaker->status == 1 ? 'selected' : null }}>
+                                        Active</option>
+                                    <option value="2" {{ $eventSpeaker->status == 2 ? 'selected' : null }}>
+                                        Cancel</option>
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <a href="javascript:void(0)">
+                                    <div
+                                        onclick="confirmDelete('master/event/{{ $event->event_id }}/speaker', '{{ $eventSpeaker->agenda_id }}')">
+                                        <i class="bi bi-trash2 text-danger"></i>
+                                    </div>
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
+            @else
+            <div>
+                <span>No speaker</span>
+            </div>
+            @endif
         </div>
     </div>
 </div>

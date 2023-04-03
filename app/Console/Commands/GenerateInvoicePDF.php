@@ -72,10 +72,13 @@ class GenerateInvoicePDF extends Command
                     else
                         $view = 'pages.invoice.client-program.export.invoice-pdf-foreign';
     
-                    # generate invoice as a PDF file
                     $file_name = str_replace('/', '_', $invoice_id).'_'.$type;
-                    $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
-                    Storage::put('public/uploaded_file/invoice/client/'.$file_name.'.pdf', $pdf->output());
+                    if (!file_exists(public_path('storage/uploaded_file/invoice/client/' . $file_name.'.pdf'))) {
+                        
+                        # generate invoice as a PDF file
+                        $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+                        Storage::put('public/uploaded_file/invoice/client/'.$file_name.'.pdf', $pdf->output());
+                    }
                     
                     # initialize
                     $attachmentDetails = [

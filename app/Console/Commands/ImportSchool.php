@@ -46,6 +46,8 @@ class ImportSchool extends Command
     {
         $schools = $this->schoolRepository->getAllSchoolFromV1();
         $new_schools = [];
+        $progressBar = $this->output->createProgressBar($schools->count());
+        $progressBar->start();
 
         foreach ($schools as $school) {
             $schoolIdV2 = $this->schoolRepository->getSchoolById($school->sch_id);
@@ -87,10 +89,14 @@ class ImportSchool extends Command
                     'updated_at' => Carbon::now(),
                 ];
             }
+            $progressBar->advance();
         }
+
         if (count($new_schools) > 0) {
             $this->schoolRepository->createSchools($new_schools);
         }
+
+        $progressBar->finish();
 
         return Command::SUCCESS;
     }

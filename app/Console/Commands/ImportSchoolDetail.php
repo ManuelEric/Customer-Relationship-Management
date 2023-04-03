@@ -43,6 +43,8 @@ class ImportSchoolDetail extends Command
     {
         $schoolDetails = $this->schoolDetailRepository->getAllSchoolDetailFromCRM();
         $newSchoolDetails = [];
+        $progressBar = $this->output->createProgressBar($schoolDetails->count());
+        $progressBar->start();
 
         foreach ($schoolDetails as $schoolDetail) {
             $school = $this->schoolRepository->getSchoolById($schoolDetail->sch_id);
@@ -80,11 +82,15 @@ class ImportSchoolDetail extends Command
                     'updated_at' => Carbon::now()
                 ];
             }
+
+            $progressBar->advance();
         }
 
         if (count($newSchoolDetails) > 0) {
             $this->schoolDetailRepository->createSchoolDetail($newSchoolDetails);
         }
+
+        $progressBar->finish();
         return Command::SUCCESS;
     }
 
