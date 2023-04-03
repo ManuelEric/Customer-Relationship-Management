@@ -185,7 +185,7 @@ class ClientProgramController extends Controller
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
-        $internalPic = $this->userRepository->getAllUsersByRole('Employee');
+        $internalPic = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         $tutors = $this->userRepository->getAllUsersByRole('Tutor');
         $mentors = $this->userRepository->getAllUsersByRole('Mentor');
@@ -317,7 +317,7 @@ class ClientProgramController extends Controller
                 if (in_array($progId, $this->admission_prog_list)) {
 
                     $clientProgramDetails['main_mentor'] = $request->main_mentor;
-                    $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
+                    $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;
@@ -413,7 +413,7 @@ class ClientProgramController extends Controller
         $external_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
         $partners = $this->corporateRepository->getAllCorporate();
-        $internalPic = $this->userRepository->getAllUsersByRole('Employee');
+        $internalPic = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
 
         $tutors = $this->userRepository->getAllUsersByRole('Tutor');
         $mentors = $this->userRepository->getAllUsersByRole('Mentor');

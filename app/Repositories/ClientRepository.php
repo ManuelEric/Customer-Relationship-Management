@@ -164,7 +164,10 @@ class ClientRepository implements ClientRepositoryInterface
                             }
                         ])->havingRaw('client_program_count = client_program_finish_count');
                     });
-                })->orderBy('client.created_at', 'DESC')->orderBy('client.updated_at', 'DESC')
+                })
+                ->orderBy('st_statusact', 'desc')
+                ->orderBy('client.updated_at', 'DESC')
+                // ->orderBy('client.updated_at', 'DESC')
         )
             ->addColumn('parent_name', function ($data) {
                 return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;

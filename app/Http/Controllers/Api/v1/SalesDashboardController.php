@@ -489,7 +489,7 @@ class SalesDashboardController extends Controller
     
             $initialAssessmentMaking = $this->clientProgramRepository->getInitialMaking($dateDetails, $cp_filter);
             $conversionTimeProgress = $this->clientProgramRepository->getConversionTimeProgress($dateDetails, $cp_filter);
-            $successPercentage = $successProgram == 0 ? 0 : ($successProgram/$totalInitialConsultation) * 100;
+            $successPercentage = $successProgram == 0 || $totalInitialConsultation == 0 ? 0 : ($successProgram/$totalInitialConsultation) * 100;
             $totalRevenueAdmMentoringByProgramAndMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $cp_filter);
 
         } catch (Exception $e) {

@@ -77,7 +77,7 @@ class ReferralController extends Controller
         $partners = $this->corporateRepository->getAllCorporate();
         $B2BPrograms = $this->programRepository->getAllProgramByType("B2B");
         $B2BandB2CPrograms = $B2BPrograms->merge($this->programRepository->getAllProgramByType("B2B/B2C"));
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development';
+        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.program.referral.form')->with(
             [

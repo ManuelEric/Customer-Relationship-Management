@@ -121,7 +121,7 @@
         $('#total_idr').val(total * kurs)
         $('#total_other').val(total)
 
-        $('#session_other_word').val(wordConverter(total) + currencyText(detail))
+        $('#session_other_word').val(wordConverter(total) + " " + currencyText(detail))
         $('#session_other_word_idr').val(wordConverter(total * kurs) + 'Rupiah')
     }
 </script>
