@@ -8,10 +8,29 @@
                 <label for="">Curriculum Vitae <sup class="text-danger">*</sup></label>
             </div>
             <div class="col-9">
-                <input type="file" name="volunt_cv" id="" class="form-control form-control-sm rounded">
-                @error('volunt_cv')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
+                @if (!isset($volunteer->volunt_cv))
+                    <input type="file" name="volunt_cv" id="" class="form-control form-control-sm rounded">
+                    @error('volunt_cv')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                @else
+                    <div class="curriculum-vitae-container">
+                        <button type="button" class="btn btn-sm btn-info download">
+                            <i class="bi bi-download"></i>
+                            Download
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger remove">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <div class="upload-file d-flex justify-content-center align-items-center d-none">
+                            <input type="file" name="volunt_cv" id="" class="form-control form-control-sm rounded" value="{{ old('volunt_cv') }}">
+                            <i class="bi bi-backspace ms-2 cursor-pointer text-danger rollback"></i>
+                        </div>
+                        @error('volunt_cv')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
+                    </div>
+                @endif
             </div>
         </div>
         <div class="row align-items-center border py-2 mx-1 mb-1">
@@ -48,11 +67,31 @@
                     @enderror
                 </div>
                 <div class="w-50">
+                @if(!isset($volunteer->volunt_idcard))
                     <small>Image <sup class="text-danger">*</sup></small>
                     <input type="file" name="volunt_idcard" id="" class="form-control form-control-sm rounded">
                     @error('volunt_idcard')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
+                @else
+                    <small>Image <sup class="text-danger">*</sup></small>
+                        <div class="ktp-container">
+                            <button type="button" class="btn btn-sm btn-info download">
+                                <i class="bi bi-download"></i>
+                                Download
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger remove">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <div class="upload-file d-flex justify-content-center align-items-center d-none">
+                                <input type="file" name="volunt_idcard" class="form-control form-control-sm rounded" value="{{ old('volunt_idcard') }}">
+                                <i class="bi bi-backspace ms-2 cursor-pointer text-danger rollback"></i>
+                            </div>
+                            @error('volunt_idcard')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
+                        </div>
+                @endif
                 </div>
             </div>
         </div>
@@ -69,11 +108,31 @@
                     @enderror
                 </div>
                 <div class="w-50">
-                    <small>Image</small>
-                    <input type="file" name="volunt_npwp" id="" class="form-control form-control-sm rounded">
-                    @error('volunt_npwp')
-                        <small class="text-danger fw-light">{{ $message }}</small>
-                    @enderror
+                    @if(!isset($volunteer->volunt_npwp))    
+                        <small>Image</small>
+                        <input type="file" name="volunt_npwp" id="" class="form-control form-control-sm rounded">
+                        @error('volunt_npwp')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
+                    @else
+                        <small>Image </small>
+                        <div class="tax-container">
+                            <button type="button" class="btn btn-sm btn-info download">
+                                <i class="bi bi-download"></i>
+                                Download
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger remove">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <div class="upload-file d-flex justify-content-center align-items-center d-none">
+                                <input type="file" name="volunt_npwp" id="" class="form-control form-control-sm rounded" value="{{ old('volunt_npwp') }}">
+                                <i class="bi bi-backspace ms-2 cursor-pointer text-danger rollback"></i>
+                            </div>
+                            @error('volunt_npwp')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror   
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -82,10 +141,29 @@
                 <label for="">BPJS Kesehatan</label>
             </div>
             <div class="col-9">
-                <input type="file" name="volunt_bpjs_kesehatan" id="" class="form-control form-control-sm rounded">
-                @error('volunt_bpjs_kesehatan')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
+                @if (!isset($volunteer->health_insurance))
+                    <input type="file" name="health_insurance" id="" class="form-control form-control-sm rounded">
+                    @error('health_insurance')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                @else
+                    <div class="hi-container">
+                        <button type="button" class="btn btn-sm btn-info download">
+                            <i class="bi bi-download"></i>
+                            Download
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger remove">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <div class="upload-file d-flex justify-content-center align-items-center d-none">
+                            <input type="file" name="health_insurance" class="form-control form-control-sm rounded" value="{{ old('health_insurance') }}">
+                            <i class="bi bi-backspace ms-2 cursor-pointer text-danger rollback"></i>
+                        </div>
+                        @error('health_insurance')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
+                    </div>
+                @endif
             </div>
         </div>
         <div class="row align-items-center border py-2 mx-1 mb-1">
@@ -93,10 +171,29 @@
                 <label for="">BPJS Ketenagakerjaan</label>
             </div>
             <div class="col-9">
-                <input type="file" name="volunt_bpjs_ketenagakerjaan" id="" class="form-control form-control-sm rounded">
-                @error('volunt_bpjs_ketenagakerjaan')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
+                @if (!isset($volunteer->empl_insurance))
+                    <input type="file" name="empl_insurance" id="" class="form-control form-control-sm rounded">
+                    @error('empl_insurance')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                @else
+                    <div class="ei-container">
+                        <button type="button" class="btn btn-sm btn-info download">
+                            <i class="bi bi-download"></i>
+                            Download
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger remove">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <div class="upload-file d-flex justify-content-center align-items-center d-none">                            
+                            <input type="file" name="empl_insurance" class="form-control form-control-sm rounded" value="{{ old('empl_insurance') }}">
+                            <i class="bi bi-backspace ms-2 cursor-pointer text-danger rollback"></i>
+                        </div>
+                        @error('empl_insurance')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
+                    </div>
+                @endif
             </div>
         </div>
     </div>

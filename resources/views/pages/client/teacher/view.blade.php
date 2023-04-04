@@ -229,7 +229,7 @@
 
             await axios.get(link)
                 .then(function(response) {
-                    console.log(response)
+                    // console.log(response)
                     Swal.close()
                     notification("success", response.data.message)
                 })

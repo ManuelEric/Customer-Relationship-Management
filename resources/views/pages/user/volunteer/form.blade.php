@@ -17,7 +17,7 @@
                     <img src="{{ asset('img/mentee.jpg') }}" class="w-100">
                     <h4 class="text-center">Add Volunteer</h4>
 
-                    @if(isset($volunteer))
+                    @if(isset($volunteer) && $edit == false)
                         <div class="text-center mt-2">
                                 <a class="btn btn-sm btn-success {{$volunteer->volunt_status == 1 ? 'disabled' : ''}}" id="update-status-active">
                                     <i class="bi bi-check"></i>
@@ -98,10 +98,10 @@
                                 <label for="">
                                     Graduated From
                                 </label>
-                                <input type="text" name="volunt_graduatedfr" class="form-control form-control-sm rounded"
-                                    value="{{ isset($volunteer->volunt_graduatedfr) ? $volunteer->volunt_graduatedfr : old('volunt_graduatedfr') }}">
+                                {{-- <input type="text" name="volunt_graduatedfr" class="form-control form-control-sm rounded"
+                                    value="{{ isset($volunteer->volunt_graduatedfr) ? $volunteer->volunt_graduatedfr : old('volunt_graduatedfr') }}"> --}}
 
-                                {{-- <select name="volunt_graduatedfr" id="" class="select w-100">
+                                <select name="volunt_graduatedfr" id="" class="select w-100">
                                     <option data-placeholder="true"></option>
                                     @foreach ($universities as $university)
                                         <option value="{{ $university->univ_id }}"
@@ -112,7 +112,7 @@
                                             {{ $university->univ_name }}
                                         </option>
                                     @endforeach
-                                </select> --}}
+                                </select>
                                 @error('volunt_graduatedfr')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -122,8 +122,20 @@
                                 <label for="">
                                     Major
                                 </label>
-                                <input type="text" name="volunt_major" class="form-control form-control-sm rounded"
-                                    value="{{ isset($volunteer->volunt_major) ? $volunteer->volunt_major : old('volunt_major') }}">
+                                {{-- <input type="text" name="volunt_major" class="form-control form-control-sm rounded"
+                                    value="{{ isset($volunteer->volunt_major) ? $volunteer->volunt_major : old('volunt_major') }}"> --}}
+                                <select name="volunt_major" id="" class="select w-100">
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($majors as $major)
+                                        <option value="{{ $major->id }}"
+                                            @if((isset($volunteer) && $volunteer->volunt_major == $major->id) || (!empty(old('volunt_major')) && old('volunt_major') == $major->id))
+                                                {{'selected'}}
+                                            @endif
+                                            >
+                                            {{ $major->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 @error('volunt_major')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -133,8 +145,20 @@
                                 <label for="">
                                     Position
                                 </label>
-                                <input type="text" name="volunt_position" class="form-control form-control-sm rounded"
-                                    value="{{ isset($volunteer->volunt_position) ? $volunteer->volunt_position : old('volunt_position') }}">
+                                {{-- <input type="text" name="volunt_position" class="form-control form-control-sm rounded"
+                                    value="{{ isset($volunteer->volunt_position) ? $volunteer->volunt_position : old('volunt_position') }}"> --}}
+                                <select name="volunt_position" id="" class="select w-100">
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($positions as $position)
+                                        <option value="{{ $position->id }}"
+                                            @if((isset($volunteer) && $volunteer->volunt_position == $position->id) || (!empty(old('volunt_position')) && old('volunt_position') == $position->id))
+                                                {{'selected'}}
+                                            @endif
+                                            >
+                                            {{ $position->position_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 @error('volunt_position')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -197,6 +221,91 @@
                         swal.close()
                     })
             })
+
+        // curriculum vitae button
+        $(".curriculum-vitae-container .download").on('click', function() {
+            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'CV']) }}", '_blank');
+        })
+
+        $(".curriculum-vitae-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".curriculum-vitae-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // ktp button
+        $(".ktp-container .download").on('click', function() {
+            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'ID']) }}", '_blank');
+        })
+
+        $(".ktp-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".ktp-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // tax button
+        $(".tax-container .download").on('click', function() {
+            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'TX']) }}", '_blank');
+        })
+
+        $(".tax-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".tax-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // hi button
+        $(".hi-container .download").on('click', function() {
+            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'HI']) }}", '_blank');
+        })
+
+        $(".hi-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".hi-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // ei button
+        $(".ei-container .download").on('click', function() {
+            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'EI']) }}", '_blank');
+        })
+
+        $(".ei-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".ei-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
         @endif
     </script>
 @endsection

@@ -39,8 +39,8 @@ class Volunteer extends Model
         'volunt_idcard',
         'volunt_npwp_number',
         'volunt_npwp',
-        'volunt_bpjs_kesehatan',
-        'volunt_bpjs_ketenagakerjaan',
+        'health_insurance',
+        'empl_insurance',
         'volunt_status',
     ];
 

@@ -38,5 +38,6 @@ Route::prefix('{user_role}/{user}')->name('user.')->group(function () {
 
 Route::resource('volunteer', VolunteerController::class);
 Route::prefix('volunteer')->name('volunteer.')->group(function () {
+    Route::get('{volunteer}/download/file/{filetype}', [VolunteerController::class, 'download'])->name('file.download');
     Route::get('{volunteer}/status/{status}', [VolunteerController::class, 'updateStatus'])->name('update.status');
 });

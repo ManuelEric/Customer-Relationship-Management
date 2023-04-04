@@ -822,13 +822,16 @@
                     .then(response => {
                         // window.open(link + attachment) 
                         swal.close()
-                        notification('success', 'Invoice has been send to client')
+                        notification('success', response.data.message)
                         setTimeout(location.reload.bind(location), 3000);
                     })
                     .catch(error => {
-                        notification('error',
-                            'Something went wrong when sending invoice to client. Please try again');
                         swal.close()
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed...',
+                            text: error.response.data.message,
+                        })
                     })
             })
 
@@ -843,13 +846,16 @@
                     .then(response => {
                         // window.open(link + attachment) 
                         swal.close()
-                        notification('success', 'Invoice has been send to client')
+                        notification('success', response.data.message)
                         setTimeout(location.reload.bind(location), 3000);
                     })
                     .catch(error => {
-                        notification('error',
-                            'Something went wrong when sending invoice to client. Please try again');
                         swal.close()
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed...',
+                            text: error.response.data.message,
+                        })
                     })
             })
 

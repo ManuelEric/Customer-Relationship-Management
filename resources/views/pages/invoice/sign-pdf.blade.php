@@ -67,7 +67,6 @@
 @section('script')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-
         @if (isset($attachment) && isset($attachment->inv_id))
             var file = "{{ asset('storage/uploaded_file/invoice/client/'.$attachment->attachment) }}"
         @else
