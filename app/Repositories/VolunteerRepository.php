@@ -25,7 +25,7 @@ class VolunteerRepository implements VolunteerRepositoryInterface
                     'tbl_position.position_name',
                     'tbl_volunt.volunt_address',
                     'tbl_volunt.volunt_status',
-                )->orderBy('tbl_volunt.created_at', 'DESC')
+                )
         )->make(true);
     }
 
