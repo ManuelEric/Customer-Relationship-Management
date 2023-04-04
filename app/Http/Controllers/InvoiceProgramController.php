@@ -248,111 +248,231 @@ class InvoiceProgramController extends Controller
         $inv_id = $invoice->inv_id;
 
         # fetching currency till get the currency
-        $currency = null;
-        foreach ($request->currency as $key => $val) {
-            if ($val != NULL)
-                $currency = $val != "other" ? $val : null;
+        // $currency = null;
+        $currency = $request->currency;
+        $is_session = $request->is_session;
+
+        switch ($request->currency) {
+
+            case "idr":
+                if ($is_session == "no") {
+
+                    $invoiceDetails = $request->only([
+                        'clientprog_id',
+                        'currency',
+                        'currency_detail',
+                        'is_session',
+                        'inv_price_idr',
+                        'inv_earlybird_idr',
+                        'inv_discount_idr',
+                        'inv_totalprice_idr',
+                        'inv_words_idr',
+                        'inv_paymentmethod',
+                        'invoice_date',
+                        'inv_duedate',
+                        'inv_notes',
+                        'inv_tnc'
+                    ]);
+                    $param = "idr";
+                } else if ($is_session == "yes") {
+
+                    $invoiceDetails = [
+                        'clientprog_id' => $request->clientprog_id,
+                        'currency' => $request->currency,
+                        'currency_detail' => $request->currency_detail,
+                        'is_session' => $request->is_session,
+                        'session' => $request->session__si,
+                        'duration' => $request->duration__si,
+                        'inv_price_idr' => $request->inv_price_idr__si,
+                        'inv_earlybird_idr' => $request->inv_earlybird_idr__si,
+                        'inv_discount_idr' => $request->inv_discount_idr__si,
+                        'inv_totalprice_idr' => $request->inv_totalprice_idr__si,
+                        'inv_words_idr' => $request->inv_words_idr__si,
+                        'inv_paymentmethod' => $request->inv_paymentmethod,
+                        'invoice_date' => $request->invoice_date,
+                        'inv_duedate' => $request->inv_duedate,
+                        'inv_notes' => $request->inv_notes,
+                        'inv_tnc' => $request->inv_tnc
+                    ];
+                    $param = "idr";
+
+                }
+                break;
+
+            case "other":
+                if ($is_session == "no") {
+
+                    $invoiceDetails = [
+                        'clientprog_id' => $request->clientprog_id,
+                        'currency' => $request->currency,
+                        'currency_detail' => $request->currency_detail,
+                        'curs_rate' => $request->curs_rate,
+                        'is_session' => $request->is_session,
+                        'inv_price' => $request->inv_price__nso,
+                        'inv_earlybird' => $request->inv_earlybird__nso,
+                        'inv_discount' => $request->inv_discount__nso,
+                        'inv_totalprice' => $request->inv_totalprice__nso,
+                        'inv_words' => $request->inv_words__nso,
+                        'inv_price_idr' => $request->inv_price_idr__nso,
+                        'inv_earlybird_idr' => $request->inv_earlybird_idr__nso,
+                        'inv_discount_idr' => $request->inv_discount_idr__nso,
+                        'inv_totalprice_idr' => $request->inv_totalprice_idr__nso,
+                        'inv_words_idr' => $request->inv_words_idr__nso,
+                        'inv_paymentmethod' => $request->inv_paymentmethod,
+                        'invoice_date' => $request->invoice_date,
+                        'inv_duedate' => $request->inv_duedate,
+                        'inv_notes' => $request->inv_notes,
+                        'inv_tnc' => $request->inv_tnc
+                    ];
+                    $param = "other";
+
+                } else if ($is_session == "yes") {
+
+                    $invoiceDetails = [
+                        'clientprog_id' => $request->clientprog_id,
+                        'currency' => $request->currency,
+                        'currency_detail' => $request->currency_detail,
+                        'curs_rate' => $request->curs_rate,
+                        'is_session' => $request->is_session,
+                        'session' => $request->session__so,
+                        'duration' => $request->duration__so,
+                        'inv_price' => $request->inv_price__so,
+                        'inv_earlybird' => $request->inv_earlybird__so,
+                        'inv_discount' => $request->inv_discount__so,
+                        'inv_totalprice' => $request->inv_totalprice__so,
+                        'inv_words' => $request->inv_words__so,
+                        'inv_price_idr' => $request->inv_price_idr__so,
+                        'inv_earlybird_idr' => $request->inv_earlybird_idr__so,
+                        'inv_discount_idr' => $request->inv_discount_idr__so,
+                        'inv_totalprice_idr' => $request->inv_totalprice_idr__so,
+                        'inv_words_idr' => $request->inv_words_idr__so,
+                        'inv_paymentmethod' => $request->inv_paymentmethod,
+                        'invoice_date' => $request->invoice_date,
+                        'inv_duedate' => $request->inv_duedate,
+                        'inv_notes' => $request->inv_notes,
+                        'inv_tnc' => $request->inv_tnc
+                    ];
+                    $param = "other";
+
+                }
+
+                break;
+
         }
 
-        if (in_array('idr', $request->currency) && $request->is_session == "no") {
+        # old code
+        // foreach ($request->currency as $key => $val) {
+        //     if ($val != NULL)
+        //         $currency = $val != "other" ? $val : null;
+        // }
 
-            $invoiceDetails = $request->only([
-                'clientprog_id',
-                'currency',
-                'is_session',
-                'inv_price_idr',
-                'inv_earlybird_idr',
-                'inv_discount_idr',
-                'inv_totalprice_idr',
-                'inv_words_idr',
-                'inv_paymentmethod',
-                'invoice_date',
-                'inv_duedate',
-                'inv_notes',
-                'inv_tnc'
-            ]);
-            $param = "idr";
-        } elseif (in_array('idr', $request->currency) && $request->is_session == "yes") {
+        // if (in_array('idr', $request->currency) && $request->is_session == "no") {
 
-            $invoiceDetails = [
-                'clientprog_id' => $request->clientprog_id,
-                'currency' => $request->currency,
-                'is_session' => $request->is_session,
-                'session' => $request->session__si,
-                'duration' => $request->duration__si,
-                'inv_price_idr' => $request->inv_price_idr__si,
-                'inv_earlybird_idr' => $request->inv_earlybird_idr__si,
-                'inv_discount_idr' => $request->inv_discount_idr__si,
-                'inv_totalprice_idr' => $request->inv_totalprice_idr__si,
-                'inv_words_idr' => $request->inv_words_idr__si,
-                'inv_paymentmethod' => $request->inv_paymentmethod,
-                'invoice_date' => $request->invoice_date,
-                'inv_duedate' => $request->inv_duedate,
-                'inv_notes' => $request->inv_notes,
-                'inv_tnc' => $request->inv_tnc
-            ];
-            $param = "idr";
-        } elseif (in_array('other', $request->currency) && $request->is_session == "no") {
+        //     $invoiceDetails = $request->only([
+        //         'clientprog_id',
+        //         'currency',
+        //         'is_session',
+        //         'inv_price_idr',
+        //         'inv_earlybird_idr',
+        //         'inv_discount_idr',
+        //         'inv_totalprice_idr',
+        //         'inv_words_idr',
+        //         'inv_paymentmethod',
+        //         'invoice_date',
+        //         'inv_duedate',
+        //         'inv_notes',
+        //         'inv_tnc'
+        //     ]);
+        //     $param = "idr";
+        // } elseif (in_array('idr', $request->currency) && $request->is_session == "yes") {
 
-            $invoiceDetails = [
-                'clientprog_id' => $request->clientprog_id,
-                'currency' => $request->currency,
-                'curs_rate' => $request->curs_rate,
-                'is_session' => $request->is_session,
-                'inv_price' => $request->inv_price__nso,
-                'inv_earlybird' => $request->inv_earlybird__nso,
-                'inv_discount' => $request->inv_discount__nso,
-                'inv_totalprice' => $request->inv_totalprice__nso,
-                'inv_words' => $request->inv_words__nso,
-                'inv_price_idr' => $request->inv_price_idr__nso,
-                'inv_earlybird_idr' => $request->inv_earlybird_idr__nso,
-                'inv_discount_idr' => $request->inv_discount_idr__nso,
-                'inv_totalprice_idr' => $request->inv_totalprice_idr__nso,
-                'inv_words_idr' => $request->inv_words_idr__nso,
-                'inv_paymentmethod' => $request->inv_paymentmethod,
-                'invoice_date' => $request->invoice_date,
-                'inv_duedate' => $request->inv_duedate,
-                'inv_notes' => $request->inv_notes,
-                'inv_tnc' => $request->inv_tnc
-            ];
-            $param = "other";
-        } elseif (in_array('other', $request->currency) && $request->is_session == "yes") {
+        //     $invoiceDetails = [
+        //         'clientprog_id' => $request->clientprog_id,
+        //         'currency' => $request->currency,
+        //         'is_session' => $request->is_session,
+        //         'session' => $request->session__si,
+        //         'duration' => $request->duration__si,
+        //         'inv_price_idr' => $request->inv_price_idr__si,
+        //         'inv_earlybird_idr' => $request->inv_earlybird_idr__si,
+        //         'inv_discount_idr' => $request->inv_discount_idr__si,
+        //         'inv_totalprice_idr' => $request->inv_totalprice_idr__si,
+        //         'inv_words_idr' => $request->inv_words_idr__si,
+        //         'inv_paymentmethod' => $request->inv_paymentmethod,
+        //         'invoice_date' => $request->invoice_date,
+        //         'inv_duedate' => $request->inv_duedate,
+        //         'inv_notes' => $request->inv_notes,
+        //         'inv_tnc' => $request->inv_tnc
+        //     ];
+        //     $param = "idr";
+        // } elseif (in_array('other', $request->currency) && $request->is_session == "no") {
 
-            $invoiceDetails = [
-                'clientprog_id' => $request->clientprog_id,
-                'currency' => $request->currency,
-                'curs_rate' => $request->curs_rate,
-                'is_session' => $request->is_session,
-                'session' => $request->session__so,
-                'duration' => $request->duration__so,
-                'inv_price' => $request->inv_price__so,
-                'inv_earlybird' => $request->inv_earlybird__so,
-                'inv_discount' => $request->inv_discount__so,
-                'inv_totalprice' => $request->inv_totalprice__so,
-                'inv_words' => $request->inv_words__so,
-                'inv_price_idr' => $request->inv_price_idr__so,
-                'inv_earlybird_idr' => $request->inv_earlybird_idr__so,
-                'inv_discount_idr' => $request->inv_discount_idr__so,
-                'inv_totalprice_idr' => $request->inv_totalprice_idr__so,
-                'inv_words_idr' => $request->inv_words_idr__so,
-                'inv_paymentmethod' => $request->inv_paymentmethod,
-                'invoice_date' => $request->invoice_date,
-                'inv_duedate' => $request->inv_duedate,
-                'inv_notes' => $request->inv_notes,
-                'inv_tnc' => $request->inv_tnc
-            ];
-            $param = "other";
-        }
+        //     $invoiceDetails = [
+        //         'clientprog_id' => $request->clientprog_id,
+        //         'currency' => $request->currency,
+        //         'curs_rate' => $request->curs_rate,
+        //         'is_session' => $request->is_session,
+        //         'inv_price' => $request->inv_price__nso,
+        //         'inv_earlybird' => $request->inv_earlybird__nso,
+        //         'inv_discount' => $request->inv_discount__nso,
+        //         'inv_totalprice' => $request->inv_totalprice__nso,
+        //         'inv_words' => $request->inv_words__nso,
+        //         'inv_price_idr' => $request->inv_price_idr__nso,
+        //         'inv_earlybird_idr' => $request->inv_earlybird_idr__nso,
+        //         'inv_discount_idr' => $request->inv_discount_idr__nso,
+        //         'inv_totalprice_idr' => $request->inv_totalprice_idr__nso,
+        //         'inv_words_idr' => $request->inv_words_idr__nso,
+        //         'inv_paymentmethod' => $request->inv_paymentmethod,
+        //         'invoice_date' => $request->invoice_date,
+        //         'inv_duedate' => $request->inv_duedate,
+        //         'inv_notes' => $request->inv_notes,
+        //         'inv_tnc' => $request->inv_tnc
+        //     ];
+        //     $param = "other";
+        // } elseif (in_array('other', $request->currency) && $request->is_session == "yes") {
 
-        $invoiceDetails['inv_category'] = $invoiceDetails['is_session'] == "yes" ? "session" : $invoiceDetails['currency'][0];
+        //     $invoiceDetails = [
+        //         'clientprog_id' => $request->clientprog_id,
+        //         'currency' => $request->currency,
+        //         'curs_rate' => $request->curs_rate,
+        //         'is_session' => $request->is_session,
+        //         'session' => $request->session__so,
+        //         'duration' => $request->duration__so,
+        //         'inv_price' => $request->inv_price__so,
+        //         'inv_earlybird' => $request->inv_earlybird__so,
+        //         'inv_discount' => $request->inv_discount__so,
+        //         'inv_totalprice' => $request->inv_totalprice__so,
+        //         'inv_words' => $request->inv_words__so,
+        //         'inv_price_idr' => $request->inv_price_idr__so,
+        //         'inv_earlybird_idr' => $request->inv_earlybird_idr__so,
+        //         'inv_discount_idr' => $request->inv_discount_idr__so,
+        //         'inv_totalprice_idr' => $request->inv_totalprice_idr__so,
+        //         'inv_words_idr' => $request->inv_words_idr__so,
+        //         'inv_paymentmethod' => $request->inv_paymentmethod,
+        //         'invoice_date' => $request->invoice_date,
+        //         'inv_duedate' => $request->inv_duedate,
+        //         'inv_notes' => $request->inv_notes,
+        //         'inv_tnc' => $request->inv_tnc
+        //     ];
+        //     $param = "other";
+        // }
+        # end of old code
+
+        // $invoiceDetails['inv_category'] = $invoiceDetails['is_session'] == "yes" ? "session" : $invoiceDetails['currency'][0];
+        $invoiceDetails['inv_category'] = $invoiceDetails['is_session'] == "yes" ? "session" : $invoiceDetails['currency'];
         $invoiceDetails['session'] = isset($invoiceDetails['session']) && $invoiceDetails['session'] != 0 ? $invoiceDetails['session'] : 0;
-        $invoiceDetails['currency'] = $currency;
+        $invoiceDetails['currency'] = $currency == "other" ? $invoiceDetails['currency_detail'] : $currency;
         $invoiceDetails['inv_paymentmethod'] = $invoiceDetails['inv_paymentmethod'] == "full" ? 'Full Payment' : 'Installment';
+        unset($invoiceDetails['currency_detail']);
 
         DB::beginTransaction();
         try {
 
             $this->invoiceProgramRepository->updateInvoice($inv_id, $invoiceDetails);
+
+            # check if invoice has installments
+            # if yes then remove it when status updated from installment to full payment
+            if (isset($invoice->invoiceDetail) && $invoice->invoiceDetail->count() > 0)
+                $this->invoiceDetailRepository->deleteInvoiceDetailByInvId($inv_id); 
 
             # add installment details
             # check if installment information has been filled
@@ -381,6 +501,11 @@ class InvoiceProgramController extends Controller
                 }
 
                 $this->invoiceDetailRepository->updateInvoiceDetailByInvId($inv_id, $installmentDetails);
+
+                # if update invoice success
+                # then delete the invoice attachment
+                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceId($inv_id);
+
             }
             DB::commit();
         } catch (Exception $e) {
@@ -390,7 +515,7 @@ class InvoiceProgramController extends Controller
             return Redirect::to('invoice/client-program/' . $request->clientprog_id . '/edit')->withError('Failed to update invoice program');
         }
 
-        return Redirect::to('invoice/client-program?s=list')->withSuccess('Invoice has been updated');
+        return Redirect::to('invoice/client-program/'.$clientProgId)->withSuccess('Invoice has been updated');
     }
 
     public function edit(Request $request)
@@ -659,15 +784,31 @@ class InvoiceProgramController extends Controller
 
     public function preview(Request $request)
     {
-        
         $clientprog_id = $request->route('client_program');
         $currency = $request->route('currency');
 
         if (!$clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id))
             abort(404);
-        
+
         $invoice = $clientProg->invoice;
-        $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice->inv_id, $currency);
+
+        if (!$attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice->inv_id, $currency))
+        {   
+            if ($currency == "idr")
+                $view = 'pages.invoice.client-program.export.invoice-pdf';
+            else
+                $view = 'pages.invoice.client-program.export.invoice-pdf-foreign';
+
+            $companyDetail = [
+                'name' => env('ALLIN_COMPANY'),
+                'address' => env('ALLIN_ADDRESS'),
+                'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+                'city' => env('ALLIN_CITY')
+            ];
+
+            $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+            return $pdf->stream();
+        }
 
         return view('pages.invoice.sign-pdf')->with(
             [

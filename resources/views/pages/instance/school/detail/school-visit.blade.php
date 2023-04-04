@@ -51,7 +51,9 @@
                 </div>
             </div>
         @empty
-            <div class="list-group-item">There's no schedule visit</div>
+            <div class="list-group-item text-center py-3">
+                There's no schedule visit
+            </div>
 
         @endforelse
     </div>

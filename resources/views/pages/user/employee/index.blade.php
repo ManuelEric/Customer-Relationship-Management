@@ -146,7 +146,16 @@
                         defaultContent: '<button type="button" class="btn btn-sm btn-warning editUser"><i class="bi bi-pencil"></i></button>' +
                             '<button type="button" class="btn btn-sm btn-danger ms-1 deleteUser"><i class="bi bi-trash"></i></button>'
                     }
-                ]
+                ],
+                createdRow: function(row, data, index) {
+                    // temporary condition
+                    // while change soon
+                    if (data['active'] == 0) {
+                        $('td', row).addClass('text-danger');
+                        $('td:nth-last-child(1) .deleteUser', row).addClass('d-none');
+                        // $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
+                    }
+                }
             });
 
             @php            

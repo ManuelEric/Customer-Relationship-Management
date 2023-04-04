@@ -3,12 +3,14 @@
         <div class="">
             Installment
         </div>
+        @if ($status != "view")
         <button class="btn btn-sm btn-outline-primary" type="button" onclick="addInstallmentOther()">
             <i class="bi bi-plus"></i>
         </button>
+        @endif
     </div>
     <div class="card-body " id="installment_content_other">
-        @if (old('invdtl_installment__other') || isset($invoice->invoiceDetail))
+        @if (old('invdtl_installment__other') || (isset($invoice) &&  $invoice->invoiceDetail()->count() > 0))
         @php
             $limit = isset($invoice->invoiceDetail) ? count($invoice->invoiceDetail) : count(old('invdtl_installment__other'))
         @endphp
@@ -68,59 +70,59 @@
                 </div>
             @endfor
         @else
-        <div class="row g-2 installment-others mb-3">
-            <div class="col-md-3">
-                <label for="">Name <sup class="text-danger">*</sup></label>
-                <input type="text" name="invdtl_installment__other[]" class="form-control form-control-sm installment-name" value="Installment 1">
-                @error('invdtl_installment__other')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
-            </div>
-            
-            <div class="col-md-3">
-                <label for="">Due Date <sup class="text-danger">*</sup></label>
-                <input type="date" name="invdtl_duedate__other[]" class="form-control form-control-sm ">
-                @error('invdtl_duedate__other')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="col-md-2">
-                <label for="">Percentage (%) <sup class="text-danger">*</sup></label>
-                <input type="text" name="invdtl_percentage__other[]" id="percentage_other_0"
-                    class="form-control form-control-sm percentage-other" onchange="checkPercentageOther('0')">
-                @error('invdtl_percentage__other')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="col-md-4">
-                <div class="d-flex justify-content-between">
-                    <div class="">
-                        Amount <sup class="text-danger">*</sup>
+            <div class="row g-2 installment-others mb-3">
+                <div class="col-md-3">
+                    <label for="">Name <sup class="text-danger">*</sup></label>
+                    <input type="text" name="invdtl_installment__other[]" class="form-control form-control-sm installment-name" value="Installment 1">
+                    @error('invdtl_installment__other')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="">Due Date <sup class="text-danger">*</sup></label>
+                    <input type="date" name="invdtl_duedate__other[]" class="form-control form-control-sm ">
+                    @error('invdtl_duedate__other')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="col-md-2">
+                    <label for="">Percentage (%) <sup class="text-danger">*</sup></label>
+                    <input type="text" name="invdtl_percentage__other[]" id="percentage_other_0"
+                        class="form-control form-control-sm percentage-other" onchange="checkPercentageOther('0')">
+                    @error('invdtl_percentage__other')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-between">
+                        <div class="">
+                            Amount <sup class="text-danger">*</sup>
+                        </div>
+                        <div class="cursor-pointer" onclick="removeInstallmentOther(0)">
+                            <i class="bi bi-trash2 text-danger"></i>
+                        </div>
                     </div>
-                    <div class="cursor-pointer" onclick="removeInstallmentOther(0)">
-                        <i class="bi bi-trash2 text-danger"></i>
+                    <div class="input-group input-group-sm mb-1">
+                        <span class="input-group-text currency-icon" id="basic-addon1">
+                            $
+                        </span>
+                        <input type="number" name="invdtl_amount__other[]" class="form-control amount-other" id="amount_other_0" onchange="checkAmountOther('0')">
                     </div>
+                    @error('invdtl_amount__other')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text" id="basic-addon1">
+                            Rp
+                        </span>
+                        <input type="number" name="invdtl_amountidr__other[]" class="form-control amount-other-idr" id="amount_other_idr_0">
+                    </div>
+                    @error('invdtl_amountidr__other')
+                        <small class="text-danger fw-light">{{ $message }}</small>
+                    @enderror
                 </div>
-                <div class="input-group input-group-sm mb-1">
-                    <span class="input-group-text currency-icon" id="basic-addon1">
-                        $
-                    </span>
-                    <input type="number" name="invdtl_amount__other[]" class="form-control amount-other" id="amount_other_0" onchange="checkAmountOther('0')">
-                </div>
-                @error('invdtl_amount__other')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text" id="basic-addon1">
-                        Rp
-                    </span>
-                    <input type="number" name="invdtl_amountidr__other[]" class="form-control amount-other-idr" id="amount_other_idr_0">
-                </div>
-                @error('invdtl_amountidr__other')
-                    <small class="text-danger fw-light">{{ $message }}</small>
-                @enderror
             </div>
-        </div>
         @endif
     </div>
 </div>
@@ -139,8 +141,7 @@
             }
         }
 
-        $(".installment-others").first().clone().attr('id', 'installment_other_' + id).appendTo(
-            "#installment_content_other");
+        $(".installment-others").first().clone().attr('id', 'installment_other_' + id).appendTo("#installment_content_other");
 
         // value 
         $('#installment_other_' + id).find('input').val('')

@@ -40,9 +40,9 @@
                                 </button>
                             </a>
                         @else
-                            @if (!isset($invoice->refund))
+                            @if (!isset($invoice->refund) && $clientProg->status != 3)
                             <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" data-bs-toggle="modal"
-                            data-bs-target="#addReceipt" onclick="checkReceipt();setIdentifier('Installment', '{{ $detail->invdtl_id }}')">
+                            data-bs-target="#addReceipt" onclick="checkReceipt();setIdentifier('Installment', '{{ $detail->invdtl_id }}');setDefault('{{ $detail->invdtl_amount }}', '{{ $detail->invdtl_amountidr }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                             @endif

@@ -193,6 +193,32 @@
             </div>
         </div>
     </div>
+
+    {{-- Deactive User Item  --}}
+    <div class="modal modal-sm fade" tabindex="-1" id="deactiveUser" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="" method="post" id="formActionDeactive">
+                    @csrf
+                    @method('delete')
+                    <div class="modal-body text-center">
+                        <h2>
+                            <i class="bi bi-info-circle text-info"></i>
+                        </h2>
+                        <h4>Are you sure?</h4>
+                        <h6>You want to deactive this user?</h6>
+                        <hr>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="button" id="deactivate-user--app-3103" class="btn btn-primary btn-sm">
+                            <i class="bi bi-trash3 me-1"></i>
+                            Yes!</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     {{-- Tooltip  --}}
     <script>
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -239,6 +265,14 @@
         function confirmDelete(subject, id) {
             // show modal 
             var myModal = new bootstrap.Modal(document.getElementById('deleteItem'))
+            myModal.show()
+
+            // change form action 
+            $('#formAction').attr('action', '{{ url('') }}/' + subject + '/' + id);
+        }
+
+        function confirmDeactivate(subject, id) {
+            var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
             myModal.show()
 
             // change form action 

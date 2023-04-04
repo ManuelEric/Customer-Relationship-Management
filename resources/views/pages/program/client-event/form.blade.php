@@ -82,11 +82,9 @@
                                 <select name="client_id" class="select w-100" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     @foreach ($clients as $client)
-                                        @if(isset($clientEvent))
-                                            <option value="{{ $client->id }}" {{ $clientEvent->client_id == $client->id ? 'selected' : '' }}>{{ $client->full_name }}</option>
-                                        @else
-                                            <option value="{{ $client->id }}">{{ $client->full_name }}</option>
-                                        @endif
+                                        <option value="{{ $client->id }}" 
+                                            @selected(
+                                                (isset($clientEvent) && $clientEvent->client_id == $client->id) || old('client_id') == $client->id)>{{ $client->full_name }}</option>
                                     @endforeach
                                 </select>
                                 @error('client_id')
@@ -579,6 +577,11 @@
                 $(".kol").addClass("d-none")
                 $(".partner").removeClass("d-none")
 
+            } else {
+
+                $(".edufair").addClass("d-none")
+                $(".kol").addClass("d-none")
+                $(".partner").addClass("d-none")
             }
         })
     </script>

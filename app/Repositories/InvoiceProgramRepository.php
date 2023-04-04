@@ -22,7 +22,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     # select all client program
                     # where status already success which mean they(client) already paid the program
                     $q->doesntHave('invoice')->where('status', 1);
-                })->orderBy('statusprog_date', 'desc');
+                })
+                ->orderBy('updated_at', 'desc')
+                ->orderBy('statusprog_date', 'desc');
                 break;
 
             case "list":
@@ -34,13 +36,16 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     ->select([
                         'tbl_inv.clientprog_id',
                         DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
-                        DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                        DB::raw('(CASE
+                                WHEN tbl_prog.sub_prog_id IS NOT NULL THEN CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, ""))
+                                WHEN tbl_prog.sub_prog_id IS NULL THEN CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""))
+                            END) as program_name'),
                         'inv_id',
                         'inv_paymentmethod',
                         'tbl_inv.created_at',
                         'inv_duedate',
                         'inv_totalprice_idr',
-                    ]);
+                    ])->orderBy('tbl_inv.updated_at', 'desc');
                 break;
 
             case "reminder":
@@ -84,6 +89,11 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
 
         return DataTables::eloquent($query)->make(true);
+    }
+
+    public function getAllInvoiceProgram()
+    {
+        return InvoiceProgram::all();
     }
 
     public function getInvoiceByClientProgId($clientProgId)
@@ -131,7 +141,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             $queryInv->whereBetween('tbl_inv.created_at', [$firstDay, $lastDay]);
         }
 
-        return $queryInv->withCount('invoiceDetail')->get();
+        return $queryInv->orderBy('tbl_inv.created_at', 'DESC')->withCount('invoiceDetail')->get();
     }
 
 
@@ -174,7 +184,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->select(
                 'tbl_inv.inv_id',
                 'tbl_inv.clientprog_id',
-                'tbl_inv.inv_duedate',
+                'tbl_inv.inv_duedate as invoice_duedate',
+                'tbl_invdtl.invdtl_duedate as installment_duedate',
                 DB::raw('(CASE
                             WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
                                 tbl_inv.inv_totalprice_idr 

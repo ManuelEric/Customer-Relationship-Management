@@ -357,6 +357,6 @@ class ClientTeacherCounselorController extends Controller
     public function getClientEventByTeacherId(Request $request)
     {
         $teacherId = $request->route('teacher');
-        return $this->clientEventRepository->getAllClientEventByStudentIdDataTables($teacherId);
+        return $this->clientEventRepository->getAllClientEventByClientIdDataTables($teacherId);
     }
 }

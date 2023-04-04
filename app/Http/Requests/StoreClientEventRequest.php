@@ -49,7 +49,12 @@ class StoreClientEventRequest extends FormRequest
     protected function isExisting(){
         $rules = [
             'client_id' => 'required|exists:tbl_client,id',
-            'event_id' => 'required_if:lead_id,LS004',
+            'event_id' => [
+                'required_if:lead_id,LS004',
+                Rule::unique('tbl_client_event')->where(function ($query) {
+                    $query->where('client_id', $this->input('client_id'))->where('event_id', $this->input('event_id'));
+                })
+            ],
             'eduf_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
@@ -94,7 +99,12 @@ class StoreClientEventRequest extends FormRequest
             'sch_type' => 'required_if:sch_id,add-new',
             'sch_curriculum' => 'required_if:sch_id,add-new',
             'sch_score' => 'required_if:sch_id,add-new',
-            'event_id' => 'required_if:lead_id,LS004',
+            'event_id' => [
+                'required_if:lead_id,LS004',
+                Rule::unique('tbl_client_event')->where(function ($query) {
+                    $query->where('client_id', $this->input('client_id'))->where('event_id', $this->input('event_id'));
+                })
+            ],
             'eduf_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {

@@ -7,6 +7,7 @@ use App\Repositories\MenuRepository;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -88,7 +89,7 @@ class AppServiceProvider extends ServiceProvider
                 }
 
                 # if logged in user is from department partnership
-                if ($user->department()->where('dept_name', 'Client Management')->exists()) {
+                if ($user->department()->where('dept_name', 'Business Development')->exists()) {
                     $isPartnership = true;
                 }
 

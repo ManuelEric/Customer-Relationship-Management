@@ -109,6 +109,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $query2->whereIn('users.id', $searchQuery['emplId']);
                 });
             })
+            ->orderBy('updated_at', 'desc')
         )->make(true);
     }
 
@@ -161,16 +162,35 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         # when main_mentor and backup_mentor is filled which is not null
         # then assumed the user want to input "admission mentoring" program
         # do attach main mentor and backup mentor as client mentor
-        if (array_key_exists('main_mentor', $clientProgramDetails) && array_key_exists('backup_mentor', $clientProgramDetails)) {
+        if (array_key_exists('main_mentor', $clientProgramDetails) || array_key_exists('backup_mentor', $clientProgramDetails)) {
 
             # if program end date was less than today 
             # then put status into 0 else 1
             // $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
             $status = 1;
+            
+            if (isset($clientProgramDetails['main_mentor'])) {
 
-            $clientProgram->clientMentor()->attach([$clientProgramDetails['main_mentor'], $clientProgramDetails['backup_mentor']], ['status' => $status]);
+                # if program end date was less than today 
+                # then put status into 0 else 1
+                // $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
+                $status = 1;
+                $clientProgram->clientMentor()->attach($clientProgramDetails['main_mentor'], ['status' => $status]);
+    
+            } 
+            
+            if (isset($clientProgramDetails['backup_mentor'])) {
+
+                # if program end date was less than today 
+                # then put status into 0 else 1
+                // $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
+                $status = 1;
+                $clientProgram->clientMentor()->attach($clientProgramDetails['backup_mentor'], ['status' => $status]);
+    
+            } 
 
         } 
+
         
         # when tutor id is filled which is not null
         # then assumed the user want to input "tutoring" program

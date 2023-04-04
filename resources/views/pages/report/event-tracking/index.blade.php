@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Sales Tracking - Bigdata Platform')
+@section('title', 'Event Tracking - Bigdata Platform')
 
 @section('content')
     <div class="row">
@@ -81,12 +81,15 @@
                         </button>
                     </div>
                 </div>
-                <div class="card-body overflow-auto" style="height: 500px">
+                <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover nowrap align-middle w-100 table2excel" id="tbl_event">
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    @if($clientEvents->first()->filter == 'ByMonth')                                       
+                                        <th>Event Name</th>
+                                    @endif
                                     <th>Client Name</th>
                                     <th>Email</th>
                                     <th>Phone Number</th>
@@ -100,6 +103,9 @@
                                 @forelse ($clientEvents as $clientEvent)
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
+                                        @if($clientEvent->filter == 'ByMonth')                                       
+                                            <td>{{ $clientEvent->event_title }}</td>
+                                        @endif
                                         <td>{{ $clientEvent->client_name }}</td>
                                         <td>{{ $clientEvent->mail }}</td>
                                         <td>{{ $clientEvent->phone }}</td>

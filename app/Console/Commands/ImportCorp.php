@@ -6,6 +6,7 @@ use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -42,6 +43,8 @@ class ImportCorp extends Command
     public function handle()
     {
         $corporates = $this->corporateRepository->getCorpFromV1();
+        $progressBar = $this->output->createProgressBar($corporates->count());
+        $progressBar->start();
         DB::beginTransaction();
         try {
 
@@ -94,8 +97,10 @@ class ImportCorp extends Command
                         'corp_note' => $this->getValueWithoutSpace($corporate->corp_note),
                         'corp_password' => $this->getValueWithoutSpace($corporate->corp_password),
                         'country_type' => 'Indonesia',
-                        'type' => 'Corporate'
-                    ];
+                        'type' => 'Corporate',
+                        'created_at' => $this->getValueWithoutSpace($corporate->crop_datecreated) ?? Carbon::now(),
+                        'updated_at' => $this->getValueWithoutSpace($corporate->corp_datelastedit) ?? Carbon::now(),
+                    ];                    
 
                     $master = $this->corporateRepository->createCorporate($corporateDetails);
 
@@ -136,7 +141,10 @@ class ImportCorp extends Command
     
                 }
     
+                $progressBar->advance();
             }
+
+            $progressBar->finish();
             DB::commit();
             Log::info('Import Corporate works fine');
 
@@ -151,6 +159,6 @@ class ImportCorp extends Command
 
     private function getValueWithoutSpace($value)
     {
-        return $value == "" || $value == "-" || $value == "tidak ada" || $value == "no contact" || $value == "0000-00-00" || $value == 'N/A' ? NULL : $value;
+        return $value == "" || $value == "-" || $value == "tidak ada" || $value == "no contact" || $value == "0000-00-00" || $value == "0000-00-00 00:00:00" || $value == 'N/A' ? NULL : $value;
     }
 }

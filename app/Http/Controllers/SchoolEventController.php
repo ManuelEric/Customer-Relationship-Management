@@ -6,6 +6,7 @@ use App\Http\Requests\StoreSchoolEventRequest;
 use App\Interfaces\SchoolEventRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\SchoolDetailRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\Event;
 use Exception;
 use Illuminate\Http\Request;
@@ -15,15 +16,17 @@ use Illuminate\Support\Facades\Redirect;
 
 class SchoolEventController extends Controller
 {
+    private SchoolRepositoryInterface $schoolRepository;
     private SchoolEventRepositoryInterface $schoolEventRepository;
     private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
     private SchoolDetailRepositoryInterface $schoolDetailRepository;
 
-    public function __construct(SchoolEventRepositoryInterface $schoolEventRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, SchoolDetailRepositoryInterface $schoolDetailRepository)
+    public function __construct(SchoolEventRepositoryInterface $schoolEventRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, SchoolDetailRepositoryInterface $schoolDetailRepository, SchoolRepositoryInterface $schoolRepository)
     {
         $this->schoolEventRepository = $schoolEventRepository;
         $this->agendaSpeakerRepository = $agendaSpeakerRepository;
         $this->schoolDetailRepository = $schoolDetailRepository;
+        $this->schoolRepository = $schoolRepository;
     }
 
     public function store(StoreSchoolEventRequest $request)
@@ -53,8 +56,6 @@ class SchoolEventController extends Controller
     {
         $eventId = $request->route('event');
         $schoolId = $request->route('school');
-
-        
 
         if ($this->agendaSpeakerRepository->getAllSpeakersByEventAndSchool($eventId, $schoolId))
         {

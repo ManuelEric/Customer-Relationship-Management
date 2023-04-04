@@ -24,12 +24,12 @@ class StoreReceiptRequest extends FormRequest
     public function rules()
     {
         return [
-            'currency' => 'required|in:idr,usd,gbp,sgd',
-            'receipt_amount' => 'required_unless:currency,idr',
-            'receipt_amount_idr' => 'required_if:currency,idr',
+            'rec_currency' => 'required|in:idr,usd,gbp,sgd',
+            'receipt_amount' => 'required_unless:rec_currency,idr',
+            'receipt_amount_idr' => 'required_if:rec_currency,idr',
             'receipt_date' => 'required|date',
-            'receipt_words' => 'required_unless:currency,idr',
-            'receipt_words_idr' => 'required_if:currency,idr',
+            'receipt_words' => 'required_unless:rec_currency,idr',
+            'receipt_words_idr' => 'required_if:rec_currency,idr',
             'receipt_method' => 'required|in:Wire Transfer,Cash,Cheque',
             'receipt_cheque' => 'required_if:receipt_method,Cheque'
         ];

@@ -60,10 +60,10 @@ class StoreUserRequest extends FormRequest
             'bankacc' => 'required',
             'nik' => 'required',
             'idcard' => 'required|mimes:pdf|max:5000',
-            'npwp' => 'required',
-            'tax' => 'required|mimes:pdf|max:5000',
-            'health_insurance' => 'required|mimes:pdf|max:5000',
-            'empl_insurance' => 'required|mimes:pdf|max:5000'
+            'npwp' => 'nullable',
+            'tax' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
+            'health_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
+            'empl_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000'
 
         ];
     }
@@ -83,7 +83,7 @@ class StoreUserRequest extends FormRequest
             'degree.*' => 'required',
             'major.*' => 'required',
 
-            'role.*' => 'required|in:1,2,4',
+            'role.*' => 'required|in:1,2,4,8',
             'department' => 'required',
             'position' => 'required',
             'hiredate' => 'required',
@@ -95,7 +95,10 @@ class StoreUserRequest extends FormRequest
             'bankname' => 'required',
             'bankacc' => 'required',
             'nik' => 'required',
-            'npwp' => 'required',
+            'npwp' => 'nullable',
+            'tax' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
+            'health_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
+            'empl_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000'
 
         ];
 
@@ -103,16 +106,16 @@ class StoreUserRequest extends FormRequest
         $user = $this->userRepository->getUserById($userId);
 
         if ($user->idcard == null)
-            $rules['idcard'] = 'required|mimes:pdf|max:5000';
+            $rules['idcard'] = 'required|mimes:pdf,jpeg,jpg,png|max:5000';
 
-        if ($user->tax == null)
-            $rules['tax'] = 'required|mimes:pdf|max:5000';
+        // if ($user->tax == null)
+        //     $rules['tax'] = 'required|mimes:pdf|max:5000';
 
-        if ($user->health_insurance == null)
-            $rules['health_insurance'] = 'required|mimes:pdf|max:5000';
+        // if ($user->health_insurance == null)
+        //     $rules['health_insurance'] = 'required|mimes:pdf|max:5000';
         
-        if ($user->empl_insurance == null)
-            $rules['empl_insurance'] = 'required|mimes:pdf|max:5000';
+        // if ($user->empl_insurance == null)
+        //     $rules['empl_insurance'] = 'required|mimes:pdf|max:5000';
 
         return $rules;
     }

@@ -133,50 +133,26 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-12">
+        <div class="col-md-12 mt-2">
             <div class="card rounded">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="">
-                        <h5 class="m-0 p-0">Programs</h5>
-                    </div>
-                    <div class="">
-                        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#programForm">Add Program</a>
+                        <h5 class="m-0 py-2">Events</h5>
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
+                    <table class="table table-bordered table-hover nowrap align-middle w-100" id="eventTable">
                         <thead class="bg-dark text-white">
                             <tr class="text-center" role="row">
                                 <th class="text-dark">No</th>
-                                <th class="bg-info text-white">Program Name</th>
-                                <th>Conversion Lead</th>
-                                <th>Last Discuss</th>
-                                <th>PIC</th>
-                                <th>Program Status</th>
-                                <th class="text-dark">Status</th>
-                                <th class="text-dark">#</th>
+                                <th class="bg-info text-white">Event Name</th>
+                                <th class="text-dark">Event Start Date</th>
+                                <th class="text-dark">Joined Date</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @for ($i = 0; $i < 5; $i++)
-                                <tr>
-                                    <td class="text-center">{{ $i + 1 }}</td>
-                                    <td>Program Name</td>
-                                    <td>Instagram</td>
-                                    <td>22 Sept 2022</td>
-                                    <td>Anggita</td>
-                                    <td>Interest</td>
-                                    <td class="text-center">Hot</td>
-                                    <td class="text-center"><a href="{{ url('client/mentee/1') }}"
-                                            class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>
-                                    </td>
-                                </tr>
-                            @endfor
-                        </tbody>
                         <tfoot class="bg-light text-white">
                             <tr>
-                                <td colspan="7"></td>
+                                <td colspan="4"></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -278,9 +254,9 @@
     </script>
 
     {{-- Need Changing --}}
-    {{-- <script>
+    <script>
         $(document).ready(function() {
-            var table = $('#programTable').DataTable({
+            var table_event = $('#eventTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
                     [10, 25, 50, 100, -1],
@@ -297,19 +273,37 @@
                     left: 2,
                     right: 2
                 },
-            });
-
-            $('#programTable tbody').on('click', '.editClient ', function() {
-                var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('asset') }}/" + data.asset_id.toLowerCase() + '/edit';
-            });
-
-            $('#programTable tbody').on('click', '.deleteClient ', function() {
-                var data = table.row($(this).parents('tr')).data();
-                confirmDelete('asset', data.asset_id)
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'clientevent_id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'event_name',
+                        name: 'tbl_events.event_title'
+                    },
+                    {
+                        data: 'event_startdate',
+                        name: 'tbl_events.event_startdate',
+                        render: function(data, type, row) {
+                            return moment(data).format('DD MMMM YYYY HH:mm:ss')
+                        }
+                    },
+                    {
+                        data: 'joined_date',
+                        render: function(data, type, row) {
+                            return moment(data).format('DD MMMM YYYY')
+                        }
+                    },
+                ]
             });
         });
-    </script> --}}
+    </script>
 
 
 

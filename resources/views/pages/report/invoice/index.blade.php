@@ -58,7 +58,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">Invoice List</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_inv">
                             <thead>
@@ -151,7 +151,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">Receipt List</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_receipt">
                             <thead>

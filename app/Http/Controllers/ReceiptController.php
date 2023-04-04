@@ -60,7 +60,7 @@ class ReceiptController extends Controller
         $paymethod = $request->paymethod;
 
         $receiptDetails = $request->only([
-            'currency',
+            'rec_currency',
             'receipt_amount',
             'receipt_amount_idr',
             'receipt_date',
@@ -347,7 +347,7 @@ class ReceiptController extends Controller
             $data['receipt_id'] = $receipt->receipt_id;;
 
             # send mail when document has been signed
-            Mail::send('pages.invoice.client-program.mail.signed', $data, function ($message) use ($data, $name) {
+            Mail::send('pages.receipt.client-program.mail.signed', $data, function ($message) use ($data, $name) {
                 $message->to(env('FINANCE_CC'), env('FINANCE_NAME'))
                     ->subject($data['title'])
                     ->attach(storage_path('app/public/uploaded_file/receipt/client/' . $name));
@@ -357,7 +357,7 @@ class ReceiptController extends Controller
 
         } catch (Exception $e) {
 
-            Log::error('Failed to update status after being signed : ' . $e->getMessage());
+            Log::error('Failed to update status after being signed : ' . $e->getMessage().' | Line '.$e->getLine());
             return response()->json(['status' => 'success', 'message' => 'Failed to update'], 500);
 
         }

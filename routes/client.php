@@ -36,9 +36,9 @@ use Illuminate\Support\Facades\Route;
 //     return view('pages.client.student.index', ['status' => $status]);
 // });
 
-Route::get('mentee/{status}', function ($status) {
-    return view('pages.client.student.index-mentee', ['status' => $status]);
-});
+// Route::get('mentee/{status}', function ($status) {
+//     return view('pages.client.student.index-mentee', ['status' => $status]);
+// });
 
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {

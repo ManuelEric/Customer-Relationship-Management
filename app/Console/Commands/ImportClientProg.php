@@ -435,14 +435,24 @@ class ImportClientProg extends Command
             if (!$invoice_v2 = $this->invoiceProgramRepository->getInvoiceByInvoiceId($crm_invoiceId))
             {
                 $inv_words = $crm_clientprog_invoice->inv_wordsusd;
-                if ($crm_clientprog_invoice->inv_wordsusd != "") {
-                    $inv_words = Terbilang::make($crm_clientprog_invoice->inv_totprusd, 'dollars'); 
+                if ($crm_clientprog_invoice->inv_wordsusd == "") {
+                    $inv_words = Terbilang::make($crm_clientprog_invoice->inv_totprusd, ' dollars'); 
                 }
 
                 # it supposed to be : one hundred and fifty-three thousand, two hundred
                 # so we removed the and & commas
-                $inv_words = str_replace('and', '', $inv_words);
+                $inv_words = str_replace(' and', '', $inv_words);
                 $inv_words = str_replace(',', '', $inv_words);
+
+                $curs_rate = $crm_clientprog->stprog_kurs; 
+                # when curs rate from v1 is 0
+                # then create using totprice_idr/totprice_usd
+                if ($crm_clientprog->stprog_kurs == 0 || $crm_clientprog->stprog_kurs == "" || $crm_clientprog->stprog_kurs == NULL) {
+                    if ($crm_clientprog_invoice->inv_totprusd != 0)
+                        $curs_rate = $crm_clientprog_invoice->inv_totpridr/$crm_clientprog_invoice->inv_totprusd;
+                    else
+                        $curs_rate = $curs_rate;
+                }
 
                 $invoiceDetails = [
                     'inv_id' => $crm_clientprog_invoice->inv_id,
@@ -465,8 +475,8 @@ class ImportClientProg extends Command
                     'inv_notes' => $crm_clientprog_invoice->inv_notes == "" ? NULL : $crm_clientprog_invoice->inv_notes,
                     'inv_tnc' => $crm_clientprog_invoice->inv_tnc == "" ? NULL : $crm_clientprog_invoice->inv_tnc,
                     'inv_status' => $crm_clientprog_invoice->inv_status,
-                    'curs_rate' => $crm_clientprog->stprog_kurs, # take the value from stprog
-                    'currency' => $crm_clientprog_invoice->inv_category,
+                    'curs_rate' => $curs_rate, # take the value from stprog
+                    'currency' => $crm_clientprog_invoice->inv_category == "session" ? $this->checkCurrencyBasedOnPrice($crm_clientprog_invoice->inv_totprusd) : $crm_clientprog_invoice->inv_category,
                     'created_at' => $crm_clientprog_invoice->inv_date,
                     'updated_at' => $crm_clientprog_invoice->inv_date
                 ];
@@ -607,5 +617,15 @@ class ImportClientProg extends Command
                 }
             }
         }
+    }
+
+    private function checkCurrencyBasedOnPrice($totprice_other)
+    {
+        if ($totprice_other == NULL)
+            $currency = "usd";
+        else
+            $currency = "idr";
+
+        return $currency;
     }
 }

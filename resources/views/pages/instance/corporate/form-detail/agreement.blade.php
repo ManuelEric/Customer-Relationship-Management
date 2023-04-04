@@ -38,7 +38,7 @@
                                     
                             @endswitch
                             <br>
-                            {{ $partnerAgreement->start_date }} - {{ $partnerAgreement->end_date }}
+                            {{ date('d/m/Y', strtotime($partnerAgreement->start_date)) }} - {{ date('d/m/Y', strtotime($partnerAgreement->end_date)) }}
                         </div>
                         <div class="">
                             <a href="{{url('/')}}/attachment/partner_agreement/{{ strtolower($corporate->corp_id) }}/{{ $partnerAgreement->attachment }}" download="{{ $partnerAgreement->attachment }}" class="btn btn-sm btn-outline-success">
@@ -71,7 +71,7 @@
                     @csrf
                     <div class="row">
                         <div class="col-md-12 mb-2">
-                            <label for="">Agreement Name</label>
+                            <label for="">Agreement Name <sup class="text-danger">*</sup></label>
                             <input type="text" name="agreement_name" id="pic_name" value="{{ old('agreement_name') }}"
                                 class="form-control form-control-sm rounded">
                             @error('agreement_name')
@@ -79,7 +79,7 @@
                             @enderror
                         </div>
                         <div class="col-md-12 mb-2">
-                            <label for="">Agreement Type</label>
+                            <label for="">Agreement Type <sup class="text-danger">*</sup></label>
                             <select name="agreement_type" class="agreement-select w-100">
                                 <option data-placeholder="true"></option>
                                 <option value="0" {{ old('agreement_type') == '0' ? 'selected' : '' }}>Referral Mutual agreement</option>
@@ -92,7 +92,7 @@
                             @enderror
                         </div>
                         <div class="col-md-6 mb-2">
-                            <label for="">Agreement Start Date</label>
+                            <label for="">Agreement Start Date <sup class="text-danger">*</sup></label>
                             <input type="date" name="start_date" id="" value="{{ old('start_date') }}"
                             class="form-control form-control-sm rounded">
                             @error('start_date')
@@ -100,7 +100,7 @@
                             @enderror
                         </div>
                         <div class="col-md-6 mb-2">
-                            <label for="">Agreement End Date</label>
+                            <label for="">Agreement End Date <sup class="text-danger">*</sup></label>
                             <input type="date" name="end_date" id="" value="{{ old('end_date') }}"
                             class="form-control form-control-sm rounded">
                             @error('end_date')
@@ -108,7 +108,7 @@
                             @enderror
                         </div>
                         <div class="col-md-12 mb-2">
-                            <label for="">Partner PIC</label>
+                            <label for="">Partner PIC <sup class="text-danger">*</sup></label>
                             <select name="corp_pic" class="agreement-select w-100">
                                 <option data-placeholder="true"></option>
                                 @foreach ($pics as $pic)
@@ -120,7 +120,7 @@
                             @enderror
                         </div>
                         <div class="col-md-12 mb-2">
-                            <label for="">ALL In PIC</label>
+                            <label for="">ALL In PIC <sup class="text-danger">*</sup></label>
                             <select name="empl_id" class="agreement-select w-100">
                                 <option data-placeholder="true"></option>
                                 @foreach ($employees as $employee)
@@ -132,7 +132,7 @@
                             @enderror
                         </div>
                         <div class="col-md-12 mb-2">
-                            <label for="">Agreement File</label>
+                            <label for="">Agreement File <sup class="text-danger">*</sup></label>
                             <input type="file" name="attachment" value="{{ old('attachment') }}" class="form-control form-control-sm rounded">
                             @error('attachment')
                                 <small class="text-danger fw-light">{{ $message }}</small>

@@ -17,15 +17,24 @@ class ClientMenteeController extends Controller
     
     public function index(Request $request)
     {
-        // $status = $request->get('st');
-        // return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Mentee', $status);
         if ($request->ajax()) {
-
             $status = $request->get('st');
             return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Mentee', $status);
 
         }
 
         return view('pages.client.student.index-mentee');
+    }
+
+    public function show(Request $request)
+    {
+        $menteeId = $request->route('mentee');
+        $student = $this->clientRepository->getClientById($menteeId);
+
+        return view('pages.client.student.view')->with(
+            [
+                'student' => $student
+            ]
+        );
     }
 }

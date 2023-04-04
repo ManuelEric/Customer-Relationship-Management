@@ -35,6 +35,8 @@ class Corporate extends Model
         'country_type',
         'type',
         'partnership_type',
+        'created_at',
+        'updated_at',
     ];
 
     public static function whereCorpId($id)

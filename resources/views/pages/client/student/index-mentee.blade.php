@@ -47,7 +47,7 @@
                         <th>Interest Major</th>
                         <th>Last Update</th>
                         <th>Status</th>
-                        <th class="bg-info text-white">Score</th>
+                        {{-- <th class="bg-info text-white">Score</th> --}}
                         <th class="bg-info text-white"># Action</th>
                     </tr>
                 </thead>
@@ -65,7 +65,7 @@
         $(document).ready(function() {
             var table = $('#clientTable').DataTable({
                 order: [
-                    [20, 'desc'],
+                    // [20, 'desc'],
                     [1, 'asc']
                 ],
                 dom: 'Bfrtip',
@@ -82,7 +82,7 @@
                 scrollX: true,
                 fixedColumns: {
                     left: 2,
-                    right: 2
+                    right: 1
                 },
                 processing: true,
                 serverSide: true,
@@ -176,10 +176,10 @@
                             return data == 1 ? "Active" : "Non-active";
                         }
                     },
-                    {
-                        data: 'total_score',
-                        className: 'text-primary',
-                    },
+                    // {
+                    //     data: 'total_score',
+                    //     className: 'text-primary',
+                    // },
                     {
                         data: '',
                         className: 'text-center',
@@ -190,7 +190,7 @@
 
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('client/student') }}/" + data.id ;
+                window.location.href = "{{ url('client/mentee') }}/" + data.id ;
             });
         });
     </script>

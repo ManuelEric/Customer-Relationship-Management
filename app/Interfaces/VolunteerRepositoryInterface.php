@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface VolunteerRepositoryInterface 
+interface VolunteerRepositoryInterface
 {
     public function getAllVolunteerDataTables();
     public function getAllVolunteer();
@@ -10,5 +10,6 @@ interface VolunteerRepositoryInterface
     public function deleteVolunteer($volunteerId);
     public function createVolunteer(array $volunteerDetails);
     public function updateVolunteer($volunteerId, array $newDetails);
+    public function updateActiveStatus($volunteerId, $newStatus);
     public function cleaningVolunteer();
 }

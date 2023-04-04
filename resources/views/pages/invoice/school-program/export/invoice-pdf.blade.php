@@ -222,7 +222,7 @@
                         <br><br>
 
                         {{-- IF INSTALLMENT EXIST --}}
-                        @if(count($invoiceSch->inv_detail) > 0)
+                        @if(count($invoiceSch->inv_detail) > 0 && $invoiceSch->invb2b_pm == 'installment')
                             Terms of Payment :
                             <div style="margin-left:2px;">
                                 @foreach ($invoiceSch->inv_detail as $installment)

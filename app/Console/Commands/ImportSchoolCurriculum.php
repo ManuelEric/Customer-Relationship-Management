@@ -47,6 +47,7 @@ class ImportSchoolCurriculum extends Command
      */
     public function handle()
     {
+        
         DB::beginTransaction();
         try {
 

@@ -216,7 +216,7 @@ class SchoolController extends Controller
             return Redirect::to('instance/school')->withError('Failed to update school');
         }
 
-        return Redirect::to('instance/school')->withSuccess('School successfully updated');
+        return Redirect::to('instance/school/'.$schoolId)->withSuccess('School successfully updated');
     }
 
     public function destroy(Request $request)

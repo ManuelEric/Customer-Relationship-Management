@@ -4,6 +4,15 @@
 
 @section('content')
 
+@php
+    $invoiceHasRequested = null;
+    $invoiceAttachment = null;
+    $invoiceAttachmentSent = null;
+    $invoiceHasRequestedOther = null;
+    $invoiceAttachmentOther = null;
+    $invoiceAttachmentOtherSent = null;
+@endphp
+
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('invoice/referral/status/needed') }}" class="text-decoration-none text-muted">
@@ -55,6 +64,12 @@
                         {{-- IDR  --}}
                         <div class="border p-1 text-center flex-fill">
                             <div class="d-flex gap-1 justify-content-center">
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="Preview Invoice">
+                                        <a href="{{ route('invoice-ref.preview_pdf', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'idr']) }}" class="text-info" target="blank">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
+                                </div>
                                 @php
                                     $invoiceHasRequested = $invoiceRef->invoiceAttachment()->where('currency', 'idr')->first();
                                     $invoiceAttachment = $invoiceRef->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
@@ -90,6 +105,12 @@
                         @if($invoiceRef->currency != 'idr')
                             <div class="border p-1 text-center flex-fill">
                                 <div class="d-flex gap-1 justify-content-center">
+                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Preview Invoice">
+                                        <a href="{{ route('invoice-ref.preview_pdf', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'other']) }}" class="text-info" target="blank">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
+                                    </div>
                                     @php
                                         $invoiceHasRequestedOther = $invoiceRef->invoiceAttachment()->where('currency', 'other')->first();
                                         $invoiceAttachmentOther = $invoiceRef->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
@@ -194,7 +215,7 @@
                     </div>
                     <div class="">
                         @if (isset($invoiceRef) && !isset($invoiceRef->receipt) && $invoiceRef->invb2b_pm == 'Full Payment' && $status != 'edit')
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt()">
+                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoiceRef->invb2b_totprice) ? $invoiceRef->invb2b_totprice : $invoiceRef->invb2b_totpriceidr}}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -257,7 +278,7 @@
                                 <input type="number" name="curs_rate" id="current_rate"
                                     class="form-control form-control-sm rounded"
                                     value="{{ isset($invoiceRef) ? $invoiceRef->curs_rate : old('curs_rate') }}"
-                                    {{ $status == 'edit' ? '' : 'disabled' }}>
+                                     {{ empty($invoiceRef) || $status == 'edit' ? '' : 'disabled' }}>
                                 @error('curs_rate')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -299,7 +320,13 @@
                                         <label for="">Invoice Date</label>
                                         <input type="date" name="invb2b_date" id=""
                                             class='form-control form-control-sm rounded'
-                                            value="{{ isset($invoiceRef) ? $invoiceRef->invb2b_date : old('invb2b_date') }}"
+                                            @if(isset($invoiceRef))
+                                                value="{{$invoiceRef->invb2b_date}}"
+                                            @elseif (!empty(old('invb2b_date')))
+                                                value="{{old('invb2b_date')}}"
+                                            @else
+                                                value="{{date('Y-m-d')}}"
+                                            @endif                                            
                                             {{ empty($invoiceRef) || $status == 'edit' ? '' : 'disabled' }}>
                                         @error('invb2b_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -477,6 +504,36 @@
 
     <script>
         $(document).ready(function() {
+            
+            $("#currency_detail").on('change', function() {
+
+                var current_rate = $("#current_rate").val()
+
+                checkCurrencyDetail()
+                
+
+                    showLoading()
+                    var base_currency = $(this).val();
+                    var to_currency = 'IDR';
+    
+                    var link = "{{ url('/') }}/api/current/rate/"+base_currency+"/"+to_currency
+    
+                    axios.get(link)
+                        .then(function (response) {
+    
+                            var rate = response.data.rate;
+                            $("#current_rate").val(rate)
+                            swal.close()
+    
+                        }).catch(function (error) {
+    
+                            swal.close()
+                            notification('error', 'Something went wrong. Please try again');
+    
+                        })
+                
+
+            })
             $('.modal-select').select2({
                 dropdownParent: $('#addReceiptReferral .modal-content'),
                 placeholder: "Select value",
@@ -527,15 +584,46 @@
 
         function checkCurrencyDetail() {
             let detail = $('#currency_detail').val()
-            $('#current_rate').removeAttr('disabled')
+            // $('#current_rate').removeAttr('disabled')
             if (detail) {
                 $('.currency-icon').html(currencySymbol(detail))
             }
         }
 
-        function checkReceipt() {
+        function checkReceipt(amount, type) {
             let cur = $('#currency').val()
             let detail = $('#currency_detail').val()
+
+            if(type == 'other'){
+                $('#receipt_amount_other').val(amount)
+
+                var val =  $('#receipt_amount_other').val()
+                var currency = $("#receipt input[name=currency]").val()
+                var curs_rate = $("#current_rate").val();
+                switch (currency) {
+                    case 'usd':
+                        currency = ' Dollar';
+                        break;
+                    case 'sgd':
+                        currency = ' Singapore Dollar';
+                        break;
+                    case 'gbp':
+                        currency = ' Pound';
+                        break;
+                    default:
+                        currency = '';
+                        totprice = '-'
+                        break;
+                }
+                $("#receipt_word_other").val(wordConverter(val) + currency)
+                $("#receipt_amount").val(val * curs_rate)
+                $("#receipt_word").val(wordConverter(val * curs_rate) + " Rupiah")
+            }else{
+                $('#receipt_amount').val(amount)
+                var val = $('#receipt_amount').val()
+                $("#receipt_word").val(wordConverter(val) + " Rupiah")
+            }
+
 
             $('#addReceiptReferral').modal('show')
             if (cur == 'other') {
@@ -580,6 +668,7 @@
         <script>
             $(document).ready(function() {
                 $('#currency').val('other').trigger('change')
+                $('#currency_detail').val('{{$invoiceRef->currency}}').trigger('change')
             })
         </script>
     @else
@@ -618,6 +707,7 @@
         @if (isset($invoiceRef))
             $("#send-inv-client-idr").on('click', function(e) {
                 e.preventDefault()
+                confirm("Are yo sure send to client?");
                 Swal.showLoading()
                 axios
                     .get(
@@ -636,7 +726,8 @@
             })
 
             $("#send-inv-client-other").on('click', function(e) {
-                e.preventDefault()
+                e.preventDefault()                
+                confirm("Are yo sure send to client?");
                 Swal.showLoading()
                 axios
                     .get(

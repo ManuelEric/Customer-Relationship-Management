@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\CountryRepositoryInterface;
 use App\Interfaces\PositionRepositoryInterface;
 use App\Interfaces\EditorRepositoryInterface;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 class ImportEditor extends Command
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
     /**
      * The name and signature of the console command.
      *
@@ -62,11 +64,12 @@ class ImportEditor extends Command
      */
     public function handle()
     {
-        
         DB::beginTransaction();
         try {
             
             $editors = $this->editorRepository->getAllEditors();
+            $progressBar = $this->output->createProgressBar($editors->count());
+            $progressBar->start();
             foreach ($editors as $editor) 
             {
 
@@ -77,7 +80,9 @@ class ImportEditor extends Command
                 $this->attachEditorEducationsIfNotExists($editor, $selectedUser);
 
                 $this->attachEditorRolesIfNotExists($editor, $selectedUser, $extended_id);
+                $progressBar->advance();
             }
+            $progressBar->finish();
             DB::commit();
 
         } catch (Exception $e) {
@@ -112,7 +117,7 @@ class ImportEditor extends Command
                 'last_name' => $editor->editor_ln == '' ? null : $editor->editor_ln,
                 'address' => $editor->editor_address == '' ? null : $editor->editor_address,
                 'email' => $editor->editor_mail == '' ? null : $editor->editor_mail,
-                'phone' => $editor->editor_phone == '' || $editor->editor_phone == '-' ? null : $editor->editor_phone,
+                'phone' => $editor->editor_phone == '' || $editor->editor_phone == '-' ? null : $this->setPhoneNumber($editor->editor_phone),
                 'emergency_contact' => null,
                 'datebirth' => null,
                 'position_id' => null,

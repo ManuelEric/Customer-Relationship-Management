@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ParentTemplate;
+use App\Interfaces\ClientEventRepositoryInterface;
 
 class ClientParentController extends Controller
 {
@@ -35,6 +36,7 @@ class ClientParentController extends Controller
     use StandardizePhoneNumberTrait;
 
     private ClientRepositoryInterface $clientRepository;
+    private ClientEventRepositoryInterface $clientEventRepository;
     private SchoolRepositoryInterface $schoolRepository;
     private LeadRepositoryInterface $leadRepository;
     private EventRepositoryInterface $eventRepository;
@@ -46,7 +48,7 @@ class ClientParentController extends Controller
     private TagRepositoryInterface $tagRepository;
     private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientEventRepositoryInterface $clientEventRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
@@ -59,6 +61,7 @@ class ClientParentController extends Controller
         $this->curriculumRepository = $curriculumRepository;
         $this->tagRepository = $tagRepository;
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
+        $this->clientEventRepository = $clientEventRepository;
     }
 
     public function index(Request $request)
@@ -389,6 +392,10 @@ class ClientParentController extends Controller
 
     public function show(Request $request)
     {
+        $parentId = $request->route('parent');
+        if ($request->ajax())
+            return $this->clientEventRepository->getAllClientEventByClientIdDataTables($parentId);
+
         $parentId = $request->route('parent');
         $parent = $this->clientRepository->getClientById($parentId);
 

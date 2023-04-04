@@ -41,6 +41,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                     'tbl_receipt.receipt_amount_idr as total_price_idr',
                 )
                 ->where('tbl_receipt.receipt_status', 1)
+                ->orderBy('tbl_receipt.created_at', 'DESC')
         )->make(true);
     }
 
@@ -71,6 +72,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                     'tbl_receipt.receipt_amount_idr as total_price_idr',
                 )
                 ->where('tbl_receipt.receipt_status', 1)
+                ->orderBy('tbl_receipt.created_at', 'DESC')
         )->make(true);
     }
 
@@ -95,6 +97,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 )
                 ->where('tbl_receipt.receipt_status', 1)
                 ->where('tbl_referral.referral_type', 'Out')
+                ->orderBy('tbl_receipt.created_at', 'DESC')
         )->make(true);
     }
 
@@ -106,7 +109,6 @@ class ReceiptRepository implements ReceiptRepositoryInterface
 
     public function getAllReceiptByStatusDataTables() # client program
     {
-
         $query = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
             ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
@@ -117,10 +119,10 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             ->whereNotNull('tbl_receipt.inv_id')
             ->select([
                 'tbl_client_prog.clientprog_id',
-                'tbl_inv.clientprog_id',
+                // 'tbl_inv.clientprog_id',
                 'tbl_receipt.id',
                 'tbl_receipt.receipt_id',
-                'tbl_receipt.created_at',
+                // 'tbl_receipt.created_at',
                 DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
                 DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
                 'tbl_inv.inv_id',
@@ -129,7 +131,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 'tbl_inv.inv_duedate',
                 'tbl_receipt.receipt_amount_idr',
                 DB::raw('DATEDIFF(inv_duedate, now()) as date_difference')
-            ]);
+            ])->orderBy('tbl_receipt.created_at', 'DESC');
 
         return DataTables::eloquent($query)
             ->filterColumn('client_fullname', function ($query, $keyword) {

@@ -55,7 +55,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         )->make(true);
     }
 
-    public function getAllClientEventByStudentIdDataTables($clientId)
+    public function getAllClientEventByClientIdDataTables($clientId)
     {
         return datatables::eloquent(
             ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
@@ -110,12 +110,14 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     ELSE tbl_lead.main_lead
                 END) AS conversion_lead'),
                 'tbl_client_event.joined_date',
+                'tbl_events.event_title',
+                DB::raw(isset($eventId) ? "'ByEvent' as filter" : "'ByMonth' as filter"),
             );
 
         if (isset($eventId)) {
             return $clientEvent->where('tbl_client_event.event_id', $eventId)->get();
         } else {
-            return $clientEvent->get();
+            return $clientEvent->whereMonth('tbl_client_event.created_at', date('m'))->whereYear('tbl_client_event.created_at', date('Y'))->get();
         }
     }
 
@@ -172,7 +174,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             END)) AS count_conversionLead'),
             )
             ->groupBy('conversion_lead')
-            ->when($eventId, function($query) use ($eventId) {
+            ->when($eventId, function ($query) use ($eventId) {
                 $query->where('tbl_client_event.event_id', $eventId);
             })->when($userId, function ($query) use ($userId) {
                 $query->whereHas('event', function ($q) use ($userId) {

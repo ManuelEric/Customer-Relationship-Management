@@ -9,7 +9,7 @@
     <div class="card-body">
         @if (isset($clientProgram->invoice))
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="card mb-2">
                     <div class="card-header">
                         <div class="d-flex justify-content-between">
@@ -27,7 +27,11 @@
                             <div class="d-flex justify-content-between {{ $loop->iteration > 1 ? "mt-3 border-top pt-3" : null }}">
                                 <div class="">
                                     <strong>
-                                        Invoice : {{ $clientProgram->invoice->inv_id }} - {{ $invdetail->invdtl_id }}
+                                        Invoice : {{ $clientProgram->invoice->inv_id }} - {{ $invdetail->invdtl_id }} 
+                                        @if ($invdetail->receipt)
+                                        <i class="bi bi-arrow-right mx-3"></i>
+                                        Already Paid (ref: {{ $invdetail->receipt->receipt_id }})
+                                        @endif
                                     </strong> <br>
                                     <span>{{ $invdetail->invdtl_installment }}</span> <br>
                                     @if (isset($invdetail->invdtl_amount))
@@ -50,7 +54,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            {{-- <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
                         <strong>
@@ -71,7 +75,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
         @else
             No payment yet

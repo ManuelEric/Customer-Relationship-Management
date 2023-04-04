@@ -59,6 +59,56 @@
                 </div>
             </div>
             @endfor
+        @elseif (isset($invoice->receipt) && $invoice->receipt()->count() > 0 && !isset($invoice->invoiceDetail))
+        @php
+            $limit = $invoice->receipt->count();
+        @endphp
+        {{ "sldkjfkl" }}
+            @for ($i = 0; $i < $limit ; $i++)
+                <div class="row g-2 installment mb-3">
+                    <div class="col-md-3">
+                        <label for="">Name <sup class="text-danger">*</sup></label>
+                        <input type="text" name="invdtl_installment[]" class="form-control form-control-sm installment-name" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_installment : old('invdtl_installment')[$i] }}" {{ $disabled }}>
+                        @error('invdtl_installment.'.$i)
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    <div class="col-md-3">
+                        <label for="">Due Date <sup class="text-danger">*</sup></label>
+                        <input type="date" name="invdtl_duedate[]" class="form-control form-control-sm " value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_duedate : old('invdtl_duedate')[$i] }}" {{ $disabled }}>
+                        @error('invdtl_duedate.'.$i)
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    <div class="col-md-2">
+                        <label for="">Percentage (%) <sup class="text-danger">*</sup></label>
+                        <input type="text" name="invdtl_percentage[]" id="percentage_{{ $i }}" class="form-control form-control-sm percentage"
+                            onchange="checkPercentage('{{ $i }}')" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_percentage : old('invdtl_percentage')[$i] }}" {{ $disabled }}>
+                        @error('invdtl_percentage.'.$i)
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between">
+                            <div class="">
+                                Amount <sup class="text-danger">*</sup>
+                            </div>
+                            <div class="cursor-pointer" onclick="removeInstallment({{ $i }})">
+                                <i class="bi bi-trash2 text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text" id="basic-addon1">
+                                Rp
+                            </span>
+                            <input type="number" name="invdtl_amountidr[]" class="form-control amount" id="amount_{{ $i }}" onchange="checkAmount('{{ $i }}')" value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_amountidr : old('invdtl_amountidr')[$i] }}" {{ $disabled }}>
+                            @error('invdtl_amountidr.'.$i)
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+                @endfor
         @else
         <div class="row g-2 installment mb-3">
             <div class="col-md-3">

@@ -42,6 +42,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             return $this->rupiahInvoiceWithYesSession($currency);
         
         } elseif (in_array('other', $currency) && $this->input('is_session') == "no") {
+            
             return $this->otherCurrencyInvoiceWithNoSession($currency);
 
         } elseif (in_array('other', $currency) && $this->input('is_session') == "yes") {
@@ -211,7 +212,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             'inv_words_idr__nso' => Rule::requiredIf(in_array('idr', $currency)),
             'inv_paymentmethod' => 'required|in:full,installment',
             'invoice_date' => 'required',
-            // 'inv_duedate' => 'required',
+            'inv_duedate' => 'date|required_if:inv_paymentmethod,full',
             'inv_notes' => 'nullable',
             'inv_tnc' => 'nullable',
 
@@ -229,8 +230,8 @@ class StoreInvoiceProgramRequest extends FormRequest
             'invdtl_amountidr__other.*' => 'required_if:inv_paymentmethod,installment',
         ];
 
-        if ($this->input('inv_duedate') != NULL)
-            $rules['invdtl_duedate__other'] .= '|max:inv_duedate';
+        if ($this->input('inv_duedate') != NULL && $this->input('inv_paymentmethod') == 'installment')
+            $rules['invdtl_duedate__other.*'] .= '|after_or_equal:inv_duedate';
 
         return $rules;
     }

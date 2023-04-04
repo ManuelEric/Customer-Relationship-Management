@@ -14,7 +14,7 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getAllSchoolDataTables()
     {
-        return Datatables::eloquent(School::query())->rawColumns(['sch_location'])
+        return Datatables::eloquent(School::orderBy('created_at', 'desc'))->rawColumns(['sch_location'])
             ->addColumn('curriculum', function ($data) {
                 $no = 1;
                 $curriculums = '';

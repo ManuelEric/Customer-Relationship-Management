@@ -63,8 +63,8 @@ Route::resource('client-program', InvoiceProgramController::class, [
 
 Route::prefix('client-program')->name('invoice.program.')->group(function () {
     Route::get('{client_program}/print/{currency}', [InvoiceProgramController::class, 'print'])->name('print');
-    Route::get('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'preview'])->name('preview'); # new 
-    Route::post('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'upload'])->name('upload-signed'); # new
+    Route::get('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'preview'])->name('preview')->withoutMiddleware(['auth', 'auth.department']); # new 
+    Route::post('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'upload'])->name('upload-signed')->withoutMiddleware(['auth', 'auth.department']); # new
     Route::get('{client_program}/export', [InvoiceProgramController::class, 'export'])->name('export');
     Route::post('{client_program}/refund', [RefundController::class, 'store'])->name('refund');
     Route::delete('{client_program}/refund', [RefundController::class, 'destroy'])->name('destroy');
@@ -129,8 +129,9 @@ Route::prefix('school-program')->name('invoice-sch.')->group(function () {
     Route::get('status/{status}', [InvoiceSchoolController::class, 'index'])->name('index');
     Route::get('{invoice}/export/{currency}', [InvoiceSchoolController::class, 'export'])->name('export');
     Route::get('{invoice}/request_sign/{currency}', [InvoiceSchoolController::class, 'requestSign'])->name('request_sign');
-    Route::get('{invoice}/sign/{currency}', [InvoiceSchoolController::class, 'signAttachment'])->name('sign_document');
+    Route::get('{invoice}/sign/{currency}', [InvoiceSchoolController::class, 'signAttachment'])->name('sign_document')->withoutMiddleware(['auth', 'auth.department']);
     Route::get('{invoice}/send/{currency}', [InvoiceSchoolController::class, 'sendToClient'])->name('send_to_client');
+    Route::get('{invoice}/preview/{currency}', [InvoiceSchoolController::class, 'previewPdf'])->name('preview_pdf')->withoutMiddleware(['auth', 'auth.department']);
     Route::post('{invoice}/refund', [RefundSchoolController::class, 'store'])->name('refund');
     Route::delete('{invoice}/refund/{refund}', [RefundSchoolController::class, 'destroy'])->name('refund.destroy');
 });
@@ -140,8 +141,9 @@ Route::prefix('referral')->name('invoice-ref.')->group(function () {
     Route::get('status/{status}', [InvoiceReferralController::class, 'index'])->name('index');
     Route::get('{invoice}/export/{currency}', [InvoiceReferralController::class, 'export'])->name('export');
     Route::get('{invoice}/request_sign/{currency}', [InvoiceReferralController::class, 'requestSign'])->name('request_sign');
-    Route::get('{invoice}/sign/{currency}', [InvoiceReferralController::class, 'signAttachment'])->name('sign_document');
+    Route::get('{invoice}/sign/{currency}', [InvoiceReferralController::class, 'signAttachment'])->name('sign_document')->withoutMiddleware(['auth', 'auth.department']);
     Route::get('{invoice}/send/{currency}', [InvoiceReferralController::class, 'sendToClient'])->name('send_to_client');
+    Route::get('{invoice}/preview/{currency}', [InvoiceReferralController::class, 'previewPdf'])->name('preview_pdf')->withoutMiddleware(['auth', 'auth.department']);
     // Route::post('{invoice}/refund', [RefundSchoolController::class, 'store'])->name('refund');
     // Route::delete('{invoice}/refund/{refund}', [RefundSchoolController::class, 'destroy'])->name('refund.destroy');
 });
@@ -153,10 +155,11 @@ Route::prefix('referral')->name('invoice-ref.')->group(function () {
 Route::prefix('corporate-program')->name('invoice-corp.')->group(function () {
     Route::resource('{corp_prog}/detail', InvoicePartnerController::class)->except(['index']);
     Route::get('status/{status}', [InvoicePartnerController::class, 'index'])->name('index');
-    Route::get('{invoice}/export/{currency}', [InvoicePartnerController::class, 'export'])->name('export');
+    Route::get('{invoice}/export/{currency}', [InvoicePartnerController::class, 'export']);
     Route::get('{invoice}/request_sign/{currency}', [InvoicePartnerController::class, 'requestSign'])->name('request_sign');
-    Route::get('{invoice}/sign/{currency}', [InvoicePartnerController::class, 'signAttachment'])->name('sign_document');
+    Route::get('{invoice}/sign/{currency}', [InvoicePartnerController::class, 'signAttachment'])->name('sign_document')->withoutMiddleware(['auth', 'auth.department']);
     Route::get('{invoice}/send/{currency}', [InvoicePartnerController::class, 'sendToClient'])->name('send_to_client');
+    Route::get('{invoice}/preview/{currency}', [InvoicePartnerController::class, 'previewPdf'])->name('preview_pdf')->withoutMiddleware(['auth', 'auth.department']);
     Route::post('{invoice}/refund', [RefundPartnerController::class, 'store'])->name('refund');
     Route::delete('{invoice}/refund/{refund}', [RefundPartnerController::class, 'destroy'])->name('refund.destroy');
 });

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\PositionRepositoryInterface;
 use App\Interfaces\EmployeeRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 class ImportEmployee extends Command
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
     /**
      * The name and signature of the console command.
      *
@@ -114,13 +116,13 @@ class ImportEmployee extends Command
      */
     public function handle()
     {
-        
         DB::beginTransaction();
         try {
             
             $employees = $this->employeeRepository->getAllEmployees();
+            $progressBar = $this->output->createProgressBar($employees->count());
+            $progressBar->start();
             foreach ($employees as $employee) {
-                
 
                 $position = $this->createPositionIfNotExists($employee);
 
@@ -130,14 +132,16 @@ class ImportEmployee extends Command
                 
                 $this->attachUserEducationIfNotExists($employee, $selectedUser);
 
+                $progressBar->advance();
             }
             
+        $progressBar->finish();
         DB::commit();
 
         } catch (Exception $e) {
             
             DB::rollBack();
-            Log::warning('Import employees failed : ' . $e->getMessage());
+            Log::warning('Import employees failed : ' . $e->getMessage(). ' | Line '. $e->getLine());
             
         }
 
@@ -173,7 +177,7 @@ class ImportEmployee extends Command
             'last_name' => $employee->empl_lastname == '' ? null : $employee->empl_lastname,
             'address' => $employee->empl_address == '' ? null : $employee->empl_address,
             'email' => $employee->empl_email == '' ? null : $employee->empl_email,
-            'phone' => $employee->empl_phone == '' ? null : $employee->empl_phone,
+            'phone' => $employee->empl_phone == '' ? null : $this->setPhoneNumber($employee->empl_phone),
             'emergency_contact' => $employee->empl_emergency_contact == '' || $employee->empl_emergency_contact == "-" ? null : $employee->empl_emergency_contact,
             'datebirth' => $employee->empl_datebirth == '0000-00-00' ? null : $employee->empl_datebirth,
             'position_id' => $position->id,
@@ -186,14 +190,14 @@ class ImportEmployee extends Command
             'bankacc' => $employee->empl_bankaccount == '' ? null : $employee->empl_bankaccount,
             'npwp' => $employee->empl_npwp == '' ? null : $employee->empl_npwp,
             'tax' => $employee->empl_tax == '' ? null : $employee->empl_tax,
-            'active' => true,
+            'active' => $employee->empl_isactive === 1 ? true : false,
             'health_insurance' => $employee->empl_healthinsurance == '' ? null : $employee->empl_healthinsurance,
             'empl_insurance' => $employee->empl_emplinsurance == '' ? null : $employee->empl_emplinsurance,
             'export' => $employee->empl_export,
             'notes' => null,
             'remember_token' => null,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'created_at' => $employee->empl_lastupdatedate,
+            'updated_at' => $employee->empl_lastupdatedates,
         ];
 
         # if user doesn not exists in the database v2
@@ -257,13 +261,32 @@ class ImportEmployee extends Command
             # put user into department
             $departmentId = $this->getDepartment($role);
             if (!$selectedUser->user_type()->wherePivot('department_id', $departmentId)->first())
-            {
-                # hardcode user type fulltime
-                $userTypeId = 1; 
+            {   
+                $userTypeId = 1; # hardcode user type fulltime
+                $endDate = $this->getValueWithoutSpace($employee->empl_statusenddate);
+                $status = $employee->empl_isactive === 1 ? true : false;
+                
+                # kalau statusnya active dan end datenya ada isinya
+                # maka ubah end datenya menjadi null
+                # asumsikan bahwa client tsb masih aktif
+                if ($status === true && $endDate != NULL)
+                    $endDate = NULL;
+
+                $typeDetail = [
+                    'department_id' => $departmentId,
+                    'start_date' => $endDate != NULL ? '2016-04-10' : NULL,
+                    'end_date' => $endDate,
+                    'status' => $status
+                ];
+
                 if (!$selectedUser->user_type()->wherePivot('user_type_id', $userTypeId)->first())
-                    $selectedUser->user_type()->attach($userTypeId, ['department_id' => $departmentId]);
+                {
+                    $selectedUser->user_type()->attach($userTypeId, $typeDetail);
+                }
                 else
-                    $selectedUser->user_type()->updateExistingPivot($userTypeId, ['department_id' => $departmentId]);
+                {
+                    $selectedUser->user_type()->updateExistingPivot($userTypeId, $typeDetail);
+                }
                 
             }
             
@@ -462,7 +485,7 @@ class ImportEmployee extends Command
         }
 
         # insert into tbl_user_educations
-        if (isset($userMajorDetails))
+        if (isset($userMajorDetails) || count($userMajorDetails) > 0)
             $selectedUser->educations()->sync($userMajorDetails);
     }
 
@@ -478,5 +501,10 @@ class ImportEmployee extends Command
                 return $univName;
 
         }
+    }
+
+    private function getValueWithoutSpace($value)
+    {
+        return $value == "" || $value == "-" || $value == "0000-00-00" || $value == 'N/A' ? NULL : $value;
     }
 }
