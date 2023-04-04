@@ -17,7 +17,7 @@
                     <img src="{{ asset('img/mentee.jpg') }}" class="w-100">
                     <h4 class="text-center">Add Volunteer</h4>
 
-                    @if(isset($volunteer) && $edit == false)
+                    @if(isset($volunteer))
                         <div class="text-center mt-2">
                                 <a class="btn btn-sm btn-success {{$volunteer->volunt_status == 1 ? 'disabled' : ''}}" id="update-status-active">
                                     <i class="bi bi-check"></i>
