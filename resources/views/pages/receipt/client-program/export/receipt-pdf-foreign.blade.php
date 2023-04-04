@@ -212,7 +212,8 @@
                     <td width="60%" valign="top">
                     </td>
                     <td width="40%" align="center" valign="top">
-                        PT. Jawara Edukasih Indonesia
+                        {{-- PT. Jawara Edukasih Indonesia --}}
+                        Jakarta, {{ date('d F Y') }}
                         <br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director

@@ -163,7 +163,9 @@
                                             <option value="0">Pending</option>
                                             <option value="1">Success</option>
                                             <option value="2">Denied</option>
+                                            @if (isset($schoolProgram->invoice->receipt))
                                             <option value="3">Refund</option>
+                                            @endif
                                     </select>
                                     @error('status')
                                         <small class="text-danger fw-light">{{ $message }}</small>

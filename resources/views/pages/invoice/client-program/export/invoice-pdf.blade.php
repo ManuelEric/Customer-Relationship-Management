@@ -105,8 +105,8 @@
                                     </td>
                                     <td>
                                         : &nbsp; {{ $clientProg->invoice->inv_id }}<br>
-                                        : &nbsp; {{ $clientProg->invoice->created_at }} <br>
-                                        : &nbsp; {{ $clientProg->invoice->inv_duedate }} <br>
+                                        : &nbsp; {{ date('d F Y', strtotime($clientProg->invoice->created_at)) }} <br>
+                                        : &nbsp; {{ date('d F Y', strtotime($clientProg->invoice->inv_duedate)) }} <br>
                                     </td>
                                 </tr>
                             </table>
@@ -217,19 +217,6 @@
                                     {{ strip_tags($clientProg->invoice->inv_notes) }}
                                 </p>
                             </div>
-
-                            <div style="margin-top:5px;">
-                                @if ($clientProg->invoice->invoice_earlybird_idr > 0)
-                                <p>
-                                    <strong> Early Bird</strong>
-                                </p>
-                                @endif
-                                @if ($clientProg->invoice->invoice_discount_idr > 0)
-                                <p>
-                                    <strong> Discount</strong>
-                                </p>
-                                @endif
-                            </div>
                         </td>
                         <td valign="top" align="center">
                             <div style="height:80px;">
@@ -247,21 +234,25 @@
                                         {{ $clientProg->invoice->invoice_price_idr }}
                                     </strong>
                                 </p>
-                            </div>
-                            <div style="margin-top:5px;">
-                                @if ($clientProg->invoice->invoice_earlybird_idr > 0)
-                                <p>
-                                    <strong> - {{ $clientProg->invoice->invoice_earlybird_idr }}</strong>
-                                </p>
-                                @endif
-                                @if ($clientProg->invoice->invoice_discount_idr > 0)
-                                <p>
-                                    <strong> - {{ $clientProg->invoice->invoice_discount_idr }}</strong>
-                                </p>
-                                @endif
                             </div>
                         </td>
                     </tr>
+                    @if ($clientProg->invoice->inv_earlybird_idr > 0)
+                    <tr>
+                        <td colspan="3" align="right"><b>Early Bird</b></td>
+                        <td valign="middle" align="center">
+                            <b>{{ $clientProg->invoice->invoice_earlybird_idr }}</b>
+                        </td>
+                    </tr>
+                    @endif
+                    @if ($clientProg->invoice->inv_discount_idr > 0)
+                    <tr>
+                        <td colspan="3" align="right"><b>Discount</b></td>
+                        <td valign="middle" align="center">
+                            <b>{{ $clientProg->invoice->invoice_discount_idr }}</b>
+                        </td>
+                    </tr>
+                    @endif
                     <tr>
                         <td colspan="3" align="right"><b>Total</b></td>
                         <td valign="middle" align="center">

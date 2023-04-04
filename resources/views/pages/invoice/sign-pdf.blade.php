@@ -29,7 +29,6 @@
             </div>
             <div class="tool">
                 <button class="btn btn-light btn-sm" 
-                
                 @if(isset($invoice->schprog_id))
                     onclick="savePDF('save','{{ $attachment }}','{{ url('api/invoice-sch/'.$invoice->invb2b_num.'/upload/'.$currency) }}')">
                 @elseif(isset($invoice->ref_id))
