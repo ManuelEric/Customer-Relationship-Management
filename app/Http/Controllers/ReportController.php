@@ -15,6 +15,7 @@ use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
+use App\Interfaces\ReferralRepositoryInterface;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -31,6 +32,7 @@ class ReportController extends Controller
     protected ReceiptRepositoryInterface $receiptRepository;
     protected SchoolVisitRepositoryInterface $schoolVisitRepository;
     protected InvoiceDetailRepositoryInterface $invoiceDetailRepository;
+    protected ReferralRepositoryInterface $referralRepository;
 
     public function __construct(
         ClientEventRepositoryInterface $clientEventRepository,
@@ -44,7 +46,8 @@ class ReportController extends Controller
         InvoiceProgramRepositoryInterface $invoiceProgramRepository,
         ReceiptRepositoryInterface $receiptRepository,
         SchoolVisitRepositoryInterface $schoolVisitRepository,
-        InvoiceDetailRepositoryInterface $invoiceDetailRepository
+        InvoiceDetailRepositoryInterface $invoiceDetailRepository,
+        ReferralRepositoryInterface $referralRepository
     ) {
         $this->clientEventRepository = $clientEventRepository;
         $this->eventRepository = $eventRepository;
@@ -58,6 +61,7 @@ class ReportController extends Controller
         $this->receiptRepository = $receiptRepository;
         $this->schoolVisitRepository = $schoolVisitRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
+        $this->referralRepository = $referralRepository;
     }
 
     public function event(Request $request)
@@ -97,6 +101,7 @@ class ReportController extends Controller
         $schoolVisits = $this->schoolVisitRepository->getReportSchoolVisit($start_date, $end_date);
         $partners = $this->corporateRepository->getReportNewPartner($start_date, $end_date);
         $universities = $this->universityRepository->getReportNewUniversity($start_date, $end_date);
+        $referrals = $this->referralRepository->getReportNewReferral($start_date, $end_date);
 
         return view('pages.report.partnership.index')->with(
             [
@@ -106,6 +111,7 @@ class ReportController extends Controller
                 'schoolVisits' => $schoolVisits,
                 'partners' => $partners,
                 'universities' => $universities,
+                'referrals' => $referrals,
             ]
         );
     }

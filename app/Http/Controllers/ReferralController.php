@@ -29,19 +29,18 @@ class ReferralController extends Controller
         $this->programRepository = $programRepository;
         $this->userRepository = $userRepository;
     }
-    
+
     public function index(Request $request)
     {
-        
+
         if ($request->ajax())
             return $this->referralRepository->getAllReferralDataTables();
 
         return view('pages.program.referral.index');
-
     }
 
     public function store(StoreReferralRequest $request)
-    {  
+    {
         $referralDetails = $request->only([
             'partner_id',
             'prog_id',
@@ -60,16 +59,14 @@ class ReferralController extends Controller
 
             $referral = $this->referralRepository->createReferral($referralDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store referral failed : ' . $e->getMessage());
             return Redirect::to('program/referral/' . $referral->id)->withError('Failed to create new referral');
-
         }
 
-        return Redirect::to('program/referral/'.$referral->id)->withSuccess('Referral successfully created');
+        return Redirect::to('program/referral/' . $referral->id)->withSuccess('Referral successfully created');
     }
 
     public function create()
@@ -138,16 +135,14 @@ class ReferralController extends Controller
 
             $this->referralRepository->updateReferral($referralId, $newDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Update referral failed : ' . $e->getMessage());
             return Redirect::to('program/referral/' . $referralId)->withError('Failed to update referral');
-
         }
 
-        return Redirect::to('program/referral/'.$referralId)->withSuccess('Referral successfully updated');
+        return Redirect::to('program/referral/' . $referralId)->withSuccess('Referral successfully updated');
     }
 
     public function edit(Request $request)
@@ -180,13 +175,11 @@ class ReferralController extends Controller
 
             $this->referralRepository->deleteReferral($referralId);
             DB::commit();
-             
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete referral failed : ' . $e->getMessage());
             return Redirect::to('program/referral')->withError('Failed to delete referral');
-
         }
 
         return Redirect::to('program/referral')->withSuccess('Referral successfully deleted');
