@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\CountryRepositoryInterface;
 use App\Interfaces\PositionRepositoryInterface;
 use App\Interfaces\MentorRepositoryInterface;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 class ImportMentor extends Command
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
     /**
      * The name and signature of the console command.
      *
@@ -64,6 +66,8 @@ class ImportMentor extends Command
     {
         # CRM
         $crm_mentors = $this->mentorRepository->getAllMentors();
+        $progressBar = $this->output->createProgressBar($crm_mentors->count());
+        $progressBar->start();
         
         DB::beginTransaction();
 
@@ -91,7 +95,7 @@ class ImportMentor extends Command
                         'last_name' => $mentor->mt_lastn == '' ? null : $mentor->mt_lastn,
                         'address' => $mentor->mt_address == '' ? null : $mentor->mt_address,
                         'email' => $mentor->mt_email == '' || $mentor->mt_email == '-' ? null : $mentor->mt_email,
-                        'phone' => $mentor->mt_phone == '' ? null : $mentor->mt_phone,
+                        'phone' => $mentor->mt_phone == '' ? null : $this->setPhoneNumber($mentor->mt_phone),
                         'emergency_contact' => null,
                         'datebirth' => null,
                         'position_id' => null,
@@ -349,15 +353,15 @@ class ImportMentor extends Command
                     }
     
                     $user->roles()->attach($userRoleDetails);
-    
+                $progressBar->advance();
             }
+            $progressBar->finish();
             DB::commit();
 
         } catch (Exception $e) {
             
             DB::rollBack();
             Log::error('Import mentors failed : ' . $e->getMessage());
-            echo $e->getMessage();
 
         }
 

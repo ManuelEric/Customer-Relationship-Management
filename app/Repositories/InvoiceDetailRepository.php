@@ -56,6 +56,12 @@ class InvoiceDetailRepository implements InvoiceDetailRepositoryInterface
         return InvDetail::insert($installmentDetails);
     }
 
+    public function deleteInvoiceDetailByInvId($invoiceId)
+    {
+        return InvDetail::where('inv_id', $invoiceId)->delete();
+        
+    }
+
     public function updateInvoiceDetailByInvB2bId($invoiceId, array $installments)
     {
         if (InvDetail::where('invb2b_id', $invoiceId)->exists()) {

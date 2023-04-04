@@ -469,6 +469,11 @@ class InvoiceProgramController extends Controller
 
             $this->invoiceProgramRepository->updateInvoice($inv_id, $invoiceDetails);
 
+            # check if invoice has installments
+            # if yes then remove it when status updated from installment to full payment
+            if (isset($invoice->invoiceDetail) && $invoice->invoiceDetail->count() > 0)
+                $this->invoiceDetailRepository->deleteInvoiceDetailByInvId($inv_id); 
+
             # add installment details
             # check if installment information has been filled
             # either idr or other currency

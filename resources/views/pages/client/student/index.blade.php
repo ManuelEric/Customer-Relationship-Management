@@ -226,6 +226,15 @@
                 //         $('td:nth-last-child(2)', row).html(data['total_score'] + ' (Hot)');
                 //     }
                 // }
+                createdRow: function(row, data, index) {
+                    // temporary condition
+                    // while change soon
+                    if (data['st_statusact'] == 0) {
+                        $('td', row).addClass('text-danger');
+                        $('td:nth-last-child(1) .deleteUser', row).addClass('d-none');
+                        // $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
+                    }
+                }
             });
 
             $('#clientTable tbody').on('click', '.editClient ', function() {

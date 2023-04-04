@@ -55,6 +55,8 @@ class ImportEduf extends Command
     {
         $edufLeads = $this->edufLeadRepository->getAllEdufFromCRM();
         $edufLeadDetails = [];
+        $progressBar = $this->output->createProgressBar($edufLeads->count());
+        $progressBar->start();
 
         foreach ($edufLeads as $edufLead) {
             $organizerName = $edufLead->eduf_organizer;
@@ -134,11 +136,14 @@ class ImportEduf extends Command
                 $this->edufLeadRepository->updateEdufairLead($edufLead->eduf_id, $edufLeadNewDetails);
 
             }
+
+            $progressBar->advance();
         }
 
         $this->edufLeadRepository->createEdufairLeads($edufLeadDetails);
         if (count($edufLeadDetails) > 0) {
         }
+        $progressBar->finish();
         return Command::SUCCESS;
     }
 

@@ -276,9 +276,11 @@
                                             <option value="2"
                                                 {{ old('status') !== null && old('status') == 2 ? 'selected' : null }}>
                                                 Failed</option>
+                                            @if (isset($clientProgram->invoice->receipt))
                                             <option value="3"
                                                 {{ old('status') !== null && old('status') == 3 ? 'selected' : null }}>
                                                 Refund</option>
+                                            @endif
                                         </select>
                                         @error('status')
                                             <small class="text-danger fw-light">{{ $message }}</small>

@@ -22,7 +22,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     # select all client program
                     # where status already success which mean they(client) already paid the program
                     $q->doesntHave('invoice')->where('status', 1);
-                })->orderBy('statusprog_date', 'desc');
+                })
+                ->orderBy('updated_at', 'desc')
+                ->orderBy('statusprog_date', 'desc');
                 break;
 
             case "list":

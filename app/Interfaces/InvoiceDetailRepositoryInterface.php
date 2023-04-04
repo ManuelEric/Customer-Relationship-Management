@@ -12,6 +12,7 @@ interface InvoiceDetailRepositoryInterface
     public function createOneInvoiceDetail(array $installment);
     public function createInvoiceDetail(array $installments);
     public function updateInvoiceDetailByInvId($invoiceId, array $installmentDetails);
+    public function deleteInvoiceDetailByInvId($invoiceId);
     public function updateInvoiceDetailByInvB2bId($invb2b_id, array $installments);
     public function getReportUnpaidInvoiceDetail($start_date, $end_date);
 }

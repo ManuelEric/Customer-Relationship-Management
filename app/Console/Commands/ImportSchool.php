@@ -46,6 +46,8 @@ class ImportSchool extends Command
     {
         $schools = $this->schoolRepository->getAllSchoolFromV1();
         $new_schools = [];
+        $progressBar = $this->output->createProgressBar($schools->count());
+        $progressBar->start();
 
         foreach ($schools as $school) {
             $schoolIdV2 = $this->schoolRepository->getSchoolById($school->sch_id);
@@ -73,6 +75,13 @@ class ImportSchool extends Command
                     }
                 }
 
+                if ($school->sch_type == 'International')
+                    $score = 6; # up market
+                elseif ($school->sch_type == 'National')
+                    $score = 3; # mid market
+                else
+                    $score = 0;
+
                 $new_schools[] = [
                     'sch_id' => $school->sch_id,
                     'sch_name' => $school->sch_name,
@@ -82,15 +91,19 @@ class ImportSchool extends Command
                     'sch_insta' => $school->sch_insta == '' || $school->sch_insta == '-' ? null : $school->sch_insta,
                     'sch_city' => $school->sch_city == '' || $school->sch_city == '-' ? null : $school->sch_city,
                     'sch_location' => $school->sch_location == '' || $school->sch_location == '-' ? null : $school->sch_location,
-                    'sch_score' => 0,
+                    'sch_score' => $score,
                     'created_at' => $this->getValueWithoutSpace($school->sch_lastupdate) ?? Carbon::now(), 
                     'updated_at' => Carbon::now(),
                 ];
             }
+            $progressBar->advance();
         }
+
         if (count($new_schools) > 0) {
             $this->schoolRepository->createSchools($new_schools);
         }
+
+        $progressBar->finish();
 
         return Command::SUCCESS;
     }
