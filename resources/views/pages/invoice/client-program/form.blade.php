@@ -61,6 +61,12 @@
                     @endif
                     <div class="border p-1 text-center flex-fill">
                         <div class="d-flex gap-1 justify-content-center">
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="Preview Invoice">
+                                <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}" class="text-info" target="blank">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+                            </div>
                             @if (isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Request Sign" id="request-acc">
@@ -91,6 +97,12 @@
                     @if ($invoice->currency != 'idr')
                         <div class="border p-1 text-center flex-fill">
                             <div class="d-flex gap-1 justify-content-center">
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="Preview Invoice">
+                                    <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}" class="text-info" target="blank">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                </div>
                                 @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Request Sign" id="request-acc-other">
@@ -274,7 +286,7 @@
                         {{-- @if ($invoice === null && isset($invoice->receipt)) --}}
                         @if (isset($invoice) && $invoice->inv_paymentmethod == 'Full Payment' && !isset($invoice->receipt))
                             <button class="btn btn-sm btn-outline-primary py-1"
-                                onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}')">
+                                onclick="checkReceipt();setIdentifier('Full Payment', '{{ $invoice->id }}');setDefault('{{ $invoice->inv_totalprice }}', '{{ $invoice->inv_totalprice_idr }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif

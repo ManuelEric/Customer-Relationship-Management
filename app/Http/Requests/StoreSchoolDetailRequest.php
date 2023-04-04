@@ -20,7 +20,7 @@ class StoreSchoolDetailRequest extends FormRequest
     {
         return [
             'schdetail_name.*.required' => 'The fullname field is required',
-            'schdetail_name.*.alpha' => 'The fullname must only contain letters',
+            'schdetail_name.*.string' => 'The fullname must only contain letters',
             'schdetail_mail.*.required' => 'The email field is required',
             'schdetail_grade.*.required' => 'The school grade field is required',
             'schdetail_position.*.required' => 'The status field is required',
@@ -44,7 +44,7 @@ class StoreSchoolDetailRequest extends FormRequest
             // 'schdetail_grade' => 'required|in:Middle School,High School,Middle School & High School',
             // 'schdetail_position' => 'required|in:Principal,Counselor,Teacher,Marketing',
             // 'schdetail_phone' => 'required',
-            'schdetail_name.*' => 'required|alpha',
+            'schdetail_name.*' => 'required|string',
             'schdetail_mail.*' => 'required|email',
             'schdetail_grade.*' => 'required|in:Middle School,High School,Middle School & High School',
             'schdetail_position.*' => 'required|in:Principal,Counselor,Teacher,Marketing',
