@@ -190,11 +190,15 @@
             var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
             myModal.show()
 
-            $("#deactivate-user--app-3103").attr('onclick', 'deactivateUser(\''+status+'\')')
+            // $("#deactivate-user--app-3103").attr('onclick', 'deactivateUser(\''+status+'\')')
+            $("#deactivate-user--app-3103").bind('click', function() {
+                deactivateUser(status)
+            })
+
             
         }
 
-        function deactivateUser(subject, status) {
+        function deactivateUser(status) {
             showLoading()
             
             axios.post('{{ route('user.update.status', ['user_role' => Request::route('user_role'), 'user' => $user->id]) }}', {
@@ -204,6 +208,7 @@
                     },
                 })
                 .then((response) => {
+                    console.log(response);
 
                     Swal.close()
                     $("#deactiveUser").modal('hide')
@@ -221,8 +226,9 @@
                     }
 
                 }, (error) => {
+                    console.log(error)
                     Swal.close()
-                    notification('error', response.data.message)
+                    notification('error', 'Something went wrong. Please try again or contact the administrator.')
                 });
         }
         @endif

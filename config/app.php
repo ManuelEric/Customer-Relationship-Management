@@ -216,6 +216,12 @@ return [
          * Terbilang Service Providers... 
          */
         Riskihajar\Terbilang\TerbilangServiceProvider::class,
+
+        /*
+         * Indonesia Region Providers...
+         */
+
+        Laravolt\Indonesia\ServiceProvider::class,
     ],
 
     /*
@@ -237,6 +243,7 @@ return [
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Terbilang' => Riskihajar\Terbilang\Facades\Terbilang::class,
+        'Indonesia' => Laravolt\Indonesia\Facade::class,
         
     ])->toArray(),
 
