@@ -13,4 +13,10 @@ class UserTypeRepository implements UserTypeRepositoryInterface
         return UserType::all();
     }
 
+    public function getUserTypeByTypeName(string $typeName)
+    {
+        $typeName = str_replace(' ', '-', trim($typeName));
+        return UserType::where('type_name', $typeName)->first();
+    }
+
 }

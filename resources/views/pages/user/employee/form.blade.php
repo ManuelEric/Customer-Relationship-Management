@@ -58,6 +58,8 @@
                                         @if ($type->pivot->end_date != NULL)
                                         -
                                         {{ date('d M Y', strtotime($type->pivot->end_date)) }}
+                                        @else
+                                            - until now
                                         @endif
                                     </div>
                                 </div>
