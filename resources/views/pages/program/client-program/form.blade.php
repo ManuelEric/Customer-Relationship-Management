@@ -462,7 +462,7 @@
                                                     <option value="{{ $mentor->id }}"
                                                         @if (old('backup_mentor') == $mentor->id) {{ 'selected' }}
                                                         @elseif (isset($clientProgram->clientMentor) &&
-                                                            $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->count() > 0)
+                                                            $clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->count() > 1)
                                                             @if ($clientProgram->clientMentor()->orderBy('tbl_client_mentor.id', 'desc')->first()->id == $mentor->id)
                                                                 {{ 'selected' }} @endif
                                                         @endif

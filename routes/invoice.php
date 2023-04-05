@@ -155,7 +155,7 @@ Route::prefix('referral')->name('invoice-ref.')->group(function () {
 Route::prefix('corporate-program')->name('invoice-corp.')->group(function () {
     Route::resource('{corp_prog}/detail', InvoicePartnerController::class)->except(['index']);
     Route::get('status/{status}', [InvoicePartnerController::class, 'index'])->name('index');
-    Route::get('{invoice}/export/{currency}', [InvoicePartnerController::class, 'export']);
+    Route::get('{invoice}/export/{currency}', [InvoicePartnerController::class, 'export'])->name('export');
     Route::get('{invoice}/request_sign/{currency}', [InvoicePartnerController::class, 'requestSign'])->name('request_sign');
     Route::get('{invoice}/sign/{currency}', [InvoicePartnerController::class, 'signAttachment'])->name('sign_document')->withoutMiddleware(['auth', 'auth.department']);
     Route::get('{invoice}/send/{currency}', [InvoicePartnerController::class, 'sendToClient'])->name('send_to_client');

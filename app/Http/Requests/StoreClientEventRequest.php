@@ -84,9 +84,9 @@ class StoreClientEventRequest extends FormRequest
             'phone' => 'required|min:10|max:12',
             'dob' => 'required',
             'state' => 'required',
-            'status_client' => 'required|in:Mentee,Parent,Teacher/Counsellor',
+            'status_client' => 'required|in:Student,Parent,Teacher/Counsellor',
             'sch_id' => [
-                'required_if:status_client,Mentee,Teacher/Conselor',
+                'required_if:status_client,Student,Teacher/Conselor',
                 function ($attribute, $value, $fail) {
                     if ($this->input('sch_id') != "add-new") {
                         Rule::exists('tbl_sch', 'sch_id');
@@ -100,10 +100,7 @@ class StoreClientEventRequest extends FormRequest
             'sch_curriculum' => 'required_if:sch_id,add-new',
             'sch_score' => 'required_if:sch_id,add-new',
             'event_id' => [
-                'required_if:lead_id,LS004',
-                Rule::unique('tbl_client_event')->where(function ($query) {
-                    $query->where('client_id', $this->input('client_id'))->where('event_id', $this->input('event_id'));
-                })
+                'required_if:lead_id,LS004'
             ],
             'eduf_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [

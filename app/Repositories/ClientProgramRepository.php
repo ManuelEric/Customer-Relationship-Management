@@ -272,12 +272,19 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ];
         }
 
-        if (array_key_exists('main_mentor', $clientProgramDetails) && array_key_exists('backup_mentor', $clientProgramDetails)) {
+        if (array_key_exists('main_mentor', $clientProgramDetails) || array_key_exists('backup_mentor', $clientProgramDetails)) {
 
-            $additionalDetails = [
-                'main_mentor' => $clientProgramDetails['main_mentor'],
-                'backup_mentor' => $clientProgramDetails['backup_mentor']
-            ];
+            if (isset($clientProgramDetails['main_mentor'])) {
+
+                $additionalDetails['main_mentor'] =  $clientProgramDetails['main_mentor'];
+
+            }
+
+            if (isset($clientProgramDetails['backup_mentor'])) {
+
+                $additionalDetails['backup_mentor'] =  $clientProgramDetails['backup_mentor'];
+                
+            }
 
             unset($clientProgramDetails['main_mentor']);
             unset($clientProgramDetails['backup_mentor']);
@@ -337,13 +344,21 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         # when main_mentor and backup_mentor is filled which is not null
         # then assumed the user want to input "admission mentoring" program
         # do attach main mentor and backup mentor as client mentor
-        if (array_key_exists('main_mentor', $additionalDetails) && array_key_exists('backup_mentor', $additionalDetails)) {
+        if (array_key_exists('main_mentor', $additionalDetails) || array_key_exists('backup_mentor', $additionalDetails)) {
 
             # if program end date was less than today 
             # then put status into 0 else 1
             $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
 
-            $clientProgram->clientMentor()->syncWithPivotValues([$additionalDetails['main_mentor'], $additionalDetails['backup_mentor']], ['status' => $status]);
+            if (array_key_exists('main_mentor', $additionalDetails)) {
+                $mentors[] = $additionalDetails['main_mentor'];
+            }
+
+            if (array_key_exists('backup_mentor', $additionalDetails)) {
+                $mentors[] = $additionalDetails['backup_mentor'];
+            }
+
+            $clientProgram->clientMentor()->syncWithPivotValues($mentors, ['status' => $status]);
 
         } 
         

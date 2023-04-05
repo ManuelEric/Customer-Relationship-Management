@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientEventRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -28,6 +29,8 @@ use Illuminate\Support\Facades\Redirect;
 class ClientEventController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use StandardizePhoneNumberTrait;
+
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -48,7 +51,7 @@ class ClientEventController extends Controller
         EventRepositoryInterface $eventRepository,
         LeadRepositoryInterface $leadRepository,
         SchoolRepositoryInterface $schoolRepository,
-        SchoolCurriculumRepositoryInterface $schoolCurriculumRepository,
+        SchoolCurriculumRepositoryInterface $schoolCurriculumRepository
     ) {
         $this->curriculumRepository = $curriculumRepository;
         $this->clientRepository = $clientRepository;
@@ -133,6 +136,8 @@ class ClientEventController extends Controller
                 'st_levelinterest',
                 'st_password'
             ]);
+            unset($clientDetails['phone']);
+            $clientDetails['phone'] = $this->setPhoneNumber($request->phone);
 
             // Client as parent
             if ($request->status_client == 'Parent') {
@@ -223,8 +228,8 @@ class ClientEventController extends Controller
             if ($request->existing_client == 0) {
 
                 switch ($request->status_client) {
-                    case 'Mentee':
-                        if (!$clientCreated = $this->clientRepository->createClient('Mentee', $clientDetails))
+                    case 'Student':
+                        if (!$clientCreated = $this->clientRepository->createClient('Student', $clientDetails))
                             throw new Exception('Failed to store new client', 2);
                         break;
 
