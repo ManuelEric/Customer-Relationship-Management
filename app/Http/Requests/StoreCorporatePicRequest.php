@@ -20,7 +20,7 @@ class StoreCorporatePicRequest extends FormRequest
     {
         return [
             'pic_name.required' => 'The full name field is required',
-            'pic_name.alpha' => 'The full name must only contain letters',
+            'pic_name.string' => 'The full name must only contain letters',
             'pic_phone.required' => 'The phone number field is required',
         ];
     }
@@ -33,7 +33,7 @@ class StoreCorporatePicRequest extends FormRequest
     public function rules()
     {
         return [
-            'pic_name' => 'required|alpha',
+            'pic_name' => 'required|string',
             'pic_mail' => 'nullable|email',
             'pic_phone' => 'required',
             'pic_linkedin' => 'nullable|url'

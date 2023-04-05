@@ -87,6 +87,9 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    @if($clientEvents->first()->filter == 'ByMonth')                                       
+                                        <th>Event Name</th>
+                                    @endif
                                     <th>Client Name</th>
                                     <th>Email</th>
                                     <th>Phone Number</th>
@@ -100,6 +103,9 @@
                                 @forelse ($clientEvents as $clientEvent)
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
+                                        @if($clientEvent->filter == 'ByMonth')                                       
+                                            <td>{{ $clientEvent->event_title }}</td>
+                                        @endif
                                         <td>{{ $clientEvent->client_name }}</td>
                                         <td>{{ $clientEvent->mail }}</td>
                                         <td>{{ $clientEvent->phone }}</td>

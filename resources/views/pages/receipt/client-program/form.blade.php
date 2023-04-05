@@ -163,7 +163,7 @@
                     @php
                         $receiptHasBeenDownloaded = $receipt->download_idr;
                         $receiptHasBeenStamped = $receipt->receiptAttachment()->where('currency', 'idr')->count() > 0 ? true : false; # with e-materai / uploaded
-                        $receiptHasBeenRequested = $receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->where('request_status', 1)->first();
+                        $receiptHasBeenRequested = $receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->where('request_status', 'requested')->first();
                         $receiptHasBeenSigned = $receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
                         $receiptHasBeenSentToClient = $receipt->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
                     @endphp

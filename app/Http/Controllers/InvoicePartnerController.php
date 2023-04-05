@@ -232,8 +232,6 @@ class InvoicePartnerController extends Controller
 
         $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
 
-
-
         return view('pages.invoice.corporate-program.form')->with(
             [
                 'partnerProgram' => $partnerProgram,
@@ -352,7 +350,7 @@ class InvoicePartnerController extends Controller
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
 
-        $invoices['schprog_id'] = $partnerProgId;
+        $invoices['partnerprog_id'] = $partnerProgId;
 
         $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $inv_id = $inv_b2b->invb2b_id;
@@ -371,6 +369,10 @@ class InvoicePartnerController extends Controller
             if ($invoices['invb2b_pm'] == 'Installment') {
                 $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
                 $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
+            } else {
+                if (count($inv_b2b->inv_detail) > 0) {
+                    $this->invoiceDetailRepository->deleteInvoiceDetailByinvb2b_Id($inv_id);
+                }
             }
 
             if (count($inv_b2b->invoiceAttachment) > 0) {
@@ -606,6 +608,15 @@ class InvoicePartnerController extends Controller
 
         $param_program_name = isset($invoicePartner->partner_prog->program->sub_prog) ? $invoicePartner->partner_prog->program->main_prog->prog_name . ' - ' . $invoicePartner->partner_prog->program->sub_prog->sub_prog_name : $invoicePartner->partner_prog->program->main_prog->prog_name;
 
+        if (!isset($invoicePartner->partner_prog->user)) {
+            return response()->json(
+                [
+                    'message' => 'This program not have PIC, please set PIC before send to client'
+                ],
+                500
+            );
+        }
+
         $data['email'] = $invoicePartner->partner_prog->user->email; # email to pic of the partner program
         $data['cc'] = [env('CEO_CC'), env('FINANCE_CC')];
         $data['recipient'] = $invoicePartner->partner_prog->user->full_name; # name of the pic of the partner program
@@ -616,6 +627,7 @@ class InvoicePartnerController extends Controller
             'fullname' => $invoicePartner->partner_prog->corp->corp_name,
             'program_name' => $param_program_name, # main prog name - sub prog name
         ];
+
 
         try {
 
@@ -634,10 +646,22 @@ class InvoicePartnerController extends Controller
         } catch (Exception $e) {
 
             Log::info('Failed to send invoice to client : ' . $e->getMessage());
-            return false;
+
+            return response()->json(
+                [
+                    'message' => 'Something went wrong when sending invoice to client. Please try again'
+                ],
+                500
+            );
         }
 
-        return true;
+        // return true;
+        return response()->json(
+            [
+                'success' => true,
+                'message' => "Invoice has been send to client",
+            ]
+        );
     }
 
     public function previewPdf(Request $request)

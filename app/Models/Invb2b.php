@@ -88,7 +88,7 @@ class Invb2b extends Model
     protected function invoiceTotalprice(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invb2b_totprice
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . number_format($this->invb2b_totprice, '2', ',', '.')
         );
     }
 

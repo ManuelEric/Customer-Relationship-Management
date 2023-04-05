@@ -62,6 +62,18 @@
                         </div>
                     </div>
                     <div class="card mb-1 bg-danger text-white">
+                        <a href="#referral"
+                            class="card-body d-flex justify-content-between align-items-center text-decoration-none text-white">
+
+                            <strong class="">
+                                Total New Referral
+                            </strong>
+                            <h5 class="text-end m-0 badge bg-white text-dark">
+                                {{ count($referrals) }}
+                            </h5>
+                        </a>
+                    </div>
+                    <div class="card mb-1 bg-danger text-white">
                         <a href="#school"
                             class="card-body d-flex justify-content-between align-items-center text-decoration-none text-white">
                             <strong class="">
@@ -192,6 +204,45 @@
                             </tfoot>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <div class="card mb-3" id="referral">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="p-0 m-0">New Referral</h6>
+                </div>
+                <div class="card-body overflow-auto" style="max-height: 500px">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_newref">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th>Partner Name</th>
+                                    <th>Program Name</th>
+                                    <th>Participants</th>
+                                    <th>Amount</th>
+                                    <th>PIC</th>
+                                    <th>Created at</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($referrals as $referral)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $referral->partner->corp_name }}</td>
+                                        <td>{{ $referral->additional_prog_name }}</td>
+                                        <td>{{ $referral->number_of_student }}</td>
+                                        <td>Rp. {{ number_format($referral->revenue) }}</td>
+                                        <td>{{ $referral->user->first_name }} {{ $referral->user->last_name }}</td>
+                                        <td>{{ $referral->created_at }}</td>
+                                    </tr>
+                                @empty
+                                    <td colspan="7" class="text-center">Not new referral yet</td>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
 
@@ -348,6 +399,7 @@
 
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -376,9 +428,9 @@
         });
         function ExportToExcel() {
 
-            var sheetName = ['School Programs', 'Partner Programs', 'School Visits', 'New School', 'New Partner', 'New University'];
+            var sheetName = ['School Programs', 'Partner Programs', 'New Referral', 'School Visits', 'New School', 'New Partner', 'New University'];
 
-            var tableName = ['tblsch_prog', 'tblpartner_prog', 'tbl_schvisit', 'tbl_newsch', 'tbl_newpartner', 'tbl_newuniv'];
+            var tableName = ['tblsch_prog', 'tblpartner_prog', 'tbl_newref', 'tbl_schvisit', 'tbl_newsch', 'tbl_newpartner', 'tbl_newuniv'];
 
             var ws = new Array();
 

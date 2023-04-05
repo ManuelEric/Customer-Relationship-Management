@@ -12,7 +12,7 @@ class Volunteer extends Model
 
     protected $table = 'tbl_volunt';
     protected $primaryKey = 'volunt_id';
-    
+
     public $incrementing = false;
 
     /**
@@ -22,23 +22,32 @@ class Volunteer extends Model
      */
     protected $fillable = [
         'volunt_id',
-        'volunt_firstname', 
-        'volunt_lastname', 
-        'volunt_address', 
-        'volunt_mail', 
-        'volunt_phone', 
-        'volunt_graduatedfr', 
-        'volunt_major', 
-        'volunt_position', 
+        'volunt_firstname',
+        'volunt_lastname',
+        'volunt_address',
+        'volunt_mail',
+        'volunt_phone',
+        'volunt_graduatedfr',
+        'volunt_major',
+        'volunt_position',
         'volunt_idcard',
         'volunt_npwp',
+        'volunt_cv',
+        'volunt_bank_accname',
+        'volunt_bank_accnumber',
+        'volunt_nik',
+        'volunt_idcard',
+        'volunt_npwp_number',
+        'volunt_npwp',
+        'health_insurance',
+        'empl_insurance',
         'volunt_status',
     ];
 
     public static function whereVolunteerId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
-        
+
         $instance = new static;
 
         return $instance->newQuery()->find($id, 'volunt_id');

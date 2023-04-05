@@ -19,12 +19,13 @@
 
                     @if(isset($volunteer))
                         <div class="text-center mt-2">
-                            <button class="btn btn-sm btn-success">
-                                <i class="bi bi-check"></i>
-                                Activate</button>
-                            <button class="btn btn-sm btn-outline-danger">
-                                <i class="bi bi-x"></i>
-                                Deactivate</button>
+                                <a class="btn btn-sm btn-success {{$volunteer->volunt_status == 1 ? 'disabled' : ''}}" id="update-status-active">
+                                    <i class="bi bi-check"></i>
+                                    Activate</a>
+                            
+                                <a class="btn btn-sm btn-outline-danger {{$volunteer->volunt_status == 0 ? 'disabled' : ''}}" id="update-status-deactive">
+                                    <i class="bi bi-x"></i>
+                                    Deactivate</a>
                         </div>
                     @endif
                 </div>
@@ -37,7 +38,7 @@
                 </div>
                 <div class="card-body">
                     <form action="{{ url(isset($volunteer) ? 'user/volunteer/' . $volunteer->volunt_id : 'user/volunteer') }}"
-                        method="POST">
+                        method="POST" enctype="multipart/form-data">
                         @csrf
                         @if (isset($volunteer))
                             @method('put')
@@ -45,7 +46,7 @@
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label for="">
-                                    First Name
+                                    First Name <sup class="text-danger">*</sup>
                                 </label>
                                 <input type="text" name="volunt_firstname" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_firstname) ? $volunteer->volunt_firstname : old('volunt_firstname') }}">
@@ -65,7 +66,7 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="">
-                                    Email
+                                    Email <sup class="text-danger">*</sup>
                                 </label>
                                 <input type="email" name="volunt_mail" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_mail) ? $volunteer->volunt_mail : old('volunt_mail') }}">
@@ -75,9 +76,9 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label for="">
-                                    Phone Number
+                                    Phone Number <sup class="text-danger">*</sup>
                                 </label>
-                                <input type="number" name="volunt_phone" class="form-control form-control-sm rounded"
+                                <input type="text" name="volunt_phone" class="form-control form-control-sm rounded"
                                     value="{{ isset($volunteer->volunt_phone) ? $volunteer->volunt_phone : old('volunt_phone') }}">
                                 @error('volunt_phone')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -97,10 +98,17 @@
                                 <label for="">
                                     Graduated From
                                 </label>
+                                {{-- <input type="text" name="volunt_graduatedfr" class="form-control form-control-sm rounded"
+                                    value="{{ isset($volunteer->volunt_graduatedfr) ? $volunteer->volunt_graduatedfr : old('volunt_graduatedfr') }}"> --}}
+
                                 <select name="volunt_graduatedfr" id="" class="select w-100">
                                     <option data-placeholder="true"></option>
                                     @foreach ($universities as $university)
-                                        <option value="{{ $university->univ_id }}">
+                                        <option value="{{ $university->univ_id }}"
+                                            @if((isset($volunteer) && $volunteer->volunt_graduatedfr == $university->univ_id) || (!empty(old('volunt_graduatedfr')) && old('volunt_graduatedfr') == $university->univ_id))
+                                                {{'selected'}}
+                                            @endif
+                                            >
                                             {{ $university->univ_name }}
                                         </option>
                                     @endforeach
@@ -114,8 +122,20 @@
                                 <label for="">
                                     Major
                                 </label>
-                                <input type="text" name="volunt_major" class="form-control form-control-sm rounded"
-                                    value="{{ isset($volunteer->volunt_major) ? $volunteer->volunt_major : old('volunt_major') }}">
+                                {{-- <input type="text" name="volunt_major" class="form-control form-control-sm rounded"
+                                    value="{{ isset($volunteer->volunt_major) ? $volunteer->volunt_major : old('volunt_major') }}"> --}}
+                                <select name="volunt_major" id="" class="select w-100">
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($majors as $major)
+                                        <option value="{{ $major->id }}"
+                                            @if((isset($volunteer) && $volunteer->volunt_major == $major->id) || (!empty(old('volunt_major')) && old('volunt_major') == $major->id))
+                                                {{'selected'}}
+                                            @endif
+                                            >
+                                            {{ $major->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 @error('volunt_major')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -125,8 +145,20 @@
                                 <label for="">
                                     Position
                                 </label>
-                                <input type="text" name="volunt_position" class="form-control form-control-sm rounded"
-                                    value="{{ isset($volunteer->volunt_position) ? $volunteer->volunt_position : old('volunt_position') }}">
+                                {{-- <input type="text" name="volunt_position" class="form-control form-control-sm rounded"
+                                    value="{{ isset($volunteer->volunt_position) ? $volunteer->volunt_position : old('volunt_position') }}"> --}}
+                                <select name="volunt_position" id="" class="select w-100">
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($positions as $position)
+                                        <option value="{{ $position->id }}"
+                                            @if((isset($volunteer) && $volunteer->volunt_position == $position->id) || (!empty(old('volunt_position')) && old('volunt_position') == $position->id))
+                                                {{'selected'}}
+                                            @endif
+                                            >
+                                            {{ $position->position_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 @error('volunt_position')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -150,4 +182,130 @@
         </div>
     </div>
 
+    <script>
+        @if (isset($volunteer))
+            $("#update-status-active").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+                axios
+                    .get(
+                        '{{ route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id, 'status' => 1]) }}'
+                    )
+                    .then(response => {
+                        swal.close()
+                        notification('success', response.data.message)
+                        setTimeout(location.reload.bind(location), 3000);
+                    })
+                    .catch(error => {
+                        notification('error',
+                            response.data.message);
+                        swal.close()
+                    })
+            })
+
+             $("#update-status-deactive").on('click', function(e) {
+                e.preventDefault()
+                Swal.showLoading()
+                axios
+                    .get(
+                        '{{ route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id, 'status' => 0]) }}'
+                    )
+                    .then(response => {
+                        swal.close()
+                        notification('success', response.data.message)
+                        setTimeout(location.reload.bind(location), 3000);
+                    })
+                    .catch(error => {
+                        notification('error',
+                            response.data.message);
+                        swal.close()
+                    })
+            })
+
+        // curriculum vitae button
+        $(".curriculum-vitae-container .download").on('click', function() {
+            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'CV']) }}", '_blank');
+        })
+
+        $(".curriculum-vitae-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".curriculum-vitae-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // ktp button
+        $(".ktp-container .download").on('click', function() {
+            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'ID']) }}", '_blank');
+        })
+
+        $(".ktp-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".ktp-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // tax button
+        $(".tax-container .download").on('click', function() {
+            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'TX']) }}", '_blank');
+        })
+
+        $(".tax-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".tax-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // hi button
+        $(".hi-container .download").on('click', function() {
+            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'HI']) }}", '_blank');
+        })
+
+        $(".hi-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".hi-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+
+        // ei button
+        $(".ei-container .download").on('click', function() {
+            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'EI']) }}", '_blank');
+        })
+
+        $(".ei-container .remove").on('click', function() {
+            $(this).parent().find('.upload-file').removeClass('d-none');
+            $(this).addClass('d-none')
+            $(this).parent().find('.download').addClass('d-none');
+        })
+
+        $(".ei-container").on('click', '.rollback', function() {
+            $(this).parent().addClass('d-none')
+            $(this).parent().parent().find('.remove').removeClass('d-none');
+            $(this).parent().parent().find('.download').removeClass('d-none');
+        })
+        @endif
+    </script>
 @endsection

@@ -369,6 +369,10 @@ class InvoiceSchoolController extends Controller
             if ($invoices['invb2b_pm'] == 'Installment') {
                 $this->invoiceDetailRepository->updateInvoiceDetailByInvB2bId($inv_id, $NewInstallment);
                 $this->invoiceDetailRepository->createInvoiceDetail($NewInstallment);
+            } else {
+                if (count($inv_b2b->inv_detail) > 0) {
+                    $this->invoiceDetailRepository->deleteInvoiceDetailByinvb2b_Id($inv_id);
+                }
             }
 
             if (count($inv_b2b->invoiceAttachment) > 0) {
@@ -605,6 +609,15 @@ class InvoiceSchoolController extends Controller
             $program_name = $invoiceSch->sch_prog->program->prog_sub . ' - ' . $invoiceSch->sch_prog->program->prog_program;
         }
 
+        if (!isset($invoiceSch->sch_prog->user)) {
+            return response()->json(
+                [
+                    'message' => 'This program not have PIC, please set PIC before send to client'
+                ],
+                500
+            );
+        }
+
         $data['email'] = $invoiceSch->sch_prog->user->email;
         $data['cc'] = [
             env('CEO_CC'),
@@ -636,10 +649,21 @@ class InvoiceSchoolController extends Controller
         } catch (Exception $e) {
 
             Log::info('Failed to send invoice to client : ' . $e->getMessage());
-            return false;
+
+            return response()->json(
+                [
+                    'message' => 'Something went wrong when sending invoice to client. Please try again'
+                ],
+                500
+            );
         }
 
-        return true;
+        return response()->json(
+            [
+                'success' => true,
+                'message' => "Invoice has been send to client",
+            ]
+        );
     }
 
     public function previewPdf(Request $request)

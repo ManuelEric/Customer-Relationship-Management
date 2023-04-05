@@ -36,6 +36,11 @@ class InvoiceDetailRepository implements InvoiceDetailRepositoryInterface
         return InvDetail::destroy($invdtl_id);
     }
 
+    public function deleteInvoiceDetailByinvb2b_Id($invb2b_id)
+    {
+        return InvDetail::where('invb2b_id', $invb2b_id)->delete();
+    }
+
     public function createOneInvoiceDetail(array $installment)
     {
         return InvDetail::create($installment);

@@ -261,7 +261,7 @@
                                 <th class="text-dark">No</th>
                                 <th class="bg-info text-white">Program Name</th>
                                 <th>Conversion Lead</th>
-                                <th>Last Discuss</th>
+                                <th>First Discuss</th>
                                 <th>PIC</th>
                                 <th>Program Status</th>
                                 <th class="text-dark">Running Status</th>
@@ -361,7 +361,7 @@
                         data: 'conversion_lead',
                     },
                     {
-                        data: 'last_discuss_date',
+                        data: 'first_discuss_date',
                     },
                     {
                         data: 'pic_name',

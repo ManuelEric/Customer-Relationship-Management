@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Models\Referral;
+use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -163,5 +164,24 @@ class ReferralRepository implements ReferralRepositoryInterface
             ->get();
 
         return $end;
+    }
+
+    public function getReportNewReferral($start_date = null, $end_date = null)
+    {
+        $firstDay = Carbon::now()->startOfMonth()->toDateString();
+        $lastDay = Carbon::now()->endOfMonth()->toDateString();
+
+        if (isset($start_date) && isset($end_date)) {
+            $query = Referral::whereDate('created_at', '>=', $start_date)
+                ->whereDate('created_at', '<=', $end_date);
+        } else if (isset($start_date) && !isset($end_date)) {
+            $query = Referral::whereDate('created_at', '>=', $start_date);
+        } else if (!isset($start_date) && isset($end_date)) {
+            $query = Referral::whereDate('created_at', '<=', $end_date);
+        } else {
+            $query = Referral::whereBetween('created_at', [$firstDay, $lastDay]);
+        }
+        return $query->where('referral_type', 'Out')
+            ->get();
     }
 }

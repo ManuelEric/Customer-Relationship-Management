@@ -89,13 +89,14 @@
                         data: 'volunt_phone',
                     },
                     {
-                        data: 'volunt_graduatedfr',
+                        data: 'univ_name',
+                        name: 'tbl_univ.univ_name',
                     },
                     {
-                        data: 'volunt_major',
+                        data: 'major_name',
                     },
                     {
-                        data: 'volunt_position',
+                        data: 'position_name',
                     },
                     {
                         data: 'volunt_address',
