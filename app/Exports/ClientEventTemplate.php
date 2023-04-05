@@ -27,14 +27,21 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
     public function headings(): array
     {
         $columns = [
-            'Client Name',
+            'Event Name',
+            'Date',
+            'Name',
+            'Existing / New Leads',
+            'Mentee / Non mentee',
             'Audience',
             'Email',
             'Phone Number',
-            'School Name',
-            'Conversion Lead',
-            'Joined Date',
-            'Status',
+            'School',
+            'Class Of', # Grade / Expected graduation year
+            'Leads Source',
+            'Itended Major',
+            'Destination Country',
+            'Reason Join', # Why do you want to join this program / event ?
+            'Expectation Join', # What do you expect to gain & learn from the event / program ?
         ];
 
         return $columns;
@@ -45,18 +52,23 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
         return [
             // handle by a closure.
             AfterSheet::class => function (AfterSheet $event) {
+                $cellRange = 'A1:O1'; // All headers
+                $event->sheet->getDelegate()->getStyle($cellRange)->getFont()->setSize(14);
 
                 // get layout counts (add 1 to rows for heading row)
                 $row_count = 2;
-                $column_count = 8;
+                $column_count = 15;
 
-                // set dropdown options
-                $status_options = [
-                    'Join', 'Attend'
-                ];
+                $event_options = Event::get()->pluck('event_title')->toArray();
+
+                $lead_options = Lead::get()->pluck('main_lead')->toArray();
+
+                $lead_exist_options = ['Existing', 'New'];
+
+                $mentee_exist_options = ['Mentee', 'Non-mentee'];
 
                 // set dropdown list for first data row
-                $validation = $event->sheet->getCell("H2")->getDataValidation();
+                $validation = $event->sheet->getCell("A2")->getDataValidation();
                 $validation->setType(DataValidation::TYPE_LIST);
                 $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
                 $validation->setAllowBlank(false);
@@ -67,7 +79,49 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
                 $validation->setError('Value is not in list.');
                 $validation->setPromptTitle('Pick from list');
                 $validation->setPrompt('Please pick a value from the drop-down list.');
-                $validation->setFormula1(sprintf('"%s"', implode(',', $status_options)));
+                $validation->setFormula1(sprintf('"%s"', implode(',', $event_options)));
+
+                // set dropdown list for first data row
+                $validation = $event->sheet->getCell("D2")->getDataValidation();
+                $validation->setType(DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+                $validation->setAllowBlank(false);
+                $validation->setShowInputMessage(true);
+                $validation->setShowErrorMessage(true);
+                $validation->setShowDropDown(true);
+                $validation->setErrorTitle('Input error');
+                $validation->setError('Value is not in list.');
+                $validation->setPromptTitle('Pick from list');
+                $validation->setPrompt('Please pick a value from the drop-down list.');
+                $validation->setFormula1(sprintf('"%s"', implode(',', $lead_exist_options)));
+
+                // set dropdown list for first data row
+                $validation = $event->sheet->getCell("E2")->getDataValidation();
+                $validation->setType(DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+                $validation->setAllowBlank(false);
+                $validation->setShowInputMessage(true);
+                $validation->setShowErrorMessage(true);
+                $validation->setShowDropDown(true);
+                $validation->setErrorTitle('Input error');
+                $validation->setError('Value is not in list.');
+                $validation->setPromptTitle('Pick from list');
+                $validation->setPrompt('Please pick a value from the drop-down list.');
+                $validation->setFormula1(sprintf('"%s"', implode(',', $mentee_exist_options)));
+
+                // set dropdown list for first data row
+                $validation = $event->sheet->getCell("K2")->getDataValidation();
+                $validation->setType(DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+                $validation->setAllowBlank(false);
+                $validation->setShowInputMessage(true);
+                $validation->setShowErrorMessage(true);
+                $validation->setShowDropDown(true);
+                $validation->setErrorTitle('Input error');
+                $validation->setError('Value is not in list.');
+                $validation->setPromptTitle('Pick from list');
+                $validation->setPrompt('Please pick a value from the drop-down list.');
+                $validation->setFormula1(sprintf('"%s"', implode(',', $lead_options)));
 
 
                 // set columns to autosize
