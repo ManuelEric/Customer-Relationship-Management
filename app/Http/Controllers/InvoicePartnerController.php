@@ -502,9 +502,9 @@ class InvoicePartnerController extends Controller
 
     public function signAttachment(Request $request)
     {
-        if (Session::token() != $request->get('token')) {
-            return "Your session token is expired";
-        }
+        // if (Session::token() != $request->get('token')) {
+        //     return "Your session token is expired";
+        // }
 
         $invNum = $request->route('invoice');
         $currency = $request->route('currency');

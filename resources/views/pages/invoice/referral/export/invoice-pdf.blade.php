@@ -168,12 +168,6 @@
                         <b style="letter-spacing:0.7px;"><i>Total Amount : {{  $currency == 'other' ? $invoiceRef->invb2b_words : $invoiceRef->invb2b_wordsidr }}</i></b>
                         <br><br>
 
-                        {{-- IF INSTALLMENT EXIST --}}
-                        Terms of Payment :
-                        <div style="margin-left:2px;">
-                        </div>
-
-
                         {{-- IF TERMS & CONDITION EXIST  --}}
                        @if(isset($invoiceRef->invb2b_tnc))
                             <br>

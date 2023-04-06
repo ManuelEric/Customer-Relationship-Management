@@ -51,7 +51,7 @@
                             <div class="d-flex gap-1 justify-content-center">
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Preview Invoice">
-                                        <a href="{{ route('receipt.referral.preview_pdf', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}" class="text-info" target="blank">
+                                        <a href="{{ route('receipt.referral.preview_pdf', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}" class="text-info" target="blank">
                                             <i class="bi bi-eye-fill"></i>
                                         </a>
                                 </div>
@@ -108,7 +108,7 @@
                                 <div class="d-flex gap-1 justify-content-center">
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Preview Invoice">
-                                            <a href="{{ route('receipt.referral.preview_pdf', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}" class="text-info" target="blank">
+                                            <a href="{{ route('receipt.referral.preview_pdf', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}" class="text-info" target="blank">
                                                 <i class="bi bi-eye-fill"></i>
                                             </a>
                                     </div>

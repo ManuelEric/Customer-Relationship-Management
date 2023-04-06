@@ -237,12 +237,14 @@ class InvoiceReferralController extends Controller
                 unset($invoices['invb2b_totprice']);
                 unset($invoices['invb2b_words']);
                 unset($invoices['currency']);
+                $invoices['currency'] = $invoices['select_currency'];
                 break;
         }
 
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
 
+        
         $invoices['ref_id'] = $ref_id;
         $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $inv_id = $inv_b2b->invb2b_id;
@@ -262,8 +264,6 @@ class InvoiceReferralController extends Controller
             DB::rollBack();
             Log::error('Update invoice failed : ' . $e->getMessage());
 
-            return $e->getMessage();
-            exit;
             return Redirect::to('invoice/referral/' . $ref_id . '/detail/' . $invNum)->withError('Failed to update invoice');
         }
 
@@ -378,9 +378,9 @@ class InvoiceReferralController extends Controller
 
     public function signAttachment(Request $request)
     {
-        if (Session::token() != $request->get('token')) {
-            return "Your session token is expired";
-        }
+        // if (Session::token() != $request->get('token')) {
+        //     return "Your session token is expired";
+        // }
 
         $invNum = $request->route('invoice');
         $currency = $request->route('currency');

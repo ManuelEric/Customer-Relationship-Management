@@ -69,7 +69,7 @@ class ReceiptReferralController extends Controller
 
         $invb2b_num = $request->route('invoice');
         $receipts = $request->only([
-            'currency',
+            'rec_currency',
             'receipt_amount',
             'receipt_amount_idr',
             'receipt_date',
@@ -78,6 +78,8 @@ class ReceiptReferralController extends Controller
             'receipt_method',
             'receipt_cheque',
         ]);
+        $receipts['currency'] = $receipts['rec_currency'];
+        unset($receipts['rec_currency']);
 
         switch ($receipts['currency']) {
             case 'idr':

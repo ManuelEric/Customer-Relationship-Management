@@ -208,6 +208,13 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 					var scaleX = (canvas_width / img.width) * 0.18;
 					var scaleY = (canvas_height / img.height) * 0.066;
 					
+					img.setOptions({
+						left: canvas_width*0.688,
+						top: canvas_height*0.707,
+						scaleX: scaleX,
+						scaleY: scaleY
+					})
+					
 					if(type == 'invoice'){
 						if(axis != null && axis.type == 'invoice')
 						{
@@ -219,13 +226,6 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 								angle: axis.angle,
 								flipX: axis.flipX,
 								flipY: axis.flipY,
-							})
-						}else{
-							img.setOptions({
-								left: canvas_width*0.688,
-								top: canvas_height*0.707,
-								scaleX: scaleX,
-								scaleY: scaleY
 							})
 						}
 					}else if(type == 'receipt'){
@@ -240,15 +240,10 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 								flipX: axis.flipX,
 								flipY: axis.flipY,
 							})
-						}else{
-							img.setOptions({
-								left: canvas_width*0.688,
-								top: canvas_height*0.707,
-								scaleX: scaleX,
-								scaleY: scaleY
-							})
 						}
 					}
+
+					
 					fabricObj.add(img)
 
 					window.scrollTo(0, canvas_height*0.5)

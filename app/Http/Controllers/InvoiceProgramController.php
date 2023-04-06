@@ -221,7 +221,7 @@ class InvoiceProgramController extends Controller
             return Redirect::to('invoice/client-program/create?prog=' . $request->clientprog_id)->withError('Failed to store invoice program');
         }
 
-        return Redirect::to('invoice/client-program?s=list')->withSuccess('Invoice has been created');
+        return Redirect::to('invoice/client-program/'.$clientProgId)->withSuccess('Invoice has been created');
     }
 
     public function create(Request $request)
@@ -782,34 +782,43 @@ class InvoiceProgramController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Invoice signed successfully']);
     }
 
+    private function previewFromDashboard($currency, $clientProg)
+    {
+        if ($currency == "idr")
+            $view = 'pages.invoice.client-program.export.invoice-pdf';
+        else
+            $view = 'pages.invoice.client-program.export.invoice-pdf-foreign';
+
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
+
+        $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+        return $pdf->stream();
+    }
+
     public function preview(Request $request)
     {
         $clientprog_id = $request->route('client_program');
         $currency = $request->route('currency');
+        $preview = $request->get('key');
 
         if (!$clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id))
             abort(404);
 
-        $invoice = $clientProg->invoice;
-
-        if (!$attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice->inv_id, $currency))
-        {   
-            if ($currency == "idr")
-                $view = 'pages.invoice.client-program.export.invoice-pdf';
-            else
-                $view = 'pages.invoice.client-program.export.invoice-pdf-foreign';
-
-            $companyDetail = [
-                'name' => env('ALLIN_COMPANY'),
-                'address' => env('ALLIN_ADDRESS'),
-                'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-                'city' => env('ALLIN_CITY')
-            ];
-
-            $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
-            return $pdf->stream();
+        if ($preview == 'dashboard')
+        {
+            return $this->previewFromDashboard($currency, $clientProg);
         }
 
+
+        $invoice = $clientProg->invoice;
+
+        $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice->inv_id, $currency);
+         
         return view('pages.invoice.sign-pdf')->with(
             [
                 'invoice' => $invoice,

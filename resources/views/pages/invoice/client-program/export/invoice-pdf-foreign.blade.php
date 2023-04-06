@@ -269,7 +269,7 @@
                         <br><br>
 
                         {{-- IF INSTALLMENT EXIST --}}
-                        @if ($clientProg->invoice()->has('invoiceDetail'))
+                        @if ($clientProg->invoice()->has('invoiceDetail') && $clientProg->invoice->inv_paymentmethod == 'Installment')
                             Terms of Payment :
                             <div style="margin-left:2px;">
                                 @foreach ($clientProg->invoice->invoiceDetail as $detail)
