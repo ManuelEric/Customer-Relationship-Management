@@ -426,7 +426,7 @@
                         @csrf
                         {{-- <input type="hidden" name="schprog_id" value="{{ $schoolProgram->id }}"> --}}
                         <input type="hidden" name="identifier" id="identifier">
-                        <input type="hidden" name="currency"
+                        <input type="hidden" name="rec_currency"
                             value="{{ isset($invoiceSch->currency) ? $invoiceSch->currency : null }}">
 
                         <div class="row g-2">

@@ -122,16 +122,22 @@
                         </a>
                         <div class="collapse {{ Request::is(strtolower($key).'*') ? 'show' : 'hide' }}" id="{{strtolower($key)}}">
                             <ul class="nav flex-column sub-menu">
-                                @foreach ($menu as $key => $submenu)
+                                @foreach ($menu as $key2 => $submenu)
                                     @php
                                         $submenu_link = $submenu['submenu_link'];
+                                        $explode = explode('/', $submenu_link);
+                                        $length = count($explode);
+                                        if ($length > 2) {
+                                            $submenu_link_array = array_slice($explode, 0, 2);
+                                            $submenu_link = implode('/', $submenu_link_array);
+                                        }
                                     @endphp
                                     @if ($position = strpos($submenu['submenu_link'], '?'))
                                         @php
                                             $submenu_link = substr($submenu['submenu_link'], 0, $position);
                                         @endphp
                                     @endif
-                                    <li class="nav-item"> 
+                                    <li class="nav-item">
                                         <a class="nav-link {{ Request::is($submenu_link . '*') ? 'active' : '' }}"
                                         href="{{ url($submenu['submenu_link']) }}">{{$submenu['submenu_name']}}</a>
                                     </li>

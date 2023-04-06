@@ -535,8 +535,8 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['foreign_currency'] = $request->foreign_currency;
                     $clientProgramDetails['foreign_currency_exchange'] = $request->foreign_currency_exchange;
                     $clientProgramDetails['total_idr'] = $request->total_idr;
-                    $clientProgramDetails['main_mentor'] = $request->main_mentor;
-                    $clientProgramDetails['backup_mentor'] = $request->backup_mentor;
+                    // $clientProgramDetails['main_mentor'] = $request->main_mentor;
+                    // $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
@@ -547,7 +547,7 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['prog_start_date'] = $request->prog_start_date;
                     $clientProgramDetails['prog_end_date'] = $request->prog_end_date;
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
-                    $clientProgramDetails['tutor_id'] = $request->tutor_id;
+                    // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
                 } elseif (in_array($progId, $this->satact_prog_list)) {
 
@@ -557,9 +557,22 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['last_class'] = $request->last_class;
                     $clientProgramDetails['diag_score'] = $request->diag_score;
                     $clientProgramDetails['test_score'] = $request->test_score;
+                    // $clientProgramDetails['tutor_1'] = $request->tutor_1;
+                    // $clientProgramDetails['tutor_2'] = $request->tutor_2;
+                    $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
+                }
+
+                if (in_array($progId, $this->admission_prog_list)) {
+
+                    $clientProgramDetails['main_mentor'] = $request->main_mentor;
+                    $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
+                } elseif (in_array($progId, $this->tutoring_prog_list)) {
+
+                    $clientProgramDetails['tutor_id'] = $request->tutor_id;
+                } elseif (in_array($progId, $this->satact_prog_list)) {
+
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     $clientProgramDetails['tutor_2'] = $request->tutor_2;
-                    $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
                 }
 
                 break;

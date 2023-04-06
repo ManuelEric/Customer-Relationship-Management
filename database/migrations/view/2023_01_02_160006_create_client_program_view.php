@@ -20,7 +20,11 @@ return new class extends Migration
             c.st_grade,
             r.reason_name as reason,
             CONCAT(c.first_name, " ", COALESCE(c.last_name, "")) as fullname,
-            CONCAT(p.prog_program COLLATE utf8mb4_unicode_ci, " - ", mp.prog_name COLLATE utf8mb4_unicode_ci) as program_name,
+            (CASE
+                WHEN sp.sub_prog_name COLLATE utf8mb4_unicode_ci IS NOT NULL THEN CONCAT(sp.sub_prog_name COLLATE utf8mb4_unicode_ci, " - ", p.prog_program COLLATE utf8mb4_unicode_ci, " - ", mp.prog_name COLLATE utf8mb4_unicode_ci)
+                ELSE
+                CONCAT(p.prog_program COLLATE utf8mb4_unicode_ci, " - ", mp.prog_name COLLATE utf8mb4_unicode_ci)
+            END) AS program_name,
             (CASE WHEN cp.status = 0 THEN "Pending"
                 WHEN cp.status = 1 THEN "Success"
                 WHEN cp.status = 2 THEN "Failed"
@@ -48,6 +52,8 @@ return new class extends Migration
                 ON p.prog_id = cp.prog_id
                     LEFT JOIN tbl_main_prog mp
                         ON mp.id = p.main_prog_id
+                    LEFT JOIN tbl_sub_prog sp
+                        ON sp.id = p.sub_prog_id
             LEFT JOIN tbl_client c
                 ON c.id = cp.client_id
                     LEFT JOIN tbl_lead cl

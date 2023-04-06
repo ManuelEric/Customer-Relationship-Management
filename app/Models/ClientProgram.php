@@ -78,7 +78,7 @@ class ClientProgram extends Model
     protected function programName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->program->prog_program. ' - ' .$this->program->prog_main,
+            get: fn ($value) => $this->program->prog_program. ' - ' .$this->program->main_prog->main_prog_name,
         );
     }
     

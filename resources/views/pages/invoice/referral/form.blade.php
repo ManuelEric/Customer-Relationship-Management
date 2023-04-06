@@ -20,6 +20,9 @@
         </a>
     </div>
 
+    @if ($errors->any())
+        {{ $errors }}
+    @endif
 
     <div class="row">
         <div class="col-md-4">
@@ -215,7 +218,7 @@
                     </div>
                     <div class="">
                         @if (isset($invoiceRef) && !isset($invoiceRef->receipt) && $invoiceRef->invb2b_pm == 'Full Payment' && $status != 'edit')
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoiceRef->invb2b_totprice) ? $invoiceRef->invb2b_totprice : $invoiceRef->invb2b_totpriceidr}}')">
+                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoiceRef->invb2b_totprice) && $invoiceRef->currency != 'idr' ? $invoiceRef->invb2b_totprice : $invoiceRef->invb2b_totpriceidr}}', '{{ $invoiceRef->currency != 'idr' ? 'other' : 'idr' }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -388,7 +391,7 @@
                         action="{{ isset($invoiceRef) ? route('receipt.referral.store', ['invoice' => $invoiceRef->invb2b_num]) : '' }}"
                         method="POST" id="receipt">
                         @csrf
-                        <input type="hidden" name="currency"
+                        <input type="hidden" name="rec_currency"
                             value="{{ isset($invoiceRef->currency) ? $invoiceRef->currency : null }}">
                         <div class="row g-2">
                             <div class="col-md-3 receipt-other d-none">
@@ -593,7 +596,7 @@
         function checkReceipt(amount, type) {
             let cur = $('#currency').val()
             let detail = $('#currency_detail').val()
-
+            
             if(type == 'other'){
                 $('#receipt_amount_other').val(amount)
 

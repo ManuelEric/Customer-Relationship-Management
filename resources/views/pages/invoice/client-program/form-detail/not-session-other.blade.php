@@ -122,6 +122,11 @@
         $('#not_session_other_early_idr').val(early * kurs)
         $('#not_session_other_discount_idr').val(discount * kurs)
         $('#not_session_other_total_idr').val(total * kurs)
+
+        $('#not_session_other_early').val(early * kurs)
+        $('#not_session_other_discount').val(discount * kurs)
+        $('#not_session_other_total').val(total * kurs)
+
         $('#not_session_other_total').val(total)
 
         $('#total_idr').val(total * kurs)

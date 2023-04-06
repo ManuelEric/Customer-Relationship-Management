@@ -14,7 +14,7 @@ class CurrencyRateController extends Controller
 
         # get currency rate per today
         $response = Http::withUrlParameters([
-            'apiKey' => '0a0m4e2f9noudq8qbsjkv8f524e4b3k6ts0slij2hfggqhhk8edn7',
+            'apiKey' => '3pvlhs5ls2gt6bdeaaah7o6odlv0v5asg343fn38m7784mvrk5a42cg',
             'base_currency' => $base_currency,
             'to_currency' => $to_currency,
             'amount' => '1',
