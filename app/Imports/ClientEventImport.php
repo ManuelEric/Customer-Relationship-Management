@@ -85,15 +85,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                 $school = School::where('sch_name', $row['school'])->get()->pluck('sch_id')->first();
 
                 if (!isset($school)) {
-                    $last_id = School::max('sch_id');
-                    $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-                    $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-
-                    if (!$newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $row['school']])) {
-
-                        throw new Exception('Failed to store new school');
-                        Log::error('Failed to store new school');
-                    }
+                    $newSchool = $this->createSchoolIfNotExists($row['school']);
                 }
 
                 $majorDetails = [];
@@ -154,13 +146,15 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                         if (isset($tagFromDB)) {
                             $destinationCountryDetails[] = [
                                 'tag_id' => $tagFromDB->id,
+                                'country_name' => $regionName == 'Other' ? $country : null,
                                 'created_at' => Carbon::now(),
                                 'updated_at' => Carbon::now()
                             ];
                         } else {
-                            $newCountry = Tag::create(['name' => $regionName]);
+                            // $newCountry = Tag::create(['name' => $regionName]);
                             $destinationCountryDetails[] = [
-                                'tag_id' => $newCountry->id,
+                                'tag_id' => 7,
+                                'country_name' => $country,
                                 'created_at' => Carbon::now(),
                                 'updated_at' => Carbon::now()
                             ];
@@ -220,7 +214,6 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                     isset($majorDetails) ? $existClient->interestMajor()->sync($majorDetails) : '';
                     isset($destinationCountryDetails) ? $existClient->destinationCountries()->sync($destinationCountryDetails) : null;
                 }
-
 
                 // Insert client event
                 $data = [
@@ -313,5 +306,16 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
             '*.expectation_join' => ['nullable'],
             // '*.status' => ['required', 'in:0,1'],
         ];
+    }
+
+    private function createSchoolIfNotExists($sch_name)
+    {
+        $last_id = School::max('sch_id');
+        $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
+        $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+
+        $newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $sch_name]);
+
+        return $newSchool;
     }
 }
