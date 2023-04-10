@@ -90,7 +90,11 @@
                                 <td>
                                     {{ $receipt->invoiceProgram->clientprog->client->parents[0]->full_name }}
                                     <br>
-                                    {{ $receipt->invoiceProgram->clientprog->client->parents[0]->city }}
+                                    @if ($receipt->invoiceProgram->clientProg->client->parents[0]->city !== NULL)
+                                        {{ $receipt->invoiceProgram->clientProg->client->parents[0]->city }}
+                                    @else
+                                        {{ $receipt->invoiceProgram->clientProg->client->address }}
+                                    @endif
                                 </td>
                             </tr>
                         </table>

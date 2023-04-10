@@ -309,7 +309,7 @@
             var myModal = new bootstrap.Modal(document.getElementById('sendToClient--modal'))
             myModal.show()
 
-            var warningMessage = 'You want to send this '+ category +' to user?';
+            var warningMessage = 'You want to send this '+ category +' to client?';
 
             // change form action 
             $("#formActionSendToClient h6").html(warningMessage);

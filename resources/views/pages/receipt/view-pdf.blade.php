@@ -12,7 +12,7 @@
         <div class="tool">
             
             <button class="btn btn-light btn-sm" 
-            @if (isset($attachment) && count($attachment) > 0)
+            @if (isset($attachment))
                 onclick="savePDF('print','{{$attachment->attachment}}')">
             @else
             onclick="savePDF('print','{{$receiptAttachment->attachment}}')">
@@ -25,7 +25,7 @@
 @section('script')
 {{-- var pdf = new PDFAnnotate("pdf-container", "{{ asset($receiptAttachment->attachment) }}", { --}}
 <script>
-    @if (isset($attachment) && count($attachment) > 0)
+    @if (isset($attachment))
         var file = "{{ asset('storage/uploaded_file/receipt/client/'.$attachment->attachment) }}"
     @else
         var file = "{{ asset($receiptAttachment->attachment) }}"
