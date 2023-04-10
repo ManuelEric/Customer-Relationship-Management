@@ -27,6 +27,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     // 'tbl_lead.main_lead',
                     'tbl_client_event.joined_date',
                     'tbl_client_event.status',
+                    'tbl_client_event.created_at',
+                    'tbl_client.created_at as client_created_at',
                     DB::raw('(CASE
                     WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
                     WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)

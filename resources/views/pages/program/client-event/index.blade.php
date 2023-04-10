@@ -128,6 +128,16 @@
                     },
                     {
                         data: 'client_name',
+                         render: function(data, type, row, meta) {
+                            var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm:ss') == moment(row.client_created_at).format('MMMM Do YYYY, h:mm:ss');
+                            var newClientEvent = moment().format("MMM Do YY") == moment(row.created_at).format('MMM Do YY');
+                            
+                            if(newClientEvent == true){
+                                return data + (existing == true ? ' <span class="badge text-bg-primary" style="font-size:8px;">New</span>' : ' <span class="badge text-bg-success" style="font-size:8px";>Existing</span>');
+                            }else{
+                                return data;
+                            }
+                        }
                     },
                     {
                         data: 'event_name',
@@ -164,7 +174,13 @@
                         className: 'text-center',
                         defaultContent: '<button type="button"class="btn btn-sm btn-outline-warning detailEvent"><i class="bi bi-eye"></i></button>'
                     }
-                ]
+                ],
+                createdRow: function(row, data, index) {
+                    let currentDate = new Date().toJSON().slice(0, 10);
+                    if (data['created_at'].slice(0,10) == currentDate) {
+                        $('td', row).addClass('table-success');
+                    }
+                }
             });
 
             @php            

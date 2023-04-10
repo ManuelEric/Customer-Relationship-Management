@@ -6,6 +6,7 @@ use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
 use App\Models\Lead;
+use App\Models\School;
 use App\Models\UserClient;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Illuminate\Support\Facades\DB;
@@ -63,6 +64,8 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
 
                 $lead_options = Lead::get()->pluck('main_lead')->toArray();
 
+                $school_options = School::get()->pluck('sch_name')->toArray();
+
                 $lead_exist_options = ['Existing', 'New'];
 
                 $mentee_exist_options = ['Mentee', 'Non-mentee'];
@@ -108,6 +111,20 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
                 $validation->setPromptTitle('Pick from list');
                 $validation->setPrompt('Please pick a value from the drop-down list.');
                 $validation->setFormula1(sprintf('"%s"', implode(',', $mentee_exist_options)));
+
+                // set dropdown list for first data row
+                $validation = $event->sheet->getCell("I2")->getDataValidation();
+                $validation->setType(DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+                $validation->setAllowBlank(false);
+                $validation->setShowInputMessage(true);
+                $validation->setShowErrorMessage(true);
+                $validation->setShowDropDown(true);
+                $validation->setErrorTitle('Input error');
+                $validation->setError('Value is not in list.');
+                $validation->setPromptTitle('Pick from list');
+                $validation->setPrompt('Please pick a value from the drop-down list.');
+                $validation->setFormula1(sprintf('"%s"', implode(',', $school_options)));
 
                 // set dropdown list for first data row
                 $validation = $event->sheet->getCell("K2")->getDataValidation();

@@ -413,9 +413,20 @@ class ClientEventController extends Controller
     public function import(Request $request)
     {
         $file = $request->file('file');
-        $import = new ClientEventImport;
-        $import->import($file);
 
-        return back()->withSuccess('Client event successfully imported');
+        DB::beginTransaction();
+        try {
+            $import = new ClientEventImport;
+            $import->import($file);
+
+            return back()->withSuccess('Client event successfully imported');
+
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Import client event failed : ' . $e->getMessage());
+            return back()->withError('Failed to import Client event');
+        }
     }
 }
