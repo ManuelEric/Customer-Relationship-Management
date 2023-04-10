@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientEventRequest;
+use App\Http\Requests\StoreImportClientEventRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
@@ -23,14 +24,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
-
-
+use Illuminate\Support\Facades\Session;
 
 class ClientEventController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
-
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -415,9 +414,11 @@ class ClientEventController extends Controller
         return Redirect::to('program/event')->withSuccess('Client event successfully deleted');
     }
 
-    public function import(Request $request)
+    public function import(StoreImportClientEventRequest $request)
     {
+
         $file = $request->file('file');
+
         $import = new ClientEventImport;
         $import->import($file);
 

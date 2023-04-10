@@ -299,9 +299,9 @@
                     $(this).html(html)
                 })
 
-                $('#tot_partner').html(data.partner.total + (!!data.partner.new ? '<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.partner.new + ' New</small></span></sup>' : ''))
-                $('#tot_school').html(data.school.total + (!!data.school.new ? '<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.school.new + ' New</small></span></sup>' : ''))
-                $('#tot_univ').html(data.university.total + (!!data.university.new ? '<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.university.new + ' New</small></span></sup>' : ''))
+                $('#tot_partner').html(data.partner.total + ('<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.partner.new + ' New</small></span></sup>'))
+                $('#tot_school').html(data.school.total + ('<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.school.new + ' New</small></span></sup>'))
+                $('#tot_univ').html(data.university.total + ('<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.university.new + ' New</small></span></sup>'))
                 $('#tot_agreement').html(data.agreement.total)
             }, (error) => {
                 console.log(error)
