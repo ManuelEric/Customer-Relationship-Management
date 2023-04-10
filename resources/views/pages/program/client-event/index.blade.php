@@ -80,7 +80,7 @@
                             </div>
                             <small class="text-warning mt-3">
                                 * Please clean the file first, before importing the csv file. <br>
-                                You can download the csv template here
+                                You can download the csv template <a href="{{ url('api/download/excel-template/client-event') }}">here</a>
                             </small>
                         </div>
                     </div>
@@ -129,7 +129,7 @@
                     {
                         data: 'client_name',
                          render: function(data, type, row, meta) {
-                            var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm:ss') == moment(row.client_created_at).format('MMMM Do YYYY, h:mm:ss');
+                            var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm') == moment(row.client_created_at).format('MMMM Do YYYY, h:mm');
                             var newClientEvent = moment().format("MMM Do YY") == moment(row.created_at).format('MMM Do YY');
                             
                             if(newClientEvent == true){

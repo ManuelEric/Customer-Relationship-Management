@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientEventRequest;
+use App\Http\Requests\StoreImportClientEventRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Imports\ClientEventImport;
 use App\Interfaces\CurriculumRepositoryInterface;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use Illuminate\Support\Facades\Session;
 
 class ClientEventController extends Controller
 {
@@ -410,23 +412,14 @@ class ClientEventController extends Controller
         return Redirect::to('program/event')->withSuccess('Client event successfully deleted');
     }
 
-    public function import(Request $request)
+    public function import(StoreImportClientEventRequest $request)
     {
+
         $file = $request->file('file');
 
-        DB::beginTransaction();
-        try {
-            $import = new ClientEventImport;
-            $import->import($file);
+        $import = new ClientEventImport;
+        $import->import($file);
 
-            return back()->withSuccess('Client event successfully imported');
-
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            Log::error('Import client event failed : ' . $e->getMessage());
-            return back()->withError('Failed to import Client event');
-        }
+        return back()->withSuccess('Client event successfully imported');
     }
 }

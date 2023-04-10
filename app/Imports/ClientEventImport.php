@@ -26,8 +26,14 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Models\Major;
 use App\Models\Tag;
 use App\Models\UserClientAdditionalInfo;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Validators\Failure;
 
 class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
+
 {
     /**
      * @param Collection $collection
@@ -90,80 +96,84 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                     }
                 }
 
-                //  insert new client
                 $majorDetails = [];
                 $destinationCountryDetails = [];
 
+                //  Set major
+                if (isset($row['itended_major'])) {
+                    $majors = explode(', ', $row['itended_major']);
+                    foreach ($majors as $major) {
+                        $majorFromDB = Major::where('name', $major)->first();
+                        if (isset($majorFromDB)) {
+                            $majorDetails[] = [
+                                'major_id' => $majorFromDB->id,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+                        } else {
+                            $newMajor = Major::create(['name' => $major]);
+                            $majorDetails[] = [
+                                'major_id' => $newMajor->id,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+                        }
+                    }
+                }
+
+                // Set destination country
+                if (isset($row['destination_country'])) {
+                    $countries = explode(', ', $row['destination_country']);
+                    foreach ($countries as $country) {
+                        switch ($country) {
+
+                            case preg_match('/australia/i', $country) == 1:
+                                $regionName = "Australia";
+                                break;
+
+                            case preg_match(
+                                "/United State|State|US/i",
+                                $country
+                            ) == 1:
+                                $regionName = "US";
+                                break;
+
+                            case preg_match('/United Kingdom|Kingdom|UK/i', $country) == 1:
+                                $regionName = "UK";
+                                break;
+
+                            case preg_match('/canada/i', $country) == 1:
+                                $regionName = "Canada";
+                                break;
+
+                            default:
+                                $regionName = "Other";
+                        }
+
+                        $tagFromDB = Tag::where('name', $regionName)->first();
+                        if (isset($tagFromDB)) {
+                            $destinationCountryDetails[] = [
+                                'tag_id' => $tagFromDB->id,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+                        } else {
+                            $newCountry = Tag::create(['name' => $regionName]);
+                            $destinationCountryDetails[] = [
+                                'tag_id' => $newCountry->id,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+                        }
+                    }
+                }
+
+                //  insert new client
                 if (!isset($client)) {
                     $roleId = Role::whereRaw('LOWER(role_name) = (?)', [strtolower($row['audience'])])->first();
 
                     $fullname = explode(' ', $row['name']);
                     $limit = count($fullname);
-
-                    if (isset($row['itended_major'])) {
-                        $majors = explode(', ', $row['itended_major']);
-                        foreach ($majors as $major) {
-                            $majorFromDB = Major::where('name', $major)->first();
-                            if (isset($majorFromDB)) {
-                                $majorDetails[] = [
-                                    'major_id' => $majorFromDB->id,
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now()
-                                ];
-                            } else {
-                                $newMajor = Major::create(['name' => $major]);
-                                $majorDetails[] = [
-                                    'major_id' => $newMajor->id,
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now()
-                                ];
-                            }
-                        }
-                    }
-
-                    if (isset($row['destination_country'])) {
-                        $countries = explode(', ', $row['destination_country']);
-                        foreach ($countries as $country) {
-                            switch ($country) {
-
-                                case preg_match('/australia/i', $country) == 1:
-                                    $regionName = "Australia";
-                                    break;
-
-                                case preg_match("/United State|State|US/i", $country) == 1:
-                                    $regionName = "US";
-                                    break;
-
-                                case preg_match('/United Kingdom|Kingdom|UK/i', $country) == 1:
-                                    $regionName = "UK";
-                                    break;
-
-                                case preg_match('/canada/i', $country) == 1:
-                                    $regionName = "Canada";
-                                    break;
-
-                                default:
-                                    $regionName = "Other";
-                            }
-
-                            $tagFromDB = Tag::where('name', $regionName)->first();
-                            if (isset($tagFromDB)) {
-                                $destinationCountryDetails[] = [
-                                    'tag_id' => $tagFromDB->id,
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now()
-                                ];
-                            } else {
-                                $newCountry = Tag::create(['name' => $regionName]);
-                                $destinationCountryDetails[] = [
-                                    'tag_id' => $newCountry->id,
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now()
-                                ];
-                            }
-                        }
-                    }
-
 
                     $firstname = $lastname = null;
                     if ($limit > 1) {
@@ -204,6 +214,11 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                         isset($majorDetails) ? $thisNewClient->interestMajor()->sync($majorDetails) : '';
                         isset($destinationCountryDetails) ? $thisNewClient->destinationCountries()->sync($destinationCountryDetails) : null;
                     }
+                } else {
+                    // Exist client
+                    $existClient = UserClient::find($client['id']);
+                    isset($majorDetails) ? $existClient->interestMajor()->sync($majorDetails) : '';
+                    isset($destinationCountryDetails) ? $existClient->destinationCountries()->sync($destinationCountryDetails) : null;
                 }
 
 
@@ -220,6 +235,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                     ->where('client_id', $data['client_id'])
                     ->where('joined_date', $data['joined_date'])
                     ->first();
+
 
                 if (!isset($existClientEvent)) {
                     ClientEvent::create($data);
