@@ -83,14 +83,15 @@
                                     </a>
                                 </div>
                             @else
-                                <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                    data-bs-title="Print Invoice">
-                                    <a href="#" class="text-info">
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="Print Receipt">
+                                    <a href="{{ route('receipt.client-program.print', ['receipt' => $receipt->id, 'currency' => 'idr']) }}" target="_blank" class="text-info">
                                         <i class="bi bi-printer"></i>
                                     </a>
                                 </div>
                                 <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light"
-                                    data-bs-toggle="tooltip" data-bs-title="Send to Client" id="send-inv-client-idr">
+                                    data-bs-toggle="tooltip" data-bs-title="Send to Client"
+                                    onclick="confirmSendToClient('{{ url('/') }}/receipt/client-program/{{ $receipt->id }}/send', 'idr', 'receipt')">
                                     <a href="#" class="text-info">
                                         <i class="bi bi-send"></i>
                                     </a>
@@ -132,14 +133,15 @@
                                     </div>
                                 @else
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Print Invoice">
+                                        data-bs-title="Print Receipt">
                                         <a href="{{ route('receipt.client-program.print', ['receipt' => $receipt->id, 'currency' => 'other']) }}"
                                             class="text-info">
                                             <i class="bi bi-printer"></i>
                                         </a>
                                     </div>
                                     <div id="send-rec-client-other" class="btn btn-sm py-1 border btn-light"
-                                        data-bs-toggle="tooltip" data-bs-title="Send to Client">
+                                        data-bs-toggle="tooltip" data-bs-title="Send to Client"
+                                        onclick="confirmSendToClient('{{ url('/') }}/receipt/client-program/{{ $receipt->id }}/send', 'other', 'receipt')">
                                         <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
@@ -402,32 +404,31 @@
     @endif
 
     <script>
+        function sendToClient(link)
+        {    
+            showLoading()
+
+            axios
+                .get(link)
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Receipt has been send to client')
+                    $(".step-five").addClass('active');
+                    $("#sendToClient--modal").modal('hide');
+                })
+                .catch(error => {
+                    notification('error',
+                        'Something went wrong when sending receipt to client. Please try again');
+                    swal.close()
+                })
+        }
+        
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
             });
-
-            $("#send-rec-client-idr").on('click', function(e) {
-                e.preventDefault()
-                showLoading()
-
-                axios
-                    .get(
-                        '{{ route('receipt.client-program.send_to_client', ['receipt' => $receipt->id, 'currency' => 'idr']) }}'
-                    )
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Receipt has been send to client')
-                        $(".step-five").addClass('active');
-                    })
-                    .catch(error => {
-                        notification('error',
-                            'Something went wrong when sending receipt to client. Please try again');
-                        swal.close()
-                    })
-            })
 
             $("#send-rec-client-other").on('click', function(e) {
                 e.preventDefault()

@@ -219,6 +219,32 @@
             </div>
         </div>
     </div>
+
+    {{-- Send Invoice / Receipt to Client  --}}
+    <div class="modal modal-sm fade" tabindex="-1" id="sendToClient--modal" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="" method="post" id="formActionSendToClient">
+                    @csrf
+                    @method('delete')
+                    <div class="modal-body text-center">
+                        <h2>
+                            <i class="bi bi-info-circle text-info"></i>
+                        </h2>
+                        <h4>Are you sure?</h4>
+                        <h6><!-- warning text here --></h6>
+                        <hr>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="button" id="send-to-client--app-0604" class="btn btn-primary btn-sm">
+                            <i class="bi bi-trash3 me-1"></i>
+                            Yes!</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     {{-- Tooltip  --}}
     <script>
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -260,7 +286,7 @@
         }
     </script>
 
-    {{-- Confirm Delete  --}}
+    {{-- Confirm Delete & Deactivate Modal  --}}
     <script>
         function confirmDelete(subject, id) {
             // show modal 
@@ -276,7 +302,23 @@
             myModal.show()
 
             // change form action 
-            $('#formAction').attr('action', '{{ url('') }}/' + subject + '/' + id);
+            $('#formActionDeactive').attr('action', '{{ url('') }}/' + subject + '/' + id);
+        }
+
+        function confirmSendToClient(subject, id, category) {
+            var myModal = new bootstrap.Modal(document.getElementById('sendToClient--modal'))
+            myModal.show()
+
+            var warningMessage = 'You want to send this '+ category +' to client?';
+
+            // change form action 
+            $("#formActionSendToClient h6").html(warningMessage);
+
+            var link = subject + '/' + id
+            $("#send-to-client--app-0604").bind('click', function() {
+                sendToClient(link)
+            })
+            
         }
     </script>
 

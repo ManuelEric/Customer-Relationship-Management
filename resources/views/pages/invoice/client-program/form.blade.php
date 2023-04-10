@@ -63,7 +63,7 @@
                         <div class="d-flex gap-1 justify-content-center">
                             <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                 data-bs-title="Preview Invoice">
-                                <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}" class="text-info" target="blank">
+                                <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}?key=dashboard" class="text-info" target="blank">
                                     <i class="bi bi-eye-fill"></i>
                                 </a>
                             </div>
@@ -83,7 +83,8 @@
                                     </a>
                                 </div>
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                    data-bs-title="Send to Client" id="send-inv-client-idr">
+                                    data-bs-title="Send to Client" id="send-inv-client-idr" 
+                                    onclick="confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', 'idr', 'invoice')">
                                     <a href="#" class="text-info">
                                         <i class="bi bi-send"></i>
                                     </a>
@@ -119,7 +120,8 @@
                                         </a>
                                     </div>
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Send to Client" id="send-inv-client-other">
+                                        data-bs-title="Send to Client" id="send-inv-client-other"
+                                        onclick="confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', 'other', 'invoice')">
                                         <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
@@ -652,35 +654,31 @@
 
         $(document).ready(function() {
 
-            @if (!$disabled && !isset($invoice->curs_rate))
+            @if (!$disabled)
             $("#currency_detail").on('change', function() {
                 
                 var current_rate = $("#current_rate").val()
-
-                    checkCurrencyDetail();
-                    
-                    showLoading()
-                    var base_currency = $(this).val();
-                    var to_currency = 'IDR';
-    
-                    var link = "{{ url('/') }}/api/current/rate/" + base_currency + "/" + to_currency
-    
-                    axios.get(link)
-                        .then(function (response) {
-    
-                            var rate = response.data.rate;
-                            $("#current_rate").val(rate)
-                            swal.close()
-    
-                        }).catch(function (error) {
-    
-                            swal.close()
-                            notification('error', 'Something went wrong. Please try again');
-    
-                        })
+                checkCurrencyDetail();
                 
+                showLoading()
+                var base_currency = $(this).val();
+                var to_currency = 'IDR';
 
-                
+                var link = "{{ url('/') }}/api/current/rate/" + base_currency + "/" + to_currency
+
+                axios.get(link)
+                    .then(function (response) {
+
+                        var rate = response.data.rate;
+                        $("#current_rate").val(rate)
+                        swal.close()
+
+                    }).catch(function (error) {
+
+                        swal.close()
+                        notification('error', 'Something went wrong while trying to get the currency rate');
+
+                    })
 
             })
             @endif
@@ -794,6 +792,10 @@
             }
         }
 
+        // $("#current_rate").on('keyup', function() {
+        //     checkNotSessionOther()
+        // })
+
         function checkCurrencyDetail() {
             let detail = $('#currency_detail').val()
             $('#current_rate').removeAttr('disabled')
@@ -865,9 +867,36 @@
             }
         }
 
+        function sendToClient(link)
+        {
+            showLoading()
+
+            axios
+                .get(link)
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Invoice has been send to client')
+                    $('.step-three').addClass('active');
+                    $("#sendToClient--modal").modal('hide');
+                })
+                .catch(error => {
+                    notification('error',
+                        'Something went wrong when sending invoice to client. Please try again');
+                    swal.close()
+                })
+        }
+
         $(document).ready(function() {
             @if (old('inv_paymentmethod'))
                 $("#payment_method").val("{{ old('inv_paymentmethod') }}").trigger('change');
+            @endif
+
+            @if (isset($invoice) && $invoice->currency)
+                $("#currency_detail").val('{{ $invoice->currency }}').trigger('change');
+                let detail = $('#currency_detail').val()
+                if (detail) {
+                    $('.currency-icon').html(currencySymbol(detail))
+                }
             @endif
 
             $("#request-acc").on('click', function(e) {
@@ -919,45 +948,46 @@
                     })
             })
 
-            $("#send-inv-client-idr").on('click', function(e) {
-                e.preventDefault()
-                showLoading()
+            // $("#send-to-client--app-0604").on('click', function(e) {
+            //     e.preventDefault()
+            //     showLoading()
 
-                axios
-                    .get(
-                        '{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}'
-                    )
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Invoice has been send to client')
-                        $('.step-three').addClass('active');
-                    })
-                    .catch(error => {
-                        notification('error',
-                            'Something went wrong when sending invoice to client. Please try again');
-                        swal.close()
-                    })
-            })
+            //     axios
+            //         .get(
+            //             '{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}'
+            //         )
+            //         .then(response => {
+            //             swal.close()
+            //             notification('success', 'Invoice has been send to client')
+            //             $('.step-three').addClass('active');
+            //             $("#sendToClient--modal").modal('hide');
+            //         })
+            //         .catch(error => {
+            //             notification('error',
+            //                 'Something went wrong when sending invoice to client. Please try again');
+            //             swal.close()
+            //         })
+            // })
 
-            $("#send-inv-client-other").on('click', function(e) {
-                e.preventDefault()
-                showLoading()
+            // $("#send-inv-client-other").on('click', function(e) {
+            //     e.preventDefault()
+            //     showLoading()
 
-                axios
-                    .get(
-                        '{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}'
-                    )
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Invoice has been send to client')
-                        $('.step-three-other').addClass('active');
-                    })
-                    .catch(error => {
-                        notification('error',
-                            'Something went wrong when sending invoice to client. Please try again');
-                        swal.close()
-                    })
-            })
+            //     axios
+            //         .get(
+            //             '{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}'
+            //         )
+            //         .then(response => {
+            //             swal.close()
+            //             notification('success', 'Invoice has been send to client')
+            //             $('.step-three-other').addClass('active');
+            //         })
+            //         .catch(error => {
+            //             notification('error',
+            //                 'Something went wrong when sending invoice to client. Please try again');
+            //             swal.close()
+            //         })
+            // })
 
             $("#print").on('click', function(e) {
                 e.preventDefault();

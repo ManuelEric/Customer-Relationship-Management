@@ -74,7 +74,7 @@ class ReceiptSchoolController extends Controller
         $invb2b_num = $request->route('invoice');
         $receipts = $request->only([
             'identifier',
-            'currency',
+            'rec_currency',
             'receipt_amount',
             'receipt_amount_idr',
             'receipt_date',
@@ -85,13 +85,13 @@ class ReceiptSchoolController extends Controller
         ]);
 
 
-        switch ($receipts['currency']) {
+        switch ($receipts['rec_currency']) {
             case 'idr':
                 unset($receipts['receipt_amount']);
                 unset($receipts['receipt_words']);
                 break;
         }
-
+        
         $receipts['receipt_cat'] = 'school';
 
         $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invb2b_num);

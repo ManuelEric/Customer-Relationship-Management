@@ -10,6 +10,7 @@ use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\UserTypeRepositoryInterface;
 use App\Models\University;
 use App\Models\User;
 use Exception;
@@ -42,8 +43,9 @@ class ImportEmployee extends Command
     protected RoleRepositoryInterface $roleRepository;
     protected UniversityRepositoryInterface $universityRepository;
     protected MajorRepositoryInterface $majorRepository;
+    protected UserTypeRepositoryInterface $userTypeRepository;
 
-    public function __construct(EmployeeRepositoryInterface $employeeRepository, PositionRepositoryInterface $positionRepository, UserRepositoryInterface $userRepository, RoleRepositoryInterface $roleRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository)
+    public function __construct(EmployeeRepositoryInterface $employeeRepository, PositionRepositoryInterface $positionRepository, UserRepositoryInterface $userRepository, RoleRepositoryInterface $roleRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, UserTypeRepositoryInterface $userTypeRepository)
     {
         parent::__construct();
 
@@ -53,6 +55,7 @@ class ImportEmployee extends Command
         $this->roleRepository = $roleRepository;
         $this->universityRepository = $universityRepository;
         $this->majorRepository = $majorRepository;
+        $this->userTypeRepository = $userTypeRepository;
     }
 
     public function getRole($id)
@@ -123,6 +126,9 @@ class ImportEmployee extends Command
             $progressBar = $this->output->createProgressBar($employees->count());
             $progressBar->start();
             foreach ($employees as $employee) {
+
+                if ($employee->empl_id !== 'EMPL-0024')
+                    continue;
 
                 $position = $this->createPositionIfNotExists($employee);
 
@@ -262,31 +268,63 @@ class ImportEmployee extends Command
             $departmentId = $this->getDepartment($role);
             if (!$selectedUser->user_type()->wherePivot('department_id', $departmentId)->first())
             {   
-                $userTypeId = 1; # hardcode user type fulltime
+                $userTypev1 = $employee->empl_status;
+                $userTypev2 = $this->userTypeRepository->getUserTypeByTypeName($userTypev1);
+                $userTypev2Id = $userTypev2->id;
+                $userTypev2Name = $userTypev2->type_name;
+
+                // $userTypeId = 1; # hardcode user type fulltime
+                $hireDate = $this->getValueWithoutSpace($employee->empl_hiredate);
                 $endDate = $this->getValueWithoutSpace($employee->empl_statusenddate);
-                $status = $employee->empl_isactive === 1 ? true : false;
-                
+                $statusActive = $employee->empl_isactive === 1 ? 'active' : 'inactive';
+                $status = $statusActive === 'active' ? true : false;
+
                 # kalau statusnya active dan end datenya ada isinya
                 # maka ubah end datenya menjadi null
                 # asumsikan bahwa client tsb masih aktif
-                if ($status === true && $endDate != NULL)
-                    $endDate = NULL;
 
-                $typeDetail = [
-                    'department_id' => $departmentId,
-                    'start_date' => $endDate != NULL ? '2016-04-10' : NULL,
-                    'end_date' => $endDate,
-                    'status' => $status
-                ];
+                $loop = 1;
+                if ($statusActive === 'active' && $userTypev2Name != 'Full-Time' && $endDate !== NULL) {
+                    
+                    # create a non full-time record
+                    $loop = 2;
+                    
+                }
+                
+                for ($typeRecord = 0; $typeRecord < $loop ; $typeRecord++) {
 
-                if (!$selectedUser->user_type()->wherePivot('user_type_id', $userTypeId)->first())
-                {
-                    $selectedUser->user_type()->attach($userTypeId, $typeDetail);
+                    if ($loop === 2) 
+                        $status = false;
+
+                    # kalau sebelumnya bukan full time
+                    # maka insert record selama probation dan tambahkan record full-time
+                    if ($typeRecord === 1 && $loop === 2) {
+
+                        $userTypev2Id = 1; # which means full-time
+                        $hireDate = $endDate;
+                        $endDate = NULL;
+                        $status = true;
+
+                    }
+
+                    $typeDetail = [
+                        'department_id' => $departmentId,
+                        'start_date' => $hireDate,
+                        'end_date' => $endDate,
+                        'status' => $status
+                    ];
+    
+                    if (!$selectedUser->user_type()->wherePivot('user_type_id', $userTypev2Id)->first())
+                        $selectedUser->user_type()->attach($userTypev2Id, $typeDetail);
+                    else
+                        $selectedUser->user_type()->updateExistingPivot($userTypev2Id, $typeDetail);
+
                 }
-                else
-                {
-                    $selectedUser->user_type()->updateExistingPivot($userTypeId, $typeDetail);
-                }
+                
+                        
+
+                
+                
                 
             }
             

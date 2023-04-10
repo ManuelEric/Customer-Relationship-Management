@@ -10,7 +10,6 @@
         </a>
     </div>
 
-
     <div class="row">
         <div class="col-md-4 text-center">
             <div class="card rounded mb-3">
@@ -151,7 +150,7 @@
                                                 <label>Status <sup class="text-danger">*</sup></label>
                                                 <select name="status_client" id="status_client" class="select w-100" onchange="checkStatus()">
                                                     <option data-placeholder="true"></option>
-                                                    <option value="Mentee">Mentee</option>
+                                                    <option value="Student">Student</option>
                                                     <option value="Parent">Parent</option>
                                                     <option value="Teacher/Counsellor">Teacher/Counsellor</option>
                                                 </select>
@@ -500,7 +499,7 @@
 
         function checkStatus() {
             let status = $('#status_client').val();
-            if (status == 'Mentee' || status == 'Teacher/Counsellor') {
+            if (status == 'Student' || status == 'Teacher/Counsellor') {
                 $('.status-mentee').removeClass('d-none')
             } else if (status == 'Parent') {
                 $('.status-mentee').addClass('d-none')

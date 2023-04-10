@@ -501,7 +501,7 @@ class InvoiceSchoolController extends Controller
 
     public function signAttachment(Request $request)
     {
-        // if ($request->session()->token() != $request->get('token')) {
+        // if (Session::token() != $request->get('token')) {
         //     return "Your session token is expired";
         // }
 
