@@ -140,8 +140,7 @@ class UserController extends Controller
 
             # upload curriculum vitae
             $CV_file_path = null;
-            if ($request->hasFile('curriculum_vitae'))
-            {
+            if ($request->hasFile('curriculum_vitae')) {
                 $CV_file_format = $request->file('curriculum_vitae')->getClientOriginalExtension();
                 $CV_file_name = 'CV-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
                 $CV_file_path = $request->file('curriculum_vitae')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $CV_file_name . '.' . $CV_file_format);
@@ -315,7 +314,7 @@ class UserController extends Controller
             $newUserType = $request->type;
             $newDepartment = $request->department;
             if ($user->user_type()->wherePivot('user_type_id', $newUserType)->wherePivot('department_id', $newDepartment)->wherePivot('status', 1)->wherePivot('deactivated_at', NULL)->count() == 0) {
-            // if ($user->user_type()->wherePivot('user_type_id', 2)->wherePivot('department_id', 3)->wherePivot('start_date', '2022-12-01')->wherePivot('end_date', '2023-01-01')->count() == 0) {
+                // if ($user->user_type()->wherePivot('user_type_id', 2)->wherePivot('department_id', 3)->wherePivot('start_date', '2022-12-01')->wherePivot('end_date', '2023-01-01')->count() == 0) {
 
                 # deactivate the latest active type
                 $activeType = $user->user_type()->where('tbl_user_type_detail.status', 1)->whereNull('deactivated_at')->pluck('tbl_user_type_detail.user_type_id')->toArray();
@@ -459,13 +458,11 @@ class UserController extends Controller
 
             $this->userRepository->updateStatusUser($userId, $newStatus);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Deactive user failed : ' . $e->getMessage());
             return Redirect::back()->withError('Failed to deactive user');
-
         }
 
         return Redirect::back()->withSuccess('User successfully deactivated');
@@ -489,5 +486,26 @@ class UserController extends Controller
         }
 
         return Redirect::to('user/' . $request->route('user_role') . '/' . $userId . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
+    }
+
+    public function setPassword(Request $request)
+    {
+        $userId = $request->route('user');
+        $userDetails['password'] = Hash::make('12345678');
+
+        DB::beginTransaction();
+        try {
+
+            # update on users table
+            $this->userRepository->updateUser($userId, $userDetails);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('failed to set password' . $e->getMessage());
+            return response()->json(['message' => 'Failed to set password'], 422);
+        }
+
+        return response()->json(['message' => 'Password has been set'], 200);
     }
 }

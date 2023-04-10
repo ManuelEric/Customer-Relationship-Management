@@ -24,16 +24,21 @@
                             <button @class([
                                 'btn btn-sm btn-success',
                                 'd-none' => $user->active == 1,
-                            ]) id="activate-user">
+                            ]) id="activate-user" style="font-size:12px;">
                                 <i class="bi bi-check"></i>
                                 Activate</button>
                                 
                             <button @class([
                                 'btn btn-sm btn-outline-danger',
                                 'd-none' => $user->active == 0,
-                            ]) id="deactivate-user">
+                            ]) id="deactivate-user" style="font-size:12px;">
                                 <i class="bi bi-x"></i>
                                 Deactivate</button>
+
+                            <button id="set-password" class="btn btn-sm btn-warning" style="font-size:12px;">
+                                <i class="bi bi-key"></i> 
+                                Set Password
+                            </button>
                         @endif
                     </div>
                 </div>
@@ -233,6 +238,22 @@
                     notification('error', 'Something went wrong. Please try again or contact the administrator.')
                 });
         }
+
+        $("#set-password").on('click', function() {
+               Swal.showLoading()
+                axios
+                    .get(
+                        '{{ route('user.set.password', ['user_role' => Request::route('user_role'), 'user' => $user->id]) }}')
+                    .then(response => {
+                        swal.close()
+                        console.log(response);
+                        notification('success', response.data.message)
+                    })
+                    .catch(error => {
+                        Swal.close()
+                        notification('error', 'Something went wrong. Please try again or contact the administrator.')
+                    })
+        })
         @endif
 
         @if (isset($user))
