@@ -2,7 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\pivot\UserRole;
 use App\Models\pivot\UserTypeDetail;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class UserRepository implements UserRepositoryInterface
 {
+    use CreateCustomPrimaryKeyTrait;
 
     public function getAllUsersByRoleDataTables($role)
     {
@@ -202,5 +205,47 @@ class UserRepository implements UserRepositoryInterface
                 'password' => null
             ]
         );
+    }
+
+    public function createUserEducation(User $user, array $userEducationDetails)
+    {
+        for ($i = 0; $i < count($userEducationDetails['listGraduatedFrom']); $i++) {
+            $user->educations()->attach($userEducationDetails['listGraduatedFrom'][$i], [
+                'major_id' => $userEducationDetails['listMajor'][$i],
+                'degree' => $userEducationDetails['listDegree'][$i],
+                'graduation_date' => $userEducationDetails['listGraduationDate'][$i] ?? null
+            ]);
+        }
+    }
+
+    public function createUserRole(User $user, array $userRoleDetails)
+    {
+        for ($i = 0; $i < count($userRoleDetails['listRoles']); $i++) {
+            $ext_id_with_label = null;
+            if ($userRoleDetails['listRoles'][$i] == "mentor") {
+                # generate secondary extended_id 
+                $last_id = UserRole::max('extended_id');
+                $ext_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                $ext_id_with_label = 'MT-' . $this->add_digit((int)$ext_id_without_label + 1, 4);
+            }
+
+            $roleDetails = [
+                'extended_id' => $ext_id_with_label,
+                'tutor_subject' => $userRoleDetails['tutorSubject'],
+                'feehours' => $userRoleDetails['feeHours'],
+                'feesession' => $userRoleDetails['feeSession'],
+            ];
+
+            $user->roles()->attach($userRoleDetails['listRoles'][$i], $roleDetails);
+        }
+    }
+
+    public function createUserType(User $user, array $userTypeDetails)
+    {
+        $user->user_type()->attach($userTypeDetails['listType'], [
+            'department_id' => $userTypeDetails['departmentThatUserWorkedIn'],
+            'start_date' => $userTypeDetails['startWorking'],
+            'end_date' => $userTypeDetails['stopWorking'],
+        ]);
     }
 }

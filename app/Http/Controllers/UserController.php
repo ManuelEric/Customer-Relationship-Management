@@ -58,6 +58,7 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request)
     {
+        # INITIALIZE VARIABLES START
         $userDetails = $request->only([
             'first_name',
             'last_name',
@@ -95,48 +96,59 @@ class UserController extends Controller
             $userDetails['extended_id'] = $user_id_with_label;
         }
 
+        # variables for user educations
+        $listGraduatedFrom = $request->graduated_from;
+        $listMajor = $request->major;
+        $listDegree = $request->degree;
+        $listGraduationDate = $request->graduation_date;
+        $userEducationDetails = [
+            'listGraduatedFrom' => $listGraduatedFrom,
+            'listMajor' => $listMajor,
+            'listDegree' => $listDegree,
+            'listGraduationDate' => $listGraduationDate,
+        ];
+
+        # variables for user roles
+        $listRoles = $request->role;
+        $tutorSubject = $request->tutor_subject ??= NULL;
+        $feeHours = $request->feehours ??= NULL;
+        $feeSession = $request->feesession ??= NULL;
+        $userRoleDetails = [
+            'listRoles' => $listRoles,
+            'tutorSubject' => $tutorSubject,
+            'feeHours' => $feeHours,
+            'feeSession' => $feeSession,
+        ];
+
+        # variables for user types
+        # user type more like full-time, probation, part-time, etc.
+        $listType = $request->type;
+        $departmentThatUserWorkedIn = $request->department;
+        $startWorking = $request->start_period;
+        $stopWorking = $request->end_period;
+        $userTypeDetails = [
+            'listType' => $listType,
+            'departmentThatUserWorkedIn' => $departmentThatUserWorkedIn,
+            'startWorking' => $startWorking,
+            'stopWorking' => $stopWorking
+        ];
+        # INITIALIZE VARIABLES END
+
         DB::beginTransaction();
         try {
 
             # store new user
-            $newUser = $this->userRepository->createUser($userDetails);
+            $newUser = $this->userRepository->createUser($userDetails, $userEducationDetails);
             $newUserId = $newUser->id;
 
             # store new user education to tbl_user_education
-            for ($i = 0; $i < count($request->graduated_from); $i++) {
-                $newUser->educations()->attach($request->graduated_from[$i], [
-                    'major_id' => $request->major[$i],
-                    'degree' => $request->degree[$i],
-                    'graduation_date' => $request->graduation_date[$i] ?? null
-                ]);
-            }
+            $this->userRepository->createUserEducation($newUser, $userEducationDetails);
 
             # store new user role to tbl_user_roles
-            for ($i = 0; $i < count($request->role); $i++) {
-                $ext_id_with_label = null;
-                if ($request->role[$i] == "mentor") {
-                    # generate secondary extended_id 
-                    $last_id = UserRole::max('extended_id');
-                    $ext_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                    $ext_id_with_label = 'MT-' . $this->add_digit((int)$ext_id_without_label + 1, 4);
-                }
-
-                $roleDetails = [
-                    'extended_id' => $ext_id_with_label,
-                    'tutor_subject' => isset($request->tutor_subject) ? $request->tutor_subject : null,
-                    'feehours' => isset($request->feehours) ? $request->feehours : null,
-                    'feesession' => isset($request->feesession) ? $request->feesession : null,
-                ];
-
-                $newUser->roles()->attach($request->role[$i], $roleDetails);
-            }
+            $this->userRepository->createUserRole($newUser, $userRoleDetails);
 
             # store new user type to tbl_user_type
-            $newUser->user_type()->attach($request->type, [
-                'department_id' => $request->department,
-                'start_date' => $request->start_period,
-                'end_date' => $request->end_period,
-            ]);
+            $this->userRepository->createUserType($newUser, $userTypeDetails);
 
             # upload curriculum vitae
             $CV_file_path = null;
@@ -292,7 +304,6 @@ class UserController extends Controller
 
             $user->educations()->sync($detailEducations);
 
-
             # update user role to tbl_user_roles
             for ($i = 0; $i < count($request->role); $i++) {
 
@@ -321,7 +332,7 @@ class UserController extends Controller
                     'feesession' => isset($request->feesession) ? $request->feesession : null,
                 ];
             }
-            $user->roles()->syncWithoutDetaching($roleDetails);
+            $user->roles()->sync($roleDetails);
 
             # validate
             # in order to avoid double data
