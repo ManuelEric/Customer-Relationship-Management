@@ -219,7 +219,8 @@ class ClientRepository implements ClientRepositoryInterface
     # is that the above function is not using ordering by created at
     public function getAllClientByRoleAndDate($roleName, $month = null) # mentee, parent, teacher
     {
-        return UserClient::when($roleName == "alumni", function ($query) {
+        return UserClient::
+        when($roleName == "alumni", function ($query) {
             $query->whereHas('clientProgram', function ($q2) {
                 $q2->whereIn('prog_running_status', [2]);
             })->withCount([
@@ -231,9 +232,7 @@ class ClientRepository implements ClientRepositoryInterface
                 }
             ])->havingRaw('client_program_count = client_program_finish_count');
         }, function ($query) use ($roleName) {
-            $query->whereHas('roles', function ($query2) use ($roleName) {
-                $query2->where('role_name', $roleName);
-            });
+            $query->whereRoleName($roleName);
         })->when($month, function ($query) use ($month) {
             $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
         })->orderBy('tbl_client.created_at', 'desc')->get();
