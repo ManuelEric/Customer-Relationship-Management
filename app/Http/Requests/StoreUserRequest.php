@@ -47,7 +47,7 @@ class StoreUserRequest extends FormRequest
             'degree.*' => 'required',
             'major.*' => 'required',
 
-            'role.*' => 'required|in:1,2,4',
+            'role.*' => 'required|in:1,2,4,8',
             'department' => 'required',
             'position' => 'required',
             'hiredate' => 'required',
