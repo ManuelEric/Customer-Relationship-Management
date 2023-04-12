@@ -82,7 +82,7 @@ class UserController extends Controller
         $userDetails['position_id'] = $request->position;
 
         # generate extended_id
-        $last_id = User::max('extended_id');
+        $last_id = User::where('extended_id', 'like', '%EMPL%')->max('extended_id');
         $user_id_without_label = $this->remove_primarykey_label($last_id, 5);
         $user_id_with_label = 'EMPL-' . $this->add_digit((int)$user_id_without_label + 1, 4);
         $userDetails['extended_id'] = $user_id_with_label;
