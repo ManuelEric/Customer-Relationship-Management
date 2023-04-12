@@ -59,7 +59,7 @@ class StoreUserRequest extends FormRequest
             'bankname' => 'required',
             'bankacc' => 'required',
             'nik' => 'required',
-            'idcard' => 'required|mimes:pdf|max:5000',
+            'idcard' => 'required|mimes:pdf,jpeg,jpg,png|max:5000',
             'npwp' => 'nullable',
             'tax' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
             'health_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000',
