@@ -148,24 +148,32 @@ class UserController extends Controller
 
 
             # upload KTP / idcard
-            $ID_file_format = $request->file('idcard')->getClientOriginalExtension();
-            $ID_file_name = 'ID-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-            $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $ID_file_name . '.' . $ID_file_format);
+            if ($request->hasFile('idcard')) {
+                $ID_file_format = $request->file('idcard')->getClientOriginalExtension();
+                $ID_file_name = 'ID-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+                $ID_file_path = $request->file('idcard')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $ID_file_name . '.' . $ID_file_format);
+            }
 
             # upload tax
-            $TX_file_format = $request->file('tax')->getClientOriginalExtension();
-            $TX_file_name = 'TAX-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-            $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $TX_file_name . '.' . $TX_file_format);
+            if ($request->hasFile('tax')) {
+                $TX_file_format = $request->file('tax')->getClientOriginalExtension();
+                $TX_file_name = 'TAX-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+                $TX_file_path = $request->file('tax')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $TX_file_name . '.' . $TX_file_format);
+            }
 
             # upload bpjs kesehatan / health insurance
-            $HI_file_format = $request->file('health_insurance')->getClientOriginalExtension();
-            $HI_file_name = 'HI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-            $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $HI_file_name . '.' . $HI_file_format);
+            if ($request->hasFile('health_insurance')) {
+                $HI_file_format = $request->file('health_insurance')->getClientOriginalExtension();
+                $HI_file_name = 'HI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+                $HI_file_path = $request->file('health_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $HI_file_name . '.' . $HI_file_format);
+            }
 
             # upload bpjs ketenagakerjaan / empl insurance
-            $EI_file_format = $request->file('empl_insurance')->getClientOriginalExtension();
-            $EI_file_name = 'EI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
-            $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $EI_file_name . '.' . $EI_file_format);
+            if ($request->hasFile('empl_insurance')) {
+                $EI_file_format = $request->file('empl_insurance')->getClientOriginalExtension();
+                $EI_file_name = 'EI-' . str_replace(' ', '_', $request->first_name . '_' . $request->last_name);
+                $EI_file_path = $request->file('empl_insurance')->storeAs('public/uploaded_file/user/' . $user_id_with_label, $EI_file_name . '.' . $EI_file_format);
+            }
 
             # update uploaded data to user table
             $this->userRepository->updateUser($newUserId, [
