@@ -110,6 +110,16 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 });
             })
             ->orderBy('updated_at', 'desc')
+        )->filterColumn(
+            'prog_running_status',
+            function ($query, $keyword) {
+                $sql = '(CASE 
+                    WHEN prog_running_status = 0 THEN "not yet"
+                    WHEN prog_running_status = 1 THEN "ongoing"
+                    WHEN prog_running_status = 2 THEN "done"
+                END) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            }
         )->make(true);
     }
 

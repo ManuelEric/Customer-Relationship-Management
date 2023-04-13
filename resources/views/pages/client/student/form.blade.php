@@ -648,6 +648,13 @@
                 $(".edufair").addClass("d-none")
                 $(".kol").removeClass("d-none")
 
+            } else {
+
+                $(".program").addClass("d-none")
+                $(".edufair").addClass("d-none")
+                $(".kol").addClass("d-none")
+
+
             }
         })
 
