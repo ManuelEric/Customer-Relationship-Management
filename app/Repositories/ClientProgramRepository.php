@@ -111,6 +111,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             })
             ->orderBy('updated_at', 'desc')
         )->filterColumn(
+            'status',
+            function ($query, $keyword) {
+                $sql = '(CASE 
+                    WHEN status = 0 THEN "pending"
+                    WHEN status = 1 THEN "success"
+                    WHEN status = 2 THEN "failed"
+                    WHEN status = 3 THEN "refund"
+                END) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            }
+        )->filterColumn(
             'prog_running_status',
             function ($query, $keyword) {
                 $sql = '(CASE 
