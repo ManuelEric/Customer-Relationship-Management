@@ -157,7 +157,7 @@
                     {
                         data: 'status',
                         render: function(data, type, row, meta) {
-                            switch (row.status) {
+                            switch (parseInt(row.status)) {
                                 case 0:
                                     return "Join"
                                     break;
