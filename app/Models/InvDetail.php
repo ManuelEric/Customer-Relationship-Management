@@ -57,6 +57,13 @@ class InvDetail extends Model
         return $unit;
     }
 
+    public function invdtlDuedate(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('M d, Y', strtotime($value)),
+        );
+    }
+
     protected function invoicedtlAmount(): Attribute
     {
         return Attribute::make(

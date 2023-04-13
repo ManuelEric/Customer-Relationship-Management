@@ -87,7 +87,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    @if($clientEvents->first()->filter == 'ByMonth')                                       
+                                    @if(isset($clientEvents->first()->filter) && $clientEvents->first()->filter == 'ByMonth')                                       
                                         <th>Event Name</th>
                                     @endif
                                     <th>Client Name</th>
