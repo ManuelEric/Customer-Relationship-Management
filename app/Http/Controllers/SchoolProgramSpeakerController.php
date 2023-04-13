@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreSchoolProgramSpeakerRequest;
-use App\Http\Traits\FindAgendaSpeakerpriorityTrait;
+use App\Http\Traits\FindAgendaSpeakerPriorityTrait;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\DB;

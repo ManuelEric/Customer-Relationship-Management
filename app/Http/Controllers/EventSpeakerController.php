@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSpeakerRequest;
-use App\Http\Traits\;
+use App\Http\Traits\FindAgendaSpeakerPriorityTrait;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Models\AgendaSpeaker;
 use Exception;
