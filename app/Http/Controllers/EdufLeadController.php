@@ -136,7 +136,7 @@ class EdufLeadController extends Controller
             'notes'
         ]);
 
-        $ext_pic_phone = $request->only('ext_pic_phone');
+        $ext_pic_phone = $request->ext_pic_phone;
 
         switch (substr($ext_pic_phone, 0, 1)) {
 
@@ -176,10 +176,10 @@ class EdufLeadController extends Controller
 
             DB::rollBack();
             Log::error('Update edufair failed : ' . $e->getMessage());
-            return Redirect::to('master/edufair/create')->withError('Failed to update edufair');
+            return Redirect::to('master/edufair/'.$edufLeadId)->withError('Failed to update edufair');
         }
 
-        return Redirect::to('master/edufair')->withSuccess('Edufair successfully created');
+        return Redirect::to('master/edufair')->withSuccess('Edufair successfully updated');
     }
 
     public function show(Request $request)
