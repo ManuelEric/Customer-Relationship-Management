@@ -245,6 +245,9 @@
             </div>
         </div>
     </div>
+    <script>
+        window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    </script>
     {{-- Tooltip  --}}
     <script>
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
