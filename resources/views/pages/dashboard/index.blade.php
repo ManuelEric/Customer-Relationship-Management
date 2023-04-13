@@ -63,6 +63,8 @@
                             "</tr>"
                     })
 
+                    $(".dashboard-pc--year_1").html(first_year)
+                    $(".dashboard-pc--year_2").html(second_year)
                     $("#comparison-table tbody").html(html)
 
                 }).catch(function(error) {

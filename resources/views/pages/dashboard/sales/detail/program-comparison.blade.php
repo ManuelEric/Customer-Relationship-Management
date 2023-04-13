@@ -67,8 +67,8 @@
                                         <th colspan="2">Comparison (IDR)</th>
                                     </tr>
                                     <tr>
-                                        <th>2022</th>
-                                        <th>2023</th>
+                                        <th class="dashboard-pc--year_1">2022</th>
+                                        <th class="dashboard-pc--year_2">2023</th>
                                     </tr>
                                 </thead>
                                 <tbody>
