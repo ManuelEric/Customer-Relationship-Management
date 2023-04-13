@@ -527,10 +527,6 @@
             let f_date = $(this).data('f-date')
             let f_type = $(this).data('f-client-type')
 
-            console.log(f_date)
-            console.log(f_type)
-
-
             let url = window.location.origin + '/api/get/client/'+ f_date +'/type/' + f_type;
 
             axios.get(url)
@@ -714,12 +710,13 @@
                 var no = 1;
                 obj.forEach(function(item, index, arr) {
                     var dob_str = moment(item['dob']).format('ddd, DD MMM yyyy')
+                    var address = item['address'] === null ? '' : item['address']
 
                     html += "<tr class='text-center'>" +
                         "<td>" + no++ + "</td>" +
                         "<td>" + item['full_name'] + "</td>" +
                         "<td>" + dob_str + "</td>" +
-                        "<td>" + item['address'] + "</td>" +
+                        "<td>" + address + "</td>" +
                         "</tr>"
                 })
 
