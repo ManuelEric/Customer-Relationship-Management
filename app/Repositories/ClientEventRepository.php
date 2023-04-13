@@ -47,11 +47,20 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             'conversion_lead',
             function ($query, $keyword) {
                 $sql = '(CASE
-                            WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
-                            WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)
-                            WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
-                            ELSE tbl_lead.main_lead
+                            WHEN tbl_lead.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT(tbl_lead.sub_lead)
+                            WHEN tbl_lead.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)
+                            WHEN tbl_lead.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
+                            ELSE tbl_lead.main_lead COLLATE utf8mb4_unicode_ci
                         END) like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            }
+        )->filterColumn(
+            'status',
+            function ($query, $keyword) {
+                $sql = '(CASE 
+                        WHEN tbl_client_event.status = 0 THEN "Join"
+                        WHEN tbl_client_event.status = 1 THEN "Attend"
+                    END) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             }
         )->make(true);
