@@ -219,17 +219,20 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        return SchoolProgram::select('status', DB::raw('sum(total_fee) as total_fee'), DB::raw('count(*) as count_status'))
-            ->whereYear(
-                DB::raw('(CASE
+        return SchoolProgram::select(
+            'status',
+            DB::raw('SUM(total_fee) as total_fee'),
+            DB::raw('COUNT(*) as count_status')
+        )->whereYear(
+            DB::raw('(CASE
                             WHEN status = 0 THEN created_at
                             WHEN status = 1 THEN success_date
                             WHEN status = 2 THEN denied_date
                             WHEN status = 3 THEN refund_date
                         END)'),
-                '=',
-                $year
-            )
+            '=',
+            $year
+        )
             ->whereMonth(
                 DB::raw('(CASE
                             WHEN status = 0 THEN created_at

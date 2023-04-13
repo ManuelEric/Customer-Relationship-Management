@@ -142,7 +142,6 @@
 
                 school_program_chart.data.datasets[0].data = [0,0,0,0]
 
-                // console.log(result.statusSchoolPrograms)
                 result.statusSchoolPrograms.forEach(function (item, index, arr) {
 
                     switch (item['status']) {                        
@@ -166,7 +165,6 @@
                 })
                 school_program_chart.update()
 
-                console.log(result.totalSchoolProgram)
                 $('#tot_school_program').html(rupiah(result.totalSchoolProgram))
                 
                 partner_program_chart.data.datasets[0].data = [0,0,0,0]
@@ -190,6 +188,7 @@
                             break;
                     }
                 })
+
                 partner_program_chart.update()
 
                 $('#tot_partner_program').html(rupiah(result.totalPartnerProgram))
@@ -330,7 +329,6 @@
                                 $('#partnerProgramDetail').append(html)
                             })
                             
-                            console.log(response)
 
                         }, (error) => {
                             console.log(error)
@@ -348,7 +346,7 @@
             data: {
                 labels: ['Referral IN', 'Referral Out'],
                 datasets: [{
-                    label: '# of Votes',
+                    label: 'Referral',
                     data: [0,0],
                     borderWidth: 1
                 }]
@@ -370,8 +368,6 @@
                     let dataIndex = activeEls[0].index;
                     let label = e.chart.data.labels[dataIndex];
                     let month = $('#month_partner_program').val()
-
-                    console.log(label)
 
                     Swal.showLoading()
 

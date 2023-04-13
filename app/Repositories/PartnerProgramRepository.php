@@ -214,7 +214,11 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        return PartnerProg::select('status', DB::raw('sum(total_fee) as total_fee'), DB::raw('count(*) as count_status'))
+        return PartnerProg::select(
+            'status',
+            DB::raw('SUM(total_fee) as total_fee'),
+            DB::raw('COUNT(*) as count_status')
+        )
             ->whereYear(
                 DB::raw('(CASE
                             WHEN status = 0 THEN created_at
@@ -234,7 +238,7 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                         END)'),
                 '=',
                 $month
-            )
+            )->groupBy('status')
             ->get();
     }
 
