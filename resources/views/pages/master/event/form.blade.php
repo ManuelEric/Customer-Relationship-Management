@@ -60,7 +60,7 @@
                         @endif
                         <div class="row">
                             <div class="col-md-12 mb-2">
-                                <label>Event Name</label>
+                                <label>Event Name <sup class="text-warning">*</sup></label>
                                 <input type="text" name="event_title"
                                     value="{{ isset($event->event_title) ? $event->event_title : old('event_title') }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
@@ -69,21 +69,21 @@
                                 @enderror
                             </div>
                             <div class="col-md-12 mb-2">
-                                <label>Description</label>
+                                <label>Description <sup class="text-warning">*</sup></label>
                                 <textarea name="event_description" {{ $disabled }}>{{ isset($event->event_description) ? $event->event_description : old('event_description') }}</textarea>
                                 @error('event_description')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                             <div class="col-md-12 mb-2">
-                                <label>Location</label>
+                                <label>Location <sup class="text-warning">*</sup></label>
                                 <textarea name="event_location" {{ $disabled }}>{{ isset($event->event_location) ? $event->event_location : old('event_location') }}</textarea>
                                 @error('event_location')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                             <div class="col-md-4 mb-2">
-                                <label>Start Date </label>
+                                <label>Start Date <sup class="text-warning">*</sup></label>
                                 <input type="datetime-local" name="event_startdate"
                                     value="{{ isset($event->event_startdate) ? $event->event_startdate : old('event_startdate') }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
@@ -92,7 +92,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-4 mb-2">
-                                <label>End Date </label>
+                                <label>End Date <sup class="text-warning">*</sup></label>
                                 <input type="datetime-local" name="event_enddate"
                                     value="{{ isset($event->event_enddate) ? $event->event_enddate : old('event_enddate') }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
@@ -101,7 +101,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-4 mb-2">
-                                <label>Target </label>
+                                <label>Target <sup class="text-warning">*</sup></label>
                                 <input type="number" name="event_target"
                                     value="{{ isset($event->event_target) ? $event->event_target : old('event_target') }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
