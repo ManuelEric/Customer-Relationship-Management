@@ -149,7 +149,7 @@
                     {
                         data: 'participants',
                         render: function(data, type, row, meta) {
-                            switch (row.status) {
+                            switch (parseInt(row.status)) {
                                 case 0:
                                     return "-"
                                     break;
@@ -171,7 +171,7 @@
                     {
                         data: 'total_fee',
                         render: function(data, type, row, meta) {
-                            switch (row.status) {
+                            switch (parseInt(row.status)) {
                                 case 0:
                                     return "-"
                                     break;
@@ -193,7 +193,7 @@
                     {
                         data: 'status',
                         render: function(data, type, row, meta) {
-                            switch (row.status) {
+                            switch (parseInt(row.status)) {
                                 case 0:
                                     return "Pending"
                                     break;
