@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Redirect;
 
 class SchoolProgramSpeakerController extends Controller
 {
-    use FindAgendaSpeakerpriorityTrait;
+    use FindAgendaSpeakerPriorityTrait;
 
     private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
 

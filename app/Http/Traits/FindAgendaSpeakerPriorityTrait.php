@@ -4,7 +4,7 @@ namespace App\Http\Traits;
 use App\Models\AgendaSpeaker;
 use App\Models\Event;
 
-trait FindAgendaSpeakerpriorityTrait {
+trait FindAgendaSpeakerPriorityTrait {
 
     public function maxAgendaSpeakerPriority($class, $identifier, $agendaDetails)
     {
