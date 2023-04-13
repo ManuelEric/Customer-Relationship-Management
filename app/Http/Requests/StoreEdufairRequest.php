@@ -73,7 +73,7 @@ class StoreEdufairRequest extends FormRequest
             'last_discussion_date' => 'nullable|date|after_or_equal:first_discussion_date',
             'event_start' => 'nullable|date|before_or_equal:event_end',
             'event_end' => 'nullable|date|after_or_equal:event_start',
-            'status' => 'boolean',
+            'status' => 'integer:0,1,2',
             'notes' => 'nullable'
         ];
     }
