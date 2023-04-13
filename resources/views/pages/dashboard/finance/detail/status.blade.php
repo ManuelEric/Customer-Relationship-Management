@@ -125,12 +125,12 @@
                 data['outstanding']['total'] = parseInt(result.totalOutstanding)
 
                 result.totalInvoice.forEach(function (item, index) {
-                    data['invoice']['total'] += item.count_invoice
+                    data['invoice']['total'] += parseInt(item.count_invoice)
                     data['invoice']['amount'] += parseInt(item.total)
                 })
 
                 result.totalReceipt.forEach(function (item, index) {
-                    data['receipt']['total'] += item.count_receipt
+                    data['receipt']['total'] += parseInt(item.count_receipt)
                     data['receipt']['amount'] += parseInt(item.total)
                 })
 
