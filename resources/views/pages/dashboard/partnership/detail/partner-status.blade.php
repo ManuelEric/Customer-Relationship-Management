@@ -60,7 +60,7 @@
             <div class="col-md-3">
                 <div class="card rounded border h-100 card-partner cursor-pointer" data-partner-type="University">
                     <div class="card-body d-flex justify-content-between align-items-center">
-                        <h5 class="m-0 p-0">Total Univeristy</h5>
+                        <h5 class="m-0 p-0">Total University</h5>
                         <h4 class="m-0 p-0" id="tot_univ">
                             {{ $totalUniversity }}<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>{{$newUniversity}} New</small></span></sup>
                         </h4>
@@ -198,7 +198,6 @@
             axios.get(url)
                 .then(function(response) {
                     var result = response.data;
-                    console.log(result)
                     $('#list-detail-partner .modal-title').html(result.title)
                     $('#listPartnerTable tbody').html(result.html_ctx)
                     swal.close()
@@ -234,7 +233,6 @@
                 var old;
                 var news;
 
-                console.log(result)
                 swal.close()
 
                 data.partner.new = result.newPartner

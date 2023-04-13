@@ -72,7 +72,7 @@ class ReceiptPartnerController extends Controller
         $invb2b_num = $request->route('invoice');
         $receipts = $request->only([
             'identifier',
-            'currency',
+            'rec_currency',
             'receipt_amount',
             'receipt_amount_idr',
             'receipt_date',
@@ -83,7 +83,7 @@ class ReceiptPartnerController extends Controller
         ]);
 
 
-        switch ($receipts['currency']) {
+        switch ($receipts['rec_currency']) {
             case 'idr':
                 unset($receipts['receipt_amount']);
                 unset($receipts['receipt_words']);

@@ -127,17 +127,15 @@ class PartnerDashboardController extends Controller
     {
         $monthYear = $request->route('month');
 
-        $totalPartnership = $this->invoiceB2bRepository->getTotalPartnershipProgram($monthYear);
-        $totalPartnerProgram = $totalPartnership->where('type', 'partner_prog')->sum('invb2b_totpriceidr');
-        $totalSchoolProgram = $totalPartnership->where('type', 'sch_prog')->sum('invb2b_totpriceidr');
         $schoolPrograms = $this->schoolProgramRepository->getStatusSchoolProgramByMonthly($monthYear);
+        $partnerPrograms = $this->partnerProgramRepository->getStatusPartnerProgramByMonthly($monthYear);
 
         $data = [
             'statusSchoolPrograms' => $schoolPrograms,
-            'statusPartnerPrograms' => $this->partnerProgramRepository->getStatusPartnerProgramByMonthly($monthYear),
+            'statusPartnerPrograms' => $partnerPrograms,
             'referralTypes' => $this->referralRepository->getReferralTypeByMonthly($monthYear),
-            'totalPartnerProgram' => $totalPartnerProgram,
-            'totalSchoolProgram' => $schoolPrograms->sum('total_fee'),
+            'totalPartnerProgram' => $partnerPrograms->where('status', 1)->sum('total_fee'),
+            'totalSchoolProgram' => $schoolPrograms->where('status', 1)->sum('total_fee'),
         ];
 
         if ($data) {

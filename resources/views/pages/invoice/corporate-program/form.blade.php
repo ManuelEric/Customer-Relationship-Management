@@ -238,7 +238,15 @@
                 </div>
 
                 <div class="card-body">
-
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
                     <form
                         action="{{ $status == 'edit' ? route('invoice-corp.detail.update', ['corp_prog' => $invoicePartner->partnerprog_id, 'detail' => $invoicePartner->invb2b_num]) : route('invoice-corp.detail.store', ['corp_prog' => $partnerProgram->id]) }}"
                         method="POST" id="invoice-form">
@@ -362,7 +370,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label for="">Invoice Due Date</label>
                                         <input type="date" name="invb2b_duedate" id=""
-                                            value="{{ isset($invoicePartner) ? $invoicePartner->invb2b_duedate : old('invb2b_duedate') }}"
+                                            value="{{ isset($invoicePartner) ? date('Y-m-d', strtotime($invoicePartner->invb2b_duedate)) : old('invb2b_duedate') }}"
                                             {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}
                                             class='form-control form-control-sm rounded'>
                                         @error('invb2b_duedate')
@@ -427,7 +435,7 @@
                         method="POST" id="receipt">
                         @csrf
                         <input type="hidden" name="identifier" id="identifier">
-                        <input type="hidden" name="currency"
+                        <input type="hidden" name="rec_currency"
                             value="{{ isset($invoicePartner->currency) ? $invoicePartner->currency : null }}">
                         <div class="row g-2">
                             <div class="col-md-3 receipt-other d-none">
