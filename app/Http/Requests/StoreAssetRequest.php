@@ -54,8 +54,10 @@ class StoreAssetRequest extends FormRequest
             'asset_amount' => [
                 'required',
                 function ($attribute, $value, $fail) use ($asset, $updatedAmount) {
-                    if ($asset->asset_running_stock < $asset->asset_amount && $updatedAmount < $asset->asset_amount) {
-                        $fail('Cannot update the amount because the asset is already running.');
+                    if ($asset->userUsedAsset->count() > 0) {
+                        if ($asset->asset_running_stock < $asset->asset_amount && $updatedAmount < $asset->asset_amount) {
+                            $fail('Cannot update the amount because the asset is already running.');
+                        }
                     }
                 }
             ],

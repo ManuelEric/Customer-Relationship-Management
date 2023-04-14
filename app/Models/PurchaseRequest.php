@@ -33,7 +33,7 @@ class PurchaseRequest extends Model
     protected function updatedAt(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => date('d F Y', strtotime($value)),
+            get: fn ($value) => date('F dS Y', strtotime($value)),
         );
     }
 
