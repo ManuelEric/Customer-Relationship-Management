@@ -61,7 +61,7 @@
             </div>
             <div class="col-md-8 mb-3">
                 <label for="">Words</label>
-                <input type="text" name="inv_words_idr__si" id="session_idr_word" class="form-control form-control-sm rounded {{ $disabled }}" value="{{ isset($invoice->inv_words_idr) ? $invoice->inv_words_idr : old('inv_words_idr__si') }}"
+                <input type="text" name="inv_words_idr__si" id="session_idr_word" class="form-control form-control-sm rounded" {{ $disabled }} value="{{ isset($invoice->inv_words_idr) ? $invoice->inv_words_idr : old('inv_words_idr__si') }}"
                     readonly>
                 @error('inv_words_idr__si')
                     <small class="text-danger fw-light">{{ $message }}</small>
