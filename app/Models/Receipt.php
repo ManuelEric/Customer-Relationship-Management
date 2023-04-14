@@ -115,6 +115,6 @@ class Receipt extends Model
 
     public function receiptAttachment()
     {
-        return $this->hasMany(receiptAttachment::class, 'receipt_id', 'receipt_id');
+        return $this->hasMany(ReceiptAttachment::class, 'receipt_id', 'receipt_id');
     }
 }
