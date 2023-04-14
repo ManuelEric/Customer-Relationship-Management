@@ -102,7 +102,7 @@
             <div class="col-9 d-flex">
                 <div class="w-50 me-2">
                     <small>NPWP Number</small>
-                    <input type="number" name="volunt_npwp_number" id="" class="form-control form-control-sm rounded" value="{{ isset($volunteer->volunt_npwp_number) ? $volunteer->volunt_npwp_number : old('volunt_npwp_number') }}">
+                    <input type="text" name="volunt_npwp_number" id="" class="form-control form-control-sm rounded" value="{{ isset($volunteer->volunt_npwp_number) ? $volunteer->volunt_npwp_number : old('volunt_npwp_number') }}">
                     @error('volunt_npwp_number')
                         <small class="text-danger fw-light">{{ $message }}</small>
                     @enderror
