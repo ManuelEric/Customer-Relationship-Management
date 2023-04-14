@@ -18,42 +18,45 @@
                     </h4>
                 </div>
                 <div class="modal-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="pb-0 mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
                     <form action="#" method="POST" id="detailForm">
                         @csrf
                         @method('PUT')
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <label for="">Item</label>
+                            <div class="col-md-6 mb-2">
+                                <div>
+                                    <label for="">Item <sup class="text-danger">*</sup></label>
                                     <input type="text" name="item" id="item" class="form-control form-control-sm rounded">
                                 </div>
+                                @error('item')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <label for="">Amount</label>
+                            <div class="col-md-6 mb-2">
+                                <div>
+                                    <label for="">Amount <sup class="text-danger">*</sup></label>
                                     <input type="number" name="amount" id="amount" class="form-control form-control-sm rounded">
                                 </div>
+                                @error('amount')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <label for="">Price per Unit</label>
+                            <div class="col-md-6 mb-2">
+                                <div>
+                                    <label for="">Price per Unit <sup class="text-danger">*</sup></label>
                                     <input type="number" name="price_per_unit" id="price" class="form-control form-control-sm rounded">
                                 </div>
+                                @error('price_per_unit')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <label for="">Total</label>
+                            <div class="col-md-6 mb-2">
+                                <div>
+                                    <label for="">Total <sup class="text-danger">*</sup></label>
                                     <input type="number" name="total" id="total" class="form-control form-control-sm rounded" readonly>
                                 </div>
+                                @error('total')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-12 mt-2">
                                 <div class="d-flex justify-content-between">
@@ -73,71 +76,6 @@
             </div>
         </div>
     </div>
-
-    {{-- <div class="modal modal-md fade" id="createForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="m-0 p-0">
-                        <i class="bi bi-pencil-square me-2"></i>
-                        Add a new Item
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="pb-0 mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-                    <form action="{{ route('purchase.detail.store', ['purchase' => $purchaseRequest->purchase_id]) }}" method="POST">
-                        @csrf
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <label for="">Item</label>
-                                    <input type="text" name="item" class="form-control form-control-sm rounded item">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <label for="">Amount</label>
-                                    <input type="number" name="amount" class="form-control form-control-sm rounded amount">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <label for="">Price per Unit</label>
-                                    <input type="text" name="price_per_unit" class="form-control form-control-sm rounded price">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <label for="">Total</label>
-                                    <input type="number" name="total" class="form-control form-control-sm rounded total" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-12 mt-2">
-                                <div class="d-flex justify-content-between">
-                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3" data-bs-dismiss="modal">
-                                        <i class="bi bi-x me-1"></i>
-                                        Cancel
-                                    </button>
-                                    <button type="submit" class="btn btn-sm btn-primary rounded-3">
-                                        <i class="bi bi-save2"></i>
-                                        Save
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div> --}}
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('master/purchase') }}" class="text-decoration-none text-muted">
@@ -301,7 +239,13 @@
         </div>
     </div>
 
-
+    @if ($errors->first('item') || $errors->first('amount') || $errors->first('price_per_unit') || $errors->first('total'))
+    <script>
+        $(document).ready(function() {
+            $("#detailModal").modal('show');
+        })
+    </script>
+    @endif
     <script>
         function calculate() {
             var val1 = $('#amount, .amount').val();
