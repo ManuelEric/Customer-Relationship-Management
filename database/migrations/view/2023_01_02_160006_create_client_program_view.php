@@ -21,9 +21,9 @@ return new class extends Migration
             r.reason_name as reason,
             CONCAT(c.first_name, " ", COALESCE(c.last_name, "")) as fullname,
             (CASE
-                WHEN sp.sub_prog_name COLLATE utf8mb4_unicode_ci IS NOT NULL THEN CONCAT(sp.sub_prog_name COLLATE utf8mb4_unicode_ci, " - ", p.prog_program COLLATE utf8mb4_unicode_ci, " - ", mp.prog_name COLLATE utf8mb4_unicode_ci)
+                WHEN sp.sub_prog_name COLLATE utf8mb4_unicode_ci IS NOT NULL THEN CONCAT(mp.prog_name COLLATE utf8mb4_unicode_ci, " / ", sp.sub_prog_name COLLATE utf8mb4_unicode_ci, " : ", p.prog_program COLLATE utf8mb4_unicode_ci)
                 ELSE
-                CONCAT(p.prog_program COLLATE utf8mb4_unicode_ci, " - ", mp.prog_name COLLATE utf8mb4_unicode_ci)
+                CONCAT(mp.prog_name COLLATE utf8mb4_unicode_ci, " : ", p.prog_program COLLATE utf8mb4_unicode_ci)
             END) AS program_name,
             (CASE WHEN cp.status = 0 THEN "Pending"
                 WHEN cp.status = 1 THEN "Success"

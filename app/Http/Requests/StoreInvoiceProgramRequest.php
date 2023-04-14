@@ -92,7 +92,7 @@ class StoreInvoiceProgramRequest extends FormRequest
             'inv_tnc' => 'nullable',
 
             # installment validation
-            'invdtl_installment__other.*' => [
+            'invdtl_installment.*' => [
                 'required_if:inv_paymentmethod,installment',
                 'distinct',
                 // Rule::unique('tbl_invdtl', 'invdtl_installment')
@@ -100,9 +100,9 @@ class StoreInvoiceProgramRequest extends FormRequest
                 //         return $query->where('inv_id', $inv_id);
                 // })
             ],
-            'invdtl_duedate__other.*' => 'required_if:inv_paymentmethod,installment'.$addQueryInvDtlDueDateOther,
-            'invdtl_percentage__other.*' => 'required_if:inv_paymentmethod,installment',
-            'invdtl_amountidr__other.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_duedate.*' => 'required_if:inv_paymentmethod,installment'.$addQueryInvDtlDueDateOther,
+            'invdtl_percentage.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_amountidr.*' => 'required_if:inv_paymentmethod,installment',
         ];
     }
 
@@ -250,6 +250,8 @@ class StoreInvoiceProgramRequest extends FormRequest
 
         $addQuery = $this->isMethod('POST') ? '|unique:tbl_inv,clientprog_id' : null;
 
+        $addQueryInvDtlDueDateOther = $this->input('inv_paymentmethod') == 'installment' ? '|after_or_equal:inv_duedate' : null;
+
         return [
             'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
             'currency' => 'required',
@@ -271,17 +273,17 @@ class StoreInvoiceProgramRequest extends FormRequest
             'inv_tnc' => 'nullable',
 
             # installment validation
-            // 'invdtl_installment.*' => [
-            //     'required_if:inv_paymentmethod,installment',
-            //     'distinct',
-            //     // Rule::unique('tbl_invdtl', 'invdtl_installment')
-            //     //     ->where(function ($query) use ($inv_id) {
-            //     //         return $query->where('inv_id', $inv_id);
-            //     // })
-            // ],
-            // 'invdtl_duedate.*' => 'required_if:inv_paymentmethod,installment|max:inv_duedate',
-            // 'invdtl_percentage.*' => 'required_if:inv_paymentmethod,installment',
-            // 'invdtl_amountidr.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_installment.*' => [
+                'required_if:inv_paymentmethod,installment',
+                'distinct',
+                // Rule::unique('tbl_invdtl', 'invdtl_installment')
+                //     ->where(function ($query) use ($inv_id) {
+                //         return $query->where('inv_id', $inv_id);
+                // })
+            ],
+            'invdtl_duedate.*' => 'required_if:inv_paymentmethod,installment'.$addQueryInvDtlDueDateOther,
+            'invdtl_percentage.*' => 'required_if:inv_paymentmethod,installment',
+            'invdtl_amountidr.*' => 'required_if:inv_paymentmethod,installment',
         ];
     }
 }
