@@ -13,11 +13,11 @@
                     <form action="">
                         <div class="mb-3">
                             <label>Start Date</label>
-                            <input type="date" name="start_date" id="" class="form-control form-control-sm rounded">
+                            <input type="date" name="start_date" id="" value="{{ Request::get('start_date') }}" class="form-control form-control-sm rounded">
                         </div>
                         <div class="mb-3">
                             <label>End Date</label>
-                            <input type="date" name="end_date" id="" class="form-control form-control-sm rounded">
+                            <input type="date" name="end_date" id="" value="{{ Request::get('end_date') }}" class="form-control form-control-sm rounded">
                         </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-sm btn-outline-primary">Submit</button>

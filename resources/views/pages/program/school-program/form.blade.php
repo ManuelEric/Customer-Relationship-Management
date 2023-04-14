@@ -124,7 +124,7 @@
                                 <div class="col-md-6">
                                     <small>First Discuss <sup class="text-danger">*</sup> </small>
                                     <input type="date" name="first_discuss" id="" 
-                                    value="{{ isset($schoolProgram->first_discuss) ? $schoolProgram->first_discuss :  old('first_discuss') }}"
+                                    value="{{ isset($schoolProgram->first_discuss) ? date('Y-m-d', strtotime($schoolProgram->first_discuss)) :  old('first_discuss') }}"
                                         class="form-control form-control-sm rounded" 
                                         {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
 
