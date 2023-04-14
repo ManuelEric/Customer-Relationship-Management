@@ -62,7 +62,7 @@
                         @endif
                         <div class="row">
                             <div class="col-md-6 mb-2">
-                                <label>Type</label>
+                                <label>Type <sup class="text-danger">*</sup></label>
                                 <select name="referral_type" class="select w-100" id="type" onchange="checkType()"
                                     {{ $disabled }}>
                                     <option data-placeholder="true"></option>
@@ -78,7 +78,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label>Partner Name</label>
+                                <label>Partner Name <sup class="text-danger">*</sup></label>
                                 <select name="partner_id" class="select w-100" {{ $disabled }}>
                                     <option data-placeholder="true"></option>
                                     @foreach ($partners as $partner)
@@ -92,7 +92,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label>Program Name</label>
+                                <label>Program Name <sup class="text-danger">*</sup></label>
                                 <div id="selectProgram">
                                     <select name="prog_id" class="select w-100" {{ $disabled }}>
                                         <option data-placeholder="true"></option>
@@ -119,7 +119,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label>Referral Date</label>
+                                <label>Referral Date <sup class="text-danger">*</sup></label>
                                 <input type="date" name="ref_date"
                                     value="{{ isset($referral->ref_date) ? $referral->ref_date : null }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
@@ -128,7 +128,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label>Participant</label>
+                                <label>Participant <sup class="text-danger">*</sup></label>
                                 <input type="number" name="number_of_student"
                                     value="{{ isset($referral->number_of_student) ? $referral->number_of_student : null }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
@@ -137,7 +137,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label>Amount</label>
+                                <label>Amount <sup class="text-danger">*</sup></label>
                                 <div class="row g-0">
                                     <div class="col-3">
                                         <select name="currency" class="select w-100" {{ $disabled }}>
@@ -166,7 +166,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-12 mb-2">
-                                <label>PIC </label>
+                                <label>PIC <sup class="text-danger">*</sup></label>
                                 <select name="empl_id" class="select w-100" {{ $disabled }}>
                                     <option data-placeholder="true"></option>
                                     @foreach ($employees as $employee)

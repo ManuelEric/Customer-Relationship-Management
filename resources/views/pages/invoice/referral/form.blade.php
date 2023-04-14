@@ -339,7 +339,7 @@
                                         <label for="">Invoice Due Date</label>
                                         <input type="date" name="invb2b_duedate" id=""
                                             class='form-control form-control-sm rounded'
-                                            value="{{ isset($invoiceRef) ? $invoiceRef->invb2b_duedate : old('invb2b_duedate') }}"
+                                            value="{{ isset($invoiceRef) ? date('Y-m-d', strtotime($invoiceRef->invb2b_duedate)) : old('invb2b_duedate') }}"
                                             {{ empty($invoiceRef) || $status == 'edit' ? '' : 'disabled' }}>
                                         @error('invb2b_duedate')
                                             <small class="text-danger fw-light">{{ $message }}</small>

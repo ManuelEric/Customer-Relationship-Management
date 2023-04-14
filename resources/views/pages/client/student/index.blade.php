@@ -237,6 +237,23 @@
                 }
             });
 
+            @php            
+                $privilage = $menus['Client']->where('submenu_name', 'Students')->first();
+            @endphp
+            
+
+            @if($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false"); 
+                
+                $('body').bind('cut copy paste', function(event) {
+                    event.preventDefault();
+                });
+            @endif
+
+            @if ($privilage['export'] == 0)
+                table.button(1).disable();
+            @endif
+
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('client/student') }}/" + data.id;
