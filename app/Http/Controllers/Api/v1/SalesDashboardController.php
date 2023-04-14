@@ -808,14 +808,16 @@ class SalesDashboardController extends Controller
         $html = '';
         $no = 1;
         foreach ($salesDetail as $detail) {
-            $percentage_participant = $detail->total_target_participant != 0 ? ($detail->total_actual_participant/$detail->total_target_participant) * 100 : 0;
+            $percentage_participant = $detail->total_target_participant != 0 ? round(($detail->total_actual_participant/$detail->total_target_participant) * 100, 2) : 0;
             $percentage_revenue = $detail->total_target_amount != 0 ? ($detail->total_actual_amount/$detail->total_target_amount) * 100 : 0;
+
+            $target_student = $detail->total_target_participant ??= 0;
 
             $html .= '<tr class="text-center">
                     <td>'.$no++.'</td>
                     <td>'.$detail->prog_id.'</td>
                     <td class="text-start">'.$detail->program_name_sales.'</td>
-                    <td>'.$detail->total_target_participant.'</td>
+                    <td>'.$target_student.'</td>
                     <td>'.number_format($detail->total_target_amount,'2',',','.').'</td>
                     <td>'.$detail->total_actual_participant.'</td>
                     <td>'.number_format($detail->total_actual_amount,'2',',','.').'</td>

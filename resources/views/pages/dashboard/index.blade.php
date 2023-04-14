@@ -113,7 +113,7 @@
         });
 
         $(".qdate").on('change', function() {
-
+            showLoading()
             var month = $(this).val()
             $(".qdate").val(month)
             var uuid = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
