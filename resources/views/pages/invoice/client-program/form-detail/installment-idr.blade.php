@@ -10,7 +10,7 @@
         @endif
     </div>
     <div class="card-body " id="installment_content">
-        @if (old('invdtl_installment') || isset($invoice->invoiceDetail))
+        @if ((old('invdtl_installment') || isset($invoice) && $invoice->invoiceDetail()->count() > 0))
         @php
             $limit = isset($invoice->invoiceDetail) ? count($invoice->invoiceDetail) : count(old('invdtl_installment'))
         @endphp
