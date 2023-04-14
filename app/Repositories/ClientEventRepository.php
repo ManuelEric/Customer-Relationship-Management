@@ -36,7 +36,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     ELSE tbl_lead.main_lead
                 END) AS conversion_lead'),
                     DB::raw('CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) as client_name')
-                )
+                )->orderBy('tbl_client_event.created_at', 'DESC')
         )->filterColumn(
             'client_name',
             function ($query, $keyword) {
