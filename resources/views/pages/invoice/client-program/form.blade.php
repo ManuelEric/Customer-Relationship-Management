@@ -13,6 +13,10 @@
         </a>
     </div>
 
+    @if ($errors->any())
+        {{ $errors }}
+    @endif
+
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
@@ -718,29 +722,56 @@
                 allowClear: true
             });
 
-            @if (
-                ($clientProg->program->prog_payment == 'idr' || $clientProg->program->prog_payment == 'session') &&
-                    !isset($invoice))
-                $("#currency").val('idr').trigger('change')
-            @elseif (isset($invoice) && $invoice->inv_category == 'idr')
-                $("#currency").val('idr').trigger('change')
+            @if (isset($invoice))
+                @switch ($invoice->inv_category)
+                    @case("idr")
+                        $("#currency").val('idr').trigger('change')
+                    @break
+
+                    @case("session")
+                        @if ($invoice->currency == "idr")
+                            $("#currency").val('idr').trigger('change')
+                        @else
+                            $("#currency").val('other').trigger('change')
+                        @endif
+                        $("#session").val('yes').trigger('change')
+                    @break
+
+                    @default
+                        $("#currency").val('other').trigger('change')
+
+                @endswitch
             @else
-                $("#currency").val('other').trigger('change')
+                @switch (strtolower($clientProg->program->prog_payment))
+                    @case('usd')
+                        console.log("usd")
+                    $("#currency_detail").val("usd").trigger('change')
+                    @break
+
+                    @case('sgd')
+                    $("#currency_detail").val("sgd").trigger('change')
+                    @break
+
+                    @case('gbp')
+                    $("#currency_detail").val("gbp").trigger('change')
+                    @break
+                @endswitch
+
+                @if ($clientProg->program->prog_payment == 'idr' || $clientProg->program->prog_payment == 'session')
+                    $("#currency").val('idr').trigger('change')
+                @else
+                    $("#currency").val('other').trigger('change')
+                @endif
             @endif
 
-            @switch (strtolower($clientProg->program->prog_payment))
-                @case('usd')
-                $("#currency_detail").val("usd").trigger('change')
-                @break
-
-                @case('sgd')
-                $("#currency_detail").val("sgd").trigger('change')
-                @break
-
-                @case('gbp')
-                $("#currency_detail").val("gbp").trigger('change')
-                @break
-            @endswitch
+            
+            // @if (isset($invoice) && $invoice->currency)
+            //     $("#currency_detail").val('{{ $invoice->currency }}').trigger('change');
+            //     let detail = $('#currency_detail').val()
+            //     if (detail) {
+            //         $('.currency-icon').html(currencySymbol(detail))
+            //     }
+            // @endif
 
             @if (isset($invoice))
                 @if (isset($invoice->inv_paymentmethod) && $invoice->inv_paymentmethod == 'Full Payment')
@@ -768,10 +799,12 @@
             @endif
 
 
-            @if (old('is_session') == 'yes')
-                $("#session").val('yes').trigger('change')
-            @else
-                $("#session").val('no').trigger('change')
+            @if (old('is_session'))
+                @if (old('is_session') == "yes")
+                    $("#session").val('yes').trigger('change')
+                @else
+                    $("#session").val('no').trigger('change')
+                @endif
             @endif
         });
 
@@ -889,14 +922,6 @@
         $(document).ready(function() {
             @if (old('inv_paymentmethod'))
                 $("#payment_method").val("{{ old('inv_paymentmethod') }}").trigger('change');
-            @endif
-
-            @if (isset($invoice) && $invoice->currency)
-                $("#currency_detail").val('{{ $invoice->currency }}').trigger('change');
-                let detail = $('#currency_detail').val()
-                if (detail) {
-                    $('.currency-icon').html(currencySymbol(detail))
-                }
             @endif
 
             $("#request-acc").on('click', function(e) {

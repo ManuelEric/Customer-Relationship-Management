@@ -37,7 +37,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                         'tbl_inv.clientprog_id',
                         DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
                         DB::raw('(CASE
-                                WHEN tbl_prog.sub_prog_id IS NOT NULL THEN CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, ""))
+                                WHEN tbl_prog.sub_prog_id IS NOT NULL THEN CONCAT(tbl_main_prog.prog_name, " / ", COALESCE(tbl_sub_prog.sub_prog_name, ""), " : ", COALESCE(tbl_prog.prog_program, ""))
                                 WHEN tbl_prog.sub_prog_id IS NULL THEN CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""))
                             END) as program_name'),
                         'inv_id',
