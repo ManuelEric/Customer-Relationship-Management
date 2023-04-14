@@ -90,6 +90,7 @@
     function checkRevenueByYear(){
         let year = $('#revenue_year').val()
 
+        Swal.showLoading()
         axios.get('{{ url("api/finance/revenue") }}/' + year)
         .then((response) => {
             
@@ -111,6 +112,7 @@
                 
                 revenue_chart.update()
                 
+                swal.close()
                 }, (error) => {
                     console.log(error)
                     swal.close()
@@ -207,7 +209,7 @@
                     let year = $('#revenue_year').val()
 
                    
-
+                    Swal.showLoading()
                     axios.get('{{ url("api/finance/revenue/detail") }}/' + year + '/' +  month)
                         .then((response) => {
                             var result = response.data.data
@@ -237,8 +239,11 @@
                             
                             $('#tot_paid_revenue').html(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
 
+                            swal.close()
                         }, (error) => {
                             console.log(error)
+                            swal.close()
+
                         })
 
 

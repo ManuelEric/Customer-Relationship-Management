@@ -161,14 +161,14 @@
             currency: "IDR"
             }).format(number);
         }
-
+        
+        Swal.showLoading()
         // Axios here ...
-            axios.get('{{ url("api/finance/outstanding/") }}/' + month)
-            .then((response) => {
+        axios.get('{{ url("api/finance/outstanding/") }}/' + month)
+        .then((response) => {
 
                 var result = response.data.data
 
-                console.log(result);
 
                 outstanding_chart.data.datasets[0].data = [];
                 outstanding_chart.data.datasets[0].data.push(result.paidPayments.length)                
@@ -220,7 +220,7 @@
                 })
                 
                 $('#tot_unpaid').html(rupiah(total_unpaid))
-
+                swal.close()
             }, (error) => {
                 console.log(error)
                 swal.close()
@@ -246,6 +246,7 @@
             'total': [0, 0],
         }
 
+        Swal.showLoading()
         // Axios here ...
             axios.get('{{ url("api/finance/outstanding/period") }}/' + start_date + '/' + end_date)
             .then((response) => {
@@ -297,6 +298,7 @@
                 
                 $('#tot_unpaid').html(rupiah(total_unpaid))
                 
+                swal.close()
             }, (error) => {
                 console.log(error)
                 swal.close()
