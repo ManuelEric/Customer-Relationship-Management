@@ -144,18 +144,18 @@
 
                 result.statusSchoolPrograms.forEach(function (item, index, arr) {
 
-                    switch (item['status']) {                        
+                    switch (parseInt(item['status'])) {                        
                         case 0:
-                            school_program_chart.data.datasets[0].data[0] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[0] = parseInt(item['count_status']);
                             break;
                         case 1:
-                            school_program_chart.data.datasets[0].data[1] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[1] = parseInt(item['count_status']);
                             break;
                         case 2:
-                            school_program_chart.data.datasets[0].data[2] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[2] = parseInt(item['count_status']);
                             break;
                         case 3:
-                            school_program_chart.data.datasets[0].data[3] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[3] = parseInt(item['count_status']);
                             break;
                     
                         default:
@@ -170,18 +170,18 @@
                 partner_program_chart.data.datasets[0].data = [0,0,0,0]
                 result.statusPartnerPrograms.forEach(function (item, index, arr) {
                   
-                    switch (item['status']) {                        
+                    switch (parseInt(item['status'])) {                        
                         case 0:
-                            partner_program_chart.data.datasets[0].data[0] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[0] = parseInt(item['count_status']);
                             break;
                         case 1:
-                            partner_program_chart.data.datasets[0].data[1] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[1] = parseInt(item['count_status']);
                             break;
                         case 2:
-                            partner_program_chart.data.datasets[0].data[2] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[2] = parseInt(item['count_status']);
                             break;
                         case 3:
-                            partner_program_chart.data.datasets[0].data[3] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[3] = parseInt(item['count_status']);
                             break;
                     
                         default:
