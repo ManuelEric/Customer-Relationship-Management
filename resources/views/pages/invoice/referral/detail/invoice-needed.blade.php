@@ -78,7 +78,7 @@
                     },
                     {
                         data: 'program_name',
-                        name: 'tbl_prog.prog_program'
+                        name: 'program.program_name'
                     },
                     {
                         data: 'number_of_student',

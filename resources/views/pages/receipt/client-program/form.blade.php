@@ -20,12 +20,13 @@
                     <a href="{{ route('student.program.show', ['student' => $client_prog->client->id, 'program' => $client_prog->clientprog_id]) }}"
                         class="text-primary text-decoration-none cursor-pointer" target="_blank">
                         <h6 class="d-flex flex-column">
-                            @php
+                            {{$client_prog->program->program_name}}
+                            {{-- @php
                                 $programName = explode('-', $client_prog->program_name);
                             @endphp
                             @for ($i = 0; $i < count($programName); $i++)
                                 {{ $programName[$i] }} <br>
-                            @endfor
+                            @endfor --}}
                         </h6>
                     </a>
                 </div>

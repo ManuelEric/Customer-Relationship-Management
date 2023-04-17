@@ -81,6 +81,8 @@ class ReceiptPartnerController extends Controller
             'receipt_method',
             'receipt_cheque',
         ]);
+        unset($receipts['rec_currency']);
+        $receipts['currency'] = $request->rec_currency;
 
 
         switch ($receipts['rec_currency']) {

@@ -23,12 +23,14 @@
                     <a
                         href="{{ route('student.program.show', ['student' => $clientProg->client->id, 'program' => $clientProg->clientprog_id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">
                         <h6 class="d-flex flex-column">
-                            @php
+                            {{$clientProg->program->program_name}}
+
+                            {{-- @php
                                 $programName = explode('-', $clientProg->program_name);
                             @endphp
                             @for ($i = 0; $i < count($programName); $i++)
                                 {{ $programName[$i] }}  <br>
-                            @endfor
+                            @endfor --}}
                         </h6>
                     </a>
                 </div>
@@ -203,6 +205,7 @@
                         </div>
 
                         {{-- Other  --}}
+                        @if ($invoice->currency != 'idr')
                         @php
                             $invoiceHasBeenRequested_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
                             $invoiceHasBeenSigned_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
@@ -260,6 +263,7 @@
                                 </div>
                             </section>
                         </div>
+                        @endif
                     </div>
                 </div>
             @endif

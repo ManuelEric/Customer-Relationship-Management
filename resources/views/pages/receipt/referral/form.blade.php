@@ -45,6 +45,16 @@
 
                 @if (!isset($invoiceRef->refund))
                     {{-- IDR  --}}
+
+                    @php
+                        $receiptAttachment = $receiptRef->receiptAttachment()->where('currency', 'idr')->first();
+                        $receiptAttachmentRequested = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('request_status', 'requested')->first();
+                        $receiptAttachmentSigned = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
+                        $receiptAttachmentNotYet = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first();
+                        $receiptAttachmentSent = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
+                    @endphp
+
+                    @if ($invoiceRef->invoiceAttachment()->where('currency', 'idr')->first())
                     <div class="d-flex align-items-stretch">
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                         <div class="border p-1 text-center">
@@ -55,13 +65,6 @@
                                             <i class="bi bi-eye-fill"></i>
                                         </a>
                                 </div>
-                                @php
-                                    $receiptAttachment = $receiptRef->receiptAttachment()->where('currency', 'idr')->first();
-                                    $receiptAttachmentRequested = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('request_status', 'requested')->first();
-                                    $receiptAttachmentSigned = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
-                                    $receiptAttachmentNotYet = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first();
-                                    $receiptAttachmentSent = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
-                                @endphp
                                 @if(!$receiptAttachment)
                                     <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Download">
@@ -99,9 +102,18 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     {{-- Other  --}}
-                    @if($invoiceRef->currency != 'idr')
+
+                    @php
+                        $receiptAttachmentOther = $receiptRef->receiptAttachment()->where('currency', 'other')->first();
+                        $receiptAttachmentRequestedOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('request_status', 'requested')->first();
+                        $receiptAttachmentSignedOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
+                        $receiptAttachmentNotYetOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
+                        $receiptAttachmentSentOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
+                    @endphp
+                    @if($invoiceRef->currency != 'idr' && $invoiceRef->invoiceAttachment()->where('currency', 'other')->first())
                         <div class="d-flex align-items-stretch">
                             <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                             <div class="border p-1 text-center">
@@ -112,13 +124,6 @@
                                                 <i class="bi bi-eye-fill"></i>
                                             </a>
                                     </div>
-                                    @php
-                                        $receiptAttachmentOther = $receiptRef->receiptAttachment()->where('currency', 'other')->first();
-                                        $receiptAttachmentRequestedOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('request_status', 'requested')->first();
-                                        $receiptAttachmentSignedOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
-                                        $receiptAttachmentNotYetOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
-                                        $receiptAttachmentSentOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
-                                    @endphp
                                     @if(!$receiptAttachmentOther)
                                         <div id="print-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                             data-bs-title="Download">

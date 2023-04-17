@@ -92,6 +92,12 @@ class SchoolProgram extends Model
         return $this->belongsToMany(User::class, 'tbl_agenda_speaker', 'sch_prog_id', 'empl_id')->using(AgendaSpeaker::class);
     }
 
+    public function firstDiscuss(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('M d, Y', strtotime($value)),
+        );
+    }
     // protected function programName(): Attribute
     // {
     //     return Attribute::make(

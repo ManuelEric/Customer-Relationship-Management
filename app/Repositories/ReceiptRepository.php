@@ -21,16 +21,13 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 ->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', DB::raw('(CASE WHEN tbl_receipt.invdtl_id is not null THEN tbl_invdtl.invb2b_id ELSE tbl_receipt.invb2b_id END)'))
                 ->rightJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
                 ->leftJoin('tbl_sch', 'tbl_sch_prog.sch_id', '=', 'tbl_sch.sch_id')
-                ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
-                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                ->leftJoin('program', 'program.prog_id', '=', 'tbl_sch_prog.prog_id')
+                // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                 ->select(
                     'tbl_receipt.id as increment_receipt',
                     'tbl_sch.sch_name as school_name',
                     // 'tbl_prog.prog_program as program_name',
-                    DB::raw('(CASE
-                        WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                        ELSE tbl_prog.prog_program
-                    END) AS program_name'),
+                    'program.program_name',
                     'tbl_receipt.receipt_id',
                     'tbl_invb2b.invb2b_id',
                     'tbl_receipt.receipt_method',
@@ -52,16 +49,13 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 ->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', DB::raw('(CASE WHEN tbl_receipt.invdtl_id is not null THEN tbl_invdtl.invb2b_id ELSE tbl_receipt.invb2b_id END)'))
                 ->rightJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
                 ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
-                ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_partner_prog.prog_id')
-                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
+                // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                 ->select(
                     'tbl_receipt.id as increment_receipt',
                     'tbl_corp.corp_name',
                     // 'tbl_prog.prog_program as program_name',
-                    DB::raw('(CASE
-                        WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                        ELSE tbl_prog.prog_program
-                    END) AS program_name'),
+                    'program.program_name',
                     'tbl_receipt.receipt_id',
                     'tbl_invb2b.invb2b_id',
                     'tbl_receipt.receipt_method',
@@ -111,9 +105,9 @@ class ReceiptRepository implements ReceiptRepositoryInterface
     {
         $query = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-            ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
+            // ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+            // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
             ->where('receipt_status', 1)
             ->whereNotNull('tbl_receipt.inv_id')
@@ -124,7 +118,8 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 'tbl_receipt.receipt_id',
                 // 'tbl_receipt.created_at',
                 DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
-                DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                'program.program_name',
+                // DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
                 'tbl_inv.inv_id',
                 'tbl_receipt.receipt_method',
                 'tbl_inv.created_at',
@@ -138,10 +133,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 $sql = 'CONCAT(first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(last_name COLLATE utf8mb4_unicode_ci, "")) like ?';
                 $query->whereRaw($sql, ["%{$keyword}%"]);
             })
-            ->filterColumn('program_name', function ($query, $keyword) {
-                $sql = 'CONCAT(prog_program COLLATE utf8mb4_unicode_ci, " - ", COALESCE(tbl_main_prog.prog_name COLLATE utf8mb4_unicode_ci, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name COLLATE utf8mb4_unicode_ci, "")) like ?';
-                $query->whereRaw($sql, ["%{$keyword}%"]);
-            })->make(true);
+            ->make(true);
     }
 
     public function getReceiptByInvoiceIdentifier($invoiceType, $identifier)

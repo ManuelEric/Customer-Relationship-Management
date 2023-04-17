@@ -110,15 +110,13 @@
             if(!Array.isArray(arr)) return;
             return arr.reduce((a, v)=>a + v);
         }
-
+        
+        Swal.showLoading()
           axios.get('{{ url("api/finance/total/") }}/' + month)
             .then((response) => {
                 var result = response.data.data
                 var html = ""
                 var no = 1;
-
-                console.log(result)
-
 
                 data['invoiceNeeded']['total'] = result.totalInvoiceNeeded
                 data['refund']['total'] = result.totalRefundRequest

@@ -248,43 +248,6 @@
             }
         @endif
                 
-                // $("#update-status-active").on('click', function(e) {
-                //     e.preventDefault()
-                //     Swal.showLoading()
-                //     axios
-                //         .get(
-                //             '{{ route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id, 'status' => 1]) }}'
-                //         )
-                //         .then(response => {
-                //             swal.close()
-                //             notification('success', response.data.message)
-                //             setTimeout(location.reload.bind(location), 3000);
-                //         })
-                //         .catch(error => {
-                //             notification('error',
-                //                 response.data.message);
-                //             swal.close()
-                //         })
-                // })
-
-                //  $("#update-status-deactive").on('click', function(e) {
-                //     e.preventDefault()
-                //     Swal.showLoading()
-                //     axios
-                //         .get(
-                //             '{{ route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id, 'status' => 0]) }}'
-                //         )
-                //         .then(response => {
-                //             swal.close()
-                //             notification('success', response.data.message)
-                //             setTimeout(location.reload.bind(location), 3000);
-                //         })
-                //         .catch(error => {
-                //             notification('error',
-                //                 response.data.message);
-                //             swal.close()
-                //         })
-                // })
 
         @if (isset($volunteer))
 

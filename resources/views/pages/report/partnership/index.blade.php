@@ -141,7 +141,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $schoolProgram->school->sch_name }}</td>
-                                    <td>{{ $schoolProgram->program->sub_prog ? $schoolProgram->program->sub_prog->sub_prog_name.' - ':'' }}{{ $schoolProgram->program->prog_program }}</td>
+                                    <td>{{ $schoolProgram->program->program_name }}</td>
                                     <td>{{ $schoolProgram->success_date }}</td>
                                     <td>{{ $schoolProgram->participants }}</td>
                                     <td>Rp. {{ number_format($schoolProgram->total_fee) }}</td>
@@ -186,7 +186,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $partnerProgram->corp->corp_name }}</td>
-                                    <td>{{ $partnerProgram->program->sub_prog ? $partnerProgram->program->sub_prog->sub_prog_name.' - ':'' }}{{ $partnerProgram->program->prog_program }}</td>
+                                    <td>{{ $partnerProgram->program->program_name }}</td>
                                     <td>{{ $partnerProgram->success_date }}</td>
                                     <td>{{ $partnerProgram->participants }}</td>
                                     <td>Rp. {{ number_format($partnerProgram->total_fee) }}</td>

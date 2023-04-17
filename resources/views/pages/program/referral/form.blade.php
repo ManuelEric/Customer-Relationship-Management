@@ -99,8 +99,7 @@
                                         @foreach ($programs as $program)
                                             <option value="{{ $program->prog_id }}"
                                                 {{ isset($referral->prog_id) && $referral->prog_id == $program->prog_id ? 'selected' : null }}>
-                                                {{ $program->prog_program }} from {{ $program->main_prog->prog_name }}
-                                                {{ isset($program->sub_prog) ? ' - ' . $program->sub_prog->sub_prog_name : null }}
+                                                {{ $program->program_name }}
                                             </option>
                                         @endforeach
                                     </select>
