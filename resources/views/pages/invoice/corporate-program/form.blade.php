@@ -27,7 +27,7 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $partnerProgram->corp->corp_name }}</h4>
-                    <h6>{{ $partnerProgram->program->sub_prog ? $partnerProgram->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $partnerProgram->program->prog_program }}
+                    <h6>{{ $partnerProgram->program->program_name }}
                     </h6>
                 </div>
             </div>

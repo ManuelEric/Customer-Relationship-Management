@@ -96,11 +96,11 @@
 
                                         {{-- Program Name --}}
                                         @if(isset($invoice->clientprog_id))
-                                            <td>{{ $invoice->clientprog->program->sub_prog ? $invoice->clientprog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->clientprog->program->prog_program }}</td>
+                                            <td>{{ $invoice->clientprog->program->program_name }}</td>
                                         @elseif(isset($invoice->schprog_id))
-                                            <td>{{ $invoice->sch_prog->program->sub_prog ? $invoice->sch_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->sch_prog->program->prog_program }}</td>
+                                            <td>{{ $invoice->sch_prog->program->program_name }}</td>
                                         @elseif(isset($invoice->partnerprog_id))
-                                            <td>{{ $invoice->partner_prog->program->sub_prog ? $invoice->partner_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->partner_prog->program->prog_program }}</td>
+                                            <td>{{ $invoice->partner_prog->program->program_name }}</td>
                                         @elseif(isset($invoice->ref_id))
                                             <td>{{ $invoice->referral->additional_prog_name }}</td>
                                         @endif 
@@ -191,12 +191,12 @@
 
                                         {{-- Program Name --}}
                                         @if(isset($receipt->inv_id))
-                                            <td>{{ $receipt->invoiceProgram->clientprog->program->sub_prog ? $receipt->invoiceProgram->clientprog->program->sub_prog->sub_prog_name.' - ':''}}{{ $receipt->invoiceProgram->clientprog->program->prog_program }}</td>
+                                            <td>{{ $receipt->invoiceProgram->clientprog->program->program_name }}</td>
                                         @elseif(isset($receipt->invb2b_id))
                                             @if(isset($receipt->invoiceB2b->schprog_id))
-                                                <td>{{ $receipt->invoiceB2b->sch_prog->program->sub_prog ? $receipt->invoiceB2b->sch_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $receipt->invoiceB2b->sch_prog->program->prog_program }}</td>
+                                                <td>{{ $receipt->invoiceB2b->sch_prog->program->program_name }}</td>
                                             @elseif((isset($receipt->invoiceB2b->partnerprog_id)))
-                                                <td>{{ $receipt->invoiceB2b->partner_prog->program->sub_prog ? $receipt->invoiceB2b->partner_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $receipt->invoiceB2b->partner_prog->program->prog_program }}</td>
+                                                <td>{{ $receipt->invoiceB2b->partner_prog->program->program_name }}</td>
                                             @elseif((isset($receipt->invoiceB2b->ref_id)))
                                                 <td>{{ $receipt->invoiceB2b->referral->additional_prog_name }}</td>
                                             @endif

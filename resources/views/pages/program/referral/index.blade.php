@@ -76,7 +76,7 @@
                     },
                     {
                         data: 'program_name',
-                        name: 'tbl_prog.prog_program',
+                        name: 'program.prog_program',
                         render: function(data, type, row, meta) {
                             return row.referral_type == "Out" ? row.additional_prog_name : row.program_name
                         }

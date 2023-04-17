@@ -18,8 +18,7 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $invoicePartner->partner_prog->corp->corp_name }}</h4>
-                    <h6>{{ $invoicePartner->partner_prog->program->sub_prog ? $invoicePartner->partner_prog->program->sub_prog->sub_prog_name . ' - ' : '' }}
-                        {{ $invoicePartner->partner_prog->program->prog_program }}</h6>
+                    <h6>{{ $invoicePartner->partner_prog->program->program_name }}</h6>
                 </div>
             </div>
 

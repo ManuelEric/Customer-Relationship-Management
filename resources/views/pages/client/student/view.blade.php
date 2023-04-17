@@ -142,7 +142,7 @@
                         <a href="{{ url('client/student/'.$student->id.'/program/create?p='.$program->prog_id) }}"
                         class="btn btn-sm btn-outline-info
                         me-1 rounded-4">
-                        {{ $program->prog_program }}</a>
+                        {{ $program->program_name }}</a>
                         @empty
                             There's no interest program yet
                     @endforelse

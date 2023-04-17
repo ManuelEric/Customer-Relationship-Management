@@ -23,28 +23,25 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     # where status already success which mean they(client) already paid the program
                     $q->doesntHave('invoice')->where('status', 1);
                 })
-                ->orderBy('updated_at', 'desc')
-                ->orderBy('statusprog_date', 'desc');
+                    ->orderBy('updated_at', 'desc')
+                    ->orderBy('statusprog_date', 'desc');
                 break;
 
             case "list":
                 $query = InvoiceProgram::leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-                    ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-                    ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-                    ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                    ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
+                    // ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+                    // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                     ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
                     ->select([
                         'tbl_inv.clientprog_id',
                         DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
-                        DB::raw('(CASE
-                                WHEN tbl_prog.sub_prog_id IS NOT NULL THEN CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, ""))
-                                WHEN tbl_prog.sub_prog_id IS NULL THEN CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""))
-                            END) as program_name'),
                         'inv_id',
                         'inv_paymentmethod',
                         'tbl_inv.created_at',
                         'inv_duedate',
                         'inv_totalprice_idr',
+                        'program.program_name'
                     ])->orderBy('tbl_inv.updated_at', 'desc');
                 break;
 
@@ -67,14 +64,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 //         ])
                 //         ->orderBy('date_difference', 'asc');
                 $query = InvoiceProgram::leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-                    ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-                    ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-                    ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                    ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
+                    // ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+                    // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
                     ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
                     ->select([
                         'tbl_inv.clientprog_id',
                         DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as client_fullname'),
-                        DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), " / ", COALESCE(tbl_sub_prog.sub_prog_name, "")) as program_name'),
+                        'program.program_name',
                         'inv_id',
                         'inv_paymentmethod',
                         'tbl_inv.created_at',
@@ -310,9 +307,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     END')
             )
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
-            ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
+            // ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+            // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id');
 
         switch ($type) {
@@ -321,7 +318,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     'tbl_inv.inv_id as invoice_id',
                     'tbl_inv.clientprog_id',
                     DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
-                    DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), COALESCE(CONCAT(" / ", tbl_sub_prog.sub_prog_name), "")) as program_name'),
+                    'program.program_name',
+                    // DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), COALESCE(CONCAT(" / ", tbl_sub_prog.sub_prog_name), "")) as program_name'),
                     'tbl_inv.inv_totalprice_idr as total_price_inv',
                     'tbl_invdtl.invdtl_installment as installment_name',
                     DB::raw("'B2C' as type"),
@@ -341,7 +339,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     'tbl_inv.inv_id as invoice_id',
                     'tbl_inv.clientprog_id',
                     DB::raw('CONCAT(first_name, " ", COALESCE(last_name, "")) as full_name'),
-                    DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), COALESCE(CONCAT(" / ", tbl_sub_prog.sub_prog_name), "")) as program_name'),
+                    'program.program_name',
+                    // DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), COALESCE(CONCAT(" / ", tbl_sub_prog.sub_prog_name), "")) as program_name'),
                     'tbl_invdtl.invdtl_installment as installment_name',
                     DB::raw("'B2C' as type"),
                     DB::raw('(CASE

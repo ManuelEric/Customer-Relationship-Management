@@ -91,7 +91,7 @@ class ReceiptSchoolController extends Controller
                 unset($receipts['receipt_words']);
                 break;
         }
-        
+
         $receipts['receipt_cat'] = 'school';
 
         $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invb2b_num);

@@ -502,7 +502,7 @@
                                     @foreach ($programs as $program)
                                         <option value="{{ $program->prog_id }}"
                                                 {{ old('prog_id') == $program->prog_id ? "selected" : null }}
-                                            >{{ $program->prog_program }}</option>
+                                            >{{ $program->program_name }}</option>
                                     @endforeach
                                 @endif
                             </select>

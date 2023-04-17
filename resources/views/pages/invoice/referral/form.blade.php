@@ -32,7 +32,7 @@
                     <h4>{{ $partner->corp_name }}</h4>
                     <h6>
                         @if (isset($referral->prog_id))
-                            {{ $referral->program->sub_prog ? $referral->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $referral->program->prog_program }}
+                            {{ $referral->program->program_name }}
                         @else
                             {{ $referral->additional_prog_name }}
                         @endif
