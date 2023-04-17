@@ -32,7 +32,7 @@
                     <h4>{{ $partner->corp_name }}</h4>
                     <h6>
                         @if (isset($referral->prog_id))
-                            {{ $referral->program->sub_prog ? $referral->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $referral->program->prog_program }}
+                            {{ $referral->program->program_name }}
                         @else
                             {{ $referral->additional_prog_name }}
                         @endif
@@ -339,7 +339,7 @@
                                         <label for="">Invoice Due Date</label>
                                         <input type="date" name="invb2b_duedate" id=""
                                             class='form-control form-control-sm rounded'
-                                            value="{{ isset($invoiceRef) ? $invoiceRef->invb2b_duedate : old('invb2b_duedate') }}"
+                                            value="{{ isset($invoiceRef) ? date('Y-m-d', strtotime($invoiceRef->invb2b_duedate)) : old('invb2b_duedate') }}"
                                             {{ empty($invoiceRef) || $status == 'edit' ? '' : 'disabled' }}>
                                         @error('invb2b_duedate')
                                             <small class="text-danger fw-light">{{ $message }}</small>

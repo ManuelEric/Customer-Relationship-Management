@@ -55,6 +55,7 @@
                             },
                             {
                                 data: 'program_name',
+                                name: 'program.program_name',
                             },
                             {
                                 data: 'inv_id',

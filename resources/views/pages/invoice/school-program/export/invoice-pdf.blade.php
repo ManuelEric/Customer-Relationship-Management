@@ -183,7 +183,7 @@
 
                     {{-- Total --}}
                     <td valign="top" align="center">
-                        <div style="height:80px;width: 150px;">
+                        <div style="height:80px;">
                             <p>
                                 @if($invoiceSch->is_full_amount == 0)
                                     <strong>

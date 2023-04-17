@@ -14,31 +14,31 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
 
     public function getAllSchoolProgramsDataTables($filter = null)
     {
+        $program = SchoolProgram::with('program');
 
         return Datatables::eloquent(
-            SchoolProgram::leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->leftJoin('users', 'users.id', '=', 'tbl_sch_prog.empl_id')->select(
-                'tbl_sch.sch_id',
-                'tbl_sch_prog.id',
-                'tbl_sch.sch_name as school_name',
-                DB::raw('(CASE
-                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                            ELSE tbl_prog.prog_program
-                        END) AS program_name'),
-                'tbl_sch_prog.first_discuss',
-                'tbl_sch_prog.participants',
-                'tbl_sch_prog.total_fee',
-                'tbl_sch_prog.status',
-                'tbl_sch_prog.success_date',
-                'tbl_sch_prog.start_program_date',
-                'tbl_sch_prog.end_program_date',
-                'users.id as pic_id',
-                DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
-            )->orderBy('tbl_sch_prog.first_discuss', 'DESC')
+            SchoolProgram::leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->leftJoin('users', 'users.id', '=', 'tbl_sch_prog.empl_id')->leftJoin('program', 'program.prog_id', '=', 'tbl_sch_prog.prog_id')
+                ->select(
+                    'tbl_sch.sch_id',
+                    'tbl_sch_prog.id',
+                    'tbl_sch_prog.prog_id',
+                    'tbl_sch.sch_name as school_name',
+                    'tbl_sch_prog.first_discuss',
+                    'tbl_sch_prog.participants',
+                    'tbl_sch_prog.total_fee',
+                    'tbl_sch_prog.status',
+                    'tbl_sch_prog.success_date',
+                    'tbl_sch_prog.start_program_date',
+                    'tbl_sch_prog.end_program_date',
+                    'program.program_name',
+                    'users.id as pic_id',
+                    DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
+                )->orderBy('tbl_sch_prog.first_discuss', 'DESC')
                 ->when($filter && isset($filter['school_name']), function ($query) use ($filter) {
                     $query->whereIn('tbl_sch.sch_name', $filter['school_name']);
                 })
                 ->when($filter && isset($filter['program_name']), function ($query) use ($filter) {
-                    $query->whereIn('tbl_prog.prog_program', $filter['program_name']);
+                    $query->whereIn('program.program_name', $filter['program_name']);
                 })
                 ->when($filter && isset($filter['pic']), function ($query) use ($filter) {
                     $query->whereIn('users.id', $filter['pic']);
@@ -180,15 +180,12 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
         $month = date('m', strtotime($monthYear));
 
         return SchoolProgram::leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')
-            ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
-            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_sch_prog.prog_id')
+            // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->select(
                 'tbl_sch_prog.status',
                 'tbl_sch.sch_name as school_name',
-                DB::raw('(CASE
-                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                            ELSE tbl_prog.prog_program
-                        END) AS program_name')
+                'program.program_name'
             )
             ->whereYear(
                 DB::raw('(CASE
@@ -219,17 +216,20 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        return SchoolProgram::select('status', DB::raw('sum(total_fee) as total_fee'), DB::raw('count(*) as count_status'))
-            ->whereYear(
-                DB::raw('(CASE
+        return SchoolProgram::select(
+            'status',
+            DB::raw('SUM(total_fee) as total_fee'),
+            DB::raw('COUNT(*) as count_status')
+        )->whereYear(
+            DB::raw('(CASE
                             WHEN status = 0 THEN created_at
                             WHEN status = 1 THEN success_date
                             WHEN status = 2 THEN denied_date
                             WHEN status = 3 THEN refund_date
                         END)'),
-                '=',
-                $year
-            )
+            '=',
+            $year
+        )
             ->whereMonth(
                 DB::raw('(CASE
                             WHEN status = 0 THEN created_at
@@ -312,14 +312,11 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
 
     public function getSchoolProgramComparison($startYear, $endYear)
     {
-        return SchoolProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_sch_prog.prog_id')
-            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+        return SchoolProgram::leftJoin('program', 'program.prog_id', '=', 'tbl_sch_prog.prog_id')
+            // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->select(
                 'tbl_sch_prog.prog_id',
-                DB::raw('(CASE
-                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                            ELSE tbl_prog.prog_program
-                        END) AS program_name'),
+                'program.program_name',
                 DB::raw("'School Program' as type"),
                 DB::raw('(CASE 
                             WHEN SUM(participants) is null THEN 0

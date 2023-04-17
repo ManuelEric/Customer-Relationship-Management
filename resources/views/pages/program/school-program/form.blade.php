@@ -17,7 +17,7 @@
                 <div class="card-body text-center">
                     <h4>{{ $school->sch_name }}</h4>
                     @if(isset($schoolProgram))
-                        <h6>{{  $schoolProgram->program->sub_prog ? $schoolProgram->program->sub_prog->sub_prog_name.' - ':''}}{{ $schoolProgram->program->prog_program }}</h6>
+                        <h6>{{  $schoolProgram->program->program_name }}</h6>
                     @endif
                     @if (isset($schoolProgram))
                         <div class="mt-3 d-flex justify-content-center">
@@ -91,18 +91,18 @@
                                     @if(isset($edit))
                                         @foreach ($programs as $program)
                                             <option value="{{ $program->prog_id }}" {{ $schoolProgram->prog_id == $program->prog_id ? 'selected' : ''}}>
-                                                {{$program->sub_prog ? $program->sub_prog->sub_prog_name.' - ':''}}{{ $program->prog_program }}
+                                                {{$program->program_name }}
                                             </option>
                                         @endforeach
                                     @else        
                                         <option value="{{ $schoolProgram->prog_id }}" selected>
-                                            {{  $schoolProgram->program->sub_prog ? $schoolProgram->program->sub_prog->sub_prog_name.' - ':''}}{{ $schoolProgram->program->prog_program }}
+                                            {{  $schoolProgram->program->program_name }}
                                         </option>
                                     @endif
                                 @elseif(empty($schoolProgram))
                                     @foreach ($programs as $program)
                                         <option value="{{ $program->prog_id }}" {{ old('prog_id') == $program->prog_id ? "selected" : "" }}>
-                                            {{$program->sub_prog ? $program->sub_prog->sub_prog_name.' - ':''}}{{ $program->prog_program }}
+                                            {{$program->program_name }}
                                         </option>
                                     @endforeach
                               
@@ -124,7 +124,7 @@
                                 <div class="col-md-6">
                                     <small>First Discuss <sup class="text-danger">*</sup> </small>
                                     <input type="date" name="first_discuss" id="" 
-                                    value="{{ isset($schoolProgram->first_discuss) ? $schoolProgram->first_discuss :  old('first_discuss') }}"
+                                    value="{{ isset($schoolProgram->first_discuss) ? date('Y-m-d', strtotime($schoolProgram->first_discuss)) :  old('first_discuss') }}"
                                         class="form-control form-control-sm rounded" 
                                         {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
 

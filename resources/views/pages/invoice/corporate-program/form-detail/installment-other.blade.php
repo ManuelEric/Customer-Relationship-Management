@@ -28,7 +28,7 @@
                     <div class="col-md-3">
                         <label for="">Due Date</label>
                         <input type="date" name="invdtl_duedate_other[]" class="form-control form-control-sm"
-                           value="{{ isset($invoicePartner->inv_detail) ? $invoicePartner->inv_detail[$i]->invdtl_duedate : old('invdtl_duedate_other')[$i] }}" 
+                           value="{{ isset($invoicePartner->inv_detail) ? date('Y-m-d', strtotime($invoicePartner->inv_detail[$i]->invdtl_duedate)) : old('invdtl_duedate_other')[$i] }}" 
                                     {{ empty($invoicePartner->inv_detail) || $status == 'edit' ? '' : 'disabled' }}>
                         @error('invdtl_duedate_other.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>

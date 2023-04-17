@@ -29,7 +29,7 @@
                         <label for="">Program Name</label>
                         <select name="program_name[]" id="" class="select form-select form-select-sm w-100" multiple>
                             @foreach ($programs as $program)
-                                <option value="{{ $program->prog_program }}">{{ $program->prog_program }}</option>
+                                <option value="{{ $program->program_name }}">{{ $program->program_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -141,7 +141,7 @@
                     },
                     {
                         data: 'program_name',
-                        name: 'tbl_prog.prog_program'
+                        name: 'program.program_name'
                     },
                     {
                         data: 'first_discuss',
@@ -149,7 +149,7 @@
                     {
                         data: 'participants',
                         render: function(data, type, row, meta) {
-                            switch (row.status) {
+                            switch (parseInt(row.status)) {
                                 case 0:
                                     return "-"
                                     break;
@@ -171,7 +171,7 @@
                     {
                         data: 'total_fee',
                         render: function(data, type, row, meta) {
-                            switch (row.status) {
+                            switch (parseInt(row.status)) {
                                 case 0:
                                     return "-"
                                     break;
@@ -193,7 +193,7 @@
                     {
                         data: 'status',
                         render: function(data, type, row, meta) {
-                            switch (row.status) {
+                            switch (parseInt(row.status)) {
                                 case 0:
                                     return "Pending"
                                     break;

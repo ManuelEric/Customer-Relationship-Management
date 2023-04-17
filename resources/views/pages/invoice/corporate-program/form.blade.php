@@ -31,7 +31,7 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $partnerProgram->corp->corp_name }}</h4>
-                    <h6>{{ $partnerProgram->program->sub_prog ? $partnerProgram->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $partnerProgram->program->prog_program }}
+                    <h6>{{ $partnerProgram->program->program_name }}
                     </h6>
                 </div>
             </div>
@@ -242,7 +242,15 @@
                 </div>
 
                 <div class="card-body">
-
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
                     <form
                         action="{{ $status == 'edit' ? route('invoice-corp.detail.update', ['corp_prog' => $invoicePartner->partnerprog_id, 'detail' => $invoicePartner->invb2b_num]) : route('invoice-corp.detail.store', ['corp_prog' => $partnerProgram->id]) }}"
                         method="POST" id="invoice-form">
@@ -366,7 +374,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label for="">Invoice Due Date</label>
                                         <input type="date" name="invb2b_duedate" id=""
-                                            value="{{ isset($invoicePartner) ? $invoicePartner->invb2b_duedate : old('invb2b_duedate') }}"
+                                            value="{{ isset($invoicePartner) ? date('Y-m-d', strtotime($invoicePartner->invb2b_duedate)) : old('invb2b_duedate') }}"
                                             {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}
                                             class='form-control form-control-sm rounded'>
                                         @error('invb2b_duedate')

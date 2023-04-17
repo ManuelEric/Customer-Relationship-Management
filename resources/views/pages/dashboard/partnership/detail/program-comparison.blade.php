@@ -141,11 +141,13 @@
                                     <th rowspan="2">No</th>
                                     <th rowspan="2">Program Name</th>
                                     <th rowspan="2">Type</th>
-                                    <th colspan="2">Year</th>
-                                </tr>
+                                    <th colspan="3">Year</th>
+                                </tr> 
                                 <tr class="text-center">
-                                    <th class="comparison_start">2022</th>
-                                    <th class="comparison_end">2023</th>
+                                    <th class="comparison_start" id="label-start-table">2022 <br>
+                                       
+                                    </th>
+                                    <th class="comparison_end" id="label-end-table">2023</th>
                                 </tr>
                             </thead>
                             <tbody id="tbl_comparison">
@@ -229,6 +231,9 @@
         if (start != end) {
             $('.comparison_start').html(start)
             $('.comparison_end').html(end)
+            
+            $('#label-start-table').html(start + '<br><hr>Total Program | Partcipants | Total Fee')
+            $('#label-end-table').html(end + '<br><hr>Total Program | Partcipants | Total Fee')
 
            
             comparison_partner_chart.data.labels = [start, end]

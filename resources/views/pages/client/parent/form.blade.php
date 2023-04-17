@@ -281,7 +281,7 @@
                                         <option value="{{ $program->prog_id }}"
                                                 {{ old('prog_id') == $program->prog_id ? "selected" : null }}
                                                 {{ isset($student->interestPrograms) && in_array($program->prog_id, $student->interestPrograms()->pluck('tbl_interest_prog.prog_id')->toArray()) ? "selected" : null }}
-                                            >{{ $program->prog_program }}</option>
+                                            >{{ $program->program_name }}</option>
                                     @endforeach
                                 @endif
                             </select>

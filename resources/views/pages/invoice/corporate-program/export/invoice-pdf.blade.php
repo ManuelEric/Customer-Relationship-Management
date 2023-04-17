@@ -182,8 +182,8 @@
                     @endif
 
                     {{-- Total --}}
-                    <td valign="top" align="center">
-                        <div style="height:80px;width: 150px">
+                    <td valign="top" align="center" class="text-center">
+                        <div style="height:80px">
                             <p> 
                                 @if($invoicePartner->is_full_amount == 0)
                                     <strong>

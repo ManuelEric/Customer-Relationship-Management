@@ -110,28 +110,26 @@
             if(!Array.isArray(arr)) return;
             return arr.reduce((a, v)=>a + v);
         }
-
+        
+        Swal.showLoading()
           axios.get('{{ url("api/finance/total/") }}/' + month)
             .then((response) => {
                 var result = response.data.data
                 var html = ""
                 var no = 1;
 
-                console.log(result)
-
-
                 data['invoiceNeeded']['total'] = result.totalInvoiceNeeded
                 data['refund']['total'] = result.totalRefundRequest
-                data['outstanding']['total'] = result.totalOutstanding
+                data['outstanding']['total'] = parseInt(result.totalOutstanding)
 
                 result.totalInvoice.forEach(function (item, index) {
-                    data['invoice']['total'] += item.count_invoice
-                    data['invoice']['amount'] += item.total
+                    data['invoice']['total'] += parseInt(item.count_invoice)
+                    data['invoice']['amount'] += parseInt(item.total)
                 })
 
                 result.totalReceipt.forEach(function (item, index) {
-                    data['receipt']['total'] += item.count_receipt
-                    data['receipt']['amount'] += item.total
+                    data['receipt']['total'] += parseInt(item.count_receipt)
+                    data['receipt']['amount'] += parseInt(item.total)
                 })
 
                 $('#invoice_needed').html(

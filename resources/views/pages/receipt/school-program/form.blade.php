@@ -20,7 +20,7 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $invoiceSch->sch_prog->school->sch_name }}</h4>
-                    <h6>{{ $invoiceSch->sch_prog->program->sub_prog ? $invoiceSch->sch_prog->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $invoiceSch->sch_prog->program->prog_program }}
+                    <h6>{{ $invoiceSch->sch_prog->program->program_name }}
                     <div class="d-flex flex-wrap justify-content-center mt-3">
                        
                     </div>

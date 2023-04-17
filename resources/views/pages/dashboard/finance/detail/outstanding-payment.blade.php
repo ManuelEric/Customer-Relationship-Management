@@ -161,14 +161,14 @@
             currency: "IDR"
             }).format(number);
         }
-
+        
+        Swal.showLoading()
         // Axios here ...
-            axios.get('{{ url("api/finance/outstanding/") }}/' + month)
-            .then((response) => {
+        axios.get('{{ url("api/finance/outstanding/") }}/' + month)
+        .then((response) => {
 
                 var result = response.data.data
 
-                console.log(result);
 
                 outstanding_chart.data.datasets[0].data = [];
                 outstanding_chart.data.datasets[0].data.push(result.paidPayments.length)                
@@ -184,7 +184,7 @@
                 $('#tbl_paid_payment').empty();
 
                 result.paidPayments.forEach(function (item, index) {
-                    var diff = (item.total > item.total_price_inv ? item.total - item.total_price_inv : 0);
+                    var diff = (parseInt(item.total) > parseInt(item.total_price_inv) ? parseInt(item.total) - parseInt(item.total_price_inv) : 0);
                     html = "<tr>";
                     html += "<td>" + no + "</td>"
                     html += "<td>" + item.invoice_id + "</td>"
@@ -192,9 +192,9 @@
                     html += "<td>" + item.type + "</td>"
                     html += "<td>" + item.program_name + "</td>"
                     html += "<td class='text-center'>" + (item.installment_name !== null ? item.installment_name : "-") + "</td>"
-                    html += "<td>" + rupiah(item.total) + (diff > 0 ? " ("+ rupiah(diff) +")" : '') + "</td>"
-                    total_paid += item.total;
-                    total_paid_diff += diff;
+                    html += "<td>" + rupiah(parseInt(item.total)) + (parseInt(diff) > 0 ? " ("+ rupiah(parseInt(diff)) +")" : '') + "</td>"
+                    total_paid += parseInt(item.total);
+                    total_paid_diff += parseInt(diff);
                     $('#tbl_paid_payment').append(html);
                     no++;
                 })
@@ -213,14 +213,14 @@
                     html += "<td>" + item.type + "</td>"
                     html += "<td>" + item.program_name + "</td>"
                     html += "<td class='text-center'>" + (item.installment_name !== null ? item.installment_name : "-") + "</td>"
-                    html += "<td>" + rupiah(item.total) + "</td>"
-                    total_unpaid += item.total;
+                    html += "<td>" + rupiah(parseInt(item.total)) + "</td>"
+                    total_unpaid += parseInt(item.total);
                     $('#tbl_unpaid_payment').append(html);
                     no++;
                 })
                 
                 $('#tot_unpaid').html(rupiah(total_unpaid))
-
+                swal.close()
             }, (error) => {
                 console.log(error)
                 swal.close()
@@ -246,6 +246,7 @@
             'total': [0, 0],
         }
 
+        Swal.showLoading()
         // Axios here ...
             axios.get('{{ url("api/finance/outstanding/period") }}/' + start_date + '/' + end_date)
             .then((response) => {
@@ -266,14 +267,14 @@
                 $('#tbl_paid_payment').empty();
 
                 result.paidPayments.forEach(function (item, index) {
-                    var diff = (item.total > item.total_price_inv ? item.total - item.total_price_inv : 0);
+                    var diff = (parseInt(item.total) > parseInt(item.total_price_inv) ? parseInt(item.total) - parseInt(item.total_price_inv) : 0);
                     html = "<tr>";
                     html += "<td>" + no + "</td>"
                     html += "<td>" + item.full_name + "</td>"
                     html += "<td>" + item.program_name + "</td>"
-                    html += "<td>" + rupiah(item.total) + (diff > 0 ? " ("+ rupiah(diff) +")" : '') + "</td>"
-                    total_paid += item.total_price_inv;
-                    total_paid_diff += diff;
+                    html += "<td>" + rupiah(parseInt(item.total)) + (parseInt(diff) > 0 ? " ("+ rupiah(parseInt(diff)) +")" : '') + "</td>"
+                    total_paid += parseInt(item.total_price_inv);
+                    total_paid_diff += parseInt(diff);
                     $('#tbl_paid_payment').append(html);
                     no++;
                 })
@@ -289,14 +290,15 @@
                     html += "<td>" + no + "</td>"
                     html += "<td>" + item.full_name + "</td>"
                     html += "<td>" + item.program_name + "</td>"
-                    html += "<td>" + rupiah(item.total) + "</td>"
-                    total_unpaid += item.total;
+                    html += "<td>" + rupiah(parseInt(item.total)) + "</td>"
+                    total_unpaid += parseInt(item.total);
                     $('#tbl_unpaid_payment').append(html);
                     no++;
                 })
                 
                 $('#tot_unpaid').html(rupiah(total_unpaid))
                 
+                swal.close()
             }, (error) => {
                 console.log(error)
                 swal.close()

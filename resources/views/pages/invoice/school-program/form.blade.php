@@ -26,7 +26,7 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $school->sch_name }}</h4>
-                    <h6>{{ $schoolProgram->program->sub_prog ? $schoolProgram->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $schoolProgram->program->prog_program }}
+                    <h6>{{ $schoolProgram->program->program_name }}
                     </h6>
 
                 </div>
@@ -358,7 +358,7 @@
                                         <label for="">Invoice Due Date</label>
                                         <input type="date" name="invb2b_duedate" id=""
                                             class='form-control form-control-sm rounded'
-                                            value="{{ isset($invoiceSch) ? $invoiceSch->invb2b_duedate : old('invb2b_duedate') }}"
+                                            value="{{ isset($invoiceSch) ? date('Y-m-d', strtotime($invoiceSch->invb2b_duedate)) : old('invb2b_duedate') }}"
                                             {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                                         @error('invb2b_duedate')
                                             <small class="text-danger fw-light">{{ $message }}</small>

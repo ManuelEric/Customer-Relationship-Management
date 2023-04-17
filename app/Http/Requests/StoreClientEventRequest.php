@@ -5,9 +5,12 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Models\Lead;
+use App\Interfaces\EventRepositoryInterface;
 
 class StoreClientEventRequest extends FormRequest
 {
+    private EventRepositoryInterface $eventRepository;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -17,6 +20,12 @@ class StoreClientEventRequest extends FormRequest
     {
         return true;
     }
+
+    public function __construct(EventRepositoryInterface $eventRepository)
+    {
+        $this->eventRepository = $eventRepository;
+    }
+
 
     /**
      * Get the validation rules that apply to the request.
@@ -31,7 +40,7 @@ class StoreClientEventRequest extends FormRequest
     //      ];
     //  }
 
-     
+
     public function attributes()
     {
         return [
@@ -46,7 +55,10 @@ class StoreClientEventRequest extends FormRequest
         return $this->input('existing_client') == '1' || $this->isMethod('PUT') ? $this->isExisting() : $this->notExisting();
     }
 
-    protected function isExisting(){
+    protected function isExisting()
+    {
+        $event = $this->eventRepository->getEventById($this->input('event_id'));
+
         $rules = [
             'client_id' => 'required|exists:tbl_client,id',
             'event_id' => [
@@ -63,11 +75,19 @@ class StoreClientEventRequest extends FormRequest
                     if ($this->input('lead_id') == 'kol' && empty($value))
                         $fail('The KOL name field is required');
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get())
                         $fail('The KOL name is invalid');
                 }
             ],
-            'joined_date' => 'required|date',
+            // 'joined_date' => 'required|date',
+            'joined_date' => [
+                'required', 'date',
+                function ($attribute, $value, $fail) use ($event) {
+                    if ($value > date('Y-m-d', strtotime($event->event_enddate))) {
+                        $fail('The Joined Date must be, before event end date');
+                    }
+                }
+            ],
             'status' => 'required|in:0,1',
         ];
 
@@ -78,7 +98,8 @@ class StoreClientEventRequest extends FormRequest
         return $rules;
     }
 
-    protected function notExisting(){
+    protected function notExisting()
+    {
         $rules = [
             'first_name' => 'required',
             'last_name' => 'nullable',
@@ -110,7 +131,7 @@ class StoreClientEventRequest extends FormRequest
                     if ($this->input('lead_id') == 'kol' && empty($value))
                         $fail('The KOL name field is required');
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get())
                         $fail('The KOL name is invalid');
                 }
             ],

@@ -88,14 +88,14 @@ class Invb2b extends Model
     protected function invoiceTotalprice(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . number_format($this->invb2b_totprice, '2', ',', '.')
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invb2b_totprice
         );
     }
 
     protected function invoiceSubTotalprice(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->getCurrencyUnit() . ' ' . number_format($this->invb2b_price * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants), '2', ',', '.')
+            get: fn ($value) => $this->getCurrencyUnit() . ' ' . $this->invb2b_price * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants)
         );
     }
 
@@ -132,6 +132,13 @@ class Invb2b extends Model
     {
         return Attribute::make(
             get: fn ($value) => "Rp. " . number_format($this->invb2b_priceidr * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants), '2', ',', '.')
+        );
+    }
+
+    public function invb2bDuedate(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('M d, Y', strtotime($value)),
         );
     }
 
