@@ -20,6 +20,10 @@
         </a>
     </div>
 
+    @if ($errors->any())
+        {{ $errors }}
+    @endif
+
 
     <div class="row">
         <div class="col-md-4">
@@ -427,7 +431,7 @@
                         method="POST" id="receipt">
                         @csrf
                         <input type="hidden" name="identifier" id="identifier">
-                        <input type="hidden" name="currency"
+                        <input type="hidden" name="rec_currency"
                             value="{{ isset($invoicePartner->currency) ? $invoicePartner->currency : null }}">
                         <div class="row g-2">
                             <div class="col-md-3 receipt-other d-none">

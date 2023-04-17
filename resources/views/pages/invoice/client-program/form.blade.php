@@ -203,6 +203,7 @@
                         </div>
 
                         {{-- Other  --}}
+                        @if ($invoice->currency != 'idr')
                         @php
                             $invoiceHasBeenRequested_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
                             $invoiceHasBeenSigned_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
@@ -260,6 +261,7 @@
                                 </div>
                             </section>
                         </div>
+                        @endif
                     </div>
                 </div>
             @endif

@@ -35,6 +35,8 @@ class Program extends Model
         'prog_scope',
     ];
 
+    protected $appends = ['program_name'];
+
     public static function whereProgId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
@@ -64,7 +66,6 @@ class Program extends Model
             get: fn ($value) => $this->main_prog->prog_name.' '.$this->prog_program,
         );
     }
-
 
     # relation
     public function schoolProgram()

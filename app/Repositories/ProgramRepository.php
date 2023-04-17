@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
+use App\Models\ClientProgram;
 use App\Models\Program;
 use App\Models\v1\Program as CRMProgram;
 use DataTables;
@@ -24,6 +25,9 @@ class ProgramRepository implements ProgramRepositoryInterface
 
     public function getAllProgramsDataTables()
     {
+        $query = Program::leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->select([
+            'tbl_prog.*'
+        ]);
         return Datatables::eloquent(Program::query())->make(true);
     }
 
