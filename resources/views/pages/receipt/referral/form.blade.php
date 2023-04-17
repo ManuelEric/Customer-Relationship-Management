@@ -93,8 +93,9 @@
                                         </a>
                                     </div>
                                     <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Send to Client">
-                                        <a href="#" class="text-info" id="send-inv-client-idr">
+                                        data-bs-title="Send to Client"
+                                        onclick="confirmSendToClient('{{ url('/') }}/receipt/referral/{{ $receiptRef->id }}/send', 'idr', 'receipt')">
+                                        <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
                                     </div>
@@ -152,8 +153,9 @@
                                             </a>
                                         </div>
                                         <div id="send-rec-client-other" class="btn btn-sm py-1 border btn-light"
-                                            data-bs-toggle="tooltip" data-bs-title="Send to Client">
-                                            <a href="#" class="text-info" id="send-inv-client-other">
+                                            data-bs-toggle="tooltip" data-bs-title="Send to Client"
+                                            onclick="confirmSendToClient('{{ url('/') }}/receipt/referral/{{ $receiptRef->id }}/send', 'other', 'receipt')">
+                                            <a href="#" class="text-info">
                                                 <i class="bi bi-send"></i>
                                             </a>
                                         </div>
@@ -342,46 +344,30 @@
         </div>
     </div>
     <script>
+        function sendToClient(link) {
+            
+            showLoading()
+
+            axios
+                .get(link)
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Receipt has been send to client')
+                    setTimeout(location.reload.bind(location), 3000);
+                    $("#sendToClient--modal").modal('hide');
+                })
+                .catch(error => {
+                    notification('error', 'Something went wrong when sending receipt to client. Please try again');
+                    swal.close()
+                })
+        }
+        
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
             });
-
-            $("#send-inv-client-idr").on('click', function(e) {
-                e.preventDefault()
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get('{{ route('receipt.referral.send_to_client', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}')
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Receipt has been send to client')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
-                        swal.close()
-                    })
-            })
-
-            $("#send-inv-client-other").on('click', function(e) {
-                e.preventDefault()
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get('{{ route('receipt.referral.send_to_client', ['receipt' => $receiptRef->id, 'currency' => 'other']) }}')
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Receipt has been send to client')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
-                        swal.close()
-                    })
-            })
 
             $("#export_other").on('click', function(e) {
                 e.preventDefault();
