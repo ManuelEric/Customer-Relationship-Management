@@ -171,7 +171,7 @@
                                             <option value="0">Pending</option>
                                             <option value="1">Success</option>
                                             <option value="2">Denied</option>
-                                            @if (isset($partnerProgram->invoice->receipt))
+                                            @if (isset($partnerProgram->invoiceB2b->receipt))
                                             <option value="3">Refund</option>
                                             @endif
                                         </select>
