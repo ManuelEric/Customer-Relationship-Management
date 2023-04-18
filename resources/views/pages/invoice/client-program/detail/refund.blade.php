@@ -68,7 +68,7 @@
                         <div class="col-md-4 mb-3">
                             <label for="">Percentage Refund <sup class="text-danger">*</sup></label>
                             <div class="input-group input-group-sm mb-3">
-                                <input type="text" name="percentage_refund" value="0" id="percentage-refund" class="form-control rounded-start" aria-describedby="basic-addon2">
+                                <input type="text" name="percentage_refund" value="{{ old('percentage_refund') ?? 0 }}" id="percentage-refund" class="form-control rounded-start" aria-describedby="basic-addon2">
                                 <span class="input-group-text" id="basic-addon2">%</span>
                             </div>
                             @error('percentage_refund')
@@ -78,9 +78,9 @@
 
                         <div class="col-md-8 mb-3">
                             <label for="">Refund Nominal <sup class="text-danger">*</sup></label>
-                            <input type="text" name="refund_amount" value="0" id="refund-nominal"
+                            <input type="text" name="refund_amount" value="{{ old('refund_amount') ?? 0 }}" id="refund-nominal"
                                 class="form-control form-control-sm rounded">
-                            @error('refund_nominal')
+                            @error('refund_amount')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>
@@ -88,7 +88,7 @@
                         <div class="col-md-4 mb-3">
                             <label for="">Percentage Tax <sup class="text-danger">*</sup></label>
                             <div class="input-group input-group-sm mb-3">
-                                <input type="text" name="tax_percentage" id="tax-percentage" value="0" class="form-control rounded-start" aria-describedby="basic-addon2">
+                                <input type="text" name="tax_percentage" id="tax-percentage" value="{{ old('tax_percentage') ?? 0 }}" class="form-control rounded-start" aria-describedby="basic-addon2">
                                 <span class="input-group-text" id="basic-addon2">%</span>
                             </div>
                             @error('tax_percentage')
@@ -98,7 +98,7 @@
 
                         <div class="col-md-8 mb-3">
                             <label for="">Tax Nominal <sup class="text-danger">*</sup></label>
-                            <input type="text" name="tax_amount" id="tax-amount" value="0"
+                            <input type="text" name="tax_amount" id="tax-amount" value="{{ old('tax_amount') ?? 0 }}"
                                 class="form-control form-control-sm rounded">
                             @error('tax_amount')
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -107,7 +107,7 @@
 
                         <div class="col-md-12 mb-3">
                             <label for="">Total Refund <sup class="text-danger">*</sup></label>
-                            <input type="text" name="total_refunded" value="0" readonly
+                            <input type="text" name="total_refunded" value="{{ old('total_refunded') ?? 0 }}" readonly
                                 class="form-control form-control-sm rounded">
                             @error('total_refunded')
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -156,18 +156,18 @@
         calculate_refund_nominal($(this).val(), null)  
     })
 
-    $("#refund-nominal").on('keyup', function() {
-        calculate_refund_nominal(null, $(this).val())
-    })
+    // $("#refund-nominal").on('keyup', function() {
+    //     calculate_refund_nominal(null, $(this).val())
+    // })
 
     function calculate_refund_nominal(percentage, nominal)
     {
         var total_paid = $("input[name=total_paid]").val()
 
         if (percentage && !nominal)
-            $("#refund-nominal").val(Math.ceil((total_paid*percentage)/100))
+            $("#refund-nominal").val((total_paid*percentage)/100)
         else if(!percentage && nominal)
-            $("#percentage-refund").val(Math.ceil((nominal/total_paid)*100))
+            $("#percentage-refund").val((nominal/total_paid)*100)
 
     }
 
@@ -176,24 +176,24 @@
         calculate_total_refund()
     })
 
-    $("#tax-amount").on('keyup', function() {
-        calculate_tax_nominal(null, $(this).val())
-        calculate_total_refund()
-    })
+    // $("#tax-amount").on('keyup', function() {
+    //     calculate_tax_nominal(null, $(this).val())
+    //     calculate_total_refund()
+    // })
 
     function calculate_tax_nominal(percentage, nominal)
     {
         var refund_nominal = $("#refund-nominal").val()
         if (percentage && !nominal)
-            $("#tax-amount").val(Math.ceil((refund_nominal*percentage)/100))
+            $("#tax-amount").val((refund_nominal*percentage)/100)
         else if (!percentage && nominal)
-            $("#tax-percentage").val(Math.ceil((nominal/refund_nominal)*100))
+            $("#tax-percentage").val((nominal/refund_nominal)*100)
     }
 
     function calculate_total_refund()
     {
         var refund_nominal = $("#refund-nominal").val()
         var tax_nominal = $("#tax-amount").val()
-        $("input[name=total_refunded]").val(Math.ceil(refund_nominal-tax_nominal))
+        $("input[name=total_refunded]").val(refund_nominal-tax_nominal)
     }
 </script>
