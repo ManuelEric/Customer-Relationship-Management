@@ -343,18 +343,15 @@
                                     {{ $disabled !== null ? $disabled : 'onchange=checkCurrencyDetail()' }}>
                                     <option data-placeholder="true"></option>
                                     <option value="usd"
-                                        @if (isset($invoice->currency) && $invoice->currency == 'usd') {{ 'selected' }}
-                                        @elseif (old('currency') !== null && in_array('usd', (array) old('currency_detail')))
+                                        @if (old('currency') !== null && in_array('usd', (array) old('currency_detail')))
                                             {{ 'selected' }} @endif>
                                         USD</option>
                                     <option value="sgd"
-                                        @if (isset($invoice->currency) && $invoice->currency == 'sgd') {{ 'selected' }}
-                                        @elseif (old('currency') !== null && in_array('sgd', (array) old('currency_detail')))
+                                        @if (old('currency') !== null && in_array('sgd', (array) old('currency_detail')))
                                             {{ 'selected' }} @endif>
                                         SGD</option>
                                     <option value="gbp"
-                                        @if (isset($invoice->currency) && $invoice->currency == 'gbp') {{ 'selected' }}
-                                        @elseif (old('currency') !== null && in_array('gbp', (array) old('currency_detail')))
+                                        @if (old('currency') !== null && in_array('gbp', (array) old('currency_detail')))
                                             {{ 'selected' }} @endif>
                                         GBP</option>
                                 </select>
@@ -689,7 +686,7 @@
 
             $("#receipt_amount_other").on('keyup', function() {
                 var val = $(this).val()
-                var currency = $("#receipt input[name=currency]").val()
+                var currency = $("#receipt input[name=rec_currency]").val()
                 var curs_rate = $("#current_rate").val();
                 switch (currency) {
                     case 'usd':
@@ -723,6 +720,11 @@
             });
 
             @if (isset($invoice))
+                
+                // change the currency-icon 
+                var detail = "{{ $invoice->currency }}"
+                $('.currency-icon').html(currencySymbol(detail))
+            
                 @switch ($invoice->inv_category)
                     @case("idr")
                         $("#currency").val('idr').trigger('change')
@@ -733,12 +735,14 @@
                             $("#currency").val('idr').trigger('change')
                         @else
                             $("#currency").val('other').trigger('change')
+                            $("#currency_detail").val('{{ $invoice->currency }}').trigger('change')
                         @endif
                         $("#session").val('yes').trigger('change')
                     @break
 
                     @default
                         $("#currency").val('other').trigger('change')
+                        $("#currency_detail").val('{{ $invoice->currency }}').trigger('change')
 
                 @endswitch
             @else
