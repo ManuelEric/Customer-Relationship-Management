@@ -227,7 +227,7 @@
                                 !isset($invoicePartner->receipt) &&
                                 $invoicePartner->invb2b_pm == 'Full Payment' &&
                                 $status != 'edit')
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoicePartner->invb2b_totprice) ? $invoicePartner->invb2b_totprice : $invoicePartner->invb2b_totpriceidr}}', '{{$invoicePartner->currency != 'idr' ? 'other' : 'idr'}}');setIdentifier('{{ $invoicePartner->invb2b_num }}')">
+                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoicePartner->invb2b_totprice) ? $invoicePartner->invb2b_totprice : $invoicePartner->invb2b_totpriceidr}}', '{{$invoicePartner->currency != 'idr' ? 'other' : 'idr'}}', '{{$invoicePartner->currency != 'idr' ? $invoicePartner->curs_rate : null}}');setIdentifier('{{ $invoicePartner->invb2b_num }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -641,7 +641,7 @@
             }
         }
 
-        function checkReceipt(amount, type) {
+        function checkReceipt(amount, type, curs_rate) {
             let cur = $('#currency').val()
             let detail = $('#currency_detail').val()
 
@@ -650,7 +650,6 @@
 
                 var val =  $('#receipt_amount_other').val()
                 var currency = detail
-                var curs_rate = $("#current_rate").val();
                 switch (currency) {
                     case 'usd':
                         currency = ' Dollars';

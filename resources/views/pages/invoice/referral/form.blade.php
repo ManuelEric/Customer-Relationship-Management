@@ -220,7 +220,7 @@
                     </div>
                     <div class="">
                         @if (isset($invoiceRef) && !isset($invoiceRef->receipt) && $invoiceRef->invb2b_pm == 'Full Payment' && $status != 'edit')
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoiceRef->invb2b_totprice) && $invoiceRef->currency != 'idr' ? $invoiceRef->invb2b_totprice : $invoiceRef->invb2b_totpriceidr}}', '{{ $invoiceRef->currency != 'idr' ? 'other' : 'idr' }}')">
+                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoiceRef->invb2b_totprice) && $invoiceRef->currency != 'idr' ? $invoiceRef->invb2b_totprice : $invoiceRef->invb2b_totpriceidr}}', '{{ $invoiceRef->currency != 'idr' ? 'other' : 'idr' }}', '{{$invoiceRef->currency != 'idr' ? $invoiceRef->curs_rate : null}}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -595,7 +595,7 @@
             }
         }
 
-        function checkReceipt(amount, type) {
+        function checkReceipt(amount, type, curs_rate) {
             let cur = $('#currency').val()
             let detail = $('#currency_detail').val()
             

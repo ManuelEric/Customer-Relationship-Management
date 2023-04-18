@@ -32,7 +32,7 @@
                     </div> 
                     <div class="mt-2 text-end">
                         @if(empty($inv_dtl->receipt) && $invoiceSch->invb2b_pm == 'Installment' && $status != 'edit')
-                            <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" onclick="checkReceipt('{{isset($inv_dtl->invdtl_amount) ? $inv_dtl->invdtl_amount : $inv_dtl->invdtl_amountidr}}', '{{$invoiceSch->currency != 'idr' ? 'other' : 'idr'}}');setIdentifier('{{ $inv_dtl->invdtl_id }}')">
+                            <button class="btn btn-sm btn-outline-primary py-1" style="font-size: 11px" onclick="checkReceipt('{{isset($inv_dtl->invdtl_amount) && $invoiceSch->currency != 'idr' ? $inv_dtl->invdtl_amount : $inv_dtl->invdtl_amountidr}}', '{{$invoiceSch->currency != 'idr' ? 'other' : 'idr'}}', '{{$invoiceSch->currency != 'idr' ? $invoiceSch->curs_rate : null}}');setIdentifier('{{ $inv_dtl->invdtl_id }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
