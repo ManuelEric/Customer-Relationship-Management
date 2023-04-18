@@ -549,13 +549,13 @@
                 var curs_rate = $("#current_rate").val();
                 switch (currency) {
                     case 'usd':
-                        currency = ' Dollar';
+                        currency = ' Dollars';
                         break;
                     case 'sgd':
-                        currency = ' Singapore Dollar';
+                        currency = ' Singapore Dollars';
                         break;
                     case 'gbp':
-                        currency = ' Pound';
+                        currency = ' British Pounds';
                         break;
                     default:
                         currency = '';
@@ -601,17 +601,17 @@
                 $('#receipt_amount_other').val(amount)
 
                 var val =  $('#receipt_amount_other').val()
-                var currency = $("#receipt input[name=currency]").val()
+                var currency = detail
                 var curs_rate = $("#current_rate").val();
                 switch (currency) {
                     case 'usd':
-                        currency = ' Dollar';
+                        currency = ' Dollars';
                         break;
                     case 'sgd':
-                        currency = ' Singapore Dollar';
+                        currency = ' Singapore Dollars';
                         break;
                     case 'gbp':
-                        currency = ' Pound';
+                        currency = ' British Pounds';
                         break;
                     default:
                         currency = '';

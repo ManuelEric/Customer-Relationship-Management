@@ -33,27 +33,29 @@
             </div>
 
             {{-- Tools  --}}
-            @if (isset($invoiceSch))
+            @if (isset($invoiceSch) && !isset($invoiceSch->refund))
                 <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
-                    <div class="border p-1 text-center flex-fill">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
-                                <a href="{{ $status == 'edit' ? url('invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num) : url('invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num . '/edit') }}"
-                                    class="text-warning">
-                                    <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}"></i>
-                                </a>
+                    @if (isset($invoiceSch) && !isset($invoiceSch->receipt))
+                        <div class="border p-1 text-center flex-fill">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
+                                    <a href="{{ $status == 'edit' ? url('invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num) : url('invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num . '/edit') }}"
+                                        class="text-warning">
+                                        <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}"></i>
+                                    </a>
+                                </div>
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Cancel"
+                                    onclick="confirmDelete('{{ 'invoice/school-program/' . $schoolProgram->id . '/detail' }}', {{ $invoiceSch->invb2b_num }})">
+                                    <a href="#" class="text-danger">
+                                        <i class="bi bi-trash2"></i>
+                                    </a>
+                                </div>
                             </div>
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Cancel"
-                                onclick="confirmDelete('{{ 'invoice/school-program/' . $schoolProgram->id . '/detail' }}', {{ $invoiceSch->invb2b_num }})">
-                                <a href="#" class="text-danger">
-                                    <i class="bi bi-trash2"></i>
-                                </a>
-                            </div>
+                            <hr class="my-1">
+                            <small>General</small>
                         </div>
-                        <hr class="my-1">
-                        <small>General</small>
-                    </div>
+                    @endif
 
                     @if (!isset($invoiceSch->refund))
                         {{-- IDR  --}}
@@ -670,7 +672,7 @@
                 $('#receipt_amount_other').val(amount)
 
                 var val =  $('#receipt_amount_other').val()
-                var currency = $("#receipt input[name=currency]").val()
+                var currency = detail
                 var curs_rate = $("#current_rate").val();
                 switch (currency) {
                     case 'usd':
