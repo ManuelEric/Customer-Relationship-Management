@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\School;
 use App\Models\V1\School as V1School;
@@ -11,6 +12,7 @@ use DataTables;
 
 class SchoolRepository implements SchoolRepositoryInterface
 {
+    use CreateCustomPrimaryKeyTrait;
 
     public function getAllSchoolDataTables()
     {
@@ -80,6 +82,22 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function createSchool(array $schoolDetails)
     {
         return School::create($schoolDetails);
+    }
+
+    public function createSchoolIfNotExists(array $schoolDetails, array $schoolCurriculums)
+    {
+        $last_id = School::max('sch_id');
+        $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
+        $school_id_with_label = 'SCH-' . $this->add_digit((int)$school_id_without_label + 1, 4);
+
+        # insert school
+        $school = $this->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails);
+        $school_id_after_insert = $school->sch_id;
+
+        # insert school curriculum
+        $this->schoolCurriculumRepository->createSchoolCurriculum($school_id_after_insert, $schoolCurriculums);
+
+        return $school;
     }
 
     public function attachCurriculum($schoolId, array $curriculums)
