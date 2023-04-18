@@ -26,9 +26,6 @@
                                 <div>
                                     <label for="">Item <sup class="text-danger">*</sup></label>
                                     <input type="text" name="item" id="item" class="form-control form-control-sm rounded">
-                                    @error('item')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror
                                 </div>
                                 @error('item')
                                     <small class="text-danger">{{ $message }}</small>
@@ -38,9 +35,6 @@
                                 <div>
                                     <label for="">Amount <sup class="text-danger">*</sup></label>
                                     <input type="number" name="amount" id="amount" class="form-control form-control-sm rounded">
-                                    @error('amount')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror
                                 </div>
                                 @error('amount')
                                     <small class="text-danger">{{ $message }}</small>
@@ -50,9 +44,6 @@
                                 <div>
                                     <label for="">Price per Unit <sup class="text-danger">*</sup></label>
                                     <input type="number" name="price_per_unit" id="price" class="form-control form-control-sm rounded">
-                                    @error('price_per_unit')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror
                                 </div>
                                 @error('price_per_unit')
                                     <small class="text-danger">{{ $message }}</small>
@@ -62,9 +53,6 @@
                                 <div>
                                     <label for="">Total <sup class="text-danger">*</sup></label>
                                     <input type="number" name="total" id="total" class="form-control form-control-sm rounded" readonly>
-                                    @error('total')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror
                                 </div>
                                 @error('total')
                                     <small class="text-danger">{{ $message }}</small>
@@ -411,21 +399,5 @@
         }
         @endif
     </script>
-
-     @if(
-        $errors->has('item') ||
-        $errors->has('amount') ||
-        $errors->has('price_per_unit') ||
-        $errors->has('total') 
-        )
-        
-        <script>
-            $(document).ready(function(){
-                $('#detailForm').modal('show');
-            })
-
-        </script>
-
-    @endif
 
 @endsection
