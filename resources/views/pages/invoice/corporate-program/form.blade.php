@@ -231,7 +231,7 @@
                                 !isset($invoicePartner->receipt) &&
                                 $invoicePartner->invb2b_pm == 'Full Payment' &&
                                 $status != 'edit')
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoicePartner->invb2b_totprice) ? $invoicePartner->invb2b_totprice : $invoicePartner->invb2b_totpriceidr}}', '{{$invoicePartner->currency != 'idr' ? 'other' : 'idr'}}', '{{$invoicePartner->currency != 'idr' ? $invoicePartner->curs_rate : null}}');setIdentifier('{{ $invoicePartner->invb2b_num }}')">
+                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoicePartner->invb2b_totprice) ? $invoicePartner->invb2b_totprice : $invoicePartner->invb2b_totpriceidr}}', '{{$invoicePartner->currency != 'idr' ? 'other' : 'idr'}}', '{{isset($invoicePartner->invb2b_totpriceidr) ? $invoicePartner->invb2b_totpriceidr : null}}');setIdentifier('{{ $invoicePartner->invb2b_num }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -245,15 +245,7 @@
                 </div>
 
                 <div class="card-body">
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+
                     <form
                         action="{{ $status == 'edit' ? route('invoice-corp.detail.update', ['corp_prog' => $invoicePartner->partnerprog_id, 'detail' => $invoicePartner->invb2b_num]) : route('invoice-corp.detail.store', ['corp_prog' => $partnerProgram->id]) }}"
                         method="POST" id="invoice-form">
@@ -645,7 +637,7 @@
             }
         }
 
-        function checkReceipt(amount, type, curs_rate) {
+        function checkReceipt(amount, type, amount_idr) {
             let cur = $('#currency').val()
             let detail = $('#currency_detail').val()
 
@@ -670,8 +662,8 @@
                         break;
                 }
                 $("#receipt_word_other").val(wordConverter(val) + currency)
-                $("#receipt_amount").val(val * curs_rate)
-                $("#receipt_word").val(wordConverter(val * curs_rate) + " Rupiah")
+                $("#receipt_amount").val(amount_idr)
+                $("#receipt_word").val(wordConverter(amount_idr) + " Rupiah")
             }else{
                 $('#receipt_amount').val(amount)
                 var val = $('#receipt_amount').val()
