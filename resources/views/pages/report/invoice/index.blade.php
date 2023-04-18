@@ -32,7 +32,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
-                        <strong>Total Invoice ({{$countInvoice}})</strong>
+                        <strong>Total Invoice ({{count($invoices)}})</strong>
                         <div class="text-end">
                            Rp. {{ number_format($totalInvoice, '2', ',', '.') }}
                         </div>
@@ -211,7 +211,7 @@
                                         </td>
                                         
                                         {{-- Paid date --}}
-                                        <td>{{ $receipt->created_at }}</td>
+                                        <td>{{ date('M d, Y', strtotime($receipt->created_at)) }}</td>
 
                                         {{-- Amount --}}
                                         <td>{{ $receipt->receipt_amount_idr }}</td>

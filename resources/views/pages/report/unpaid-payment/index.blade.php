@@ -112,9 +112,9 @@
                                             <td>{{ $invoice->referral->additional_prog_name }}</td>
                                         @endif 
 
-                                        {{-- Installment --}}
+                                        {{-- Invoice duedate --}}
                                         <td class="text-center">
-                                            {{ isset($invoice->invdtl_installment) ? $invoice->installment_duedate : $invoice->invoice_duedate }}
+                                            {{ isset($invoice->invdtl_installment) ? date('M d, Y', strtotime($invoice->installment_duedate)) : date('M d, Y', strtotime($invoice->invoice_duedate)) }}
                                         </td>
 
                                         {{-- Installment --}}
@@ -136,7 +136,7 @@
                                        
                                         {{-- Paid Date --}}
                                         @if(isset($invoice->receipt_id))
-                                            <td>{{ date('M d, Y H:i:s', strtotime($invoice->paid_date)) }}</td>
+                                            <td>{{ date('M d, Y', strtotime($invoice->paid_date)) }}</td>
                                         @else
                                             <td class="text-center">-</td>
                                         @endif
