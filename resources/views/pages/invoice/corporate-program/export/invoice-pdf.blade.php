@@ -137,7 +137,7 @@
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
                             <p>
-                                <strong> {{ (($invoicePartner->partner_prog->program->prog_sub != '-')) ? $invoicePartner->partner_prog->program->prog_sub . ': ' . $invoicePartner->partner_prog->program->prog_program : $invoicePartner->partner_prog->program->prog_program }} </strong>
+                                <strong> {{ $invoicePartner->partner_prog->program->program_name }} </strong>
                             </p>
                             @if($invoicePartner->is_full_amount == 1)
                                 <p>

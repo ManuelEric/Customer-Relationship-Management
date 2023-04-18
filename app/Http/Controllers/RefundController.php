@@ -33,6 +33,7 @@ class RefundController extends Controller
     
     public function store(StoreRefundRequest $request)
     {
+        echo 'a';exit;
         $clientprog_id = $request->route('client_program');
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
         

@@ -143,7 +143,7 @@
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
                             <p>
-                                <strong> {{ (($invoiceSch->sch_prog->program->prog_sub != '-')) ? $invoiceSch->sch_prog->program->prog_sub . ': ' . $invoiceSch->sch_prog->program->prog_program : $invoiceSch->sch_prog->program->prog_program }} </strong>
+                                <strong> {{ $invoiceSch->sch_prog->program->program_name }} </strong>
                             </p>
                             @if ($invoiceSch->invb2b_pm == "Installment")
                                 <p>
