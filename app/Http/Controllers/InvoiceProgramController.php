@@ -181,7 +181,8 @@ class InvoiceProgramController extends Controller
             # Use Trait Create Invoice Id
             $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id);
 
-            $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 0] + $invoiceDetails);
+            $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 1] + $invoiceDetails);
+            // $this->invoiceProgramRepository->createInvoice(['inv_id' => $inv_id, 'inv_status' => 0] + $invoiceDetails);
 
             # add installment details
             # check if installment information has been filled

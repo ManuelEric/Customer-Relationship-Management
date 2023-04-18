@@ -30,9 +30,9 @@ class RefundRepository implements RefundRepositoryInterface
                             leftJoin('users as b2c_c_u', 'b2c_c_u.id', '=', 'tbl_client_prog.empl_id')->
                             leftJoin('users as b2b_s_u', 'b2b_s_u.id', '=', 'tbl_sch_prog.empl_id')->
                             leftJoin('users as b2b_p_u', 'b2b_p_u.id', '=', 'tbl_partner_prog.empl_id')->
-                            leftJoin('tbl_prog as b2c_c_p', 'b2c_c_p.prog_id', '=', 'tbl_client_prog.prog_id')->
-                            leftJoin('tbl_prog as b2b_s_p', 'b2b_s_p.prog_id', '=', 'tbl_sch_prog.prog_id')->
-                            leftJoin('tbl_prog as b2b_p_p', 'b2b_p_p.prog_id', '=', 'tbl_partner_prog.prog_id')->
+                            leftJoin('program as b2c_c_p', 'b2c_c_p.prog_id', '=', 'tbl_client_prog.prog_id')->
+                            leftJoin('program as b2b_s_p', 'b2b_s_p.prog_id', '=', 'tbl_sch_prog.prog_id')->
+                            leftJoin('program as b2b_p_p', 'b2b_p_p.prog_id', '=', 'tbl_partner_prog.prog_id')->
                             leftJoin('tbl_main_prog as b2c_c_mp', 'b2c_c_mp.id', '=', 'b2c_c_p.main_prog_id')->
                             leftJoin('tbl_main_prog as b2b_s_mp', 'b2b_s_mp.id', '=', 'b2b_s_p.main_prog_id')->
                             leftJoin('tbl_main_prog as b2b_p_mp', 'b2b_p_mp.id', '=', 'b2b_p_p.main_prog_id')->
@@ -43,10 +43,14 @@ class RefundRepository implements RefundRepositoryInterface
                             leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->
                             leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->
                             // whereRaw('tbl_receipt.inv_id NOT IN (SELECT inv_id FROM tbl_refund)')->
-                            whereRaw('(CASE 
+                            // whereRaw('(CASE 
+                            //     WHEN tbl_receipt.receipt_cat = "student" THEN tbl_receipt.inv_id NOT IN (SELECT inv_id FROM tbl_refund)
+                            //     WHEN tbl_receipt.receipt_cat = "school" OR tbl_receipt.receipt_cat = "partner" THEN tbl_receipt.invb2b_id NOT IN (SELECT invb2b_id FROM tbl_refund)
+                            // END)')->
+                            where(DB::raw('(CASE 
                                 WHEN tbl_receipt.receipt_cat = "student" THEN tbl_receipt.inv_id NOT IN (SELECT inv_id FROM tbl_refund)
-                                WHEN tbl_receipt.receipt_cat = "school" OR tbl_receipt.receipt_cat = "partner" THEN tbl_receipt.inv_id NOT IN (SELECT invb2b_id FROM tbl_refund)
-                            END)')->
+                                WHEN tbl_receipt.receipt_cat = "school" OR tbl_receipt.receipt_cat = "partner" THEN tbl_receipt.invb2b_id NOT IN (SELECT invb2b_id FROM tbl_refund)
+                            END)'))->
                             where(function($q) {
                                 $q->where('tbl_client_prog.status', 3)->
                                 orWhere('tbl_sch_prog.status', 3)->
@@ -87,21 +91,9 @@ class RefundRepository implements RefundRepositoryInterface
                                     WHEN tbl_receipt.receipt_cat = "partner" THEN tbl_corp.corp_name
                                 END) as client_fullname'),
                                 DB::raw('(CASE 
-                                    WHEN tbl_receipt.receipt_cat = "student" THEN 
-                                        CASE
-                                            WHEN b2c_c_p.sub_prog_id IS NOT NULL THEN CONCAT(b2c_c_p.prog_program, " - ", COALESCE(b2c_c_mp.prog_name, ""), " / ", COALESCE(b2c_c_sp.sub_prog_name, ""))
-                                            ELSE CONCAT(b2c_c_p.prog_program, " - ", COALESCE(b2c_c_mp.prog_name, ""))
-                                        END
-                                    WHEN tbl_receipt.receipt_cat = "school" THEN 
-                                        CASE 
-                                            WHEN b2b_s_p.sub_prog_id IS NOT NULL THEN CONCAT(b2b_s_p.prog_program, " - ", COALESCE(b2b_s_mp.prog_name, ""), " / ", COALESCE(b2b_s_sp.sub_prog_name, ""))
-                                            ELSE CONCAT(b2b_s_p.prog_program, " - ", COALESCE(b2b_s_mp.prog_name, ""))
-                                        END
-                                    WHEN tbl_receipt.receipt_cat = "partner" THEN 
-                                        CASE
-                                            WHEN b2b_p_p.sub_prog_id IS NOT NULL THEN CONCAT(b2b_p_p.prog_program, " - ", COALESCE(b2b_p_mp.prog_name, ""), " / ", COALESCE(b2b_p_sp.sub_prog_name, ""))
-                                            ELSE CONCAT(b2b_p_p.prog_program, " - ", COALESCE(b2b_p_mp.prog_name, ""))
-                                        END
+                                    WHEN b2c_c_p.prog_id IS NOT NULL THEN b2c_c_p.program_name
+                                    WHEN b2b_s_p.prog_id IS NOT NULL THEN b2b_s_p.program_name
+                                    WHEN b2b_p_p.prog_id IS NOT NULL THEN b2b_p_p.program_name
                                 END) as program_name'),
                                 DB::raw('(CASE 
                                     WHEN tbl_receipt.receipt_cat = "student" THEN tbl_client_prog.clientprog_id
@@ -118,7 +110,8 @@ class RefundRepository implements RefundRepositoryInterface
                                 'tbl_receipt.invdtl_id',
                                 'tbl_receipt.invb2b_id',
                                 'tbl_receipt.receipt_cat'
-                            ])->groupBy('inv_id')->orderBy('tbl_receipt.updated_at', 'desc');          
+                            ])->
+                            groupBy('tbl_inv.inv_id', 'tbl_invb2b.invb2b_id')->orderBy('tbl_receipt.updated_at', 'desc');          
                 
                 break;
 
@@ -135,9 +128,9 @@ class RefundRepository implements RefundRepositoryInterface
                         leftJoin('users as b2c_c_u', 'b2c_c_u.id', '=', 'tbl_client_prog.empl_id')->
                         leftJoin('users as b2b_s_u', 'b2b_s_u.id', '=', 'tbl_sch_prog.empl_id')->
                         leftJoin('users as b2b_p_u', 'b2b_p_u.id', '=', 'tbl_partner_prog.empl_id')->
-                        leftJoin('tbl_prog as b2c_c_p', 'b2c_c_p.prog_id', '=', 'tbl_client_prog.prog_id')->
-                        leftJoin('tbl_prog as b2b_s_p', 'b2b_s_p.prog_id', '=', 'tbl_sch_prog.prog_id')->
-                        leftJoin('tbl_prog as b2b_p_p', 'b2b_p_p.prog_id', '=', 'tbl_partner_prog.prog_id')->
+                        leftJoin('program as b2c_c_p', 'b2c_c_p.prog_id', '=', 'tbl_client_prog.prog_id')->
+                        leftJoin('program as b2b_s_p', 'b2b_s_p.prog_id', '=', 'tbl_sch_prog.prog_id')->
+                        leftJoin('program as b2b_p_p', 'b2b_p_p.prog_id', '=', 'tbl_partner_prog.prog_id')->
                         leftJoin('tbl_main_prog as b2c_c_mp', 'b2c_c_mp.id', '=', 'b2c_c_p.main_prog_id')->
                         leftJoin('tbl_main_prog as b2b_s_mp', 'b2b_s_mp.id', '=', 'b2b_s_p.main_prog_id')->
                         leftJoin('tbl_main_prog as b2b_p_mp', 'b2b_p_mp.id', '=', 'b2b_p_p.main_prog_id')->
@@ -159,24 +152,9 @@ class RefundRepository implements RefundRepositoryInterface
                                     END
                             END) as client_fullname'),
                             DB::raw('(CASE 
-                                WHEN tbl_refund.inv_id IS NOT NULL THEN 
-                                    CASE
-                                        WHEN b2c_c_p.sub_prog_id IS NOT NULL THEN CONCAT(b2c_c_p.prog_program COLLATE utf8mb4_unicode_ci, " - ", COALESCE(b2c_c_mp.prog_name COLLATE utf8mb4_unicode_ci, ""), " / ", COALESCE(b2c_c_sp.sub_prog_name COLLATE utf8mb4_unicode_ci, ""))
-                                        ELSE CONCAT(b2c_c_p.prog_program COLLATE utf8mb4_unicode_ci, " - ", COALESCE(b2c_c_mp.prog_name COLLATE utf8mb4_unicode_ci, ""))
-                                    END
-                                WHEN tbl_refund.invb2b_id IS NOT NULL THEN
-                                    CASE
-                                        WHEN tbl_invb2b.schprog_id IS NOT NULL THEN
-                                            CASE 
-                                                WHEN b2b_s_p.sub_prog_id IS NOT NULL THEN CONCAT(b2b_s_p.prog_program, " - ", COALESCE(b2b_s_mp.prog_name, ""), " / ", COALESCE(b2b_s_sp.sub_prog_name, ""))
-                                                ELSE CONCAT(b2b_s_p.prog_program, " - ", COALESCE(b2b_s_mp.prog_name, ""))
-                                            END
-                                        WHEN tbl_invb2b.partnerprog_id IS NOT NULL THEN
-                                            CASE
-                                                WHEN b2b_p_p.sub_prog_id IS NOT NULL THEN CONCAT(b2b_p_p.prog_program, " - ", COALESCE(b2b_p_mp.prog_name, ""), " / ", COALESCE(b2b_p_sp.sub_prog_name, ""))
-                                                ELSE CONCAT(b2b_p_p.prog_program, " - ", COALESCE(b2b_p_mp.prog_name, ""))
-                                            END
-                                    END
+                                WHEN b2c_c_p.prog_id IS NOT NULL THEN b2c_c_p.program_name
+                                WHEN b2b_s_p.prog_id IS NOT NULL THEN b2b_s_p.program_name
+                                WHEN b2b_p_p.prog_id IS NOT NULL THEN b2b_p_p.program_name
                             END) as program_name'),
                             DB::raw('(CASE 
                                 WHEN tbl_refund.inv_id IS NOT NULL THEN tbl_inv.inv_id

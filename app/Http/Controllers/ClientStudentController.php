@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\StoreNewSchoolException;
 use App\Exports\StudentTemplate;
+use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreClientStudentRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
@@ -36,7 +37,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
-class ClientStudentController extends Controller
+class ClientStudentController extends ClientController
 {
     use CreateCustomPrimaryKeyTrait;
     use FindStatusClientTrait;
@@ -75,7 +76,7 @@ class ClientStudentController extends Controller
         $this->clientEventRepository = $clientEventRepository;
     }
 
-    # ajax
+    # ajax start
     public function getClientProgramByStudentId(Request $request)
     {
         $studentId = $request->route('client');
@@ -87,13 +88,10 @@ class ClientStudentController extends Controller
         $studentId = $request->route('client');
         return $this->clientEventRepository->getAllClientEventByClientIdDataTables($studentId);
     }
+    # ajax end
 
     public function index(Request $request)
     {
-        // $statusClient = $request->get('st');
-        // $statusClientCode = $this->getStatusClientCode($statusClient);
-        // return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
-
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
@@ -164,67 +162,14 @@ class ClientStudentController extends Controller
 
             # case 1
             # create new school
-            # when sch_id is "add-new" 
-            if ($request->sch_id == "add-new") {
-
-                $schoolDetails = $request->only([
-                    'sch_name',
-                    // 'sch_location',
-                    'sch_type',
-                    'sch_score',
-                ]);
-
-                $last_id = School::max('sch_id');
-                $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-                $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-
-                if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
-                    throw new Exception('Failed to store new school', 1);
-
-                # insert school curriculum
-                if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
-                    throw new Exception('Failed to store school curriculum', 1);
-
-
-                # remove field sch_id from student detail if exist
-                unset($studentDetails['sch_id']);
-
-                # create index sch_id to student details
-                # filled with a new school id that was inserted before
-                $studentDetails['sch_id'] = $school->sch_id;
-            }
-
+            if (!$this->createSchoolIfAddNew($request))
+                throw new Exception('Failed to store new school', 1);
 
             # case 2
             # create new user client as parents
-            # when pr_id is "add-new" 
-            if (isset($request->pr_id) && $request->pr_id == "add-new") {
-
-                $parents_phone = $this->setPhoneNumber($request->pr_phone);
-
-                $parentDetails = [
-                    'first_name' => $request->pr_firstname,
-                    'last_name' => $request->pr_lastname,
-                    'mail' => $request->pr_mail,
-                    'phone' => $parents_phone,
-                    'state' => $studentDetails['state'],
-                    'city' => $studentDetails['city'],
-                    'postal_code' => $studentDetails['postal_code'],
-                    'address' => $studentDetails['address'],
-                    'lead_id' => $studentDetails['lead_id'],
-                    'eduf_id' => $studentDetails['eduf_id'],
-                    'event_id' => $studentDetails['event_id'],
-                    'st_levelinterest' => $studentDetails['st_levelinterest'],
-                    'st_note' => $studentDetails['st_note'],
-                ];
-
-                if (!$parent = $this->clientRepository->createClient('Parent', $parentDetails))
-                    throw new Exception('Failed to store new parent', 2);
-
-                $parentId = $parent->id;
-            }
-
-
+            if (!$this->createParentsIfAddNew($request, $studentDetails))
+                throw new Exception('Failed to store new parent', 2);
+            
             # case 3
             # create new user client as student
             if (!$newStudent = $this->clientRepository->createClient('Student', $studentDetails))
@@ -232,7 +177,7 @@ class ClientStudentController extends Controller
 
             $newStudentId = $newStudent->id;
 
-            # case 4
+            # case 4 (optional)
             # add relation between parent and student
             # if they didn't insert parents which parentId = NULL
             # then assumed that register for student only
@@ -243,62 +188,26 @@ class ClientStudentController extends Controller
                     throw new Exception('Failed to store relation between student and parent', 4);
             }
 
-
             # case 5
             # create interested program
             # if they didn't insert interested program 
             # then skip this case
-            if (isset($request->prog_id) && count($request->prog_id) > 0) {
-
-                for ($i = 0; $i < count($request->prog_id); $i++) {
-                    $interestProgramDetails[] = [
-                        'prog_id' => $request->prog_id[$i],
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ];
-                }
-
-                if (!$this->clientRepository->createInterestProgram($newStudentId, $interestProgramDetails))
-                    throw new Exception('Failed to store interest program', 5);
-            }
+            if (!$this->createInterestedProgram($request, $newStudentId))
+                throw new Exception('Failed to store interest program', 5);
 
             # case 6.1
             # create destination countries
             # if they didn't insert destination countries
             # then skip this case
-            if (isset($request->st_abrcountry) && count($request->st_abrcountry) > 0) {
-
-                # hari senin lanjutin utk insert destination countries
-                # dan hubungin score nya melalui client view
-                for ($i = 0; $i < count($request->st_abrcountry); $i++) {
-                    $destinationCountryDetails[] = [
-                        'tag_id' => $this->tagRepository->getTagById($request->st_abrcountry[$i])->id,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ];
-                }
-
-                if (!$this->clientRepository->createDestinationCountry($newStudentId, $destinationCountryDetails))
-                    throw new Exception('Failed to store destination country', 6);
-            }
+            if (!$this->createDestinationCountries($request, $newStudentId))
+                throw new Exception('Failed to store destination country', 6);
 
             # case 6.2
             # create interested universities
             # if they didn't insert universities
             # then skip this case
-            if (isset($request->st_abruniv) && count($request->st_abruniv) > 0) {
-
-                for ($i = 0; $i < count($request->st_abruniv); $i++) {
-                    $interestUnivDetails[] = [
-                        'univ_id' => $request->st_abruniv[$i],
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ];
-                }
-
-                if (!$this->clientRepository->createInterestUniversities($newStudentId, $interestUnivDetails))
-                    throw new Exception('Failed to store interest universities', 6);
-            }
+            if (!$this->createInterestedUniversities($request, $newStudentId))
+                throw new Exception('Failed to store interest universities', 6);
 
 
             # case 7

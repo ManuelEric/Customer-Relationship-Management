@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreRefundRequest;
 use App\Interfaces\ClientProgramRepositoryInterface;
+use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
@@ -13,13 +14,15 @@ use Illuminate\Support\Facades\Redirect;
 
 class RefundController extends Controller
 {
+    private InvoiceProgramRepositoryInterface $invoiceProgramRepository;
     private RefundRepositoryInterface $refundRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
 
-    public function __construct(RefundRepositoryInterface $refundRepository, ClientProgramRepositoryInterface $clientProgramRepository)
+    public function __construct(RefundRepositoryInterface $refundRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository)
     {
         $this->refundRepository = $refundRepository;
         $this->clientProgramRepository = $clientProgramRepository;
+        $this->invoiceProgramRepository = $invoiceProgramRepository;
     }
 
     public function index(Request $request)
@@ -48,9 +51,13 @@ class RefundController extends Controller
 
         DB::beginTransaction();
         try {
+            $inv_id = $clientProg->invoice->inv_id;
 
             # default refund status is 1
-            $this->refundRepository->createRefund(['inv_id' => $clientProg->invoice->inv_id, 'status' => 1] + $refundDetails);
+            $this->refundRepository->createRefund(['inv_id' => $inv_id, 'status' => 1] + $refundDetails);
+
+            # change status invoice to refund
+            $this->invoiceProgramRepository->updateInvoice($inv_id, ['inv_status' => 2]);
             DB::commit();
 
         } catch (Exception $e) {
