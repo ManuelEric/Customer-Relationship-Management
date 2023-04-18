@@ -37,9 +37,11 @@
             </div>
 
             {{-- Tools  --}}
-            @if (isset($invoicePartner))
-                <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
-                    <div class="border p-1 text-center flex-fill">
+            @if (isset($invoicePartner) && !isset($invoicePartner->refund))
+            <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
+                
+                @if (isset($invoicePartner) && !isset($invoicePartner->receipt))
+                    <div class="border p-1 text-center flex-fill"> 
                         <div class="d-flex gap-1 justify-content-center">
                             <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                 data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
@@ -58,6 +60,7 @@
                         <hr class="my-1">
                         <small>General</small>
                     </div>
+                @endif
 
                     @if (!isset($invoicePartner->refund))
                         {{-- IDR  --}}
@@ -650,17 +653,17 @@
                 $('#receipt_amount_other').val(amount)
 
                 var val =  $('#receipt_amount_other').val()
-                var currency = $("#receipt input[name=currency]").val()
+                var currency = detail
                 var curs_rate = $("#current_rate").val();
                 switch (currency) {
                     case 'usd':
-                        currency = ' Dollar';
+                        currency = ' Dollars';
                         break;
                     case 'sgd':
-                        currency = ' Singapore Dollar';
+                        currency = ' Singapore Dollars';
                         break;
                     case 'gbp':
-                        currency = ' Pound';
+                        currency = ' British Pounds';
                         break;
                     default:
                         currency = '';

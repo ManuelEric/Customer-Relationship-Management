@@ -303,9 +303,9 @@ class ReceiptSchoolController extends Controller
 
     public function signAttachment(Request $request)
     {
-        if (Session::token() != $request->get('token')) {
-            return "Your session token is expired";
-        }
+        // if (Session::token() != $request->get('token')) {
+        //     return "Your session token is expired";
+        // }
 
         $receipt_Identifier = $request->route('receipt');
         $currency = $request->route('currency');
