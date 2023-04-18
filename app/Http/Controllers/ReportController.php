@@ -142,7 +142,7 @@ class ReportController extends Controller
 
         $data_receipts = $receipts->filter(function ($item) {
             // Return true if you want this item included in the resultant collection
-            return $item->status_where === 1 || $item->referral_type === 'Out';
+            return $item->status_where == 1 || $item->referral_type == 'Out';
         });
 
 
