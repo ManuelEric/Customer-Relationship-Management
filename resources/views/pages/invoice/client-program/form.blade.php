@@ -638,6 +638,10 @@
             @if ($errors->first('receipt_amount') || $errors->first('receipt_amount_idr') || $errors->first('receipt_date') || $errors->first('receipt_words') || $errors->first('receipt_words_idr') || $errors->first('receipt_method') || $errors->first('receipt_cheque'))
                 $("button[data-idn='{{ old('identifier') }}']").click()
             @endif
+
+            @if ($errors->has('total_payment') || $errors->has('total_paid') || $errors->has('percentage_refund') || $errors->has('refund_amount') || $errors->has('tax_percentage') || $errors->has('tax_amount') || $errors->has('total_refunded'))
+                $("#refund").modal('show')
+            @endif
         })
     </script>
     <script>
