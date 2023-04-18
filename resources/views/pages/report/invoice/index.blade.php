@@ -126,7 +126,7 @@
                                         </td>
                                         
                                         {{-- Due date --}}
-                                        <td>{{ isset($invoice->inv_id) ? $invoice->inv_duedate : $invoice->invb2b_duedate }}</td>
+                                        <td>{{ isset($invoice->inv_id) ? date('M d, Y', strtotime($invoice->inv_duedate)) : date('M d, Y', strtotime($invoice->invb2b_duedate)) }}</td>
 
                                         {{-- Amount --}}
                                         <td>{{ $invoice->invoiceTotalpriceIdr }}</td>
