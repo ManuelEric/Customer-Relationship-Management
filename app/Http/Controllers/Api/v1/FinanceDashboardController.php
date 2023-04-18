@@ -7,19 +7,22 @@ use Illuminate\Http\Request;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
+use App\Interfaces\RefundRepositoryInterface;
 
 class FinanceDashboardController extends Controller
 {
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
+    protected RefundRepositoryInterface $refundRepository;
 
 
-    public function __construct(InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository)
+    public function __construct(InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository)
     {
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceProgramRepository = $invoiceProgramRepository;
         $this->receiptRepository = $receiptRepository;
+        $this->refundRepository = $refundRepository;
     }
 
 
@@ -33,14 +36,14 @@ class FinanceDashboardController extends Controller
         $totalInvoiceB2b = $this->invoiceB2bRepository->getTotalInvoice($monthYear);
         $totalInvoiceB2c = $this->invoiceProgramRepository->getTotalInvoice($monthYear);
 
-        $totalRefundRequestB2b = $this->invoiceB2bRepository->getTotalRefundRequest($monthYear);
-        $totalRefundRequestB2c = $this->invoiceProgramRepository->getTotalRefundRequest($monthYear);
+        // $totalRefundRequestB2b = $this->invoiceB2bRepository->getTotalRefundRequest($monthYear);
+        // $totalRefundRequestB2c = $this->invoiceProgramRepository->getTotalRefundRequest($monthYear);
 
         $totalReceipt = $this->receiptRepository->getTotalReceipt($monthYear);
 
         $totalInvoiceNeeded = collect($totalInvoiceNeededB2b)->merge($totalInvoiceNeededB2c)->sum('count_invoice_needed');
 
-        $totalRefundRequest = collect($totalRefundRequestB2b)->merge($totalRefundRequestB2c)->sum('count_refund_request');
+        $totalRefundRequest = $this->refundRepository->getTotalRefundRequest($monthYear);
 
         $unpaidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
         $unpaidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
@@ -63,7 +66,7 @@ class FinanceDashboardController extends Controller
             'totalInvoiceNeeded' => $totalInvoiceNeeded,
             'totalInvoice' => $totalInvoice,
             'totalReceipt' => $totalReceipt,
-            'totalRefundRequest' => $totalRefundRequest,
+            'totalRefundRequest' => count($totalRefundRequest),
             'totalOutstanding' => $totalOutstanding,
             'monthYear' => $monthYear,
 
