@@ -593,13 +593,13 @@
                 var curs_rate = $("#current_rate").val();
                 switch (currency) {
                     case 'usd':
-                        currency = ' Dollar';
+                        currency = ' Dollars';
                         break;
                     case 'sgd':
-                        currency = ' Singapore Dollar';
+                        currency = ' Singapore Dollars';
                         break;
                     case 'gbp':
-                        currency = ' Pound';
+                        currency = ' British Pounds';
                         break;
                     default:
                         currency = '';
@@ -676,13 +676,13 @@
                 var curs_rate = $("#current_rate").val();
                 switch (currency) {
                     case 'usd':
-                        currency = ' Dollar';
+                        currency = ' Dollars';
                         break;
                     case 'sgd':
-                        currency = ' Singapore Dollar';
+                        currency = ' Singapore Dollars';
                         break;
                     case 'gbp':
-                        currency = ' Pound';
+                        currency = ' British Pounds';
                         break;
                     default:
                         currency = '';
