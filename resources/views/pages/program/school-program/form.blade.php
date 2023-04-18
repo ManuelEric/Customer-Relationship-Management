@@ -163,7 +163,6 @@
                                             <option value="0">Pending</option>
                                             <option value="1">Success</option>
                                             <option value="2">Denied</option>
-
                                             @if (isset($schoolProgram->invoiceB2b->receipt) || isset($schoolProgram->invoiceB2b->inv_detail->receipt))
                                             <option value="3">Refund</option>
                                             @endif
