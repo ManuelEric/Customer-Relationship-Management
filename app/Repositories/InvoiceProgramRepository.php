@@ -265,12 +265,12 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        return ViewClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')
-            ->select(DB::raw("count('clientprogram.clientprog_id') as count_refund_request"))
-            ->where('clientprogram.status', 3)
+        return ClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')
+            ->select(DB::raw("count('tbl_client_prog.clientprog_id') as count_refund_request"))
+            ->where('tbl_client_prog.status', 3)
             ->where('tbl_inv.inv_status', 1)
-            ->whereYear('clientprogram.refund_date', '=', $year)
-            ->whereMonth('clientprogram.refund_date', '=', $month)
+            ->whereYear('tbl_client_prog.refund_date', '=', $year)
+            ->whereMonth('tbl_client_prog.refund_date', '=', $month)
             ->get();
     }
 
