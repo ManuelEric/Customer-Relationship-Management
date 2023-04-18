@@ -85,7 +85,7 @@ class ReceiptPartnerController extends Controller
         $receipts['currency'] = $request->rec_currency;
 
 
-        switch ($receipts['rec_currency']) {
+        switch ($receipts['currency']) {
             case 'idr':
                 unset($receipts['receipt_amount']);
                 unset($receipts['receipt_words']);
