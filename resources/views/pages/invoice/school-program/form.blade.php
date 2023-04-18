@@ -221,7 +221,7 @@
                     <div class="">
                         @if (isset($invoiceSch) && !isset($invoiceSch->receipt) && $invoiceSch->invb2b_pm == 'Full Payment' && $status != 'edit')
                             <button class="btn btn-sm btn-outline-primary py-1"
-                                onclick="checkReceipt('{{isset($invoiceSch->invb2b_totprice) ? $invoiceSch->invb2b_totprice : $invoiceSch->invb2b_totpriceidr}}', '{{$invoiceSch->currency != 'idr' ? 'other' : 'idr'}}', '{{$invoiceSch->currency != 'idr' ? $invoiceSch->curs_rate : null}}');setIdentifier('{{ $invoiceSch->invb2b_num }}')">
+                                onclick="checkReceipt('{{isset($invoiceSch->invb2b_totprice) ? $invoiceSch->invb2b_totprice : $invoiceSch->invb2b_totpriceidr}}', '{{$invoiceSch->currency != 'idr' ? 'other' : 'idr'}}', '{{isset($invoiceSch->invb2b_totpriceidr) ? $invoiceSch->invb2b_totpriceidr : null}}');setIdentifier('{{ $invoiceSch->invb2b_num }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -664,7 +664,7 @@
             }
         }
 
-        function checkReceipt(amount, type, curs_rate) {
+        function checkReceipt(amount, type, amount_idr) {
             let cur = $('#currency').val()
             let detail = $('#currency_detail').val()
             
@@ -689,8 +689,8 @@
                         break;
                 }
                 $("#receipt_word_other").val(wordConverter(val) + currency)
-                $("#receipt_amount").val(val * curs_rate)
-                $("#receipt_word").val(wordConverter(val * curs_rate) + " Rupiah")
+                $("#receipt_amount").val(amount_idr)
+                $("#receipt_word").val(wordConverter(amount_idr) + " Rupiah")
             }else{
                 $('#receipt_amount').val(amount)
                 var val = $('#receipt_amount').val()
