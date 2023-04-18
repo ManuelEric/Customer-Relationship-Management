@@ -15,7 +15,7 @@ return new class extends Migration
     public function up()
     {
         DB::statement("
-        CREATE OR REPLACE VIEW Agenda AS
+        CREATE OR REPLACE VIEW agenda AS
         SELECT 
             asp.id as agenda_id,
             asp.sch_prog_id,

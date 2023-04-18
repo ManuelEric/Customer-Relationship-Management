@@ -79,7 +79,7 @@
                         data: 'prog_sub',
                     },
                     {
-                        data: 'prog_program',
+                        data: 'program_h',
                     },
                     {
                         data: 'prog_type',

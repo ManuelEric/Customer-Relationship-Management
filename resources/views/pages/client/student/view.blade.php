@@ -372,7 +372,7 @@
                     {
                         data: 'prog_running_status',
                         render: function(data, type, row, meta) {
-                            switch(data) {
+                            switch(parseInt(data)) {
                                 case 0:
                                     return "not yet"
                                     break;

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -65,6 +66,17 @@ class UserClient extends Authenticatable
         return Attribute::make(
             get: fn ($value) => $this->lead != NULL ? $this->getLeadSource($this->lead->main_lead) : NULL
         );
+    }
+
+    public function scopeWhereRoleName(Builder $query, $role)
+    {
+        $query->whereHas('roles', function ($q) use ($role) {
+            $q->when(gettype($role) == 'integer', function ($q2) use ($role) {
+                $q2->where('id', $role);
+            }, function ($q2) use ($role) {
+                $q2->where('role_name', $role);
+            });
+        });
     }
 
     public function getLeadSource($parameter)

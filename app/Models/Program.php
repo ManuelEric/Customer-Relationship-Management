@@ -37,7 +37,6 @@ class Program extends Model
         'program_name',
     ];
 
-
     public static function whereProgId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
@@ -79,7 +78,6 @@ class Program extends Model
             );
         }
     }
-
 
     # relation
     public function schoolProgram()

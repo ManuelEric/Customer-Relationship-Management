@@ -46,6 +46,15 @@
 
                 @if (!isset($invoicePartner->refund))
                     {{-- IDR  --}}
+
+                    @php
+                        $receiptAttachment = $receiptPartner->receiptAttachment()->where('currency', 'idr')->first();
+                        $receiptAttachmentRequested = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('request_status', 'requested')->first();
+                        $receiptAttachmentSigned = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
+                        $receiptAttachmentNotYet = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first();
+                        $receiptAttachmentSent = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
+                    @endphp
+                    @if ($invoicePartner->invoiceAttachment()->where('currency', 'idr')->first())
                     <div class="d-flex align-items-stretch">
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                         <div class="border p-1 text-center">
@@ -56,13 +65,6 @@
                                             <i class="bi bi-eye-fill"></i>
                                         </a>
                                 </div>
-                                @php
-                                    $receiptAttachment = $receiptPartner->receiptAttachment()->where('currency', 'idr')->first();
-                                    $receiptAttachmentRequested = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('request_status', 'requested')->first();
-                                    $receiptAttachmentSigned = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
-                                    $receiptAttachmentNotYet = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first();
-                                    $receiptAttachmentSent = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
-                                @endphp
                                 @if(!$receiptAttachment)
                                     <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Download">
@@ -91,8 +93,9 @@
                                         </a>
                                     </div>
                                     <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Send to Client">
-                                        <a href="#" class="text-info" id="send-inv-client-idr">
+                                        data-bs-title="Send to Client"
+                                        onclick="confirmSendToClient('{{ url('/') }}/receipt/corporate-program/{{ $receiptPartner->id }}/send', 'idr', 'receipt')">
+                                        <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
                                     </div>
@@ -100,9 +103,18 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     {{-- Other  --}}
-                    @if($invoicePartner->currency != 'idr')
+                    
+                    @php
+                        $receiptAttachmentOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->first();
+                        $receiptAttachmentRequestedOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('request_status', 'requested')->first();
+                        $receiptAttachmentSignedOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
+                        $receiptAttachmentNotYetOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
+                        $receiptAttachmentSentOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
+                    @endphp
+                    @if($invoicePartner->currency != 'idr' && $invoicePartner->invoiceAttachment()->where('currency', 'other')->first())
                         <div class="d-flex align-items-stretch">
                             <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                             <div class="border p-1 text-center">
@@ -113,13 +125,6 @@
                                                 <i class="bi bi-eye-fill"></i>
                                             </a>
                                     </div>
-                                    @php
-                                        $receiptAttachmentOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->first();
-                                        $receiptAttachmentRequestedOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('request_status', 'requested')->first();
-                                        $receiptAttachmentSignedOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
-                                        $receiptAttachmentNotYetOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
-                                        $receiptAttachmentSentOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
-                                    @endphp
                                     @if(!$receiptAttachmentOther)
                                         <div id="print-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                             data-bs-title="Download">
@@ -148,8 +153,9 @@
                                             </a>
                                         </div>
                                         <div id="send-rec-client-other" class="btn btn-sm py-1 border btn-light"
-                                            data-bs-toggle="tooltip" data-bs-title="Send to Client">
-                                            <a href="#" class="text-info" id="send-inv-client-other">
+                                            data-bs-toggle="tooltip" data-bs-title="Send to Client"
+                                            onclick="confirmSendToClient('{{ url('/') }}/receipt/corporate-program/{{ $receiptPartner->id }}/send', 'other', 'receipt')">
+                                            <a href="#" class="text-info">
                                                 <i class="bi bi-send"></i>
                                             </a>
                                         </div>
@@ -356,6 +362,24 @@
     @endif
 
     <script>
+        function sendToClient(link) {
+            
+            showLoading()
+            axios
+                .get(link)
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Receipt has been send to client')
+                    setTimeout(location.reload.bind(location), 3000);
+                    
+                    $("#sendToClient--modal").modal('hide');
+                })
+                .catch(error => {
+                    notification('error', 'Something went wrong when sending receipt to client. Please try again');
+                    swal.close()
+                })
+        }
+
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
@@ -363,39 +387,7 @@
                 allowClear: true
             });
 
-            $("#send-inv-client-idr").on('click', function(e) {
-                e.preventDefault()
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get('{{ route('receipt.corporate.send_to_client', ['receipt' => $receiptPartner->id, 'currency' => 'idr']) }}')
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Receipt has been send to client')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
-                        swal.close()
-                    })
-            })
-
-            $("#send-inv-client-other").on('click', function(e) {
-                e.preventDefault()
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get('{{ route('receipt.corporate.send_to_client', ['receipt' => $receiptPartner->id, 'currency' => 'other']) }}')
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Receipt has been send to client')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
-                        swal.close()
-                    })
-            })
+            
 
             $("#export_other").on('click', function(e) {
                 e.preventDefault();

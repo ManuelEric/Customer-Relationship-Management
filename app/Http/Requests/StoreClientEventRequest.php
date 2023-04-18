@@ -65,6 +65,8 @@ class StoreClientEventRequest extends FormRequest
                 'required_if:lead_id,LS004',
                 Rule::unique('tbl_client_event')->where(function ($query) {
                     $query->where('client_id', $this->input('client_id'))->where('event_id', $this->input('event_id'));
+                })->when($this->isMethod('PUT'), function($query) { # when the method is PUT, ignore the client id
+                    $query->ignore($this->input('client_id'), 'client_id');
                 })
             ],
             'eduf_id' => 'required_if:lead_id,LS018',

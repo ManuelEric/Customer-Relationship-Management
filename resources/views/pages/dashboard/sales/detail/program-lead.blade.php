@@ -70,10 +70,12 @@
                 var obj = response.data.data
                 lead_source_chart.data.labels = obj.ctx_leadsource.label
                 lead_source_chart.data.datasets[0].data = obj.ctx_leadsource.dataset
+                lead_source_chart.data.datasets[0].backgroundColor = obj.ctx_leadsource.bgcolor
                 lead_source_chart.update();
 
                 conversion_lead_chart.data.labels = obj.ctx_conversionlead.label
                 conversion_lead_chart.data.datasets[0].data = obj.ctx_conversionlead.dataset
+                conversion_lead_chart.data.datasets[0].backgroundColor = obj.ctx_conversionlead.bgcolor
                 conversion_lead_chart.update();
 
             }).catch(function(error) {
@@ -98,6 +100,7 @@
                 var obj = response.data.data
                 admission_lead_chart.data.labels = obj.ctx.label
                 admission_lead_chart.data.datasets[0].data = obj.ctx.dataset
+                admission_lead_chart.data.datasets[0].backgroundColor = obj.ctx.bgcolor
                 admission_lead_chart.update();
 
             }).catch(function(error) {
@@ -122,6 +125,7 @@
                 var obj = response.data.data
                 academic_prep_chart.data.labels = obj.ctx.label
                 academic_prep_chart.data.datasets[0].data = obj.ctx.dataset
+                academic_prep_chart.data.datasets[0].backgroundColor = obj.ctx.bgcolor
                 academic_prep_chart.update();
 
             }).catch(function(error) {
@@ -146,6 +150,7 @@
                 var obj = response.data.data
                 career_exp_chart.data.labels = obj.ctx.label
                 career_exp_chart.data.datasets[0].data = obj.ctx.dataset
+                career_exp_chart.data.datasets[0].backgroundColor = obj.ctx.bgcolor
                 career_exp_chart.update();
 
             }).catch(function(error) {
