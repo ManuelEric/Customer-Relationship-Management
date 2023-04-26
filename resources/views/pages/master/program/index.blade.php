@@ -73,13 +73,13 @@
                         data: 'prog_id',
                     },
                     {
-                        data: 'prog_main',
+                        data: 'main_prog_name',
                     },
                     {
-                        data: 'prog_sub',
+                        data: 'sub_prog_name',
                     },
                     {
-                        data: 'program_h',
+                        data: 'program_name',
                     },
                     {
                         data: 'prog_type',
