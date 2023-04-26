@@ -74,6 +74,7 @@
                     },
                     {
                         data: 'dept_name',
+                        name: 'tbl_department.dept_name',
                     },
                     {
                         data: 'purchase_statusrequest',
