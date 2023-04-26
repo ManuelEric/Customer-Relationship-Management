@@ -98,23 +98,48 @@ class MenuController extends Controller
 
     public function updateDepartmentAccess(Request $request)
     {
-        $requestData = $request->only(['department_id', 'menu_id', 'menu_data', 'copy_data', 'export_data']);
-        
+        $requestData = $request->only(['department_id', 'menu_id', 'menu_data', 'copy_data', 'export_data', 'param']);
         $departmentId = $requestData['department_id'];
+        $param = $requestData['param'];
         $newDetails = [
             'menu_id' => $requestData['menu_id'],
             'copy' => $requestData['copy_data'],
             'export' => $requestData['export_data'],
+            'param' => $requestData['param'],
         ];
 
         DB::beginTransaction();
         try {
 
-            if ($requestData['menu_data'] === true) { # if selected menu is checked (true)
+            switch ($param) {
+
+                case "menu":
+                    $condition = $requestData['menu_data'] === true;
+                    break;
+
+                case "copy":
+                    $condition = $requestData['copy_data'] === true;
+                    break;
+
+                case "export":
+                    $condition = $requestData['export_data'] === true;
+                    break;
+            }
+
+            # if they're check the menu
+            if ($condition === true ) { # if selected menu is checked (true)
                 $response = $this->menuRepository->createAccessToDepartment($departmentId, $newDetails);
-            } else { # if selected menu is unchecked (false)
+            } 
+
+            else {
                 $response = $this->menuRepository->deleteDepartmentAccess($departmentId, $newDetails);
             }
+
+            // if ($requestData['menu_data'] === true) { # if selected menu is checked (true)
+            //     $response = $this->menuRepository->createAccessToDepartment($departmentId, $newDetails);
+            // } else { # if selected menu is unchecked (false)
+            //     $response = $this->menuRepository->deleteDepartmentAccess($departmentId, $newDetails);
+            // }
 
             DB::commit();
 

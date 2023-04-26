@@ -94,13 +94,16 @@ class MenuRepository implements MenuRepositoryInterface
         $menu_id = $newDetails['menu_id'];
         $copy = $newDetails['copy'];
         $export = $newDetails['export'];
+        $param = $newDetails['param'];
         $department = Department::find($departmentId);
 
-        if ($menu_id && $copy === false && $export === false)
-            $department->access_menus()->syncWithoutDetaching($menu_id, ['copy' => $copy, 'export' => $export]);
-
-        if ($copy === true || $export === true)
+        // if ($menu_id && $copy === false && $export === false)
+        if ($department->access_menus()->where('menu_id', $menu_id)->first() && $copy === true || $export === true)
             $department->access_menus()->updateExistingPivot($menu_id, ['copy' => $copy, 'export' => $export]);
+        else if ($param == 'copy' || $param == 'export') 
+            $department->access_menus()->attach($menu_id, ['copy' => $copy, 'export' => $export]);  
+        else
+            $department->access_menus()->syncWithoutDetaching($menu_id, ['copy' => $copy, 'export' => $export]);
 
         return $department->access_menus;
     }
