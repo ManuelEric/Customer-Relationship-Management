@@ -159,7 +159,7 @@
 
                             <div class="col-md-4 mb-2">
                                 <label for="">Country Type <sup class="text-danger">*</sup></label>
-                                <select name="country_type" class="select w-100">
+                                <select name="country_type" class="select w-100"  {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     <option value="Indonesia"
                                         {{ (isset($corporate->country_type) && $corporate->country_type == 'Indonesia') || old('country_type') == 'Indonesia' ? 'selected' : null }}>
@@ -175,7 +175,7 @@
 
                             <div class="col-md-4 mb-2">
                                 <label for="">Type <sup class="text-danger">*</sup></label>
-                                <select name="type" class="select w-100">
+                                <select name="type" class="select w-100"  {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     @for ($i = 0; $i < count($type); $i++)
                                         <option value="{{ $type[$i] }}"
@@ -190,7 +190,7 @@
 
                             <div class="col-md-4 mb-2">
                                 <label for="">Partnership Type </label>
-                                <select name="partnership_type" class="select w-100">
+                                <select name="partnership_type" class="select w-100"  {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     @for ($i = 0; $i < count($partnership_type); $i++)
                                         <option value="{{ $partnership_type[$i] }}"

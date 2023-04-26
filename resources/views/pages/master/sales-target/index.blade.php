@@ -58,7 +58,7 @@
                                     <select name="prog_id" id="prog_id" class="modal-select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($programs as $program)
-                                            <option value="{{ $program->prog_id }}" {{ $program->prog_id == old('prog_id') ? 'selected' : ''}}>{{$program->sub_prog ? $program->sub_prog->sub_prog_name.' - ':''}}{{ $program->prog_program }}</option>
+                                            <option value="{{ $program->prog_id }}" {{ $program->prog_id == old('prog_id') ? 'selected' : ''}}>{{$program->program_name }}</option>
                                         @endforeach
                                     </select>
                                     @error('prog_id')
@@ -158,7 +158,7 @@
                     {
                         data: 'program_name',
                         // name: 'program_name',
-                        name: 'tbl_prog.prog_program'
+                        name: 'program.program_name'
 
                     },
                     {
