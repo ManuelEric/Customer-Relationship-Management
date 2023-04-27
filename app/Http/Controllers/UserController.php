@@ -338,14 +338,14 @@ class UserController extends Controller
             # in order to avoid double data
             $newUserType = $request->type;
             $newDepartment = $request->department;
-            if ($user->user_type()->wherePivot('user_type_id', $newUserType)->wherePivot('department_id', $newDepartment)->wherePivot('status', 1)->wherePivot('deactivated_at', NULL)->count() == 0) {
+            # wherePivot('department_id, $newDepartment) old
+            if ($user->user_type()->wherePivot('user_type_id', $newUserType)->wherePivot('status', 1)->wherePivot('deactivated_at', NULL)->wherePivot('start_date', $request->start_period)->wherePivot('end_date', $request->end_period)->count() == 0) {
                 // if ($user->user_type()->wherePivot('user_type_id', 2)->wherePivot('department_id', 3)->wherePivot('start_date', '2022-12-01')->wherePivot('end_date', '2023-01-01')->count() == 0) {
 
                 # deactivate the latest active type
-                $activeType = $user->user_type()->where('tbl_user_type_detail.status', 1)->whereNull('deactivated_at')->pluck('tbl_user_type_detail.user_type_id')->toArray();
+                $activeType = $user->user_type()->where('tbl_user_type_detail.status', 1)->wherePivot('deactivated_at', NULL)->pluck('tbl_user_type_detail.user_type_id')->toArray();
                 foreach ($activeType as $key => $value) {
-
-                    $user->user_type()->updateExistingPivot($activeType[$key], ['status' => 0, 'deactivated_at' => Carbon::now()]);
+                    $user->user_type()->updateExistingPivot($value, ['status' => 0, 'deactivated_at' => Carbon::now()]);
                 }
 
                 # store new user type to tbl_user_type
@@ -355,6 +355,11 @@ class UserController extends Controller
                     'start_date' => $request->start_period,
                     'end_date' => $request->type == 1 ? null : $request->end_period,
                 ]]);
+                
+
+
+            } else {
+                $user->user_type()->updateExistingPivot($newUserType, ['status' => 1, 'department_id' => $newDepartment, 'deactivated_at' => NULL]);
             }
 
             # upload curriculum vitae
@@ -412,7 +417,7 @@ class UserController extends Controller
 
             DB::rollBack();
             Log::error('Update user ' . $request->route('user_role') . ' failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to update ' . $request->route('user_role'));
+            return Redirect::back()->withError('Failed to update ' . $request->route('user_role').' | Line '.$e->getLine());
         }
 
         return Redirect::to('user/' . $request->route('user_role') . '/' . $userId . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');

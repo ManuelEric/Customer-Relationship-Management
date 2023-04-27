@@ -20,11 +20,7 @@ return new class extends Migration
             c.st_grade,
             r.reason_name as reason,
             CONCAT(c.first_name, " ", COALESCE(c.last_name, "")) as fullname,
-            (CASE
-                WHEN sp.sub_prog_name COLLATE utf8mb4_unicode_ci IS NOT NULL THEN CONCAT(mp.prog_name COLLATE utf8mb4_unicode_ci, " / ", sp.sub_prog_name COLLATE utf8mb4_unicode_ci, " : ", p.prog_program COLLATE utf8mb4_unicode_ci)
-                ELSE
-                CONCAT(mp.prog_name COLLATE utf8mb4_unicode_ci, " : ", p.prog_program COLLATE utf8mb4_unicode_ci)
-            END) AS program_name,
+            p.program_name,
             (CASE WHEN cp.status = 0 THEN "Pending"
                 WHEN cp.status = 1 THEN "Success"
                 WHEN cp.status = 2 THEN "Failed"
@@ -48,12 +44,8 @@ return new class extends Migration
                     LEFT JOIN users squ ON squ.id = sqcm.user_id
                     WHERE sqcm.clientprog_id = cp.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name        
         FROM tbl_client_prog cp
-            LEFT JOIN tbl_prog p
+            LEFT JOIN program p
                 ON p.prog_id = cp.prog_id
-                    LEFT JOIN tbl_main_prog mp
-                        ON mp.id = p.main_prog_id
-                    LEFT JOIN tbl_sub_prog sp
-                        ON sp.id = p.sub_prog_id
             LEFT JOIN tbl_client c
                 ON c.id = cp.client_id
                     LEFT JOIN tbl_lead cl
