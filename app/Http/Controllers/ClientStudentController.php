@@ -6,6 +6,7 @@ use App\Exceptions\StoreNewSchoolException;
 use App\Exports\StudentTemplate;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreClientStudentRequest;
+use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
@@ -23,6 +24,8 @@ use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
+use App\Imports\MasterStudentImport;
+use App\Imports\StudentImport;
 use App\Models\Lead;
 use App\Models\School;
 use App\Models\UserClient;
@@ -621,5 +624,18 @@ class ClientStudentController extends ClientController
                 'message' => "Status has been updated",
             ]
         );
+    }
+
+    public function import(StoreImportExcelRequest $request)
+    {
+
+        $file = $request->file('file');
+
+        $import = new MasterStudentImport();
+        $import->onlySheets('Student');
+        // $import->import($file);
+        Excel::import($import, $file);
+
+        return back()->withSuccess('Student successfully imported');
     }
 }

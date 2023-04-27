@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientEventRequest;
-use App\Http\Requests\StoreImportClientEventRequest;
+use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
@@ -414,7 +414,7 @@ class ClientEventController extends Controller
         return Redirect::to('program/event')->withSuccess('Client event successfully deleted');
     }
 
-    public function import(StoreImportClientEventRequest $request)
+    public function import(StoreImportExcelRequest $request)
     {
 
         $file = $request->file('file');

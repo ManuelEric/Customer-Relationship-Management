@@ -117,7 +117,7 @@
                                 <tr align="center">
                                     <td>{{ $no++ }}</td>    
                                     <td>{{ $children->fullname }}</td>
-                                    <td>{{ $children->school->sch_name }}</td>
+                                    <td>{{ isset($children->school) ? $children->school->sch_name : '-' }}</td>
                                     <td>{{ $children->graduation_year }}</td>
                                     <td>
                                         <a href="{{ url('client/student').'/'.$children->id }}" class="btn btn-outline-warning btn-sm rounded"><i
