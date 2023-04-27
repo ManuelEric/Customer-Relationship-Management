@@ -156,7 +156,7 @@ class ClientParentController extends Controller
         $parentDetails['insta'] = $request->pr_insta;
 
         // $parentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
-        $childrenId = $request->child_id;
+        $childrens = $request->child_id;
 
         # set lead_id based on lead_id & kol_lead_id
         # when lead_id is kol
@@ -249,10 +249,10 @@ class ClientParentController extends Controller
 
                 if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
                     throw new Exception('Failed to store relation between student and parent', 4);
-            } elseif ($childrenId) {
+            } elseif ($childrens) {
 
                 // return $this->clientRepository->createClientRelation($parentId, $childrenId);
-                if (!$this->clientRepository->createClientRelation($parentId, $childrenId))
+                if (!$this->clientRepository->createManyClientRelation($parentId, $childrens))
                     throw new Exception('Failed to store relation between student and parent', 4);
             }
 
