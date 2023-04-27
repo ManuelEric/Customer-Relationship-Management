@@ -43,10 +43,17 @@ class EdufLead extends Model
 
     public function getOrganizerName()
     {
-        if ($this->sch_id != NULL && $this->corp_id == NULL) 
-            return $this->schools->sch_name.' ('.date('d M Y', strtotime($this->event_start)).')';
+        if ($this->sch_id != NULL && $this->corp_id == NULL)
+            if ($this->event_start != NULL)
+                return $this->schools->sch_name . ' (' . date('d M Y', strtotime($this->event_start)) . ')';
+            else
+                return $this->schools->sch_name . ' (' . date('d M Y', strtotime($this->created_at)) . ')';
+
         else if ($this->sch_id == NULL && $this->corp_id != NULL)
-            return $this->corps->corp_name.' ('.date('d M Y', strtotime($this->event_start)).')';
+            if ($this->event_start != NULL)
+                return $this->corps->corp_name . ' (' . date('d M Y', strtotime($this->event_start)) . ')';
+            else
+                return $this->corps->corp_name . ' (' . date('d M Y', strtotime($this->created_at)) . ')';
     }
 
     public function client()
