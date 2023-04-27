@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Models\School;
 use App\Models\V1\School as V1School;
 use Carbon\Carbon;
@@ -13,6 +14,13 @@ use DataTables;
 class SchoolRepository implements SchoolRepositoryInterface
 {
     use CreateCustomPrimaryKeyTrait;
+
+    private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+
+    public function __construct(SchoolCurriculumRepositoryInterface $schoolCurriculumRepository)
+    {
+        $this->schoolCurriculumRepository = $schoolCurriculumRepository;
+    }
 
     public function getAllSchoolDataTables()
     {

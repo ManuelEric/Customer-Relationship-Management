@@ -4,16 +4,22 @@ namespace App\Http\Controllers\Module;
 
 use App\Http\Controllers\Controller;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\TagRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class ClientController extends Controller
 {
-    private SchoolRepositoryInterface $schoolRepository;
+    protected SchoolRepositoryInterface $schoolRepository;
+    protected ClientRepositoryInterface $clientRepository;
+    protected TagRepositoryInterface $tagRepository;
 
-    public function __construct(SchoolRepositoryInterface $schoolRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository)
     {
         $this->schoolRepository = $schoolRepository;
+        $this->clientRepository = $clientRepository;
+        $this->tagRepository = $tagRepository;
     }
 
     public function createSchoolIfAddNew(Request $request)
@@ -31,7 +37,7 @@ class ClientController extends Controller
             $schoolCurriculums = $request->sch_curriculum;
 
             # create a new school
-            $school = $this->schoolRepository->createSchoolIfNotExists($schoolDetails, $schoolCurriculums);            
+            $school = $this->schoolRepository->createSchoolIfNotExists($schoolDetails, $schoolCurriculums);
             return $school->sch_id;
         }
     }
@@ -114,7 +120,6 @@ class ClientController extends Controller
 
             $interestedUniversities = $this->clientRepository->createInterestUniversities($newStudentId, $interestUnivDetails);
             return $interestedUniversities;
-                
         }
     }
 }
