@@ -55,6 +55,7 @@ Route::resource('mentee', ClientMenteeController::class);
 
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
 Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function () {
+    Route::post('import', [ClientTeacherCounselorController::class, 'import'])->name('import');
     Route::get('{teacher}/status/{status}', [ClientTeacherCounselorController::class, 'updateStatus'])->name('update.status');
 });
 
