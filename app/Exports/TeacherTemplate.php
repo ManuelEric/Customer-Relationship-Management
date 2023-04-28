@@ -22,7 +22,7 @@ class TeacherTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
             'Full Name',
             'Email',
             'Phone Number',
-            'School Name',
+            'School',
             'Instagram',
             'State',
             'City',

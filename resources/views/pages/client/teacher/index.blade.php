@@ -60,7 +60,7 @@
 
     <div class="modal fade" id="importData" tabindex="-1" aria-labelledby="importDataLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <form action="{{route('parent.import')}}" method="POST" enctype="multipart/form-data">
+            <form action="{{route('teacher-counselor.import')}}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">

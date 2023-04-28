@@ -14,6 +14,7 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Imports\TeacherImport;
 use App\Models\School;
 use Exception;
 use Illuminate\Http\Request;
@@ -366,9 +367,9 @@ class ClientTeacherCounselorController extends Controller
 
         $file = $request->file('file');
 
-        // $import = new ClientEventImport;
-        // $import->import($file);
+        $import = new TeacherImport;
+        $import->import($file);
 
-        return back()->withSuccess('Client event successfully imported');
+        return back()->withSuccess('Teacher successfully imported');
     }
 }
