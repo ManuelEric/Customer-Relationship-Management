@@ -86,7 +86,6 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
                         'st_levelinterest' => $row['level_of_interest'],
                         'graduation_year' => isset($row['graduation_year']) ? $row['graduation_year'] : null,
                         'st_abryear' => isset($row['year_of_study_abroad']) ? $row['year_of_study_abroad'] : null,
-                        'status' => 1,
                     ];
 
                     $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
@@ -171,7 +170,6 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
             'country_of_study_abroad' => $data['country_of_study_abroad'],
             'university_destination' => $data['university_destination'],
             'interest_major' => $data['interest_major'],
-            'status' => $data['status'],
         ];
         return $data;
     }
@@ -198,7 +196,6 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
             '*.country_of_study_abroad' => ['nullable'],
             '*.university_destination' => ['nullable'],
             '*.interest_major' => ['nullable'],
-            '*.status' => ['required'],
         ];
     }
 

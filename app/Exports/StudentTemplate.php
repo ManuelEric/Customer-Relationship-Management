@@ -51,7 +51,6 @@ class StudentTemplate implements FromCollection, WithHeadings, WithEvents, WithS
             'Country of Study Abroad',
             'University Destination',
             'Interest Major',
-            'Status',
         ];
 
         return $columns;
