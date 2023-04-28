@@ -39,23 +39,38 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
 
                 $parentName = $this->explodeName($row['full_name']);
 
-                $parentDetails = [
-                    'first_name' => $parentName['firstname'],
-                    'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
-                    'mail' => $row['email'],
-                    'phone' => $phoneNumber,
-                    'insta' => isset($row['instagram']) ? $row['instagram'] : null,
-                    'state' => isset($row['state']) ? $row['state'] : null,
-                    'city' => isset($row['city']) ? $row['city'] : null,
-                    'address' => isset($row['address']) ? $row['address'] : null,
-                    'lead_id' => $row['lead'],
-                    'st_levelinterest' => $row['level_of_interest'],
-                ];
-                $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
+                $parentFromDB = UserClient::select('id', 'mail', 'phone')->get();
+                $mapParent = $parentFromDB->map(function ($item, int $key) {
+                    return [
+                        'id' => $item['id'],
+                        'mail' => $item['mail'],
+                        'phone' => $this->setPhoneNumber($item['phone'])
+                    ];
+                });
 
-                $parent = UserClient::create($parentDetails);
-                $parent->roles()->attach($roleId);
-                $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
+                $parent = $mapParent->where('mail', $row['email'])
+                    ->where('phone', $phoneNumber)
+                    ->first();
+
+                if (!isset($parent)) {
+                    $parentDetails = [
+                        'first_name' => $parentName['firstname'],
+                        'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
+                        'mail' => $row['email'],
+                        'phone' => $phoneNumber,
+                        'insta' => isset($row['instagram']) ? $row['instagram'] : null,
+                        'state' => isset($row['state']) ? $row['state'] : null,
+                        'city' => isset($row['city']) ? $row['city'] : null,
+                        'address' => isset($row['address']) ? $row['address'] : null,
+                        'lead_id' => $row['lead'],
+                        'st_levelinterest' => $row['level_of_interest'],
+                    ];
+                    $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
+
+                    $parent = UserClient::create($parentDetails);
+                    $parent->roles()->attach($roleId);
+                    $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
+                }
             }
             DB::commit();
         } catch (Exception $e) {
