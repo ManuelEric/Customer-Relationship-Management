@@ -12,8 +12,12 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Models\EdufLead;
+use App\Models\Event;
+use App\Models\Program;
 use App\Models\Role;
 use Maatwebsite\Excel\Concerns\Importable;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class ParentImport implements ToCollection, WithHeadingRow, WithValidation
 {
@@ -58,11 +62,14 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
                         'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
                         'mail' => $row['email'],
                         'phone' => $phoneNumber,
+                        'dob' => isset($row['date_of_birth']) ? $row['date_of_birth'] : null,
                         'insta' => isset($row['instagram']) ? $row['instagram'] : null,
                         'state' => isset($row['state']) ? $row['state'] : null,
                         'city' => isset($row['city']) ? $row['city'] : null,
                         'address' => isset($row['address']) ? $row['address'] : null,
                         'lead_id' => $row['lead'],
+                        'event_id' => isset($row['event']) && $row['lead'] == 'LS004' ? $row['event'] : null,
+                        'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
                         'st_levelinterest' => $row['level_of_interest'],
                     ];
                     $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
@@ -70,6 +77,16 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
                     $parent = UserClient::create($parentDetails);
                     $parent->roles()->attach($roleId);
                     $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
+
+                    // Sync interest program
+                    if (isset($row['interested_program'])) {
+                        $this->attachInterestedProgram($row['interested_program'], $parent);
+
+                        foreach ($row['childrens_name'] as $child_id) {
+                            $children = UserClient::find($child_id);
+                            $children != null ?  $this->attachInterestedProgram($row['interested_program'], $children) : null;
+                        }
+                    }
                 }
             }
             DB::commit();
@@ -97,6 +114,10 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
                 $childs[$key] = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), $children)->get()->pluck('id')->first();
             }
 
+            $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
+            $getAllEduf = EdufLead::all();
+            $edufair = $getAllEduf->where('organizerName', $data['edufair'])->pluck('id')->first();
+
             DB::commit();
         } catch (Exception $e) {
 
@@ -108,12 +129,16 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
             'full_name' => $data['full_name'],
             'email' => $data['email'],
             'phone_number' => $data['phone_number'],
+            'date_of_birth' => isset($data['date_of_birth']) ? Date::excelToDateTimeObject($data['date_of_birth'])
+                ->format('Y-m-d') : null,
             'childrens_name' => $data['childrens_name'],
             'instagram' => $data['instagram'],
             'state' => $data['state'],
             'city' => $data['city'],
             'address' => $data['address'],
             'lead' => isset($lead) ? $lead : $data['lead'],
+            'event' => isset($event) ? $event : $data['event'],
+            'edufair' => isset($edufair) ? $edufair : $data['edufair'],
             'level_of_interest' => $data['level_of_interest'],
             'interested_program' => $data['interested_program'],
             'childrens_name' => isset($childs) ? $childs : null,
@@ -128,16 +153,48 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
             '*.full_name' => ['required'],
             '*.email' => ['required', 'email', 'unique:tbl_client,mail'],
             '*.phone_number' => ['required', 'min:10', 'max:15'],
+            '*.date_of_birth' => ['nullable', 'date'],
             '*.instagram' => ['nullable', 'unique:tbl_client,insta'],
             '*.state' => ['nullable'],
             '*.city' => ['nullable'],
             '*.address' => ['nullable'],
             '*.lead' => ['required', 'exists:tbl_lead,lead_id'],
+            '*.event' => ['nullable', 'exists:tbl_events,event_id'],
+            '*.edufair' => ['nullable', 'exists:tbl_eduf_lead,id'],
             '*.level_of_interest' => ['required', 'in:High,Medium,Low'],
             '*.interested_program' => ['nullable'],
             '*.childrens_name' => ['nullable'],
         ];
     }
+
+    private function attachInterestedProgram($arrayProgramName, $client)
+    {
+        $programDetails = []; # default
+        $programs = explode(', ', $arrayProgramName);
+        foreach ($programs as $program) {
+
+            $programFromDB = Program::all();
+
+            $mapProgram = $programFromDB->map(
+                function ($item, int $key) {
+                    return [
+                        'prog_id' => $item->prog_id,
+                        'program_name' => $item->programName,
+                    ];
+                }
+            );
+
+            $existProgram = $mapProgram->where('program_name', $program)->first();
+            if ($existProgram) {
+                $programDetails[] = [
+                    'prog_id' => $existProgram['prog_id'],
+                ];
+            }
+        }
+
+        isset($programDetails) ? $client->interestPrograms()->sync($programDetails) : null;
+    }
+
 
     private function explodeName($name)
     {
