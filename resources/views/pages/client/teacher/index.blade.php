@@ -3,13 +3,35 @@
 @section('title', 'Teacher - Bigdata Platform')
 
 @section('content')
+<style>
+    .btn-download span, .btn-import span {
+        display: none;
+    }
+    .btn-download:hover > span, .btn-import:hover > span {
+        display: inline-block;
+    }
+</style>
+
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Teacher
         </a>
-        <a href="{{ url('client/teacher-counselor/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
-            Teacher</a>
+        <div>
+            <a href="{{ url('api/download/excel-template/teacher') }}" class="btn btn-sm btn-outline-info btn-download"><i class="bi bi-download me-1"></i> <span>Download Template</span></a>
+            <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i> <span>Import</span></a>
+            <a href="{{ url('client/teacher-counselor/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
+                Teacher</a>
+        </div>
     </div>
 
 
@@ -33,6 +55,40 @@
                     </tr>
                 </tfoot>
             </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="importData" tabindex="-1" aria-labelledby="importDataLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form action="{{route('teacher-counselor.import')}}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="importDataLabel">Import CSV Data</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="">CSV File</label>
+                                <input type="file" name="file" id="" class="form-control form-control-sm">
+                            </div>
+                            <small class="text-warning mt-3">
+                                * Please clean the file first, before importing the csv file. <br>
+                                You can download the csv template <a href="{{ url('api/download/excel-template/parent') }}">here</a>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-dismiss="modal">
+                            <i class="bi bi-x"></i>
+                            Close</button>
+                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-upload"></i>
+                            Import</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 

@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ParentTemplate;
+use App\Http\Requests\StoreImportExcelRequest;
+use App\Imports\MasterParentImport;
 use App\Interfaces\ClientEventRepositoryInterface;
 
 class ClientParentController extends Controller
@@ -156,7 +158,7 @@ class ClientParentController extends Controller
         $parentDetails['insta'] = $request->pr_insta;
 
         // $parentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
-        $childrenId = $request->child_id;
+        $childrens = $request->child_id;
 
         # set lead_id based on lead_id & kol_lead_id
         # when lead_id is kol
@@ -249,10 +251,10 @@ class ClientParentController extends Controller
 
                 if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
                     throw new Exception('Failed to store relation between student and parent', 4);
-            } elseif ($childrenId) {
+            } elseif ($childrens) {
 
                 // return $this->clientRepository->createClientRelation($parentId, $childrenId);
-                if (!$this->clientRepository->createClientRelation($parentId, $childrenId))
+                if (!$this->clientRepository->createManyClientRelation($parentId, $childrens))
                     throw new Exception('Failed to store relation between student and parent', 4);
             }
 
@@ -587,8 +589,16 @@ class ClientParentController extends Controller
         return Redirect::to('client/parent/' . $parentId)->withSuccess('A parent has been updated.');
     }
 
-    public function download_template()
+    public function import(StoreImportExcelRequest $request)
     {
-        return Excel::download(new ParentTemplate, 'parent.xlsx');
+
+        $file = $request->file('file');
+
+        $import = new MasterParentImport();
+        $import->onlySheets('Parent');
+        // $import->import($file);
+        Excel::import($import, $file);
+
+        return back()->withSuccess('Parent successfully imported');
     }
 }

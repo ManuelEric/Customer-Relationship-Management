@@ -13,9 +13,12 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\Role;
+use App\Models\School;
 use Maatwebsite\Excel\Concerns\Importable;
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 
-class ParentImport implements ToCollection, WithHeadingRow, WithValidation
+
+class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
 {
     /**
      * @param Collection $collection
@@ -23,24 +26,29 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
 
     use Importable;
     use StandardizePhoneNumberTrait;
+    use CreateCustomPrimaryKeyTrait;
 
     public function collection(Collection $rows)
     {
-
-        // echo json_encode($rows);
-        // exit;
 
         DB::beginTransaction();
         try {
 
             foreach ($rows as $row) {
-                $parent = null;
+                $teacher = null;
                 $phoneNumber = $this->setPhoneNumber($row['phone_number']);
 
-                $parentName = $this->explodeName($row['full_name']);
+                $teacherName = $this->explodeName($row['full_name']);
 
-                $parentFromDB = UserClient::select('id', 'mail', 'phone')->get();
-                $mapParent = $parentFromDB->map(function ($item, int $key) {
+                // Check existing school
+                $school = School::where('sch_name', $row['school'])->get()->pluck('sch_id')->first();
+
+                if (!isset($school)) {
+                    $newSchool = $this->createSchoolIfNotExists($row['school']);
+                }
+
+                $teacherFromDB = UserClient::select('id', 'mail', 'phone')->get();
+                $mapTeacher = $teacherFromDB->map(function ($item, int $key) {
                     return [
                         'id' => $item['id'],
                         'mail' => $item['mail'],
@@ -48,28 +56,28 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
                     ];
                 });
 
-                $parent = $mapParent->where('mail', $row['email'])
+                $teacher = $mapTeacher->where('mail', $row['email'])
                     ->where('phone', $phoneNumber)
                     ->first();
 
-                if (!isset($parent)) {
-                    $parentDetails = [
-                        'first_name' => $parentName['firstname'],
-                        'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,
+                if (!isset($teacher)) {
+                    $teacherDetails = [
+                        'first_name' => $teacherName['firstname'],
+                        'last_name' => isset($teacherName['lastname']) ? $teacherName['lastname'] : null,
                         'mail' => $row['email'],
                         'phone' => $phoneNumber,
                         'insta' => isset($row['instagram']) ? $row['instagram'] : null,
                         'state' => isset($row['state']) ? $row['state'] : null,
                         'city' => isset($row['city']) ? $row['city'] : null,
                         'address' => isset($row['address']) ? $row['address'] : null,
+                        'sch_id' => isset($school) ? $school : $newSchool->sch_id,
                         'lead_id' => $row['lead'],
                         'st_levelinterest' => $row['level_of_interest'],
                     ];
-                    $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['parent'])->first();
+                    $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['teacher/counselor'])->first();
 
-                    $parent = UserClient::create($parentDetails);
-                    $parent->roles()->attach($roleId);
-                    $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
+                    $teacher = UserClient::create($teacherDetails);
+                    $teacher->roles()->attach($roleId);
                 }
             }
             DB::commit();
@@ -90,13 +98,6 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
             }
             $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
 
-            $childrens = explode(', ', $data['childrens_name']);
-
-            $childs = array();
-            foreach ($childrens as $key => $children) {
-                $childs[$key] = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), $children)->get()->pluck('id')->first();
-            }
-
             DB::commit();
         } catch (Exception $e) {
 
@@ -108,15 +109,13 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
             'full_name' => $data['full_name'],
             'email' => $data['email'],
             'phone_number' => $data['phone_number'],
-            'childrens_name' => $data['childrens_name'],
             'instagram' => $data['instagram'],
             'state' => $data['state'],
             'city' => $data['city'],
             'address' => $data['address'],
+            'school' => $data['school'],
             'lead' => isset($lead) ? $lead : $data['lead'],
             'level_of_interest' => $data['level_of_interest'],
-            'interested_program' => $data['interested_program'],
-            'childrens_name' => isset($childs) ? $childs : null,
         ];
 
         return $data;
@@ -132,10 +131,9 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
             '*.state' => ['nullable'],
             '*.city' => ['nullable'],
             '*.address' => ['nullable'],
+            '*.school' => ['required'],
             '*.lead' => ['required', 'exists:tbl_lead,lead_id'],
             '*.level_of_interest' => ['required', 'in:High,Medium,Low'],
-            '*.interested_program' => ['nullable'],
-            '*.childrens_name' => ['nullable'],
         ];
     }
 
@@ -156,5 +154,16 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
         }
 
         return $data;
+    }
+
+    private function createSchoolIfNotExists($sch_name)
+    {
+        $last_id = School::max('sch_id');
+        $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
+        $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+
+        $newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $sch_name]);
+
+        return $newSchool;
     }
 }

@@ -6,6 +6,7 @@ use App\Exceptions\StoreNewSchoolException;
 use App\Exports\StudentTemplate;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreClientStudentRequest;
+use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\FindStatusClientTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
@@ -23,6 +24,8 @@ use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
+use App\Imports\MasterStudentImport;
+use App\Imports\StudentImport;
 use App\Models\Lead;
 use App\Models\School;
 use App\Models\UserClient;
@@ -43,8 +46,8 @@ class ClientStudentController extends ClientController
     use FindStatusClientTrait;
     use StandardizePhoneNumberTrait;
 
-    private ClientRepositoryInterface $clientRepository;
-    private SchoolRepositoryInterface $schoolRepository;
+    protected ClientRepositoryInterface $clientRepository;
+    protected SchoolRepositoryInterface $schoolRepository;
     private LeadRepositoryInterface $leadRepository;
     private EventRepositoryInterface $eventRepository;
     private EdufLeadRepositoryInterface $edufLeadRepository;
@@ -52,7 +55,7 @@ class ClientStudentController extends ClientController
     private UniversityRepositoryInterface $universityRepository;
     private MajorRepositoryInterface $majorRepository;
     private CurriculumRepositoryInterface $curriculumRepository;
-    private TagRepositoryInterface $tagRepository;
+    protected TagRepositoryInterface $tagRepository;
     private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private CountryRepositoryInterface $countryRepository;
@@ -162,14 +165,21 @@ class ClientStudentController extends ClientController
 
             # case 1
             # create new school
-            if (!$this->createSchoolIfAddNew($request))
-                throw new Exception('Failed to store new school', 1);
+            if ($request->sch_id == "add-new") {
+                unset($studentDetails['sch_id']);
+                if (!$studentDetails['sch_id'] = $this->createSchoolIfAddNew($request))
+                    throw new Exception('Failed to store new school', 1);
+            }
 
             # case 2
             # create new user client as parents
-            if (!$this->createParentsIfAddNew($request, $studentDetails))
-                throw new Exception('Failed to store new parent', 2);
-            
+            if (isset($request->pr_id) && $request->pr_id == "add-new") {
+                unset($studentDetails['pr_id']);
+                $parentId = null;
+                if (!$parentId = $studentDetails['pr_id'] = $this->createParentsIfAddNew($request, $studentDetails))
+                    throw new Exception('Failed to store new parent', 2);
+            }
+
             # case 3
             # create new user client as student
             if (!$newStudent = $this->clientRepository->createClient('Student', $studentDetails))
@@ -192,21 +202,21 @@ class ClientStudentController extends ClientController
             # create interested program
             # if they didn't insert interested program 
             # then skip this case
-            if (!$this->createInterestedProgram($request, $newStudentId))
+            if (!$this->createInterestedProgram($request, $newStudentId) && isset($request->prog_id) && count($request->prog_id) > 0)
                 throw new Exception('Failed to store interest program', 5);
 
             # case 6.1
             # create destination countries
             # if they didn't insert destination countries
             # then skip this case
-            if (!$this->createDestinationCountries($request, $newStudentId))
+            if (!$this->createDestinationCountries($request, $newStudentId) && isset($request->st_abrcountry) && count($request->st_abrcountry) > 0)
                 throw new Exception('Failed to store destination country', 6);
 
             # case 6.2
             # create interested universities
             # if they didn't insert universities
             # then skip this case
-            if (!$this->createInterestedUniversities($request, $newStudentId))
+            if (!$this->createInterestedUniversities($request, $newStudentId) && isset($request->st_abruniv) && count($request->st_abruniv) > 0)
                 throw new Exception('Failed to store interest universities', 6);
 
 
@@ -614,5 +624,18 @@ class ClientStudentController extends ClientController
                 'message' => "Status has been updated",
             ]
         );
+    }
+
+    public function import(StoreImportExcelRequest $request)
+    {
+
+        $file = $request->file('file');
+
+        $import = new MasterStudentImport();
+        $import->onlySheets('Student');
+        // $import->import($file);
+        Excel::import($import, $file);
+
+        return back()->withSuccess('Student successfully imported');
     }
 }

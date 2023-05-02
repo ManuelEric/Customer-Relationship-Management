@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreClientTeacherCounselorRequest;
+use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -13,6 +14,7 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Imports\TeacherImport;
 use App\Models\School;
 use Exception;
 use Illuminate\Http\Request;
@@ -358,5 +360,16 @@ class ClientTeacherCounselorController extends Controller
     {
         $teacherId = $request->route('teacher');
         return $this->clientEventRepository->getAllClientEventByClientIdDataTables($teacherId);
+    }
+
+    public function import(StoreImportExcelRequest $request)
+    {
+
+        $file = $request->file('file');
+
+        $import = new TeacherImport;
+        $import->import($file);
+
+        return back()->withSuccess('Teacher successfully imported');
     }
 }
