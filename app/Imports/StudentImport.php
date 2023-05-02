@@ -9,6 +9,8 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Models\EdufLead;
+use App\Models\Event;
 use App\Models\Lead;
 use App\Models\Major;
 use App\Models\Program;
@@ -21,6 +23,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class StudentImport implements ToCollection, WithHeadingRow, WithValidation
 {
@@ -76,6 +79,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
                         'last_name' => isset($studentName['lastname']) ? $studentName['lastname'] : null,
                         'mail' => $row['email'],
                         'phone' => $phoneNumber,
+                        'dob' => isset($row['date_of_birth']) ? $row['date_of_birth'] : null,
                         'insta' => isset($row['instagram']) ? $row['instagram'] : null,
                         'state' => isset($row['state']) ? $row['state'] : null,
                         'city' => isset($row['city']) ? $row['city'] : null,
@@ -83,6 +87,8 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
                         'sch_id' => isset($school) ? $school : $newSchool->sch_id,
                         'st_grade' => $row['grade'],
                         'lead_id' => $row['lead'],
+                        'event_id' => isset($row['event']) && $row['lead'] == 'LS004' ? $row['event'] : null,
+                        'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
                         'st_levelinterest' => $row['level_of_interest'],
                         'graduation_year' => isset($row['graduation_year']) ? $row['graduation_year'] : null,
                         'st_abryear' => isset($row['year_of_study_abroad']) ? $row['year_of_study_abroad'] : null,
@@ -141,6 +147,9 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
             $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
 
             // $parentId = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), $data['parents_name'])->get()->pluck('id')->first();
+            $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
+            $getAllEduf = EdufLead::all();
+            $edufair = $getAllEduf->where('organizerName', $data['edufair'])->pluck('id')->first();
 
             DB::commit();
         } catch (Exception $e) {
@@ -154,6 +163,8 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
             'full_name' => $data['full_name'],
             'email' => $data['email'],
             'phone_number' => $data['phone_number'],
+            'date_of_birth' => isset($data['date_of_birth']) ? Date::excelToDateTimeObject($data['date_of_birth'])
+                ->format('Y-m-d') : null,
             'parents_name' => $data['parents_name'],
             'parents_phone' => $data['parents_phone'],
             'school' => $data['school'],
@@ -164,6 +175,8 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
             'city' => $data['city'],
             'address' => $data['address'],
             'lead' => isset($lead) ? $lead : $data['lead'],
+            'event' => isset($event) ? $event : $data['event'],
+            'edufair' => isset($edufair) ? $edufair : $data['edufair'],
             'level_of_interest' => $data['level_of_interest'],
             'interested_program' => $data['interested_program'],
             'year_of_study_abroad' => $data['year_of_study_abroad'],
@@ -180,6 +193,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
             '*.full_name' => ['required'],
             '*.email' => ['required', 'email', 'unique:tbl_client,mail'],
             '*.phone_number' => ['required', 'min:10', 'max:15'],
+            '*.date_of_birth' => ['nullable', 'date'],
             '*.parents_name' => ['nullable'],
             '*.parents_phone' => ['nullable', 'min:10', 'max:15'],
             '*.school' => ['required'],
@@ -190,6 +204,8 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
             '*.city' => ['nullable'],
             '*.address' => ['nullable'],
             '*.lead' => ['required', 'exists:tbl_lead,lead_id'],
+            '*.event' => ['nullable', 'exists:tbl_events,event_id'],
+            '*.edufair' => ['nullable', 'exists:tbl_eduf_lead,id'],
             '*.level_of_interest' => ['required', 'in:High,Medium,Low'],
             '*.interested_program' => ['nullable'],
             '*.year_of_study_abroad' => ['nullable', 'integer'],
