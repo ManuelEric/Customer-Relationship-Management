@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Models\EdufLead;
 use App\Models\Event;
 use App\Models\Program;
@@ -27,6 +28,7 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
 
     use Importable;
     use StandardizePhoneNumberTrait;
+    use CreateCustomPrimaryKeyTrait;
 
     public function collection(Collection $rows)
     {
@@ -76,13 +78,17 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
 
                     $parent = UserClient::create($parentDetails);
                     $parent->roles()->attach($roleId);
-                    $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
+                    // $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
+
+                    if ($row['childrens_name'][0] != null) {
+                        $childs_id = $this->createChildrensIfNotExists($row['childrens_name'], $parent);
+                    }
 
                     // Sync interest program
                     if (isset($row['interested_program'])) {
                         $this->attachInterestedProgram($row['interested_program'], $parent);
 
-                        foreach ($row['childrens_name'] as $child_id) {
+                        foreach ($childs_id as $child_id) {
                             $children = UserClient::find($child_id);
                             $children != null ?  $this->attachInterestedProgram($row['interested_program'], $children) : null;
                         }
@@ -111,7 +117,8 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
 
             $childs = array();
             foreach ($childrens as $key => $children) {
-                $childs[$key] = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), $children)->get()->pluck('id')->first();
+                // $childs[$key] = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), $children)->get()->pluck('id')->first();
+                $childs[$key] =  $children;
             }
 
             $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
@@ -165,6 +172,53 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
             '*.interested_program' => ['nullable'],
             '*.childrens_name' => ['nullable'],
         ];
+    }
+
+    private function createChildrensIfNotExists(array $childrensName, $parent)
+    {
+
+        $children = UserClient::all();
+        $mapChildren = $children->map(
+            function ($item, int $key) {
+                return [
+                    'id' => $item->id,
+                    'full_name' => $item->fullName,
+                ];
+            }
+        );
+        $childs_id = array();
+
+        $i = 0;
+        foreach ($childrensName as $child_name) {
+
+            $existChildren = $mapChildren->where('full_name', $child_name)->first();
+
+            if (!isset($existChildren)) {
+                $name = $this->explodeName($child_name);
+
+                $last_id = UserClient::max('st_id');
+                $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+
+                $childrenDetails = [
+                    'first_name' => $name['firstname'],
+                    'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
+                    'st_id' => $studentId
+                ];
+
+                $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
+
+                $children = UserClient::create($childrenDetails);
+                $children->roles()->attach($roleId);
+                $parent->childrens()->sync($children->id);
+                $childs_id[$i] = $children->id;
+            } else {
+                $parent->childrens()->sync($existChildren['id']);
+                $childs_id[$i] = $existChildren['id'];
+            }
+            $i++;
+        }
+        return $childs_id;
     }
 
     private function attachInterestedProgram($arrayProgramName, $client)
