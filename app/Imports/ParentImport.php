@@ -76,13 +76,29 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
 
                     $parent = UserClient::create($parentDetails);
                     $parent->roles()->attach($roleId);
-                    $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
+                    // $row['childrens_name'][0] != null ?  $parent->childrens()->sync($row['childrens_name']) : null;
+
+                    $childrens = array();
+
+                    if (isset($row['children_name_1'])) {
+                        $childrens[0] = $this->createChildrenIfNotExists($row['children_name_1'], $parent);
+                    }
+
+                    if (isset($row['children_name_2'])) {
+                        $childrens[1] = $this->createChildrenIfNotExists($row['children_name_2'], $parent);
+                    }
+
+                    if (isset($row['children_name_3'])) {
+                        $childrens[2] = $this->createChildrenIfNotExists($row['children_name_3'], $parent);
+                    }
+
+                    $parent->childrens()->sync($childrens);
 
                     // Sync interest program
                     if (isset($row['interested_program'])) {
                         $this->attachInterestedProgram($row['interested_program'], $parent);
 
-                        foreach ($row['childrens_name'] as $child_id) {
+                        foreach ($childrens as $child_id) {
                             $children = UserClient::find($child_id);
                             $children != null ?  $this->attachInterestedProgram($row['interested_program'], $children) : null;
                         }
@@ -107,12 +123,12 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
             }
             $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
 
-            $childrens = explode(', ', $data['childrens_name']);
+            // $childrens = explode(', ', $data['childrens_name']);
 
-            $childs = array();
-            foreach ($childrens as $key => $children) {
-                $childs[$key] = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), $children)->get()->pluck('id')->first();
-            }
+            // $childs = array();
+            // foreach ($childrens as $key => $children) {
+            //     $childs[$key] = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), $children)->get()->pluck('id')->first();
+            // }
 
             $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
             $getAllEduf = EdufLead::all();
@@ -131,7 +147,6 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
             'phone_number' => $data['phone_number'],
             'date_of_birth' => isset($data['date_of_birth']) ? Date::excelToDateTimeObject($data['date_of_birth'])
                 ->format('Y-m-d') : null,
-            'childrens_name' => $data['childrens_name'],
             'instagram' => $data['instagram'],
             'state' => $data['state'],
             'city' => $data['city'],
@@ -141,7 +156,9 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
             'edufair' => isset($edufair) ? $edufair : $data['edufair'],
             'level_of_interest' => $data['level_of_interest'],
             'interested_program' => $data['interested_program'],
-            'childrens_name' => isset($childs) ? $childs : null,
+            'children_name_1' => $data['children_name_1'],
+            'children_name_2' => $data['children_name_2'],
+            'children_name_3' => $data['children_name_3'],
         ];
 
         return $data;
@@ -163,7 +180,9 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
             '*.edufair' => ['nullable', 'exists:tbl_eduf_lead,id'],
             '*.level_of_interest' => ['required', 'in:High,Medium,Low'],
             '*.interested_program' => ['nullable'],
-            '*.childrens_name' => ['nullable'],
+            '*.children_name_1' => ['nullable'],
+            '*.children_name_2' => ['nullable'],
+            '*.children_name_3' => ['nullable'],
         ];
     }
 
@@ -213,5 +232,38 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
         }
 
         return $data;
+    }
+
+    private function createChildrenIfNotExists($childrenName, $parent)
+    {
+
+        $children = UserClient::all();
+        $mapChildren = $children->map(
+            function ($item, int $key) {
+                return [
+                    'id' => $item->id,
+                    'full_name' => $item->fullName,
+                ];
+            }
+        );
+
+        $existChildren = $mapChildren->where('full_name', $childrenName)->first();
+
+        if (!isset($existChildren)) {
+            $name = $this->explodeName($childrenName);
+
+            $childrenDetails = [
+                'first_name' => $name['firstname'],
+                'last_name' => isset($name['lastname']) ? $name['lastname'] : null,
+            ];
+
+            $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['student'])->first();
+
+            $children = UserClient::create($childrenDetails);
+            $children->roles()->attach($roleId);
+            return $children->id;
+        } else {
+            return $existChildren['id'];
+        }
     }
 }

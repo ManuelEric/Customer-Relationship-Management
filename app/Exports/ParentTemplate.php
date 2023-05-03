@@ -30,7 +30,9 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
             'Email',
             'Phone Number',
             'Date of Birth',
-            'Childrens Name',
+            'Children Name 1',
+            'Children Name 2',
+            'Children Name 3',
             'Instagram',
             'State',
             'City',
@@ -74,6 +76,8 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
 
                 $kol_options = Lead::where('main_lead', 'KOL')->get()->pluck('sub_lead')->toArray();
 
+                $childname_options = UserClient::whereRelation('roles', 'role_name', 'Student')->get()->pluck('full_name')->toArray();
+
                 $levelOfInterest_options = [
                     'High',
                     'Medium',
@@ -81,7 +85,7 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
                 ];
 
                 // set dropdown list for first data row
-                $validation = $event->sheet->getCell("J2")->getDataValidation();
+                $validation = $event->sheet->getCell("E2")->getDataValidation();
                 $validation->setType(DataValidation::TYPE_LIST);
                 $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
                 $validation->setAllowBlank(false);
@@ -92,10 +96,10 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
                 $validation->setError('Value is not in list.');
                 $validation->setPromptTitle('Pick from list');
                 $validation->setPrompt('Please pick a value from the drop-down list.');
-                $validation->setFormula1(sprintf('"%s"', implode(',', $lead_options)));
+                $validation->setFormula1(sprintf('"%s"', implode(',', $childname_options)));
 
                 // set dropdown list for first data row
-                $validation = $event->sheet->getCell("K2")->getDataValidation();
+                $validation = $event->sheet->getCell("F2")->getDataValidation();
                 $validation->setType(DataValidation::TYPE_LIST);
                 $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
                 $validation->setAllowBlank(false);
@@ -106,7 +110,21 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
                 $validation->setError('Value is not in list.');
                 $validation->setPromptTitle('Pick from list');
                 $validation->setPrompt('Please pick a value from the drop-down list.');
-                $validation->setFormula1(sprintf('"%s"', implode(',', $event_options)));
+                $validation->setFormula1(sprintf('"%s"', implode(',', $childname_options)));
+
+                // set dropdown list for first data row
+                $validation = $event->sheet->getCell("G2")->getDataValidation();
+                $validation->setType(DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+                $validation->setAllowBlank(false);
+                $validation->setShowInputMessage(true);
+                $validation->setShowErrorMessage(true);
+                $validation->setShowDropDown(true);
+                $validation->setErrorTitle('Input error');
+                $validation->setError('Value is not in list.');
+                $validation->setPromptTitle('Pick from list');
+                $validation->setPrompt('Please pick a value from the drop-down list.');
+                $validation->setFormula1(sprintf('"%s"', implode(',', $childname_options)));
 
                 // set dropdown list for first data row
                 $validation = $event->sheet->getCell("L2")->getDataValidation();
@@ -120,7 +138,7 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
                 $validation->setError('Value is not in list.');
                 $validation->setPromptTitle('Pick from list');
                 $validation->setPrompt('Please pick a value from the drop-down list.');
-                $validation->setFormula1(sprintf('"%s"', implode(',', $partner_options)));
+                $validation->setFormula1(sprintf('"%s"', implode(',', $lead_options)));
 
                 // set dropdown list for first data row
                 $validation = $event->sheet->getCell("M2")->getDataValidation();
@@ -134,7 +152,7 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
                 $validation->setError('Value is not in list.');
                 $validation->setPromptTitle('Pick from list');
                 $validation->setPrompt('Please pick a value from the drop-down list.');
-                $validation->setFormula1(sprintf('"%s"', implode(',', $eduf_options)));
+                $validation->setFormula1(sprintf('"%s"', implode(',', $event_options)));
 
                 // set dropdown list for first data row
                 $validation = $event->sheet->getCell("N2")->getDataValidation();
@@ -148,10 +166,38 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
                 $validation->setError('Value is not in list.');
                 $validation->setPromptTitle('Pick from list');
                 $validation->setPrompt('Please pick a value from the drop-down list.');
-                $validation->setFormula1(sprintf('"%s"', implode(',', $kol_options)));
+                $validation->setFormula1(sprintf('"%s"', implode(',', $partner_options)));
 
                 // set dropdown list for first data row
                 $validation = $event->sheet->getCell("O2")->getDataValidation();
+                $validation->setType(DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+                $validation->setAllowBlank(false);
+                $validation->setShowInputMessage(true);
+                $validation->setShowErrorMessage(true);
+                $validation->setShowDropDown(true);
+                $validation->setErrorTitle('Input error');
+                $validation->setError('Value is not in list.');
+                $validation->setPromptTitle('Pick from list');
+                $validation->setPrompt('Please pick a value from the drop-down list.');
+                $validation->setFormula1(sprintf('"%s"', implode(',', $eduf_options)));
+
+                // set dropdown list for first data row
+                $validation = $event->sheet->getCell("P2")->getDataValidation();
+                $validation->setType(DataValidation::TYPE_LIST);
+                $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+                $validation->setAllowBlank(false);
+                $validation->setShowInputMessage(true);
+                $validation->setShowErrorMessage(true);
+                $validation->setShowDropDown(true);
+                $validation->setErrorTitle('Input error');
+                $validation->setError('Value is not in list.');
+                $validation->setPromptTitle('Pick from list');
+                $validation->setPrompt('Please pick a value from the drop-down list.');
+                $validation->setFormula1(sprintf('"%s"', implode(',', $kol_options)));
+
+                // set dropdown list for first data row
+                $validation = $event->sheet->getCell("Q2")->getDataValidation();
                 $validation->setType(DataValidation::TYPE_LIST);
                 $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
                 $validation->setAllowBlank(false);
@@ -175,8 +221,8 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('A1:P1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'D9D9D9'],]);
-        $sheet->getStyle('A1:P1')->getFont()->setSize(14);
+        $sheet->getStyle('A1:R1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'D9D9D9'],]);
+        $sheet->getStyle('A1:R1')->getFont()->setSize(14);
         foreach ($sheet->getColumnIterator() as $column) {
             $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
         }
