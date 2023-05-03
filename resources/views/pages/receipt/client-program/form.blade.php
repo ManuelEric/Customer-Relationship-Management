@@ -431,25 +431,25 @@
                 allowClear: true
             });
 
-            $("#send-rec-client-other").on('click', function(e) {
-                e.preventDefault()
-                showLoading()
+            // $("#send-rec-client-other").on('click', function(e) {
+            //     e.preventDefault()
+            //     showLoading()
 
-                axios
-                    .get(
-                        '{{ route('receipt.client-program.send_to_client', ['receipt' => $receipt->id, 'currency' => 'other']) }}'
-                    )
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Receipt has been send to client')
-                        $(".step-five-other").addClass('active');
-                    })
-                    .catch(error => {
-                        notification('error',
-                            'Something went wrong when sending receipt to client. Please try again');
-                        swal.close()
-                    })
-            })
+            //     axios
+            //         .get(
+            //             '{{ route('receipt.client-program.send_to_client', ['receipt' => $receipt->id, 'currency' => 'other']) }}'
+            //         )
+            //         .then(response => {
+            //             swal.close()
+            //             notification('success', 'Receipt has been send to client')
+            //             $(".step-five-other").addClass('active');
+            //         })
+            //         .catch(error => {
+            //             notification('error',
+            //                 'Something went wrong when sending receipt to client. Please try again');
+            //             swal.close()
+            //         })
+            // })
 
             $("#request-acc").on('click', function(e) {
                 e.preventDefault();
