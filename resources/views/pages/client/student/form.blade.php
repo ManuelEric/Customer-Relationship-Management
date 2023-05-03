@@ -90,17 +90,17 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            {{-- <div class="col-md-3">
                                 <div class="mb-2">
                                     <label>Country <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="country" type="text" class="form-control form-control-sm"
-                                        placeholder="Country" id="country" value="{{ isset($student->state) ? $student->state : old('state') }}">
+                                        placeholder="Country" id="country" value="{{ isset($student->state) ? $student->state : old('country') }}">
                                     @error('state')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
-                            </div>
-                            <div class="col-md-3">
+                            </div> --}}
+                            <div class="col-md-4">
                                 <div class="mb-2">
                                     <label>State / Region <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="state" type="text" class="form-control form-control-sm"
@@ -110,7 +110,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="mb-2">
                                     <label>City <i class='text-danger font-weight-bold'>*</i></label>
                                     <input name="city" type="text" class="form-control form-control-sm"
@@ -120,7 +120,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="mb-2">
                                     <label>Postal Code</label>
                                     <input name="postal_code" type="text" class="form-control form-control-sm"
@@ -729,7 +729,7 @@
 
             var html = ""
             var link = "{{ route('student.create') }}" + get
-            Swal.showLoading()
+            showLoading()
             await axios.get(link)
                 .then(function(response) {
 
