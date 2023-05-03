@@ -102,7 +102,7 @@
                             <div class="d-flex gap-1 justify-content-center">
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Preview Invoice">
-                                    <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}" class="text-info" target="blank">
+                                    <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}?key=dashboard" class="text-info" target="blank">
                                         <i class="bi bi-eye-fill"></i>
                                     </a>
                                 </div>
