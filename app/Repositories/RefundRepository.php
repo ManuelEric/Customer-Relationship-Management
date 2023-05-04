@@ -14,7 +14,8 @@ class RefundRepository implements RefundRepositoryInterface
 
     public function getAllRefundDataTables($status)
     {
-        $refunded_invoice = Refund::select('inv_id')->get();
+        $refunded_invoice = Refund::select('inv_id')->get()->toArray();
+        $refunded_invoiceB2b = Refund::pluck('invb2b_id')->toArray();
         switch ($status) {
             case "needed":
             default:
@@ -117,41 +118,71 @@ class RefundRepository implements RefundRepositoryInterface
                 break;
 
             case "list":
-                $query = Refund::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_refund.inv_id')->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_refund.invb2b_id')->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')->leftJoin('tbl_reason as b2c_c_r', 'b2c_c_r.reason_id', '=', 'tbl_client_prog.reason_id')->leftJoin('tbl_reason as b2b_s_r', 'b2b_s_r.reason_id', '=', 'tbl_sch_prog.reason_id')->leftJoin('tbl_reason as b2b_p_r', 'b2b_p_r.reason_id', '=', 'tbl_partner_prog.reason_id')->leftJoin('users as b2c_c_u', 'b2c_c_u.id', '=', 'tbl_client_prog.empl_id')->leftJoin('users as b2b_s_u', 'b2b_s_u.id', '=', 'tbl_sch_prog.empl_id')->leftJoin('users as b2b_p_u', 'b2b_p_u.id', '=', 'tbl_partner_prog.empl_id')->leftJoin('program as b2c_c_p', 'b2c_c_p.prog_id', '=', 'tbl_client_prog.prog_id')->leftJoin('program as b2b_s_p', 'b2b_s_p.prog_id', '=', 'tbl_sch_prog.prog_id')->leftJoin('program as b2b_p_p', 'b2b_p_p.prog_id', '=', 'tbl_partner_prog.prog_id')->leftJoin('tbl_main_prog as b2c_c_mp', 'b2c_c_mp.id', '=', 'b2c_c_p.main_prog_id')->leftJoin('tbl_main_prog as b2b_s_mp', 'b2b_s_mp.id', '=', 'b2b_s_p.main_prog_id')->leftJoin('tbl_main_prog as b2b_p_mp', 'b2b_p_mp.id', '=', 'b2b_p_p.main_prog_id')->leftJoin('tbl_sub_prog as b2c_c_sp', 'b2c_c_sp.id', '=', 'b2c_c_p.sub_prog_id')->leftJoin('tbl_sub_prog as b2b_s_sp', 'b2b_s_sp.id', '=', 'b2b_s_p.sub_prog_id')->leftJoin('tbl_sub_prog as b2b_p_sp', 'b2b_p_sp.id', '=', 'b2b_p_p.sub_prog_id')->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->leftJoin('tbl_receipt as b2c_receipt', 'b2c_receipt.inv_id', '=', 'tbl_inv.inv_id')->leftJoin('tbl_receipt as b2b_receipt', 'b2b_receipt.invb2b_id', '=', 'tbl_invb2b.invb2b_id')->select([
-                    DB::raw('(CASE
-                                WHEN tbl_refund.inv_id IS NOT NULL THEN CONCAT(tbl_client.first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(tbl_client.last_name COLLATE utf8mb4_unicode_ci, ""))
-                                WHEN tbl_refund.invb2b_id IS NOT NULL THEN 
-                                    CASE
-                                        WHEN tbl_invb2b.schprog_id IS NOT NULL THEN tbl_sch.sch_name
-                                        WHEN tbl_invb2b.partnerprog_id IS NOT NULL THEN tbl_corp.corp_name
-                                    END
-                            END) as client_fullname'),
-                    DB::raw('(CASE 
-                                WHEN b2c_c_p.prog_id IS NOT NULL THEN b2c_c_p.program_name
-                                WHEN b2b_s_p.prog_id IS NOT NULL THEN b2b_s_p.program_name
-                                WHEN b2b_p_p.prog_id IS NOT NULL THEN b2b_p_p.program_name
-                            END) as program_name'),
-                    DB::raw('(CASE 
-                                WHEN tbl_refund.inv_id IS NOT NULL THEN tbl_inv.inv_id
-                                WHEN tbl_refund.invb2b_id IS NOT NULL THEN tbl_invb2b.invb2b_id
-                            END) as invoiceId'),
-                    DB::raw('(CASE 
-                                WHEN tbl_refund.inv_id IS NOT NULL THEN DATEDIFF(tbl_inv.inv_duedate, now())
-                                WHEN tbl_refund.invb2b_id IS NOT NULL THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
-                            END) as date_difference'),
-                    DB::raw('(CASE
-                                WHEN tbl_refund.inv_id IS NOT NULL THEN tbl_inv.inv_totalprice_idr
-                                WHEN tbl_refund.invb2b_id IS NOT NULL THEN tbl_invb2b.invb2b_totpriceidr
-                            END) as total_price'),
-                    'tbl_refund.id as refund_id',
-                    'tbl_refund.refund_amount',
-                    'tbl_refund.tax_amount',
-                    'tbl_refund.total_refunded',
-                    DB::raw('(CASE 
-                                WHEN tbl_refund.inv_id IS NOT NULL THEN b2c_receipt.id
-                                WHEN tbl_refund.invb2b_id IS NOT NULL THEN b2b_receipt.id
-                            END) as id')
-                ]);
+                $query = Refund::
+                    leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_refund.inv_id')->
+                    leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_refund.invb2b_id')->
+                    leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')->
+                    leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')->
+                    leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')->
+                    leftJoin('tbl_reason as b2c_c_r', 'b2c_c_r.reason_id', '=', 'tbl_client_prog.reason_id')->
+                    leftJoin('tbl_reason as b2b_s_r', 'b2b_s_r.reason_id', '=', 'tbl_sch_prog.reason_id')->
+                    leftJoin('tbl_reason as b2b_p_r', 'b2b_p_r.reason_id', '=', 'tbl_partner_prog.reason_id')->
+                    leftJoin('users as b2c_c_u', 'b2c_c_u.id', '=', 'tbl_client_prog.empl_id')->
+                    leftJoin('users as b2b_s_u', 'b2b_s_u.id', '=', 'tbl_sch_prog.empl_id')->
+                    leftJoin('users as b2b_p_u', 'b2b_p_u.id', '=', 'tbl_partner_prog.empl_id')->
+                    leftJoin('program as b2c_c_p', 'b2c_c_p.prog_id', '=', 'tbl_client_prog.prog_id')->
+                    leftJoin('program as b2b_s_p', 'b2b_s_p.prog_id', '=', 'tbl_sch_prog.prog_id')->
+                    leftJoin('program as b2b_p_p', 'b2b_p_p.prog_id', '=', 'tbl_partner_prog.prog_id')->
+                    leftJoin('tbl_main_prog as b2c_c_mp', 'b2c_c_mp.id', '=', 'b2c_c_p.main_prog_id')->
+                    leftJoin('tbl_main_prog as b2b_s_mp', 'b2b_s_mp.id', '=', 'b2b_s_p.main_prog_id')->
+                    leftJoin('tbl_main_prog as b2b_p_mp', 'b2b_p_mp.id', '=', 'b2b_p_p.main_prog_id')->
+                    leftJoin('tbl_sub_prog as b2c_c_sp', 'b2c_c_sp.id', '=', 'b2c_c_p.sub_prog_id')->
+                    leftJoin('tbl_sub_prog as b2b_s_sp', 'b2b_s_sp.id', '=', 'b2b_s_p.sub_prog_id')->
+                    leftJoin('tbl_sub_prog as b2b_p_sp', 'b2b_p_sp.id', '=', 'b2b_p_p.sub_prog_id')->
+                    leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->
+                    leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->
+                    leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->
+                    leftJoin('tbl_receipt as b2c_receipt', 'b2c_receipt.inv_id', '=', 'tbl_inv.inv_id')->
+                    leftJoin('tbl_receipt as b2b_receipt', 'b2b_receipt.invb2b_id', '=', 'tbl_invb2b.invb2b_id')->
+                    select([
+                        DB::raw('(CASE
+                                    WHEN tbl_refund.inv_id IS NOT NULL THEN CONCAT(tbl_client.first_name COLLATE utf8mb4_unicode_ci, " ", COALESCE(tbl_client.last_name COLLATE utf8mb4_unicode_ci, ""))
+                                    WHEN tbl_refund.invb2b_id IS NOT NULL THEN 
+                                        CASE
+                                            WHEN tbl_invb2b.schprog_id IS NOT NULL THEN tbl_sch.sch_name
+                                            WHEN tbl_invb2b.partnerprog_id IS NOT NULL THEN tbl_corp.corp_name
+                                        END
+                                END) as client_fullname'),
+                        DB::raw('(CASE 
+                                    WHEN b2c_c_p.prog_id IS NOT NULL THEN b2c_c_p.program_name
+                                    WHEN b2b_s_p.prog_id IS NOT NULL THEN b2b_s_p.program_name
+                                    WHEN b2b_p_p.prog_id IS NOT NULL THEN b2b_p_p.program_name
+                                END) as program_name'),
+                        DB::raw('(CASE 
+                                    WHEN tbl_refund.inv_id IS NOT NULL THEN tbl_inv.inv_id
+                                    WHEN tbl_refund.invb2b_id IS NOT NULL THEN tbl_invb2b.invb2b_id
+                                END) as invoiceId'),
+                        DB::raw('(CASE
+                                    WHEN tbl_refund.inv_id IS NOT NULL THEN b2c_receipt.receipt_cat
+                                    WHEN tbl_refund.invb2b_id IS NOT NULL THEN b2b_receipt.receipt_cat
+                                END) as receipt_cat'),
+                        DB::raw('(CASE 
+                                    WHEN tbl_refund.inv_id IS NOT NULL THEN DATEDIFF(tbl_inv.inv_duedate, now())
+                                    WHEN tbl_refund.invb2b_id IS NOT NULL THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
+                                END) as date_difference'),
+                        DB::raw('(CASE
+                                    WHEN tbl_refund.inv_id IS NOT NULL THEN tbl_inv.inv_totalprice_idr
+                                    WHEN tbl_refund.invb2b_id IS NOT NULL THEN tbl_invb2b.invb2b_totpriceidr
+                                END) as total_price'),
+                        'tbl_refund.id as refund_id',
+                        'tbl_refund.refund_amount',
+                        'tbl_refund.tax_amount',
+                        'tbl_refund.total_refunded',
+                        DB::raw('(CASE 
+                                    WHEN tbl_refund.inv_id IS NOT NULL THEN b2c_receipt.id
+                                    WHEN tbl_refund.invb2b_id IS NOT NULL THEN b2b_receipt.id
+                                END) as id')
+                    ]);
                 break;
         }
 
