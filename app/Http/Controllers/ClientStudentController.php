@@ -119,7 +119,7 @@ class ClientStudentController extends ClientController
 
     public function store(StoreClientStudentRequest $request)
     {
-        $data = $this->initializeVariablesForStoreAndUpdate($request);
+        $data = $this->initializeVariablesForStoreAndUpdate('student', $request);
 
         DB::beginTransaction();
         try {
@@ -308,7 +308,7 @@ class ClientStudentController extends ClientController
 
     public function update(StoreClientStudentRequest $request)
     {
-        $data = $this->initializeVariablesForStoreAndUpdate($request);
+        $data = $this->initializeVariablesForStoreAndUpdate('student', $request);
 
         DB::beginTransaction();
         try {
@@ -325,6 +325,8 @@ class ClientStudentController extends ClientController
             if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
                 throw new Exception('Failed to store new parent', 2);
 
+            # removing the kol_lead_id & pr_id from studentDetails array
+            # if the data still exists it will error because there are no field with kol_lead_id & pr_id
             unset($data['studentDetails']['kol_lead_id']);
             unset($data['studentDetails']['pr_id']);
 

@@ -375,12 +375,13 @@
                                 @if (isset($leads) && count($leads) > 0)
                                 @foreach ($leads as $lead)
                                     <option data-lead="{{ $lead->main_lead }}" value="{{ $lead->lead_id }}"
-                                            {{ old('lead_id') == $lead->lead_id ? "selected" : null }}
+                                            @selected(old('lead_id') == $lead->lead_id)
                                         >{{ $lead->main_lead }}</option>
                                 @endforeach
                                 {{-- <option value="program">ALL-in Event</option>
                                 <option value="edufair">Edufair External</option> --}}
-                                <option data-lead="KOL" value="kol" {{ old('lead_id') == "kol" ? "selected" : null }}>KOL</option>
+                                <option data-lead="KOL" value="kol" 
+                                    @selected(old('lead_id') == "kol")>KOL</option>
                                 @endif
                             </select>
                             @error('lead_id')
@@ -569,11 +570,8 @@
                                 @if (isset($majors))
                                     @foreach ($majors as $major)
                                         <option value="{{ $major->id }}"
-                                                @if (isset($student->interestMajor))
-                                                    {{ in_array($major->id, $student->interestMajor()->pluck('tbl_major.id')->toArray()) ? "selected" : null }}
-                                                @else
-                                                    {{ old('st_abrmajor') == $major->id ? "selected" : null }}
-                                                @endif
+                                            @selected(isset($student->interestMajor) && in_array($major->id, $student->interestMajor()->pluck('tbl_major.id')->toArray()))
+                                            @selected(old('st_abrmajor') == $major->id)
                                             >{{ $major->name }}</option>
                                     @endforeach
                                 @endif
@@ -801,6 +799,15 @@
                     $("#countryStudy").val(st_abrcountry).trigger('change')
     
                 @endif
+
+                @if (old('st_abrmajor'))
+                    var st_abrmajor = new Array();
+                    @foreach (old('st_abrmajor') as $key => $val)
+                        st_abrmajor.push("{{ $val }}")
+                    @endforeach
+
+                    $("#major").val(st_abrmajor).trigger('change')
+                @endif
     
                 @if (isset($student->interestPrograms))
                     var prog_id = new Array();
@@ -821,7 +828,7 @@
                 @endif
     
                 @if (isset($student->lead_id))
-                    @if ($student->lead_id == "LS017")
+                    @if ($student->lead->main_lead == "KOL")
                         $("#leadSource").select2().val("kol").trigger('change')
                     @else
                         $("#leadSource").select2().val("{{ $student->lead_id }}").trigger('change')
