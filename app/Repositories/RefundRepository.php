@@ -18,18 +18,47 @@ class RefundRepository implements RefundRepositoryInterface
         switch ($status) {
             case "needed":
             default:
-                $query = Receipt::leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')->leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_receipt.invb2b_id')->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')->leftJoin('tbl_reason as b2c_c_r', 'b2c_c_r.reason_id', '=', 'tbl_client_prog.reason_id')->leftJoin('tbl_reason as b2b_s_r', 'b2b_s_r.reason_id', '=', 'tbl_sch_prog.reason_id')->leftJoin('tbl_reason as b2b_p_r', 'b2b_p_r.reason_id', '=', 'tbl_partner_prog.reason_id')->leftJoin('users as b2c_c_u', 'b2c_c_u.id', '=', 'tbl_client_prog.empl_id')->leftJoin('users as b2b_s_u', 'b2b_s_u.id', '=', 'tbl_sch_prog.empl_id')->leftJoin('users as b2b_p_u', 'b2b_p_u.id', '=', 'tbl_partner_prog.empl_id')->leftJoin('program as b2c_c_p', 'b2c_c_p.prog_id', '=', 'tbl_client_prog.prog_id')->leftJoin('program as b2b_s_p', 'b2b_s_p.prog_id', '=', 'tbl_sch_prog.prog_id')->leftJoin('program as b2b_p_p', 'b2b_p_p.prog_id', '=', 'tbl_partner_prog.prog_id')->leftJoin('tbl_main_prog as b2c_c_mp', 'b2c_c_mp.id', '=', 'b2c_c_p.main_prog_id')->leftJoin('tbl_main_prog as b2b_s_mp', 'b2b_s_mp.id', '=', 'b2b_s_p.main_prog_id')->leftJoin('tbl_main_prog as b2b_p_mp', 'b2b_p_mp.id', '=', 'b2b_p_p.main_prog_id')->leftJoin('tbl_sub_prog as b2c_c_sp', 'b2c_c_sp.id', '=', 'b2c_c_p.sub_prog_id')->leftJoin('tbl_sub_prog as b2b_s_sp', 'b2b_s_sp.id', '=', 'b2b_s_p.sub_prog_id')->leftJoin('tbl_sub_prog as b2b_p_sp', 'b2b_p_sp.id', '=', 'b2b_p_p.sub_prog_id')->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->
+                $query = Receipt::
+                    leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', 'tbl_receipt.inv_id')->
+                    leftJoin('tbl_invb2b', 'tbl_invb2b.invb2b_id', '=', 'tbl_receipt.invb2b_id')->
+                    leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')->
+                    leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')->
+                    leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')->
+                    leftJoin('tbl_reason as b2c_c_r', 'b2c_c_r.reason_id', '=', 'tbl_client_prog.reason_id')->
+                    leftJoin('tbl_reason as b2b_s_r', 'b2b_s_r.reason_id', '=', 'tbl_sch_prog.reason_id')->
+                    leftJoin('tbl_reason as b2b_p_r', 'b2b_p_r.reason_id', '=', 'tbl_partner_prog.reason_id')->
+                    leftJoin('users as b2c_c_u', 'b2c_c_u.id', '=', 'tbl_client_prog.empl_id')->
+                    leftJoin('users as b2b_s_u', 'b2b_s_u.id', '=', 'tbl_sch_prog.empl_id')->
+                    leftJoin('users as b2b_p_u', 'b2b_p_u.id', '=', 'tbl_partner_prog.empl_id')->
+                    leftJoin('program as b2c_c_p', 'b2c_c_p.prog_id', '=', 'tbl_client_prog.prog_id')->
+                    leftJoin('program as b2b_s_p', 'b2b_s_p.prog_id', '=', 'tbl_sch_prog.prog_id')->
+                    leftJoin('program as b2b_p_p', 'b2b_p_p.prog_id', '=', 'tbl_partner_prog.prog_id')->
+                    leftJoin('tbl_main_prog as b2c_c_mp', 'b2c_c_mp.id', '=', 'b2c_c_p.main_prog_id')->
+                    leftJoin('tbl_main_prog as b2b_s_mp', 'b2b_s_mp.id', '=', 'b2b_s_p.main_prog_id')->
+                    leftJoin('tbl_main_prog as b2b_p_mp', 'b2b_p_mp.id', '=', 'b2b_p_p.main_prog_id')->
+                    leftJoin('tbl_sub_prog as b2c_c_sp', 'b2c_c_sp.id', '=', 'b2c_c_p.sub_prog_id')->
+                    leftJoin('tbl_sub_prog as b2b_s_sp', 'b2b_s_sp.id', '=', 'b2b_s_p.sub_prog_id')->
+                    leftJoin('tbl_sub_prog as b2b_p_sp', 'b2b_p_sp.id', '=', 'b2b_p_p.sub_prog_id')->
+                    leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->
+                    leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')->
+                    leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->
+                    leftJoin('tbl_refund as b2c_refund', 'b2c_refund.inv_id', '=', 'tbl_inv.inv_id')->
+                    leftJoin('tbl_refund as b2b_refund', 'b2b_refund.invb2b_id', '=', 'tbl_invb2b.invb2b_id')->
                     // whereRaw('tbl_receipt.inv_id NOT IN (SELECT inv_id FROM tbl_refund)')->
                     // whereRaw('(CASE 
                     //     WHEN tbl_receipt.receipt_cat = "student" THEN tbl_receipt.inv_id NOT IN (SELECT inv_id FROM tbl_refund)
                     //     WHEN tbl_receipt.receipt_cat = "school" OR tbl_receipt.receipt_cat = "partner" THEN tbl_receipt.invb2b_id NOT IN (SELECT invb2b_id FROM tbl_refund)
                     // END)')->
-                    where(DB::raw('(CASE 
-                                WHEN tbl_receipt.receipt_cat = "student" THEN tbl_receipt.inv_id NOT IN (SELECT inv_id FROM tbl_refund)
-                                WHEN tbl_receipt.receipt_cat = "school" OR tbl_receipt.receipt_cat = "partner" THEN tbl_receipt.invb2b_id NOT IN (SELECT invb2b_id FROM tbl_refund)
-                            END)'))->where(function ($q) {
+                    // where(DB::raw('(CASE 
+                    //             WHEN tbl_receipt.receipt_cat = "student" THEN tbl_receipt.inv_id NOT IN (SELECT inv_id FROM tbl_refund)
+                    //             WHEN tbl_receipt.receipt_cat = "school" OR tbl_receipt.receipt_cat = "partner" THEN tbl_receipt.invb2b_id NOT IN (SELECT invb2b_id FROM tbl_refund)
+                    //         END)'))->       
+                    whereNull('b2c_refund.inv_id')->
+                    whereNull('b2b_refund.invb2b_id')->
+                    where(function ($q) {
                         $q->where('tbl_client_prog.status', 3)->orWhere('tbl_sch_prog.status', 3)->orWhere('tbl_partner_prog.status', 3);
-                    })->select([
+                    })->
+                    select([
                         DB::raw('(CASE 
                                     WHEN tbl_receipt.receipt_cat = "student" THEN tbl_client_prog.refund_date
                                     WHEN tbl_receipt.receipt_cat = "school" THEN tbl_sch_prog.refund_date
