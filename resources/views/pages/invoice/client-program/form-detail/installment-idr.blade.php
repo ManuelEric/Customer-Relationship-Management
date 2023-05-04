@@ -75,7 +75,7 @@
                     </div>
                     <div class="col-md-3">
                         <label for="">Due Date <sup class="text-danger">*</sup></label>
-                        <input type="date" name="invdtl_duedate[]" class="form-control form-control-sm " value="{{ isset($invoice->invoiceDetail) ? $invoice->invoiceDetail[$i]->invdtl_duedate : old('invdtl_duedate')[$i] }}" {{ $disabled }}>
+                        <input type="date" name="invdtl_duedate[]" class="form-control form-control-sm " value="{{ isset($invoice->invoiceDetail) ? date('Y-m-d', strtotime($invoice->invoiceDetail[$i]->invdtl_duedate)) : old('invdtl_duedate')[$i] }}" {{ $disabled }}>
                         @error('invdtl_duedate.'.$i)
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror

@@ -152,7 +152,7 @@
                                     @else
                                         <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                             data-bs-title="Print Invoice">
-                                            <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}" class="text-info">
+                                            <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}" class="text-info" target="blank">
                                                 <i class="bi bi-printer"></i>
                                             </a>
                                         </div>
