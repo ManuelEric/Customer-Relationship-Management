@@ -93,8 +93,9 @@
                                         </a>
                                     </div>
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Send to Client">
-                                        <a href="#" class="text-info" id="send-inv-client-idr">
+                                        data-bs-title="Send to Client"
+                                        onclick="confirmSendToClient('{{ url('/') }}/invoice/corporate-program/{{ $invoicePartner->invb2b_num }}/send', 'idr', 'invoice')">
+                                        <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
                                     </div>
@@ -135,8 +136,9 @@
                                             </a>
                                         </div>
                                         <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                            data-bs-title="Send to Client">
-                                            <a href="#" class="text-info" id="send-inv-client-other">
+                                            data-bs-title="Send to Client"
+                                            onclick="confirmSendToClient('{{ url('/') }}/invoice/corporate-program/{{ $invoicePartner->invb2b_num }}/send', 'other', 'invoice')">
+                                            <a href="#" class="text-info">
                                                 <i class="bi bi-send"></i>
                                             </a>
                                         </div>
@@ -791,50 +793,25 @@
     </script>
 
     <script>
+        function sendToClient(link) {
+            
+            showLoading()
+            axios
+                .get(link)
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Invoice has been send to client')
+                    setTimeout(location.reload.bind(location), 3000);
+                    
+                    $("#sendToClient--modal").modal('hide');
+                })
+                .catch(error => {
+                    notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                    swal.close()
+                })
+        }
 
         @if (isset($invoicePartner))
-            $("#send-inv-client-idr").on('click', function(e) {
-                e.preventDefault()
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get('{{ route('invoice-corp.send_to_client', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'idr']) }}')
-                    .then(response => {
-                        notification('success', response.data.message)
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        swal.close()
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Failed...',
-                            text: error.response.data.message,
-                        })
-                        // notification('error', error.response.data.message);
-                    })
-                })
-
-            $("#send-inv-client-other").on('click', function(e) {
-                e.preventDefault()
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get('{{ route('invoice-corp.send_to_client', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'other']) }}')
-                    .then(response => {
-                        swal.close()
-                        notification('success', response.data.message)
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        swal.close()
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Failed...',
-                            text: error.response.data.message,
-                        })
-                        // notification('error', error.response.data.message);
-                    })
-            })
 
             $("#request-acc").on('click', function(e) {
                 e.preventDefault();

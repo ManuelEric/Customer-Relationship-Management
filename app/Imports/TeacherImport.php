@@ -16,7 +16,9 @@ use App\Models\Role;
 use App\Models\School;
 use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-
+use App\Models\EdufLead;
+use App\Models\Event;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
 {
@@ -66,12 +68,15 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
                         'last_name' => isset($teacherName['lastname']) ? $teacherName['lastname'] : null,
                         'mail' => $row['email'],
                         'phone' => $phoneNumber,
+                        'dob' => isset($row['date_of_birth']) ? $row['date_of_birth'] : null,
                         'insta' => isset($row['instagram']) ? $row['instagram'] : null,
                         'state' => isset($row['state']) ? $row['state'] : null,
                         'city' => isset($row['city']) ? $row['city'] : null,
                         'address' => isset($row['address']) ? $row['address'] : null,
                         'sch_id' => isset($school) ? $school : $newSchool->sch_id,
                         'lead_id' => $row['lead'],
+                        'event_id' => isset($row['event']) && $row['lead'] == 'LS004' ? $row['event'] : null,
+                        'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
                         'st_levelinterest' => $row['level_of_interest'],
                     ];
                     $roleId = Role::whereRaw('LOWER(role_name) = (?)', ['teacher/counselor'])->first();
@@ -83,7 +88,7 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Import parent failed : ' . $e->getMessage());
+            Log::error('Import teacher failed : ' . $e->getMessage());
         }
     }
 
@@ -98,23 +103,31 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
             }
             $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
 
+            $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
+            $getAllEduf = EdufLead::all();
+            $edufair = $getAllEduf->where('organizerName', $data['edufair'])->pluck('id')->first();
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Import parent failed : ' . $e->getMessage());
+            Log::error('Import teacher failed : ' . $e->getMessage());
         }
 
         $data = [
             'full_name' => $data['full_name'],
             'email' => $data['email'],
             'phone_number' => $data['phone_number'],
+            'date_of_birth' => isset($data['date_of_birth']) ? Date::excelToDateTimeObject($data['date_of_birth'])
+                ->format('Y-m-d') : null,
             'instagram' => $data['instagram'],
             'state' => $data['state'],
             'city' => $data['city'],
             'address' => $data['address'],
             'school' => $data['school'],
             'lead' => isset($lead) ? $lead : $data['lead'],
+            'event' => isset($event) ? $event : $data['event'],
+            'edufair' => isset($edufair) ? $edufair : $data['edufair'],
             'level_of_interest' => $data['level_of_interest'],
         ];
 
@@ -127,12 +140,15 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
             '*.full_name' => ['required'],
             '*.email' => ['required', 'email', 'unique:tbl_client,mail'],
             '*.phone_number' => ['required', 'min:10', 'max:15'],
+            '*.date_of_birth' => ['nullable', 'date'],
             '*.instagram' => ['nullable', 'unique:tbl_client,insta'],
             '*.state' => ['nullable'],
             '*.city' => ['nullable'],
             '*.address' => ['nullable'],
             '*.school' => ['required'],
             '*.lead' => ['required', 'exists:tbl_lead,lead_id'],
+            '*.event' => ['nullable', 'exists:tbl_events,event_id'],
+            '*.edufair' => ['nullable', 'exists:tbl_eduf_lead,id'],
             '*.level_of_interest' => ['required', 'in:High,Medium,Low'],
         ];
     }
