@@ -603,11 +603,7 @@ class InvoiceSchoolController extends Controller
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoiceSch->invb2b_id;
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
-        $program_name = $invoiceSch->sch_prog->program->prog_program;
-
-        if ($invoiceSch->sch_prog->program->sub_prog_id > 0) {
-            $program_name = $invoiceSch->sch_prog->program->prog_sub . ' - ' . $invoiceSch->sch_prog->program->prog_program;
-        }
+        $program_name = $invoiceSch->sch_prog->program->program_name;
 
         if (!isset($invoiceSch->sch_prog->user)) {
             return response()->json(
