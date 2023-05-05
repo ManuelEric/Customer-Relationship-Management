@@ -18,7 +18,16 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4> {{ $invoiceRef->referral->partner->corp_name }} </h4>
-                    <h6> {{ $invoiceRef->referral->additional_prog_name }} </h6>
+                    <a
+                        href="{{ route('referral.show', ['referral' =>  $invoiceRef->referral->id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">                    
+                        <h6 class="d-flex flex-column">
+                            @if (isset($invoiceRef->referral->prog_id))
+                                {{ $invoiceRef->referral->program->program_name }}
+                            @else
+                                {{ $invoiceRef->referral->additional_prog_name }}
+                            @endif
+                        </h6>
+                    </a> 
                 </div>
             </div>
 
