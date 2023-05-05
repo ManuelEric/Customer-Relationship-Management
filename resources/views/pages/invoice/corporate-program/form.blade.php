@@ -27,8 +27,12 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $partnerProgram->corp->corp_name }}</h4>
-                    <h6>{{ $partnerProgram->program->program_name }}
-                    </h6>
+                    <a
+                        href="{{ route('corporate_prog.detail.show', ['corp' =>  $partnerProgram->corp->corp_id, 'detail' => $partnerProgram->id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">
+                        <h6 class="d-flex flex-column">
+                            {{ $partnerProgram->program->program_name }}
+                        </h6>
+                    </a>           
                 </div>
             </div>
 

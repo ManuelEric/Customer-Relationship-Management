@@ -186,6 +186,20 @@
             var ws = XLSX.utils.table_to_sheet(document.getElementById("tbl_unpaid_payment"));
             XLSX.utils.book_append_sheet(workbook, ws, "Unpaid Payment");
 
+            var ref = workbook.Sheets['Unpaid Payment']['!fullref'];
+            var col = ref.slice(ref.indexOf(':') + 1);
+            var last_col = parseInt(col.slice(col.indexOf('K') + 1)) - 1;
+
+            for(var i = 2; i <= last_col; i++) {
+                var index = 'K' + i;
+                if(workbook.Sheets['Unpaid Payment'][index].v != '-'){
+                    workbook.Sheets['Unpaid Payment'][index].v =  parseInt(workbook.Sheets['Unpaid Payment'][index].v.replace("Rp.", "").replaceAll(".", ""));
+                    workbook.Sheets['Unpaid Payment'][index].t = 'n';
+                    workbook.Sheets['Unpaid Payment'][index].z = 'Rp#,##0.00;(Rp#,##0.00)';
+                }
+            }
+            workbook.Sheets['Unpaid Payment'][col] = { t:'n', z:'Rp#,##0.00;(Rp#,##0.00)', f: "SUM(K2:" + index +")", F:col + ":" + col }
+
             XLSX.writeFile(workbook, "report-unpaid-payment.xlsx");
             
         }
