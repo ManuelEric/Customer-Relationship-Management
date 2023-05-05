@@ -26,9 +26,12 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $school->sch_name }}</h4>
-                    <h6>{{ $schoolProgram->program->program_name }}
-                    </h6>
-
+                    <a
+                        href="{{ route('school.detail.show', ['school' => $school->sch_id, 'detail' => $schoolProgram->id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">
+                        <h6 class="d-flex flex-column">
+                            {{ $schoolProgram->program->program_name }}
+                        </h6>
+                    </a>
                 </div>
             </div>
 

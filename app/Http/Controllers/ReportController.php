@@ -132,13 +132,6 @@ class ReportController extends Controller
         $totalReceipt = 0;
         $countInvoice = 0;
         $totalInvoice = 0;
-        foreach ($receipts as $receipt) {
-            $totalReceipt += (int)filter_var($receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
-        }
-
-        if ($totalReceipt > 0) {
-            $totalReceipt = substr($totalReceipt, 0, -2);
-        }
 
         $data_receipts = $receipts->filter(function ($item) {
             // Return true if you want this item included in the resultant collection
@@ -150,6 +143,14 @@ class ReportController extends Controller
         $countInvoice += count($invoiceB2c->where('inv_paymentmethod', 'Full Payment')) + $invoiceB2c->sum('invoice_detail_count');
 
         $totalInvoice = $invoiceB2b->sum('invb2b_totpriceidr') + $invoiceB2c->sum('inv_totalprice_idr');
+
+        foreach ($data_receipts as $receipt) {
+            $totalReceipt += (int)filter_var($receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
+        }
+
+        if ($totalReceipt > 0) {
+            $totalReceipt = substr($totalReceipt, 0, -2);
+        }
 
         return view('pages.report.invoice.index')->with(
             [
