@@ -182,7 +182,12 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 ->select(
                     'tbl_invb2b.invb2b_num',
                     'tbl_corp.corp_name as partner_name',
-                    'program.program_name',
+                    DB::raw('(CASE tbl_referral.referral_type
+                                WHEN "Out" THEN tbl_referral.additional_prog_name
+                                WHEN "In" 
+                                    THEN 
+                                        program.program_name
+                            END) AS program_name'),
                     'tbl_invb2b.ref_id',
                     'tbl_invb2b.invb2b_id',
                     'tbl_invb2b.invb2b_status',
