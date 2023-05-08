@@ -46,7 +46,7 @@
             {{-- Tools  --}}
             @if (isset($invoiceRef) && !isset($invoiceRef->refund))
                 <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
-                    @if (isset($invoiceRef) && !isset($invoiceRef->receipt))
+                    {{-- @if (isset($invoiceRef) && !isset($invoiceRef->receipt)) --}}
                         <div class="border p-1 text-center flex-fill">
                             <div class="d-flex gap-1 justify-content-center">
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
@@ -66,7 +66,7 @@
                             <hr class="my-1">
                             <small>General</small>
                         </div>
-                    @endif
+                    {{-- @endif --}}
 
                     @if (!isset($invoiceRef->refund))
                         {{-- IDR  --}}
