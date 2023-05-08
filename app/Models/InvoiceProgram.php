@@ -42,6 +42,7 @@ class InvoiceProgram extends Model
         'curs_rate',
         'currency',
         'send_to_client',
+        'reminded',
         'created_at',
         'updated_at'
     ];

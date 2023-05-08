@@ -5,6 +5,7 @@ namespace App\Interfaces;
 interface InvoiceProgramRepositoryInterface
 {
     public function getAllInvoiceProgramDataTables($status);
+    public function getAllDueDateInvoiceProgram(int $days);
     public function getAllInvoiceProgram();
     public function getInvoiceByClientProgId($clientProgId);
     public function getInvoiceByInvoiceId($invoiceId);
