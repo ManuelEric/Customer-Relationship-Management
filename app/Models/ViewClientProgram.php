@@ -22,6 +22,13 @@ class ViewClientProgram extends Model
         return $instance->newQuery()->where('clientprog_id', $id)->first();
     }
 
+    protected function invoiceTotalpriceIdr(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => "Rp. " . number_format($this->inv_totalprice_idr, '2', ',', '.')
+        );
+    }
+
     public function client()
     {
         return $this->belongsTo(UserClient::class, 'client_id', 'id');

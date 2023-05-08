@@ -51,30 +51,35 @@
                                 }
                             },
                             {
-                                data: 'client_fullname',
+                                data: 'fullname'
                             },
                             {
-                                data: 'program_name',
-                                name: 'program.program_name',
+                                data: 'program_name'
                             },
                             {
                                 data: 'inv_id',
+                                name: 'tbl_inv.inv_id'
                             },
                             {
                                 data: 'inv_paymentmethod',
+                                name: 'tbl_inv.inv_paymentmethod'
                             },
                             {
                                 data: 'created_at',
                                 render: function(data, type, row) {
-                                    
-                                    return moment(data).format('YYYY-MM-DD')
+                                    return moment(data).format('MMMM Do YYYY')
                                 }
                             },
                             {
                                 data: 'inv_duedate',
+                                name: 'tbl_inv.inv_duedate',
+                                render: function(data, type, row) {
+                                    return moment(data).format('MMMM Do YYYY')
+                                }
                             },
                             {
                                 data: 'inv_totalprice_idr',
+                                name: 'tbl_inv.inv_totalprice_idr',
                                 render: function(data, type, row) {
                                     return new Intl.NumberFormat("id-ID", {
                                         style: "currency",
