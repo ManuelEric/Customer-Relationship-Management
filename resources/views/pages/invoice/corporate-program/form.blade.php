@@ -281,7 +281,8 @@
                                 <label for="">Currency Detail</label>
                                 <select class="select w-100" name="currency" id="currency_detail"
                                     onchange="checkCurrencyDetail()"
-                                    {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>>
+                                    {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>
+                                    <option data-placeholder="true"></option>
                                     @if (isset($invoicePartner))
                                         <option value="usd" {{ $invoicePartner->currency == 'usd' ? 'selected' : '' }}>
                                             USD
