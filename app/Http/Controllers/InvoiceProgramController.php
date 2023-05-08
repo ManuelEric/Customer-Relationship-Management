@@ -615,6 +615,8 @@ class InvoiceProgramController extends Controller
             'invoice_duedate' => date('d F Y', strtotime($clientProg->invoice->inv_duedate))
         ];
 
+        $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice_id, $type);
+
         # validate 
         # if the invoice has already requested to be signed
 
@@ -656,7 +658,12 @@ class InvoiceProgramController extends Controller
                 'send_to_client' => 'not sent',
                 'attachment' => $file_name . '.pdf'
             ];
-            $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
+
+            if (isset($attachment)) {
+                $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $attachmentDetails);
+            } else {
+                $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
+            }
 
             # send email to related person that has authority to give a signature
             Mail::send('pages.invoice.client-program.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
