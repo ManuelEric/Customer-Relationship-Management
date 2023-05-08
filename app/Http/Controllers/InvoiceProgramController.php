@@ -10,6 +10,7 @@ use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Models\InvoiceProgram;
+use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
@@ -615,6 +616,8 @@ class InvoiceProgramController extends Controller
             'invoice_duedate' => date('d F Y', strtotime($clientProg->invoice->inv_duedate))
         ];
 
+        $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice_id, $type);
+
         # validate 
         # if the invoice has already requested to be signed
 
@@ -656,7 +659,12 @@ class InvoiceProgramController extends Controller
                 'send_to_client' => 'not sent',
                 'attachment' => $file_name . '.pdf'
             ];
-            $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
+
+            if (isset($attachment)) {
+                $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $attachmentDetails);
+            } else {
+                $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
+            }
 
             # send email to related person that has authority to give a signature
             Mail::send('pages.invoice.client-program.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
@@ -834,5 +842,88 @@ class InvoiceProgramController extends Controller
                 'attachment' => $attachment
             ]
         );
+    }
+
+    # handler for reminder parents to pay
+    public function remindParentsByEmail(Request $request)
+    {
+        $invoiceId = $request->invoice_id;
+        $invoice_master = $this->invoiceProgramRepository->getInvoiceByInvoiceId($invoiceId);
+        $clientprogram_master = $invoice_master->clientprog;
+        $program_name = ucwords(strtolower($clientprogram_master->invoice_program_name));
+        $child_master = $clientprogram_master->client;
+        $parents_master = $clientprogram_master->client->parents;
+        $one_hisher_parent_information = $parents_master[0];
+        $parent_fullname = $one_hisher_parent_information->full_name;
+        $parent_mail = $one_hisher_parent_information->mail;
+        if ($parent_mail === null)
+            // throw new Exception('Reminder cannot be send without a parent\'s mail. Please complete the parent\'s information.');
+            return response()->json(['message' => 'Reminder cannot be send without a parent\'s mail. Please complete the parent\'s information.'], 500);
+
+        $subject = '7 Days Left until the Payment Deadline for '.$program_name;
+
+        $params = [
+            'parent_fullname' => $parent_fullname,
+            'parent_mail' => $parent_mail,
+            'program_name' => $program_name,
+            'due_date' => date('d/m/Y', strtotime($invoice_master->inv_duedate)),
+            'child_fullname' => $child_master->full_name,
+            'installment_notes' => $clientprogram_master->installment_notes,
+            'total_payment' => $invoice_master->invoice_price_idr,
+        ];
+
+        $mail_resources = 'pages.invoice.client-program.mail.reminder-payment';
+
+        try {
+            Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
+                $message->to($params['parent_mail'], $params['parent_fullname'])
+                    ->subject($subject);
+            });
+        } catch (Exception $e) {
+
+            Log::error($e->getMessage().' | Line '.$e->getLine());
+            return response()->json(['message' => $e->getMessage()]);
+
+        }
+
+        return response()->json(['message' => 'Reminder for '.$parent_fullname.' has been sent.']);
+    }
+
+    public function remindParentsByWhatsapp(Request $request)
+    {
+        $parent_fullname = $request->parent_fullname;
+        $parent_phone = $request->parent_phone;
+
+        $joined_program_name = ucwords(strtolower($request->program_name)); 
+        $invoice_duedate = date('d/m/Y', strtotime($request->invoice_duedate));
+        $total_payment = "Rp. " . number_format($request->total_payment, '2', ',', '.');
+
+        $datetime_1 = new DateTime($request->invoice_duedate);
+        $datetime_2 = new DateTime(Carbon::now());
+        $interval = $datetime_1->diff($datetime_2);
+        $date_diff = $interval->format('%a'); # format for the interval : days
+
+        $text = "Dear ".$parent_fullname.",";
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Thank you for trusting ALL-in Eduspace as your independent university consultant to help your child reach their dream to top universities.";
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Through this message, we would like to remind you that the payment deadline for ".$joined_program_name." is due on ".$invoice_duedate." or in ".$date_diff." days.";
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Amount: ".$total_payment;
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Payment could be done through bank transfer to: BCA 2483016611 a/n PT Jawara Edukasih Indonesia.";
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Thank you. Please ignore this message if payment has been made.";
+        $text .= "%0A";
+        $text .= "%0A";
+        $text .= "Regards";
+
+        $link = "https://api.whatsapp.com/send?phone=".$parent_phone."&text=".$text;
+        return response()->json(['link' => $link]);
     }
 }
