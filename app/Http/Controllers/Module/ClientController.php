@@ -145,14 +145,52 @@ class ClientController extends Controller
                 return compact('studentDetails', 'parentDetails');
                 break;
 
+            case "teacher":
+                $teacherDetails = $request->only([
+                    'first_name',
+                    'last_name',
+                    'mail',
+                    'phone',
+                    'dob',
+                    'insta',
+                    'state',
+                    'city',
+                    'postal_code',
+                    'address',
+                    'sch_id',
+                    'lead_id',
+                    'eduf_id',
+                    'kol_lead_id',
+                    'event_id',
+                    'st_levelinterest',
+                ]);
+                $teacherDetails['phone'] = $this->setPhoneNumber($request->phone);
+
+                # set lead_id based on lead_id & kol_lead_id
+                # when lead_id is kol
+                # then put kol_lead_id to lead_id
+                # otherwise
+                # when lead_id is not kol 
+                # then lead_id is lead_id
+                if ($request->lead_id == "kol") {
+
+                    unset($teacherDetails['lead_id']);
+                    $teacherDetails['lead_id'] = $request->kol_lead_id;
+                }
+                unset($teacherDetails['kol_lead_id']);
+
+                return compact('teacherDetails');
+                break;
+
         }
     }
 
     public function initializeVariablesForStoreAndUpdate(string $clientType, Request $request)
     {
         # initiate variables student details
-        $studentDetails = $this->basicVariables($clientType, $request)['studentDetails'];
-        $parentDetails = $this->basicVariables($clientType, $request)['parentDetails'];
+        $studentDetails = $this->basicVariables($clientType, $request)['studentDetails'] ??= [];
+        $parentDetails = $this->basicVariables($clientType, $request)['parentDetails'] ??= [];
+        $teacherDetails = $this->basicVariables($clientType, $request)['teacherDetails'] ??= [];
 
         # initiate variable school details
         $schoolDetails = $request->only([
@@ -179,6 +217,7 @@ class ClientController extends Controller
         return compact(
             'studentDetails', 
             'parentDetails',
+            'teacherDetails',
             'schoolDetails',
             'interestPrograms',
             'abroadCountries',

@@ -20,6 +20,9 @@ return new class extends Migration
             c.st_grade,
             r.reason_name as reason,
             CONCAT(c.first_name, " ", COALESCE(c.last_name, "")) as fullname,
+            CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_fullname,
+            parent.phone as parent_phone,
+            parent.mail as parent_mail,
             p.program_name,
             (CASE WHEN cp.status = 0 THEN "Pending"
                 WHEN cp.status = 1 THEN "Success"
@@ -54,6 +57,10 @@ return new class extends Migration
                                 ON cedl.id = c.eduf_id
                             LEFT JOIN tbl_events cec
                                 ON cec.event_id = c.event_id
+            LEFT JOIN tbl_client_relation cr
+                ON cr.child_id = c.id
+            LEFT JOIN tbl_client parent
+                ON parent.id = cr.parent_id
             LEFT JOIN users u
                 ON u.id = cp.empl_id
             LEFT JOIN tbl_lead cpl

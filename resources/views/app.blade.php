@@ -321,7 +321,6 @@
             $("#send-to-client--app-0604").bind('click', function() {
                 sendToClient(link)
             })
-            
         }
     </script>
 
