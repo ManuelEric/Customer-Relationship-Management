@@ -141,7 +141,7 @@
                     @forelse ($student->interestPrograms as $program)
                         <a href="{{ url('client/student/'.$student->id.'/program/create?p='.$program->prog_id) }}"
                         class="btn btn-sm btn-outline-info
-                        me-1 rounded-4">
+                        me-1 rounded-4 mb-2">
                         {{ $program->program_name }}</a>
                         @empty
                             There's no interest program yet
@@ -160,7 +160,7 @@
                 </div>
                 <div class="card-body">
                     @forelse ($student->destinationCountries as $country)
-                        <div class="badge badge-success me-1">{{ $country->name }}</div>
+                        <div class="badge badge-success me-1 mb-2">{{ $country->name }}</div>
                         @empty
                             There's no interest countries yet
 
@@ -175,7 +175,7 @@
                 </div>
                 <div class="card-body">
                     @forelse ($student->interestUniversities as $university)
-                        <div class="badge badge-danger me-1">{{ $university->univ_name }}</div>
+                        <div class="badge badge-danger me-1 mb-2">{{ $university->univ_name }}</div>
                         @empty
                             There's no dream university
                     @endforelse
@@ -189,7 +189,7 @@
                 </div>
                 <div class="card-body">
                     @forelse ($student->interestMajor as $major)
-                        <div class="badge badge-primary me-1">{{ $major->name }}</div>
+                        <div class="badge badge-primary me-1 mb-2">{{ $major->name }}</div>
                         @empty
                             There's no interest major yet
                     @endforelse
