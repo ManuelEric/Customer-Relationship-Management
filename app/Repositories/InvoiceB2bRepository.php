@@ -329,6 +329,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 'tbl_invb2b.partnerprog_id',
                 'tbl_invb2b.ref_id',
                 'tbl_invb2b.invb2b_duedate as invoice_duedate',
+                'tbl_invb2b.currency',
                 'tbl_invdtl.invdtl_duedate as installment_duedate',
                 DB::raw('(CASE
                             WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN 
@@ -336,7 +337,14 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                             WHEN tbl_invb2b.invb2b_pm = "Installment" THEN 
                                 tbl_invdtl.invdtl_amountidr
                             ELSE null
-                        END) as total_price_inv'),
+                        END) as total_price_inv_idr'),
+                DB::raw('(CASE
+                            WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN 
+                                tbl_invb2b.invb2b_totprice 
+                            WHEN tbl_invb2b.invb2b_pm = "Installment" THEN 
+                                tbl_invdtl.invdtl_amount
+                            ELSE null
+                        END) as total_price_inv_other'),
                 'tbl_receipt.receipt_id',
                 'tbl_receipt.receipt_amount_idr',
                 'tbl_receipt.created_at as paid_date',
@@ -354,7 +362,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                                 WHEN tbl_invb2b.ref_id > 0 THEN "Out" 
                                 ELSE 1
                             END)')
-            );
+            )->where('tbl_receipt.receipt_id', '=', NULL);
 
         if (isset($start_date) && isset($end_date)) {
             return $invoiceB2b->whereBetween($whereBy, [$start_date, $end_date])

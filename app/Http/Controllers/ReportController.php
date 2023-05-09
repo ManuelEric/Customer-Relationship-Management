@@ -173,9 +173,9 @@ class ReportController extends Controller
         $invoiceMerge = $collection->merge($invoiceB2c);
         $invoices = $invoiceMerge->all();
 
-        $totalAmount = $invoiceMerge->sum('total_price_inv');
+        $totalAmount = $invoiceMerge->sum('total_price_inv_idr');
 
-        $totalUnpaid = $invoiceMerge->where('receipt_id', null)->sum('total_price_inv');
+        $totalUnpaid = $invoiceMerge->where('receipt_id', null)->sum('total_price_inv_idr');
 
         $totalReceipt = 0;
         $totalPaid = 0;
@@ -183,7 +183,7 @@ class ReportController extends Controller
         foreach ($invoices as $invoice) {
             if (isset($invoice->receipt_id)) {
                 $totalReceipt += $invoice->receipt_amount_idr;
-                $totalDiff += $invoice->receipt_amount_idr > $invoice->total_price_inv ? $invoice->receipt_amount_idr - $invoice->total_price_inv : 0;
+                $totalDiff += $invoice->receipt_amount_idr > $invoice->total_price_inv_idr ? $invoice->receipt_amount_idr - $invoice->total_price_inv_idr : 0;
             }
         }
 
