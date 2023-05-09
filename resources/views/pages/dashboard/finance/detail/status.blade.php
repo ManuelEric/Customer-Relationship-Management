@@ -28,7 +28,7 @@
                                 {{ $totalInvoice->sum('count_invoice') }}
 
                             </h4>
-                            <h6 class="m-0">Rp. {{ number_format($totalInvoice->sum('total'), '2', ',', '.') }}</h6>
+                            <h6 class="m-0">Rp. {{ number_format($totalInvoice->sum('total')) }}</h6>
                         </div>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
                             <h4 class="m-0 p-0 text-info">
                                 {{ $totalReceipt->sum('count_receipt') }}
                             </h4>
-                            <h6 class="m-0">Rp. {{ number_format($totalReceipt->sum('total'), '2', ',', '.') }}</h6>
+                            <h6 class="m-0">Rp. {{ number_format($totalReceipt->sum('total')) }}</h6>
                         </div>
                     </div>
                 </div>
@@ -81,7 +81,8 @@
         const rupiah = (number)=>{
             return new Intl.NumberFormat("id-ID", {
             style: "currency",
-            currency: "IDR"
+            currency: "IDR",
+            minimumFractionDigits: 0
             }).format(number);
         }
 

@@ -148,10 +148,6 @@ class ReportController extends Controller
             $totalReceipt += (int)filter_var($receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
         }
 
-        if ($totalReceipt > 0) {
-            $totalReceipt = substr($totalReceipt, 0, -2);
-        }
-
         return view('pages.report.invoice.index')->with(
             [
                 'invoices' => $invoices,
