@@ -176,7 +176,7 @@
                                             $duration = $clientProg->invoice->duration;
                                             $total_session = ($duration * $session) / 60 # hours;
                                         @endphp
-                                        Rp. {{ number_format($clientProg->invoice->inv_totalprice_idr * $total_session, '2', ',', '.') }}
+                                        Rp. {{ number_format($clientProg->invoice->inv_totalprice_idr * $total_session) }}
                                     </strong>
                                 </p>
                             </div>
