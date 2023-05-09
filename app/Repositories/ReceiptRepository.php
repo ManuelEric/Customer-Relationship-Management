@@ -212,6 +212,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 'tbl_invb2b.ref_id',
                 'tbl_receipt.created_at',
                 'tbl_receipt.receipt_amount_idr',
+                'tbl_receipt.receipt_amount',
                 DB::raw('(CASE
                             WHEN tbl_receipt.invb2b_id is not null THEN tbl_receipt.invb2b_id
                             WHEN tbl_receipt.invdtl_id is not null THEN 
