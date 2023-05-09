@@ -135,13 +135,13 @@
                                         <td>{{ $invoice->invoiceTotalpriceIdr }}</td>
                                         
                                         {{-- Amount USD --}}
-                                        <td>{{ $invoice->currency == 'usd' ? '$. ' . $invoice->invoiceTotalprice : '-' }}</td>
+                                        <td>{{ $invoice->currency == 'usd' ? $invoice->invoiceTotalprice : '-' }}</td>
                                         
                                         {{-- Amount SGD --}}
-                                        <td>{{ $invoice->currency == 'sgd' ? 'S$. ' . $invoice->invoiceTotalprice : '-' }}</td>
+                                        <td>{{ $invoice->currency == 'sgd' ? $invoice->invoiceTotalprice : '-' }}</td>
                                         
                                         {{-- Amount GBP --}}
-                                        <td>{{ $invoice->currency == 'gbp' ? '£' . $invoice->invoiceTotalprice : '-' }}</td>
+                                        <td>{{ $invoice->currency == 'gbp' ? $invoice->invoiceTotalprice : '-' }}</td>
 
                                     </tr>
                                 @empty
@@ -231,26 +231,26 @@
 
                                         {{-- Amount IDR--}}
                                         <td>{{ $receipt->receipt_amount_idr }}</td>
-                                        
+
                                         {{-- Amount USD--}}
                                         @if(isset($receipt->inv_id))
-                                            <td>{{ $receipt->invoiceProgram->currency == 'usd' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                            <td>{{ $receipt->invoiceProgram->currency == 'usd' ? $receipt->receipt_amount : '-' }}</td>
                                         @elseif(isset($receipt->invb2b_id))
-                                            <td>{{ $receipt->invoiceB2b->currency == 'usd' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                            <td>{{ $receipt->invoiceB2b->currency == 'usd' ? $receipt->receipt_amount : '-' }}</td>
                                         @endif
 
                                         {{-- Amount SGD--}}
                                         @if(isset($receipt->inv_id))
-                                            <td>{{ $receipt->invoiceProgram->currency == 'sgd' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                            <td>{{ $receipt->invoiceProgram->currency == 'sgd' ? $receipt->receipt_amount : '-' }}</td>
                                         @elseif(isset($receipt->invb2b_id))
-                                            <td>{{ $receipt->invoiceB2b->currency == 'sgd' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                            <td>{{ $receipt->invoiceB2b->currency == 'sgd' ? $receipt->receipt_amount : '-' }}</td>
                                         @endif
 
                                         {{-- Amount GBP--}}
                                         @if(isset($receipt->inv_id))
-                                            <td>{{ $receipt->invoiceProgram->currency == 'gbp' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                            <td>{{ $receipt->invoiceProgram->currency == 'gbp' ? $receipt->receipt_amount : '-' }}</td>
                                         @elseif(isset($receipt->invb2b_id))
-                                            <td>{{ $receipt->invoiceB2b->currency == 'gbp' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                            <td>{{ $receipt->invoiceB2b->currency == 'gbp' ? $receipt->receipt_amount : '-' }}</td>
                                         @endif 
                                     </tr>
                                 @empty
