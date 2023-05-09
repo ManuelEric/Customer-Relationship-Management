@@ -37,19 +37,19 @@
                             Rp. {{ number_format($totalAmount) }}
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between">
+                    {{-- <div class="d-flex justify-content-between">
                         <strong>Paid</strong>
                         <div class="text-end">
                                 Rp. {{ number_format($totalPaid) }} {{ $totalDiff > 0 ? '( Rp. '. number_format($totalDiff) .')' : '' }}                       
                         </div>
-                    </div>
-                    <hr class="my-2">
+                    </div> --}}
+                    {{-- <hr class="my-2">
                     <div class="d-flex justify-content-between">
                         <strong>Remaining</strong>
                         <div class="text-end">
                              Rp. {{ number_format($remaining) }}
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
@@ -77,10 +77,14 @@
                                     <th>Invoice Duedate</th>
                                     <th>Installment</th>
                                     <th>Status</th>
-                                    <th>Receipt ID</th>
+                                    <th>Amount IDR</th>
+                                    <th>Amount USD</th>
+                                    <th>Amount SGD</th>
+                                    <th>Amount GBP</th>
+                                    {{-- <th>Receipt ID</th>
                                     <th>Paid Date</th>
                                     <th>Amount</th>
-                                </tr>
+                                </tr> --}}
                             </thead>
                             <tbody>
                          
@@ -127,26 +131,45 @@
                                             {{ isset($invoice->receipt_id) ? 'Paid' : 'Not yet' }}
                                         </td>
 
+                                        {{-- Amount IDR --}}
+                                        <td>
+                                            Rp. {{ number_format($invoice->total_price_inv_idr) }}
+                                        </td>
+
+                                        {{-- Amount USD --}}
+                                        <td>
+                                            {{ $invoice->currency == 'usd' ? '$. ' . number_format($invoice->total_price_inv_other) : '-' }}
+                                        </td>
+                                        
+                                        {{-- Amount SGD --}}
+                                        <td>
+                                            {{ $invoice->currency == 'sgd' ? 'S$. ' . number_format($invoice->total_price_inv_other) : '-' }}
+                                        </td>
+                                        {{-- Amount GBP --}}
+                                        <td>
+                                            {{ $invoice->currency == 'gbp' ? '£. ' . number_format($invoice->total_price_inv_other) : '-' }}
+                                        </td>
+
                                         {{-- Receipt ID --}}
-                                        @if(isset($invoice->receipt_id))
+                                        {{-- @if(isset($invoice->receipt_id))
                                             <td>{{ $invoice->receipt_id }}</td>
                                         @else
                                             <td class="text-center">-</td>
                                         @endif
-                                       
+                                        --}}
                                         {{-- Paid Date --}}
-                                        @if(isset($invoice->receipt_id))
+                                        {{-- @if(isset($invoice->receipt_id))
                                             <td>{{ date('M d, Y', strtotime($invoice->paid_date)) }}</td>
                                         @else
                                             <td class="text-center">-</td>
-                                        @endif
+                                        @endif --}}
                                         
                                         {{-- Amount --}}
-                                         @if(isset($invoice->receipt_id))
+                                         {{-- @if(isset($invoice->receipt_id))
                                             <td>Rp. {{ number_format($invoice->receipt_amount_idr) }} {{ $invoice->receipt_amount_idr > $invoice->total_price_inv ? '( Rp.'. number_format($invoice->receipt_amount_idr - $invoice->total_price_inv) .')' : '' }}</td>
                                         @else
                                             <td class="text-center">-</td>
-                                        @endif
+                                        @endif --}}
                                     </tr>
                                 @empty
                                     <tr>

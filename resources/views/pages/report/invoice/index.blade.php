@@ -71,7 +71,10 @@
                                     <th>Method</th>
                                     <th>Installment</th>
                                     <th>Due Date</th>
-                                    <th>Amount</th>
+                                    <th>Amount IDR</th>
+                                    <th>Amount USD</th>
+                                    <th>Amount SGD</th>
+                                    <th>Amount GBP</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -128,8 +131,18 @@
                                         {{-- Due date --}}
                                         <td>{{ isset($invoice->inv_id) ? date('M d, Y', strtotime($invoice->inv_duedate)) : date('M d, Y', strtotime($invoice->invb2b_duedate)) }}</td>
 
-                                        {{-- Amount --}}
+                                        {{-- Amount IDR --}}
                                         <td>{{ $invoice->invoiceTotalpriceIdr }}</td>
+                                        
+                                        {{-- Amount USD --}}
+                                        <td>{{ $invoice->currency == 'usd' ? '$. ' . $invoice->invoiceTotalprice : '-' }}</td>
+                                        
+                                        {{-- Amount SGD --}}
+                                        <td>{{ $invoice->currency == 'sgd' ? 'S$. ' . $invoice->invoiceTotalprice : '-' }}</td>
+                                        
+                                        {{-- Amount GBP --}}
+                                        <td>{{ $invoice->currency == 'gbp' ? '£' . $invoice->invoiceTotalprice : '-' }}</td>
+
                                     </tr>
                                 @empty
                                     <tr>
@@ -164,7 +177,10 @@
                                     <th>Method</th>
                                     <th>Installment</th>
                                     <th>Paid Date</th>
-                                    <th>Amount</th>
+                                    <th>Amount IDR</th>
+                                    <th>Amount USD</th>
+                                    <th>Amount SGD</th>
+                                    <th>Amount GBP</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -213,8 +229,29 @@
                                         {{-- Paid date --}}
                                         <td>{{ date('M d, Y', strtotime($receipt->created_at)) }}</td>
 
-                                        {{-- Amount --}}
+                                        {{-- Amount IDR--}}
                                         <td>{{ $receipt->receipt_amount_idr }}</td>
+                                        
+                                        {{-- Amount USD--}}
+                                        @if(isset($receipt->inv_id))
+                                            <td>{{ $receipt->invoiceProgram->currency == 'usd' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                        @elseif(isset($receipt->invb2b_id))
+                                            <td>{{ $receipt->invoiceB2b->currency == 'usd' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                        @endif
+
+                                        {{-- Amount SGD--}}
+                                        @if(isset($receipt->inv_id))
+                                            <td>{{ $receipt->invoiceProgram->currency == 'sgd' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                        @elseif(isset($receipt->invb2b_id))
+                                            <td>{{ $receipt->invoiceB2b->currency == 'sgd' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                        @endif
+
+                                        {{-- Amount GBP--}}
+                                        @if(isset($receipt->inv_id))
+                                            <td>{{ $receipt->invoiceProgram->currency == 'gbp' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                        @elseif(isset($receipt->invb2b_id))
+                                            <td>{{ $receipt->invoiceB2b->currency == 'gbp' ? '$. ' . $receipt->receipt_amount : '-' }}</td>
+                                        @endif 
                                     </tr>
                                 @empty
                                     <tr>
