@@ -34,14 +34,14 @@
                     <div class="d-flex justify-content-between">
                         <strong>Total Invoice ({{count($invoices)}})</strong>
                         <div class="text-end">
-                           Rp. {{ number_format($totalInvoice, '2', ',', '.') }}
+                           Rp. {{ number_format($totalInvoice) }}
                         </div>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between">
                         <strong>Total Receipt ({{count($receipts)}})</strong>
                         <div class="text-end">
-                                Rp. {{ number_format($totalReceipt, '2', ',', '.') }}
+                                Rp. {{ number_format($totalReceipt) }}
                            
                         </div>
                     </div>
@@ -274,9 +274,9 @@
                 var index = 'I' + i;
                 workbook.Sheets.Invoices[index].v =  parseInt(workbook.Sheets.Invoices[index].v.replace("Rp.", "").replaceAll(".", ""));
                 workbook.Sheets.Invoices[index].t = 'n';
-                workbook.Sheets.Invoices[index].z = 'Rp#,##0.00;(Rp#,##0.00)';
+                workbook.Sheets.Invoices[index].z = 'Rp#,##0;(Rp#,##0)';
             }
-            workbook.Sheets.Invoices[col_invoice] = { t:'n', z:'Rp#,##0.00;(Rp#,##0.00)', f: "SUM(I2:" + index +")", F:col_invoice + ":" + col_invoice }
+            workbook.Sheets.Invoices[col_invoice] = { t:'n', z:'Rp#,##0;(Rp#,##0)', f: "SUM(I2:" + index +")", F:col_invoice + ":" + col_invoice }
 
             var ref_receipt = workbook.Sheets.Receipts['!fullref'];
             var col_receipt = ref_receipt.slice(ref_receipt.indexOf(':') + 1);
@@ -286,9 +286,9 @@
                 var index = 'I' + j;
                 workbook.Sheets.Receipts[index].v =  parseInt(workbook.Sheets.Receipts[index].v.replace("Rp.", "").replaceAll(".", ""));
                 workbook.Sheets.Receipts[index].t = 'n';
-                workbook.Sheets.Receipts[index].z = 'Rp#,##0.00;(Rp#,##0.00)';
+                workbook.Sheets.Receipts[index].z = 'Rp#,##0;(Rp#,##0)';
             }
-            workbook.Sheets.Receipts[col_receipt] = { t:'n', z:'Rp#,##0.00;(Rp#,##0.00)', f: "SUM(I2:" + index +")", F:col_receipt + ":" + col_receipt }
+            workbook.Sheets.Receipts[col_receipt] = { t:'n', z:'Rp#,##0;(Rp#,##0)', f: "SUM(I2:" + index +")", F:col_receipt + ":" + col_receipt }
 
             XLSX.writeFile(workbook, "report-invoice-receipt.xlsx");
             

@@ -34,20 +34,20 @@
                     <div class="d-flex justify-content-between">
                         <strong>Total</strong>
                         <div class="text-end">
-                            Rp. {{ number_format($totalAmount, '2', ',', '.') }}
+                            Rp. {{ number_format($totalAmount) }}
                         </div>
                     </div>
                     <div class="d-flex justify-content-between">
                         <strong>Paid</strong>
                         <div class="text-end">
-                                Rp. {{ number_format($totalPaid, '2', ',', '.') }} {{ $totalDiff > 0 ? '( Rp. '. number_format($totalDiff, '2', ',', '.') .')' : '' }}                       
+                                Rp. {{ number_format($totalPaid) }} {{ $totalDiff > 0 ? '( Rp. '. number_format($totalDiff) .')' : '' }}                       
                         </div>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between">
                         <strong>Remaining</strong>
                         <div class="text-end">
-                             Rp. {{ number_format($remaining, '2', ',', '.') }}
+                             Rp. {{ number_format($remaining) }}
                         </div>
                     </div>
                 </div>
@@ -143,7 +143,7 @@
                                         
                                         {{-- Amount --}}
                                          @if(isset($invoice->receipt_id))
-                                            <td>Rp. {{ number_format($invoice->receipt_amount_idr, '2', ',', '.') }} {{ $invoice->receipt_amount_idr > $invoice->total_price_inv ? '( Rp.'. number_format($invoice->receipt_amount_idr - $invoice->total_price_inv, '2', ',', '.') .')' : '' }}</td>
+                                            <td>Rp. {{ number_format($invoice->receipt_amount_idr) }} {{ $invoice->receipt_amount_idr > $invoice->total_price_inv ? '( Rp.'. number_format($invoice->receipt_amount_idr - $invoice->total_price_inv) .')' : '' }}</td>
                                         @else
                                             <td class="text-center">-</td>
                                         @endif
@@ -195,10 +195,10 @@
                 if(workbook.Sheets['Unpaid Payment'][index].v != '-'){
                     workbook.Sheets['Unpaid Payment'][index].v =  parseInt(workbook.Sheets['Unpaid Payment'][index].v.replace("Rp.", "").replaceAll(".", ""));
                     workbook.Sheets['Unpaid Payment'][index].t = 'n';
-                    workbook.Sheets['Unpaid Payment'][index].z = 'Rp#,##0.00;(Rp#,##0.00)';
+                    workbook.Sheets['Unpaid Payment'][index].z = 'Rp#,##0;(Rp#,##0)';
                 }
             }
-            workbook.Sheets['Unpaid Payment'][col] = { t:'n', z:'Rp#,##0.00;(Rp#,##0.00)', f: "SUM(K2:" + index +")", F:col + ":" + col }
+            workbook.Sheets['Unpaid Payment'][col] = { t:'n', z:'Rp#,##0;(Rp#,##0)', f: "SUM(K2:" + index +")", F:col + ":" + col }
 
             XLSX.writeFile(workbook, "report-unpaid-payment.xlsx");
             

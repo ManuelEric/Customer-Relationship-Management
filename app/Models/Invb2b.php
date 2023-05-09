@@ -103,35 +103,35 @@ class Invb2b extends Model
     protected function rate(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->curs_rate, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->curs_rate)
         );
     }
 
     protected function invoicePriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invb2b_priceidr, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->invb2b_priceidr)
         );
     }
 
     protected function invoiceDiscountIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invb2b_discidr, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->invb2b_discidr)
         );
     }
 
     protected function invoiceTotalpriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invb2b_totpriceidr, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->invb2b_totpriceidr)
         );
     }
 
     protected function invoiceSubTotalpriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invb2b_priceidr * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants), '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->invb2b_priceidr * ($this->invb2b_participants == 0 ? 1 : $this->invb2b_participants))
         );
     }
 

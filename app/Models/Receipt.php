@@ -87,7 +87,7 @@ class Receipt extends Model
 
     protected function getReceiptAmountIdrAttribute($value)
     {
-        return "Rp. " . number_format($value, '2', ',', '.');
+        return "Rp. " . number_format($value);
     }
 
 

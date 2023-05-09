@@ -64,7 +64,7 @@
                                                     <td>{{ $paidPayment->type }}</td>
                                                     <td>{{ $paidPayment->program_name }}</td>
                                                     <td>{{ isset($paidPayment->installment_name) ? $paidPayment->installment_name : '-' }}</td>
-                                                    <td>Rp. {{ number_format($paidPayment->total, '2', ',', '.') }}</td>
+                                                    <td>Rp. {{ number_format($paidPayment->total) }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -72,7 +72,7 @@
                             </div>
                             <div class="card-footer d-flex justify-content-between align-items-center">
                                 <h6 class="m-0 p-0">Total Paid</h6>
-                                <h6 class="m-0 p-0" id="tot_paid">Rp. {{ number_format($paidPayments->sum('total'), '2', ',', '.') }}</h6>
+                                <h6 class="m-0 p-0" id="tot_paid">Rp. {{ number_format($paidPayments->sum('total')) }}</h6>
                             </div>
                         </div>
                     </div>
@@ -101,7 +101,7 @@
                                                 <td>{{ $unpaidPayment->type }}</td>
                                                 <td>{{ $unpaidPayment->program_name }}</td>
                                                 <td>{{ isset($unpaidPayment->installment_name) ? $unpaidPayment->installment_name : '-' }}</td>
-                                                <td>Rp. {{ number_format($unpaidPayment->total, '2', ',', '.') }}</td>
+                                                <td>Rp. {{ number_format($unpaidPayment->total) }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -109,7 +109,7 @@
                             </div>
                             <div class="card-footer d-flex justify-content-between align-items-center">
                                 <h6 class="m-0 p-0">Total Unpaid</h6>
-                                <h6 class="m-0 p-0" id="tot_unpaid">Rp. {{ number_format($unpaidPayments->sum('total'), '2', ',', '.') }}</h6>
+                                <h6 class="m-0 p-0" id="tot_unpaid">Rp. {{ number_format($unpaidPayments->sum('total')) }}</h6>
                             </div>
                         </div>
                     </div>
@@ -158,7 +158,8 @@
         const rupiah = (number)=>{
             return new Intl.NumberFormat("id-ID", {
             style: "currency",
-            currency: "IDR"
+            currency: "IDR",
+            minimumFractionDigits: 0
             }).format(number);
         }
         
@@ -238,7 +239,8 @@
          const rupiah = (number)=>{
             return new Intl.NumberFormat("id-ID", {
             style: "currency",
-            currency: "IDR"
+            currency: "IDR",
+            minimumFractionDigits: 0
             }).format(number);
         }
 
