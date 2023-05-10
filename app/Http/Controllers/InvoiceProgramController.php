@@ -899,7 +899,7 @@ class InvoiceProgramController extends Controller
         $total_payment = "Rp. " . number_format($request->total_payment, '2', ',', '.');
 
         $datetime_1 = new DateTime($request->invoice_duedate);
-        $datetime_2 = new DateTime(Carbon::now());
+        $datetime_2 = new DateTime(date('Y-m-d'));
         $interval = $datetime_1->diff($datetime_2);
         $date_diff = $interval->format('%a'); # format for the interval : days
 
