@@ -74,7 +74,7 @@ class InvDetail extends Model
     protected function invoicedtlAmountidr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invdtl_amountidr, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->invdtl_amountidr)
         );
     }
 

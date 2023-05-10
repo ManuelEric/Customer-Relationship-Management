@@ -34,14 +34,14 @@
                     <div class="d-flex justify-content-between">
                         <strong>Total Invoice ({{count($invoices)}})</strong>
                         <div class="text-end">
-                           Rp. {{ number_format($totalInvoice, '2', ',', '.') }}
+                           Rp. {{ number_format($totalInvoice) }}
                         </div>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between">
                         <strong>Total Receipt ({{count($receipts)}})</strong>
                         <div class="text-end">
-                                Rp. {{ number_format($totalReceipt, '2', ',', '.') }}
+                                Rp. {{ number_format($totalReceipt) }}
                            
                         </div>
                     </div>
@@ -71,7 +71,10 @@
                                     <th>Method</th>
                                     <th>Installment</th>
                                     <th>Due Date</th>
-                                    <th>Amount</th>
+                                    <th>Amount IDR</th>
+                                    <th>Amount USD</th>
+                                    <th>Amount SGD</th>
+                                    <th>Amount GBP</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -128,8 +131,18 @@
                                         {{-- Due date --}}
                                         <td>{{ isset($invoice->inv_id) ? date('M d, Y', strtotime($invoice->inv_duedate)) : date('M d, Y', strtotime($invoice->invb2b_duedate)) }}</td>
 
-                                        {{-- Amount --}}
+                                        {{-- Amount IDR --}}
                                         <td>{{ $invoice->invoiceTotalpriceIdr }}</td>
+                                        
+                                        {{-- Amount USD --}}
+                                        <td>{{ $invoice->currency == 'usd' ? $invoice->invoiceTotalprice : '-' }}</td>
+                                        
+                                        {{-- Amount SGD --}}
+                                        <td>{{ $invoice->currency == 'sgd' ? $invoice->invoiceTotalprice : '-' }}</td>
+                                        
+                                        {{-- Amount GBP --}}
+                                        <td>{{ $invoice->currency == 'gbp' ? $invoice->invoiceTotalprice : '-' }}</td>
+
                                     </tr>
                                 @empty
                                     <tr>
@@ -164,7 +177,10 @@
                                     <th>Method</th>
                                     <th>Installment</th>
                                     <th>Paid Date</th>
-                                    <th>Amount</th>
+                                    <th>Amount IDR</th>
+                                    <th>Amount USD</th>
+                                    <th>Amount SGD</th>
+                                    <th>Amount GBP</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -213,8 +229,29 @@
                                         {{-- Paid date --}}
                                         <td>{{ date('M d, Y', strtotime($receipt->created_at)) }}</td>
 
-                                        {{-- Amount --}}
+                                        {{-- Amount IDR--}}
                                         <td>{{ $receipt->receipt_amount_idr }}</td>
+
+                                        {{-- Amount USD--}}
+                                        @if(isset($receipt->inv_id))
+                                            <td>{{ $receipt->invoiceProgram->currency == 'usd' ? $receipt->receipt_amount : '-' }}</td>
+                                        @elseif(isset($receipt->invb2b_id))
+                                            <td>{{ $receipt->invoiceB2b->currency == 'usd' ? $receipt->receipt_amount : '-' }}</td>
+                                        @endif
+
+                                        {{-- Amount SGD--}}
+                                        @if(isset($receipt->inv_id))
+                                            <td>{{ $receipt->invoiceProgram->currency == 'sgd' ? $receipt->receipt_amount : '-' }}</td>
+                                        @elseif(isset($receipt->invb2b_id))
+                                            <td>{{ $receipt->invoiceB2b->currency == 'sgd' ? $receipt->receipt_amount : '-' }}</td>
+                                        @endif
+
+                                        {{-- Amount GBP--}}
+                                        @if(isset($receipt->inv_id))
+                                            <td>{{ $receipt->invoiceProgram->currency == 'gbp' ? $receipt->receipt_amount : '-' }}</td>
+                                        @elseif(isset($receipt->invb2b_id))
+                                            <td>{{ $receipt->invoiceB2b->currency == 'gbp' ? $receipt->receipt_amount : '-' }}</td>
+                                        @endif 
                                     </tr>
                                 @empty
                                     <tr>
@@ -274,9 +311,9 @@
                 var index = 'I' + i;
                 workbook.Sheets.Invoices[index].v =  parseInt(workbook.Sheets.Invoices[index].v.replace("Rp.", "").replaceAll(".", ""));
                 workbook.Sheets.Invoices[index].t = 'n';
-                workbook.Sheets.Invoices[index].z = 'Rp#,##0.00;(Rp#,##0.00)';
+                workbook.Sheets.Invoices[index].z = 'Rp#,##0;(Rp#,##0)';
             }
-            workbook.Sheets.Invoices[col_invoice] = { t:'n', z:'Rp#,##0.00;(Rp#,##0.00)', f: "SUM(I2:" + index +")", F:col_invoice + ":" + col_invoice }
+            workbook.Sheets.Invoices[col_invoice] = { t:'n', z:'Rp#,##0;(Rp#,##0)', f: "SUM(I2:" + index +")", F:col_invoice + ":" + col_invoice }
 
             var ref_receipt = workbook.Sheets.Receipts['!fullref'];
             var col_receipt = ref_receipt.slice(ref_receipt.indexOf(':') + 1);
@@ -286,9 +323,9 @@
                 var index = 'I' + j;
                 workbook.Sheets.Receipts[index].v =  parseInt(workbook.Sheets.Receipts[index].v.replace("Rp.", "").replaceAll(".", ""));
                 workbook.Sheets.Receipts[index].t = 'n';
-                workbook.Sheets.Receipts[index].z = 'Rp#,##0.00;(Rp#,##0.00)';
+                workbook.Sheets.Receipts[index].z = 'Rp#,##0;(Rp#,##0)';
             }
-            workbook.Sheets.Receipts[col_receipt] = { t:'n', z:'Rp#,##0.00;(Rp#,##0.00)', f: "SUM(I2:" + index +")", F:col_receipt + ":" + col_receipt }
+            workbook.Sheets.Receipts[col_receipt] = { t:'n', z:'Rp#,##0;(Rp#,##0)', f: "SUM(I2:" + index +")", F:col_receipt + ":" + col_receipt }
 
             XLSX.writeFile(workbook, "report-invoice-receipt.xlsx");
             

@@ -90,7 +90,7 @@
                     },
                     {
                         data: 'corp_name',
-                        name: 'tbl_corp.sch_name' 
+                        name: 'tbl_corp.corp_name' 
 
                     },
                     {
