@@ -5,7 +5,7 @@
      <div class="card-body">
          <div class="row">
              <div class="col-md-4 mb-3">
-                 <label for="">Price</label>
+                 <label for="">Price<sup class="text-danger">*</sup></label>
                  <div class="input-group input-group-sm">
                      <span class="input-group-text" id="basic-addon1">
                          Rp
@@ -20,7 +20,7 @@
                 @enderror
              </div>
              <div class="col-md-4 mb-3">
-                 <label for="">Participants</label>
+                 <label for="">Participants<sup class="text-danger">*</sup></label>
                  <div class="input-group input-group-sm">
                      <input type="number" name="invb2b_participants" id="invoice_idr_participants" class="form-control"
                          oninput="checkInvoiceIDR()"
@@ -42,7 +42,10 @@
                      </span>
                      <input type="number" name="invb2b_discidr" id="invoice_idr_discount" class="form-control"
                          oninput="checkInvoiceIDR()"
-                         value="{{ (isset($invoicePartner)) ? $invoicePartner->invb2b_discidr : old('invb2b_discidr') }}"
+                         @php
+                             $old_invb2b_discidr = old('invb2b_discidr') ?? 0;
+                         @endphp
+                         value="{{ (isset($invoicePartner)) ? $invoicePartner->invb2b_discidr : $old_invb2b_discidr }}"
                          {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>
                  </div>
                     @error('invb2b_discidr')
@@ -55,7 +58,7 @@
                      <span class="input-group-text" id="basic-addon1">
                          Rp
                      </span>
-                     <input type="number" name="invb2b_totpriceidr" id="invoice_idr_total" class="form-control"
+                     <input type="number" name="invb2b_totpriceidr" id="invoice_idr_total" class="form-control" readonly
                         value="{{ (isset($invoicePartner)) ? $invoicePartner->invb2b_totpriceidr : old('invb2b_totpriceidr') }}"
                      {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>
                  </div>

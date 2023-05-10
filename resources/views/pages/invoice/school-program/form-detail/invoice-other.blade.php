@@ -5,7 +5,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-4 mb-3">
-                <label for="">Price</label>
+                <label for="">Price<sup class="text-danger">*</sup></label>
                 <div class="input-group input-group-sm mb-1">
                     <span class="input-group-text currency-icon" id="basic-addon1">
                         $
@@ -32,7 +32,7 @@
                     @enderror
             </div>
             <div class="col-md-4 mb-3">
-                <label for="">Participants</label>
+                <label for="">Participants<sup class="text-danger">*</sup></label>
                 <div class="input-group input-group-sm mb-1">
                     <input type="number" name="invb2b_participants_other" id="invoice_other_participant" class="form-control"
                         oninput="checkInvoiceOther()"
@@ -79,7 +79,7 @@
                     <span class="input-group-text currency-icon" id="basic-addon1">
                         $
                     </span>
-                    <input type="number" name="invb2b_totprice" id="invoice_other_total" class="form-control"
+                    <input type="number" name="invb2b_totprice" id="invoice_other_total" class="form-control" readonly
                         value="{{ (isset($invoiceSch)) ? $invoiceSch->invb2b_totprice : old('invb2b_totprice') }}"
                         {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                 </div>

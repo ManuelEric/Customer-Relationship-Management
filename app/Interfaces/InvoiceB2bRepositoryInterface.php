@@ -5,9 +5,9 @@ namespace App\Interfaces;
 interface InvoiceB2bRepositoryInterface
 {
     public function getAllInvoiceNeededSchDataTables();
-    public function getAllInvoiceSchDataTables();
+    public function getAllInvoiceSchDataTables(string $status);
     public function getAllInvoiceNeededCorpDataTables();
-    public function getAllInvoiceCorpDataTables();
+    public function getAllInvoiceCorpDataTables(string $status);
     public function getAllInvoiceNeededReferralDataTables();
     public function getAllInvoiceReferralDataTables();
     public function getInvoiceB2bByInvId($invb2b_id);
