@@ -70,6 +70,7 @@ Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [Partne
 Route::get('partner/partnership-program/program-comparison/{start_year}/{end_year}', [PartnerDashboardController::class, 'getProgramComparison']);
 
 # dashboard finance
+Route::get('finance/detail/{month}/{type}', [FinanceDashboardController::class, 'getFinanceDetailByMonth']);
 Route::get('finance/total/{month}', [FinanceDashboardController::class, 'getTotalByMonth']);
 Route::get('finance/outstanding/{month}', [FinanceDashboardController::class, 'getOutstandingPayment']);
 Route::get('finance/revenue/{year}', [FinanceDashboardController::class, 'getRevenueByYear']);

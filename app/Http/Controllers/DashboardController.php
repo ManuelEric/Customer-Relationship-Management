@@ -25,6 +25,7 @@ use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\RefundRepositoryInterface;
 use App\Repositories\ClientRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -54,9 +55,9 @@ class DashboardController extends SalesDashboardController
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
+    protected RefundRepositoryInterface $refundRepository;
 
-
-    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository, RefundRepositoryInterface $refundRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->followupRepository = $followupRepository;
@@ -78,6 +79,7 @@ class DashboardController extends SalesDashboardController
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceProgramRepository = $invoiceProgramRepository;
         $this->receiptRepository = $receiptRepository;
+        $this->refundRepository = $refundRepository;
     }
 
     public function index(Request $request)
@@ -181,15 +183,14 @@ class DashboardController extends SalesDashboardController
         $totalInvoiceB2b = $this->invoiceB2bRepository->getTotalInvoice(date('Y-m'));
         $totalInvoiceB2c = $this->invoiceProgramRepository->getTotalInvoice(date('Y-m'));
 
-        $totalRefundRequestB2b = $this->invoiceB2bRepository->getTotalRefundRequest(date('Y-m'));
-        $totalRefundRequestB2c = $this->invoiceProgramRepository->getTotalRefundRequest(date('Y-m'));
+        // $totalRefundRequestB2b = $this->invoiceB2bRepository->getTotalRefundRequest(date('Y-m'));
+        // $totalRefundRequestB2c = $this->invoiceProgramRepository->getTotalRefundRequest(date('Y-m'));
 
         $totalReceipt = $this->receiptRepository->getTotalReceipt(date('Y-m'));
 
-        $totalInvoiceNeeded = collect($totalInvoiceNeededB2b)->merge($totalInvoiceNeededB2c)->sum('count_invoice_needed');
-        $totalInvoice = collect($totalInvoiceB2b)->merge($totalInvoiceB2c);
+        $totalInvoiceNeeded = collect($totalInvoiceNeededB2b)->merge($totalInvoiceNeededB2c);
 
-        $totalRefundRequest = collect($totalRefundRequestB2b)->merge($totalRefundRequestB2c)->sum('count_refund_request');
+        $totalRefundRequest = $this->refundRepository->getTotalRefundRequest(date('Y-m'));
 
         $paidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment(date('Y-m'), 'paid', null, null);
         $paidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment(date('Y-m'), 'paid');
@@ -212,11 +213,24 @@ class DashboardController extends SalesDashboardController
             }
         );
 
+        $totalInvoice[0] = [
+            'count_invoice' => count($totalInvoiceB2b) + count($totalInvoiceB2b),
+            'total' => $totalInvoiceB2b->where('invb2b_pm', 'Full Payment')->sum('invb2b_totpriceidr') + $totalInvoiceB2b->where('invb2b_pm', 'Installment')->sum('invdtl_amountidr')
+        ];
+
+        $totalInvoice[1] = [
+            'count_invoice' => count($totalInvoiceB2c),
+            'total' => $totalInvoiceB2c->where('inv_paymentmethod', 'Full Payment')->sum('inv_totalprice_idr') + $totalInvoiceB2c->where('inv_paymentmethod', 'Installment')->sum('invdtl_amountidr')
+        ];
+
         return [
-            'totalInvoiceNeeded' => $totalInvoiceNeeded,
+            'invoiceNeededToday' => count($totalInvoiceNeeded->where('success_date', date('Y-m-d'))),
+            'outstandingToday' => count($unpaidPayments->where('invoice_duedate', date('Y-m-d'))),
+            'refundRequestToday' => count($totalRefundRequest->where('refund_date', date('Y-m-d'))),
+            'totalInvoiceNeeded' => count($totalInvoiceNeeded),
             'totalInvoice' => $totalInvoice,
             'totalReceipt' => $totalReceipt,
-            'totalRefundRequest' => $totalRefundRequest,
+            'totalRefundRequest' => count($totalRefundRequest),
             'paidPayments' => $paidPayments,
             'unpaidPayments' => $unpaidPayments,
             'totalOutstanding' => $totalOutstanding,

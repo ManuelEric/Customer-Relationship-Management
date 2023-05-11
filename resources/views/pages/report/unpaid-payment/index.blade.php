@@ -209,19 +209,45 @@
             var ws = XLSX.utils.table_to_sheet(document.getElementById("tbl_unpaid_payment"));
             XLSX.utils.book_append_sheet(workbook, ws, "Unpaid Payment");
 
-            var ref = workbook.Sheets['Unpaid Payment']['!fullref'];
-            var col = ref.slice(ref.indexOf(':') + 1);
-            var last_col = parseInt(col.slice(col.indexOf('K') + 1)) - 1;
 
-            for(var i = 2; i <= last_col; i++) {
-                var index = 'K' + i;
-                if(workbook.Sheets['Unpaid Payment'][index].v != '-'){
-                    workbook.Sheets['Unpaid Payment'][index].v =  parseInt(workbook.Sheets['Unpaid Payment'][index].v.replace("Rp.", "").replaceAll(".", ""));
-                    workbook.Sheets['Unpaid Payment'][index].t = 'n';
-                    workbook.Sheets['Unpaid Payment'][index].z = 'Rp#,##0;(Rp#,##0)';
-                }
-            }
-            workbook.Sheets['Unpaid Payment'][col] = { t:'n', z:'Rp#,##0;(Rp#,##0)', f: "SUM(K2:" + index +")", F:col + ":" + col }
+            var full_ref = workbook.Sheets['Unpaid Payment']['!fullref'];
+            var last_ref = full_ref.slice(full_ref.indexOf(':') + 1);
+            var last_col = parseInt(last_ref.slice(last_ref.indexOf('L') + 1)) - 1;
+
+            var col = ['I', 'J', 'K', 'L']; //  I = Amount IDR, J = USD, K = SGD, L = GBP
+                
+                col.forEach(function (d, i){
+                    for(var i = 2; i <= last_col; i++) {
+                        var index = d + i;
+
+                        var format_cell;
+                        var remove_cursymbol;
+                        switch (d) {
+                            case 'I':
+                                remove_cursymbol = 'Rp.';
+                                format_cell = 'Rp#,##0;(Rp#,##0)';
+                                break;
+                            case 'J':
+                                remove_cursymbol = '$.';
+                                format_cell = '$#,##0;($#,##0)';
+                                break;
+                            case 'K':
+                                remove_cursymbol = 'S$.';
+                                format_cell = '$#,##0;($#,##0)';
+                                break;
+                            case 'L':
+                                remove_cursymbol = '£.';
+                                format_cell = '£#,##0;(£#,##0)';
+                                break;
+                        }
+                        if(workbook.Sheets['Unpaid Payment'][index].v != '-')
+                            workbook.Sheets['Unpaid Payment'][index].v =  parseInt(workbook.Sheets['Unpaid Payment'][index].v.replace(remove_cursymbol, "").replaceAll(",", ""));
+
+                        workbook.Sheets['Unpaid Payment'][index].t = 'n';
+                        workbook.Sheets['Unpaid Payment'][index].z = format_cell;
+                    }
+                    workbook.Sheets['Unpaid Payment'][d + i] = { t:'n', z:format_cell, f: `SUM(${d+2}:` + index +")", F:d + i + ":" + d + i }
+                })
 
             XLSX.writeFile(workbook, "report-unpaid-payment.xlsx");
             

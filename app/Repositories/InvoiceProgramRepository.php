@@ -245,7 +245,13 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         $month = date('m', strtotime($monthYear));
 
         return ViewClientProgram::doesntHave('invoice')
-            ->select(DB::raw('COUNT(clientprog_id) as count_invoice_needed'))
+            ->leftJoin('program', 'program.prog_id', '=', 'clientprogram.prog_id')
+            ->select(
+                'fullname as client_name',
+                'program.program_name',
+                'pic_name',
+                'success_date'
+            )
             ->where('status', 1)
             ->whereYear('success_date', '=', $year)
             ->whereMonth('success_date', '=', $month)
@@ -367,7 +373,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
                                 tbl_invdtl.invdtl_amountidr
                             ELSE null
-                        END) as total')
+                        END) as total'),
+
+                    DB::raw('(CASE 
+                                WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                                    tbl_inv.inv_duedate 
+                                WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                    tbl_invdtl.invdtl_duedate
+                            END) as invoice_duedate')
                 ])->whereNull('tbl_receipt.id');
 
                 if (isset($monthYear)) {
