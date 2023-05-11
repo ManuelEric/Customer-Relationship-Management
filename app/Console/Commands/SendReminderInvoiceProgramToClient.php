@@ -30,7 +30,7 @@ class SendReminderInvoiceProgramToClient extends Command
      *
      * @var string
      */
-    protected $description = 'Send reminder on invoice to client. To remind the client to pay the invoice.';
+    protected $description = 'Send reminder invoice to client. To remind the client to pay the invoice.';
 
     /**
      * Execute the console command.
@@ -48,9 +48,13 @@ class SendReminderInvoiceProgramToClient extends Command
     {
         $parents_have_no_email = [];
         $invoice_master = $this->invoiceProgramRepository->getAllDueDateInvoiceProgram(7);
+        $progressBar = $this->output->createProgressBar($invoice_master->count());
+        $progressBar->start();
         foreach ($invoice_master as $data) {
 
             $invoiceId = $data->inv_id;
+            $clientprogId = $data->clientprog_id;
+
             $program_name = ucwords(strtolower($data->program_name));
             
             $parent_fullname = $data->parent_fullname;
@@ -64,6 +68,7 @@ class SendReminderInvoiceProgramToClient extends Command
                     'mail' => $parent_mail,
                     'phone' => $parent_phone,
                 ];
+                continue;
             }
 
             $subject = '7 Days Left until the Payment Deadline for '.$program_name;
@@ -73,9 +78,9 @@ class SendReminderInvoiceProgramToClient extends Command
                 'parent_mail' => $parent_mail,
                 'program_name' => $program_name,
                 'due_date' => date('d/m/Y', strtotime($data->inv_duedate)),
-                'child_fullname' => $data->full_name,
-                'installment_notes' => $data->installment_notes,
-                'total_payment' => $data->invoice_price_idr,
+                'child_fullname' => $data->fullname,
+                'installment_notes' => strip_tags($data->installment_notes),
+                'total_payment' => $data->invoice_totalprice_idr,
             ];
 
             $mail_resources = 'pages.invoice.client-program.mail.reminder-payment';
@@ -87,13 +92,18 @@ class SendReminderInvoiceProgramToClient extends Command
                 });
             } catch (Exception $e) {
 
-                Log::error('Failed to send invoice reminder to '.$parent_mail . ' cause by : '. $e->getMessage().' | Line '.$e->getLine());
-                $this->error($e->getMessage(). ' | Line '.$e->getLine());
+                Log::error('Failed to send invoice reminder to '.$parent_mail . ' caused by : '. $e->getMessage().' | Line '.$e->getLine());
+                return $this->error($e->getMessage(). ' | Line '.$e->getLine());
 
             }
 
             $this->info('Invoice reminder has been sent to '.$parent_mail);
+            # update reminded count to 1
+            $updated_invoice = $this->invoiceProgramRepository->getInvoiceByClientProgId($clientprogId);
+            $updated_invoice->reminded = 1;
+            $updated_invoice->save();
 
+            $progressBar->advance();
         }
 
         if (count($parents_have_no_email) > 0)
@@ -111,9 +121,12 @@ class SendReminderInvoiceProgramToClient extends Command
                         ->subject('There are Some Client that can\'t be reminded');
                 });
             } catch (Exception $e) {
-                Log::error('Failed to send invoice reminder to '.$parent_mail . ' cause by : '. $e->getMessage().' | Line '.$e->getLine());
+                Log::error('Failed to send info to finance team cause by : '. $e->getMessage().' | Line '.$e->getLine());
+                return $this->error($e->getMessage(). ' | Line '.$e->getLine());
             }
 
         }
+        
+        $progressBar->finish();
     }
 }

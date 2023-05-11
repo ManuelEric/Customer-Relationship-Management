@@ -29,7 +29,7 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>{{ $partner->corp_name }}</h4>
+                    <h4><a class="text-dark text-decoration-none" href="{{ route('corporate.show', ['corporate' => $partner->corp_id]) }}">{{ $partner->corp_name }}</a></h4>
                     <a
                         href="{{ route('referral.show', ['referral' =>  $referral->id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">                    
                         <h6 class="d-flex flex-column">

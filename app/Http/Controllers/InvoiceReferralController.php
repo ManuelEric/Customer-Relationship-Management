@@ -61,7 +61,8 @@ class InvoiceReferralController extends Controller
                     return $this->invoiceB2bRepository->getAllInvoiceNeededReferralDataTables();
                     break;
                 case 'list':
-                    return $this->invoiceB2bRepository->getAllInvoiceReferralDataTables();
+                case 'reminder':
+                    return $this->invoiceB2bRepository->getAllInvoiceReferralDataTables($status);
                     break;
             }
         }

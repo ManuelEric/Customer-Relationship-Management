@@ -14,24 +14,22 @@
 @section('content')
     <p style="margin:0;">Dear {{ $finance_name }},</p>
     <p>
-        Here are the following client information has not been completed:
+        Here are the following partner information has not been completed:
     </p>
     <table class="table">
         <tr>
             <td>No.</td>
-            <td>Name</td>
-            <td>Phone Number</td>
+            <td>Partner Name</td>
         </tr>
-        @foreach ($parents_have_no_email as $data)
+        @foreach ($partner_have_no_pic as $data)
             <tr>
-                <td>{{ $loop->iterations }}</td>
-                <td>{{ $data['fullname'] }}</td>
-                <td>{{ $data['phone'] }}</td>
+                <td>{{ $loop->iteration }}</td>
+                <td>{{ $data['partner_name'] }}</td>
             </tr>
         @endforeach
     </table>
     <br>
     <p>
-        Please complete the following client's email so we can send them a reminder
+        Please complete the following partner's email so we can send them a reminder
     </p>
 @endsection

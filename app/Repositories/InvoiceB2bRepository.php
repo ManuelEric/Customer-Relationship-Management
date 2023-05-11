@@ -105,6 +105,35 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         return DataTables::eloquent($query)->make(true);
     }
 
+    public function getAllDueDateInvoiceSchoolProgram($days)
+    {
+        return Invb2b::leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+            ->leftJoin('tbl_sch', 'tbl_sch_prog.sch_id', '=', 'tbl_sch.sch_id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_sch_prog.prog_id')
+            // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->select(
+                'tbl_invb2b.invb2b_num',
+                'tbl_sch.sch_name as school_name',
+                // 'tbl_prog.prog_program as program_name',
+                'program.program_name',
+                'tbl_invb2b.schprog_id',
+                'tbl_invb2b.invb2b_id',
+                'tbl_invb2b.invb2b_status',
+                'tbl_invb2b.invb2b_pm',
+                'tbl_invb2b.created_at',
+                'tbl_invb2b.invb2b_duedate',
+                'tbl_invb2b.currency',
+                'tbl_invb2b.invb2b_totpriceidr',
+                'tbl_invb2b.invb2b_totprice',
+                DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
+            )
+            ->where('tbl_sch_prog.status', 1)
+            ->where('tbl_invb2b.reminded', '=', 0)
+            ->whereDoesntHave('receipt')
+            ->where(DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now())'), '=', $days)
+            ->orderBy('date_difference', 'asc')->get();
+    }
+
     // Partner Program
     public function getAllInvoiceNeededCorpDataTables()
     {
@@ -196,21 +225,36 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         }
         $response = DataTables::eloquent($query)->make(true);
 
-        // if ($status == "reminder")
-        // {
-        //     $response->filterColumn(
-        //         'pic_name',
-        //         function (
-        //             $query,
-        //             $keyword
-        //         ) {
-        //             $sql = 'CONCAT(users.first_name," ",users.last_name) like ?';
-        //             $query->whereRaw($sql, ["%{$keyword}%"]);
-        //         }
-        //     );
-        // }
-
         return $response;
+    }
+
+    public function getAllDueDateInvoicePartnerProgram($days)
+    {
+        return Invb2b::leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
+            ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
+            // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->select(
+                'tbl_invb2b.invb2b_num',
+                'tbl_corp.corp_name',
+                // 'tbl_prog.prog_program as program_name',
+                'program.program_name',
+                'tbl_invb2b.partnerprog_id',
+                'tbl_invb2b.invb2b_id',
+                'tbl_invb2b.invb2b_status',
+                'tbl_invb2b.invb2b_pm',
+                'tbl_invb2b.created_at',
+                'tbl_invb2b.invb2b_duedate',
+                'tbl_invb2b.currency',
+                'tbl_invb2b.invb2b_totpriceidr',
+                'tbl_invb2b.invb2b_totprice',
+                DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
+            )
+            ->where('tbl_partner_prog.status', 1)
+            ->where('tbl_invb2b.reminded', '=', 0)
+            ->whereDoesntHave('receipt')
+            ->where(DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now())'), '=', $days)
+            ->orderBy('date_difference', 'asc')->get();
     }
 
     // Referral
@@ -250,36 +294,104 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         )->make(true);
     }
 
-    public function getAllInvoiceReferralDataTables()
+    public function getAllInvoiceReferralDataTables($status)
     {
-        return datatables::eloquent(
-            Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
-                ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
-                ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
-                // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-                ->select(
-                    'tbl_invb2b.invb2b_num',
-                    'tbl_corp.corp_name as partner_name',
-                    DB::raw('(CASE tbl_referral.referral_type
-                                WHEN "Out" THEN tbl_referral.additional_prog_name
-                                WHEN "In" 
-                                    THEN 
-                                        program.program_name
-                            END) AS program_name'),
-                    'tbl_invb2b.ref_id',
-                    'tbl_invb2b.invb2b_id',
-                    'tbl_invb2b.invb2b_status',
-                    'tbl_invb2b.invb2b_pm',
-                    'tbl_invb2b.created_at',
-                    'tbl_invb2b.invb2b_duedate',
-                    'tbl_invb2b.currency',
-                    'tbl_invb2b.invb2b_totpriceidr',
-                    'tbl_invb2b.invb2b_totprice',
-                )
-                ->where('tbl_referral.referral_type', 'Out')
-                ->orderBy('tbl_invb2b.created_at', 'DESC')
+        switch ($status) {
 
-        )->make(true);
+            case 'list':
+                $query = Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
+                    ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+                    ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
+                    // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                    ->select(
+                        'tbl_invb2b.invb2b_num',
+                        'tbl_corp.corp_name as partner_name',
+                        DB::raw('(CASE tbl_referral.referral_type
+                                    WHEN "Out" THEN tbl_referral.additional_prog_name
+                                    WHEN "In" 
+                                        THEN 
+                                            program.program_name
+                                END) AS program_name'),
+                        'tbl_invb2b.ref_id',
+                        'tbl_invb2b.invb2b_id',
+                        'tbl_invb2b.invb2b_status',
+                        'tbl_invb2b.invb2b_pm',
+                        'tbl_invb2b.created_at',
+                        'tbl_invb2b.invb2b_duedate',
+                        'tbl_invb2b.currency',
+                        'tbl_invb2b.invb2b_totpriceidr',
+                        'tbl_invb2b.invb2b_totprice',
+                    )
+                    ->where('tbl_referral.referral_type', 'Out')
+                    ->orderBy('tbl_invb2b.created_at', 'DESC');
+                break;
+
+            case 'reminder':
+                $query = Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
+                    ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+                    ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
+                    // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                    ->select(
+                        'tbl_invb2b.invb2b_num',
+                        'tbl_corp.corp_name as partner_name',
+                        DB::raw('(CASE tbl_referral.referral_type
+                                    WHEN "Out" THEN tbl_referral.additional_prog_name
+                                    WHEN "In" 
+                                        THEN 
+                                            program.program_name
+                                END) AS program_name'),
+                        'tbl_invb2b.ref_id',
+                        'tbl_invb2b.invb2b_id',
+                        'tbl_invb2b.invb2b_status',
+                        'tbl_invb2b.invb2b_pm',
+                        'tbl_invb2b.created_at',
+                        'tbl_invb2b.invb2b_duedate',
+                        'tbl_invb2b.currency',
+                        'tbl_invb2b.invb2b_totpriceidr',
+                        'tbl_invb2b.invb2b_totprice',
+                        DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
+                    )
+                    ->whereDoesntHave('receipt')
+                    ->where(DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now())'), '<=', 7)
+                    ->where('tbl_referral.referral_type', 'Out')
+                    ->orderBy('date_difference', 'asc');
+                break;
+
+        }
+
+        return datatables::eloquent($query)->make(true);
+    }
+
+    public function getAllDueDateInvoiceReferralProgram($days)
+    {
+        return Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
+        ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+        ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
+        // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+        ->select(
+            'tbl_invb2b.invb2b_num',
+            'tbl_corp.corp_name as partner_name',
+            DB::raw('(CASE tbl_referral.referral_type
+                        WHEN "Out" THEN tbl_referral.additional_prog_name
+                        WHEN "In" 
+                            THEN 
+                                program.program_name
+                    END) AS program_name'),
+            'tbl_invb2b.ref_id',
+            'tbl_invb2b.invb2b_id',
+            'tbl_invb2b.invb2b_status',
+            'tbl_invb2b.invb2b_pm',
+            'tbl_invb2b.created_at',
+            'tbl_invb2b.invb2b_duedate',
+            'tbl_invb2b.currency',
+            'tbl_invb2b.invb2b_totpriceidr',
+            'tbl_invb2b.invb2b_totprice',
+            DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
+        )
+        ->whereDoesntHave('receipt')
+        ->where(DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now())'), '=', $days)
+        ->where('tbl_referral.referral_type', 'Out')
+        ->orderBy('date_difference', 'asc')->get();
     }
 
     public function getInvoiceB2bBySchProg($schprog_id)
