@@ -415,7 +415,15 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
         $month = date('m', strtotime($monthYear));
 
         $schProg  = SchoolProgram::leftJoin('tbl_invb2b', 'tbl_invb2b.schprog_id', '=', 'tbl_sch_prog.id')
-            ->select(DB::raw("count('tbl_sch_prog.id') as count_invoice_needed"))
+            ->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_sch_prog.sch_id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_sch_prog.prog_id')
+            ->leftJoin('users', 'users.id', '=', 'tbl_sch_prog.empl_id')
+            ->select(
+                'tbl_sch.sch_name as client_name',
+                'program.program_name',
+                DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name'),
+                'tbl_sch_prog.success_date'
+            )
             ->where('tbl_sch_prog.status', 1)
             ->whereYear('tbl_sch_prog.success_date', '=', $year)
             ->whereMonth('tbl_sch_prog.success_date', '=', $month)
@@ -423,15 +431,30 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             ->get();
 
         $partnerProg  = PartnerProg::leftJoin('tbl_invb2b', 'tbl_invb2b.partnerprog_id', '=', 'tbl_partner_prog.id')
-            ->select(DB::raw("count('tbl_partner_prog.id') as count_invoice_needed"))
+            ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
+            ->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')
+            ->select(
+                'tbl_corp.corp_name as client_name',
+                'program.program_name',
+                DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name'),
+                'tbl_partner_prog.success_date'
+            )
             ->where('tbl_partner_prog.status', 1)->whereNull('tbl_invb2b.partnerprog_id')
             ->whereYear('tbl_partner_prog.success_date', '=', $year)
             ->whereMonth('tbl_partner_prog.success_date', '=', $month)
             ->get();
 
         $referral  = Referral::leftJoin('tbl_invb2b', 'tbl_invb2b.ref_id', '=', 'tbl_referral.id')
-            ->select(DB::raw("count('tbl_referral.id') as count_invoice_needed"))
-            ->where('tbl_referral.referral_type', 'Out')->whereNull('tbl_invb2b.ref_id')
+            ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
+            // ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
+            ->leftJoin('users', 'users.id', '=', 'tbl_referral.empl_id')
+            ->select(
+                'tbl_corp.corp_name as client_name',
+                'tbl_referral.additional_prog_name as program_name',
+                DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name'),
+                'tbl_referral.ref_date as success_date'
+            )->where('tbl_referral.referral_type', 'Out')->whereNull('tbl_invb2b.ref_id')
             ->whereYear('tbl_referral.ref_date', '=', $year)
             ->whereMonth('tbl_referral.ref_date', '=', $month)
             ->get();
@@ -607,6 +630,13 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                                 tbl_invdtl.invdtl_amountidr
                             ELSE null
                         END) as total'),
+                    DB::raw('(CASE
+                            WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN 
+                                tbl_invb2b.invb2b_duedate
+                            WHEN tbl_invb2b.invb2b_pm = "Installment" THEN 
+                                tbl_invdtl.invdtl_duedate
+                            ELSE null
+                        END) as invoice_duedate'),
                     // DB::raw("'start_data '" . $start_date . "as start_date"),
 
                 )->whereNull('tbl_receipt.id');
