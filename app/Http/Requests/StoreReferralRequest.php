@@ -17,6 +17,13 @@ class StoreReferralRequest extends FormRequest
         return true;
     }
 
+    public function attributes()
+    {
+        return [
+            'revenue' => 'referral fee',
+        ];
+    }
+
     public function messages()
     {
         return [
@@ -29,7 +36,7 @@ class StoreReferralRequest extends FormRequest
             'empl_id.required' => 'The PIC field is required',
             'additional_prog_name.required_if' => 'The program name field is required',
             'number_of_student.required' => 'The participant field is required',
-            'revenue.required' => 'The amount field is required',
+            // 'revenue.required' => 'The amount field is required',
             'ref_date.required' => 'The referral date is required',
             'ref_date.date' => 'The referral date format is invalid',
         ];
@@ -70,5 +77,4 @@ class StoreReferralRequest extends FormRequest
 
         return $rules;
     }
-
 }
