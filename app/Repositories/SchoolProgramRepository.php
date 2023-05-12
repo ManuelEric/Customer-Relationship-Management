@@ -187,12 +187,16 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                 'tbl_sch.sch_name as school_name',
                 'program.program_name'
             )
+
+            # Status (4: Accepted, 5: Cancel) Temporary by created_at
             ->whereYear(
                 DB::raw('(CASE
                             WHEN tbl_sch_prog.status = 0 THEN tbl_sch_prog.created_at
                             WHEN tbl_sch_prog.status = 1 THEN tbl_sch_prog.success_date
                             WHEN tbl_sch_prog.status = 2 THEN tbl_sch_prog.denied_date
                             WHEN tbl_sch_prog.status = 3 THEN tbl_sch_prog.refund_date
+                            WHEN tbl_sch_prog.status = 4 THEN tbl_sch_prog.created_at
+                            WHEN tbl_sch_prog.status = 5 THEN tbl_sch_prog.created_at
                         END)'),
                 '=',
                 $year
@@ -203,6 +207,8 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                             WHEN tbl_sch_prog.status = 1 THEN tbl_sch_prog.success_date
                             WHEN tbl_sch_prog.status = 2 THEN tbl_sch_prog.denied_date
                             WHEN tbl_sch_prog.status = 3 THEN tbl_sch_prog.refund_date
+                            WHEN tbl_sch_prog.status = 4 THEN tbl_sch_prog.created_at
+                            WHEN tbl_sch_prog.status = 5 THEN tbl_sch_prog.created_at
                         END)'),
                 '=',
                 $month
@@ -220,12 +226,16 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
             'status',
             DB::raw('SUM(total_fee) as total_fee'),
             DB::raw('COUNT(*) as count_status')
+
+            # Status (4: Accepted, 5: Cancel) Temporary by created_at
         )->whereYear(
             DB::raw('(CASE
                             WHEN status = 0 THEN created_at
                             WHEN status = 1 THEN success_date
                             WHEN status = 2 THEN denied_date
                             WHEN status = 3 THEN refund_date
+                            WHEN status = 4 THEN created_at
+                            WHEN status = 5 THEN created_at
                         END)'),
             '=',
             $year
@@ -236,6 +246,8 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                             WHEN status = 1 THEN success_date
                             WHEN status = 2 THEN denied_date
                             WHEN status = 3 THEN refund_date
+                            WHEN status = 4 THEN created_at
+                            WHEN status = 5 THEN created_at
                         END)'),
                 '=',
                 $month

@@ -161,8 +161,10 @@
                                         onchange="checkStatus()" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
                                             <option value="0">Pending</option>
+                                            <option value="4">Accepted</option>
+                                            <option value="2">Rejected</option>
                                             <option value="1">Success</option>
-                                            <option value="2">Denied</option>
+                                            <option value="5">Cancel</option>
                                             @if (isset($schoolProgram->invoiceB2b->receipt) || isset($schoolProgram->invoiceB2b->inv_detail->receipt))
                                             <option value="3">Refund</option>
                                             @endif
@@ -182,7 +184,7 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6 denied_status d-none">
-                                    <small>Denied Date <sup class="text-danger">*</sup> </small>
+                                    <small>Rejected Date <sup class="text-danger">*</sup> </small>
                                     <input type="date" name="denied_date" id=""
                                         class="form-control form-control-sm rounded"
                                         value="{{ isset($schoolProgram->denied_date) ? $schoolProgram->denied_date :  old('denied_date') }}"
@@ -198,6 +200,39 @@
                                         value="{{ isset($schoolProgram->refund_date) ? $schoolProgram->refund_date :  old('refund_date') }}"
                                         {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                     @error('refund_date')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 pending_status d-none">
+                                    <small>Pending Date <sup class="text-danger">*</sup></small>
+                                    <input type="date" name="pending_date" id=""
+                                        class="form-control form-control-sm rounded"
+                                        value="{{ isset($schoolProgram->pending_date) ? $schoolProgram->pending_date :  old('pending_date') }}"
+                                        {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}
+                                        >
+                                    @error('pending_date')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 accepted_status d-none">
+                                    <small>Accepted Date <sup class="text-danger">*</sup> </small>
+                                    <input type="date" name="accepted_date" id=""
+                                        class="form-control form-control-sm rounded"
+                                        value="{{ isset($schoolProgram->accepted_date) ? $schoolProgram->accepted_date :  old('accepted_date') }}"
+                                        {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}
+                                        >
+                                    @error('accepted_date')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 cancel_status d-none">
+                                    <small>Cancel Date <sup class="text-danger">*</sup> </small>
+                                    <input type="date" name="cancel_date" id=""
+                                        class="form-control form-control-sm rounded"
+                                        value="{{ isset($schoolProgram->cancel_date) ? $schoolProgram->cancel_date :  old('cancel_date') }}"
+                                        {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}
+                                        >
+                                    @error('cancel_date')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -267,8 +302,8 @@
                                     </textarea>
                                 </div>        
 
-                                {{-- Denied --}}
-                                <div class="col-md-6 denied_status d-none my-2">
+                                {{-- Reason --}}
+                                <div class="col-md-6 reason d-none my-2">
                                 
                                         <label>Reason <sup class="text-danger">*</sup> </label>
                                         <div class="classReason">
@@ -327,7 +362,7 @@
                         </div>
                     </div>
                     {{-- Program Detail  --}}
-                    <div class="row mb-3 success_status d-none">
+                    <div class="row mb-3 program_detail d-none">
                         <div class="col-md-3">
                             <label for="">
                                 Program Detail
@@ -341,29 +376,7 @@
                                 </div>
                                 <div class="card-body">
                                     {{-- if success  --}}
-                                    <div class="row mb-2">
-                                        <div class="col-md-6">
-                                            <small>Start Program Date <sup class="text-danger">*</sup> </small>
-                                            <input type="date" name="start_program_date" id=""
-                                                class="form-control form-control-sm rounded"
-                                                value="{{ isset($schoolProgram->start_program_date) ? $schoolProgram->start_program_date :  old('start_program_date') }}"
-                                                {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
-                                            @error('start_program_date')
-                                                <small class="text-danger fw-light">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-6">
-                                            <small>End Program Date <sup class="text-danger">*</sup> </small>
-                                            <input type="date" name="end_program_date" id=""
-                                                class="form-control form-control-sm rounded"
-                                                value="{{ isset($schoolProgram->end_program_date) ? $schoolProgram->end_program_date :  old('end_program_date') }}"
-                                                {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
-                                            @error('end_program_date')
-                                                <small class="text-danger fw-light">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2">
+                                    <div class="row mb-2 success_status d-none">
                                         <div class="col-md-12 mb-2">
                                             <small>Place <sup class="text-danger">*</sup> </small>
                                             <input type="text" name="place" id=""
@@ -404,7 +417,7 @@
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
-                                        <div class="col-md-6 mb-2">
+                                        {{-- <div class="col-md-6 mb-2">
                                             <small>Running Status <sup class="text-danger">*</sup> </small>
                                             <select name="running_status" id="" class="select w-100" {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
                                                 <option data-placeholder="true"></option>
@@ -421,7 +434,7 @@
                                             @error('running_status')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
-                                        </div>
+                                        </div> --}}
                                         <div class="col-md-12 mb-2">
                                             <small>Notes</small>
                                             <textarea name="notes_detail" id=""  {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
@@ -429,6 +442,29 @@
                                             </textarea>
                                         </div>
                                     </div>
+                                    <div class="row mb-2 program_date d-none">
+                                        <div class="col-md-6">
+                                            <small>Start Program Date <sup class="text-danger">*</sup> </small>
+                                            <input type="date" name="start_program_date" id=""
+                                                class="form-control form-control-sm rounded"
+                                                value="{{ isset($schoolProgram->start_program_date) ? $schoolProgram->start_program_date :  old('start_program_date') }}"
+                                                {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                            @error('start_program_date')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-6">
+                                            <small>End Program Date <sup class="text-danger">*</sup> </small>
+                                            <input type="date" name="end_program_date" id=""
+                                                class="form-control form-control-sm rounded"
+                                                value="{{ isset($schoolProgram->end_program_date) ? $schoolProgram->end_program_date :  old('end_program_date') }}"
+                                                {{ empty($schoolProgram) || isset($edit) ? '' : 'disabled' }}>
+                                            @error('end_program_date')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -517,21 +553,69 @@
         function checkStatus() {
             let status = $('#approach_status').val();
             if (status == '0') {
+                $('.pending_status').removeClass('d-none')
+                $('.program_date').removeClass('d-none')
                 $('.denied_status').addClass('d-none')
                 $('.success_status').addClass('d-none')
                 $('.refund_status').addClass('d-none')
+                $('.accepted_status').addClass('d-none')
+                $('.cancel_status').addClass('d-none')
+                $('.reason').addClass('d-none')
+                $('.program_detail').removeClass('d-none')
+                $('.program_date').removeClass('d-none')
             } else if (status == '1') {
+                $('.pending_status').addClass('d-none')
                 $('.denied_status').addClass('d-none')
                 $('.refund_status').addClass('d-none')
                 $('.success_status').removeClass('d-none')
+                $('.accepted_status').addClass('d-none')
+                $('.cancel_status').addClass('d-none')
+                $('.reason').addClass('d-none')
+                $('.program_detail').removeClass('d-none')
+                $('.program_date').removeClass('d-none')
             } else if (status == '2') {
+                $('.pending_status').addClass('d-none')
                 $('.denied_status').removeClass('d-none')
                 $('.success_status').addClass('d-none')
                 $('.refund_status').addClass('d-none')
+                $('.accepted_status').addClass('d-none')
+                $('.cancel_status').addClass('d-none')
+                $('.reason').removeClass('d-none')
+                $('.program_detail').addClass('d-none')
+                $('.program_date').addClass('d-none')
             } else if (status == '3'){
+                $('.pending_status').addClass('d-none')
                 $('.refund_status').removeClass('d-none')
                 $('.denied_status').addClass('d-none')
                 $('.success_status').addClass('d-none')
+                $('.program_date').addClass('d-none')
+                $('.accepted_status').addClass('d-none')
+                $('.cancel_status').addClass('d-none')
+                $('.reason').addClass('d-none')
+                $('.program_detail').addClass('d-none')
+                $('.program_date').addClass('d-none')
+            } else if (status == '4'){
+                $('.pending_status').addClass('d-none')
+                $('.program_date').removeClass('d-none')
+                $('.refund_status').addClass('d-none')
+                $('.denied_status').addClass('d-none')
+                $('.success_status').addClass('d-none')
+                $('.accepted_status').removeClass('d-none')
+                $('.cancel_status').addClass('d-none')
+                $('.reason').addClass('d-none')
+                $('.program_detail').removeClass('d-none')
+                $('.program_date').removeClass('d-none')
+            } else if (status == '5'){
+                $('.pending_status').addClass('d-none')
+                $('.program_date').addClass('d-none')
+                $('.refund_status').addClass('d-none')
+                $('.denied_status').addClass('d-none')
+                $('.success_status').addClass('d-none')
+                $('.accepted_status').addClass('d-none')
+                $('.cancel_status').removeClass('d-none')
+                $('.reason').removeClass('d-none')
+                $('.program_detail').addClass('d-none')
+                $('.program_date').addClass('d-none')
             }
         }
 
@@ -606,16 +690,32 @@
 
     </script>
     @if(isset($schoolProgram))
+        @if(empty(old('status')))
+            <script>
+                $(document).ready(function(){
+                    $('#approach_status').val('{{$schoolProgram->status}}').trigger('change')
+                    // $('#selectReason').select2()
+                })
+                
+            </script>
+        @endif
+    @else
         <script>
             $(document).ready(function(){
-                $('#approach_status').val('{{$schoolProgram->status}}').trigger('change')
-                // $('#selectReason').select2()
+            $('#approach_status').val(0).trigger('change')
             })
+        </script>
+    @endif
 
+    @if(!empty(old('status')))
+        <script>
+            $(document).ready(function(){
+                $('#approach_status').val("{{old('status')}}").trigger('change')
+            })
         </script>
     @endif
     
-    @if(
+    {{-- @if(
         $errors->has('success_date') || 
         $errors->has('start_program_date') || 
         $errors->has('end_program_date') ||
@@ -659,7 +759,7 @@
             })
 
         </script>
-    @endif
+    @endif --}}
 
     @if($errors->has('notes_reason'))
             

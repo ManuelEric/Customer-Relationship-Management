@@ -32,8 +32,11 @@ class PartnerProg extends Model
         'reason_id',
         'total_fee',
         'success_date',
-        'denied_date',
+        'pending_date',
+        'accepted_date',
+        'cancel_date',
         'refund_date',
+        'denied_date',
         'refund_notes',
         'empl_id',
     ];

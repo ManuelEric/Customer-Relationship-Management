@@ -51,8 +51,10 @@
                         <label for="">Approach Status</label>
                         <select name="status[]" id="" class="select form-select form-select-sm w-100" multiple>
                             <option value="0">Pending</option>
+                            <option value="4">Accepted</option>
+                            <option value="5">Cancel</option>
+                            <option value="2">Rejected</option>
                             <option value="1">Success</option>
-                            <option value="2">Denied</option>
                             <option value="3">Refund</option>
                         </select>
                     </div>
@@ -150,19 +152,11 @@
                         data: 'participants',
                         render: function(data, type, row, meta) {
                             switch (parseInt(row.status)) {
-                                case 0:
-                                    return "-"
-                                    break;
-
                                 case 1:
                                     return data
                                     break;
                                 
-                                case 2:
-                                    return "-"
-                                    break;
-                                
-                                case 3:
+                                default:
                                     return "-"
                                     break;
                             }
@@ -172,10 +166,6 @@
                         data: 'total_fee',
                         render: function(data, type, row, meta) {
                             switch (parseInt(row.status)) {
-                                case 0:
-                                    return "-"
-                                    break;
-
                                 case 1:
                                     return new Intl.NumberFormat("id-ID", {
                                         style: "currency",
@@ -183,11 +173,7 @@
                                     }).format(data);
                                     break;
                                 
-                                case 2:
-                                    return "-"
-                                    break;
-
-                                case 3:
+                                default:
                                     return "-"
                                     break;
                             }
@@ -206,11 +192,19 @@
                                     break;
                                 
                                 case 2:
-                                    return "Denied"
+                                    return "Rejected"
                                     break;
 
                                 case 3:
                                     return "Refund"
+                                    break;
+                                
+                                case 4:
+                                    return "Accepted"
+                                    break;
+
+                                case 5:
+                                    return "Cancel"
                                     break;
                             }
                         }
