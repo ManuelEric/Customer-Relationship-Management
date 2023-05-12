@@ -715,51 +715,6 @@
         </script>
     @endif
     
-    {{-- @if(
-        $errors->has('success_date') || 
-        $errors->has('start_program_date') || 
-        $errors->has('end_program_date') ||
-        $errors->has('place') ||
-        $errors->has('participants') ||
-        $errors->has('total_fee') ||
-        $errors->has('total_hours') ||
-        $errors->has('running_status')
-        )
-        
-        <script>
-            $(document).ready(function(){
-                $('#approach_status').val('1').trigger('change')
-                // $('#selectReason').select2()
-            })
-
-        </script>
-
-    @endif
-  
-    @if(
-        $errors->has('denied_date') || 
-        $errors->has('reason_id') ||
-        $errors->has('other_reason')
-        )
-        
-        <script>
-            $(document).ready(function(){
-                $('#approach_status').val('2').trigger('change')
-            })
-
-        </script>
-
-
-    @endif
-
-    @if($errors->has('refund_date') || $errors->has('reason_refund_id') || $errors->has('other_reason_refund'))
-        <script>
-            $(document).ready(function(){
-                $('#approach_status').val('3').trigger('change')
-            })
-
-        </script>
-    @endif --}}
 
     @if($errors->has('notes_reason'))
             
