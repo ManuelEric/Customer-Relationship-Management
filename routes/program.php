@@ -10,6 +10,7 @@ use App\Http\Controllers\SchoolProgramAttachController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\PartnerProgramController;
 use App\Http\Controllers\PartnerProgramAttachController;
+use App\Http\Controllers\PartnerProgramCollaboratorsController;
 use App\Http\Controllers\PartnerProgramSpeakerController;
 use App\Http\Controllers\SchoolDetailController;
 
@@ -53,9 +54,6 @@ Route::resource('client', ClientProgramController::class);
 Route::get('corporate', function () {
     return view('pages.program.corporate-program.index');
 });
-Route::get('corporate/1', function () {
-    return view('pages.program.corporate-program.form');
-});
 
 Route::resource('event', ClientEventController::class, [
     'names' => [
@@ -77,6 +75,7 @@ Route::prefix('corporate')->name('corporate_prog.')->group(function () {
     Route::resource('{corp}/detail', PartnerProgramController::class);
     Route::resource('{corp}/detail/{corp_prog}/speaker', PartnerProgramSpeakerController::class);
     Route::resource('{corp}/detail/{corp_prog}/attach', PartnerProgramAttachController::class);
+    Route::post('{corp}/detail/{corp_prog}/collaborators/{school_or_univ}', [PartnerProgramCollaboratorsController::class, 'store'])->name('collaborators.store');
 });
 
 

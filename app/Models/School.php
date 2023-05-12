@@ -94,4 +94,9 @@ class School extends Model
     {
         return $this->hasMany(SchoolVisit::class, 'sch_id', 'sch_id');
     }
+
+    public function partnerProgram()
+    {
+        return $this->belongsToMany(PartnerProg::class, 'tbl_partner_prog_sch', 'sch_id', 'partnerprog_id');
+    }
 }

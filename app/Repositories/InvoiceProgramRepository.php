@@ -91,6 +91,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 'tbl_inv.created_at',
                 'tbl_inv.inv_duedate',
                 'tbl_inv.inv_totalprice_idr',
+                'pic_mail',
                 DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
             ])
             ->where('tbl_inv.reminded', '=', 0)

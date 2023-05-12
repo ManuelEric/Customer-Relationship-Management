@@ -51,6 +51,8 @@
             @endif
 
             @include('pages.program.corporate-program.detail.corporate')
+
+            @include('pages.program.corporate-program.detail.school')
             @if(isset($partnerProgram) &&  $partnerProgram->status == 1 && empty($edit))
                 @include('pages.program.corporate-program.detail.speaker')
             @endif

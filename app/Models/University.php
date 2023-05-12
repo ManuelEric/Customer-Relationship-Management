@@ -86,4 +86,9 @@ class University extends Model
     {
         return $this->belongsTo(Tag::class, 'tag', 'id');
     }
+
+    public function partnerProgram()
+    {
+        return $this->belongsToMany(PartnerProg::class, 'tbl_partner_prog_univ', 'univ_id', 'partnerprog_id');
+    }
 }

@@ -233,13 +233,13 @@
  </div>
 
  <script>
-     $(document).ready(function() {
-         $('.speaker-select').select2({
-             dropdownParent: $('#speaker .modal-content'),
-             placeholder: "Select value",
-             allowClear: true
-         });
-     });
+    $(document).ready(function() {
+        $('.speaker-select').select2({
+            dropdownParent: $('#speaker .modal-content'),
+            placeholder: "Select value",
+            allowClear: true
+        });
+    });
 
      function changeType() {
          let type = $('#speaker_type').val()

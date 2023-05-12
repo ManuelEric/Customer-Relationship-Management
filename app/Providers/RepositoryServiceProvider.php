@@ -35,6 +35,7 @@ use App\Interfaces\PartnerRepositoryInterface;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\PartnerAgreementRepositoryInterface;
 use App\Interfaces\PartnerProgramAttachRepositoryInterface;
+use App\Interfaces\PartnerProgramCollaboratorsRepositoryInterface;
 use App\Interfaces\PositionRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\PurchaseDetailRepositoryInterface;
@@ -96,6 +97,7 @@ use App\Repositories\PartnerRepository;
 use App\Repositories\PartnerProgramRepository;
 use App\Repositories\PartnerAgreementRepository;
 use App\Repositories\PartnerProgramAttachRepository;
+use App\Repositories\PartnerProgramCollaboratorsRepository;
 use App\Repositories\PositionRepository;
 use App\Repositories\ProgramRepository;
 use App\Repositories\PurchaseDetailRepository;
@@ -193,6 +195,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(InvoiceAttachmentRepositoryInterface::class, InvoiceAttachmentRepository::class);
         $this->app->bind(ReceiptAttachmentRepositoryInterface::class, ReceiptAttachmentRepository::class);
         $this->app->bind(AxisRepositoryInterface::class, AxisRepository::class);
+        $this->app->bind(PartnerProgramCollaboratorsRepositoryInterface::class, PartnerProgramCollaboratorsRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
