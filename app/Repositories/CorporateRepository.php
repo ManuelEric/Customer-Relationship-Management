@@ -27,11 +27,19 @@ class CorporateRepository implements CorporateRepositoryInterface
 
         $query = Corporate::query();
 
-        $query->whereYear('created_at', '=', $year)
-            ->whereMonth('created_at', '=', $month);
+        if ($type == 'all') {
+            $query->whereYear('created_at', '<=', $year)
+                ->whereMonth('created_at', '<=', $month);
+        } else {
+            $query->whereYear('created_at', '=', $year)
+                ->whereMonth('created_at', '=', $month);
+        }
 
         switch ($type) {
-            case 'total':
+            case 'all':
+                return $query->count();
+                break;
+            case 'monthly':
                 return $query->count();
                 break;
             case 'list':
