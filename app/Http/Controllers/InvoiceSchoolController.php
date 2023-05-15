@@ -61,7 +61,8 @@ class InvoiceSchoolController extends Controller
                     return $this->invoiceB2bRepository->getAllInvoiceNeededSchDataTables();
                     break;
                 case 'list':
-                    return $this->invoiceB2bRepository->getAllInvoiceSchDataTables();
+                case 'reminder':
+                    return $this->invoiceB2bRepository->getAllInvoiceSchDataTables($status);
                     break;
             }
         }

@@ -1,5 +1,6 @@
 @extends('layout.email')
 @section('header', 'Invoice')
+@section('style')
 <style>
     .table, .table th, .table td {
         border: 1px solid black;
@@ -9,6 +10,7 @@
         padding: 15px;
     }
 </style>
+@endsection
 @section('content')
     <p style="margin:0;">Dear Mr./Mrs. {{ $parent_fullname }},</p>
     <p>

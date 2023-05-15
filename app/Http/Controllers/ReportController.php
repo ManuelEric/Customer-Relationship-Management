@@ -101,7 +101,8 @@ class ReportController extends Controller
         $schoolVisits = $this->schoolVisitRepository->getReportSchoolVisit($start_date, $end_date);
         $partners = $this->corporateRepository->getReportNewPartner($start_date, $end_date);
         $universities = $this->universityRepository->getReportNewUniversity($start_date, $end_date);
-        $referrals = $this->referralRepository->getReportNewReferral($start_date, $end_date);
+        $referrals_in = $this->referralRepository->getReportNewReferral($start_date, $end_date, 'In');
+        $referrals_out = $this->referralRepository->getReportNewReferral($start_date, $end_date, 'Out');
 
         return view('pages.report.partnership.index')->with(
             [
@@ -111,7 +112,8 @@ class ReportController extends Controller
                 'schoolVisits' => $schoolVisits,
                 'partners' => $partners,
                 'universities' => $universities,
-                'referrals' => $referrals,
+                'referrals_in' => $referrals_in,
+                'referrals_out' => $referrals_out,
             ]
         );
     }

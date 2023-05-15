@@ -129,8 +129,8 @@
         // Axios here ... 
 
         let data = {
-            'partner': [0, 0, 0, 0],
-            'school': [0, 0, 0, 0],
+            'partner': [0, 0, 0, 0, 0, 0],
+            'school': [0, 0, 0, 0, 0, 0],
             'referral': [0, 0],
         }
 
@@ -141,7 +141,7 @@
                 var no = 1;
                 var totalReferral = 0;
 
-                school_program_chart.data.datasets[0].data = [0,0,0,0]
+                school_program_chart.data.datasets[0].data = [0,0,0,0,0,0]
 
                 result.statusSchoolPrograms.forEach(function (item, index, arr) {
 
@@ -150,13 +150,19 @@
                             school_program_chart.data.datasets[0].data[0] = parseInt(item['count_status']);
                             break;
                         case 1:
-                            school_program_chart.data.datasets[0].data[1] = parseInt(item['count_status']);
+                            school_program_chart.data.datasets[0].data[3] = parseInt(item['count_status']);
                             break;
                         case 2:
                             school_program_chart.data.datasets[0].data[2] = parseInt(item['count_status']);
                             break;
                         case 3:
-                            school_program_chart.data.datasets[0].data[3] = parseInt(item['count_status']);
+                            school_program_chart.data.datasets[0].data[5] = parseInt(item['count_status']);
+                            break;
+                        case 4:
+                            school_program_chart.data.datasets[0].data[1] = parseInt(item['count_status']);
+                            break;
+                        case 5:
+                            school_program_chart.data.datasets[0].data[4] = parseInt(item['count_status']);
                             break;
                     
                         default:
@@ -168,7 +174,7 @@
 
                 $('#tot_school_program').html(rupiah(result.totalSchoolProgram))
                 
-                partner_program_chart.data.datasets[0].data = [0,0,0,0]
+                partner_program_chart.data.datasets[0].data = [0,0,0,0,0,0]
                 result.statusPartnerPrograms.forEach(function (item, index, arr) {
                   
                     switch (parseInt(item['status'])) {                        
@@ -176,13 +182,19 @@
                             partner_program_chart.data.datasets[0].data[0] = parseInt(item['count_status']);
                             break;
                         case 1:
-                            partner_program_chart.data.datasets[0].data[1] = parseInt(item['count_status']);
+                            partner_program_chart.data.datasets[0].data[3] = parseInt(item['count_status']);
                             break;
                         case 2:
                             partner_program_chart.data.datasets[0].data[2] = parseInt(item['count_status']);
                             break;
                         case 3:
-                            partner_program_chart.data.datasets[0].data[3] = parseInt(item['count_status']);
+                            partner_program_chart.data.datasets[0].data[5] = parseInt(item['count_status']);
+                            break;
+                        case 4:
+                            partner_program_chart.data.datasets[0].data[1] = parseInt(item['count_status']);
+                            break;
+                        case 5:
+                            partner_program_chart.data.datasets[0].data[4] = parseInt(item['count_status']);
                             break;
                     
                         default:
@@ -230,10 +242,11 @@
         var partner_program_chart = new Chart(partner_program, {
             type: 'doughnut',
             data: {
-                labels: ['Pending', 'Success', 'Denied', 'Refund'],
+                labels: ['Pending', 'Accepted', 'Rejected', 'Success', 'Cancel', 'Refund'],
                 datasets: [{
                     label: 'Partner Program',
-                    data: [0,0,0,0],
+                    data: [0,0,0,0,0,0],
+                    backgroundColor: ["#ffc107", "#0d6efd", "#dc3545", "#198754", "#6E260E", "#adb5bd"],
                     borderWidth: 1
                 }]
             },
@@ -287,10 +300,11 @@
         var school_program_chart = new Chart(school_program, {
             type: 'doughnut',
             data: {
-                labels: ['Pending', 'Success', 'Denied', 'Refund'],
+                labels: ['Pending', 'Accepted', 'Rejected', 'Success', 'Cancel', 'Refund'],
                 datasets: [{
                     label: 'School Program',
-                    data: [0,0,0,0],
+                    data: [0,0,0,0,0,0],
+                    backgroundColor: ["#ffc107", "#0d6efd", "#dc3545", "#198754", "#6E260E", "#adb5bd"],
                     borderWidth: 1
                 }]
             },

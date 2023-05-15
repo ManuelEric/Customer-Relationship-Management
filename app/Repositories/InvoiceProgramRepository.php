@@ -42,19 +42,26 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 break;
 
             case "reminder":
-                $query = ViewClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->select([
-                    'tbl_inv.clientprog_id',
-                    'clientprogram.fullname',
-                    'clientprogram.parent_fullname',
-                    'clientprogram.parent_phone',
-                    'program_name',
-                    'tbl_inv.inv_id',
-                    'tbl_inv.inv_paymentmethod',
-                    'tbl_inv.created_at',
-                    'tbl_inv.inv_duedate',
-                    'tbl_inv.inv_totalprice_idr',
-                    DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
-                ])
+                $query = ViewClientProgram::
+                    leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
+                    leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->
+                    leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->
+                    leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->
+                    leftJoin('tbl_receipt as receipt', 'receipt.inv_id', '=', 'tbl_inv.inv_id')->
+                    select([
+                        'tbl_inv.clientprog_id',
+                        'clientprogram.fullname',
+                        'clientprogram.parent_fullname',
+                        'clientprogram.parent_phone',
+                        'program_name',
+                        'tbl_inv.inv_id',
+                        'tbl_inv.inv_paymentmethod',
+                        'tbl_inv.created_at',
+                        'tbl_inv.inv_duedate',
+                        'tbl_inv.inv_totalprice_idr',
+                        DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
+                    ])
+                    ->whereNull('receipt.inv_id')
                     ->where(DB::raw('DATEDIFF(tbl_inv.inv_duedate, now())'), '<=', 7)
                     ->orderBy('date_difference', 'asc');
                 break;
@@ -66,20 +73,28 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
     public function getAllDueDateInvoiceProgram(int $days)
     {
-        return ViewClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->select([
-            'tbl_inv.clientprog_id',
-            'clientprogram.fullname',
-            'clientprogram.parent_fullname',
-            'clientprogram.parent_phone',
-            'clientprogram.parent_mail',
-            'program_name',
-            'tbl_inv.inv_id',
-            'tbl_inv.inv_paymentmethod',
-            'tbl_inv.created_at',
-            'tbl_inv.inv_duedate',
-            'tbl_inv.inv_totalprice_idr',
-            DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
-        ])
+        return ViewClientProgram::
+            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
+            leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->
+            leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->
+            select([
+                'tbl_inv.clientprog_id',
+                'clientprogram.fullname',
+                'clientprogram.parent_fullname',
+                'clientprogram.parent_phone',
+                'clientprogram.parent_mail',
+                'program_name',
+                'tbl_inv.inv_id',
+                'tbl_inv.inv_paymentmethod',
+                'clientprogram.installment_notes',
+                'tbl_inv.created_at',
+                'tbl_inv.inv_duedate',
+                'tbl_inv.inv_totalprice_idr',
+                'pic_mail',
+                DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
+            ])
+            ->where('tbl_inv.reminded', '=', 0)
             ->where(DB::raw('DATEDIFF(tbl_inv.inv_duedate, now())'), '=', $days)
             ->orderBy('date_difference', 'asc')->get();
     }
@@ -231,7 +246,13 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
         $month = date('m', strtotime($monthYear));
 
         return ViewClientProgram::doesntHave('invoice')
-            ->select(DB::raw('COUNT(clientprog_id) as count_invoice_needed'))
+            ->leftJoin('program', 'program.prog_id', '=', 'clientprogram.prog_id')
+            ->select(
+                'fullname as client_name',
+                'program.program_name',
+                'pic_name',
+                'success_date'
+            )
             ->where('status', 1)
             ->whereYear('success_date', '=', $year)
             ->whereMonth('success_date', '=', $month)
@@ -353,7 +374,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
                                 tbl_invdtl.invdtl_amountidr
                             ELSE null
-                        END) as total')
+                        END) as total'),
+
+                    DB::raw('(CASE 
+                                WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN 
+                                    tbl_inv.inv_duedate 
+                                WHEN tbl_inv.inv_paymentmethod = "Installment" THEN 
+                                    tbl_invdtl.invdtl_duedate
+                            END) as invoice_duedate')
                 ])->whereNull('tbl_receipt.id');
 
                 if (isset($monthYear)) {

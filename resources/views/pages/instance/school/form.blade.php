@@ -90,9 +90,13 @@
                                                 @elseif ($schoolProgram->status == 1)
                                                     Success
                                                 @elseif ($schoolProgram->status == 2)
-                                                    Denied
+                                                    Rejected
                                                 @elseif ($schoolProgram->status == 3)
                                                     Refund
+                                                @elseif ($schoolProgram->status == 4)
+                                                    Accepted
+                                                @elseif ($schoolProgram->status == 5)
+                                                    Cancel
                                                 @endif
                                             </small>
                                         </div>

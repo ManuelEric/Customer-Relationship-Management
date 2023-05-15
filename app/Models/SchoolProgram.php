@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\pivot\SchoolCollaboratorFromSchoolProgram;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +37,9 @@ class SchoolProgram extends Model
         'end_program_date',
         'start_program_date',
         'success_date',
+        'pending_date',
+        'accepted_date',
+        'cancel_date',
         'reason_id',
         'refund_date',
         'refund_notes',
@@ -104,5 +108,20 @@ class SchoolProgram extends Model
     //         get: fn ($value) => $this->program->prog_program . ' - ' . $this->program->prog_main,
     //     );
     // }
+
+    public function univCollaborators()
+    {
+        return $this->belongsToMany(University::class, 'tbl_sch_prog_univ', 'schprog_id', 'univ_id')->withTimestamps();
+    }
+
+    public function partnerCollaborators()
+    {
+        return $this->belongsToMany(Corporate::class, 'tbl_sch_prog_partner', 'schprog_id', 'corp_id')->withTimestamps();
+    }
+
+    public function schoolCollaborators()
+    {
+        return $this->belongsToMany(School::class, 'tbl_sch_prog_school', 'schprog_id', 'sch_id')->withTimestamps();
+    }
 
 }

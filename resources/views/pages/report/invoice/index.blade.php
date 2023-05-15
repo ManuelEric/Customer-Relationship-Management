@@ -294,39 +294,55 @@
 
             var ws = new Array();
 
-
             var workbook = XLSX.utils.book_new();
-           
 
             tableName.forEach(function (d, i) {
                 ws[i] = XLSX.utils.table_to_sheet(document.getElementById(tableName[i]));
                 XLSX.utils.book_append_sheet(workbook, ws[i], sheetName[i]);
             })
 
-            var ref_invoice = workbook.Sheets.Invoices['!fullref'];
-            var col_invoice = ref_invoice.slice(ref_invoice.indexOf(':') + 1);
-            var last_col_invoice = parseInt(col_invoice.slice(col_invoice.indexOf('I') + 1)) - 1;
+            sheetName.forEach(function (d, i){
+                var sheet = d;
+                var full_ref = workbook.Sheets[sheet]['!fullref'];
+                var last_ref = full_ref.slice(full_ref.indexOf(':') + 1);
+                var last_col = parseInt(last_ref.slice(last_ref.indexOf('L') + 1)) - 1;
 
-            for(var i = 2; i <= last_col_invoice; i++) {
-                var index = 'I' + i;
-                workbook.Sheets.Invoices[index].v =  parseInt(workbook.Sheets.Invoices[index].v.replace("Rp.", "").replaceAll(".", ""));
-                workbook.Sheets.Invoices[index].t = 'n';
-                workbook.Sheets.Invoices[index].z = 'Rp#,##0;(Rp#,##0)';
-            }
-            workbook.Sheets.Invoices[col_invoice] = { t:'n', z:'Rp#,##0;(Rp#,##0)', f: "SUM(I2:" + index +")", F:col_invoice + ":" + col_invoice }
+                var col = ['I', 'J', 'K', 'L']; //  I = Amount IDR, J = USD, K = SGD, L = GBP
+                
+                col.forEach(function (d, i){
+                    for(var i = 2; i <= last_col; i++) {
+                        var index = d + i;
 
-            var ref_receipt = workbook.Sheets.Receipts['!fullref'];
-            var col_receipt = ref_receipt.slice(ref_receipt.indexOf(':') + 1);
-            var last_col_receipt = parseInt(col_receipt.slice(col_receipt.indexOf('I') + 1)) - 1;
+                        var format_cell;
+                        var remove_cursymbol;
+                        switch (d) {
+                            case 'I':
+                                remove_cursymbol = 'Rp.';
+                                format_cell = 'Rp#,##0;(Rp#,##0)';
+                                break;
+                            case 'J':
+                                format_cell = '$#,##0;($#,##0)';
+                                break;
+                            case 'K':
+                                remove_cursymbol = 'S$ ';
+                                format_cell = '$#,##0;($#,##0)';
+                                break;
+                            case 'L':
+                                remove_cursymbol = '£ ';
+                                format_cell = '£#,##0;(£#,##0)';
+                                break;
+                        }
+                        if(workbook.Sheets[sheet][index].v != '-' && d != 'J')
+                            workbook.Sheets[sheet][index].v =  parseInt(workbook.Sheets[sheet][index].v.replace(remove_cursymbol, "").replaceAll(",", ""));
 
-            for(var j = 2; j <= last_col_receipt; j++) {
-                var index = 'I' + j;
-                workbook.Sheets.Receipts[index].v =  parseInt(workbook.Sheets.Receipts[index].v.replace("Rp.", "").replaceAll(".", ""));
-                workbook.Sheets.Receipts[index].t = 'n';
-                workbook.Sheets.Receipts[index].z = 'Rp#,##0;(Rp#,##0)';
-            }
-            workbook.Sheets.Receipts[col_receipt] = { t:'n', z:'Rp#,##0;(Rp#,##0)', f: "SUM(I2:" + index +")", F:col_receipt + ":" + col_receipt }
+                        workbook.Sheets[sheet][index].t = 'n';
+                        workbook.Sheets[sheet][index].z = format_cell;
+                    }
+                    workbook.Sheets[sheet][d + i] = { t:'n', z:format_cell, f: `SUM(${d+2}:` + index +")", F:d + i + ":" + d + i }
+                })
 
+            })
+           
             XLSX.writeFile(workbook, "report-invoice-receipt.xlsx");
             
         }

@@ -21,11 +21,16 @@
                 <li class="nav-item">
                     <a class="nav-link {{ $status =='list' ? 'active' : '' }}" href="{{ url('invoice/school-program/status/list') }}">Invoice List</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $status =='reminder' ? 'active' : '' }}" href="{{ url('invoice/school-program/status/reminder') }}">Due Date Reminder</a>
+                </li>
             </ul>
             @if ($status == 'needed')
                 @include('pages.invoice.school-program.detail.invoice-needed')
-            @else
+            @elseif ($status == 'list')
                 @include('pages.invoice.school-program.detail.invoice-list')
+            @elseif ($status == 'reminder')
+                @include('pages.invoice.school-program.detail.invoice-reminder')
             @endif
 
         </div>

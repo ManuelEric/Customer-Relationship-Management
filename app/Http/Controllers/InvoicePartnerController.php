@@ -54,14 +54,14 @@ class InvoicePartnerController extends Controller
     public function index(Request $request)
     {
         $status = $request->route('status');
-
         if ($request->ajax()) {
             switch ($status) {
                 case 'needed':
                     return $this->invoiceB2bRepository->getAllInvoiceNeededCorpDataTables();
                     break;
                 case 'list':
-                    return $this->invoiceB2bRepository->getAllInvoiceCorpDataTables();
+                case 'reminder':
+                    return $this->invoiceB2bRepository->getAllInvoiceCorpDataTables($status);
                     break;
             }
         }

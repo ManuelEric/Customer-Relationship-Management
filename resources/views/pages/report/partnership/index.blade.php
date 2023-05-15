@@ -62,14 +62,26 @@
                         </div>
                     </div>
                     <div class="card mb-1 bg-danger text-white">
-                        <a href="#referral"
+                        <a href="#referral-in"
                             class="card-body d-flex justify-content-between align-items-center text-decoration-none text-white">
 
                             <strong class="">
-                                Total New Referral
+                                Total Referral In
                             </strong>
                             <h5 class="text-end m-0 badge bg-white text-dark">
-                                {{ count($referrals) }}
+                                {{ count($referrals_in) }}
+                            </h5>
+                        </a>
+                    </div>
+                    <div class="card mb-1 bg-danger text-white">
+                        <a href="#referral-out"
+                            class="card-body d-flex justify-content-between align-items-center text-decoration-none text-white">
+
+                            <strong class="">
+                                Total Referral Out
+                            </strong>
+                            <h5 class="text-end m-0 badge bg-white text-dark">
+                                {{ count($referrals_out) }}
                             </h5>
                         </a>
                     </div>
@@ -207,9 +219,9 @@
                 </div>
             </div>
 
-            <div class="card mb-3" id="referral">
+            <div class="card mb-3" id="referral-in">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="p-0 m-0">New Referral</h6>
+                    <h6 class="p-0 m-0">Referral In</h6>
                 </div>
                 <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
@@ -220,13 +232,52 @@
                                     <th>Partner Name</th>
                                     <th>Program Name</th>
                                     <th>Participants</th>
-                                    <th>Amount</th>
+                                    <th>Referral Fee</th>
                                     <th>PIC</th>
                                     <th>Created at</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($referrals as $referral)
+                                @forelse ($referrals_in as $referral)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $referral->partner->corp_name }}</td>
+                                        <td>{{ $referral->program->program_name }}</td>
+                                        <td>{{ $referral->number_of_student }}</td>
+                                        <td>Rp. {{ number_format($referral->revenue) }}</td>
+                                        <td>{{ $referral->user->first_name }} {{ $referral->user->last_name }}</td>
+                                        <td>{{ $referral->created_at }}</td>
+                                    </tr>
+                                @empty
+                                    <td colspan="7" class="text-center">Not new referral yet</td>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card mb-3" id="referral-out">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="p-0 m-0">Referral Out</h6>
+                </div>
+                <div class="card-body overflow-auto" style="max-height: 500px">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_newref">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th>Partner Name</th>
+                                    <th>Program Name</th>
+                                    <th>Participants</th>
+                                    <th>Referral Fee</th>
+                                    <th>PIC</th>
+                                    <th>Created at</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($referrals_out as $referral)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $referral->partner->corp_name }}</td>

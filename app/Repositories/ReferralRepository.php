@@ -156,7 +156,7 @@ class ReferralRepository implements ReferralRepositoryInterface
         return $end;
     }
 
-    public function getReportNewReferral($start_date = null, $end_date = null)
+    public function getReportNewReferral($start_date = null, $end_date = null, $type)
     {
         $firstDay = Carbon::now()->startOfMonth()->toDateString();
         $lastDay = Carbon::now()->endOfMonth()->toDateString();
@@ -171,7 +171,17 @@ class ReferralRepository implements ReferralRepositoryInterface
         } else {
             $query = Referral::whereBetween('created_at', [$firstDay, $lastDay]);
         }
-        return $query->where('referral_type', 'Out')
-            ->get();
+
+        switch ($type) {
+            case 'In':
+                return $query->where('referral_type', 'In')
+                    ->get();
+                break;
+
+            case 'Out':
+                return $query->where('referral_type', 'Out')
+                    ->get();
+                break;
+        }
     }
 }
