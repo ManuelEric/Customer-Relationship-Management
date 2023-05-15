@@ -195,8 +195,8 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                             WHEN tbl_sch_prog.status = 1 THEN tbl_sch_prog.success_date
                             WHEN tbl_sch_prog.status = 2 THEN tbl_sch_prog.denied_date
                             WHEN tbl_sch_prog.status = 3 THEN tbl_sch_prog.refund_date
-                            WHEN tbl_sch_prog.status = 4 THEN tbl_sch_prog.created_at
-                            WHEN tbl_sch_prog.status = 5 THEN tbl_sch_prog.created_at
+                            WHEN tbl_sch_prog.status = 4 THEN tbl_sch_prog.accepted_date
+                            WHEN tbl_sch_prog.status = 5 THEN tbl_sch_prog.cancel_date
                         END)'),
                 '=',
                 $year
@@ -207,8 +207,8 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                             WHEN tbl_sch_prog.status = 1 THEN tbl_sch_prog.success_date
                             WHEN tbl_sch_prog.status = 2 THEN tbl_sch_prog.denied_date
                             WHEN tbl_sch_prog.status = 3 THEN tbl_sch_prog.refund_date
-                            WHEN tbl_sch_prog.status = 4 THEN tbl_sch_prog.created_at
-                            WHEN tbl_sch_prog.status = 5 THEN tbl_sch_prog.created_at
+                            WHEN tbl_sch_prog.status = 4 THEN tbl_sch_prog.accepted_date
+                            WHEN tbl_sch_prog.status = 5 THEN tbl_sch_prog.cancel_date
                         END)'),
                 '=',
                 $month
@@ -234,8 +234,8 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                             WHEN status = 1 THEN success_date
                             WHEN status = 2 THEN denied_date
                             WHEN status = 3 THEN refund_date
-                            WHEN status = 4 THEN created_at
-                            WHEN status = 5 THEN created_at
+                            WHEN status = 4 THEN accepted_date
+                            WHEN status = 5 THEN cancel_date
                         END)'),
             '=',
             $year
@@ -246,8 +246,8 @@ class SchoolProgramRepository implements SchoolProgramRepositoryInterface
                             WHEN status = 1 THEN success_date
                             WHEN status = 2 THEN denied_date
                             WHEN status = 3 THEN refund_date
-                            WHEN status = 4 THEN created_at
-                            WHEN status = 5 THEN created_at
+                            WHEN status = 4 THEN accepted_date
+                            WHEN status = 5 THEN cancel_date
                         END)'),
                 '=',
                 $month
