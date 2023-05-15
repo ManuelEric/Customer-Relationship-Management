@@ -24,6 +24,7 @@
     </xml>
   </noscript>
   <![endif]-->
+  @yield('style')
   <style>
     table,
     td,

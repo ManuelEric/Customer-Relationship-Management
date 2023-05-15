@@ -70,7 +70,7 @@
                         data: 'sch_name',
                     },
                     {
-                        data: 'sch_type',
+                        data: 'sch_type_text',
                     },
                     {
                         data: 'curriculum',

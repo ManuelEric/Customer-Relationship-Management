@@ -225,7 +225,7 @@
                     <div class="">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-person me-2"></i>
-                            Invoice
+                            Invoice : {{ $invoicePartner->invb2b_id }}
                         </h6>
                     </div>
                     <div class="">
@@ -339,7 +339,7 @@
                             </div>
 
                             <div class="col-md-5 mb-3">
-                                <label for="">Payment Method</label>
+                                <label for="">Payment Method<sup class="text-danger">*</sup></label>
                                 <select name="invb2b_pm" id="payment_method" class="select w-100"
                                     {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}
                                     onchange="checkPayment()">
@@ -354,7 +354,7 @@
                             <div class="col-md-7">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="">Invoice Date</label>
+                                        <label for="">Invoice Date<sup class="text-danger">*</sup></label>
                                         <input type="date" name="invb2b_date" id=""
                                             class='form-control form-control-sm rounded'
                                             @if(isset($invoicePartner))
@@ -370,7 +370,7 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="">Invoice Due Date</label>
+                                        <label for="">Invoice Due Date<sup class="text-danger">*</sup></label>
                                         <input type="date" name="invb2b_duedate" id=""
                                             value="{{ isset($invoicePartner) ? date('Y-m-d', strtotime($invoicePartner->invb2b_duedate)) : old('invb2b_duedate') }}"
                                             {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}

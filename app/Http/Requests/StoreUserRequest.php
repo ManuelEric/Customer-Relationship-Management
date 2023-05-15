@@ -38,7 +38,7 @@ class StoreUserRequest extends FormRequest
             'first_name' => 'required',
             'last_name' => 'nullable',
             'email' => 'required|email',
-            'phone' => 'required',
+            'phone' => 'required|unique',
             'emergency_contact' => 'required',
             'datebirth' => 'required',
             'address' => 'required',
