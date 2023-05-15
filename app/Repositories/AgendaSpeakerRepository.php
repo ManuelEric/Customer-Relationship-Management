@@ -75,7 +75,10 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
                 return $agendaSpeaker->get();
                 break;
             case "byDate":
-                return $agendaSpeaker->whereDate('tbl_agenda_speaker.start_time', $date)->get();
+                return $agendaSpeaker
+                    ->whereDate('tbl_agenda_speaker.start_time', '<=', $date)
+                    ->whereDate('tbl_agenda_speaker.end_time', '>=', $date)
+                    ->get();
                 break;
         }
     }

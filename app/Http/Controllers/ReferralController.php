@@ -72,15 +72,14 @@ class ReferralController extends Controller
     public function create()
     {
         $partners = $this->corporateRepository->getAllCorporate();
-        $B2BPrograms = $this->programRepository->getAllProgramByType("B2B");
-        $B2BandB2CPrograms = $B2BPrograms->merge($this->programRepository->getAllProgramByType("B2B/B2C"));
+        $programs = $this->programRepository->getAllPrograms();
         $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.program.referral.form')->with(
             [
                 'edit' => true,
                 'partners' => $partners,
-                'programs' => $B2BandB2CPrograms,
+                'programs' => $programs,
                 'employees' => $employees
             ]
         );
@@ -92,8 +91,7 @@ class ReferralController extends Controller
 
         $referral = $this->referralRepository->getReferralById($referralId);
         $partners = $this->corporateRepository->getAllCorporate();
-        $B2BPrograms = $this->programRepository->getAllProgramByType("B2B");
-        $B2BandB2CPrograms = $B2BPrograms->merge($this->programRepository->getAllProgramByType("B2B/B2C"));
+        $programs = $this->programRepository->getAllPrograms();
 
         $employees = $this->userRepository->getAllUsersByRole('Employee');
 
@@ -101,7 +99,7 @@ class ReferralController extends Controller
             [
                 'referral' => $referral,
                 'partners' => $partners,
-                'programs' => $B2BandB2CPrograms,
+                'programs' => $programs,
                 'employees' => $employees,
             ]
         );
@@ -151,8 +149,7 @@ class ReferralController extends Controller
 
         $referral = $this->referralRepository->getReferralById($referralId);
         $partners = $this->corporateRepository->getAllCorporate();
-        $B2BPrograms = $this->programRepository->getAllProgramByType("B2B");
-        $B2BandB2CPrograms = $B2BPrograms->merge($this->programRepository->getAllProgramByType("B2B/B2C"));
+        $programs = $this->programRepository->getAllPrograms();
         $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.program.referral.form')->with(
@@ -160,7 +157,7 @@ class ReferralController extends Controller
                 'edit' => true,
                 'referral' => $referral,
                 'partners' => $partners,
-                'programs' => $B2BandB2CPrograms,
+                'programs' => $programs,
                 'employees' => $employees,
             ]
         );

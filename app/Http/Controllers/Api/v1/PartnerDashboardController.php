@@ -166,11 +166,17 @@ class PartnerDashboardController extends Controller
             case 'Success':
                 $status = 1;
                 break;
-            case 'Denied':
+            case 'Rejected':
                 $status = 2;
                 break;
             case 'Refund':
                 $status = 3;
+                break;
+            case 'Accepted':
+                $status = 4;
+                break;
+            case 'Cancel':
+                $status = 5;
                 break;
             case 'Referral IN':
                 $status = 'In';

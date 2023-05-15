@@ -108,7 +108,7 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="row mb-2">
+                        {{-- <div class="row mb-2">
                             <div class="col-md-3">
                                 <label for="">
                                     Is Corporate Scheme? <sup class="text-danger">*</sup>
@@ -133,7 +133,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label for="">
@@ -169,13 +169,48 @@
                                             onchange="checkStatus()" {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
                                             <option data-placeholder="true"></option>
                                             <option value="0">Pending</option>
+                                            <option value="4">Accepted</option>
+                                            <option value="2">Rejected</option>
                                             <option value="1">Success</option>
-                                            <option value="2">Denied</option>
+                                            <option value="5">Cancel</option>
                                             @if (isset($partnerProgram->invoiceB2b->receipt))
                                             <option value="3">Refund</option>
                                             @endif
                                         </select>
                                         @error('status')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 pending_status d-none">
+                                        <small>Pending Date <sup class="text-danger">*</sup></small>
+                                        <input type="date" name="pending_date" id=""
+                                            class="form-control form-control-sm rounded"
+                                            value="{{ isset($partnerProgram->pending_date) ? $partnerProgram->pending_date :  old('pending_date') }}"
+                                            {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}
+                                            >
+                                        @error('pending_date')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 accepted_status d-none">
+                                        <small>Accepted Date <sup class="text-danger">*</sup></small>
+                                        <input type="date" name="accepted_date" id=""
+                                            class="form-control form-control-sm rounded"
+                                            value="{{ isset($partnerProgram->accepted_date) ? $partnerProgram->accepted_date :  old('accepted_date') }}"
+                                            {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}
+                                            >
+                                        @error('accepted_date')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 cancel_status d-none">
+                                        <small>Cancel Date <sup class="text-danger">*</sup></small>
+                                        <input type="date" name="cancel_date" id=""
+                                            class="form-control form-control-sm rounded"
+                                            value="{{ isset($partnerProgram->cancel_date) ? $partnerProgram->cancel_date :  old('cancel_date') }}"
+                                            {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}
+                                            >
+                                        @error('cancel_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
@@ -190,7 +225,7 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-6 denied_status d-none">
-                                        <small>Denied Date <sup class="text-danger">*</sup></small>
+                                        <small>Rejected Date <sup class="text-danger">*</sup></small>
                                         <input type="date" name="denied_date" id=""
                                             class="form-control form-control-sm rounded"
                                             value="{{ isset($partnerProgram->denied_date) ? $partnerProgram->denied_date :  old('denied_date') }}"
@@ -276,8 +311,8 @@
                                         </textarea>
                                     </div>  
 
-                                    {{-- Denied --}}
-                                    <div class="col-md-6 denied_status d-none my-2">
+                                    {{-- Reason --}}
+                                    <div class="col-md-6 reason d-none my-2">
                                     
                                             <label>Reason <sup class="text-danger">*</sup> </label>
                                             <div class="classReason">
@@ -333,7 +368,69 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mb-3 success_status d-none">
+
+                        <div class="row mb-3 program_detail d-none">
+                            <div class="col-md-3">
+                                <label for="">
+                                    Program Detail <sup class="text-danger">*</sup></small>
+                                </label>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card">
+                                    <div class="card-header">
+                                        Partner Program
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row success_status d-none">
+                                            <div class="col-md-6">
+                                                <small>Participants <sup class="text-danger">*</sup></small></small>
+                                                <input type="number" name="participants" id=""
+                                                    class="form-control form-control-sm rounded"
+                                                    value="{{ isset($partnerProgram->participants) ? $partnerProgram->participants :  old('participants') }}"
+                                                    {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
+                                                @error('participants')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small>Total Fee <sup class="text-danger">*</sup></small></small>
+                                                <input type="number" name="total_fee" id=""
+                                                    class="form-control form-control-sm rounded"
+                                                    value="{{ isset($partnerProgram->total_fee) ? $partnerProgram->total_fee :  old('total_fee') }}"
+                                                    {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
+                                                @error('total_fee')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="row program_date d-none">
+                                            <div class="col-md-6">
+                                                <small>Start Date <sup class="text-danger">*</sup></small>
+                                                <input type="date" name="start_date" id=""
+                                                    class="form-control form-control-sm rounded"
+                                                    value="{{ isset($partnerProgram->start_date) ? $partnerProgram->start_date :  old('start_date') }}"
+                                                    {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
+                                                @error('start_date')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small>End Date <sup class="text-danger">*</sup></small>
+                                                <input type="date" name="end_date" id=""
+                                                    class="form-control form-control-sm rounded"
+                                                    value="{{ isset($partnerProgram->end_date) ? $partnerProgram->end_date :  old('end_date') }}"
+                                                    {{ empty($partnerProgram) || isset($edit) ? '' : 'disabled' }}>
+                                                @error('end_date')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- <div class="row mb-3 success_status d-none">
                             <div class="col-md-3">
                                 <label for="">
                                     Program Detail <sup class="text-danger">*</sup></small>
@@ -391,7 +488,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <label for="">
@@ -487,23 +584,72 @@
         function checkStatus() {
             let status = $('#approach_status').val();
             if (status == '0') {
+                $('.pending_status').removeClass('d-none')
+                $('.program_date').removeClass('d-none')
                 $('.denied_status').addClass('d-none')
                 $('.success_status').addClass('d-none')
                 $('.refund_status').addClass('d-none')
+                $('.accepted_status').addClass('d-none')
+                $('.cancel_status').addClass('d-none')
+                $('.reason').addClass('d-none')
+                $('.program_detail').removeClass('d-none')
+                $('.program_date').removeClass('d-none')
             } else if (status == '1') {
+                $('.pending_status').addClass('d-none')
                 $('.denied_status').addClass('d-none')
                 $('.refund_status').addClass('d-none')
                 $('.success_status').removeClass('d-none')
+                $('.accepted_status').addClass('d-none')
+                $('.cancel_status').addClass('d-none')
+                $('.reason').addClass('d-none')
+                $('.program_detail').removeClass('d-none')
+                $('.program_date').removeClass('d-none')
             } else if (status == '2') {
+                $('.pending_status').addClass('d-none')
                 $('.denied_status').removeClass('d-none')
                 $('.success_status').addClass('d-none')
                 $('.refund_status').addClass('d-none')
+                $('.accepted_status').addClass('d-none')
+                $('.cancel_status').addClass('d-none')
+                $('.reason').removeClass('d-none')
+                $('.program_detail').addClass('d-none')
+                $('.program_date').addClass('d-none')
             } else if (status == '3'){
+                $('.pending_status').addClass('d-none')
                 $('.refund_status').removeClass('d-none')
                 $('.denied_status').addClass('d-none')
                 $('.success_status').addClass('d-none')
+                $('.program_date').addClass('d-none')
+                $('.accepted_status').addClass('d-none')
+                $('.cancel_status').addClass('d-none')
+                $('.reason').addClass('d-none')
+                $('.program_detail').addClass('d-none')
+                $('.program_date').addClass('d-none')
+            } else if (status == '4'){
+                $('.pending_status').addClass('d-none')
+                $('.program_date').removeClass('d-none')
+                $('.refund_status').addClass('d-none')
+                $('.denied_status').addClass('d-none')
+                $('.success_status').addClass('d-none')
+                $('.accepted_status').removeClass('d-none')
+                $('.cancel_status').addClass('d-none')
+                $('.reason').addClass('d-none')
+                $('.program_detail').removeClass('d-none')
+                $('.program_date').removeClass('d-none')
+            } else if (status == '5'){
+                $('.pending_status').addClass('d-none')
+                $('.program_date').addClass('d-none')
+                $('.refund_status').addClass('d-none')
+                $('.denied_status').addClass('d-none')
+                $('.success_status').addClass('d-none')
+                $('.accepted_status').addClass('d-none')
+                $('.cancel_status').removeClass('d-none')
+                $('.reason').removeClass('d-none')
+                $('.program_detail').addClass('d-none')
+                $('.program_date').addClass('d-none')
             }
         }
+       
 
         function otherOption(value) {
 
@@ -568,55 +714,28 @@
     </script>
 
     @if(isset($partnerProgram))
-    <script>
-        $(document).ready(function(){
-            $('#approach_status').val('{{$partnerProgram->status}}').trigger('change')
-            // $('#selectReason').select2()
-        })
-
-    </script>
-    @endif
-
-    @if(
-        $errors->has('success_date') || 
-        $errors->has('participants') || 
-        $errors->has('total_fee') ||
-        $errors->has('start_date') ||
-        $errors->has('end_date')
-        )
-        
+        @if(empty(old('status')))
+            
+            <script>
+                $(document).ready(function(){
+                    $('#approach_status').val('{{$partnerProgram->status}}').trigger('change')
+                    // $('#selectReason').select2()
+                })
+            </script>
+        @endif
+    @else
         <script>
             $(document).ready(function(){
-                $('#approach_status').val('1').trigger('change')
+            $('#approach_status').val(0).trigger('change')
             })
-
         </script>
-
     @endif
 
-    @if(
-        $errors->has('denied_date') || 
-        $errors->has('reason_id') ||
-        $errors->has('other_reason')
-        )
-        
+    @if(!empty(old('status')))
         <script>
             $(document).ready(function(){
-                $('#approach_status').val('2').trigger('change')
+                $('#approach_status').val("{{old('status')}}").trigger('change')
             })
-
-        </script>
-
-
-    @endif
-
-
-    @if($errors->has('refund_date') || $errors->has('reason_refund_id') || $errors->has('other_reason_refund'))
-        <script>
-            $(document).ready(function(){
-                $('#approach_status').val('3').trigger('change')
-            })
-
         </script>
     @endif
 

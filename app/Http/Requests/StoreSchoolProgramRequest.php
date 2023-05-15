@@ -86,9 +86,17 @@ class StoreSchoolProgramRequest extends FormRequest
 
                 // Refund
             case '3':
-
-
                 return $this->refund();
+                break;
+
+                // Accepted
+            case '4':
+                return $this->accepted();
+                break;
+
+                // Cancel
+            case '5':
+                return $this->cancel();
                 break;
         }
     }
@@ -100,7 +108,7 @@ class StoreSchoolProgramRequest extends FormRequest
         return [
             'prog_id' => 'required|exists:tbl_prog,prog_id',
             'first_discuss' => 'required|date',
-            'status' => 'required|in:0,1,2,3',
+            'status' => 'required|in:0,1,2,3,4,5',
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
@@ -113,6 +121,9 @@ class StoreSchoolProgramRequest extends FormRequest
             ],
             'notes' => 'nullable',
             'notes_detail' => 'nullable',
+            'pending_date' => 'required|date',
+            'end_program_date' => 'required|date|after_or_equal:start_program_date',
+            'start_program_date' => 'required|date|before_or_equal:end_program_date',
         ];
     }
 
@@ -129,7 +140,7 @@ class StoreSchoolProgramRequest extends FormRequest
             $rules = [
                 'status' =>
                 [
-                    'required', 'in:0,1,2,3',
+                    'required', 'in:0,1,2,3,4,5',
                     function ($attribute, $value, $fail) use ($invoice) {
                         if (isset($invoice->refund)) {
                             $fail('Not able to change status to success. This activities has marked as "refunded"');
@@ -142,7 +153,7 @@ class StoreSchoolProgramRequest extends FormRequest
             $rules = [
                 'status' =>
                 [
-                    'required', 'in:0,1,2,3',
+                    'required', 'in:0,1,2,3,4,5',
                 ]
 
             ];
@@ -163,7 +174,7 @@ class StoreSchoolProgramRequest extends FormRequest
             ],
             'notes' => 'nullable',
             'notes_detail' => 'nullable',
-            'running_status' => 'required|in:Not yet,On going,Done',
+            // 'running_status' => 'required|in:Not yet,On going,Done',
             'total_hours' => 'required|integer',
             'total_fee' => 'required|numeric',
             'participants' => 'required|integer',
@@ -183,7 +194,7 @@ class StoreSchoolProgramRequest extends FormRequest
         return [
             'prog_id' => 'required|exists:tbl_prog,prog_id',
             'first_discuss' => 'required|date',
-            'status' => 'required|in:0,1,2,3',
+            'status' => 'required|in:0,1,2,3,4,5',
             'empl_id' => [
                 'required', 'required',
                 function ($attribute, $value, $fail) {
@@ -220,7 +231,7 @@ class StoreSchoolProgramRequest extends FormRequest
             $rules = [
                 'status' =>
                 [
-                    'required', 'in:0,1,2,3',
+                    'required', 'in:0,1,2,3,4,5',
                     function ($attribute, $value, $fail) use ($hasInvoice, $hasReceipt) {
                         if (!isset($hasInvoice)) {
                             $fail('Looks like this program has not been paid');
@@ -235,7 +246,7 @@ class StoreSchoolProgramRequest extends FormRequest
             $rules = [
                 'status' =>
                 [
-                    'required', 'in:0,1,2',
+                    'required', 'in:0,1,2,3,4,5',
                 ]
 
             ];
@@ -263,5 +274,57 @@ class StoreSchoolProgramRequest extends FormRequest
         ];
 
         return $rules;
+    }
+
+    protected function accepted()
+    {
+        $sch_id = $this->route('school');
+
+        return [
+            'prog_id' => 'required|exists:tbl_prog,prog_id',
+            'first_discuss' => 'required|date',
+            'status' => 'required|in:0,1,2,3,4,5',
+            'empl_id' => [
+                'required', 'required',
+                function ($attribute, $value, $fail) {
+                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Employee');
+                    })->find($value)) {
+                        $fail('The submitted pic was invalid employee');
+                    }
+                },
+            ],
+            'notes' => 'nullable',
+            'notes_detail' => 'nullable',
+            'accepted_date' => 'required|date',
+            'end_program_date' => 'required|date|after_or_equal:start_program_date',
+            'start_program_date' => 'required|date|before_or_equal:end_program_date',
+        ];
+    }
+
+    protected function cancel()
+    {
+
+        return [
+            'prog_id' => 'required|exists:tbl_prog,prog_id',
+            'first_discuss' => 'required|date',
+            'status' => 'required|in:0,1,2,3,4,5',
+            'empl_id' => [
+                'required', 'required',
+                function ($attribute, $value, $fail) {
+                    if (!User::with('roles')->whereHas('roles', function ($q) {
+                        $q->where('role_name', 'Employee');
+                    })->find($value)) {
+                        $fail('The submitted pic was invalid employee');
+                    }
+                },
+            ],
+            'notes' => 'nullable',
+            'notes_detail' => 'nullable',
+            'cancel_date' => 'required|date',
+            'reason_id' => 'required',
+            'other_reason' => 'required_if:reason_id,other|nullable|unique:tbl_reason,reason_name',
+
+        ];
     }
 }

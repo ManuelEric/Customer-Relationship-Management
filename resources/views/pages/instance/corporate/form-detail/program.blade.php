@@ -36,9 +36,13 @@
                         @elseif ($partnerProgram->status == 1)
                             Success
                         @elseif ($partnerProgram->status == 2)
-                            Denied
+                            Rejected
                         @elseif ($partnerProgram->status == 3)
                             Refund
+                        @elseif ($partnerProgram->status == 4)
+                            Accepted
+                        @elseif ($partnerProgram->status == 5)
+                            Cancel
                         @endif
                     </td>
                     <td class="text-end">

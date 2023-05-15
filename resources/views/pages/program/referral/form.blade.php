@@ -63,7 +63,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-2">
                                 <label>Type <sup class="text-danger">*</sup></label>
-                                <select name="referral_type" class="select w-100" id="type" onchange="checkType()"
+                                <select name="referral_type" class="select w-100" id="type" aria-labelledby="typeHelpBlock" onchange="checkType()"
                                     {{ $disabled }}>
                                     <option data-placeholder="true"></option>
                                     <option value="In"
@@ -73,6 +73,9 @@
                                         {{ isset($referral->referral_type) && $referral->referral_type == 'Out' ? 'selected' : null }}>
                                         Referral Out</option>
                                 </select>
+                                <div id="typeHelpBlock" class="form-text">
+                                    Base on client
+                                </div>
                                 @error('referral_type')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -136,7 +139,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label>Amount <sup class="text-danger">*</sup></label>
+                                <label>Referral fee <sup class="text-danger">*</sup></label>
                                 <div class="row g-0">
                                     <div class="col-3">
                                         <select name="currency" class="select w-100" {{ $disabled }}>
