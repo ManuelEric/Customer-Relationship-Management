@@ -7,34 +7,32 @@
             </h6>
         </div>
         <div class="">
-            <button class="btn btn-sm btn-outline-primary rounded mx-1" data-bs-toggle="modal" data-bs-target="#univ">
+            <button class="btn btn-sm btn-outline-primary rounded mx-1" data-bs-toggle="modal" data-bs-target="#univ-collaborator">
                 <i class="bi bi-plus"></i>
             </button>
         </div>
     </div>
     <div class="card-body">
-        @if (isset($universityEvent))
-            @forelse ($universityEvent as $university)
+        @if ($collaborators_univ->count() > 0)
+            @foreach ($collaborators_univ as $university)
                 <div class="list-group">
                     <div class="d-flex list-group-item justify-content-between">
                         <div class="">
                             {{ $university->univ_name }}
                         </div>
-                        <div class="" style="cursor:pointer" onclick="confirmDelete('master/event/{{ $event->event_id }}/university', '{{ $university->univ_id }}')">
-                            <i class="bi bi-trash2"></i>
+                        <div class="" style="cursor:pointer" onclick="confirmDelete('program/corporate/{{ $corpId }}/detail/{{ $corp_ProgId }}/collaborators/school', '{{ $university->univ_id }}')">
+                            <i class="bi bi-trash2 text-danger"></i>
                         </div>
                     </div>
                 </div>
-
-                @empty
-                There's no university
-
-            @endforelse
+            @endforeach
+        @else
+            No university collaborator yet
         @endif
     </div>
 </div>
 
-<div class="modal fade" id="univ" data-bs-backdrop="static" data-bs-keyboard="false"
+<div class="modal fade" id="univ-collaborator" data-bs-backdrop="static" data-bs-keyboard="false"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -45,7 +43,11 @@
                 <i class="bi bi-pencil-square"></i>
             </div>
             <div class="modal-body w-100 text-start">
-                <form action="{{ route('event.university.store', ['event' => $event->event_id]) }}" method="POST" id="formPosition">
+                <form action="{{ route('corporate_prog.collaborators.store', [
+                    'corp' => $corpId,
+                    'corp_prog' => $corp_ProgId,
+                    'collaborators' => 'university'
+                ]) }}" method="POST" id="formPosition">
                     @csrf
                     <div class="put"></div>
                     <div class="row g-2">
@@ -82,13 +84,3 @@
         </div>
     </div>
 </div>
-
-  @if (
-        $errors->has('univ_id'))
-        <script>
-            $(document).ready(function() {
-                $('#univ').modal('show');
-
-            })
-        </script>
-    @endif

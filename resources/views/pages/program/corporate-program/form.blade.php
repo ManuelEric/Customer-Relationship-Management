@@ -52,10 +52,19 @@
 
             @include('pages.program.corporate-program.detail.corporate')
 
-            @include('pages.program.corporate-program.detail.school')
             @if(isset($partnerProgram) &&  $partnerProgram->status == 1 && empty($edit))
                 @include('pages.program.corporate-program.detail.speaker')
             @endif
+
+            <div class="pt-2">
+                <label class="px-2 w-100 mb-2 border-bottom">
+                    <h4>Collaborators</h4>
+                </label>
+    
+                @include('pages.program.corporate-program.detail.school')
+                @include('pages.program.corporate-program.detail.univ')
+                @include('pages.program.corporate-program.detail.partner')
+            </div>
         </div>
 
         <div class="col-md-8">
@@ -459,6 +468,36 @@
         </div>
     </div>
 
+    <script>
+        $(document).ready(function() {
+            $('.modal-select-school').select2({
+                dropdownParent: $('#school-collaborator .modal-body'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+            $('.modal-select-univ').select2({
+                dropdownParent: $('#univ-collaborator .modal-body'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+            $('.modal-select-partner').select2({
+                dropdownParent: $('#partner-collaborator .modal-body'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+            @if ($errors->has('sch_id'))
+                $('#school-collaborator').modal('show');
+            @endif
+
+            @if ($errors->has('univ_id'))
+                $('#univ-collaborator').modal('show');
+            @endif
+
+            @if ($errors->has('corp_id'))
+                $('#partner-collaborator').modal('show');
+            @endif
+        })
+    </script>
     <script>
         function checkStatusSpeaker(agendaId) {
             let status = $('#status_speaker' + agendaId).val()

@@ -88,12 +88,17 @@ class PartnerProg extends Model
 
     public function schoolCollaborators()
     {
-        return $this->belongsToMany(School::class, 'tbl_partner_prog_sch', 'sch_id', 'partnerprog_id')->withTimestamps();
+        return $this->belongsToMany(School::class, 'tbl_partner_prog_sch', 'partnerprog_id', 'sch_id')->withTimestamps();
     }
 
     public function univCollaborators()
     {
-        return $this->belongsToMany(University::class, 'tbl_partner_prog_univ', 'univ_id', 'partnerprog_id')->withTimestamps();
+        return $this->belongsToMany(University::class, 'tbl_partner_prog_univ', 'partnerprog_id', 'univ_id')->withTimestamps();
+    }
+
+    public function partnerCollaborators()
+    {
+        return $this->belongsToMany(Corporate::class, 'tbl_partner_prog_partner', 'partnerprog_id', 'corp_id')->withTimestamps();
     }
 
 }

@@ -215,6 +215,9 @@ class PartnerProgramController extends Controller
         # retrieve all school data
         $schools = $this->schoolRepository->getAllSchools();
 
+        # retrieve all univ data
+        $universities = $this->universityRepository->getAllUniversities();
+
         // # retrieve all school detail by school id
         // $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
 
@@ -244,6 +247,8 @@ class PartnerProgramController extends Controller
 
         # retrieve collaborators
         $collaborators_school = $this->partnerProgramCollaboratorsRepository->getSchoolCollaboratorsByPartnerProgId($corp_ProgId);
+        $collaborators_univ = $this->partnerProgramCollaboratorsRepository->getUnivCollaboratorsByPartnerProgId($corp_ProgId);
+        $colaborators_partner = $this->partnerProgramCollaboratorsRepository->getPartnerCollaboratorsByPartnerProgId($corp_ProgId);
 
         return view('pages.program.corporate-program.form')->with(
             [
@@ -258,8 +263,11 @@ class PartnerProgramController extends Controller
                 'partners' => $partners,
                 'speakers' => $speakers,
                 'schools' => $schools,
+                'universities' => $universities,
                 'attach' => true,
                 'collaborators_school' => $collaborators_school,
+                'collaborators_univ' => $collaborators_univ,
+                'colaborators_partner' => $colaborators_partner
             ]
         );
     }

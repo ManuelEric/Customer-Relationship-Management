@@ -13,7 +13,7 @@ use App\Http\Controllers\PartnerProgramAttachController;
 use App\Http\Controllers\PartnerProgramCollaboratorsController;
 use App\Http\Controllers\PartnerProgramSpeakerController;
 use App\Http\Controllers\SchoolDetailController;
-
+use App\Http\Controllers\SchoolProgramCollaboratorsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,7 +75,8 @@ Route::prefix('corporate')->name('corporate_prog.')->group(function () {
     Route::resource('{corp}/detail', PartnerProgramController::class);
     Route::resource('{corp}/detail/{corp_prog}/speaker', PartnerProgramSpeakerController::class);
     Route::resource('{corp}/detail/{corp_prog}/attach', PartnerProgramAttachController::class);
-    Route::post('{corp}/detail/{corp_prog}/collaborators/{school_or_univ}', [PartnerProgramCollaboratorsController::class, 'store'])->name('collaborators.store');
+    Route::post('{corp}/detail/{corp_prog}/collaborators/{collaborators}', [PartnerProgramCollaboratorsController::class, 'store'])->name('collaborators.store');
+    Route::delete('{corp}/detail/{corp_prog}/collaborators/{collaborators}/{collaborators_id}', [PartnerProgramCollaboratorsController::class, 'destroy'])->name('collaborators.destroy');
 });
 
 
@@ -94,6 +95,8 @@ Route::prefix('school')->name('school.')->group(function () {
     Route::resource('{school}/detail/{sch_prog}/speaker', SchoolProgramSpeakerController::class);
     Route::resource('{school}/detail/{sch_prog}/attach', SchoolProgramAttachController::class);
 });
+Route::post('school/{school}/detail/{sch_prog}/collaborators/{collaborators}', [SchoolProgramCollaboratorsController::class, 'store'])->name('school_prog.collaborators.store');
+Route::delete('school/{school}/detail/{sch_prog}/collaborators/{collaborators}/{collaborators_id}', [SchoolProgramCollaboratorsController::class, 'destroy'])->name('school_prog.collaborators.destroy');
 
 Route::get('school/1', function () {
     return view('pages.program.school-program.form');

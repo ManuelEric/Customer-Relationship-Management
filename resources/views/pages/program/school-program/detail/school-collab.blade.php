@@ -21,7 +21,7 @@
                             {{ $school->sch_name }}
                         </div>
                         <div class="btn-delete-school" style="cursor:pointer" 
-                            onclick="confirmDelete('program/corporate/{{ $corpId }}/detail/{{ $corp_ProgId }}/collaborators/school', '{{ $school->sch_id }}')">
+                            onclick="confirmDelete('program/school/{{ $schId }}/detail/{{ $sch_ProgId }}/collaborators/school', '{{ $school->sch_id }}')">
                             <i class="bi bi-trash2 text-danger"></i>
                         </div>
                     </div>
@@ -44,9 +44,9 @@
                 <i class="bi bi-pencil-square"></i>
             </div>
             <div class="modal-body w-100 text-start">
-                <form action="{{ route('corporate_prog.collaborators.store', [
-                    'corp' => $corpId,
-                    'corp_prog' => $corp_ProgId,
+                <form action="{{ route('school_prog.collaborators.store', [
+                    'school' => $schId,
+                    'sch_prog' => $sch_ProgId,
                     'collaborators' => 'school'
                 ]) }}" method="POST">
                     @csrf
@@ -61,7 +61,9 @@
                                     <option data-placeholder="true"></option>
                                     @if (isset($schools))
                                         @foreach ($schools as $school)
-                                            <option value="{{ $school->sch_id }}">{{ $school->sch_name }}</option>
+                                            @if ($schId != $school->sch_id)
+                                                <option value="{{ $school->sch_id }}">{{ $school->sch_name }}</option>
+                                            @endif
                                         @endforeach
                                     @endif
                                 </select>

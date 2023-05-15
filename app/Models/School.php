@@ -95,8 +95,13 @@ class School extends Model
         return $this->hasMany(SchoolVisit::class, 'sch_id', 'sch_id');
     }
 
-    public function partnerProgram()
+    public function asCollaboratorInPartnerProgram()
     {
         return $this->belongsToMany(PartnerProg::class, 'tbl_partner_prog_sch', 'sch_id', 'partnerprog_id');
+    }
+    
+    public function asCollaboratorInSchoolProgram()
+    {
+        return $this->belongsToMany(SchoolProg::class, 'tbl_sch_prog_school', 'sch_id', 'schprog_id');
     }
 }
