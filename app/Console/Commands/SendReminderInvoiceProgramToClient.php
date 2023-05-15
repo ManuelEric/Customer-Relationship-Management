@@ -55,6 +55,8 @@ class SendReminderInvoiceProgramToClient extends Command
             $invoiceId = $data->inv_id;
             $clientprogId = $data->clientprog_id;
 
+            $pic_email = $data->pic_mail;
+
             $program_name = ucwords(strtolower($data->program_name));
             
             $parent_fullname = $data->parent_fullname;
@@ -81,6 +83,7 @@ class SendReminderInvoiceProgramToClient extends Command
                 'child_fullname' => $data->fullname,
                 'installment_notes' => strip_tags($data->installment_notes),
                 'total_payment' => $data->invoice_totalprice_idr,
+                'pic_email' => $pic_email
             ];
 
             $mail_resources = 'pages.invoice.client-program.mail.reminder-payment';
@@ -88,6 +91,7 @@ class SendReminderInvoiceProgramToClient extends Command
             try {
                 Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                     $message->to($params['parent_mail'], $params['parent_fullname'])
+                        ->cc([env('FINANCE_CC'), $params['pic_email']])
                         ->subject($subject);
                 });
             } catch (Exception $e) {

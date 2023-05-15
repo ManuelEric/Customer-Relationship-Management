@@ -14,6 +14,8 @@ use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
+use App\Interfaces\SchoolProgramCollaboratorsRepositoryInterface;
+use App\Interfaces\UniversityRepositoryInterface;
 use App\Models\Reason;
 use App\Models\SchoolProgram;
 use Exception;
@@ -41,6 +43,8 @@ class SchoolProgramController extends Controller
     protected CorporatePicRepositoryInterface $corporatePicRepository;
     protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
+    protected SchoolProgramCollaboratorsRepositoryInterface $schoolProgramCollaboratorsRepository;
+    protected UniversityRepositoryInterface $universityRepository;
 
     public function __construct(
         SchoolRepositoryInterface $schoolRepository,
@@ -53,6 +57,8 @@ class SchoolProgramController extends Controller
         CorporatePicRepositoryInterface $corporatePicRepository,
         AgendaSpeakerRepositoryInterface $agendaSpeakerRepository,
         SchoolDetailRepositoryInterface $schoolDetailRepository,
+        SchoolProgramCollaboratorsRepositoryInterface $schoolProgramCollaboratorsRepository,
+        UniversityRepositoryInterface $universityRepository
     ) {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
@@ -64,6 +70,8 @@ class SchoolProgramController extends Controller
         $this->corporatePicRepository = $corporatePicRepository;
         $this->agendaSpeakerRepository = $agendaSpeakerRepository;
         $this->schoolDetailRepository = $schoolDetailRepository;
+        $this->schoolProgramCollaboratorsRepository = $schoolProgramCollaboratorsRepository;
+        $this->universityRepository = $universityRepository; 
     }
 
     public function index(Request $request)
@@ -227,8 +235,18 @@ class SchoolProgramController extends Controller
         # retrieve speaker data
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerBySchoolProgram($sch_progId);
 
+        # retrieve university master
+        $universities = $this->universityRepository->getAllUniversities();
+
+        # retrieve collaborators
+        $collaborators_school = $this->schoolProgramCollaboratorsRepository->getSchoolCollaboratorsBySchoolProgId($sch_progId);
+        $collaborators_univ = $this->schoolProgramCollaboratorsRepository->getUnivCollaboratorsBySchoolProgId($sch_progId);
+        $colaborators_partner = $this->schoolProgramCollaboratorsRepository->getPartnerCollaboratorsBySchoolProgId($sch_progId);
+
         return view('pages.program.school-program.form')->with(
             [
+                'schId' => $schoolId,
+                'sch_ProgId' => $sch_progId,
                 'employees' => $employees,
                 'programs' => $programs,
                 'reasons' => $reasons,
@@ -240,6 +258,10 @@ class SchoolProgramController extends Controller
                 'partners' => $partners,
                 'speakers' => $speakers,
                 'attach' => true,
+                'universities' => $universities,
+                'collaborators_school' => $collaborators_school,
+                'collaborators_univ' => $collaborators_univ,
+                'colaborators_partner' => $colaborators_partner
             ]
         );
     }

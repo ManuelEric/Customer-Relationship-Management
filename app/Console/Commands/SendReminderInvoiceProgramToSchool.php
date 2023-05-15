@@ -45,6 +45,7 @@ class SendReminderInvoiceProgramToSchool extends Command
         foreach ($invoice_master as $data) {
             
             $invoiceB2bId = $data->invb2b_id;
+            $pic_email = $data->pic_mail;
 
             $program_name = ucwords(strtolower($data->program_name));
             
@@ -73,6 +74,7 @@ class SendReminderInvoiceProgramToSchool extends Command
                 'due_date' => date('d/m/Y', strtotime($data->invb2b_duedate)),
                 'school_name' => $school_name,
                 'total_payment' => $data->invoice_totalprice_idr,
+                'pic_email' => $pic_email,
             ];
 
             $mail_resources = 'pages.invoice.school-program.mail.reminder-payment';
@@ -80,6 +82,7 @@ class SendReminderInvoiceProgramToSchool extends Command
             try {
                 Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                     $message->to($params['school_pic_mail'], $params['school_pic_name'])
+                        ->cc([env('FINANCE_CC'), $params['pic_email']])
                         ->subject($subject);
                 });
             } catch (Exception $e) {

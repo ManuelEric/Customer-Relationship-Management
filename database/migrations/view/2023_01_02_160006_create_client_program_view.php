@@ -30,6 +30,7 @@ return new class extends Migration
                 WHEN cp.status = 3 THEN "Refund"
             END) AS program_status,
             CONCAT(u.first_name, " ", u.last_name) AS pic_name,
+            u.email as pic_mail,
             (CASE 
                 WHEN cl.main_lead = "KOL" THEN CONCAT("KOL - ", cl.sub_lead)
                 WHEN cl.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", cedl.title)

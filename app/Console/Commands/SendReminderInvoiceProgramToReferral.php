@@ -45,6 +45,7 @@ class SendReminderInvoiceProgramToReferral extends Command
         foreach ($invoice_master as $data) {
 
             $invoiceB2bId = $data->invb2b_id;
+            $pic_email = $data->pic_mail;
 
             $program_name = ucwords(strtolower($data->program_name));
             
@@ -71,6 +72,7 @@ class SendReminderInvoiceProgramToReferral extends Command
                 'due_date' => date('d/m/Y', strtotime($data->invb2b_duedate)),
                 'partner_name' => $partner_name,
                 'total_payment' => $data->invoice_totalprice_idr,
+                'pic_email' => $pic_email,
             ];
 
             $mail_resources = 'pages.invoice.referral.mail.reminder-payment';
@@ -78,6 +80,7 @@ class SendReminderInvoiceProgramToReferral extends Command
             try {
                 Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                     $message->to($params['partner_mail'], $params['partner_pic'])
+                        ->cc([env('FINANCE_CC'), $params['pic_email']])
                         ->subject($subject);
                 });
             } catch (Exception $e) {

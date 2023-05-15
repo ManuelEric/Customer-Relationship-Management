@@ -108,6 +108,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
     public function getAllDueDateInvoiceSchoolProgram($days)
     {
         return Invb2b::leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+            ->leftJoin('users as u', 'u.id', '=', 'tbl_sch_prog.empl_id')
             ->leftJoin('tbl_sch', 'tbl_sch_prog.sch_id', '=', 'tbl_sch.sch_id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_sch_prog.prog_id')
             // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
@@ -125,6 +126,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 'tbl_invb2b.currency',
                 'tbl_invb2b.invb2b_totpriceidr',
                 'tbl_invb2b.invb2b_totprice',
+                'u.email as pic_mail',
                 DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
             )
             ->where('tbl_sch_prog.status', 1)
@@ -231,6 +233,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
     public function getAllDueDateInvoicePartnerProgram($days)
     {
         return Invb2b::leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
+            ->leftJoin('users as u', 'u.id', '=', 'tbl_partner_prog.empl_id')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
             ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
             // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
@@ -248,6 +251,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 'tbl_invb2b.currency',
                 'tbl_invb2b.invb2b_totpriceidr',
                 'tbl_invb2b.invb2b_totprice',
+                'u.email as pic_mail',
                 DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
             )
             ->where('tbl_partner_prog.status', 1)
@@ -365,6 +369,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
     public function getAllDueDateInvoiceReferralProgram($days)
     {
         return Invb2b::leftJoin('tbl_referral', 'tbl_referral.id', '=', 'tbl_invb2b.ref_id')
+        ->leftJoin('users as u', 'u.id', '=', 'tbl_referral.empl_id')
         ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
         ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
         // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
@@ -386,6 +391,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             'tbl_invb2b.currency',
             'tbl_invb2b.invb2b_totpriceidr',
             'tbl_invb2b.invb2b_totprice',
+            'u.email as pic_mail',
             DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
         )
         ->whereDoesntHave('receipt')
