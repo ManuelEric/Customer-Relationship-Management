@@ -38,6 +38,7 @@ class SchoolDetailController extends Controller
             'schdetail_grade',
             'schdetail_position',
             'schdetail_phone',
+            'is_pic',
         ]);
         
         # using index 0
@@ -58,6 +59,7 @@ class SchoolDetailController extends Controller
                     'schdetail_grade' => $validated['schdetail_grade'][$i],
                     'schdetail_position' => $validated['schdetail_position'][$i],
                     'schdetail_phone' => $validated['schdetail_phone'][$i],
+                    'is_pic' => $validated['is_pic'][$i],
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
                 ];
@@ -108,7 +110,9 @@ class SchoolDetailController extends Controller
             'schdetail_grade',
             'schdetail_position',
             'schdetail_phone',
+            'is_pic'
         ]);
+
         unset($validated['schdetail_phone'][0]);
         $validated['schdetail_phone'][0] = $this->setPhoneNumber($request->schdetail_phone[0]);
 
@@ -126,7 +130,7 @@ class SchoolDetailController extends Controller
                     'schdetail_grade' => $validated['schdetail_grade'][$i],
                     'schdetail_position' => $validated['schdetail_position'][$i],
                     'schdetail_phone' => $validated['schdetail_phone'][$i],
-                    'created_at' => Carbon::now(),
+                    'is_pic' => $validated['is_pic'][$i],
                     'updated_at' => Carbon::now(),
                 ];
             }

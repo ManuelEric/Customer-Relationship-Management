@@ -23,6 +23,7 @@ class UniversityPic extends Model
         'title', 
         'phone',
         'email',
+        'is_pic',
     ];
 
     public function university()

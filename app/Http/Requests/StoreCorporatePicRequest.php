@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCorporatePicRequest extends FormRequest
@@ -32,11 +33,21 @@ class StoreCorporatePicRequest extends FormRequest
      */
     public function rules()
     {
+        $picId = $this->route('detail');
+        $corporateId = $this->route('corporate');
+
         return [
             'pic_name' => 'required|string',
-            'pic_mail' => 'nullable|email',
+            'pic_mail' => [
+                'nullable',
+                'email', 
+                Rule::unique('tbl_corp_pic', 'pic_mail')->where('corp_id', $corporateId)->when($picId !== null, function ($query) use ($picId) {
+                    $query->ignore($picId);
+                }),
+            ],
             'pic_phone' => 'required',
-            'pic_linkedin' => 'nullable|url'
+            'pic_linkedin' => 'nullable|url',
+            'is_pic' => 'required:in,true,false',
         ];
     }
 }

@@ -57,6 +57,7 @@
                 @include('pages.program.school-program.detail.speaker')
             @endif
 
+            @if (isset($schoolProgram))
             <div class="pt-2">
                 <label class="px-2 w-100 mb-2 border-bottom">
                     <h4>Collaborators</h4>
@@ -66,6 +67,7 @@
                 @include('pages.program.school-program.detail.univ')
                 @include('pages.program.school-program.detail.partner')
             </div>
+            @endif
         </div>
 
         <div class="col-md-8">

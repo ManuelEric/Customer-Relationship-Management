@@ -29,6 +29,7 @@ class StoreUniversityPicRequest extends FormRequest
             'phone' => 'required',
             'email' => 'required|email',
             'other_title' => 'required_if:title,new|not_in:Admissions Advisor,Former Admission Officer',
+            'is_pic' => 'required:in,true,false',
         ];
     }
 }
