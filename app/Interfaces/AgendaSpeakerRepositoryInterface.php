@@ -10,6 +10,7 @@ interface AgendaSpeakerRepositoryInterface
     public function getAllSpeakerDashboard($type, $date = null);
     public function getAllSpeakerBySchoolProgram($schProgId);
     public function getAllSpeakerByPartnerProgram($partnerProgId);
+    public function getAllSpeakerByEdufair($edufId);
     public function getAllSpeakerByEventAndMonthAndYear($eventId, $month, $year);
     public function getAgendaSpeakerById($agendaId);
     public function deleteAgendaSpeaker($agendaId);

@@ -40,6 +40,9 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
             )
             ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_agenda_speaker.event_id')
+            ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_agenda_speaker.eduf_id')
+            ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_eduf_lead.corp_id')
+            ->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_eduf_lead.sch_id')
             ->leftJoin('tbl_schdetail', 'tbl_schdetail.schdetail_id', '=', 'tbl_agenda_speaker.sch_pic_id')
             ->leftJoin('tbl_univ_pic', 'tbl_univ_pic.id', '=', 'tbl_agenda_speaker.univ_pic_id')
             ->leftJoin('tbl_corp_pic', 'tbl_corp_pic.id', '=', 'tbl_agenda_speaker.partner_pic_id')
@@ -49,6 +52,7 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
                 DB::raw(
                     '(CASE
                         WHEN tbl_agenda_speaker.event_id is not null THEN tbl_events.event_title
+                        WHEN tbl_agenda_speaker.eduf_id is not null THEN IF (tbl_eduf_lead.sch_id IS NULL, tbl_corp.corp_name, tbl_sch.sch_name)
                         WHEN tbl_agenda_speaker.sch_prog_id > 0 OR tbl_agenda_speaker.partner_prog_id > 0
                             THEN 
                                 (CASE
@@ -103,6 +107,11 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
         return Agenda::where('partner_prog_id', $partnerProgId)->get();
     }
 
+    public function getAllSpeakerByEdufair($edufId)
+    {
+        return Agenda::where('eduf_id', $edufId)->get();
+    }
+
     public function getAllSpeakerByEventAndMonthAndYear($eventId, $month, $year): JsonResponse
     {
         return response()->json();
@@ -130,6 +139,10 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
 
             case "Partner-Program":
                 return $this->createPartnerProgramSpeaker($identifier, $agendaDetails);
+                break;
+
+            case "Edufair":
+                return $this->createEdufairSpeaker($agendaDetails);
                 break;
         }
     }
@@ -214,6 +227,13 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
                 break;
         }
 
+
+        return AgendaSpeaker::create($agendaDetails);
+    }
+
+    public function createEdufairSpeaker($agendaDetails)
+    {
+        $agendaDetails['empl_id'] = $agendaDetails['speaker'];
 
         return AgendaSpeaker::create($agendaDetails);
     }
