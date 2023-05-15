@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUniversityPicRequest;
+use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\UniversityPicRepositoryInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Redirect;
 
 class UniversityPicController extends Controller
 {
+    use StandardizePhoneNumberTrait;
 
     private UniversityPicRepositoryInterface $universityPicRepository;
 
@@ -43,6 +45,7 @@ class UniversityPicController extends Controller
             'title',
             'phone',
             'email',
+            'is_pic',
         ]);
 
         # when the other title has filled 
@@ -51,6 +54,7 @@ class UniversityPicController extends Controller
             $picDetails['title'] = $request->other_title;
 
         $picDetails['univ_id'] = $universityId = $request->route('university');
+        $picDetails['phone'] = $this->setPhoneNumber($request->phone);
 
         DB::beginTransaction();
         try {
@@ -89,6 +93,7 @@ class UniversityPicController extends Controller
             'title',
             'phone',
             'email',
+            'is_pic',
         ]);
 
         # when the other title has filled 
@@ -98,6 +103,8 @@ class UniversityPicController extends Controller
 
         $newDetails['univ_id'] = $universityId = $request->route('university');
         $picId = $request->route('detail');
+        
+        $newDetails['phone'] = $this->setPhoneNumber($request->phone);
 
         DB::beginTransaction();
         try {

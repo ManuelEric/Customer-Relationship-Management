@@ -23,6 +23,7 @@ class CorporatePic extends Model
         'pic_mail',
         'pic_linkedin',
         'pic_phone',
+        'is_pic',
     ];
 
     public function corporate()

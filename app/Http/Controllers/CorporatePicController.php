@@ -45,6 +45,7 @@ class CorporatePicController extends Controller
             'pic_mail',
             'pic_phone',
             'pic_linkedin',
+            'is_pic',
         ]);
         unset($picDetails['pic_phone']);
         $picDetails['pic_phone'] = $this->setPhoneNumber($request->pic_phone);
@@ -75,7 +76,9 @@ class CorporatePicController extends Controller
             'pic_mail',
             'pic_phone',
             'pic_linkedin',
+            'is_pic',
         ]);
+
         unset($newDetails['pic_phone']);
         $picDetails['pic_phone'] = $this->setPhoneNumber($request->pic_phone);
 

@@ -7,7 +7,7 @@
 @php
     $error_pic = $error_visit = false;
 @endphp
-@if ($errors->first('schdetail_name') || $errors->first('schdetail_mail') || $errors->first('schdetail_phone') || $errors->first('schdetail_position') || $errors->first('schdetail_grade'))
+@if ($errors->has('schdetail_name.*') || $errors->has('schdetail_mail.*') || $errors->has('schdetail_phone.*') || $errors->has('schdetail_position.*') || $errors->has('schdetail_grade.*'))
     @php
         $error_pic = true;
     @endphp
@@ -153,13 +153,27 @@
                                     <select name="sch_type" class="select w-100"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
+                                        <option value="International"
+                                            @selected(isset($school->sch_type) && $school->sch_type == 'International')
+                                            @selected(old('sch_type') == 'International')>
+                                            International</option>
                                         <option value="National"
-                                            {{ (isset($school->sch_type) && $school->sch_type == 'National') || old('sch_type') == 'National' ? 'selected' : null }}>
+                                            @selected(isset($school->sch_type) && $school->sch_type == 'National')
+                                            @selected(old('sch_type') == 'National')>
                                             National
                                         </option>
-                                        <option value="International"
-                                            {{ (isset($school->sch_type) && $school->sch_type == 'International') || old('sch_type') == 'International' ? 'selected' : null }}>
-                                            International</option>
+                                        <option value="National_plus"
+                                            @selected(isset($school->sch_type) && $school->sch_type == 'National_plus')
+                                            @selected(old('sch_type') == 'National_plus')>
+                                            National+</option>
+                                        <option value="National_private"
+                                            @selected(isset($school->sch_type) && $school->sch_type == 'National_private')
+                                            @selected(old('sch_type') == 'National_private')>
+                                            National Private</option>
+                                        <option value="Home_schooling"
+                                            @selected(isset($school->sch_type) && $school->sch_type == 'Home_schooling')
+                                            @selected(old('sch_type') == 'Home_schooling')>
+                                            Home Schooling</option>
                                     </select>
                                     @error('sch_type')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -280,7 +294,7 @@
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <div class="">
                             <h6 class="m-0 p-0">
-                                <i class="bi bi-building me-2"></i>
+                                <i class="bi bi-people me-2"></i>
                                 Teacher/Counselor
                             </h6>
                         </div>
@@ -319,6 +333,9 @@
                                             <td>{{ $detail->schdetail_position }}</td>
                                             <td>{{ $detail->schdetail_phone }}</td>
                                             <td class="d-flex text-center justify-content-end">
+                                                @if ($detail->is_pic == true)
+                                                    <i class="bi bi-star-fill me-2 my-2 text-warning" title="PIC"></i>
+                                                @endif
                                                 <button type="button" class="btn btn-sm btn-outline-warning mx-1"
                                                     data-bs-toggle="modal" data-bs-target="#picForm"
                                                     onclick="getPIC('{{ url('instance/school/' . $detail->sch_id . '/detail/' . $detail->schdetail_id . '/edit') }}')"><i
@@ -375,7 +392,7 @@
                             </div>
                             <input type="hidden" readonly name="sch_id" value="{{ $school->sch_id }}">
                             <div class="row mb-2">
-                                <div class="col-md-6 mb-2">
+                                <div class="col-md-12 mb-2">
                                     <label>Fullname <sup class="text-danger">*</sup></label>
                                     <input type="text" name="schdetail_name[]"
                                         class="form-control form-control-sm rounded" id="cp_fullname" value="{{ old('schdetail_name') ? old('schdetail_name')[0] : null }}">
@@ -383,7 +400,7 @@
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 mb-2">
+                                <div class="col-md-12 mb-2">
                                     <label>E-mail <sup class="text-danger">*</sup></label>
                                     <input type="email" name="schdetail_mail[]"
                                         class="form-control form-control-sm rounded" id="cp_mail" value="{{ old('schdetail_mail') ? old('schdetail_mail')[0] : null }}">
@@ -391,7 +408,7 @@
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 mb-2">
+                                <div class="col-md-12 mb-2">
                                     <label>Phone Number <sup class="text-danger">*</sup></label>
                                     <input type="text" name="schdetail_phone[]"
                                         class="form-control form-control-sm rounded" id="cp_phone" value="{{ old('schdetail_phone') ? old('schdetail_phone')[0] : null }}">
@@ -399,8 +416,8 @@
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
-                                <div class="col-md-6 mb-2">
-                                    <label>Status <sup class="text-danger">*</sup></label>
+                                <div class="col-md-12 mb-2">
+                                    <label>Person as <sup class="text-danger">*</sup></label>
                                     <select name="schdetail_position[]" class="modal-select w-100" id="cp_status">
                                         <option data-placeholder="true"></option>
                                         <option value="Principal" @selected(old('schdetail_position') && old('schdetail_position')[0] == 'Principal')>
@@ -417,7 +434,7 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-12 mb-2">
-                                    <label>School Grade <sup class="text-danger">*</sup></label>
+                                    <label>Educational Stage <sup class="text-danger">*</sup></label>
                                     <select name="schdetail_grade[]" class="modal-select w-100" id="cp_grade">
                                         <option data-placeholder="true"></option>
                                         <option value="Middle School" @selected(old('schdetail_grade') && old('schdetail_grade')[0] == 'Middle School')>
@@ -428,6 +445,23 @@
                                             Middle School & High School</option>
                                     </select>
                                     @error('schdetail_grade.0')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-2">
+                                    <label for="">Is he/she is a PIC?</label>
+                                    <input type="hidden" value="false" id="is_pic" name="is_pic">
+                                    <div class="form-check ms-4">
+                                        <input class="form-check-input" type="radio" name="pic_status" value="1" @checked(old('pic_status') == 1)>
+                                        <label class="form-check-label">Yes</label>
+                                    </div>
+                                    <div class="form-check ms-4">
+                                        <input class="form-check-input" type="radio" name="pic_status" value="0" @checked(old('pic_status') == 0) @checked(old('pic_status') !== null)>
+                                        <label class="form-check-label">No</label>
+                                    </div>
+                                    @error('is_pic')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -473,6 +507,12 @@
             @elseif ($error_visit === true)
                 $("#school_visit").modal('show')
             @endif
+
+            $("input[type=radio][name=pic_status]").change(function() {
+                var val = $(this).val();
+                $("#is_pic").val(val);
+            })
+
         });
     </script>
 
@@ -503,6 +543,8 @@
                     $('#cp_grade').val(cp.schdetail_grade).trigger('change')
                     $('#cp_phone').val(cp.schdetail_phone)
                     $('#cp_status').val(cp.schdetail_position).trigger('change')
+                    $('#is_pic').val(cp.is_pic)
+                    $('input[type=radio][name=pic_status][value=' + cp.is_pic + ']').prop('checked', true);
 
                     let url = "{{ url('instance/school/') }}/" + id + "/detail/" + cp.schdetail_id
                     $('#picAction').attr('action', url)
