@@ -66,7 +66,7 @@ class ImportPartnerProgram extends Command
                     'denied_date' => null,
                     'success_date' => $partnerProgram->corprog_datelastdiscuss,
                     'total_fee' => null,
-                    'is_corporate_scheme' => $partnerProgram->corprog != 1 ? 2 : 1,
+                    // 'is_corporate_scheme' => $partnerProgram->corprog != 1 ? 2 : 1,
                     'reason_id' => null,
                     'empl_id' => null,
                     'created_at' => $partnerProgram->corprog_datefirstdiscuss,

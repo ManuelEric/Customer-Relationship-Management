@@ -75,7 +75,7 @@
                                      @if (isset($employees))
                                          <option data-placeholder="true"></option>
                                          @foreach ($employees as $employee)
-                                             <option value="{{ $employee->id }}">
+                                             <option value="{{ $employee->id }}" {{$employee->id == old('speaker') ? 'selected' : ''}}>
                                                  {{ $employee->first_name . ' ' . $employee->last_name }}</option>
                                          @endforeach
                                      @else
@@ -105,7 +105,7 @@
                                  Start Time <sup class="text-danger">*</sup>
                              </label>
                              <input type="datetime-local" name="start_time" id=""
-                                 class="form-control form-control-sm" value="">
+                                 class="form-control form-control-sm" value="{{old('start_time')}}">
                              @error('start_time')
                                  <small class="text-danger fw-light">{{ $message }}</small>
                              @enderror
@@ -115,7 +115,7 @@
                                  End Time <sup class="text-danger">*</sup>
                              </label>
                              <input type="datetime-local" name="end_time" id=""
-                                 class="form-control form-control-sm" value="">
+                                 class="form-control form-control-sm" value="{{old('end_time')}}">
                              @error('end_time')
                                  <small class="text-danger fw-light">{{ $message }}</small>
                              @enderror
