@@ -252,6 +252,12 @@
                                     <td colspan="7" class="text-center">Not new referral yet</td>
                                 @endforelse
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="5">Total Amount</th>
+                                    <th colspan="2" class="text-center">Rp. {{ number_format($referrals_in->sum('revenue')) }}</th>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
 
@@ -291,6 +297,12 @@
                                     <td colspan="7" class="text-center">Not new referral yet</td>
                                 @endforelse
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="5">Total Amount</th>
+                                    <th colspan="2" class="text-center">Rp. {{ number_format($referrals_out->sum('revenue')) }}</th>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
 
@@ -489,6 +501,31 @@
             tableName.forEach(function (d, i) {
                 ws[i] = XLSX.utils.table_to_sheet(document.getElementById(tableName[i]));
                 XLSX.utils.book_append_sheet(workbook, ws[i], sheetName[i]);
+            })
+
+            var sheetNamePrograms = ['School Programs', 'Partner Programs', 'Referral In', 'Referral Out'];
+            console.log(workbook);
+            
+            sheetNamePrograms.forEach(function (d, i){
+
+                var sheet = d;
+                var full_ref = workbook.Sheets[sheet]['!fullref'];
+                var last_ref = full_ref.slice(full_ref.indexOf(':') + 1);
+                var col = ['F', 'F', 'E', 'E'];
+                var last_col = parseInt(last_ref.slice(last_ref.indexOf('G') + 1)) - 1;
+
+                for (var j = 2; j<=last_col; j++){
+
+                    var index = col[i] + j;
+                    var format_cell = 'Rp#,##0;(Rp#,##0)';
+        
+                    workbook.Sheets[sheet][index].v =  parseInt(workbook.Sheets[sheet][index].v.replace('Rp.', "").replaceAll(",", ""));
+                    workbook.Sheets[sheet][index].t = 'n';
+                    workbook.Sheets[sheet][index].z = format_cell;
+                }
+
+                workbook.Sheets[sheet][col[i] + j] = { t:'n', z:format_cell, f: `SUM(${col[i]+2}:` + index +")", F:col[i] + j + ":" + col[i] + j }
+
             })
             
             XLSX.writeFile(workbook, "report-partnership.xlsx");
