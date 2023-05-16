@@ -15,9 +15,10 @@ class AgendaSpeaker extends Pivot
      */
     protected $fillable = [
         'event_id',
-        'sch_prog_id', 
-        'partner_prog_id', 
-        'sch_pic_id', 
+        'sch_prog_id',
+        'partner_prog_id',
+        'eduf_id',
+        'sch_pic_id',
         'univ_pic_id',
         'partner_pic_id',
         'empl_id',

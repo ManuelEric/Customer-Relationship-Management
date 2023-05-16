@@ -85,4 +85,9 @@ class EdufLead extends Model
     {
         return $this->hasMany(ClientEvent::class, 'eduf_id', 'id');
     }
+
+    public function internal_speaker()
+    {
+        return $this->belongsToMany(User::class, 'tbl_agenda_speaker', 'eduf_id', 'id')->using(AgendaSpeaker::class);
+    }
 }
