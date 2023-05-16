@@ -268,8 +268,6 @@
                 var old;
                 var news;
 
-                console.log(result);
-
                 swal.close()
 
                 data.partner.new = result.newPartner
@@ -325,11 +323,20 @@
                             var icon = "bi-arrow-down-short"
     
                         }
+
+                        if(type == 'all'){
+                            var html = '<span class="me-2 '+ textStyling +'">'+
+                                            '<i class="bi '+ icon +'"></i>' +
+                                            percentage + '%' +
+                                        '</span><span>Since before</span>'
+                        }else{
+                            var html = '<span class="me-2 '+ textStyling +'">'+
+                                            '<i class="bi '+ icon +'"></i>' +
+                                            percentage + '%' +
+                                        '</span><span>Since last month</span>'
+
+                        }
     
-                        var html = '<span class="me-2 '+ textStyling +'">'+
-                                        '<i class="bi '+ icon +'"></i>' +
-                                        percentage + '%' +
-                                    '</span><span>Since last month</span>'
                     
                     $(this).html(html)
                 })
