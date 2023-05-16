@@ -66,15 +66,21 @@ class ReportController extends Controller
 
     public function event(Request $request)
     {
+
         $eventId = null;
         if ($request->get('event_id') != null) {
             $eventId = $request->get('event_id');
         }
 
+        if ($request->ajax()) {
+
+            return $this->clientEventRepository->getReportClientEventsDataTables($eventId);
+        }
+
         $events = $this->eventRepository->getAllEvents();
         $clientEvents = $this->clientEventRepository->getReportClientEvents($eventId);
         $clients = $this->clientEventRepository->getReportClientEventsGroupByRoles($eventId);
-        $conversionLeads = $this->clientEventRepository->getConversionLead($eventId);
+        $conversionLeads = $this->clientEventRepository->getConversionLead($request);
 
         return view('pages.report.event-tracking.index')->with(
             [
