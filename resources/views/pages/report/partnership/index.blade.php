@@ -225,7 +225,7 @@
                 </div>
                 <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_newref">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_ref_in">
                             <thead>
                                 <tr>
                                     <th class="text-center">#</th>
@@ -264,7 +264,7 @@
                 </div>
                 <div class="card-body overflow-auto" style="max-height: 500px">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_newref">
+                        <table class="table table-bordered table-hover nowrap align-middle w-100" id="tbl_ref_out">
                             <thead>
                                 <tr>
                                     <th class="text-center">#</th>
@@ -479,9 +479,9 @@
         });
         function ExportToExcel() {
 
-            var sheetName = ['School Programs', 'Partner Programs', 'New Referral', 'School Visits', 'New School', 'New Partner', 'New University'];
+            var sheetName = ['School Programs', 'Partner Programs', 'Referral In', 'Referral Out', 'School Visits', 'New School', 'New Partner', 'New University'];
 
-            var tableName = ['tblsch_prog', 'tblpartner_prog', 'tbl_newref', 'tbl_schvisit', 'tbl_newsch', 'tbl_newpartner', 'tbl_newuniv'];
+            var tableName = ['tblsch_prog', 'tblpartner_prog', 'tbl_ref_in', 'tbl_ref_out', 'tbl_schvisit', 'tbl_newsch', 'tbl_newpartner', 'tbl_newuniv'];
 
             var ws = new Array();
 
