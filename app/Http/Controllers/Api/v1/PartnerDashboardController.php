@@ -353,8 +353,8 @@ class PartnerDashboardController extends Controller
                         <td>' . $agreement->partner->corp_name . '</td>
                         <td>' . $agreement->agreement_name . '</td>
                         <td>' . $agreementType . '</td>
-                        <td>' . $agreement->start_date . '</td>
-                        <td>' . $agreement->end_date . '</td>
+                        <td>' . date('M d, Y', strtotime($agreement->start_date)) . '</td>
+                        <td>' . date('M d, Y', strtotime($agreement->end_date)) . '</td>
                         <td>' . $agreement->partnerPIC->pic_name . '</td>
                         <td>' . $agreement->user->first_name . ' ' . $agreement->user->last_name . '</td>
                         <td>' . $agreement->created_at . '</td>

@@ -46,7 +46,7 @@
                                         </small>
                                     </div>
                                     <div class="">
-                                        {{ date("H.i", strtotime($speaker->start_time)) }} - {{ date("M d, Y H.i", strtotime($speaker->end_time)) }}
+                                        {{ date("M d, Y H.i", strtotime($speaker->start_time)) }} - {{ date("M d, Y H.i", strtotime($speaker->end_time)) }}
                                     </div>
                                 </li>
                             </ul>
@@ -154,7 +154,7 @@
                         html = start_listgroup 
                         html += '<div class=""><p>' + item.speaker_name + '</p>'
                         html += '<small>' + item.event_name + '</small></div>'
-                        html += '<div class="">' + moment(item.start_time).format('HH.mm') + ' - ' + moment(item.end_time).format('MMM DD, YYYY HH.mm'); + '</div>'
+                        html += '<div class="">' + moment(item.start_time).format('MMM DD, YYYY HH.mm') + ' - ' + moment(item.end_time).format('MMM DD, YYYY HH.mm'); + '</div>'
                         html += end_listgroup
                         $('#speaker_list').append(html)
                         })
