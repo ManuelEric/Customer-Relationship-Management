@@ -504,7 +504,6 @@
             })
 
             var sheetNamePrograms = ['School Programs', 'Partner Programs', 'Referral In', 'Referral Out'];
-            console.log(workbook);
             
             sheetNamePrograms.forEach(function (d, i){
 
@@ -514,17 +513,19 @@
                 var col = ['F', 'F', 'E', 'E'];
                 var last_col = parseInt(last_ref.slice(last_ref.indexOf('G') + 1)) - 1;
 
-                for (var j = 2; j<=last_col; j++){
-
-                    var index = col[i] + j;
-                    var format_cell = 'Rp#,##0;(Rp#,##0)';
-        
-                    workbook.Sheets[sheet][index].v =  parseInt(workbook.Sheets[sheet][index].v.replace('Rp.', "").replaceAll(",", ""));
-                    workbook.Sheets[sheet][index].t = 'n';
-                    workbook.Sheets[sheet][index].z = format_cell;
+                if(last_col > 2){
+                    for (var j = 2; j<=last_col; j++){
+    
+                        var index = col[i] + j;
+                        var format_cell = 'Rp#,##0;(Rp#,##0)';
+            
+                        workbook.Sheets[sheet][index].v =  parseInt(workbook.Sheets[sheet][index].v.replace('Rp.', "").replaceAll(",", ""));
+                        workbook.Sheets[sheet][index].t = 'n';
+                        workbook.Sheets[sheet][index].z = format_cell;
+                    }
+    
+                    workbook.Sheets[sheet][col[i] + j] = { t:'n', z:format_cell, f: `SUM(${col[i]+2}:` + index +")", F:col[i] + j + ":" + col[i] + j }
                 }
-
-                workbook.Sheets[sheet][col[i] + j] = { t:'n', z:format_cell, f: `SUM(${col[i]+2}:` + index +")", F:col[i] + j + ":" + col[i] + j }
 
             })
             
