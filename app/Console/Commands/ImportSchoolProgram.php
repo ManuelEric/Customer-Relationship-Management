@@ -54,19 +54,19 @@ class ImportSchoolProgram extends Command
 
             if (!$this->schoolProgramRepository->getSchoolProgramById($schoolProgram->schprog_id)) {
                 if ($schoolProgram->schprog_status == 1 && $schoolProgram->schoolProgFix != null) {
-                    switch ($schoolProgram->schoolProgFix->schprogfix_status) {
-                        case 0:
-                            $runing_status = 'Not Yet';
-                            break;
+                    // switch ($schoolProgram->schoolProgFix->schprogfix_status) {
+                    //     case 0:
+                    //         $runing_status = 'Not Yet';
+                    //         break;
 
-                        case 1:
-                            $runing_status = 'On going';
-                            break;
+                    //     case 1:
+                    //         $runing_status = 'On going';
+                    //         break;
 
-                        case 2:
-                            $runing_status = 'Done';
-                            break;
-                    }
+                    //     case 2:
+                    //         $runing_status = 'Done';
+                    //         break;
+                    // }
 
                     $schoolProgramDetails[] = [
                         'id' => $schoolProgram->schprog_id,
@@ -78,7 +78,7 @@ class ImportSchoolProgram extends Command
                         'notes_detail' => $schoolProgram->schoolProgFix->schprogfix_notes == '' ? null : $schoolProgram->schoolProgFix->schprogfix_notes,
                         'refund_notes' => null,
                         'refund_date' => null,
-                        'running_status' => $runing_status,
+                        // 'running_status' => $runing_status,
                         'total_hours' => $schoolProgram->schoolProgFix->schprogfix_totalhours,
                         'total_fee' => null,
                         'participants' => $schoolProgram->schoolProgFix->schprogfix_participantsnum,
