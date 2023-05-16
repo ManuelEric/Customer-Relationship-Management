@@ -52,14 +52,21 @@ class AgendaSpeakerRepository implements AgendaSpeakerRepositoryInterface
                 DB::raw(
                     '(CASE
                         WHEN tbl_agenda_speaker.event_id is not null THEN tbl_events.event_title
-                        WHEN tbl_agenda_speaker.eduf_id is not null THEN IF (tbl_eduf_lead.sch_id IS NULL, tbl_corp.corp_name, tbl_sch.sch_name)
+                        WHEN tbl_agenda_speaker.eduf_id is not null THEN 
+                            (CASE 
+                                WHEN tbl_eduf_lead.title IS NOT NULL THEN tbl_eduf_lead.title
+                                ELSE 
+                                    (CASE 
+                                        WHEN tbl_eduf_lead.sch_id is NULL THEN CONCAT(tbl_corp.corp_name, " (", DATE_FORMAT(tbl_eduf_lead.created_at, "%e %b %Y"), ")")
+                                        ELSE CONCAT(tbl_sch.sch_name, " (", DATE_FORMAT(tbl_eduf_lead.created_at, "%e %b %Y"), ")")
+                                    END)
+                            END)
                         WHEN tbl_agenda_speaker.sch_prog_id > 0 OR tbl_agenda_speaker.partner_prog_id > 0
                             THEN 
                                 (CASE
                                 WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
                                     ELSE tbl_prog.prog_program
                                 END) 
-                        
                     END) AS event_name'
                 ),
                 DB::raw('(CASE
