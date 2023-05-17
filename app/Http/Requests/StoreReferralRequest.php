@@ -21,6 +21,7 @@ class StoreReferralRequest extends FormRequest
     {
         return [
             'revenue' => 'referral fee',
+            'revenue_idr' => 'referral fee idr',
         ];
     }
 
@@ -64,11 +65,13 @@ class StoreReferralRequest extends FormRequest
                 }
             ],
             'additional_prog_name' => 'required_if:referral_type,Out',
-            'currency' => 'required|in:IDR,USD,SGD',
+            'currency' => 'required|in:IDR,USD,SGD,GBP',
             'number_of_student' => 'required',
             'revenue' => 'required',
             'ref_date' => 'required|date',
-            'notes' => 'nullable'
+            'notes' => 'nullable',
+            'curs_rate' => 'required_if:currency,USD,SGD,GBP',
+            'revenue_idr' => 'required_if:currency,USD,SGD,GBP',
         ];
 
         if ($this->input('referral_type') == 'In')
