@@ -152,7 +152,10 @@
                                     <div class="col-9">
                                         <input type="number" name="revenue" id="revenue"
                                             value=
-                                                "{{ isset($referral) && $referral->currency == "IDR" ? $referral->revenue : $referral->revenue_other }}"
+                                                "{{ isset($referral) ?
+                                                        ($referral->currency == "IDR" ? $referral->revenue : $referral->revenue_other)
+                                                    : null
+                                                }}"
                                             class="form-control form-control-sm rounded" {{ $disabled }}
                                             oninput="checkReferralOther()">
                                         @error('revenue')
@@ -174,7 +177,11 @@
                             <div class="col-md-6 mb-2 referral-other d-none">
                                 <label>Referral Fee IDR <sup class="text-danger">*</sup></label>
                                 <input type="number" name="revenue_idr" id="revenue_idr"
-                                    value="{{ isset($referral) && $referral->currency != "IDR" ? $referral->revenue : null }}"
+                                    value="{{ 
+                                            isset($referral) ?
+                                                (isset($referral->revenue) && $referral->currency != "IDR" ? $referral->revenue : null) 
+                                            : null
+                                        }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
                                 @error('revenue_idr')
                                     <small class="text-danger fw-light">{{ $message }}</small>
