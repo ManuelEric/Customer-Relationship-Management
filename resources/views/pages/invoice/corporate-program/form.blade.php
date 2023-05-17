@@ -225,7 +225,7 @@
                     <div class="">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-person me-2"></i>
-                            Invoice : {{ $invoicePartner->invb2b_id }}
+                            {{ isset($invoicePartner) ?  'Invoice : '. $invoicePartner->invb2b_id : ''}}
                         </h6>
                     </div>
                     <div class="">

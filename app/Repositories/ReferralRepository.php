@@ -22,6 +22,7 @@ class ReferralRepository implements ReferralRepositoryInterface
                     'program.program_name',
                     'tbl_referral.number_of_student',
                     'tbl_referral.revenue',
+                    'tbl_referral.revenue_other',
                     'tbl_referral.additional_prog_name',
                     'tbl_referral.currency',
                     DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')

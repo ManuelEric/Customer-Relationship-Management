@@ -232,7 +232,10 @@
                                     <th>Partner Name</th>
                                     <th>Program Name</th>
                                     <th>Participants</th>
-                                    <th>Referral Fee</th>
+                                    <th>Referral Fee IDR</th>
+                                    <th>Referral Fee USD</th>
+                                    <th>Referral Fee SGD</th>
+                                    <th>Referral Fee GBP</th>
                                     <th>PIC</th>
                                     <th>Created at</th>
                                 </tr>
@@ -245,17 +248,25 @@
                                         <td>{{ $referral->program->program_name }}</td>
                                         <td>{{ $referral->number_of_student }}</td>
                                         <td>Rp. {{ number_format($referral->revenue) }}</td>
+                                        <td>{{ $referral->currency == "USD" ? '$. ' . number_format($referral->revenue_other) : '-' }}</td>
+                                        <td>{{ $referral->currency == "SGD" ? 'S$. ' . number_format($referral->revenue_other) : '-' }}</td>
+                                        <td>{{ $referral->currency == "GBP" ? '£. ' . number_format($referral->revenue_other) : '-' }}</td>
                                         <td>{{ $referral->user->first_name }} {{ $referral->user->last_name }}</td>
                                         <td>{{ $referral->created_at }}</td>
                                     </tr>
                                 @empty
-                                    <td colspan="7" class="text-center">Not new referral yet</td>
+                                    <td colspan="10" class="text-center">Not new referral yet</td>
                                 @endforelse
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="5">Total Amount</th>
-                                    <th colspan="2" class="text-center">Rp. {{ number_format($referrals_in->sum('revenue')) }}</th>
+                                    <th colspan="4">Total Amount</th>
+                                    <th>Rp. {{ number_format($referrals_in->sum('revenue')) }}</th>
+                                    <th>$. {{ number_format($referrals_in->where('currency', 'USD')->sum('revenue_other')) }}</th>
+                                    <th>S$. {{ number_format($referrals_in->where('currency', 'SGD')->sum('revenue_other')) }}</th>
+                                    <th>£. {{ number_format($referrals_in->where('currency', 'GBP')->sum('revenue_other')) }}</th>
+                                    <th></th>
+                                    <th></th>
                                 </tr>
                             </tfoot>
                         </table>
@@ -277,7 +288,10 @@
                                     <th>Partner Name</th>
                                     <th>Program Name</th>
                                     <th>Participants</th>
-                                    <th>Referral Fee</th>
+                                    <th>Referral Fee IDR</th>
+                                    <th>Referral Fee USD</th>
+                                    <th>Referral Fee SGD</th>
+                                    <th>Referral Fee GBP</th>
                                     <th>PIC</th>
                                     <th>Created at</th>
                                 </tr>
@@ -290,17 +304,25 @@
                                         <td>{{ $referral->additional_prog_name }}</td>
                                         <td>{{ $referral->number_of_student }}</td>
                                         <td>Rp. {{ number_format($referral->revenue) }}</td>
+                                        <td>{{ $referral->currency == "USD" ? '$. ' . number_format($referral->revenue_other) : '-' }}</td>
+                                        <td>{{ $referral->currency == "SGD" ? 'S$. ' . number_format($referral->revenue_other) : '-' }}</td>
+                                        <td>{{ $referral->currency == "GBP" ? '£. ' . number_format($referral->revenue_other) : '-' }}</td>
                                         <td>{{ $referral->user->first_name }} {{ $referral->user->last_name }}</td>
                                         <td>{{ $referral->created_at }}</td>
                                     </tr>
                                 @empty
-                                    <td colspan="7" class="text-center">Not new referral yet</td>
+                                    <td colspan="10" class="text-center">Not new referral yet</td>
                                 @endforelse
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="5">Total Amount</th>
-                                    <th colspan="2" class="text-center">Rp. {{ number_format($referrals_out->sum('revenue')) }}</th>
+                                    <th colspan="4">Total Amount</th>
+                                    <th>Rp. {{ number_format($referrals_out->sum('revenue')) }}</th>
+                                    <th>$. {{ number_format($referrals_out->where('currency', 'USD')->sum('revenue_other')) }}</th>
+                                    <th>S$. {{ number_format($referrals_out->where('currency', 'SGD')->sum('revenue_other')) }}</th>
+                                    <th>£. {{ number_format($referrals_out->where('currency', 'GBP')->sum('revenue_other')) }}</th>
+                                    <th></th>
+                                    <th></th>
                                 </tr>
                             </tfoot>
                         </table>
@@ -505,29 +527,70 @@
 
             var sheetNamePrograms = ['School Programs', 'Partner Programs', 'Referral In', 'Referral Out'];
             
+            
             sheetNamePrograms.forEach(function (d, i){
 
                 var sheet = d;
                 var full_ref = workbook.Sheets[sheet]['!fullref'];
                 var last_ref = full_ref.slice(full_ref.indexOf(':') + 1);
-                var col = ['F', 'F', 'E', 'E'];
-                var last_col = parseInt(last_ref.slice(last_ref.indexOf('G') + 1)) - 1;
+                
+                
+                if(sheet == 'School Programs' || sheet == 'Partner Programs'){
+                    var last_col = parseInt(last_ref.slice(last_ref.indexOf('G') + 1)) - 1;
 
-                if(last_col > 2){
-                    for (var j = 2; j<=last_col; j++){
-    
-                        var index = col[i] + j;
-                        var format_cell = 'Rp#,##0;(Rp#,##0)';
-            
-                        workbook.Sheets[sheet][index].v =  parseInt(workbook.Sheets[sheet][index].v.replace('Rp.', "").replaceAll(",", ""));
-                        workbook.Sheets[sheet][index].t = 'n';
-                        workbook.Sheets[sheet][index].z = format_cell;
+                    if(last_col > 2){
+                        for (var j = 2; j<=last_col; j++){
+        
+                            var index = 'F' + j;
+                            var format_cell = 'Rp#,##0;(Rp#,##0)';
+                
+                            workbook.Sheets[sheet][index].v =  parseInt(workbook.Sheets[sheet][index].v.replace('Rp.', "").replaceAll(",", ""));
+                            workbook.Sheets[sheet][index].t = 'n';
+                            workbook.Sheets[sheet][index].z = format_cell;
+                        }
+        
+                        workbook.Sheets[sheet]['F' + j] = { t:'n', z:format_cell, f: `SUM(${'F'+2}:` + index +")", F:'F' + j + ":" + 'F' + j }
                     }
+                }else{
+                    var col = ['E', 'F', 'G', 'H'];
+                    var last_col = parseInt(last_ref.slice(last_ref.indexOf('J') + 1)) - 1;
+                    
+                    col.forEach(function (d, i){
+                        for(var i = 2; i <= last_col; i++) {
+                            var index = d + i;
     
-                    workbook.Sheets[sheet][col[i] + j] = { t:'n', z:format_cell, f: `SUM(${col[i]+2}:` + index +")", F:col[i] + j + ":" + col[i] + j }
+                            var format_cell;
+                            var remove_cursymbol;
+                            switch (d) {
+                                case 'E':
+                                    remove_cursymbol = 'Rp.';
+                                    format_cell = 'Rp#,##0;(Rp#,##0)';
+                                    break;
+                                case 'F':
+                                    remove_cursymbol = '$.';
+                                    format_cell = '$#,##0;($#,##0)';
+                                    break;
+                                case 'G':
+                                    remove_cursymbol = 'S$.';
+                                    format_cell = '$#,##0;($#,##0)';
+                                    break;
+                                case 'H':
+                                    remove_cursymbol = '£.';
+                                    format_cell = '£#,##0;(£#,##0)';
+                                    break;
+                            }
+                            if(workbook.Sheets[sheet][index].v != '-')
+                                workbook.Sheets[sheet][index].v =  parseInt(workbook.Sheets[sheet][index].v.replace(remove_cursymbol, "").replaceAll(",", ""));
+    
+                            workbook.Sheets[sheet][index].t = 'n';
+                            workbook.Sheets[sheet][index].z = format_cell;
+                        }
+                        workbook.Sheets[sheet][d + i] = { t:'n', z:format_cell, f: `SUM(${d+2}:` + index +")", F:d + i + ":" + d + i }
+                    })
                 }
 
             })
+            console.log(workbook);
             
             XLSX.writeFile(workbook, "report-partnership.xlsx");
             
