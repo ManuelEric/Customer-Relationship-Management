@@ -556,41 +556,42 @@
                     var last_col = parseInt(last_ref.slice(last_ref.indexOf('J') + 1)) - 1;
                     
                     col.forEach(function (d, i){
-                        for(var i = 2; i <= last_col; i++) {
-                            var index = d + i;
-    
-                            var format_cell;
-                            var remove_cursymbol;
-                            switch (d) {
-                                case 'E':
-                                    remove_cursymbol = 'Rp.';
-                                    format_cell = 'Rp#,##0;(Rp#,##0)';
-                                    break;
-                                case 'F':
-                                    remove_cursymbol = '$.';
-                                    format_cell = '$#,##0;($#,##0)';
-                                    break;
-                                case 'G':
-                                    remove_cursymbol = 'S$.';
-                                    format_cell = '$#,##0;($#,##0)';
-                                    break;
-                                case 'H':
-                                    remove_cursymbol = '£.';
-                                    format_cell = '£#,##0;(£#,##0)';
-                                    break;
+                        if(last_col > 2){
+                            for(var i = 2; i <= last_col; i++) {
+                                var index = d + i;
+        
+                                var format_cell;
+                                var remove_cursymbol;
+                                switch (d) {
+                                    case 'E':
+                                        remove_cursymbol = 'Rp.';
+                                        format_cell = 'Rp#,##0;(Rp#,##0)';
+                                        break;
+                                    case 'F':
+                                        remove_cursymbol = '$.';
+                                        format_cell = '$#,##0;($#,##0)';
+                                        break;
+                                    case 'G':
+                                        remove_cursymbol = 'S$.';
+                                        format_cell = '$#,##0;($#,##0)';
+                                        break;
+                                    case 'H':
+                                        remove_cursymbol = '£.';
+                                        format_cell = '£#,##0;(£#,##0)';
+                                        break;
+                                }
+                                if(workbook.Sheets[sheet][index].v != '-')
+                                    workbook.Sheets[sheet][index].v =  parseInt(workbook.Sheets[sheet][index].v.replace(remove_cursymbol, "").replaceAll(",", ""));
+        
+                                workbook.Sheets[sheet][index].t = 'n';
+                                workbook.Sheets[sheet][index].z = format_cell;
                             }
-                            if(workbook.Sheets[sheet][index].v != '-')
-                                workbook.Sheets[sheet][index].v =  parseInt(workbook.Sheets[sheet][index].v.replace(remove_cursymbol, "").replaceAll(",", ""));
-    
-                            workbook.Sheets[sheet][index].t = 'n';
-                            workbook.Sheets[sheet][index].z = format_cell;
+                            workbook.Sheets[sheet][d + i] = { t:'n', z:format_cell, f: `SUM(${d+2}:` + index +")", F:d + i + ":" + d + i }
                         }
-                        workbook.Sheets[sheet][d + i] = { t:'n', z:format_cell, f: `SUM(${d+2}:` + index +")", F:d + i + ":" + d + i }
                     })
                 }
 
             })
-            console.log(workbook);
             
             XLSX.writeFile(workbook, "report-partnership.xlsx");
             
