@@ -16,6 +16,7 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
+use App\Models\ClientEvent;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -82,10 +83,24 @@ class ReportController extends Controller
         $clients = $this->clientEventRepository->getReportClientEventsGroupByRoles($eventId);
         $conversionLeads = $this->clientEventRepository->getConversionLead($request);
 
+        $existingMentee = $clients->where('role_name', 'Mentee')->unique('client_id');
+
+        $id_mentee = $this->getIdClientExisting($existingMentee);
+
+        $existingNonMentee = $clients->where('role_name', '!=', 'Mentee')->where('id_receipt', '!=', null)->where('main_prog_id', '!=', 1)->whereNotIn('client_id', $id_mentee)->unique('client_id');
+
+        $id_nonMentee = $this->getIdClientExisting($existingNonMentee);
+
+        $existingNonClient = $clients->where('id_receipt', null)->whereNotIn('client_id', $id_nonMentee)->whereNotIn('client_id', $id_mentee)->unique('client_id');
+        // return $existingNonClient;
+        // exit;
+
         return view('pages.report.event-tracking.index')->with(
             [
                 'clientEvents' => $clientEvents,
-                'clients' => $clients,
+                'existingMentee' => $existingMentee,
+                'existingNonMentee' => $existingNonMentee,
+                'existingNonClient' => $existingNonClient,
                 'events' => $events,
                 'conversionLeads' => $conversionLeads,
             ]
@@ -211,5 +226,18 @@ class ReportController extends Controller
                 'remaining' => $totalUnpaid
             ]
         );
+    }
+
+    protected function getIdClientExisting($data)
+    {
+        $id_client = array();
+
+        $i = 0;
+        foreach ($data as $d) {
+            $id_client[$i] = $d->client_id;
+            $i++;
+        }
+
+        return $id_client;
     }
 }

@@ -40,14 +40,19 @@
                 </div>
                 <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
                     <ul class="list-group">
-                        @forelse ($clients as $client)
                             <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
-                                <div class="">{{ $client->role_name }}</div>
-                                <span class="badge badge-info">{{ $client->count_role }}</span>
+                                <div class="">Existing Mentee</div>
+                                <span class="badge badge-info">{{ $existingMentee->count() }}</span>
                             </li>
-                        @empty
-                            <li class="text-center">Not Client yet</li> 
-                        @endforelse
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                                <div class="">Existing Non Mentee</div>
+                                <span class="badge badge-info">{{ $existingNonMentee->count() }}</span>
+                            </li>
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                                <div class="">Existing Non Client</div>
+                                <span class="badge badge-info">{{ $existingNonClient->count() }}</span>
+                            </li>
+                        
                     </ul>
                 </div>
             </div>

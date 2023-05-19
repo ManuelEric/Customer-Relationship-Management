@@ -6,12 +6,13 @@
                     onchange="checkInvoiceStatusbyMonth()" value="{{ date('Y-m') }}">
             </div>
         </div>
+
         <div class="row align-items-stretch g-3">
             <div class="col-md-2">
                 <div class="card rounded border h-100 card-finance cursor-pointer" data-finance-type="invoice-needed">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         @if($invoiceNeededToday > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger today"
                                 style="font-size: 11px">
                                 {{$invoiceNeededToday}}
                             </span>
@@ -55,7 +56,7 @@
                 <div class="card rounded border h-100 card-finance cursor-pointer" data-finance-type="outstanding">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         @if($outstandingToday > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger today"
                                 style="font-size: 11px">
                                 {{$outstandingToday}}
                             </span>
@@ -73,7 +74,7 @@
                 <div class="card rounded border h-100 card-finance cursor-pointer" data-finance-type="refund-request">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         @if($refundRequestToday > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger today"
                                 style="font-size: 11px">
                                 {{$refundRequestToday}}
                             </span>
@@ -188,6 +189,14 @@
 
     function checkInvoiceStatusbyMonth() {
         let month = $('#finance_status_month').val()
+
+        let today = moment().format('YYYY-MM')
+       
+        if(month != today){
+            $('.today').addClass('d-none')
+        }else{
+            $('.today').removeClass('d-none')
+        }
 
         const rupiah = (number)=>{
             return new Intl.NumberFormat("id-ID", {
