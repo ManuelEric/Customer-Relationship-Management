@@ -133,6 +133,60 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         }
     }
 
+    public function getReportClientEventsDataTables($eventId = null)
+    {
+        $clientEvent = ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+            ->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_client.sch_id')
+            ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
+            ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_event.lead_id')
+            ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
+            ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
+            ->select(
+                DB::raw('CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) as client_name'),
+                'tbl_client.mail',
+                'tbl_client.phone',
+                'tbl_sch.sch_name',
+                'tbl_client.st_grade',
+                DB::raw('(CASE
+                    WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
+                    WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)
+                    WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
+                    ELSE tbl_lead.main_lead
+                END) AS conversion_lead'),
+                'tbl_client_event.joined_date',
+                'tbl_events.event_title',
+                'tbl_events.event_id',
+                DB::raw(isset($eventId) ? "'ByEvent' as filter" : "'ByMonth' as filter"),
+            );
+
+        if (isset($eventId)) {
+            $clientEvent->where('tbl_client_event.event_id', $eventId);
+        } else {
+            $clientEvent->whereMonth('tbl_client_event.created_at', date('m'))->whereYear('tbl_client_event.created_at', date('Y'));
+        }
+
+        return datatables::eloquent($clientEvent)
+            ->filterColumn(
+                'client_name',
+                function ($query, $keyword) {
+                    $sql = 'CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )
+            ->filterColumn(
+                'conversion_lead',
+                function ($query, $keyword) {
+                    $sql = '(CASE
+                            WHEN tbl_lead.main_lead COLLATE utf8mb4_unicode_ci = "KOL" THEN CONCAT(tbl_lead.sub_lead)
+                            WHEN tbl_lead.main_lead COLLATE utf8mb4_unicode_ci = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)
+                            WHEN tbl_lead.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
+                            ELSE tbl_lead.main_lead COLLATE utf8mb4_unicode_ci
+                        END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->make(true);
+    }
+
     public function getReportClientEventsGroupByRoles($eventId = null)
     {
         if (isset($eventId)) {
@@ -155,13 +209,15 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     DB::raw('count(role_id) as count_role')
                 )
                 ->groupBy('role_name')
+                ->whereMonth('tbl_client_event.created_at', date('m'))->whereYear('tbl_client_event.created_at', date('Y'))
                 ->get();
         }
     }
 
     public function getConversionLead($filter = null)
     {
-        $eventId = isset($filter['eventId']) ? $filter['eventId'] : null;
+        // return $filter;
+        $eventId = isset($filter['event_id']) ? $filter['event_id'] : null;
         $userId = $this->getUser($filter);
         // $year = $filter['qyear'];
 
@@ -186,20 +242,37 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             END)) AS count_conversionLead'),
             )
             ->groupBy('conversion_lead')
-            ->when($eventId, function ($query) use ($eventId) {
-                $query->where('tbl_client_event.event_id', $eventId);
-            })->when($userId, function ($query) use ($userId) {
+            ->when(
+                isset($eventId) && !isset($userId) && !isset($filter['qyear']),
+                function ($query) use ($eventId) {
+                    $query->where('tbl_client_event.event_id', $eventId);
+                }
+            )
+            ->when(
+                !isset($eventId) && !isset($userId) && !isset($filter['qyear']),
+                function ($query) {
+                    $query->whereMonth('tbl_client_event.created_at', date('m'))
+                        ->whereYear('tbl_client_event.created_at', date('Y'));
+                }
+            )
+            ->when($userId, function ($query) use ($userId) {
                 $query->whereHas('event', function ($q) use ($userId) {
                     $q->whereHas('eventPic', function ($q2) use ($userId) {
                         $q2->where('users.id', $userId);
                     });
                 });
-            })->when(isset($filter['qyear']) && $filter['qyear'] == "last-3-year", function ($sq) use ($current_year, $last_3_year) {
-                $sq->whereRaw('YEAR(tbl_client_event.created_at) BETWEEN ? AND ?', [$last_3_year, $current_year]);
-                // $sq->whereYearBetween('tbl_client_event.created_at', [date('Y')-2, date('Y')]);
-            }, function ($sq) {
-                $sq->whereYear('tbl_client_event.created_at', date('Y'));
-            })
+            })->when(
+                isset($filter['qyear']) && $filter['qyear'] == "last-3-year" && !$eventId,
+                function ($sq) use ($current_year, $last_3_year) {
+                    $sq->whereRaw('YEAR(tbl_client_event.created_at) BETWEEN ? AND ?', [$last_3_year, $current_year]);
+                    // $sq->whereYearBetween('tbl_client_event.created_at', [date('Y')-2, date('Y')]);
+                }
+            )->when(
+                isset($filter['qyear']) && !$eventId,
+                function ($sq) {
+                    $sq->whereYear('tbl_client_event.created_at', date('Y'));
+                }
+            )
             ->get();
     }
 

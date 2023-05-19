@@ -24,8 +24,10 @@ class Referral extends Model
         'referral_type',
         'additional_prog_name',
         'currency',
+        'curs_rate',
         'number_of_student',
         'revenue',
+        'revenue_other',
         'ref_date',
         'notes',
     ];

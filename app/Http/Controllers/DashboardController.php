@@ -98,10 +98,10 @@ class DashboardController extends SalesDashboardController
         $totalPartner = $this->corporateRepository->getAllCorporate()->count();
         $totalSchool = $this->schoolRepository->getAllSchools()->count();
         $totalUniversity = $this->universityRepository->getAllUniversities()->count();
-        $totalAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly(date('Y-m'), 'total');
-        $newPartner = $this->corporateRepository->getCorporateByMonthly(date('Y-m'), 'total');
-        $newSchool = $this->schoolRepository->getSchoolByMonthly(date('Y-m'), 'total');
-        $newUniversity = $this->universityRepository->getUniversityByMonthly(date('Y-m'), 'total');
+        $totalAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly(date('Y-m'), 'all');
+        $newPartner = $this->corporateRepository->getCorporateByMonthly(date('Y-m'), 'monthly');
+        $newSchool = $this->schoolRepository->getSchoolByMonthly(date('Y-m'), 'monthly');
+        $newUniversity = $this->universityRepository->getUniversityByMonthly(date('Y-m'), 'monthly');
 
         // Tab Agenda
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerDashboard('all', $date);

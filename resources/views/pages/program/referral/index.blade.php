@@ -25,13 +25,14 @@
                         <th>Program Name</th>
                         <th>Participants</th>
                         <th>Amount</th>
+                        <th>Amount other</th>
                         <th>PIC</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="7"></td>
+                        <td colspan="8"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -87,18 +88,32 @@
                     {
                         data: 'revenue',
                         render: function(data, type, row, meta) {
+                    
+                            return formatRupiah(row.revenue)
+                                           
+                            
+                        }
+                    },
+                    {
+                        data: 'revenue_other',
+                        render: function(data, type, row, meta) {
                             switch (row.currency) {
                                 case "USD":
-                                    return formatUsd(row.revenue)
-                                    break;
-
-                                case "IDR":
-                                    return formatRupiah(row.revenue)
+                                    return formatUsd(row.revenue_other)
                                     break;
                                 
                                 case "SGD":
-                                    return 'S' + formatSingUsd(row.revenue)
+                                    return 'S' + formatSingUsd(row.revenue_other)
                                     break;
+
+                                case "GBP":
+                                    return formatGbp(row.revenue_other)
+                                    break;
+
+                                case "IDR":
+                                    return '-'
+                                    break;
+                                    
                             }
                         }
                     },
@@ -151,6 +166,13 @@
                     { style: 'currency', currency: 'SGD' }
                 ).format(money)
             }
+            
+            const formatGbp = (money) => {
+                return new Intl.NumberFormat('en-GB',
+                    { style: 'currency', currency: 'GBP' }
+                ).format(money)
+            }
+           
         });
     </script>
 

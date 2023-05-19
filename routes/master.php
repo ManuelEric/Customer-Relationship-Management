@@ -17,6 +17,7 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\UniversityEventController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\EdufLeadController;
+use App\Http\Controllers\EdufLeadSpeakerController;
 use App\Http\Controllers\EdufReviewController;
 use App\Http\Controllers\EventSpeakerController;
 use App\Http\Controllers\SalesTargetController;
@@ -72,12 +73,14 @@ Route::prefix('event')->name('event.')->group(function () {
 
 Route::resource('edufair', EdufLeadController::class);
 Route::prefix('edufair')->name('edufair.')->group(function () {
-    
+
     Route::post('{edufair}/review', [EdufReviewController::class, 'store'])->name('review.store');
     Route::get('{edufair}/review/{review}/edit', [EdufLeadController::class, 'edit'])->name('review.edit');
     Route::get('{edufair}/review/{review}', [EdufReviewController::class, 'show'])->name('review.show');
     Route::put('{edufair}/review/{review}', [EdufReviewController::class, 'update'])->name('review.update');
     Route::delete('{edufair}/review/{review}', [EdufReviewController::class, 'destroy'])->name('review.destroy');
+
+    Route::resource('{edufair}/speaker', EdufLeadSpeakerController::class);
 });
 
 Route::resource('sales-target', SalesTargetController::class);

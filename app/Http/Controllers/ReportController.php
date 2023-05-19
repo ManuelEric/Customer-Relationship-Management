@@ -68,9 +68,15 @@ class ReportController extends Controller
 
     public function event(Request $request)
     {
+
         $eventId = null;
         if ($request->get('event_id') != null) {
             $eventId = $request->get('event_id');
+        }
+
+        if ($request->ajax()) {
+
+            return $this->clientEventRepository->getReportClientEventsDataTables($eventId);
         }
 
         $events = $this->eventRepository->getAllEvents();

@@ -8,6 +8,7 @@ interface ClientEventRepositoryInterface
     public function getAllClientEventByClientIdDataTables($clientId);
     public function getAllClientEventByClientId($clientId);
     public function getReportClientEvents($eventId);
+    public function getReportClientEventsDataTables($eventId);
     public function getReportClientEventsGroupByRoles($eventId);
     public function getConversionLead($filter);
     public function getClientEventById($clientEventId);

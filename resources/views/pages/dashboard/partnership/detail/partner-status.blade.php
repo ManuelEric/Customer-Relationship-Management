@@ -1,11 +1,23 @@
 <div class="card mb-3">
     <div class="card-body">
-        <div class="row justify-content-end g-1 mb-2">
-            <div class="col-md-2 text-end">
-                <input type="month" name="" id="partner_status_month" class="form-control form-control-sm"
+
+        <div class="row justify-content-between g-1 mb-2">
+            <div class="col-md-2">
+                    <select id="period-partnership" class="select w-100" onchange="checkPeriodPartnership()">
+                    <option value="all">All</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+            </div>
+                    
+                   
+            <div class="col-md-2 text-end d-none" id="monthly-partnership">
+                    <input type="month" name="" id="partner_status_month" class="form-control form-control-sm"
                     onchange="checkPartnerStatusbyMonth()" value="{{ date('Y-m') }}">
             </div>
+
         </div>
+
+       
         <div class="row align-items-stretch">
             <div class="col-md-3">
                 <div class="card rounded border h-100 card-partner cursor-pointer" data-partner-type="Partner">
@@ -130,13 +142,30 @@
 </div>
 
 <script>
+    function checkPeriodPartnership() {
+        let period = $('#period-partnership').val()
+        if (period == 'monthly') {
+            $('#monthly-partnership').removeClass('d-none')
+        }else{
+            $('#monthly-partnership').addClass('d-none')
+        }   
+        checkPartnerStatusbyMonth()
+     
+    }
 
     $(".card-partner").each(function() {
         $(this).click(function() {
             showLoading()
-
+           
+            let period = $('#period-partnership').val()
             let type = $(this).data('partner-type')
-            let month = $('#partner_status_month').val()
+            let month;
+
+            if (period == 'all'){    
+                month = {{date('Y-m')}}
+            }else{
+                month = $('#partner_status_month').val()
+            }
             
             let url = window.location.origin + '/api/partner/detail/'+ month +'/'+ type;
             var html;
@@ -214,6 +243,12 @@
 
     function checkPartnerStatusbyMonth() {
         let month = $('#partner_status_month').val()
+        let type = $('#period-partnership').val()
+        
+        if(type == 'all'){
+            month = null;
+        }
+        // console.log(type)
       
         let data = ({
             'partner': { 'total': {{$totalPartner}}, 'new': {{$newPartner}}, 'percentage': '0,00'},
@@ -224,7 +259,7 @@
         Swal.showLoading()
 
         // Axios here...
-        axios.get('{{ url("api/partner/total/") }}/' + month)
+        axios.get('{{ url("api/partner/total/") }}/' + month + '/' + type)
             .then((response) => {
                 var result = response.data.data
                 var html = ""
@@ -288,11 +323,20 @@
                             var icon = "bi-arrow-down-short"
     
                         }
+
+                        if(type == 'all'){
+                            var html = '<span class="me-2 '+ textStyling +'">'+
+                                            '<i class="bi '+ icon +'"></i>' +
+                                            percentage + '%' +
+                                        '</span><span>Since before</span>'
+                        }else{
+                            var html = '<span class="me-2 '+ textStyling +'">'+
+                                            '<i class="bi '+ icon +'"></i>' +
+                                            percentage + '%' +
+                                        '</span><span>Since last month</span>'
+
+                        }
     
-                        var html = '<span class="me-2 '+ textStyling +'">'+
-                                        '<i class="bi '+ icon +'"></i>' +
-                                        percentage + '%' +
-                                    '</span><span>Since last month</span>'
                     
                     $(this).html(html)
                 })

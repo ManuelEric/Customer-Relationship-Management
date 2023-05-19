@@ -145,6 +145,8 @@
                                         <option data-placeholder="true"></option>
                                         <option value="mentee" {{ (isset($program->prog_scope) && $program->prog_scope == "mentee") || (old('prog_scope') == "mentee") ? "selected" : null }}>Mentee</option>
                                         <option value="public" {{ (isset($program->prog_scope) && $program->prog_scope == "public") || (old('prog_scope') == "public") ? "selected" : null }}>Public</option>
+                                        <option value="school" {{ (isset($program->prog_scope) && $program->prog_scope == "school") || (old('prog_scope') == "school") ? "selected" : null }}>School</option>
+                                        <option value="partner" {{ (isset($program->prog_scope) && $program->prog_scope == "partner") || (old('prog_scope') == "partner") ? "selected" : null }}>Partner</option>
                                     </select>
                                     @error('prog_scope')
                                         <small class="text-danger fw-light">{{ $message }}</small>

@@ -53,7 +53,7 @@
             </div>
 
             @if (isset($edufair) && empty($edit))
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <div class="">
                             <h6 class="m-0 p-0">
@@ -103,6 +103,10 @@
                             @endforelse
                     </div>
                 </div>
+            @endif
+
+            @if(isset($edufair) &&  empty($edit))
+                @include('pages.master.edufair.detail.speaker')
             @endif
         </div>
         <div class="col-md-8">
