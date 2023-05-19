@@ -50,9 +50,19 @@ class ReferralController extends Controller
             'currency',
             'number_of_student',
             'revenue',
+            'revenue_idr',
             'ref_date',
             'notes'
         ]);
+
+        if ($referralDetails['currency'] != 'IDR') {
+            $referralDetails['revenue_other'] = $referralDetails['revenue'];
+            $referralDetails['revenue'] = $referralDetails['revenue_idr'];
+            unset($referralDetails['revenue_idr']);
+        } else {
+            unset($referralDetails['revenue_idr']);
+            unset($referralDetails['curs_rate']);
+        }
 
         DB::beginTransaction();
         try {
@@ -72,15 +82,14 @@ class ReferralController extends Controller
     public function create()
     {
         $partners = $this->corporateRepository->getAllCorporate();
-        $B2BPrograms = $this->programRepository->getAllProgramByType("B2B");
-        $B2BandB2CPrograms = $B2BPrograms->merge($this->programRepository->getAllProgramByType("B2B/B2C"));
+        $programs = $this->programRepository->getAllPrograms();
         $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.program.referral.form')->with(
             [
                 'edit' => true,
                 'partners' => $partners,
-                'programs' => $B2BandB2CPrograms,
+                'programs' => $programs,
                 'employees' => $employees
             ]
         );
@@ -92,8 +101,7 @@ class ReferralController extends Controller
 
         $referral = $this->referralRepository->getReferralById($referralId);
         $partners = $this->corporateRepository->getAllCorporate();
-        $B2BPrograms = $this->programRepository->getAllProgramByType("B2B");
-        $B2BandB2CPrograms = $B2BPrograms->merge($this->programRepository->getAllProgramByType("B2B/B2C"));
+        $programs = $this->programRepository->getAllPrograms();
 
         $employees = $this->userRepository->getAllUsersByRole('Employee');
 
@@ -101,7 +109,7 @@ class ReferralController extends Controller
             [
                 'referral' => $referral,
                 'partners' => $partners,
-                'programs' => $B2BandB2CPrograms,
+                'programs' => $programs,
                 'employees' => $employees,
             ]
         );
@@ -120,9 +128,20 @@ class ReferralController extends Controller
             'currency',
             'number_of_student',
             'revenue',
+            'revenue_idr',
             'ref_date',
-            'notes'
+            'notes',
+            'curs_rate',
         ]);
+
+        if ($newDetails['currency'] != 'IDR') {
+            $newDetails['revenue_other'] = $newDetails['revenue'];
+            $newDetails['revenue'] = $newDetails['revenue_idr'];
+            unset($newDetails['revenue_idr']);
+        } else {
+            unset($newDetails['revenue_idr']);
+            unset($newDetails['curs_rate']);
+        }
 
         $referral_type = $request->referral_type;
         if ($referral_type == "In")
@@ -151,8 +170,7 @@ class ReferralController extends Controller
 
         $referral = $this->referralRepository->getReferralById($referralId);
         $partners = $this->corporateRepository->getAllCorporate();
-        $B2BPrograms = $this->programRepository->getAllProgramByType("B2B");
-        $B2BandB2CPrograms = $B2BPrograms->merge($this->programRepository->getAllProgramByType("B2B/B2C"));
+        $programs = $this->programRepository->getAllPrograms();
         $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.program.referral.form')->with(
@@ -160,7 +178,7 @@ class ReferralController extends Controller
                 'edit' => true,
                 'referral' => $referral,
                 'partners' => $partners,
-                'programs' => $B2BandB2CPrograms,
+                'programs' => $programs,
                 'employees' => $employees,
             ]
         );

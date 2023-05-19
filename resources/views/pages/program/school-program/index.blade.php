@@ -30,7 +30,7 @@
                         <label for="">Program Name</label>
                         <select name="program_name[]" id="" class="select form-select form-select-sm w-100" multiple>
                             @foreach ($programs as $program)
-                                <option value="{{ $program->prog_program }}">{{ $program->prog_program }}</option>
+                                <option value="{{ $program->program_name }}">{{ $program->program_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -52,8 +52,10 @@
                         <label for="">Approach Status</label>
                         <select name="status[]" id="" class="select form-select form-select-sm w-100" multiple>
                             <option value="0">Pending</option>
+                            <option value="4">Accepted</option>
+                            <option value="5">Cancel</option>
+                            <option value="2">Rejected</option>
                             <option value="1">Success</option>
-                            <option value="2">Denied</option>
                             <option value="3">Refund</option>
                         </select>
                     </div>
@@ -142,7 +144,7 @@
                     },
                     {
                         data: 'program_name',
-                        name: 'tbl_prog.prog_program'
+                        name: 'program.program_name',
                     },
                     {
                         data: 'first_discuss',
@@ -150,51 +152,36 @@
                     {
                         data: 'participants',
                         render: function(data, type, row, meta) {
-                            switch (row.status) {
-                                case 0:
-                                    return "-"
-                                    break;
-
+                            switch (parseInt(row.status)) {
                                 case 1:
                                     return data
                                     break;
                                 
-                                case 2:
+                                default:
                                     return "-"
-                                    break;
-
-                                case 3:
-                                    return "-"
-                                    break;
                             }
                         }
                     },
                     {
                         data: 'total_fee',
                         render: function(data, type, row, meta) {
-                            switch (row.status) {
-                                case 0:
-                                    return "-"
-                                    break;
-
+                            switch (parseInt(row.status)) {
                                 case 1:
-                                    return data
+                                    return new Intl.NumberFormat("id-ID", {
+                                        style: "currency",
+                                        currency: "IDR"
+                                    }).format(data);
                                     break;
                                 
-                                case 2:
+                                default:
                                     return "-"
-                                    break;
-
-                                case 3:
-                                    return "-"
-                                    break;
                             }
                         }
                     },
                     {
                         data: 'status',
                         render: function(data, type, row, meta) {
-                            switch (row.status) {
+                            switch (parseInt(row.status)) {
                                 case 0:
                                     return "Pending"
                                     break;
@@ -204,11 +191,19 @@
                                     break;
                                 
                                 case 2:
-                                    return "Denied"
+                                    return "Rejected"
                                     break;
                                 
                                 case 3:
                                     return "Refund"
+                                    break;
+                                
+                                case 4:
+                                    return "Accepted"
+                                    break;
+
+                                case 5:
+                                    return "Cancel"
                                     break;
                             }
                         }

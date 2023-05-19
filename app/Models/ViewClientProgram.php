@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,13 @@ class ViewClientProgram extends Model
         $instance = new static;
 
         return $instance->newQuery()->where('clientprog_id', $id)->first();
+    }
+
+    protected function invoiceTotalpriceIdr(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => "Rp. " . number_format($this->inv_totalprice_idr, '2', ',', '.')
+        );
     }
 
     public function client()

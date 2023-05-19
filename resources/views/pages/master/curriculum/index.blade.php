@@ -168,7 +168,6 @@
 
                     // handle success
                     let data = response.data.curriculum
-                    // console.log(data)
 
                     $('#name').val(data.name)
                     let html =

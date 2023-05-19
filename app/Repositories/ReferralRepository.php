@@ -14,18 +14,15 @@ class ReferralRepository implements ReferralRepositoryInterface
     {
         return Datatables::eloquent(
             Referral::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
-                ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_referral.prog_id')
-                ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+                ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
                 ->leftJoin('users', 'users.id', '=', 'tbl_referral.empl_id')->select(
                     'tbl_referral.id',
                     'tbl_corp.corp_name as partner_name',
                     'tbl_referral.referral_type',
-                    DB::raw('(CASE
-                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                            ELSE tbl_prog.prog_program
-                        END) AS program_name'),
+                    'program.program_name',
                     'tbl_referral.number_of_student',
                     'tbl_referral.revenue',
+                    'tbl_referral.revenue_other',
                     'tbl_referral.additional_prog_name',
                     'tbl_referral.currency',
                     DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
@@ -46,8 +43,8 @@ class ReferralRepository implements ReferralRepositoryInterface
         $month = date('m', strtotime($monthYear));
 
         return Referral::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_referral.partner_id')
-            ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_referral.prog_id')
-            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
+            // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->select(
                 'tbl_corp.corp_name',
                 DB::raw(
@@ -55,10 +52,7 @@ class ReferralRepository implements ReferralRepositoryInterface
                         WHEN "Out" THEN tbl_referral.additional_prog_name
                         WHEN "In" 
                             THEN 
-                                (CASE
-                                WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                                    ELSE tbl_prog.prog_program
-                                END) 
+                                program.program_name
                     END AS program_name'
                 )
             )
@@ -101,9 +95,9 @@ class ReferralRepository implements ReferralRepositoryInterface
 
     public function getReferralComparison($startYear, $endYear)
     {
-        return Referral::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_referral.prog_id')
-            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+        return Referral::leftJoin('program', 'program.prog_id', '=', 'tbl_referral.prog_id')
+            // ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
+            // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->select(
                 'tbl_referral.prog_id',
                 DB::raw(
@@ -111,10 +105,7 @@ class ReferralRepository implements ReferralRepositoryInterface
                         WHEN "Out" THEN tbl_referral.additional_prog_name
                         WHEN "In" 
                             THEN 
-                                (CASE
-                                WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_prog.prog_program, " from ", tbl_main_prog.prog_name, tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                                    ELSE CONCAT(tbl_prog.prog_program, " from ", tbl_main_prog.prog_name)
-                                END) 
+                               program.program_name
                     END AS program_name'
                 ),
                 DB::raw(
@@ -166,7 +157,7 @@ class ReferralRepository implements ReferralRepositoryInterface
         return $end;
     }
 
-    public function getReportNewReferral($start_date = null, $end_date = null)
+    public function getReportNewReferral($start_date = null, $end_date = null, $type)
     {
         $firstDay = Carbon::now()->startOfMonth()->toDateString();
         $lastDay = Carbon::now()->endOfMonth()->toDateString();
@@ -181,7 +172,17 @@ class ReferralRepository implements ReferralRepositoryInterface
         } else {
             $query = Referral::whereBetween('created_at', [$firstDay, $lastDay]);
         }
-        return $query->where('referral_type', 'Out')
-            ->get();
+
+        switch ($type) {
+            case 'In':
+                return $query->where('referral_type', 'In')
+                    ->get();
+                break;
+
+            case 'Out':
+                return $query->where('referral_type', 'Out')
+                    ->get();
+                break;
+        }
     }
 }

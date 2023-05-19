@@ -20,7 +20,12 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $invoiceSch->sch_prog->school->sch_name }}</h4>
-                    <h6>{{ $invoiceSch->sch_prog->program->sub_prog ? $invoiceSch->sch_prog->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $invoiceSch->sch_prog->program->prog_program }}
+                    <a
+                        href="{{ route('school.detail.show', ['school' => $invoiceSch->sch_prog->school->sch_id, 'detail' => $invoiceSch->sch_prog->id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">
+                        <h6 class="d-flex flex-column">
+                            {{ $invoiceSch->sch_prog->program->program_name }}
+                        </h6>
+                    </a>
                     <div class="d-flex flex-wrap justify-content-center mt-3">
                        
                     </div>
@@ -51,6 +56,15 @@
 
                 @if (!isset($invoiceSch->refund))
                     {{-- IDR  --}}
+                    
+                    @php
+                        $receiptAttachment = $receiptSch->receiptAttachment()->where('currency', 'idr')->first();
+                        $receiptAttachmentRequested = $receiptSch->receiptAttachment()->where('currency', 'idr')->where('request_status', 'requested')->first();
+                        $receiptAttachmentSigned = $receiptSch->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
+                        $receiptAttachmentNotYet = $receiptSch->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first();
+                        $receiptAttachmentSent = $receiptSch->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
+                    @endphp
+                    @if ($invoiceSch->invoiceAttachment()->where('currency', 'idr')->first())
                     <div class="d-flex align-items-stretch">
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                         <div class="border p-1 text-center">
@@ -61,13 +75,6 @@
                                             <i class="bi bi-eye-fill"></i>
                                         </a>
                                 </div>
-                                @php
-                                    $receiptAttachment = $receiptSch->receiptAttachment()->where('currency', 'idr')->first();
-                                    $receiptAttachmentRequested = $receiptSch->receiptAttachment()->where('currency', 'idr')->where('request_status', 'requested')->first();
-                                    $receiptAttachmentSigned = $receiptSch->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
-                                    $receiptAttachmentNotYet = $receiptSch->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first();
-                                    $receiptAttachmentSent = $receiptSch->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
-                                @endphp
                                 @if(!$receiptAttachment)
                                     <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Download">
@@ -96,8 +103,9 @@
                                         </a>
                                     </div>
                                     <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Send to Client">
-                                        <a href="#" class="text-info" id="send-inv-client-idr">
+                                        data-bs-title="Send to Client"
+                                        onclick="confirmSendToClient('{{ url('/') }}/receipt/school-program/{{ $receiptSch->id }}/send', 'idr', 'receipt')">
+                                        <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
                                     </div>
@@ -105,9 +113,17 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     {{-- Other  --}}
-                    @if($invoiceSch->currency != 'idr')
+                    @php
+                        $receiptAttachmentOther = $receiptSch->receiptAttachment()->where('currency', 'other')->first();
+                        $receiptAttachmentRequestedOther = $receiptSch->receiptAttachment()->where('currency', 'other')->where('request_status', 'requested')->first();
+                        $receiptAttachmentSignedOther = $receiptSch->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
+                        $receiptAttachmentNotYetOther = $receiptSch->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
+                        $receiptAttachmentSentOther = $receiptSch->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
+                    @endphp
+                    @if($invoiceSch->currency != 'idr' && $invoiceSch->invoiceAttachment()->where('currency', 'other')->first())
                         <div class="d-flex align-items-stretch">
                             <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                             <div class="border p-1 text-center">
@@ -118,13 +134,6 @@
                                                 <i class="bi bi-eye-fill"></i>
                                             </a>
                                     </div>
-                                    @php
-                                        $receiptAttachmentOther = $receiptSch->receiptAttachment()->where('currency', 'other')->first();
-                                        $receiptAttachmentRequestedOther = $receiptSch->receiptAttachment()->where('currency', 'other')->where('request_status', 'requested')->first();
-                                        $receiptAttachmentSignedOther = $receiptSch->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
-                                        $receiptAttachmentNotYetOther = $receiptSch->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
-                                        $receiptAttachmentSentOther = $receiptSch->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
-                                    @endphp
                                     @if(!$receiptAttachmentOther)
                                         <div id="print-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                             data-bs-title="Download">
@@ -148,13 +157,14 @@
                                     @else
                                         <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                             data-bs-title="Print Invoice">
-                                            <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}" class="text-info">
+                                            <a href="{{ route('receipt.school.print', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}" class="text-info" target="blank">
                                                 <i class="bi bi-printer"></i>
                                             </a>
                                         </div>
                                         <div id="send-rec-client-other" class="btn btn-sm py-1 border btn-light"
-                                            data-bs-toggle="tooltip" data-bs-title="Send to Client">
-                                            <a href="#" class="text-info" id="send-inv-client-other">
+                                            data-bs-toggle="tooltip" data-bs-title="Send to Client"
+                                            onclick="confirmSendToClient('{{ url('/') }}/receipt/school-program/{{ $receiptSch->id }}/send', 'other', 'receipt')">
+                                            <a href="#" class="text-info">
                                                 <i class="bi bi-send"></i>
                                             </a>
                                         </div>
@@ -361,46 +371,30 @@
     @endif
 
     <script>
+        function sendToClient(link) {
+            
+            showLoading()
+            axios
+                .get(link)
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Receipt has been send to client')
+                    setTimeout(location.reload.bind(location), 3000);
+                    
+                    $("#sendToClient--modal").modal('hide');
+                })
+                .catch(error => {
+                    notification('error', 'Something went wrong when sending receipt to client. Please try again');
+                    swal.close()
+                })
+        }
+        
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
             });
-
-            $("#send-inv-client-idr").on('click', function(e) {
-                e.preventDefault()
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get('{{ route('receipt.school.send_to_client', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}')
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Receipt has been send to client')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
-                        swal.close()
-                    })
-            })
-
-            $("#send-inv-client-other").on('click', function(e) {
-                e.preventDefault()
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get('{{ route('receipt.school.send_to_client', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}')
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Receipt has been send to client')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong when sending receipt to client. Please try again');
-                        swal.close()
-                    })
-            })
 
             $("#export_other").on('click', function(e) {
                 e.preventDefault();

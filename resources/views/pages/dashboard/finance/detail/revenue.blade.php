@@ -72,7 +72,8 @@
         const rupiah = (number)=>{
             return new Intl.NumberFormat("id-ID", {
             style: "currency",
-            currency: "IDR"
+            currency: "IDR",
+            minimumFractionDigits: 0
             }).format(number);
         }
 
@@ -90,6 +91,7 @@
     function checkRevenueByYear(){
         let year = $('#revenue_year').val()
 
+        Swal.showLoading()
         axios.get('{{ url("api/finance/revenue") }}/' + year)
         .then((response) => {
             
@@ -111,6 +113,7 @@
                 
                 revenue_chart.update()
                 
+                swal.close()
                 }, (error) => {
                     console.log(error)
                     swal.close()
@@ -207,7 +210,7 @@
                     let year = $('#revenue_year').val()
 
                    
-
+                    Swal.showLoading()
                     axios.get('{{ url("api/finance/revenue/detail") }}/' + year + '/' +  month)
                         .then((response) => {
                             var result = response.data.data
@@ -220,16 +223,16 @@
                             $('#tbl_revenue').empty();
                             
                             result.revenueDetail.forEach(function (item, index) {
-                                var diff = (item.total > item.total_price_inv ? item.total - item.total_price_inv : 0);
+                                var diff = (parseInt(item.total) > parseInt(item.total_price_inv) ? parseInt(item.total) - parseInt(item.total_price_inv) : 0);
                                 html = "<tr>";
                                 html += "<td>" + no + "</td>"
                                 html += "<td>" + item.full_name + "</td>"
                                 html += "<td>" + item.type + "</td>"
                                 html += "<td>" + item.program_name + "</td>"
                                 html += "<td class='text-center'>" + (item.installment_name !== null ? item.installment_name : "-") + "</td>"
-                                html += "<td>" + rupiah(item.total) + (diff > 0 ? " ("+ rupiah(diff) +")" : '') + "</td>"
-                                total_paid += item.total;
-                                total_paid_diff += diff;
+                                html += "<td>" + rupiah(parseInt(item.total)) + (parseInt(diff) > 0 ? " ("+ rupiah(parseInt(diff)) +")" : '') + "</td>"
+                                total_paid += parseInt(item.total);
+                                total_paid_diff += parseInt(diff);
                                 $('#tbl_revenue').append(html);
                                 no++;
                             })
@@ -237,8 +240,11 @@
                             
                             $('#tot_paid_revenue').html(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
 
+                            swal.close()
                         }, (error) => {
                             console.log(error)
+                            swal.close()
+
                         })
 
 

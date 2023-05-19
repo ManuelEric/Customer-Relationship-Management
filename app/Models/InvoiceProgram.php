@@ -42,6 +42,7 @@ class InvoiceProgram extends Model
         'curs_rate',
         'currency',
         'send_to_client',
+        'reminded',
         'created_at',
         'updated_at'
     ];
@@ -98,35 +99,35 @@ class InvoiceProgram extends Model
     protected function rate(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->curs_rate, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->curs_rate)
         );
     }
 
     protected function invoicePriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->inv_price_idr, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->inv_price_idr)
         );
     }
 
     protected function invoiceEarlybirdIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->inv_earlybird_idr, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->inv_earlybird_idr)
         );
     }
 
     protected function invoiceDiscountIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->inv_discount_idr, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->inv_discount_idr)
         );
     }
 
     protected function invoiceTotalpriceIdr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->inv_totalprice_idr, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->inv_totalprice_idr)
         );
     }
 

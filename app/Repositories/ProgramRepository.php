@@ -5,8 +5,10 @@ namespace App\Repositories;
 use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
+use App\Models\ClientProgram;
 use App\Models\Program;
 use App\Models\v1\Program as CRMProgram;
+use App\Models\ViewProgram;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -24,7 +26,10 @@ class ProgramRepository implements ProgramRepositoryInterface
 
     public function getAllProgramsDataTables()
     {
-        return Datatables::eloquent(Program::query())->make(true);
+        // $query = Program::leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->select([
+        //     'tbl_prog.*'
+        // ]);
+        return Datatables::eloquent(ViewProgram::query())->make(true);
     }
 
     public function getAllPrograms()
@@ -49,24 +54,21 @@ class ProgramRepository implements ProgramRepositoryInterface
 
     public function createProgram(array $programDetails)
     {
-        if (array_key_exists('prog_name', $programDetails))
-        {
+        if (array_key_exists('prog_name', $programDetails)) {
             $programDetails['prog_program'] = $programDetails['prog_name'];
             unset($programDetails['prog_name']);
         }
 
-        if (!array_key_exists('main_prog_id', $programDetails))
-        {
+        if (!array_key_exists('main_prog_id', $programDetails)) {
             $programDetails['main_prog_id'] = $programDetails['prog_main'];
             unset($programDetails['prog_main']);
         }
 
-        if (!array_key_exists('sub_prog_id', $programDetails))
-        {
+        if (!array_key_exists('sub_prog_id', $programDetails)) {
             $programDetails['sub_prog_id'] = $programDetails['prog_sub'];
             unset($programDetails['prog_sub']);
         }
-        
+
         $mainProg = $this->mainProgRepository->getMainProgById($programDetails['main_prog_id']);
 
         if (isset($programDetails['prog_sub'])) {

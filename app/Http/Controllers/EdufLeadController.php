@@ -8,6 +8,7 @@ use App\Interfaces\EdufLeadRepositoryInterface;
 use App\Interfaces\EdufReviewRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,14 +23,17 @@ class EdufLeadController extends Controller
     private CorporateRepositoryInterface $corporateRepository;
     private UserRepositoryInterface $userRepository;
     private EdufReviewRepositoryInterface $edufReviewRepository;
+    private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
 
-    public function __construct(EdufLeadRepositoryInterface $edufLeadRepository, SchoolRepositoryInterface $schoolRepository, CorporateRepositoryInterface $corporateRepository, UserRepositoryInterface $userRepository, EdufReviewRepositoryInterface $edufReviewRepository)
+
+    public function __construct(EdufLeadRepositoryInterface $edufLeadRepository, SchoolRepositoryInterface $schoolRepository, CorporateRepositoryInterface $corporateRepository, UserRepositoryInterface $userRepository, EdufReviewRepositoryInterface $edufReviewRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository)
     {
         $this->edufLeadRepository = $edufLeadRepository;
         $this->schoolRepository = $schoolRepository;
         $this->corporateRepository = $corporateRepository;
         $this->userRepository = $userRepository;
         $this->edufReviewRepository = $edufReviewRepository;
+        $this->agendaSpeakerRepository = $agendaSpeakerRepository;
     }
 
     public function index(Request $request)
@@ -85,11 +89,11 @@ class EdufLeadController extends Controller
             switch (substr($ext_pic_phone, 0, 1)) {
 
                 case 0:
-                    $ext_pic_phone = "+62".substr($ext_pic_phone, 1);
+                    $ext_pic_phone = "+62" . substr($ext_pic_phone, 1);
                     break;
 
                 case 6:
-                    $ext_pic_phone = "+".$ext_pic_phone;
+                    $ext_pic_phone = "+" . $ext_pic_phone;
                     break;
 
                 case "+":
@@ -97,12 +101,12 @@ class EdufLeadController extends Controller
                     break;
 
                 default:
-                    $ext_pic_phone = "+62".$ext_pic_phone;
+                    $ext_pic_phone = "+62" . $ext_pic_phone;
             }
 
             unset($edufairLeadDetails['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
             $edufairLeadDetails['ext_pic_phone'] = $ext_pic_phone; # add new phone number 
-            
+
 
             $this->edufLeadRepository->createEdufairLead($edufairLeadDetails);
             DB::commit();
@@ -136,16 +140,16 @@ class EdufLeadController extends Controller
             'notes'
         ]);
 
-        $ext_pic_phone = $request->only('ext_pic_phone');
+        $ext_pic_phone = $request->ext_pic_phone;
 
         switch (substr($ext_pic_phone, 0, 1)) {
 
             case 0:
-                $ext_pic_phone = "+62".substr($ext_pic_phone, 1);
+                $ext_pic_phone = "+62" . substr($ext_pic_phone, 1);
                 break;
 
             case 6:
-                $ext_pic_phone = "+".$ext_pic_phone;
+                $ext_pic_phone = "+" . $ext_pic_phone;
                 break;
 
             case "+":
@@ -153,7 +157,7 @@ class EdufLeadController extends Controller
                 break;
 
             default:
-                $ext_pic_phone = "+62".$ext_pic_phone;
+                $ext_pic_phone = "+62" . $ext_pic_phone;
         }
 
         unset($edufairLeadDetails['ext_pic_phone']); # remove the phone number that hasn't been updated into +62
@@ -176,10 +180,10 @@ class EdufLeadController extends Controller
 
             DB::rollBack();
             Log::error('Update edufair failed : ' . $e->getMessage());
-            return Redirect::to('master/edufair/create')->withError('Failed to update edufair');
+            return Redirect::to('master/edufair/' . $edufLeadId)->withError('Failed to update edufair');
         }
 
-        return Redirect::to('master/edufair')->withSuccess('Edufair successfully created');
+        return Redirect::to('master/edufair')->withSuccess('Edufair successfully updated');
     }
 
     public function show(Request $request)
@@ -195,6 +199,9 @@ class EdufLeadController extends Controller
         $corporates = $this->corporateRepository->getAllCorporate();
         $userFromClientDepartment = $this->userRepository->getAllUsersByRole('Client');
         $userFromBizDevDepartment = $this->userRepository->getAllUsersByRole('BizDev');
+        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $speakers = $this->agendaSpeakerRepository->getAllSpeakerByEdufair($edufLeadId);
+
 
         return view('pages.master.edufair.form')->with(
             [
@@ -204,6 +211,8 @@ class EdufLeadController extends Controller
                 'schools' => $schools,
                 'corporates' => $corporates,
                 'internal_pic' => $userFromClientDepartment->merge($userFromBizDevDepartment)->sortBy('first_name'),
+                'employees' => $employees,
+                'speakers' => $speakers,
             ]
         );
     }

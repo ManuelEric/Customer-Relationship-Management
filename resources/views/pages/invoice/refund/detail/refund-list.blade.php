@@ -128,8 +128,26 @@
                     data: 'id',
                     className: 'text-center',
                     render: function(data, type, row) {
-                        return '<a href="{{ url('receipt/client-program/') }}/' + data +
-                            '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
+                        switch (row.receipt_cat) {
+
+                            case 'student':
+                                var link = '{{ url("receipt/client-program/") }}/' + data
+                            break;
+                            
+                            case 'school':
+                                var link = '{{ url("receipt/school-program/") }}/' + data
+                            break;
+
+                            case 'partner':
+                                var link = '{{ url("receipt/corporate-program/") }}/' + data
+                            break;
+
+                            case 'referral':
+                                var link = '{{ url("receipt/referral/") }}/' + data
+                            break;
+
+                        }
+                        return '<a href="' + link + '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
                     }
                 }
             ]

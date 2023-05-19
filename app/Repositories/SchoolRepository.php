@@ -2,7 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Models\School;
 use App\Models\V1\School as V1School;
 use Carbon\Carbon;
@@ -11,10 +13,22 @@ use DataTables;
 
 class SchoolRepository implements SchoolRepositoryInterface
 {
+    use CreateCustomPrimaryKeyTrait;
+
+    private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+
+    public function __construct(SchoolCurriculumRepositoryInterface $schoolCurriculumRepository)
+    {
+        $this->schoolCurriculumRepository = $schoolCurriculumRepository;
+    }
 
     public function getAllSchoolDataTables()
     {
-        return Datatables::eloquent(School::orderBy('created_at', 'desc'))->rawColumns(['sch_location'])
+        $query = School::orderBy('created_at', 'desc');
+        return Datatables::eloquent($query)->rawColumns(['sch_location'])
+            ->addColumn('sch_type_text', function ($data) {
+                return str_replace('_', ' ', $data->sch_type);
+            })
             ->addColumn('curriculum', function ($data) {
                 $no = 1;
                 $curriculums = '';
@@ -48,11 +62,19 @@ class SchoolRepository implements SchoolRepositoryInterface
 
         $query = School::query();
 
-        $query->whereYear('created_at', '=', $year)
-            ->whereMonth('created_at', '=', $month);
+        if ($type == 'all') {
+            $query->whereYear('created_at', '<=', $year)
+                ->whereMonth('created_at', '<=', $month);
+        } else {
+            $query->whereYear('created_at', '=', $year)
+                ->whereMonth('created_at', '=', $month);
+        }
 
         switch ($type) {
-            case 'total':
+            case 'all':
+                return $query->count();
+                break;
+            case 'monthly':
                 return $query->count();
                 break;
             case 'list':
@@ -80,6 +102,26 @@ class SchoolRepository implements SchoolRepositoryInterface
     public function createSchool(array $schoolDetails)
     {
         return School::create($schoolDetails);
+    }
+
+    public function createSchoolIfNotExists(array $schoolDetails, array $schoolCurriculums)
+    {
+        # find request school name from databases
+        if ($school = $this->getSchoolByName($schoolDetails['sch_name']))
+            return $school;
+
+        $last_id = School::max('sch_id');
+        $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
+        $school_id_with_label = 'SCH-' . $this->add_digit((int)$school_id_without_label + 1, 4);
+
+        # insert school
+        $school = $this->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails);
+        $school_id_after_insert = $school->sch_id;
+
+        # insert school curriculum
+        $this->schoolCurriculumRepository->createSchoolCurriculum($school_id_after_insert, $schoolCurriculums);
+
+        return $school;
     }
 
     public function attachCurriculum($schoolId, array $curriculums)

@@ -3,11 +3,11 @@
         <div class="">
             <h6 class="m-0 p-0">
                 <i class="bi bi-person me-2"></i>
-                PIC
+                Contact
             </h6>
         </div>
         <div class="">
-            <button class="btn btn-sm btn-outline-primary rounded mx-1" data-bs-toggle="modal" data-bs-target="#picForm">
+            <button class="btn btn-sm btn-outline-primary rounded mx-1" onclick="resetForm()" data-bs-toggle="modal" data-bs-target="#picForm">
                 <i class="bi bi-plus"></i>
             </button>
         </div>
@@ -18,6 +18,9 @@
                 @forelse ($pics as $pic)
                     <div class="list-group-item">
                         <div class="d-flex align-items-center mb-1">
+                            @if ($pic->is_pic == true)
+                                <i class="bi bi-star-fill me-2 text-warning"></i>
+                            @endif
                             <strong class="text-muted me-2">
                                 {{ $pic->pic_name }}
                             </strong>
@@ -77,42 +80,59 @@
                     <form action="{{ route('corporate.detail.store', ['corporate' => $corporate->corp_id]) }}" id="picDetailForm" method="POST">
                         @csrf
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="mb-2">
                                     <label for="">Full Name <sup class="text-danger">*</sup></label>
                                     <input type="text" name="pic_name" id="pic_fullname"
-                                        class="form-control form-control-sm rounded">
+                                        class="form-control form-control-sm rounded" value="{{ old('pic_name') }}">
                                     @error('pic_name')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="mb-2">
                                     <label for="">Email</label>
                                     <input type="email" name="pic_mail" id="pic_mail"
-                                        class="form-control form-control-sm rounded">
+                                        class="form-control form-control-sm rounded" value="{{ old('pic_mail') }}">
                                     @error('pic_mail')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="mb-2">
                                     <label for="">Phone Number <sup class="text-danger">*</sup></label>
-                                    <input type="text" name="pic_phone" id="pic_phone"
+                                    <input type="text" name="pic_phone" id="pic_phone" value="{{ old('pic_phone') }}"
                                         class="form-control form-control-sm rounded">
                                     @error('pic_phone')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="mb-2">
                                     <label for="">Linkedin</label>
-                                    <input type="text" name="pic_linkedin" id="pic_linkedin"
+                                    <input type="text" name="pic_linkedin" id="pic_linkedin" value="{{ old('pic_linkedin') }}"
                                         class="form-control form-control-sm rounded">
                                     @error('pic_linkedin')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-2">
+                                    <label for="">Is he/she is a PIC?</label>
+                                    <input type="hidden" value="false" id="is_pic" name="is_pic">
+                                    <div class="form-check ms-4">
+                                        <input class="form-check-input" type="radio" name="pic_status" value="1" @checked(old('pic_status') == 1)>
+                                        <label class="form-check-label">Yes</label>
+                                    </div>
+                                    <div class="form-check ms-4">
+                                        <input class="form-check-input" type="radio" name="pic_status" value="0" @checked(old('pic_status') == 0) @checked(old('pic_status') !== null)>
+                                        <label class="form-check-label">No</label>
+                                    </div>
+                                    @error('is_pic')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -139,12 +159,22 @@
 @endif
 
 <script type="text/javascript">
-$(document).ready(function() {
+    $(document).ready(function() {
 
-    @if ($errors->first('pic_name') || $errors->first('pic_phone'))
-        $("#picForm").modal('show');
-    @endif
-})
+        @if ($errors->has('pic_name') || $errors->has('pic_phone') || $errors->has('pic_mail'))
+            $("#picForm").modal('show');
+        @endif
+
+        $("input[type=radio][name=pic_status]").change(function() {
+            var val = $(this).val();
+            $("#is_pic").val(val);
+        })
+    })
+
+    function resetForm()
+    {
+        $("#picDetailForm").reset();
+    }
 
     function returnData(corporate_id, pic_id) {
 
@@ -160,6 +190,8 @@ $(document).ready(function() {
                 $('#pic_mail').val(data.pic_mail)
                 $('#pic_phone').val(data.pic_phone)
                 $('#pic_linkedin').val(data.pic_linkedin)
+                $('#is_pic').val(data.is_pic)
+                $('input[type=radio][name=pic_status][value=' + data.is_pic + ']').prop('checked', true);
 
                 $('#picDetailForm').attr('action', '{{ url('instance/corporate') }}/' + corporate_id + '/detail/' +
                     data.id)

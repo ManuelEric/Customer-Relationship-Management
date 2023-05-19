@@ -27,15 +27,21 @@
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $partnerProgram->corp->corp_name }}</h4>
-                    <h6>{{ $partnerProgram->program->sub_prog ? $partnerProgram->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $partnerProgram->program->prog_program }}
-                    </h6>
+                    <a
+                        href="{{ route('corporate_prog.detail.show', ['corp' =>  $partnerProgram->corp->corp_id, 'detail' => $partnerProgram->id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">
+                        <h6 class="d-flex flex-column">
+                            {{ $partnerProgram->program->program_name }}
+                        </h6>
+                    </a>           
                 </div>
             </div>
 
             {{-- Tools  --}}
-            @if (isset($invoicePartner))
-                <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
-                    <div class="border p-1 text-center flex-fill">
+            @if (isset($invoicePartner) && !isset($invoicePartner->refund))
+            <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
+                
+                {{-- @if (isset($invoicePartner) && !isset($invoicePartner->receipt)) --}}
+                    <div class="border p-1 text-center flex-fill"> 
                         <div class="d-flex gap-1 justify-content-center">
                             <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                 data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
@@ -54,6 +60,7 @@
                         <hr class="my-1">
                         <small>General</small>
                     </div>
+                {{-- @endif --}}
 
                     @if (!isset($invoicePartner->refund))
                         {{-- IDR  --}}
@@ -86,8 +93,9 @@
                                         </a>
                                     </div>
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Send to Client">
-                                        <a href="#" class="text-info" id="send-inv-client-idr">
+                                        data-bs-title="Send to Client"
+                                        onclick="confirmSendToClient('{{ url('/') }}/invoice/corporate-program/{{ $invoicePartner->invb2b_num }}/send', 'idr', 'invoice')">
+                                        <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
                                     </div>
@@ -128,8 +136,9 @@
                                             </a>
                                         </div>
                                         <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                            data-bs-title="Send to Client">
-                                            <a href="#" class="text-info" id="send-inv-client-other">
+                                            data-bs-title="Send to Client"
+                                            onclick="confirmSendToClient('{{ url('/') }}/invoice/corporate-program/{{ $invoicePartner->invb2b_num }}/send', 'other', 'invoice')">
+                                            <a href="#" class="text-info">
                                                 <i class="bi bi-send"></i>
                                             </a>
                                         </div>
@@ -216,7 +225,7 @@
                     <div class="">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-person me-2"></i>
-                            Invoice
+                            {{ isset($invoicePartner) ?  'Invoice : '. $invoicePartner->invb2b_id : ''}}
                         </h6>
                     </div>
                     <div class="">
@@ -224,7 +233,7 @@
                                 !isset($invoicePartner->receipt) &&
                                 $invoicePartner->invb2b_pm == 'Full Payment' &&
                                 $status != 'edit')
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoicePartner->invb2b_totprice) ? $invoicePartner->invb2b_totprice : $invoicePartner->invb2b_totpriceidr}}', '{{$invoicePartner->currency != 'idr' ? 'other' : 'idr'}}');setIdentifier('{{ $invoicePartner->invb2b_num }}')">
+                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoicePartner->invb2b_totprice) ? $invoicePartner->invb2b_totprice : $invoicePartner->invb2b_totpriceidr}}', '{{$invoicePartner->currency != 'idr' ? 'other' : 'idr'}}', '{{isset($invoicePartner->invb2b_totpriceidr) ? $invoicePartner->invb2b_totpriceidr : null}}');setIdentifier('{{ $invoicePartner->invb2b_num }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -272,7 +281,8 @@
                                 <label for="">Currency Detail</label>
                                 <select class="select w-100" name="currency" id="currency_detail"
                                     onchange="checkCurrencyDetail()"
-                                    {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>>
+                                    {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}>
+                                    <option data-placeholder="true"></option>
                                     @if (isset($invoicePartner))
                                         <option value="usd" {{ $invoicePartner->currency == 'usd' ? 'selected' : '' }}>
                                             USD
@@ -329,7 +339,7 @@
                             </div>
 
                             <div class="col-md-5 mb-3">
-                                <label for="">Payment Method</label>
+                                <label for="">Payment Method<sup class="text-danger">*</sup></label>
                                 <select name="invb2b_pm" id="payment_method" class="select w-100"
                                     {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}
                                     onchange="checkPayment()">
@@ -344,7 +354,7 @@
                             <div class="col-md-7">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="">Invoice Date</label>
+                                        <label for="">Invoice Date<sup class="text-danger">*</sup></label>
                                         <input type="date" name="invb2b_date" id=""
                                             class='form-control form-control-sm rounded'
                                             @if(isset($invoicePartner))
@@ -360,9 +370,9 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="">Invoice Due Date</label>
+                                        <label for="">Invoice Due Date<sup class="text-danger">*</sup></label>
                                         <input type="date" name="invb2b_duedate" id=""
-                                            value="{{ isset($invoicePartner) ? $invoicePartner->invb2b_duedate : old('invb2b_duedate') }}"
+                                            value="{{ isset($invoicePartner) ? date('Y-m-d', strtotime($invoicePartner->invb2b_duedate)) : old('invb2b_duedate') }}"
                                             {{ empty($invoicePartner) || $status == 'edit' ? '' : 'disabled' }}
                                             class='form-control form-control-sm rounded'>
                                         @error('invb2b_duedate')
@@ -427,7 +437,7 @@
                         method="POST" id="receipt">
                         @csrf
                         <input type="hidden" name="identifier" id="identifier">
-                        <input type="hidden" name="currency"
+                        <input type="hidden" name="rec_currency"
                             value="{{ isset($invoicePartner->currency) ? $invoicePartner->currency : null }}">
                         <div class="row g-2">
                             <div class="col-md-3 receipt-other d-none">
@@ -630,7 +640,7 @@
             }
         }
 
-        function checkReceipt(amount, type) {
+        function checkReceipt(amount, type, amount_idr) {
             let cur = $('#currency').val()
             let detail = $('#currency_detail').val()
 
@@ -638,17 +648,16 @@
                 $('#receipt_amount_other').val(amount)
 
                 var val =  $('#receipt_amount_other').val()
-                var currency = $("#receipt input[name=currency]").val()
-                var curs_rate = $("#current_rate").val();
+                var currency = detail
                 switch (currency) {
                     case 'usd':
-                        currency = ' Dollar';
+                        currency = ' Dollars';
                         break;
                     case 'sgd':
-                        currency = ' Singapore Dollar';
+                        currency = ' Singapore Dollars';
                         break;
                     case 'gbp':
-                        currency = ' Pound';
+                        currency = ' British Pounds';
                         break;
                     default:
                         currency = '';
@@ -656,8 +665,8 @@
                         break;
                 }
                 $("#receipt_word_other").val(wordConverter(val) + currency)
-                $("#receipt_amount").val(val * curs_rate)
-                $("#receipt_word").val(wordConverter(val * curs_rate) + " Rupiah")
+                $("#receipt_amount").val(amount_idr)
+                $("#receipt_word").val(wordConverter(amount_idr) + " Rupiah")
             }else{
                 $('#receipt_amount').val(amount)
                 var val = $('#receipt_amount').val()
@@ -785,50 +794,25 @@
     </script>
 
     <script>
+        function sendToClient(link) {
+            
+            showLoading()
+            axios
+                .get(link)
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Invoice has been send to client')
+                    setTimeout(location.reload.bind(location), 3000);
+                    
+                    $("#sendToClient--modal").modal('hide');
+                })
+                .catch(error => {
+                    notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                    swal.close()
+                })
+        }
 
         @if (isset($invoicePartner))
-            $("#send-inv-client-idr").on('click', function(e) {
-                e.preventDefault()
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get('{{ route('invoice-corp.send_to_client', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'idr']) }}')
-                    .then(response => {
-                        notification('success', response.data.message)
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        swal.close()
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Failed...',
-                            text: error.response.data.message,
-                        })
-                        // notification('error', error.response.data.message);
-                    })
-                })
-
-            $("#send-inv-client-other").on('click', function(e) {
-                e.preventDefault()
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get('{{ route('invoice-corp.send_to_client', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'other']) }}')
-                    .then(response => {
-                        swal.close()
-                        notification('success', response.data.message)
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        swal.close()
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Failed...',
-                            text: error.response.data.message,
-                        })
-                        // notification('error', error.response.data.message);
-                    })
-            })
 
             $("#request-acc").on('click', function(e) {
                 e.preventDefault();

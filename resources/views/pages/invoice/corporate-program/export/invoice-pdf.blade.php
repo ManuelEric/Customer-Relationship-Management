@@ -137,7 +137,7 @@
                     <td valign="top" style="padding-bottom:10px;">
                         <div style="height:80px;">
                             <p>
-                                <strong> {{ (($invoicePartner->partner_prog->program->prog_sub != '-')) ? $invoicePartner->partner_prog->program->prog_sub . ': ' . $invoicePartner->partner_prog->program->prog_program : $invoicePartner->partner_prog->program->prog_program }} </strong>
+                                <strong> {{ $invoicePartner->partner_prog->program->program_name }} </strong>
                             </p>
                             @if($invoicePartner->is_full_amount == 1)
                                 <p>
@@ -182,8 +182,8 @@
                     @endif
 
                     {{-- Total --}}
-                    <td valign="top" align="center">
-                        <div style="height:80px;width: 150px">
+                    <td valign="top" align="center" class="text-center">
+                        <div style="height:80px">
                             <p> 
                                 @if($invoicePartner->is_full_amount == 0)
                                     <strong>
@@ -270,6 +270,7 @@
                     </td>
                     <td width="40%" align="center" valign="top">
                         {{ $companyDetail['name'] }}
+                        {{-- Jakarta, {{ date('d F Y') }} --}}
                         <br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director

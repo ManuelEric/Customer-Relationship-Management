@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSpeakerRequest;
-use App\Http\Traits\FindAgendaSpeakerpriorityTrait;
+use App\Http\Traits\FindAgendaSpeakerPriorityTrait;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Models\AgendaSpeaker;
 use Exception;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Redirect;
 
 class EventSpeakerController extends Controller
 {
-    use FindAgendaSpeakerpriorityTrait;
+    use FindAgendaSpeakerPriorityTrait;
 
     private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
 

@@ -13,7 +13,7 @@ use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
-
+use Carbon\Carbon;
 
 class PartnerDashboardController extends Controller
 {
@@ -44,20 +44,28 @@ class PartnerDashboardController extends Controller
 
     public function getTotalByMonth(Request $request)
     {
+
         $monthYear = $request->route('month');
-        $last_month = date('Y-m', strtotime('-1 month', strtotime($monthYear)));
+        $type = $request->route('type');
 
-        $newPartner = $this->corporateRepository->getCorporateByMonthly($monthYear, 'total');
-        $lastMonthPartner = $this->corporateRepository->getCorporateByMonthly($last_month, 'total');
+        if ($type == 'all') {
+            $monthYear = date('Y-m');
+            $last_month = Carbon::now()->subMonth()->format('Y-m');
+        } else {
+            $last_month = date('Y-m', strtotime('-1 month', strtotime($monthYear)));
+        }
 
-        $newSchool = $this->schoolRepository->getSchoolByMonthly($monthYear, 'total');
-        $lastMonthSchool = $this->schoolRepository->getSchoolByMonthly($last_month, 'total');
+        $newPartner = $this->corporateRepository->getCorporateByMonthly($monthYear, 'monthly');
+        $lastMonthPartner = $this->corporateRepository->getCorporateByMonthly($last_month, $type);
 
-        $newUniversity = $this->universityRepository->getUniversityByMonthly($monthYear, 'total');
-        $lastMonthUniversity = $this->universityRepository->getUniversityByMonthly($last_month, 'total');
+        $newSchool = $this->schoolRepository->getSchoolByMonthly($monthYear, 'monthly');
+        $lastMonthSchool = $this->schoolRepository->getSchoolByMonthly($last_month, $type);
 
-        $totalAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($monthYear, 'total');
-        $lastMonthAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($last_month, 'total');
+        $newUniversity = $this->universityRepository->getUniversityByMonthly($monthYear, 'monthly');
+        $lastMonthUniversity = $this->universityRepository->getUniversityByMonthly($last_month, $type);
+
+        $totalAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($monthYear, $type);
+        $lastMonthAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($last_month, $type);
 
         $data = [
             'totalPartner' => $lastMonthPartner,
@@ -127,17 +135,15 @@ class PartnerDashboardController extends Controller
     {
         $monthYear = $request->route('month');
 
-        $totalPartnership = $this->invoiceB2bRepository->getTotalPartnershipProgram($monthYear);
-        $totalPartnerProgram = $totalPartnership->where('type', 'partner_prog')->sum('invb2b_totpriceidr');
-        $totalSchoolProgram = $totalPartnership->where('type', 'sch_prog')->sum('invb2b_totpriceidr');
         $schoolPrograms = $this->schoolProgramRepository->getStatusSchoolProgramByMonthly($monthYear);
+        $partnerPrograms = $this->partnerProgramRepository->getStatusPartnerProgramByMonthly($monthYear);
 
         $data = [
             'statusSchoolPrograms' => $schoolPrograms,
-            'statusPartnerPrograms' => $this->partnerProgramRepository->getStatusPartnerProgramByMonthly($monthYear),
+            'statusPartnerPrograms' => $partnerPrograms,
             'referralTypes' => $this->referralRepository->getReferralTypeByMonthly($monthYear),
-            'totalPartnerProgram' => $totalPartnerProgram,
-            'totalSchoolProgram' => $schoolPrograms->sum('total_fee'),
+            'totalPartnerProgram' => $partnerPrograms->where('status', 1)->sum('total_fee'),
+            'totalSchoolProgram' => $schoolPrograms->where('status', 1)->sum('total_fee'),
         ];
 
         if ($data) {
@@ -168,11 +174,17 @@ class PartnerDashboardController extends Controller
             case 'Success':
                 $status = 1;
                 break;
-            case 'Denied':
+            case 'Rejected':
                 $status = 2;
                 break;
             case 'Refund':
                 $status = 3;
+                break;
+            case 'Accepted':
+                $status = 4;
+                break;
+            case 'Cancel':
+                $status = 5;
                 break;
             case 'Referral IN':
                 $status = 'In';
@@ -341,8 +353,8 @@ class PartnerDashboardController extends Controller
                         <td>' . $agreement->partner->corp_name . '</td>
                         <td>' . $agreement->agreement_name . '</td>
                         <td>' . $agreementType . '</td>
-                        <td>' . $agreement->start_date . '</td>
-                        <td>' . $agreement->end_date . '</td>
+                        <td>' . date('M d, Y', strtotime($agreement->start_date)) . '</td>
+                        <td>' . date('M d, Y', strtotime($agreement->end_date)) . '</td>
                         <td>' . $agreement->partnerPIC->pic_name . '</td>
                         <td>' . $agreement->user->first_name . ' ' . $agreement->user->last_name . '</td>
                         <td>' . $agreement->created_at . '</td>

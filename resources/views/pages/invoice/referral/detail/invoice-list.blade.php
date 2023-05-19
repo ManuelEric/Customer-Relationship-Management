@@ -58,7 +58,7 @@
                             },
                             {
                                 data: 'program_name',
-                                name: 'tbl_prog.prog_program'
+                                name: 'tbl_referral.additional_prog_name'
                             },
                             {
                                 data: 'invb2b_id',

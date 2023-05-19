@@ -90,7 +90,13 @@
                                 <td>
                                     {{ $receipt->invoiceProgram->clientProg->client->parents[0]->full_name }}
                                     <br>
-                                    {{ $receipt->invoiceProgram->clientProg->client->parents[0]->city }}
+                                    @if ($receipt->invoiceProgram->clientProg->client->parents[0]->state != NULL)
+                                        {{ $receipt->invoiceProgram->clientProg->client->parents[0]->state }}
+                                    @elseif ($receipt->invoiceProgram->clientProg->client->parents[0]->city != NULL)
+                                        {{ $receipt->invoiceProgram->clientProg->client->parents[0]->city }}
+                                    @elseif ($receipt->invoiceProgram->clientProg->client->parents[0]->address != NULL)
+                                        {!! $receipt->invoiceProgram->clientProg->client->address !!}
+                                    @endif
                                 </td>
                             </tr>
                         </table>

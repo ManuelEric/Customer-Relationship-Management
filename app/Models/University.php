@@ -24,18 +24,25 @@ class University extends Model
      */
     protected $fillable = [
         'univ_id',
-        'univ_name', 
+        'univ_name',
         'tag',
-        'univ_address', 
+        'univ_address',
         'univ_country',
         'univ_email',
         'univ_phone',
     ];
 
+    public function createdAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
+        );
+    }
+
     public static function whereUniversityId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
-        
+
         $instance = new static;
 
         return $instance->newQuery()->where('univ_id', $id)->first();
@@ -78,5 +85,15 @@ class University extends Model
     public function tags()
     {
         return $this->belongsTo(Tag::class, 'tag', 'id');
+    }
+
+    public function asCollaboratorInPartnerProgram()
+    {
+        return $this->belongsToMany(PartnerProg::class, 'tbl_partner_prog_univ', 'univ_id', 'partnerprog_id');
+    }
+
+    public function asCollaboratorInSchoolProgram()
+    {
+        return $this->belongsToMany(SchoolProg::class, 'tbl_sch_prog_univ', 'univ_id', 'schprog_id');
     }
 }

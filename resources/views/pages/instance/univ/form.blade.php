@@ -10,6 +10,10 @@
         </a>
     </div>
 
+    @if($errors->any())
+        {{ implode('', $errors->all('<div>:message</div>')) }}
+    @endif
+
     <div class="row">
         <div class="col-md-4">
             <div class="card mb-3">
@@ -240,6 +244,9 @@
                                             <td>{{ $pic->phone }}</td>
                                             <td>{{ $pic->title }}</td>
                                             <td class="text-end">
+                                                @if ($pic->is_pic == true)
+                                                    <i class="bi bi-star-fill me-2 my-2 text-warning" title="PIC"></i>
+                                                @endif
                                                 <button class="btn btn-sm btn-outline-warning" data-bs-target="#picForm"
                                                     onclick="getPIC('{{ url('instance/university/' . $pic->univ_id . '/detail/' . $pic->id . '/edit') }}')">
                                                     <i class="bi bi-pencil"></i>
@@ -280,7 +287,7 @@
                                     @csrf
                                     <div class="put"></div>
                                     <div class="row mb-2">
-                                        <div class="col-md-6 mb-2">
+                                        <div class="col-md-12 mb-2">
                                             <label>Fullname <sup class="text-danger">*</sup></label>
                                             <input type="text" name="name"
                                                 class="form-control form-control-sm rounded" id="cp_fullname">
@@ -288,7 +295,7 @@
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
-                                        <div class="col-md-6 mb-2">
+                                        <div class="col-md-12 mb-2">
                                             <label>E-mail <sup class="text-danger">*</sup></label>
                                             <input type="email" name="email"
                                                 class="form-control form-control-sm rounded" id="cp_mail">
@@ -296,7 +303,7 @@
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
-                                        <div class="col-md-6 mb-2">
+                                        <div class="col-md-12 mb-2">
                                             <label>Phone Number <sup class="text-danger">*</sup></label>
                                             <input type="text" name="phone"
                                                 class="form-control form-control-sm rounded" id="cp_phone">
@@ -304,7 +311,7 @@
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
-                                        <div class="col-md-6 mb-2">
+                                        <div class="col-md-12 mb-2">
                                             <label>Position <sup class="text-danger">*</sup></label>
                                             <div class="classPosition">
                                                 <select name="title" class="modal-select w-100"
@@ -331,6 +338,24 @@
                                             </div>
 
                                             @error('pic_position')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="mb-2">
+                                            <label for="">Is he/she is a PIC?</label>
+                                            <input type="hidden" value="false" id="is_pic" name="is_pic">
+                                            <div class="form-check ms-4">
+                                                <input class="form-check-input" type="radio" name="pic_status" value="1" @checked(old('pic_status') == 1)>
+                                                <label class="form-check-label">Yes</label>
+                                            </div>
+                                            <div class="form-check ms-4">
+                                                <input class="form-check-input" type="radio" name="pic_status" value="0" @checked(old('pic_status') == 0) @checked(old('pic_status') !== null)>
+                                                <label class="form-check-label">No</label>
+                                            </div>
+                                            @error('is_pic')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
@@ -388,6 +413,11 @@
 
         $(document).ready(function() {
             selectModal()
+
+            $("input[type=radio][name=pic_status]").change(function() {
+                var val = $(this).val();
+                $("#is_pic").val(val);
+            })
         });
     </script>
     <script>
@@ -415,10 +445,13 @@
                     $('#cp_mail').val(cp.email)
                     $('#cp_phone').val(cp.phone)
                     $('#selectPosition').val(cp.title).trigger('change')
+                    $('#is_pic').val(cp.is_pic)
+                    $('input[type=radio][name=pic_status][value=' + cp.is_pic + ']').prop('checked', true);
 
                     let array = ["Admissions Advisor", "Former Admission Officer"]
-                    if ($.inArray(cp.title, array)) {
+                    if ($.inArray(cp.title, array) == -1) {
                         changePosition('new')
+                        $("#selectPosition").val('new').trigger('change')
                         $("input[name=other_title]").val(cp.title)
                     }
 

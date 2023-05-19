@@ -62,8 +62,8 @@
                         @endif
                         <div class="row">
                             <div class="col-md-6 mb-2">
-                                <label>Type</label>
-                                <select name="referral_type" class="select w-100" id="type" onchange="checkType()"
+                                <label>Type <sup class="text-danger">*</sup></label>
+                                <select name="referral_type" class="select w-100" id="type" aria-labelledby="typeHelpBlock" onchange="checkType()"
                                     {{ $disabled }}>
                                     <option data-placeholder="true"></option>
                                     <option value="In"
@@ -73,12 +73,15 @@
                                         {{ isset($referral->referral_type) && $referral->referral_type == 'Out' ? 'selected' : null }}>
                                         Referral Out</option>
                                 </select>
+                                <div id="typeHelpBlock" class="form-text">
+                                    Base on client
+                                </div>
                                 @error('referral_type')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label>Partner Name</label>
+                                <label>Partner Name <sup class="text-danger">*</sup></label>
                                 <select name="partner_id" class="select w-100" {{ $disabled }}>
                                     <option data-placeholder="true"></option>
                                     @foreach ($partners as $partner)
@@ -92,15 +95,14 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label>Program Name</label>
+                                <label>Program Name <sup class="text-danger">*</sup></label>
                                 <div id="selectProgram">
                                     <select name="prog_id" class="select w-100" {{ $disabled }}>
                                         <option data-placeholder="true"></option>
                                         @foreach ($programs as $program)
                                             <option value="{{ $program->prog_id }}"
                                                 {{ isset($referral->prog_id) && $referral->prog_id == $program->prog_id ? 'selected' : null }}>
-                                                {{ $program->prog_program }} from {{ $program->main_prog->prog_name }}
-                                                {{ isset($program->sub_prog) ? ' - ' . $program->sub_prog->sub_prog_name : null }}
+                                                {{ $program->program_name }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -119,7 +121,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label>Referral Date</label>
+                                <label>Referral Date <sup class="text-danger">*</sup></label>
                                 <input type="date" name="ref_date"
                                     value="{{ isset($referral->ref_date) ? $referral->ref_date : null }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
@@ -128,7 +130,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label>Participant</label>
+                                <label>Participant <sup class="text-danger">*</sup></label>
                                 <input type="number" name="number_of_student"
                                     value="{{ isset($referral->number_of_student) ? $referral->number_of_student : null }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
@@ -137,24 +139,53 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-2">
-                                <label>Amount</label>
+                                <label>Referral fee <sup class="text-danger">*</sup></label>
                                 <div class="row g-0">
                                     <div class="col-3">
-                                        <select name="currency" class="select w-100" {{ $disabled }}>
+                                        <select name="currency" id="currency" class="select w-100" {{ $disabled }}  onchange="checkCurrency()">
                                             <option value="IDR" {{ isset($referral->currency) && $referral->currency == "IDR" ? "selected" : null }}>IDR</option>
                                             <option value="USD" {{ isset($referral->currency) && $referral->currency == "USD" ? "selected" : null }}>USD</option>
                                             <option value="SGD" {{ isset($referral->currency) && $referral->currency == "SGD" ? "selected" : null }}>SGD</option>
+                                            <option value="GBP" {{ isset($referral->currency) && $referral->currency == "GBP" ? "selected" : null }}>GBP</option>
                                         </select>
                                     </div>
                                     <div class="col-9">
-                                        <input type="number" name="revenue"
-                                            value="{{ isset($referral->revenue) ? $referral->revenue : null }}"
-                                            class="form-control form-control-sm rounded" {{ $disabled }}>
+                                        <input type="number" name="revenue" id="revenue"
+                                            value=
+                                                "{{ isset($referral) ?
+                                                        ($referral->currency == "IDR" ? $referral->revenue : $referral->revenue_other)
+                                                    : null
+                                                }}"
+                                            class="form-control form-control-sm rounded" {{ $disabled }}
+                                            oninput="checkReferralOther()">
                                         @error('revenue')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-md-6 mb-2 referral-other d-none">
+                                <label>Current Rate to IDR <sup class="text-danger">*</sup></label>
+                                    <input type="text" name="curs_rate" id="curs_rate"
+                                        value="{{ isset($referral->curs_rate) ? $referral->curs_rate : null }}"
+                                        class="form-control form-control-sm rounded" {{ $disabled }}>
+
+                                    @error('curs_rate')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                            </div>
+                            <div class="col-md-6 mb-2 referral-other d-none">
+                                <label>Referral Fee IDR <sup class="text-danger">*</sup></label>
+                                <input type="number" name="revenue_idr" id="revenue_idr"
+                                    value="{{ 
+                                            isset($referral) ?
+                                                (isset($referral->revenue) && $referral->currency != "IDR" ? $referral->revenue : null) 
+                                            : null
+                                        }}"
+                                    class="form-control form-control-sm rounded" {{ $disabled }}>
+                                @error('revenue_idr')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-md-12 mb-2">
                                 <label>Notes</label>
@@ -166,7 +197,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-12 mb-2">
-                                <label>PIC </label>
+                                <label>PIC <sup class="text-danger">*</sup></label>
                                 <select name="empl_id" class="select w-100" {{ $disabled }}>
                                     <option data-placeholder="true"></option>
                                     @foreach ($employees as $employee)
@@ -205,7 +236,58 @@
             }
         }
 
+        function checkCurrency() {
+            let cur = $('#currency').val()
+            // console.log()
+            if (cur == 'USD' || cur == 'SGD' || cur == 'GBP') {
+                $('.referral-other').removeClass('d-none')
+            } else {
+                $('.referral-other').addClass('d-none')
+            }
+        }
+
+        function checkReferralOther() {
+            let kurs = $('#curs_rate').val()
+            let price = $('#revenue').val()
+    
+            $('#revenue_idr').val(price * kurs)
+            
+        }
+        
+
         $(document).ready(function() {
+
+            $("#currency").on('change', function() {
+
+                var current_rate = $("#curs_rate").val()
+
+                {{--  checkCurrencyDetail()  --}}
+                
+
+                    showLoading()
+                    var base_currency = $(this).val();
+                    var to_currency = 'IDR';
+    
+                    var link = "{{ url('/') }}/api/current/rate/"+base_currency+"/"+to_currency
+    
+                    axios.get(link)
+                        .then(function (response) {
+    
+                            var rate = response.data.rate;
+                            $("#curs_rate").val(rate)
+                            swal.close()
+    
+                        }).catch(function (error) {
+    
+                            swal.close()
+                            notification('error', 'Something went wrong. Please try again');
+    
+                        })
+                
+
+            })
+
+            
 
             @if (isset($referral) && $referral->referral_type == 'In')
                 $('#selectProgram').removeClass('d-none')
@@ -222,4 +304,20 @@
             //     })
         })
     </script>
+
+    @if (isset($referral->currency) && $referral->currency != 'IDR')
+        <script>
+            $(document).ready(function() {
+                $('#currency').val('{{ $referral->currency }}').trigger('change')
+            })
+        </script>
+    @endif
+
+    @if (!empty(old('currency')))
+        <script>
+            $(document).ready(function() {
+                $('#currency').val("{{ old('currency') }}").trigger('change')
+            })
+        </script>
+    @endif
 @endsection

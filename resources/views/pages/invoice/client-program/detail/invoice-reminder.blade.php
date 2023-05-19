@@ -51,29 +51,41 @@
                                 }
                             },
                             {
-                                data: 'client_fullname',
+                                data: 'fullname',
                             },
                             {
                                 data: 'program_name',
                             },
                             {
                                 data: 'inv_id',
+                                name: 'tbl_inv.inv_id',
                             },
                             {
                                 data: 'inv_paymentmethod',
+                                name: 'tbl_inv.inv_paymentmethod',
                             },
                             {
                                 data: 'created_at',
+                                name: 'tbl_inv.created_at',
+                                render: function(data, type, row, meta) {
+                                    return moment(data).format('MMMM Do YYYY');
+                                }
                             },
                             {
                                 data: 'inv_duedate',
+                                name: 'tbl_inv.inv_duedate',
+                                render: function(data, type, row, meta) {
+                                    return moment(data).format('MMMM Do YYYY');
+                                }
                             },
                             {
                                 data: 'inv_totalprice_idr',
+                                name: 'tbl_inv.inv_totalprice_idr',
                                 render: function(data, type, row) {
                                     return new Intl.NumberFormat("id-ID", {
                                         style: "currency",
-                                        currency: "IDR"
+                                        currency: "IDR",
+                                        minimumFractionDigits: 0
                                     }).format(data);
 
                                 }
@@ -82,13 +94,114 @@
                                 data: 'clientprog_id',
                                 className: 'text-center',
                                 render: function(data, type, row) {
-                                    var link = "{{ url('invoice/client-program') }}/" + row.clientprog_id
+                                    var difference = row.date_difference;
+                                    var difference = 2;
 
-                                    return '<a href="' + link + '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
+                                    var link = "{{ url('invoice/client-program') }}/" + row.clientprog_id
+                                    var detail_btn = '<a href="' + link + '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>';
+
+                                    // if (difference > 0 && difference <= 7)
+                                    // {
+                                    //     let reminder_params = [
+                                    //         row.clientprog_id,
+                                    //         row.inv_id
+                                    //     ];
+
+                                    //     let params = JSON.stringify(reminder_params);
+                                        
+                                    //     var email_btn = '<a href="#remind_parent" onclick=\'sendReminder('+params+')\' class="btn btn-sm btn-outline-warning mx-1"><i class="bi bi-send"></i></a>';
+                                    //     detail_btn += email_btn;
+                                    // }
+                                    
+                                    if ((difference > 0 && difference <= 3))
+                                    {
+                                        let whatsapp_params = [
+                                            row.clientprog_id,
+                                            row.parent_fullname,
+                                            row.parent_phone,
+                                            row.program_name,
+                                            row.inv_duedate,
+                                            row.inv_totalprice_idr
+                                        ];
+
+                                        let params = JSON.stringify(whatsapp_params);
+
+                                        var whatsapp_btn = '<a href="#remind_parent" onclick=\'sendWhatsapp('+params+')\' class="mx-1 btn btn-sm btn-outline-success"><i class="bi bi-whatsapp"></i></a>';
+
+                                        detail_btn += whatsapp_btn;
+                                    }
+                                    
+                                    return detail_btn;
                                 }
                             }
                         ],
+                        // createdRow: (row, data, cells) => {
+                        //     var difference = data.date_difference;
+                        //     if (difference > 3 && difference <= 7)
+                        //         $('td', row).addClass("bg-warning-soft");
+                        //     else if (difference > 0 && difference <= 3)
+                        //         $('td', row).addClass('bg-danger-soft');
+                        //     else if (difference == 0)
+                        //         $('td', row).addClass('bg-danger');
+                        //     else if (difference < 0)
+                        //         $('td', row).addClass('bg-primary-soft')
+                        // }
+
                     })
 
                 });
+            </script>
+            <script>
+                function sendReminder(params)
+                {
+                    showLoading();
+
+                    var clientprog_id = params[0];
+                    var invoice_id = params[1];
+
+                    var link = '{{ url("/") }}/invoice/client-program/'+clientprog_id+'/remind/by/email';
+                    axios.post(link, {
+                            invoice_id : invoice_id
+                        })
+                        .then(function(response) {
+                            swal.close();
+                            notification('success', 'Reminder has been sent');
+                        })
+                        .catch(function (error) {
+                            swal.close();
+                            notification('error', error.response.data.message);
+                        });
+                }
+
+                function sendWhatsapp(params)
+                {
+                    showLoading();
+
+                    var clientprog_id = params[0];
+                    var parent_fullname = params[1];
+                    var parent_phone = params[2];
+                    var program_name = params[3];
+                    var invoice_duedate = params[4];
+                    var total_payment = params[5];
+                    
+                    var link = '{{ url("/") }}/invoice/client-program/'+clientprog_id+'/remind/by/whatsapp';
+                    axios.post(link, {
+                            parent_fullname : parent_fullname,
+                            parent_phone : parent_phone,
+                            program_name : program_name,
+                            invoice_duedate : invoice_duedate,
+                            total_payment : total_payment,
+                        })
+                        .then(function(response) {
+                            swal.close();
+                            
+                            let obj = response.data;
+                            var link = obj.link;
+                            window.open(link)
+                        })
+                        .catch(function(error) {
+                            swal.close();
+                            notification('error', error)
+                        })
+                }
             </script>

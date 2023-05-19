@@ -215,33 +215,33 @@ PDFAnnotate.prototype.addImageToCanvas = function (axis, type) {
 						scaleY: scaleY
 					})
 					
-					if(type == 'invoice'){
-						if(axis != null && axis.type == 'invoice')
-						{
-							img.setOptions({
-								left: axis.left,
-								top: axis.top,
-								scaleX: axis.scaleX,
-								scaleY: axis.scaleY,
-								angle: axis.angle,
-								flipX: axis.flipX,
-								flipY: axis.flipY,
-							})
-						}
-					}else if(type == 'receipt'){
-						if(axis != null && axis.type == 'receipt')
-						{
-							img.setOptions({
-								left: axis.left,
-								top: axis.top,
-								scaleX: axis.scaleX,
-								scaleY: axis.scaleY,
-								angle: axis.angle,
-								flipX: axis.flipX,
-								flipY: axis.flipY,
-							})
-						}
-					}
+					// if(type == 'invoice'){
+					// 	if(axis != null && axis.type == 'invoice')
+					// 	{
+					// 		img.setOptions({
+					// 			left: axis.left,
+					// 			top: axis.top,
+					// 			scaleX: axis.scaleX,
+					// 			scaleY: axis.scaleY,
+					// 			angle: axis.angle,
+					// 			flipX: axis.flipX,
+					// 			flipY: axis.flipY,
+					// 		})
+					// 	}
+					// }else if(type == 'receipt'){
+					// 	if(axis != null && axis.type == 'receipt')
+					// 	{
+					// 		img.setOptions({
+					// 			left: axis.left,
+					// 			top: axis.top,
+					// 			scaleX: axis.scaleX,
+					// 			scaleY: axis.scaleY,
+					// 			angle: axis.angle,
+					// 			flipX: axis.flipX,
+					// 			flipY: axis.flipY,
+					// 		})
+					// 	}
+					// }
 
 					
 					fabricObj.add(img)

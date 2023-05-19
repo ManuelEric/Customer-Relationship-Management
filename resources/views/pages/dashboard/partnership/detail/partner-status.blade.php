@@ -1,11 +1,23 @@
 <div class="card mb-3">
     <div class="card-body">
-        <div class="row justify-content-end g-1 mb-2">
-            <div class="col-md-2 text-end">
-                <input type="month" name="" id="partner_status_month" class="form-control form-control-sm"
+
+        <div class="row justify-content-between g-1 mb-2">
+            <div class="col-md-2">
+                    <select id="period-partnership" class="select w-100" onchange="checkPeriodPartnership()">
+                    <option value="all">All</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+            </div>
+                    
+                   
+            <div class="col-md-2 text-end d-none" id="monthly-partnership">
+                    <input type="month" name="" id="partner_status_month" class="form-control form-control-sm"
                     onchange="checkPartnerStatusbyMonth()" value="{{ date('Y-m') }}">
             </div>
+
         </div>
+
+       
         <div class="row align-items-stretch">
             <div class="col-md-3">
                 <div class="card rounded border h-100 card-partner cursor-pointer" data-partner-type="Partner">
@@ -60,7 +72,7 @@
             <div class="col-md-3">
                 <div class="card rounded border h-100 card-partner cursor-pointer" data-partner-type="University">
                     <div class="card-body d-flex justify-content-between align-items-center">
-                        <h5 class="m-0 p-0">Total Univeristy</h5>
+                        <h5 class="m-0 p-0">Total University</h5>
                         <h4 class="m-0 p-0" id="tot_univ">
                             {{ $totalUniversity }}<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>{{$newUniversity}} New</small></span></sup>
                         </h4>
@@ -130,13 +142,30 @@
 </div>
 
 <script>
+    function checkPeriodPartnership() {
+        let period = $('#period-partnership').val()
+        if (period == 'monthly') {
+            $('#monthly-partnership').removeClass('d-none')
+        }else{
+            $('#monthly-partnership').addClass('d-none')
+        }   
+        checkPartnerStatusbyMonth()
+     
+    }
 
     $(".card-partner").each(function() {
         $(this).click(function() {
             showLoading()
-
+           
+            let period = $('#period-partnership').val()
             let type = $(this).data('partner-type')
-            let month = $('#partner_status_month').val()
+            let month;
+
+            if (period == 'all'){    
+                month = {{date('Y-m')}}
+            }else{
+                month = $('#partner_status_month').val()
+            }
             
             let url = window.location.origin + '/api/partner/detail/'+ month +'/'+ type;
             var html;
@@ -198,7 +227,6 @@
             axios.get(url)
                 .then(function(response) {
                     var result = response.data;
-                    console.log(result)
                     $('#list-detail-partner .modal-title').html(result.title)
                     $('#listPartnerTable tbody').html(result.html_ctx)
                     swal.close()
@@ -215,6 +243,12 @@
 
     function checkPartnerStatusbyMonth() {
         let month = $('#partner_status_month').val()
+        let type = $('#period-partnership').val()
+        
+        if(type == 'all'){
+            month = null;
+        }
+        // console.log(type)
       
         let data = ({
             'partner': { 'total': {{$totalPartner}}, 'new': {{$newPartner}}, 'percentage': '0,00'},
@@ -225,7 +259,7 @@
         Swal.showLoading()
 
         // Axios here...
-        axios.get('{{ url("api/partner/total/") }}/' + month)
+        axios.get('{{ url("api/partner/total/") }}/' + month + '/' + type)
             .then((response) => {
                 var result = response.data.data
                 var html = ""
@@ -234,7 +268,6 @@
                 var old;
                 var news;
 
-                console.log(result)
                 swal.close()
 
                 data.partner.new = result.newPartner
@@ -290,18 +323,27 @@
                             var icon = "bi-arrow-down-short"
     
                         }
+
+                        if(type == 'all'){
+                            var html = '<span class="me-2 '+ textStyling +'">'+
+                                            '<i class="bi '+ icon +'"></i>' +
+                                            percentage + '%' +
+                                        '</span><span>Since before</span>'
+                        }else{
+                            var html = '<span class="me-2 '+ textStyling +'">'+
+                                            '<i class="bi '+ icon +'"></i>' +
+                                            percentage + '%' +
+                                        '</span><span>Since last month</span>'
+
+                        }
     
-                        var html = '<span class="me-2 '+ textStyling +'">'+
-                                        '<i class="bi '+ icon +'"></i>' +
-                                        percentage + '%' +
-                                    '</span><span>Since last month</span>'
                     
                     $(this).html(html)
                 })
 
-                $('#tot_partner').html(data.partner.total + (!!data.partner.new ? '<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.partner.new + ' New</small></span></sup>' : ''))
-                $('#tot_school').html(data.school.total + (!!data.school.new ? '<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.school.new + ' New</small></span></sup>' : ''))
-                $('#tot_univ').html(data.university.total + (!!data.university.new ? '<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.university.new + ' New</small></span></sup>' : ''))
+                $('#tot_partner').html(data.partner.total + ('<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.partner.new + ' New</small></span></sup>'))
+                $('#tot_school').html(data.school.total + ('<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.school.new + ' New</small></span></sup>'))
+                $('#tot_univ').html(data.university.total + ('<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.university.new + ' New</small></span></sup>'))
                 $('#tot_agreement').html(data.agreement.total)
             }, (error) => {
                 console.log(error)

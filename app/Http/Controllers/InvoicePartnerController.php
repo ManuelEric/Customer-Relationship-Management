@@ -54,14 +54,14 @@ class InvoicePartnerController extends Controller
     public function index(Request $request)
     {
         $status = $request->route('status');
-
         if ($request->ajax()) {
             switch ($status) {
                 case 'needed':
                     return $this->invoiceB2bRepository->getAllInvoiceNeededCorpDataTables();
                     break;
                 case 'list':
-                    return $this->invoiceB2bRepository->getAllInvoiceCorpDataTables();
+                case 'reminder':
+                    return $this->invoiceB2bRepository->getAllInvoiceCorpDataTables($status);
                     break;
             }
         }
@@ -600,11 +600,8 @@ class InvoicePartnerController extends Controller
         $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoicePartner->invb2b_id;
         $invoiceAttachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
-        $program_name = $invoicePartner->partner_prog->program->prog_program;
 
-        if ($invoicePartner->partner_prog->program->sub_prog_id > 0) {
-            $program_name = $invoicePartner->partner_prog->program->prog_sub . ' - ' . $invoicePartner->partner_prog->program->prog_program;
-        }
+        $program_name = $invoicePartner->partner_prog->program->program_name;
 
         $param_program_name = isset($invoicePartner->partner_prog->program->sub_prog) ? $invoicePartner->partner_prog->program->main_prog->prog_name . ' - ' . $invoicePartner->partner_prog->program->sub_prog->sub_prog_name : $invoicePartner->partner_prog->program->main_prog->prog_name;
 

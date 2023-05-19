@@ -1,6 +1,6 @@
 <div class="card mb-3">
     <div class="card-body">
-        <div class="row justify-content-end g-1 mb-2">
+        <div class="row justify-content-end g-1 mb-3">
             <div class="col-md-2 text-end">
                 <input type="month" name="" id="finance_status_month" class="form-control form-control-sm"
                     onchange="checkInvoiceStatusbyMonth()" value="{{ date('Y-m') }}">
@@ -8,8 +8,14 @@
         </div>
         <div class="row align-items-stretch g-3">
             <div class="col-md-2">
-                <div class="card rounded border h-100">
+                <div class="card rounded border h-100 card-finance cursor-pointer" data-finance-type="invoice-needed">
                     <div class="card-body d-flex justify-content-between align-items-center">
+                        @if($invoiceNeededToday > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 11px">
+                                {{$invoiceNeededToday}}
+                            </span>
+                        @endif
                         <h5 class="m-0 p-0">Invoice Needed</h5>
                         <div id="invoice_needed" class="text-end">
                             <h3 class="m-0 p-0 text-warning">
@@ -25,10 +31,9 @@
                         <h5 class="m-0 p-0">Total <br> Invoice</h5>
                         <div id="tot_invoice" class="text-end">
                             <h4 class="m-0 p-0">
-                                {{ $totalInvoice->sum('count_invoice') }}
-
+                                {{ $totalInvoice[0]['count_invoice'] + $totalInvoice[1]['count_invoice'] }}
                             </h4>
-                            <h6 class="m-0">Rp. {{ number_format($totalInvoice->sum('total'), '2', ',', '.') }}</h6>
+                            <h6 class="m-0">Rp. {{ number_format($totalInvoice[0]['total'] +  $totalInvoice[1]['total']) }}</h6>
                         </div>
                     </div>
                 </div>
@@ -41,14 +46,20 @@
                             <h4 class="m-0 p-0 text-info">
                                 {{ $totalReceipt->sum('count_receipt') }}
                             </h4>
-                            <h6 class="m-0">Rp. {{ number_format($totalReceipt->sum('total'), '2', ',', '.') }}</h6>
+                            <h6 class="m-0">Rp. {{ number_format($totalReceipt->sum('total')) }}</h6>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-2">
-                <div class="card rounded border h-100">
+                <div class="card rounded border h-100 card-finance cursor-pointer" data-finance-type="outstanding">
                     <div class="card-body d-flex justify-content-between align-items-center">
+                        @if($outstandingToday > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 11px">
+                                {{$outstandingToday}}
+                            </span>
+                        @endif
                         <h5 class="m-0 p-0">Outstanding Payment</h5>
                         <div id="reminder_need" class="text-end">
                             <h3 class="m-0 p-0 text-danger" id="tot_outstanding">
@@ -59,8 +70,14 @@
                 </div>
             </div>
             <div class="col-md-2">
-                <div class="card rounded border h-100">
+                <div class="card rounded border h-100 card-finance cursor-pointer" data-finance-type="refund-request">
                     <div class="card-body d-flex justify-content-between align-items-center">
+                        @if($refundRequestToday > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 11px">
+                                {{$refundRequestToday}}
+                            </span>
+                        @endif
                         <h5 class="m-0 p-0">Refund Request</h5>
                         <div id="refund_request" class="text-end">
                             <h3 class="m-0 p-0 text-danger" id="tot_refund">
@@ -74,14 +91,109 @@
     </div>
 </div>
 
+<!-- Detail -->
+<div class="modal modal-lg fade" id="list-detail-finance" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel"><!-- title here --></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ">
+                <div class="row justify-content-end mb-2">
+                    <div class="col-md-3">
+                    </div>
+                </div>
+                <div class="overflow-auto" style="height: 400px">
+                    <table class="table table-bordered table-hover" id="listFinanceTable">
+                        <thead class="text-center" id="thead-finance">
+                            {{-- Head table --}}
+                        </thead>
+                        <tbody id="tbody-finance">
+                            <!-- content here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
+
+    $(".card-finance").each(function() {
+        $(this).click(function() {
+            showLoading()
+
+            let type = $(this).data('finance-type')
+            let month = $('#finance_status_month').val()
+            
+            let url = window.location.origin + '/api/finance/detail/'+ month +'/'+ type;
+            var html;
+
+            switch (type) {
+                case 'invoice-needed':
+                        html = "<tr>"
+                        html += "<th>No</th>"
+                        html += "<th>Client Name</th>"
+                        html += "<th>Program Name</th>"
+                        html += "<th>Success Date</th>"
+                        html += "<th>PIC</th>"
+                        html += "</tr>"
+                    break;
+                
+                case 'outstanding':
+                        html = "<tr>"
+                        html += "<th>No</th>"
+                        html += "<th>Client Name</th>"
+                        html += "<th>Invoice ID</th>"
+                        html += "<th>Type</th>"
+                        html += "<th>Program Name</th>"
+                        html += "<th>Installment</th>"
+                        html += "<th>Invoice Duedate</th>"
+                        html += "<th>Amount</th>"
+                        html += "</tr>"
+                    break;
+
+                case 'refund-request':
+                        html = "<tr>"
+                        html += "<th>No</th>"
+                        html += "<th>Client Name</th>"
+                        html += "<th>Receipt ID</th>"
+                        html += "<th>Program Name</th>"
+                        html += "<th>Refund Date</th>"
+                        html += "<th>PIC</th>"
+                        html += "</tr>"
+                    break;          
+            }
+            $('#thead-finance').html(html)
+
+            axios.get(url)
+                .then(function(response) {
+                    var result = response.data;
+                    $('#list-detail-finance .modal-title').html(result.title)
+                    $('#listFinanceTable tbody').html(result.html_ctx)
+                    swal.close()
+
+                    $('#list-detail-finance').modal('show')
+
+                }).catch(function(error) {
+                    
+                    notification('error', 'There was an error while processing your request. Please try again or contact your administrator.');
+
+                })
+        })
+    })
+
     function checkInvoiceStatusbyMonth() {
         let month = $('#finance_status_month').val()
 
         const rupiah = (number)=>{
             return new Intl.NumberFormat("id-ID", {
             style: "currency",
-            currency: "IDR"
+            currency: "IDR",
+            minimumFractionDigits: 0
             }).format(number);
         }
 
@@ -110,28 +222,26 @@
             if(!Array.isArray(arr)) return;
             return arr.reduce((a, v)=>a + v);
         }
-
+        
+        Swal.showLoading()
           axios.get('{{ url("api/finance/total/") }}/' + month)
             .then((response) => {
                 var result = response.data.data
-                var html = ""
+                var html = '';
                 var no = 1;
-
-                console.log(result)
-
 
                 data['invoiceNeeded']['total'] = result.totalInvoiceNeeded
                 data['refund']['total'] = result.totalRefundRequest
-                data['outstanding']['total'] = result.totalOutstanding
+                data['outstanding']['total'] = parseInt(result.totalOutstanding)
 
                 result.totalInvoice.forEach(function (item, index) {
-                    data['invoice']['total'] += item.count_invoice
-                    data['invoice']['amount'] += item.total
+                    data['invoice']['total'] += parseInt(item.count_invoice)
+                    data['invoice']['amount'] += parseInt(item.total)
                 })
 
                 result.totalReceipt.forEach(function (item, index) {
-                    data['receipt']['total'] += item.count_receipt
-                    data['receipt']['amount'] += item.total
+                    data['receipt']['total'] += parseInt(item.count_receipt)
+                    data['receipt']['amount'] += parseInt(item.total)
                 })
 
                 $('#invoice_needed').html(

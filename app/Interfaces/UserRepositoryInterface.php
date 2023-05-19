@@ -2,6 +2,8 @@
 
 namespace App\Interfaces;
 
+use App\Models\User;
+
 interface UserRepositoryInterface
 {
     public function getAllUsersByRoleDataTables($role);
@@ -20,4 +22,7 @@ interface UserRepositoryInterface
     public function deleteUserType($userTypeId);
     public function getUserRoles($userId, $roleName);
     public function cleaningUser();
+    public function createUserEducation(User $user, array $userEducationDetails);
+    public function createUserRole(User $user, array $userRoleDetails);
+    public function createUserType(User $user, array $userTypeDetails);
 }

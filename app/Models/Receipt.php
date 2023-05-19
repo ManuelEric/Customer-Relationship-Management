@@ -87,7 +87,7 @@ class Receipt extends Model
 
     protected function getReceiptAmountIdrAttribute($value)
     {
-        return "Rp. " . number_format($value, '2', ',', '.');
+        return "Rp. " . number_format($value);
     }
 
 
@@ -115,6 +115,6 @@ class Receipt extends Model
 
     public function receiptAttachment()
     {
-        return $this->hasMany(receiptAttachment::class, 'receipt_id', 'receipt_id');
+        return $this->hasMany(ReceiptAttachment::class, 'receipt_id', 'receipt_id');
     }
 }

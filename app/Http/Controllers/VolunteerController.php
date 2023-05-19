@@ -287,45 +287,29 @@ class VolunteerController extends Controller
         return Redirect::to('user/volunteer')->withSuccess('Volunteer successfully deleted');
     }
 
-    public function updateStatus(Request $request)
+    public function changeStatus(Request $request)
     {
         $volunteerId = $request->route('volunteer');
-        $newStatus = $request->route('status');
+        $volunteer = $this->volunteerRepository->getVolunteerById($volunteerId);
+        $data = $request->params;
+        $status = $data['new_status'];
+        $newStatus = $status == "activate" ? 1 : 0;
 
-        # validate status
-        if (!in_array($newStatus, [0, 1])) {
-
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => "Status is invalid"
-                ]
-            );
-        }
 
         DB::beginTransaction();
         try {
 
+            # update on users table
             $this->volunteerRepository->updateActiveStatus($volunteerId, $newStatus);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Update active status volunteer failed : ' . $e->getMessage());
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => $e->getMessage()
-                ]
-            );
+            Log::error(ucfirst($status) . ' ' . $volunteer->firstname . ' ' . $volunteer->lastname . ' failed : ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to ' . $status . ' ' . $volunteer->firstname . ' ' . $volunteer->lastname], 422);
         }
 
-        return response()->json(
-            [
-                'success' => true,
-                'message' => "Status has been updated",
-            ]
-        );
+        return response()->json(['message' => ucwords($volunteer->firstname . ' ' . $volunteer->lastname) . ' has been ' . $status], 200);
     }
 
     protected function attachment(array $volunt_name, $file, $column, $volunt_id)

@@ -43,8 +43,10 @@
                     <div class="overflow-auto" style="max-height: 60vh">
                         <table class="table">
                             @foreach ($menus as $key => $value)
-                                <tr>
-                                    <td class="py-3"><b>{{ $key }}</b></td>
+                                <tr class="bg-secondary text-light">
+                                    <td class="py-3"><b class="ms-3">{{ $key }}</b></td>
+                                    <td align="center" class="mx-4"><input type="checkbox" name="copy_{{ $key }}" data-total-child="{{ $value->count() }}" onchange="checkAll('copy', '{{ $key }}')"></td>
+                                    <td align="center" class="mx-4"><input type="checkbox" name="export_{{ $key }}" data-total-child="{{ $value->count() }}" onchange="checkAll('export', '{{ $key }}')"></td>
                                 </tr>
                                 @foreach ($value as $menu)
                                 <tr>
@@ -59,10 +61,10 @@
                                         </div>
                                     </td>
                                     <td width="10%" align="center" class="mx-4">
-                                        <input type="checkbox" class="my-1" name="copy" id="copy_{{ $menu['menu_id'] }}" onchange="checkMenus('copy', '{{ $menu['menu_id'] }}')">
+                                        <input type="checkbox" class="my-1" name="copy" data-master="{{ $key }}" id="copy_{{ $menu['menu_id'] }}" onchange="checkMenus('copy', '{{ $menu['menu_id'] }}')">
                                     </td>
                                     <td width="10%" align="center">
-                                        <input type="checkbox" class="my-1" name="export" id="export_{{ $menu['menu_id'] }}" onchange="checkMenus('export', '{{ $menu['menu_id'] }}')">
+                                        <input type="checkbox" class="my-1" name="export" data-master="{{ $key }}" id="export_{{ $menu['menu_id'] }}" onchange="checkMenus('export', '{{ $menu['menu_id'] }}')">
                                     </td>
                                 </tr>
                                 @endforeach
@@ -75,7 +77,15 @@
     </div>
 
     <script>
+        function checkAll(policy, key)
+        {
+            showLoading();
+            var elementor_checked = $("input[name='"+policy+"_"+key+"']").prop('checked');
+            $("input[name="+policy+"][data-master='"+key+"']").prop('checked', elementor_checked).trigger('change');
+        }
+        
         function checkDepartment() {
+            showLoading();
             let department = $('#department').val()
 
             // open menu card
@@ -85,7 +95,6 @@
             var link = "{{ url('/') }}/api/department/access/" + department 
             axios.get(link)
                 .then(function (response) {
-                    
                     resetCheckboxes()
                     var obj = response.data
                     getActiveMenu(obj.data)
@@ -93,6 +102,7 @@
                     getActiveExport(obj.export)
 
                 }).catch(function (error) {
+                    console.log(error)
                     notification('error', 'Something went wrong. Please try again.')
                 })
             
@@ -106,8 +116,10 @@
                     } else {
                         $('#user_card').addClass('d-none')
                     }
+                    swal.close();
                 }).catch(function (error) {
-
+                    
+                    swal.close();
                     notification('error', error.message);
                 })
         }
@@ -164,6 +176,7 @@
                 var link = '{{ url("/") }}/menus/manage/user/access';
             }
 
+
             axios.post(link, {
                 'department_id': department,
                 'menu_id': menus.val(), // menu id value from checkbox
@@ -174,12 +187,16 @@
                 'param' : param,
             }).then(function (response) {
 
+                resetCheckboxes('menus')
                 let obj = response.data
-                getActiveMenu(obj.data)
+                getActiveMenu(obj.data);
+                swal.close();
 
                 
             }).catch(function (error) {
 
+                console.log(error)
+                swal.close();
                 notification('error', error.message)
 
             });
@@ -187,7 +204,6 @@
 
         function getActiveMenu(object) 
         {
-            
             for (var i = 0 ; i < object.length ; i++) {
                 var id = "#menus_" + object[i]
                 $(id).prop('checked', true)
@@ -197,19 +213,58 @@
 
         function getActiveCopy(object)
         {
-         
+            var array_master_name = [];
             for (var i = 0 ; i < object.length ; i++) {
                 var id = "#copy_" + object[i]
                 $(id).prop('checked', true)
+                
+                var master_name = $(id).data('master');
+                if (array_master_name.indexOf(master_name) == -1)
+                    array_master_name.push(master_name);
+                
             }
+
+            for (var i = 0; i < array_master_name.length ; i++) {
+                var sum = 0;
+                var master_name = array_master_name[i];
+                
+                var total_child = $("input[name=copy_"+master_name+"]").data('total-child');
+
+                var total_actual_child = $("input[name=copy][data-master="+master_name+"]:checked").each(function () {
+                    sum++;
+                });
+
+                if (sum == total_child)
+                    $("input[name=copy_"+master_name+"]").prop('checked', true);
+            }
+
 
         }
 
         function getActiveExport(object)
         {
+            var array_master_name = [];
             for (var i = 0 ; i < object.length ; i++) {
                 var id = "#export_" + object[i]
                 $(id).prop('checked', true)
+
+                var master_name = $(id).data('master');
+                if (array_master_name.indexOf(master_name) == -1)
+                    array_master_name.push(master_name);
+            }
+
+            for (var i = 0; i < array_master_name.length ; i++) {
+                var sum = 0;
+                var master_name = array_master_name[i];
+                
+                var total_child = $("input[name=export_"+master_name+"]").data('total-child');
+
+                var total_actual_child = $("input[name=export][data-master="+master_name+"]:checked").each(function () {
+                    sum++;
+                });
+
+                if (sum == total_child)
+                    $("input[name=export_"+master_name+"]").prop('checked', true);
             }
         }
 
@@ -234,11 +289,27 @@
             }
         }
         
-        function resetCheckboxes()
+        function resetCheckboxes(param)
         {
-            $("input[name=menus]").prop('checked', false);
-            $("input[name=copy]").prop('checked', false);
-            $("input[name=export]").prop('checked', false);
+            switch (param) {
+                case "menus":
+                    $("input[name=menus]").prop('checked', false);
+                break;
+
+                case "copy":
+                    $("input[name=copy]").prop('checked', false);
+                break;
+
+                case "export":
+                    $("input[name=export]").prop('checked', false);
+                break;
+
+                default:
+                    $("input[name=menus]").prop('checked', false);
+                    $("input[name=copy]").prop('checked', false);
+                    $("input[name=export]").prop('checked', false);
+
+            }
         }
     </script>
 @endsection

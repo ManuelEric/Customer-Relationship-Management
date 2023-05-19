@@ -4,7 +4,7 @@
             <div class="col-md-4">
                 <div class="row g-1">
                     <div class="col-md-6">
-                        <select name="" id="period" class="select w-100" onchange="checkPeriod()">
+                        <select id="period" class="select w-100" onchange="checkPeriod()">
                             <option value="all">All</option>
                             <option value="monthly">Monthly</option>
                         </select>
@@ -531,7 +531,7 @@
 
             axios.get(url)
                 .then(function(response) {
-                    console.log(response)
+                    
                     var obj = response.data;
 
                     $('#list-detail-client .modal-title').html(obj.title)
@@ -541,7 +541,7 @@
                     $('#list-detail-client').modal('show')
 
                 }).catch(function(error) {
-                    
+
                     notification('error', 'There was an error while processing your request. Please try again or contact your administrator.');
 
                 })
@@ -558,7 +558,8 @@
             let month = $('#client_status_month').val()
             $(".card-client").data('f-date', month);
         } else {
-            console.log('masuk ke all')
+
+            $(".card-client").data('f-date', 'all');
             $('#monthly').addClass('d-none')
             checkClientStatus()
         }
@@ -583,19 +584,19 @@
 
         axios.get(url)
             .then(function(response) {
-
                 var obj = response.data.data
 
-                $(".client-status").each(function(index) {
+                $(".client-status").each(function(index, value) {
+                    var title = obj[index]['old']
                     if (obj[index]['new'] != 0)
                     {
-                        var title = obj[index]['old']+'<sup>'+
+                        title += '<sup>'+
                                         '<span class="badge bg-primary text-white p-1 px-2">' +
                                             '<small>' + obj[index]['new'] + ' New</small>' +
                                         '</span>' +
                                     '</sup>'
-                        $(this).html(title)
                     }
+                    $(this).html(title)
 
                 })
                 
@@ -689,7 +690,6 @@
     }
 
     function getMenteesBirthday(month) {
-
         var today = new Date()
 
         if (!month)
@@ -710,12 +710,13 @@
                 var no = 1;
                 obj.forEach(function(item, index, arr) {
                     var dob_str = moment(item['dob']).format('ddd, DD MMM yyyy')
+                    var address = item['address'] === null ? '' : item['address']
 
                     html += "<tr class='text-center'>" +
                         "<td>" + no++ + "</td>" +
                         "<td>" + item['full_name'] + "</td>" +
                         "<td>" + dob_str + "</td>" +
-                        "<td>" + item['address'] + "</td>" +
+                        "<td>" + address + "</td>" +
                         "</tr>"
                 })
 
@@ -824,7 +825,7 @@
 
         axios.get('{{ url('api/mentee/birthday/') }}/' + date)
             .then((response) => {
-                // console.log(response)
+                
                 var data = response.data.data
                 var html = ""
                 var no = 1;

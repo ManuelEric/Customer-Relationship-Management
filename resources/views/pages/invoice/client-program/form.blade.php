@@ -23,12 +23,14 @@
                     <a
                         href="{{ route('student.program.show', ['student' => $clientProg->client->id, 'program' => $clientProg->clientprog_id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">
                         <h6 class="d-flex flex-column">
-                            @php
+                            {{$clientProg->program->program_name}}
+
+                            {{-- @php
                                 $programName = explode('-', $clientProg->program_name);
                             @endphp
                             @for ($i = 0; $i < count($programName); $i++)
                                 {{ $programName[$i] }}  <br>
-                            @endfor
+                            @endfor --}}
                         </h6>
                     </a>
                 </div>
@@ -100,7 +102,7 @@
                             <div class="d-flex gap-1 justify-content-center">
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Preview Invoice">
-                                    <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}" class="text-info" target="blank">
+                                    <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}?key=dashboard" class="text-info" target="blank">
                                         <i class="bi bi-eye-fill"></i>
                                     </a>
                                 </div>
@@ -203,6 +205,7 @@
                         </div>
 
                         {{-- Other  --}}
+                        @if ($invoice->currency != 'idr')
                         @php
                             $invoiceHasBeenRequested_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
                             $invoiceHasBeenSigned_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
@@ -260,6 +263,7 @@
                                 </div>
                             </section>
                         </div>
+                        @endif
                     </div>
                 </div>
             @endif
@@ -339,18 +343,15 @@
                                     {{ $disabled !== null ? $disabled : 'onchange=checkCurrencyDetail()' }}>
                                     <option data-placeholder="true"></option>
                                     <option value="usd"
-                                        @if (isset($invoice->currency) && $invoice->currency == 'usd') {{ 'selected' }}
-                                        @elseif (old('currency') !== null && in_array('usd', (array) old('currency_detail')))
+                                        @if (old('currency') !== null && in_array('usd', (array) old('currency_detail')))
                                             {{ 'selected' }} @endif>
                                         USD</option>
                                     <option value="sgd"
-                                        @if (isset($invoice->currency) && $invoice->currency == 'sgd') {{ 'selected' }}
-                                        @elseif (old('currency') !== null && in_array('sgd', (array) old('currency_detail')))
+                                        @if (old('currency') !== null && in_array('sgd', (array) old('currency_detail')))
                                             {{ 'selected' }} @endif>
                                         SGD</option>
                                     <option value="gbp"
-                                        @if (isset($invoice->currency) && $invoice->currency == 'gbp') {{ 'selected' }}
-                                        @elseif (old('currency') !== null && in_array('gbp', (array) old('currency_detail')))
+                                        @if (old('currency') !== null && in_array('gbp', (array) old('currency_detail')))
                                             {{ 'selected' }} @endif>
                                         GBP</option>
                                 </select>
@@ -637,6 +638,10 @@
             @if ($errors->first('receipt_amount') || $errors->first('receipt_amount_idr') || $errors->first('receipt_date') || $errors->first('receipt_words') || $errors->first('receipt_words_idr') || $errors->first('receipt_method') || $errors->first('receipt_cheque'))
                 $("button[data-idn='{{ old('identifier') }}']").click()
             @endif
+
+            @if ($errors->has('total_payment') || $errors->has('total_paid') || $errors->has('percentage_refund') || $errors->has('refund_amount') || $errors->has('tax_percentage') || $errors->has('tax_amount') || $errors->has('total_refunded'))
+                $("#refund").modal('show')
+            @endif
         })
     </script>
     <script>
@@ -685,17 +690,17 @@
 
             $("#receipt_amount_other").on('keyup', function() {
                 var val = $(this).val()
-                var currency = $("#receipt input[name=currency]").val()
+                var currency = $("#receipt input[name=rec_currency]").val()
                 var curs_rate = $("#current_rate").val();
                 switch (currency) {
                     case 'usd':
-                        currency = ' Dollar';
+                        currency = ' Dollars';
                         break;
                     case 'sgd':
-                        currency = ' Singapore Dollar';
+                        currency = ' Singapore Dollars';
                         break;
                     case 'gbp':
-                        currency = ' Pound';
+                        currency = ' British Pounds';
                         break;
                     default:
                         currency = '';
@@ -718,29 +723,63 @@
                 allowClear: true
             });
 
-            @if (
-                ($clientProg->program->prog_payment == 'idr' || $clientProg->program->prog_payment == 'session') &&
-                    !isset($invoice))
-                $("#currency").val('idr').trigger('change')
-            @elseif (isset($invoice) && $invoice->inv_category == 'idr')
-                $("#currency").val('idr').trigger('change')
+            @if (isset($invoice))
+                
+                // change the currency-icon 
+                var detail = "{{ $invoice->currency }}"
+                $('.currency-icon').html(currencySymbol(detail))
+            
+                @switch ($invoice->inv_category)
+                    @case("idr")
+                        $("#currency").val('idr').trigger('change')
+                    @break
+
+                    @case("session")
+                        @if ($invoice->currency == "idr")
+                            $("#currency").val('idr').trigger('change')
+                        @else
+                            $("#currency").val('other').trigger('change')
+                            $("#currency_detail").val('{{ $invoice->currency }}').trigger('change')
+                        @endif
+                        $("#session").val('yes').trigger('change')
+                    @break
+
+                    @default
+                        $("#currency").val('other').trigger('change')
+                        $("#currency_detail").val('{{ $invoice->currency }}').trigger('change')
+
+                @endswitch
             @else
-                $("#currency").val('other').trigger('change')
+                @switch (strtolower($clientProg->program->prog_payment))
+                    @case('usd')
+                        console.log("usd")
+                    $("#currency_detail").val("usd").trigger('change')
+                    @break
+
+                    @case('sgd')
+                    $("#currency_detail").val("sgd").trigger('change')
+                    @break
+
+                    @case('gbp')
+                    $("#currency_detail").val("gbp").trigger('change')
+                    @break
+                @endswitch
+
+                @if ($clientProg->program->prog_payment == 'idr' || $clientProg->program->prog_payment == 'session')
+                    $("#currency").val('idr').trigger('change')
+                @else
+                    $("#currency").val('other').trigger('change')
+                @endif
             @endif
 
-            @switch (strtolower($clientProg->program->prog_payment))
-                @case('usd')
-                $("#currency_detail").val("usd").trigger('change')
-                @break
-
-                @case('sgd')
-                $("#currency_detail").val("sgd").trigger('change')
-                @break
-
-                @case('gbp')
-                $("#currency_detail").val("gbp").trigger('change')
-                @break
-            @endswitch
+            
+            // @if (isset($invoice) && $invoice->currency)
+            //     $("#currency_detail").val('{{ $invoice->currency }}').trigger('change');
+            //     let detail = $('#currency_detail').val()
+            //     if (detail) {
+            //         $('.currency-icon').html(currencySymbol(detail))
+            //     }
+            // @endif
 
             @if (isset($invoice))
                 @if (isset($invoice->inv_paymentmethod) && $invoice->inv_paymentmethod == 'Full Payment')
@@ -768,10 +807,12 @@
             @endif
 
 
-            @if (old('is_session') == 'yes')
-                $("#session").val('yes').trigger('change')
-            @else
-                $("#session").val('no').trigger('change')
+            @if (old('is_session'))
+                @if (old('is_session') == "yes")
+                    $("#session").val('yes').trigger('change')
+                @else
+                    $("#session").val('no').trigger('change')
+                @endif
             @endif
         });
 
@@ -889,14 +930,6 @@
         $(document).ready(function() {
             @if (old('inv_paymentmethod'))
                 $("#payment_method").val("{{ old('inv_paymentmethod') }}").trigger('change');
-            @endif
-
-            @if (isset($invoice) && $invoice->currency)
-                $("#currency_detail").val('{{ $invoice->currency }}').trigger('change');
-                let detail = $('#currency_detail').val()
-                if (detail) {
-                    $('.currency-icon').html(currencySymbol(detail))
-                }
             @endif
 
             $("#request-acc").on('click', function(e) {

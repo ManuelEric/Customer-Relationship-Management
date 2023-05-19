@@ -63,13 +63,14 @@ Route::get('mentee/birthday/{month}', [SalesDashboardController::class, 'getMent
 
 # dashboard partnership
 Route::get('partner/detail/{month}/{type}', [PartnerDashboardController::class, 'getPartnerDetailByMonth']);
-Route::get('partner/total/{month}', [PartnerDashboardController::class, 'getTotalByMonth']);
+Route::get('partner/total/{month}/{type}', [PartnerDashboardController::class, 'getTotalByMonth']);
 Route::get('partner/agenda/{date}', [PartnerDashboardController::class, 'getSpeakerByDate']);
 Route::get('partner/partnership-program/{month}', [PartnerDashboardController::class, 'getPartnershipProgramByMonth']);
 Route::get('partner/partnership-program/detail/{type}/{status}/{month}', [PartnerDashboardController::class, 'getPartnershipProgramDetailByMonth']);
 Route::get('partner/partnership-program/program-comparison/{start_year}/{end_year}', [PartnerDashboardController::class, 'getProgramComparison']);
 
 # dashboard finance
+Route::get('finance/detail/{month}/{type}', [FinanceDashboardController::class, 'getFinanceDetailByMonth']);
 Route::get('finance/total/{month}', [FinanceDashboardController::class, 'getTotalByMonth']);
 Route::get('finance/outstanding/{month}', [FinanceDashboardController::class, 'getOutstandingPayment']);
 Route::get('finance/revenue/{year}', [FinanceDashboardController::class, 'getRevenueByYear']);

@@ -14,10 +14,6 @@
         </a>
     </div>
 
-    {{-- @if ($errors->any())
-        {{ implode('', $errors->all('<div>:message</div>')) }}
-    @endif --}}
-
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
@@ -493,9 +489,12 @@
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
                                                         <option value="{{ $tutor->id }}"
-                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 0) @if ($clientProgram->clientMentor()->first()->id == $tutor->id)
-                                                                    {{ 'selected' }} @endif
+                                                            @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 0) 
+                                                                @if ($clientProgram->clientMentor()->first()->id == $tutor->id)
+                                                                    {{ 'selected' }} 
+                                                                @endif
                                                             @endif
+                                                            @selected(old('tutor_id') == $tutor->id)
                                                             >{{ $tutor->first_name .' ' .$tutor->last_name .' - ' .json_encode($tutor->roles()->where('role_name', 'Tutor')->pluck('tutor_subject')->toArray()) }}
                                                         </option>
                                                     @endforeach

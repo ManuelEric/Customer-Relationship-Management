@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StorePartnerProgramSpeakerRequest;
-use App\Http\Traits\FindAgendaSpeakerpriorityTrait;
+use App\Http\Traits\FindAgendaSpeakerPriorityTrait;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Redirect;
 
 class PartnerProgramSpeakerController extends Controller
 {
-    use FindAgendaSpeakerpriorityTrait;
+    use FindAgendaSpeakerPriorityTrait;
 
     private AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
 

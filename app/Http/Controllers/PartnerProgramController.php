@@ -19,6 +19,7 @@ use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
+use App\Interfaces\PartnerProgramCollaboratorsRepositoryInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -45,6 +46,7 @@ class PartnerProgramController extends Controller
     protected UniversityPicRepositoryInterface $universityPicRepository;
     protected SchoolDetailRepositoryInterface $schoolDetailRepository;
     protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
+    protected PartnerProgramCollaboratorsRepositoryInterface $partnerProgramCollaboratorsRepository;
 
     public function __construct(
         SchoolRepositoryInterface $schoolRepository,
@@ -61,6 +63,7 @@ class PartnerProgramController extends Controller
         UniversityPicRepositoryInterface $universityPicRepository,
         SchoolDetailRepositoryInterface $schoolDetailRepository,
         AgendaSpeakerRepositoryInterface $agendaSpeakerRepository,
+        PartnerProgramCollaboratorsRepositoryInterface $partnerProgramCollaboratorsRepository,
     ) {
         $this->schoolRepository = $schoolRepository;
         $this->schoolProgramRepository = $schoolProgramRepository;
@@ -76,6 +79,7 @@ class PartnerProgramController extends Controller
         $this->universityPicRepository = $universityPicRepository;
         $this->schoolDetailRepository = $schoolDetailRepository;
         $this->agendaSpeakerRepository = $agendaSpeakerRepository;
+        $this->partnerProgramCollaboratorsRepository = $partnerProgramCollaboratorsRepository;
     }
 
 
@@ -211,6 +215,9 @@ class PartnerProgramController extends Controller
         # retrieve all school data
         $schools = $this->schoolRepository->getAllSchools();
 
+        # retrieve all univ data
+        $universities = $this->universityRepository->getAllUniversities();
+
         // # retrieve all school detail by school id
         // $schoolDetail = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
 
@@ -238,8 +245,15 @@ class PartnerProgramController extends Controller
         # retrieve speaker data
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerByPartnerProgram($corp_ProgId);
 
+        # retrieve collaborators
+        $collaborators_school = $this->partnerProgramCollaboratorsRepository->getSchoolCollaboratorsByPartnerProgId($corp_ProgId);
+        $collaborators_univ = $this->partnerProgramCollaboratorsRepository->getUnivCollaboratorsByPartnerProgId($corp_ProgId);
+        $colaborators_partner = $this->partnerProgramCollaboratorsRepository->getPartnerCollaboratorsByPartnerProgId($corp_ProgId);
+
         return view('pages.program.corporate-program.form')->with(
             [
+                'corpId' => $corpId,
+                'corp_ProgId' => $corp_ProgId,
                 'employees' => $employees,
                 'programs' => $programs,
                 'reasons' => $reasons,
@@ -249,7 +263,11 @@ class PartnerProgramController extends Controller
                 'partners' => $partners,
                 'speakers' => $speakers,
                 'schools' => $schools,
-                'attach' => true
+                'universities' => $universities,
+                'attach' => true,
+                'collaborators_school' => $collaborators_school,
+                'collaborators_univ' => $collaborators_univ,
+                'colaborators_partner' => $colaborators_partner
             ]
         );
     }

@@ -39,7 +39,7 @@ class StoreSchoolRequest extends FormRequest
 
         return [
             'sch_name' => 'required',
-            'sch_type' => 'required|in:International,National',
+            'sch_type' => 'required|in:International,National,National_plus,National_private,Home_schooling',
             'sch_curriculum' => 'required',
             'sch_curriculum.*' => 'sometimes|exists:tbl_curriculum,id',
             'sch_insta' => 'nullable',

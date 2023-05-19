@@ -36,7 +36,7 @@
             <div class="card mb-3">
                 <div class="card-header  d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">Client</h6>
-                    <span class="badge bg-primary">{{ count($clientEvents) }}</span>
+                    {{-- <span class="badge bg-primary">{{ count($clientEvents) }}</span> --}}
                 </div>
                 <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
                     <ul class="list-group">
@@ -55,8 +55,8 @@
             {{-- Conversion Lead  --}}
             <div class="card mb-3">
                 <div class="card-header  d-flex justify-content-between align-items-center">
-                    <h6 class="p-0 m-0">Conversion Lead</h6>
-                </div>
+                    <h6 class="p-0 m-0">Lead Source</h6>
+                </div> 
                 <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
                     <ul class="list-group">
                         @forelse ($conversionLeads as $conversionLead)
@@ -65,7 +65,7 @@
                                 <span class="badge badge-warning">{{ $conversionLead->count_conversionLead }}</span>
                             </li>
                         @empty
-                            <li class="text-center">Not conversion lead yet</li>
+                            <li class="text-center">Not lead source yet</li>
                         @endforelse
                     </ul>
                 </div>
@@ -75,19 +75,19 @@
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="p-0 m-0">Client Event</h6>
-                    <div class="">
+                    {{-- <div class="">
                         <button onclick="ExportToExcel()" class="btn btn-sm btn-outline-info">
                             <i class="bi bi-file-earmark-excel me-1"></i> Print
                         </button>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="card-body overflow-auto" style="max-height: 500px">
-                    <div class="table-responsive">
+                    {{-- <div class="table-responsive">
                         <table class="table table-bordered table-hover nowrap align-middle w-100 table2excel" id="tbl_event">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    @if($clientEvents->first()->filter == 'ByMonth')                                       
+                                    @if(isset($clientEvents->first()->filter) && $clientEvents->first()->filter == 'ByMonth')                                       
                                         <th>Event Name</th>
                                     @endif
                                     <th>Client Name</th>
@@ -122,7 +122,27 @@
                                 @endforelse
                             </tbody>
                         </table>
-                    </div>
+                    </div> --}}
+                    <table class="table table-bordered table-hover nowrap align-middle w-100" id="eventTrackTable">
+                        <thead class="bg-dark text-white">
+                            <tr>
+                                <th class="bg-info text-white">Event ID</th>
+                                <th class="bg-info text-white">Client Name</th>
+                                <th>Email</th>
+                                <th>Phone Number</th>
+                                <th>School Name</th>
+                                <th>Grade</th>
+                                <th>Lead Source</th>
+                                <th class="bg-info text-white">Joined At</th>
+                            </tr>
+                        </thead>
+                        
+                        <tfoot class="bg-light text-white">
+                            <tr>
+                                <td colspan="8"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>
@@ -142,14 +162,76 @@
                 });
             @endif
         });
-        function ExportToExcel() {
 
-            var workbook = XLSX.utils.book_new();
-            var ws = XLSX.utils.table_to_sheet(document.getElementById("tbl_event"));
-            XLSX.utils.book_append_sheet(workbook, ws, "Client Events");
+        $(document).ready(function() {
+            $('#cancel').click(function() {
+                $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
+            });
 
-            XLSX.writeFile(workbook, "report-event-tracking.xlsx");
+            var i = 1;
+
+            var table = $('#eventTrackTable').DataTable({
+                dom: 'Bfrtip',
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+                ],
+                buttons: [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                    }
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: 2,
+                    right: 1
+                },
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                columns: [{
+                        data: 'event_id',
+                    },
+                    {
+                        data: 'client_name',
+                    },
+                    {
+                        data: 'mail',
+                        name: 'tbl_client.mail',
+                    },
+                    {
+                        data: 'phone',
+                        name: 'tbl_client.phone',
+                    },
+                    {
+                        data: 'sch_name',
+                        name: 'tbl_sch.sch_name' 
+                    },
+                    {
+                        data: 'st_grade',
+                        name: 'tbl_client.st_grade',
+                    },
+                    {
+                        data: 'conversion_lead',
+                    },
+                    {
+                        data: 'joined_date',
+                    },
+                ]
+            });
+            realtimeData(table)
+
+        
+        });
+        // function ExportToExcel() {
+
+        //     var workbook = XLSX.utils.book_new();
+        //     var ws = XLSX.utils.table_to_sheet(document.getElementById("tbl_event"));
+        //     XLSX.utils.book_append_sheet(workbook, ws, "Client Events");
+
+        //     XLSX.writeFile(workbook, "report-event-tracking.xlsx");
             
-        }
+        // }
     </script>
 @endsection

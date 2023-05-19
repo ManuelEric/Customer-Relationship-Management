@@ -155,7 +155,8 @@
                     render: function(data, type, row) {
                         return new Intl.NumberFormat("id-ID", {
                             style: "currency",
-                            currency: "IDR"
+                            currency: "IDR",
+                            minimumFractionDigits: 0
                         }).format(data);
 
                     }
@@ -167,7 +168,8 @@
                     render: function(data, type, row) {
                         return new Intl.NumberFormat("id-ID", {
                             style: "currency",
-                            currency: "IDR"
+                            currency: "IDR",
+                            minimumFractionDigits: 0
                         }).format(data);
 
                     }

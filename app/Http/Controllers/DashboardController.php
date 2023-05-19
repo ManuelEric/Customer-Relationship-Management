@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\FetchClientStatus;
+use App\Http\Controllers\Module\SalesDashboardController;
+use App\Http\Controllers\Module\testController;
+use App\Http\Traits\Modules\GetClientStatusTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -21,13 +25,17 @@ use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\RefundRepositoryInterface;
+use App\Repositories\ClientRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
-class DashboardController extends Controller
+class DashboardController extends SalesDashboardController
 {
+
+    use GetClientStatusTrait;
     protected ClientRepositoryInterface $clientRepository;
     protected FollowupRepositoryInterface $followupRepository;
     protected CorporateRepositoryInterface $corporateRepository;
@@ -47,9 +55,9 @@ class DashboardController extends Controller
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
+    protected RefundRepositoryInterface $refundRepository;
 
-
-    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository, RefundRepositoryInterface $refundRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->followupRepository = $followupRepository;
@@ -71,220 +79,16 @@ class DashboardController extends Controller
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceProgramRepository = $invoiceProgramRepository;
         $this->receiptRepository = $receiptRepository;
+        $this->refundRepository = $refundRepository;
     }
 
     public function index(Request $request)
     {
-
-        $data = $this->indexSales($request);
+        $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, $this->indexPartnership($request));
         $data = array_merge($data, $this->indexFinance($request));
 
         return view('pages.dashboard.index')->with($data);
-    }
-
-    # sales dashboard
-
-    public function indexSales($request)
-    {
-
-        # initialize
-        $month = date('Y-m');
-        $total_prospective_client = $this->clientRepository->getCountTotalClientByStatus(0);
-        $monthly_new_prospective_client = $this->clientRepository->getCountTotalClientByStatus(0, $month);
-
-        $total_potential_client = $this->clientRepository->getCountTotalClientByStatus(1);
-        $monthly_new_potential_client = $this->clientRepository->getCountTotalClientByStatus(1, $month);
-
-        $total_current_client = $this->clientRepository->getCountTotalClientByStatus(2);
-        $monthly_new_current_client = $this->clientRepository->getCountTotalClientByStatus(2, $month);
-
-        $total_completed_client = $this->clientRepository->getCountTotalClientByStatus(3);
-        $monthly_new_completed_client = $this->clientRepository->getCountTotalClientByStatus(3, $month);
-
-        $total_mentee = $this->clientRepository->getAllClientByRole('mentee')->count();
-        $monthly_new_mentee = $this->clientRepository->getAllClientByRole('mentee', $month)->count();
-
-        $total_alumni = $this->clientRepository->getAllClientByRole('alumni')->count();
-        $monthly_new_alumni = $this->clientRepository->getAllClientByRole('alumni', $month)->count();
-
-        $total_parent = $this->clientRepository->getAllClientByRole('parent')->count();
-        $monthly_new_parent = $this->clientRepository->getAllClientByRole('parent', $month)->count();
-
-        $total_teacher = $this->clientRepository->getAllClientByRole('Teacher/Counselor')->count();
-        $monthly_new_teacher = $this->clientRepository->getAllClientByRole('Teacher/Counselor', $month)->count();
-
-        # data at the top of dashboard
-        $totalClientByStatus = [
-            'prospective' => [
-                'old' => $total_prospective_client - $monthly_new_prospective_client,
-                'new' => $monthly_new_prospective_client,
-                'percentage' => $this->calculatePercentage($total_prospective_client, $monthly_new_prospective_client)
-            ], # prospective
-            'potential' => [
-                'old' => $total_potential_client - $monthly_new_potential_client,
-                'new' => $monthly_new_potential_client,
-                'percentage' => $this->calculatePercentage($total_potential_client, $monthly_new_potential_client)
-            ], # potential
-            'current' => [
-                'old' => $total_current_client - $monthly_new_current_client,
-                'new' => $monthly_new_current_client,
-                'percentage' => $this->calculatePercentage($total_current_client, $monthly_new_current_client)
-            ], # current
-            'completed' => [
-                'old' => $total_completed_client - $monthly_new_completed_client,
-                'new' => $monthly_new_completed_client,
-                'percentage' => $this->calculatePercentage($total_completed_client, $monthly_new_completed_client)
-            ], # current
-            'mentee' => [
-                'old' => $total_mentee - $monthly_new_mentee,
-                'new' => $monthly_new_mentee,
-                'percentage' => $this->calculatePercentage($total_mentee, $monthly_new_mentee)
-            ],
-            'alumni' => [
-                'old' => $total_alumni - $monthly_new_alumni,
-                'new' => $monthly_new_alumni,
-                'percentage' => $this->calculatePercentage($total_alumni, $monthly_new_alumni)
-            ],
-            'parent' => [
-                'old' => $total_parent - $monthly_new_parent,
-                'new' => $monthly_new_parent,
-                'percentage' => $this->calculatePercentage($total_parent, $monthly_new_parent)
-            ],
-            'teacher_counselor' => [
-                'old' => $total_teacher - $monthly_new_teacher,
-                'new' => $monthly_new_teacher,
-                'percentage' => $this->calculatePercentage($total_teacher, $monthly_new_teacher)
-            ]
-        ];
-        $followUpReminder = $this->followupRepository->getAllFollowupWithin(7);
-        $menteesBirthday = $this->clientRepository->getMenteesBirthdayMonthly($month);
-
-        # data at the body of dashboard
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('employee', 'Client Management');
-
-        # on client program tab
-        $cp_filter['qdate'] = $request->get('qdate') ?? date('Y-m');
-        if ($request->get('cp-month')) { # format Y-m
-            $cp_filter['qdate'] = $request->get('cp-month');
-        }
-
-        $dateDetails = [
-            'startDate' => $cp_filter['qdate'] . '-01',
-            'endDate' => $cp_filter['qdate'] . '-31'
-        ];
-
-        # if (admin)
-        # then null
-        # elif not admin
-        # their uuid
-
-        if ($request->get('quser')) {
-            $cp_filter['quuid'] = $request->get('quser');
-        }
-
-        # client program status
-        $totalAllClientProgramByStatus = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => null] + $cp_filter);
-
-        # admissions mentoring
-        $admissionsMentoring = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Admissions Mentoring'] + $cp_filter);
-
-        # initial consultation
-        $initialConsultation = $this->clientProgramRepository->getInitialConsultationInformation($cp_filter);
-        $totalInitialConsultation = array_sum($initialConsultation);
-        $successProgram = $initialConsultation[2];
-        $successProgram;
-
-        $initialAssessmentMaking = $this->clientProgramRepository->getInitialMaking($dateDetails, $cp_filter);
-        $conversionTimeProgress = $this->clientProgramRepository->getConversionTimeProgress($dateDetails, $cp_filter);
-        $successPercentage = $successProgram == 0 ? 0 : ($successProgram / $totalInitialConsultation) * 100;
-        $allSuccessProgramByMonth = $this->clientProgramRepository->getSuccessProgramByMonth($cp_filter);
-        $totalRevenueAdmMentoringByProgramAndMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $cp_filter);
-        $academicTestPrep = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Academic & Test Preparation'] + $cp_filter);
-        $totalRevenueAcadTestPrepByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Academic & Test Preparation'] + $cp_filter);
-        $careerExploration = $this->clientProgramRepository->getClientProgramGroupByStatusAndUserArray(['program' => 'Career Exploration'] + $cp_filter);
-        $totalRevenueCareerExplorationByMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Career Exploration'] + $cp_filter);
-
-        $leadSource = $this->clientProgramRepository->getLeadSource($dateDetails, $cp_filter);
-        $conversionLeads = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter);
-
-        $admissionMentoringConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Admissions Mentoring']);
-        $academicTestPrepConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Academic & Test Preparation']);
-        $careerExplorationConvLead = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter + ['prog' => 'Career Exploration']);
-
-        # on sales target tab
-        $programId = null; # means all programs
-        $salesTarget = $this->salesTargetRepository->getMonthlySalesTarget($programId, $cp_filter);
-        $salesActual = $this->salesTargetRepository->getMonthlySalesActual($programId, $cp_filter);
-
-        $salesDetail = $this->salesTargetRepository->getSalesDetail($programId, $cp_filter);
-
-        # on program comparison tab
-        $allPrograms = $this->programRepository->getAllPrograms()->groupBy('main_prog.prog_name');
-        $cp_filter['queryParams_year1'] = date('Y') - 1;
-        $cp_filter['queryParams_year2'] = (int) date('Y');
-
-        $comparisons = $this->clientProgramRepository->getComparisonBetweenYears($cp_filter);
-
-        # on client event tab
-        $cp_filter['qyear'] = 'current';
-        $events = [];
-        if ($this->eventRepository->getEventsWithParticipants($cp_filter)->count() > 0) {
-            $events = $this->eventRepository->getEventsWithParticipants($cp_filter);
-            $cp_filter['eventId'] = $events[0]->event_id;
-        }
-
-
-        $conversion_lead_of_event = $this->clientEventRepository->getConversionLead($cp_filter);
-
-        return [
-            'totalClientInformation' => $totalClientByStatus,
-            'followUpReminder' => $followUpReminder,
-            'menteesBirthday' => $menteesBirthday,
-
-            # client program tab
-            'employees' => $employees,
-            'clientProgramGroupByStatus' => $totalAllClientProgramByStatus,
-            'admissionsMentoring' => $admissionsMentoring,
-            'initialConsultation' => $initialConsultation,
-            'totalInitialConsultation' => $totalInitialConsultation,
-            'successProgram' => $successProgram,
-            'initialAssessmentMaking' => $initialAssessmentMaking,
-            'conversionTimeProgress' => $conversionTimeProgress,
-            'successPercentage' => $successPercentage,
-            'allSuccessProgramByMonth' => $allSuccessProgramByMonth,
-            'totalRevenueAdmissionMentoring' => $totalRevenueAdmMentoringByProgramAndMonth,
-            'academicTestPrep' => $academicTestPrep,
-            'totalRevenueAcadTestPrepByMonth' => $totalRevenueAcadTestPrepByMonth,
-            'careerExploration' => $careerExploration,
-            'totalRevenueCareerExplorationByMonth' => $totalRevenueCareerExplorationByMonth,
-            'leadSource' => $leadSource,
-            'conversionLeads' => $conversionLeads,
-            'adminssionMentoringConvLead' => $admissionMentoringConvLead,
-            'academicTestPrepConvLead' => $academicTestPrepConvLead,
-            'careerExplorationConvLead' => $careerExplorationConvLead,
-
-            # sales target tab
-            'salesTarget' => $salesTarget,
-            'salesActual' => $salesActual,
-            'salesDetail' => $salesDetail,
-
-            # program comparison
-            'allPrograms' => $allPrograms,
-            'comparisons' => $comparisons,
-
-            # client event tab
-            'events' => $events,
-            'conversion_lead_of_event' => $conversion_lead_of_event
-        ];
-    }
-
-    private function calculatePercentage($total_data, $monthly_data)
-    {
-        if ($total_data == 0)
-            return "0,00";
-
-        return number_format(($monthly_data / $total_data) * 100, 2, ',', '.');
     }
 
     public function indexPartnership($request)
@@ -294,10 +98,10 @@ class DashboardController extends Controller
         $totalPartner = $this->corporateRepository->getAllCorporate()->count();
         $totalSchool = $this->schoolRepository->getAllSchools()->count();
         $totalUniversity = $this->universityRepository->getAllUniversities()->count();
-        $totalAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly(date('Y-m'), 'total');
-        $newPartner = $this->corporateRepository->getCorporateByMonthly(date('Y-m'), 'total');
-        $newSchool = $this->schoolRepository->getSchoolByMonthly(date('Y-m'), 'total');
-        $newUniversity = $this->universityRepository->getUniversityByMonthly(date('Y-m'), 'total');
+        $totalAgreement = $this->partnerAgreementRepository->getPartnerAgreementByMonthly(date('Y-m'), 'all');
+        $newPartner = $this->corporateRepository->getCorporateByMonthly(date('Y-m'), 'monthly');
+        $newSchool = $this->schoolRepository->getSchoolByMonthly(date('Y-m'), 'monthly');
+        $newUniversity = $this->universityRepository->getUniversityByMonthly(date('Y-m'), 'monthly');
 
         // Tab Agenda
         $speakers = $this->agendaSpeakerRepository->getAllSpeakerDashboard('all', $date);
@@ -379,15 +183,14 @@ class DashboardController extends Controller
         $totalInvoiceB2b = $this->invoiceB2bRepository->getTotalInvoice(date('Y-m'));
         $totalInvoiceB2c = $this->invoiceProgramRepository->getTotalInvoice(date('Y-m'));
 
-        $totalRefundRequestB2b = $this->invoiceB2bRepository->getTotalRefundRequest(date('Y-m'));
-        $totalRefundRequestB2c = $this->invoiceProgramRepository->getTotalRefundRequest(date('Y-m'));
+        // $totalRefundRequestB2b = $this->invoiceB2bRepository->getTotalRefundRequest(date('Y-m'));
+        // $totalRefundRequestB2c = $this->invoiceProgramRepository->getTotalRefundRequest(date('Y-m'));
 
         $totalReceipt = $this->receiptRepository->getTotalReceipt(date('Y-m'));
 
-        $totalInvoiceNeeded = collect($totalInvoiceNeededB2b)->merge($totalInvoiceNeededB2c)->sum('count_invoice_needed');
-        $totalInvoice = collect($totalInvoiceB2b)->merge($totalInvoiceB2c);
+        $totalInvoiceNeeded = collect($totalInvoiceNeededB2b)->merge($totalInvoiceNeededB2c);
 
-        $totalRefundRequest = collect($totalRefundRequestB2b)->merge($totalRefundRequestB2c)->sum('count_refund_request');
+        $totalRefundRequest = $this->refundRepository->getTotalRefundRequest(date('Y-m'));
 
         $paidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment(date('Y-m'), 'paid', null, null);
         $paidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment(date('Y-m'), 'paid');
@@ -410,11 +213,24 @@ class DashboardController extends Controller
             }
         );
 
+        $totalInvoice[0] = [
+            'count_invoice' => count($totalInvoiceB2b) + count($totalInvoiceB2b),
+            'total' => $totalInvoiceB2b->where('invb2b_pm', 'Full Payment')->sum('invb2b_totpriceidr') + $totalInvoiceB2b->where('invb2b_pm', 'Installment')->sum('invdtl_amountidr')
+        ];
+
+        $totalInvoice[1] = [
+            'count_invoice' => count($totalInvoiceB2c),
+            'total' => $totalInvoiceB2c->where('inv_paymentmethod', 'Full Payment')->sum('inv_totalprice_idr') + $totalInvoiceB2c->where('inv_paymentmethod', 'Installment')->sum('invdtl_amountidr')
+        ];
+
         return [
-            'totalInvoiceNeeded' => $totalInvoiceNeeded,
+            'invoiceNeededToday' => count($totalInvoiceNeeded->where('success_date', date('Y-m-d'))),
+            'outstandingToday' => count($unpaidPayments->where('invoice_duedate', date('Y-m-d'))),
+            'refundRequestToday' => count($totalRefundRequest->where('refund_date', date('Y-m-d'))),
+            'totalInvoiceNeeded' => count($totalInvoiceNeeded),
             'totalInvoice' => $totalInvoice,
             'totalReceipt' => $totalReceipt,
-            'totalRefundRequest' => $totalRefundRequest,
+            'totalRefundRequest' => count($totalRefundRequest),
             'paidPayments' => $paidPayments,
             'unpaidPayments' => $unpaidPayments,
             'totalOutstanding' => $totalOutstanding,

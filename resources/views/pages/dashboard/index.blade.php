@@ -63,6 +63,8 @@
                             "</tr>"
                     })
 
+                    $(".dashboard-pc--year_1").html(first_year)
+                    $(".dashboard-pc--year_2").html(second_year)
                     $("#comparison-table tbody").html(html)
 
                 }).catch(function(error) {
@@ -111,7 +113,7 @@
         });
 
         $(".qdate").on('change', function() {
-
+            showLoading()
             var month = $(this).val()
             $(".qdate").val(month)
             var uuid = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()

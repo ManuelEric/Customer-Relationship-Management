@@ -29,39 +29,44 @@
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
-                    <h4>{{ $partner->corp_name }}</h4>
-                    <h6>
-                        @if (isset($referral->prog_id))
-                            {{ $referral->program->sub_prog ? $referral->program->sub_prog->sub_prog_name . ' - ' : '' }}{{ $referral->program->prog_program }}
-                        @else
-                            {{ $referral->additional_prog_name }}
-                        @endif
-                    </h6>
+                    <h4><a class="text-dark text-decoration-none" href="{{ route('corporate.show', ['corporate' => $partner->corp_id]) }}">{{ $partner->corp_name }}</a></h4>
+                    <a
+                        href="{{ route('referral.show', ['referral' =>  $referral->id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">                    
+                        <h6 class="d-flex flex-column">
+                            @if (isset($referral->prog_id))
+                                {{ $referral->program->program_name }}
+                            @else
+                                {{ $referral->additional_prog_name }}
+                            @endif
+                        </h6>
+                    </a> 
                 </div>
             </div>
 
             {{-- Tools  --}}
-            @if (isset($invoiceRef))
+            @if (isset($invoiceRef) && !isset($invoiceRef->refund))
                 <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
-                    <div class="border p-1 text-center flex-fill">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
-                                <a href="{{ $status == 'edit' ? url('invoice/referral/' . $referral->id . '/detail/' . $invoiceRef->invb2b_num) : url('invoice/referral/' . $referral->id . '/detail/' . $invoiceRef->invb2b_num . '/edit') }}"
-                                    class="text-warning">
-                                    <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}"></i>
-                                </a>
+                    {{-- @if (isset($invoiceRef) && !isset($invoiceRef->receipt)) --}}
+                        <div class="border p-1 text-center flex-fill">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
+                                    <a href="{{ $status == 'edit' ? url('invoice/referral/' . $referral->id . '/detail/' . $invoiceRef->invb2b_num) : url('invoice/referral/' . $referral->id . '/detail/' . $invoiceRef->invb2b_num . '/edit') }}"
+                                        class="text-warning">
+                                        <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}"></i>
+                                    </a>
+                                </div>
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Cancel"
+                                    onclick="confirmDelete('{{ 'invoice/referral/' . $referral->id . '/detail' }}', {{ $invoiceRef->invb2b_num }})">
+                                    <a href="#" class="text-danger">
+                                        <i class="bi bi-trash2"></i>
+                                    </a>
+                                </div>
                             </div>
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Cancel"
-                                onclick="confirmDelete('{{ 'invoice/referral/' . $referral->id . '/detail' }}', {{ $invoiceRef->invb2b_num }})">
-                                <a href="#" class="text-danger">
-                                    <i class="bi bi-trash2"></i>
-                                </a>
-                            </div>
+                            <hr class="my-1">
+                            <small>General</small>
                         </div>
-                        <hr class="my-1">
-                        <small>General</small>
-                    </div>
+                    {{-- @endif --}}
 
                     @if (!isset($invoiceRef->refund))
                         {{-- IDR  --}}
@@ -93,8 +98,9 @@
                                         </a>
                                     </div>
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Send to Client">
-                                        <a href="#" class="text-info" id="send-inv-client-idr">
+                                        data-bs-title="Send to Client"
+                                        onclick="confirmSendToClient('{{ url('/') }}/invoice/referral/{{ $invoiceRef->invb2b_num }}/send', 'idr', 'invoice')">
+                                        <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
                                     </div>
@@ -134,8 +140,9 @@
                                             </a>
                                         </div>
                                         <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                            data-bs-title="Send to Client">
-                                            <a href="#" class="text-info" id="send-inv-client-other">
+                                            data-bs-title="Send to Client"
+                                            onclick="confirmSendToClient('{{ url('/') }}/invoice/referral/{{ $invoiceRef->invb2b_num }}/send', 'other', 'invoice')">
+                                            <a href="#" class="text-info">
                                                 <i class="bi bi-send"></i>
                                             </a>
                                         </div>
@@ -213,12 +220,12 @@
                     <div class="">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-person me-2"></i>
-                            Invoice
+                            {{ isset($invoiceRef) ?  'Invoice : '. $invoiceRef->invb2b_id : ''}}
                         </h6>
                     </div>
                     <div class="">
                         @if (isset($invoiceRef) && !isset($invoiceRef->receipt) && $invoiceRef->invb2b_pm == 'Full Payment' && $status != 'edit')
-                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoiceRef->invb2b_totprice) && $invoiceRef->currency != 'idr' ? $invoiceRef->invb2b_totprice : $invoiceRef->invb2b_totpriceidr}}', '{{ $invoiceRef->currency != 'idr' ? 'other' : 'idr' }}')">
+                            <button class="btn btn-sm btn-outline-primary py-1" onclick="checkReceipt('{{isset($invoiceRef->invb2b_totprice) && $invoiceRef->currency != 'idr' ? $invoiceRef->invb2b_totprice : $invoiceRef->invb2b_totpriceidr}}', '{{ $invoiceRef->currency != 'idr' ? 'other' : 'idr' }}', '{{isset($invoiceRef->invb2b_totpriceidr) ? $invoiceRef->invb2b_totpriceidr : null}}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -339,7 +346,7 @@
                                         <label for="">Invoice Due Date</label>
                                         <input type="date" name="invb2b_duedate" id=""
                                             class='form-control form-control-sm rounded'
-                                            value="{{ isset($invoiceRef) ? $invoiceRef->invb2b_duedate : old('invb2b_duedate') }}"
+                                            value="{{ isset($invoiceRef) ? date('Y-m-d', strtotime($invoiceRef->invb2b_duedate)) : old('invb2b_duedate') }}"
                                             {{ empty($invoiceRef) || $status == 'edit' ? '' : 'disabled' }}>
                                         @error('invb2b_duedate')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -549,13 +556,13 @@
                 var curs_rate = $("#current_rate").val();
                 switch (currency) {
                     case 'usd':
-                        currency = ' Dollar';
+                        currency = ' Dollars';
                         break;
                     case 'sgd':
-                        currency = ' Singapore Dollar';
+                        currency = ' Singapore Dollars';
                         break;
                     case 'gbp':
-                        currency = ' Pound';
+                        currency = ' British Pounds';
                         break;
                     default:
                         currency = '';
@@ -593,7 +600,7 @@
             }
         }
 
-        function checkReceipt(amount, type) {
+        function checkReceipt(amount, type, amount_idr) {
             let cur = $('#currency').val()
             let detail = $('#currency_detail').val()
             
@@ -601,17 +608,17 @@
                 $('#receipt_amount_other').val(amount)
 
                 var val =  $('#receipt_amount_other').val()
-                var currency = $("#receipt input[name=currency]").val()
+                var currency = detail
                 var curs_rate = $("#current_rate").val();
                 switch (currency) {
                     case 'usd':
-                        currency = ' Dollar';
+                        currency = ' Dollars';
                         break;
                     case 'sgd':
-                        currency = ' Singapore Dollar';
+                        currency = ' Singapore Dollars';
                         break;
                     case 'gbp':
-                        currency = ' Pound';
+                        currency = ' British Pounds';
                         break;
                     default:
                         currency = '';
@@ -619,8 +626,8 @@
                         break;
                 }
                 $("#receipt_word_other").val(wordConverter(val) + currency)
-                $("#receipt_amount").val(val * curs_rate)
-                $("#receipt_word").val(wordConverter(val * curs_rate) + " Rupiah")
+                $("#receipt_amount").val(amount_idr)
+                $("#receipt_word").val(wordConverter(amount_idr) + " Rupiah")
             }else{
                 $('#receipt_amount').val(amount)
                 var val = $('#receipt_amount').val()
@@ -707,46 +714,25 @@
     @endif
 
     <script>
-        @if (isset($invoiceRef))
-            $("#send-inv-client-idr").on('click', function(e) {
-                e.preventDefault()
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get(
-                        '{{ route('invoice-ref.send_to_client', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'idr']) }}'
-                    )
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Invoice has been send to client')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error',
-                            'Something went wrong when sending invoice to client. Please try again');
-                        swal.close()
-                    })
-            })
+        function sendToClient(link) {
+            
+            showLoading()
+            axios
+                .get(link)
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Invoice has been send to client')
+                    setTimeout(location.reload.bind(location), 3000);
+                    
+                    $("#sendToClient--modal").modal('hide');
+                })
+                .catch(error => {
+                    notification('error', 'Something went wrong when sending invoice to client. Please try again');
+                    swal.close()
+                })
+        }
 
-            $("#send-inv-client-other").on('click', function(e) {
-                e.preventDefault()                
-                confirm("Are yo sure send to client?");
-                Swal.showLoading()
-                axios
-                    .get(
-                        '{{ route('invoice-ref.send_to_client', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'other']) }}'
-                    )
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Invoice has been send to client')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error',
-                            'Something went wrong when sending invoice to client. Please try again');
-                        swal.close()
-                    })
-            })
+        @if (isset($invoiceRef))
 
             $("#request-acc").on('click', function(e) {
                 e.preventDefault();

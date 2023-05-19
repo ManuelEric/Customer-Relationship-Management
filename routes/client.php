@@ -42,6 +42,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
+    Route::post('import', [ClientStudentController::class, 'import'])->name('import');
     Route::get('{student}/status/{status}', [ClientStudentController::class, 'updateStatus'])->name('update.status');
 
     Route::resource('{student}/program', ClientProgramController::class);
@@ -54,8 +55,9 @@ Route::resource('mentee', ClientMenteeController::class);
 
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
 Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function () {
+    Route::post('import', [ClientTeacherCounselorController::class, 'import'])->name('import');
     Route::get('{teacher}/status/{status}', [ClientTeacherCounselorController::class, 'updateStatus'])->name('update.status');
 });
 
-Route::get('parent/export_excel', [ClientParentController::class, 'download_template']);
 Route::resource('parent', ClientParentController::class);
+Route::post('parent/import', [ClientParentController::class, 'import'])->name('parent.import');

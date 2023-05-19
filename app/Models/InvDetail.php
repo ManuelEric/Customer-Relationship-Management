@@ -57,6 +57,13 @@ class InvDetail extends Model
         return $unit;
     }
 
+    public function invdtlDuedate(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('M d, Y', strtotime($value)),
+        );
+    }
+
     protected function invoicedtlAmount(): Attribute
     {
         return Attribute::make(
@@ -67,7 +74,7 @@ class InvDetail extends Model
     protected function invoicedtlAmountidr(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => "Rp. " . number_format($this->invdtl_amountidr, '2', ',', '.')
+            get: fn ($value) => "Rp. " . number_format($this->invdtl_amountidr)
         );
     }
 

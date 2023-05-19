@@ -7,19 +7,22 @@ use Illuminate\Http\Request;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
+use App\Interfaces\RefundRepositoryInterface;
 
 class FinanceDashboardController extends Controller
 {
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
     protected ReceiptRepositoryInterface $receiptRepository;
+    protected RefundRepositoryInterface $refundRepository;
 
 
-    public function __construct(InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository)
+    public function __construct(InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository)
     {
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceProgramRepository = $invoiceProgramRepository;
         $this->receiptRepository = $receiptRepository;
+        $this->refundRepository = $refundRepository;
     }
 
 
@@ -33,14 +36,14 @@ class FinanceDashboardController extends Controller
         $totalInvoiceB2b = $this->invoiceB2bRepository->getTotalInvoice($monthYear);
         $totalInvoiceB2c = $this->invoiceProgramRepository->getTotalInvoice($monthYear);
 
-        $totalRefundRequestB2b = $this->invoiceB2bRepository->getTotalRefundRequest($monthYear);
-        $totalRefundRequestB2c = $this->invoiceProgramRepository->getTotalRefundRequest($monthYear);
+        // $totalRefundRequestB2b = $this->invoiceB2bRepository->getTotalRefundRequest($monthYear);
+        // $totalRefundRequestB2c = $this->invoiceProgramRepository->getTotalRefundRequest($monthYear);
 
         $totalReceipt = $this->receiptRepository->getTotalReceipt($monthYear);
 
-        $totalInvoiceNeeded = collect($totalInvoiceNeededB2b)->merge($totalInvoiceNeededB2c)->sum('count_invoice_needed');
+        $totalInvoiceNeeded = collect($totalInvoiceNeededB2b)->merge($totalInvoiceNeededB2c);
 
-        $totalRefundRequest = collect($totalRefundRequestB2b)->merge($totalRefundRequestB2c)->sum('count_refund_request');
+        $totalRefundRequest = $this->refundRepository->getTotalRefundRequest($monthYear);
 
         $unpaidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
         $unpaidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
@@ -60,10 +63,13 @@ class FinanceDashboardController extends Controller
         ];
 
         $data = [
-            'totalInvoiceNeeded' => $totalInvoiceNeeded,
+            'invoiceNeededToday' => count($totalInvoiceNeeded->where('success_date', date('Y-m-d'))),
+            'outstandingToday' => $unpaidPayments->where('invoice_duedate', date('Y-m-d')),
+            'refundRequestToday' => $totalRefundRequest->where('refund_date', date('Y-m-d')),
+            'totalInvoiceNeeded' => count($totalInvoiceNeeded),
             'totalInvoice' => $totalInvoice,
             'totalReceipt' => $totalReceipt,
-            'totalRefundRequest' => $totalRefundRequest,
+            'totalRefundRequest' => count($totalRefundRequest),
             'totalOutstanding' => $totalOutstanding,
             'monthYear' => $monthYear,
 
@@ -216,5 +222,84 @@ class FinanceDashboardController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    public function getFinanceDetailByMonth(Request $request)
+    {
+        $monthYear = $request->route('month');
+        $type = $request->route('type');
+
+        $index = 1;
+        $html = '';
+
+        switch ($type) {
+            case 'invoice-needed':
+                $invoiceNeededB2b = $this->invoiceB2bRepository->getTotalInvoiceNeeded($monthYear);
+                $invoiceNeededB2c = $this->invoiceProgramRepository->getTotalInvoiceNeeded($monthYear);
+
+                $invoiceNeeded = collect($invoiceNeededB2b)->merge($invoiceNeededB2c);
+                if ($invoiceNeeded->count() == 0)
+                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+
+                foreach ($invoiceNeeded as $inv) {
+
+                    $html .= '<tr' . ($inv->success_date == date('Y-m-d') ?  ' class="table-danger"' : '') . '>
+                        <td>' . $index++ . '</td>
+                        <td>' . $inv->client_name . '</td>
+                        <td>' . $inv->program_name . '</td>
+                        <td>' . date('M d, Y', strtotime($inv->success_date)) . '</td>
+                        <td>' . $inv->pic_name . '</td>
+                    </tr>';
+                }
+                break;
+
+            case 'outstanding':
+                $unpaidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
+                $unpaidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment($monthYear, 'unpaid');
+
+                $unpaidPayments = collect($unpaidPaymentB2b)->merge($unpaidPaymentB2c);
+                if ($unpaidPayments->count() == 0)
+                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+
+                foreach ($unpaidPayments as $unpaidPayment) {
+
+                    $html .= '<tr' . ($unpaidPayment->invoice_duedate == date('Y-m-d') ?  ' class="table-danger"' : '') . '>
+                            <td>' . $index++ . '</td>
+                            <td>' . $unpaidPayment->full_name . '</td>
+                            <td>' . $unpaidPayment->invoice_id . '</td>
+                            <td>' . $unpaidPayment->type . '</td>
+                            <td>' . $unpaidPayment->program_name . '</td>
+                            <td>' . (isset($unpaidPayment->installment_name) ? $unpaidPayment->installment_name : '-') . '</td>
+                            <td>' . date('M d, Y', strtotime($unpaidPayment->invoice_duedate)) . '</td>
+                            <td> Rp. ' . number_format($unpaidPayment->total) . '</td>
+                        </tr.>';
+                }
+                break;
+
+            case 'refund-request':
+                $refundRequest = $this->refundRepository->getTotalRefundRequest($monthYear);
+                if ($refundRequest->count() == 0)
+                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+
+                foreach ($refundRequest as $refund_req) {
+
+                    $html .= '<tr' . ($refund_req->refund_date == date('Y-m-d') ?  ' class="table-danger"' : '') . '>
+                            <td>' . $index++ . '</td>
+                            <td>' . $refund_req->client_fullname . '</td>
+                            <td>' . $refund_req->receipt_id . '</td>
+                            <td>' . $refund_req->program_name . '</td>
+                            <td>' . date('M d, Y', strtotime($refund_req->refund_date)) . '</td>
+                            <td>' . $refund_req->pic_name . '</td>
+                        </tr>';
+                }
+                break;
+        }
+
+        return response()->json(
+            [
+                'title' => 'List of ' . ucwords($type),
+                'html_ctx' => $html
+            ]
+        );
     }
 }

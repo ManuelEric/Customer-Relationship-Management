@@ -20,17 +20,17 @@ return new class extends Migration
             c.st_grade,
             r.reason_name as reason,
             CONCAT(c.first_name, " ", COALESCE(c.last_name, "")) as fullname,
-            (CASE
-                WHEN sp.sub_prog_name COLLATE utf8mb4_unicode_ci IS NOT NULL THEN CONCAT(sp.sub_prog_name COLLATE utf8mb4_unicode_ci, " - ", p.prog_program COLLATE utf8mb4_unicode_ci, " - ", mp.prog_name COLLATE utf8mb4_unicode_ci)
-                ELSE
-                CONCAT(p.prog_program COLLATE utf8mb4_unicode_ci, " - ", mp.prog_name COLLATE utf8mb4_unicode_ci)
-            END) AS program_name,
+            CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_fullname,
+            parent.phone as parent_phone,
+            parent.mail as parent_mail,
+            p.program_name,
             (CASE WHEN cp.status = 0 THEN "Pending"
                 WHEN cp.status = 1 THEN "Success"
                 WHEN cp.status = 2 THEN "Failed"
                 WHEN cp.status = 3 THEN "Refund"
             END) AS program_status,
             CONCAT(u.first_name, " ", u.last_name) AS pic_name,
+            u.email as pic_mail,
             (CASE 
                 WHEN cl.main_lead = "KOL" THEN CONCAT("KOL - ", cl.sub_lead)
                 WHEN cl.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", cedl.title)
@@ -48,12 +48,8 @@ return new class extends Migration
                     LEFT JOIN users squ ON squ.id = sqcm.user_id
                     WHERE sqcm.clientprog_id = cp.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name        
         FROM tbl_client_prog cp
-            LEFT JOIN tbl_prog p
+            LEFT JOIN program p
                 ON p.prog_id = cp.prog_id
-                    LEFT JOIN tbl_main_prog mp
-                        ON mp.id = p.main_prog_id
-                    LEFT JOIN tbl_sub_prog sp
-                        ON sp.id = p.sub_prog_id
             LEFT JOIN tbl_client c
                 ON c.id = cp.client_id
                     LEFT JOIN tbl_lead cl
@@ -62,6 +58,10 @@ return new class extends Migration
                                 ON cedl.id = c.eduf_id
                             LEFT JOIN tbl_events cec
                                 ON cec.event_id = c.event_id
+            LEFT JOIN tbl_client_relation cr
+                ON cr.child_id = c.id
+            LEFT JOIN tbl_client parent
+                ON parent.id = cr.parent_id
             LEFT JOIN users u
                 ON u.id = cp.empl_id
             LEFT JOIN tbl_lead cpl

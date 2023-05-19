@@ -605,12 +605,14 @@ class SalesDashboardController extends Controller
             foreach ($leadSource as $source) {
                 $dataset_leadsource_labels[] = $source->lead_source;
                 $dataset_leadsource[] = $source->lead_source_count;
+                $dataset_leadsource_bgcolor[] = $source->color_code;
             }
 
             $conversionLeads = $this->clientProgramRepository->getConversionLead($dateDetails, $cp_filter);
             foreach ($conversionLeads as $source) {
                 $dataset_conversionlead_labels[] = $source->conversion_lead;
                 $dataset_conversionlead[] = $source->conversion_lead_count;
+                $dataset_conversionlead_bgcolor[] = $source->color_code;
             }
 
         } catch (Exception $e) {
@@ -630,11 +632,12 @@ class SalesDashboardController extends Controller
                     'ctx_leadsource' => [
                         'label' => $dataset_leadsource_labels,
                         'dataset' => $dataset_leadsource,
+                        'bgcolor' => $dataset_leadsource_bgcolor
                     ],
                     'ctx_conversionlead' => [
                         'label' => $dataset_conversionlead_labels,
                         'dataset' => $dataset_conversionlead,
-
+                        'bgcolor' => $dataset_conversionlead_bgcolor
                     ]
                 ]
             ]
@@ -644,7 +647,7 @@ class SalesDashboardController extends Controller
 
     public function getLeadAdmissionsProgramByMonth(Request $request)
     {
-        $dataset_lead_labels = $dataset_lead = [];
+        $dataset_lead_labels = $dataset_lead = $dataset_bgcolor = [];
         $cp_filter['qdate'] = $request->route('month');
         $cp_filter['quuid'] = $request->route('user') ?? null;
         $cp_filter['prog'] = 'Admissions Mentoring';
@@ -661,6 +664,7 @@ class SalesDashboardController extends Controller
 
                 $dataset_lead_labels[] = $source->conversion_lead;
                 $dataset_lead[] = $source->conversion_lead_count;
+                $dataset_bgcolor[] = $source->color_code;
             }
 
         } catch (Exception $e) {
@@ -680,6 +684,7 @@ class SalesDashboardController extends Controller
                     'ctx' => [
                         'label' => $dataset_lead_labels,
                         'dataset' => $dataset_lead,
+                        'bgcolor' => $dataset_bgcolor
                     ]
                 ]
             ]
@@ -689,7 +694,7 @@ class SalesDashboardController extends Controller
 
     public function getLeadAcademicPrepByMonth(Request $request)
     {
-        $dataset_lead_labels = $dataset_lead = [];
+        $dataset_lead_labels = $dataset_lead = $dataset_bgcolor = [];
         $cp_filter['qdate'] = $request->route('month');
         $cp_filter['quuid'] = $request->route('user') ?? null;
         $cp_filter['prog'] = 'Academic & Test Preparation';
@@ -706,6 +711,7 @@ class SalesDashboardController extends Controller
 
                 $dataset_lead_labels[] = $source->conversion_lead;
                 $dataset_lead[] = $source->conversion_lead_count;
+                $dataset_bgcolor[] = $source->color_code;
             }
 
         } catch (Exception $e) {
@@ -725,6 +731,7 @@ class SalesDashboardController extends Controller
                     'ctx' => [
                         'label' => $dataset_lead_labels,
                         'dataset' => $dataset_lead,
+                        'bgcolor' => $dataset_bgcolor
                     ]
                 ]
             ]
@@ -733,7 +740,7 @@ class SalesDashboardController extends Controller
 
     public function getLeadCareerExplorationByMonth(Request $request)
     {
-        $dataset_lead_labels = $dataset_lead = [];
+        $dataset_lead_labels = $dataset_lead = $dataset_bgcolor = [];
         $cp_filter['qdate'] = $request->route('month');
         $cp_filter['quuid'] = $request->route('user') ?? null;
         $cp_filter['prog'] = 'Career Exploration';
@@ -750,6 +757,7 @@ class SalesDashboardController extends Controller
 
                 $dataset_lead_labels[] = $source->conversion_lead;
                 $dataset_lead[] = $source->conversion_lead_count;
+                $dataset_bgcolor[] = $source->color_code;
             }
 
         } catch (Exception $e) {
@@ -769,6 +777,7 @@ class SalesDashboardController extends Controller
                     'ctx' => [
                         'label' => $dataset_lead_labels,
                         'dataset' => $dataset_lead,
+                        'bgcolor' => $dataset_bgcolor
                     ]
                 ]
             ]
@@ -799,14 +808,16 @@ class SalesDashboardController extends Controller
         $html = '';
         $no = 1;
         foreach ($salesDetail as $detail) {
-            $percentage_participant = $detail->total_target_participant != 0 ? ($detail->total_actual_participant/$detail->total_target_participant) * 100 : 0;
+            $percentage_participant = $detail->total_target_participant != 0 ? round(($detail->total_actual_participant/$detail->total_target_participant) * 100, 2) : 0;
             $percentage_revenue = $detail->total_target_amount != 0 ? ($detail->total_actual_amount/$detail->total_target_amount) * 100 : 0;
+
+            $target_student = $detail->total_target_participant ??= 0;
 
             $html .= '<tr class="text-center">
                     <td>'.$no++.'</td>
                     <td>'.$detail->prog_id.'</td>
                     <td class="text-start">'.$detail->program_name_sales.'</td>
-                    <td>'.$detail->total_target_participant.'</td>
+                    <td>'.$target_student.'</td>
                     <td>'.number_format($detail->total_target_amount,'2',',','.').'</td>
                     <td>'.$detail->total_actual_participant.'</td>
                     <td>'.number_format($detail->total_actual_amount,'2',',','.').'</td>
@@ -899,7 +910,7 @@ class SalesDashboardController extends Controller
     # 
     public function compare_program(Request $request)
     {
-        $query_programs_array = explode(',', $request->prog);
+        $query_programs_array = isset($request->prog) ? explode(',', $request->prog) : null;
         $query_year_1 = $request->first_year;
         $query_year_2 = $request->second_year;
         $user = $request->u;

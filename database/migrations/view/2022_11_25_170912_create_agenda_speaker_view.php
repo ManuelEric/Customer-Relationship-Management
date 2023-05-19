@@ -15,11 +15,12 @@ return new class extends Migration
     public function up()
     {
         DB::statement("
-        CREATE OR REPLACE VIEW Agenda AS
+        CREATE OR REPLACE VIEW agenda AS
         SELECT 
             asp.id as agenda_id,
             asp.sch_prog_id,
             asp.partner_prog_id,
+            asp.eduf_id,
             e.event_id,
             e.event_title,
             e.event_description,
@@ -83,6 +84,8 @@ return new class extends Migration
                             ON mp2.id = p2.main_prog_id
                            LEFT JOIN tbl_sub_prog sp2
                             ON sp2.id = p2.sub_prog_id
+        LEFT JOIN tbl_eduf_lead edl
+            ON edl.id = asp.eduf_id
         ");
     }
 

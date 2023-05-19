@@ -7,7 +7,10 @@ use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
 use App\Models\Lead;
+use App\Models\Role;
+use App\Models\School;
 use App\Models\UserClient;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -18,14 +21,27 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Models\Major;
+use App\Models\Tag;
+use App\Models\UserClientAdditionalInfo;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Validators\Failure;
 
 class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
+
 {
     /**
      * @param Collection $collection
      */
 
     use Importable;
+    use StandardizePhoneNumberTrait;
+    use CreateCustomPrimaryKeyTrait;
 
     public function collection(Collection $rows)
     {
@@ -33,24 +49,190 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
 
         DB::beginTransaction();
         try {
+
+
             foreach ($rows as $row) {
 
-                $data = [
-                    'client_id' => $row['client_name'],
-                    'event_id' => $row['event_name'],
-                    'partner_id' => $row['partner_name'],
-                    'lead_id' => $row['conversion_lead'],
-                    'eduf_id' => $row['edufair_name'],
-                    'joined_date' => $row['joined_date'],
-                    'status' => $row['status'],
-                ];
+                // Check existing client by phone number
+                $phone = $this->setPhoneNumber($row['phone_number']);
 
-                if ($row['conversion_lead'] == 'KOL') {
-                    $data['lead_id'] = $row['kol_name'];
-                } else {
+                # From tbl client
+                $client_phone = UserClient::select('id', 'phone')->get();
+                $std_phone = $client_phone->map(function ($item, int $key) {
+                    return [
+                        'id' => $item['id'],
+                        'phone' => $this->setPhoneNumber($item['phone'])
+                    ];
+                });
+
+                $client = $std_phone->where('phone', $phone)->first();
+
+                if (!isset($client)) {
+
+                    # From tbl client additional info
+                    $client_phone = UserClientAdditionalInfo::select('client_id', 'value')->get();
+                    $std_phone = $client_phone->map(function ($item, int $key) {
+                        return [
+                            'id' => $item['client_id'],
+                            'phone' => $this->setPhoneNumber($item['value'])
+                        ];
+                    });
+
+                    $client = $std_phone->where('phone', $phone)->first();
                 }
 
-                ClientEvent::insert($data);
+                // Check existing school
+                $school = School::where('sch_name', $row['school'])->get()->pluck('sch_id')->first();
+
+                if (!isset($school)) {
+                    $newSchool = $this->createSchoolIfNotExists($row['school']);
+                }
+
+                $majorDetails = [];
+                $destinationCountryDetails = [];
+
+                //  Set major
+                if (isset($row['itended_major'])) {
+                    $majors = explode(', ', $row['itended_major']);
+                    foreach ($majors as $major) {
+                        $majorFromDB = Major::where('name', $major)->first();
+                        if (isset($majorFromDB)) {
+                            $majorDetails[] = [
+                                'major_id' => $majorFromDB->id,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+                        } else {
+                            $newMajor = Major::create(['name' => $major]);
+                            $majorDetails[] = [
+                                'major_id' => $newMajor->id,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+                        }
+                    }
+                }
+
+                // Set destination country
+                if (isset($row['destination_country'])) {
+                    $countries = explode(', ', $row['destination_country']);
+                    foreach ($countries as $country) {
+                        switch ($country) {
+
+                            case preg_match('/australia/i', $country) == 1:
+                                $regionName = "Australia";
+                                break;
+
+                            case preg_match(
+                                "/United State|State|US/i",
+                                $country
+                            ) == 1:
+                                $regionName = "US";
+                                break;
+
+                            case preg_match('/United Kingdom|Kingdom|UK/i', $country) == 1:
+                                $regionName = "UK";
+                                break;
+
+                            case preg_match('/canada/i', $country) == 1:
+                                $regionName = "Canada";
+                                break;
+
+                            default:
+                                $regionName = "Other";
+                        }
+
+                        $tagFromDB = Tag::where('name', $regionName)->first();
+                        if (isset($tagFromDB)) {
+                            $destinationCountryDetails[] = [
+                                'tag_id' => $tagFromDB->id,
+                                'country_name' => $regionName == 'Other' ? $country : null,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+                        } else {
+                            // $newCountry = Tag::create(['name' => $regionName]);
+                            $destinationCountryDetails[] = [
+                                'tag_id' => 7,
+                                'country_name' => $country,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+                        }
+                    }
+                }
+
+                //  insert new client
+                if (!isset($client)) {
+                    $roleId = Role::whereRaw('LOWER(role_name) = (?)', [strtolower($row['audience'])])->first();
+
+                    $fullname = explode(' ', $row['name']);
+                    $limit = count($fullname);
+
+                    $firstname = $lastname = null;
+                    if ($limit > 1) {
+                        $lastname = $fullname[$limit - 1];
+                        unset($fullname[$limit - 1]);
+                        $firstname = implode(" ", $fullname);
+                    } else {
+                        $firstname = implode(" ", $fullname);
+                    }
+
+                    $studentId = null;
+                    if ($row['audience'] == 'Student') {
+                        $last_id = UserClient::max('st_id');
+                        $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                        $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+                    }
+
+                    $st_grade = 12 - ($row['class_of'] - date('Y'));
+
+                    $dataClient = [
+                        'sch_id' => isset($school) ? $school : $newSchool->sch_id,
+                        'st_id' => isset($studentId) ? $studentId : null,
+                        'last_name' => $lastname,
+                        'first_name' => $firstname,
+                        'mail' => isset($row['email']) && $row['email'] != '' ? $row['email'] : null,
+                        'phone' => $phone,
+                        'graduation_year' => $row['class_of'],
+                        'st_grade' => $st_grade
+                    ];
+
+                    if (!$newClient = UserClient::create($dataClient)) {
+                        throw new Exception('Failed to store new client');
+                        Log::error('Failed to store new client');
+                    } else {
+                        $thisNewClient = UserClient::find($newClient->id);
+
+                        $thisNewClient->roles()->attach($roleId);
+                        isset($majorDetails) ? $thisNewClient->interestMajor()->sync($majorDetails) : '';
+                        isset($destinationCountryDetails) ? $thisNewClient->destinationCountries()->sync($destinationCountryDetails) : null;
+                    }
+                } else {
+                    // Exist client
+                    $existClient = UserClient::find($client['id']);
+                    isset($majorDetails) ? $existClient->interestMajor()->sync($majorDetails) : '';
+                    isset($destinationCountryDetails) ? $existClient->destinationCountries()->sync($destinationCountryDetails) : null;
+                }
+
+                // Insert client event
+                $data = [
+                    'event_id' => $row['event_name'],
+                    'joined_date' => isset($row['date']) ? $row['date'] : null,
+                    'client_id' => isset($client) ? $client['id'] : $newClient->id,
+                    'lead_id' => $row['leads_source'],
+                    'status' => 0,
+                ];
+
+                $existClientEvent = ClientEvent::where('event_id', $data['event_id'])
+                    ->where('client_id', $data['client_id'])
+                    ->where('joined_date', $data['joined_date'])
+                    ->first();
+
+
+                if (!isset($existClientEvent)) {
+                    ClientEvent::create($data);
+                }
             }
             DB::commit();
         } catch (Exception $e) {
@@ -65,28 +247,13 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
 
         DB::beginTransaction();
         try {
-            $client = UserClient::select('id')->where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name, ""))'), $data['client_name'])->first();
-            $event = Event::select('event_id')->where('event_title', $data['event_name'])->first();
-            $lead = null;
-            if ($data['conversion_lead'] == 'KOL') {
-                $kol = isset($data['kol_name']) ? Lead::select('lead_id')->where('sub_lead', $data['kol_name'])->first() : null;
-            } else {
-                $lead = Lead::select('lead_id')->where('main_lead', $data['conversion_lead'])->first();
+
+
+            $event = Event::where('event_title', $data['event_name'])->get()->pluck('event_id')->first();
+            if ($data['leads_source'] == 'School' || $data['leads_source'] == 'Counselor') {
+                $data['leads_source'] = 'School/Counselor';
             }
-            $partner = Corporate::select('corp_id')->where('corp_name', $data['partner_name'])->first();
-            $exteduf = EdufLead::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_eduf_lead.corp_id')
-                ->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_eduf_lead.sch_id')
-                ->select('id')
-                ->where(DB::raw("(CASE WHEN tbl_eduf_lead.title COLLATE utf8mb4_unicode_ci = null OR tbl_eduf_lead.title COLLATE utf8mb4_unicode_ci = '' THEN
-                                        (CASE WHEN tbl_eduf_lead.corp_id COLLATE utf8mb4_unicode_ci is not null THEN
-                                            CONCAT(tbl_corp.corp_name COLLATE utf8mb4_unicode_ci, ' (', tbl_eduf_lead.event_start, ')')
-                                        ELSE
-                                            CONCAT(tbl_sch.sch_name COLLATE utf8mb4_unicode_ci, ' (', tbl_eduf_lead.event_start, ')')
-                                        END)
-                                ELSE
-                                        tbl_eduf_lead.title COLLATE utf8mb4_unicode_ci
-                                END)"), $data['edufair_name'])
-                ->first();
+            $lead = Lead::where('main_lead', $data['leads_source'])->get()->pluck('lead_id')->first();
 
             DB::commit();
         } catch (Exception $e) {
@@ -95,45 +262,26 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
             Log::error('Import client event failed : ' . $e->getMessage());
         }
 
-        switch ($data['status']) {
-            case 'Join':
-                $status = 0;
-                break;
-            case 'Attend':
-                $status = 1;
-                break;
-
-            case '':
-                $status = null;
-                break;
-
-            default:
-                $status = $data['status'];
-                break;
-        }
 
         $data = [
-            'client_name' => isset($client) ? $client->id : $data['client_name'],
-            'event_name' => isset($event) ? $event->event_id : $data['event_name'],
-            'conversion_lead' => isset($lead) ? $lead->lead_id : $data['conversion_lead'],
-            'lead_id' => isset($lead) ? $lead->lead_id : $data['conversion_lead'],
-            'main_lead' =>  isset($lead) ? $lead->main_lead : $data['conversion_lead'],
-            'partner_name' => null,
-            'edufair_name' => null,
-            'kol_name' => null,
-            'joined_date' => isset($data['joined_date']) ? Date::excelToDateTimeObject($data['joined_date'])
+            'event_name' => isset($event) ? $event : $data['event_name'],
+            'date' => isset($data['date']) ? Date::excelToDateTimeObject($data['date'])
                 ->format('Y-m-d') : null,
-            'status' => $status,
+            'name' => $data['name'],
+            'existing_new_leads' => $data['existing_new_leads'],
+            'mentee_non_mentee' => $data['mentee_non_mentee'],
+            'audience' => $data['audience'],
+            'email' => $data['email'],
+            'phone_number' => $data['phone_number'],
+            'school' => $data['school'],
+            'class_of' => $data['class_of'],
+            'leads_source' => isset($lead) ? $lead : $data['leads_source'],
+            'itended_major' => $data['itended_major'],
+            'destination_country' => $data['destination_country'],
+            'reason_join' => $data['reason_join'],
+            'expectation_join' => $data['expectation_join'],
+            // 'status' => 0,
         ];
-
-        if ($data['lead_id'] == 'LS015') {
-            $data['partner_name'] = isset($partner) ? $partner->corp_id : $data['partner_name'];
-        } else if ($data['lead_id'] == 'LS018') {
-            $data['edufair_name'] = isset($exteduf) ? $exteduf->id : $data['edufair_name'];
-        } else if ($data['lead_id'] == 'KOL') {
-            $data['kol_name'] = isset($kol) ? $kol->lead_id : $data['kol_name'];
-            $data['conversion_lead'] = isset($kol) ? $kol->lead_id : $data['kol_name'];
-        }
 
         return $data;
     }
@@ -141,23 +289,33 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
     public function rules(): array
     {
         return [
-            '*.client_name' => ['required', 'exists:tbl_client,id'],
             '*.event_name' => ['required', 'exists:tbl_events,event_id'],
-            '*.conversion_lead' => ['required', 'exists:tbl_lead,lead_id'],
-            '*.partner_name' => ['required_if:lead_id,LS015', 'nullable', 'exists:tbl_corp,corp_id'],
-            '*.edufair_name' => ['required_if:lead_id,LS018', 'nullable'],
-            '*.kol_name' => ['required_if:main_lead,KOL', 'nullable'],
-            '*.joined_date' => ['required', 'date'],
-            '*.status' => ['required', 'in:0,1'],
+            '*.date' => ['required', 'date'],
+            '*.name' => ['required'],
+            '*.existing_new_leads' => ['nullable', 'in:Existing,New'],
+            '*.mentee_non_mentee' => ['nullable', 'in:Mentee,Non-mentee'],
+            '*.audience' => ['required', 'in:Student,Parent,Teacher'],
+            '*.email' => ['nullable', 'email'],
+            '*.phone_number' => ['required'],
+            '*.school' => ['required'],
+            '*.class_of' => ['nullable', 'integer'],
+            '*.leads_source' => ['required', 'exists:tbl_lead,lead_id'],
+            '*.itended_major' => ['nullable'],
+            '*.destination_country' => ['nullable'],
+            '*.reason_join' => ['nullable'],
+            '*.expectation_join' => ['nullable'],
+            // '*.status' => ['required', 'in:0,1'],
         ];
     }
 
-    public function customValidationMessages()
+    private function createSchoolIfNotExists($sch_name)
     {
-        return [
-            '*.partner_name.required_if' => 'The :attribute field is required when conversion lead is All-In Partners.',
-            '*.edufair_name.required_if' => 'The :attribute field is required when conversion lead is External Edufair.',
-            '*.kol_name.required_if' => 'The :attribute field is required when conversion lead is KOL.',
-        ];
+        $last_id = School::max('sch_id');
+        $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
+        $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+
+        $newSchool = School::create(['sch_id' => $school_id_with_label, 'sch_name' => $sch_name]);
+
+        return $newSchool;
     }
 }

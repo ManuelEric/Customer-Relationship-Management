@@ -1,6 +1,20 @@
 @extends('layout.main')
 
 @section('title', 'Invoice - Client Program - Bigdata Platform')
+@section('style')
+<style>
+    .bg-warning-soft {
+        background-color: #FFEAAD !important;
+    }
+    .bg-danger-soft {
+        background-color: #DBA4A9 !important;
+    }
+
+    .bg-primary-soft {
+        background-color: #ADCCFC !important;
+    }
+</style>
+@endsection
 
 @section('content')
 

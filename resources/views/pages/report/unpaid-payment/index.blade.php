@@ -13,11 +13,11 @@
                     <form action="">
                         <div class="mb-3">
                             <label>Start Date</label>
-                            <input type="date" name="start_date" id="" class="form-control form-control-sm rounded">
+                            <input type="date" name="start_date" id="" value="{{ Request::get('start_date') }}" class="form-control form-control-sm rounded">
                         </div>
                         <div class="mb-3">
                             <label>End Date</label>
-                            <input type="date" name="end_date" id="" class="form-control form-control-sm rounded">
+                            <input type="date" name="end_date" id="" value="{{ Request::get('end_date') }}" class="form-control form-control-sm rounded">
                         </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-sm btn-outline-primary">Submit</button>
@@ -34,22 +34,22 @@
                     <div class="d-flex justify-content-between">
                         <strong>Total</strong>
                         <div class="text-end">
-                            Rp. {{ number_format($totalAmount, '2', ',', '.') }}
+                            Rp. {{ number_format($totalAmount) }}
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between">
+                    {{-- <div class="d-flex justify-content-between">
                         <strong>Paid</strong>
                         <div class="text-end">
-                                Rp. {{ number_format($totalPaid, '2', ',', '.') }} {{ $totalDiff > 0 ? '( Rp. '. number_format($totalDiff, '2', ',', '.') .')' : '' }}                       
+                                Rp. {{ number_format($totalPaid) }} {{ $totalDiff > 0 ? '( Rp. '. number_format($totalDiff) .')' : '' }}                       
                         </div>
-                    </div>
-                    <hr class="my-2">
+                    </div> --}}
+                    {{-- <hr class="my-2">
                     <div class="d-flex justify-content-between">
                         <strong>Remaining</strong>
                         <div class="text-end">
-                             Rp. {{ number_format($remaining, '2', ',', '.') }}
+                             Rp. {{ number_format($remaining) }}
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
@@ -77,10 +77,14 @@
                                     <th>Invoice Duedate</th>
                                     <th>Installment</th>
                                     <th>Status</th>
-                                    <th>Receipt ID</th>
+                                    <th>Amount IDR</th>
+                                    <th>Amount USD</th>
+                                    <th>Amount SGD</th>
+                                    <th>Amount GBP</th>
+                                    {{-- <th>Receipt ID</th>
                                     <th>Paid Date</th>
                                     <th>Amount</th>
-                                </tr>
+                                </tr> --}}
                             </thead>
                             <tbody>
                          
@@ -103,18 +107,18 @@
 
                                         {{-- Program Name --}}
                                         @if(isset($invoice->clientprog_id))
-                                            <td>{{ $invoice->clientprog->program->sub_prog ? $invoice->clientprog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->clientprog->program->prog_program }}</td>
+                                            <td>{{ $invoice->clientprog->program->program_name }}</td>
                                         @elseif(isset($invoice->schprog_id))
-                                            <td>{{ $invoice->sch_prog->program->sub_prog ? $invoice->sch_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->sch_prog->program->prog_program }}</td>
+                                            <td>{{ $invoice->sch_prog->program->program_name }}</td>
                                         @elseif(isset($invoice->partnerprog_id))
-                                            <td>{{ $invoice->partner_prog->program->sub_prog ? $invoice->partner_prog->program->sub_prog->sub_prog_name.' - ':''}}{{ $invoice->partner_prog->program->prog_program }}</td>
+                                            <td>{{ $invoice->partner_prog->program->program_name }}</td>
                                         @elseif(isset($invoice->ref_id))
                                             <td>{{ $invoice->referral->additional_prog_name }}</td>
                                         @endif 
 
-                                        {{-- Installment --}}
+                                        {{-- Invoice duedate --}}
                                         <td class="text-center">
-                                            {{ isset($invoice->invdtl_installment) ? $invoice->installment_duedate : $invoice->invoice_duedate }}
+                                            {{ isset($invoice->invdtl_installment) ? date('M d, Y', strtotime($invoice->installment_duedate)) : date('M d, Y', strtotime($invoice->invoice_duedate)) }}
                                         </td>
 
                                         {{-- Installment --}}
@@ -127,26 +131,45 @@
                                             {{ isset($invoice->receipt_id) ? 'Paid' : 'Not yet' }}
                                         </td>
 
+                                        {{-- Amount IDR --}}
+                                        <td>
+                                            Rp. {{ number_format($invoice->total_price_inv_idr) }}
+                                        </td>
+
+                                        {{-- Amount USD --}}
+                                        <td>
+                                            {{ $invoice->currency == 'usd' ? '$. ' . number_format($invoice->total_price_inv_other) : '-' }}
+                                        </td>
+                                        
+                                        {{-- Amount SGD --}}
+                                        <td>
+                                            {{ $invoice->currency == 'sgd' ? 'S$. ' . number_format($invoice->total_price_inv_other) : '-' }}
+                                        </td>
+                                        {{-- Amount GBP --}}
+                                        <td>
+                                            {{ $invoice->currency == 'gbp' ? '£. ' . number_format($invoice->total_price_inv_other) : '-' }}
+                                        </td>
+
                                         {{-- Receipt ID --}}
-                                        @if(isset($invoice->receipt_id))
+                                        {{-- @if(isset($invoice->receipt_id))
                                             <td>{{ $invoice->receipt_id }}</td>
                                         @else
                                             <td class="text-center">-</td>
                                         @endif
-                                       
+                                        --}}
                                         {{-- Paid Date --}}
-                                        @if(isset($invoice->receipt_id))
-                                            <td>{{ date('M d, Y H:i:s', strtotime($invoice->paid_date)) }}</td>
+                                        {{-- @if(isset($invoice->receipt_id))
+                                            <td>{{ date('M d, Y', strtotime($invoice->paid_date)) }}</td>
                                         @else
                                             <td class="text-center">-</td>
-                                        @endif
+                                        @endif --}}
                                         
                                         {{-- Amount --}}
-                                         @if(isset($invoice->receipt_id))
-                                            <td>Rp. {{ number_format($invoice->receipt_amount_idr, '2', ',', '.') }} {{ $invoice->receipt_amount_idr > $invoice->total_price_inv ? '( Rp.'. number_format($invoice->receipt_amount_idr - $invoice->total_price_inv, '2', ',', '.') .')' : '' }}</td>
+                                         {{-- @if(isset($invoice->receipt_id))
+                                            <td>Rp. {{ number_format($invoice->receipt_amount_idr) }} {{ $invoice->receipt_amount_idr > $invoice->total_price_inv ? '( Rp.'. number_format($invoice->receipt_amount_idr - $invoice->total_price_inv) .')' : '' }}</td>
                                         @else
                                             <td class="text-center">-</td>
-                                        @endif
+                                        @endif --}}
                                     </tr>
                                 @empty
                                     <tr>
@@ -185,6 +208,46 @@
             var workbook = XLSX.utils.book_new();
             var ws = XLSX.utils.table_to_sheet(document.getElementById("tbl_unpaid_payment"));
             XLSX.utils.book_append_sheet(workbook, ws, "Unpaid Payment");
+
+
+            var full_ref = workbook.Sheets['Unpaid Payment']['!fullref'];
+            var last_ref = full_ref.slice(full_ref.indexOf(':') + 1);
+            var last_col = parseInt(last_ref.slice(last_ref.indexOf('L') + 1)) - 1;
+
+            var col = ['I', 'J', 'K', 'L']; //  I = Amount IDR, J = USD, K = SGD, L = GBP
+                
+                col.forEach(function (d, i){
+                    for(var i = 2; i <= last_col; i++) {
+                        var index = d + i;
+
+                        var format_cell;
+                        var remove_cursymbol;
+                        switch (d) {
+                            case 'I':
+                                remove_cursymbol = 'Rp.';
+                                format_cell = 'Rp#,##0;(Rp#,##0)';
+                                break;
+                            case 'J':
+                                remove_cursymbol = '$.';
+                                format_cell = '$#,##0;($#,##0)';
+                                break;
+                            case 'K':
+                                remove_cursymbol = 'S$.';
+                                format_cell = '$#,##0;($#,##0)';
+                                break;
+                            case 'L':
+                                remove_cursymbol = '£.';
+                                format_cell = '£#,##0;(£#,##0)';
+                                break;
+                        }
+                        if(workbook.Sheets['Unpaid Payment'][index].v != '-')
+                            workbook.Sheets['Unpaid Payment'][index].v =  parseInt(workbook.Sheets['Unpaid Payment'][index].v.replace(remove_cursymbol, "").replaceAll(",", ""));
+
+                        workbook.Sheets['Unpaid Payment'][index].t = 'n';
+                        workbook.Sheets['Unpaid Payment'][index].z = format_cell;
+                    }
+                    workbook.Sheets['Unpaid Payment'][d + i] = { t:'n', z:format_cell, f: `SUM(${d+2}:` + index +")", F:d + i + ":" + d + i }
+                })
 
             XLSX.writeFile(workbook, "report-unpaid-payment.xlsx");
             

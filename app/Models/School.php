@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\SchoolVisit;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,6 +33,13 @@ class School extends Model
         'sch_location',
         'sch_score',
     ];
+
+    public function createdAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
+        );
+    }
 
     public static function whereSchoolId($id)
     {
@@ -71,7 +79,7 @@ class School extends Model
     {
         return $this->hasMany(UserClient::class, 'sch_id', 'sch_id');
     }
-    
+
     public function schoolProgram()
     {
         return $this->hasMany(SchoolProgram::class, 'sch_id', 'sch_id');
@@ -86,5 +94,14 @@ class School extends Model
     {
         return $this->hasMany(SchoolVisit::class, 'sch_id', 'sch_id');
     }
+
+    public function asCollaboratorInPartnerProgram()
+    {
+        return $this->belongsToMany(PartnerProg::class, 'tbl_partner_prog_sch', 'sch_id', 'partnerprog_id');
+    }
     
+    public function asCollaboratorInSchoolProgram()
+    {
+        return $this->belongsToMany(SchoolProg::class, 'tbl_sch_prog_school', 'sch_id', 'schprog_id');
+    }
 }

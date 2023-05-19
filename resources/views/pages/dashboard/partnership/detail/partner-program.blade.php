@@ -121,15 +121,16 @@
         const rupiah = (number)=>{
             return new Intl.NumberFormat("id-ID", {
             style: "currency",
-            currency: "IDR"
+            currency: "IDR",
+            minimumFractionDigits: 0
             }).format(number);
         }
 
         // Axios here ... 
 
         let data = {
-            'partner': [0, 0, 0, 0],
-            'school': [0, 0, 0, 0],
+            'partner': [0, 0, 0, 0, 0, 0],
+            'school': [0, 0, 0, 0, 0, 0],
             'referral': [0, 0],
         }
 
@@ -140,23 +141,28 @@
                 var no = 1;
                 var totalReferral = 0;
 
-                school_program_chart.data.datasets[0].data = [0,0,0,0]
+                school_program_chart.data.datasets[0].data = [0,0,0,0,0,0]
 
-                // console.log(result.statusSchoolPrograms)
                 result.statusSchoolPrograms.forEach(function (item, index, arr) {
 
-                    switch (item['status']) {                        
+                    switch (parseInt(item['status'])) {                        
                         case 0:
-                            school_program_chart.data.datasets[0].data[0] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[0] = parseInt(item['count_status']);
                             break;
                         case 1:
-                            school_program_chart.data.datasets[0].data[1] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[3] = parseInt(item['count_status']);
                             break;
                         case 2:
-                            school_program_chart.data.datasets[0].data[2] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[2] = parseInt(item['count_status']);
                             break;
                         case 3:
-                            school_program_chart.data.datasets[0].data[3] = item['count_status'];
+                            school_program_chart.data.datasets[0].data[5] = parseInt(item['count_status']);
+                            break;
+                        case 4:
+                            school_program_chart.data.datasets[0].data[1] = parseInt(item['count_status']);
+                            break;
+                        case 5:
+                            school_program_chart.data.datasets[0].data[4] = parseInt(item['count_status']);
                             break;
                     
                         default:
@@ -166,30 +172,36 @@
                 })
                 school_program_chart.update()
 
-                console.log(result.totalSchoolProgram)
                 $('#tot_school_program').html(rupiah(result.totalSchoolProgram))
                 
-                partner_program_chart.data.datasets[0].data = [0,0,0,0]
+                partner_program_chart.data.datasets[0].data = [0,0,0,0,0,0]
                 result.statusPartnerPrograms.forEach(function (item, index, arr) {
                   
-                    switch (item['status']) {                        
+                    switch (parseInt(item['status'])) {                        
                         case 0:
-                            partner_program_chart.data.datasets[0].data[0] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[0] = parseInt(item['count_status']);
                             break;
                         case 1:
-                            partner_program_chart.data.datasets[0].data[1] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[3] = parseInt(item['count_status']);
                             break;
                         case 2:
-                            partner_program_chart.data.datasets[0].data[2] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[2] = parseInt(item['count_status']);
                             break;
                         case 3:
-                            partner_program_chart.data.datasets[0].data[3] = item['count_status'];
+                            partner_program_chart.data.datasets[0].data[5] = parseInt(item['count_status']);
+                            break;
+                        case 4:
+                            partner_program_chart.data.datasets[0].data[1] = parseInt(item['count_status']);
+                            break;
+                        case 5:
+                            partner_program_chart.data.datasets[0].data[4] = parseInt(item['count_status']);
                             break;
                     
                         default:
                             break;
                     }
                 })
+
                 partner_program_chart.update()
 
                 $('#tot_partner_program').html(rupiah(result.totalPartnerProgram))
@@ -230,10 +242,11 @@
         var partner_program_chart = new Chart(partner_program, {
             type: 'doughnut',
             data: {
-                labels: ['Pending', 'Success', 'Denied', 'Refund'],
+                labels: ['Pending', 'Accepted', 'Rejected', 'Success', 'Cancel', 'Refund'],
                 datasets: [{
                     label: 'Partner Program',
-                    data: [0,0,0,0],
+                    data: [0,0,0,0,0,0],
+                    backgroundColor: ["#ffc107", "#0d6efd", "#dc3545", "#198754", "#6E260E", "#adb5bd"],
                     borderWidth: 1
                 }]
             },
@@ -287,10 +300,11 @@
         var school_program_chart = new Chart(school_program, {
             type: 'doughnut',
             data: {
-                labels: ['Pending', 'Success', 'Denied', 'Refund'],
+                labels: ['Pending', 'Accepted', 'Rejected', 'Success', 'Cancel', 'Refund'],
                 datasets: [{
                     label: 'School Program',
-                    data: [0,0,0,0],
+                    data: [0,0,0,0,0,0],
+                    backgroundColor: ["#ffc107", "#0d6efd", "#dc3545", "#198754", "#6E260E", "#adb5bd"],
                     borderWidth: 1
                 }]
             },
@@ -330,7 +344,6 @@
                                 $('#partnerProgramDetail').append(html)
                             })
                             
-                            console.log(response)
 
                         }, (error) => {
                             console.log(error)
@@ -348,7 +361,7 @@
             data: {
                 labels: ['Referral IN', 'Referral Out'],
                 datasets: [{
-                    label: '# of Votes',
+                    label: 'Referral',
                     data: [0,0],
                     borderWidth: 1
                 }]
@@ -370,8 +383,6 @@
                     let dataIndex = activeEls[0].index;
                     let label = e.chart.data.labels[dataIndex];
                     let month = $('#month_partner_program').val()
-
-                    console.log(label)
 
                     Swal.showLoading()
 

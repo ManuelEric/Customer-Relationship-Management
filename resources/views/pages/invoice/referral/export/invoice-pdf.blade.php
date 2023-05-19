@@ -205,6 +205,7 @@
                     </td>
                     <td width="40%" align="center" valign="top">
                         {{ $companyDetail['name'] }}
+                        {{-- Jakarta, {{ date('d F Y') }} --}}
                         <br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director

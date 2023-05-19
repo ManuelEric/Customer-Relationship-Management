@@ -76,9 +76,11 @@
                              <label for="">
                                  Attachment <sup class="text-danger">*</sup>
                              </label>
-                             <input type="file" name="schprog_attach" id=""
+                             <input type="file" name="schprog_attach" id="" aria-labelledby="attchHelpBlock"
                                  class="form-control form-control-sm rounded" value="{{ $errors->has('schprog_file') || $errors->has('schprog_attach') ? old('schprog_attach') : '' }}">
-
+                             <div id="attchHelpBlock" class="form-text">
+                                Only PDF
+                            </div>
                             @error('schprog_attach')
                                  <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror 

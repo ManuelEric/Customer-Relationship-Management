@@ -17,17 +17,23 @@
                     <img src="{{ asset('img/mentee.jpg') }}" class="w-100">
                     <h4 class="text-center">Add Volunteer</h4>
 
-                    @if(isset($volunteer))
-                        <div class="text-center mt-2">
-                                <a class="btn btn-sm btn-success {{$volunteer->volunt_status == 1 ? 'disabled' : ''}}" id="update-status-active">
-                                    <i class="bi bi-check"></i>
-                                    Activate</a>
-                            
-                                <a class="btn btn-sm btn-outline-danger {{$volunteer->volunt_status == 0 ? 'disabled' : ''}}" id="update-status-deactive">
-                                    <i class="bi bi-x"></i>
-                                    Deactivate</a>
-                        </div>
-                    @endif
+                    <div class="text-center mt-2">
+                        @if(isset($volunteer))
+                            <button @class([
+                                'btn btn-sm btn-success',
+                                'd-none' => $volunteer->active == 1,
+                            ]) id="activate-user">
+                                <i class="bi bi-check"></i>
+                                Activate</button>
+                                
+                            <button @class([
+                                'btn btn-sm btn-outline-danger',
+                                'd-none' => $volunteer->active == 0,
+                            ]) id="deactivate-user">
+                                <i class="bi bi-x"></i>
+                                Deactivate</button>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -184,128 +190,151 @@
 
     <script>
         @if (isset($volunteer))
-            $("#update-status-active").on('click', function(e) {
-                e.preventDefault()
-                Swal.showLoading()
-                axios
-                    .get(
-                        '{{ route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id, 'status' => 1]) }}'
-                    )
-                    .then(response => {
-                        swal.close()
-                        notification('success', response.data.message)
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error',
-                            response.data.message);
-                        swal.close()
-                    })
+
+            $("#deactivate-user").on('click', function() {
+                changeStatus('deactivate')
             })
 
-             $("#update-status-deactive").on('click', function(e) {
-                e.preventDefault()
-                Swal.showLoading()
-                axios
-                    .get(
-                        '{{ route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id, 'status' => 0]) }}'
-                    )
-                    .then(response => {
-                        swal.close()
-                        notification('success', response.data.message)
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error',
-                            response.data.message);
-                        swal.close()
-                    })
+            $("#activate-user").on('click', function() {
+                changeStatus('activate')
             })
 
-        // curriculum vitae button
-        $(".curriculum-vitae-container .download").on('click', function() {
-            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'CV']) }}", '_blank');
-        })
+            function changeStatus(status)
+            {
+                // show modal 
+                var myModal = new bootstrap.Modal(document.getElementById('deactiveUser'))
+                myModal.show()
 
-        $(".curriculum-vitae-container .remove").on('click', function() {
-            $(this).parent().find('.upload-file').removeClass('d-none');
-            $(this).addClass('d-none')
-            $(this).parent().find('.download').addClass('d-none');
-        })
+                // $("#deactivate-user--app-3103").attr('onclick', 'deactivateUser(\''+status+'\')')
+                $("#deactivate-user--app-3103").bind('click', function() {
+                    deactivateUser(status)
+                })
 
-        $(".curriculum-vitae-container").on('click', '.rollback', function() {
-            $(this).parent().addClass('d-none')
-            $(this).parent().parent().find('.remove').removeClass('d-none');
-            $(this).parent().parent().find('.download').removeClass('d-none');
-        })
+                
+            }
 
-        // ktp button
-        $(".ktp-container .download").on('click', function() {
-            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'ID']) }}", '_blank');
-        })
+            function deactivateUser(status) {
+                showLoading()
+                
+                axios.post('{{ route('volunteer.update.status', ['volunteer' => $volunteer->volunt_id]) }}', {
+                        _token: '{{ csrf_token() }}',
+                        params: {
+                            new_status: status
+                        },
+                    })
+                    .then((response) => {
+                        console.log(response);
 
-        $(".ktp-container .remove").on('click', function() {
-            $(this).parent().find('.upload-file').removeClass('d-none');
-            $(this).addClass('d-none')
-            $(this).parent().find('.download').addClass('d-none');
-        })
+                        Swal.close()
+                        $("#deactiveUser").modal('hide')
+                        notification('success', response.data.message)
+                        switch(status) {
+                            case "activate":
+                                $("#activate-user").addClass('d-none')
+                                $("#deactivate-user").removeClass('d-none')
+                                break;
 
-        $(".ktp-container").on('click', '.rollback', function() {
-            $(this).parent().addClass('d-none')
-            $(this).parent().parent().find('.remove').removeClass('d-none');
-            $(this).parent().parent().find('.download').removeClass('d-none');
-        })
+                            case "deactivate":
+                                $("#activate-user").removeClass('d-none')
+                                $("#deactivate-user").addClass('d-none')
+                                break;
+                        }
 
-        // tax button
-        $(".tax-container .download").on('click', function() {
-            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'TX']) }}", '_blank');
-        })
+                    }, (error) => {
+                        console.log(error)
+                        Swal.close()
+                        notification('error', 'Something went wrong. Please try again or contact the administrator.')
+                    });
+            }
+        @endif
+                
 
-        $(".tax-container .remove").on('click', function() {
-            $(this).parent().find('.upload-file').removeClass('d-none');
-            $(this).addClass('d-none')
-            $(this).parent().find('.download').addClass('d-none');
-        })
+        @if (isset($volunteer))
 
-        $(".tax-container").on('click', '.rollback', function() {
-            $(this).parent().addClass('d-none')
-            $(this).parent().parent().find('.remove').removeClass('d-none');
-            $(this).parent().parent().find('.download').removeClass('d-none');
-        })
+            // curriculum vitae button
+            $(".curriculum-vitae-container .download").on('click', function() {
+                window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'CV']) }}", '_blank');
+            })
 
-        // hi button
-        $(".hi-container .download").on('click', function() {
-            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'HI']) }}", '_blank');
-        })
+            $(".curriculum-vitae-container .remove").on('click', function() {
+                $(this).parent().find('.upload-file').removeClass('d-none');
+                $(this).addClass('d-none')
+                $(this).parent().find('.download').addClass('d-none');
+            })
 
-        $(".hi-container .remove").on('click', function() {
-            $(this).parent().find('.upload-file').removeClass('d-none');
-            $(this).addClass('d-none')
-            $(this).parent().find('.download').addClass('d-none');
-        })
+            $(".curriculum-vitae-container").on('click', '.rollback', function() {
+                $(this).parent().addClass('d-none')
+                $(this).parent().parent().find('.remove').removeClass('d-none');
+                $(this).parent().parent().find('.download').removeClass('d-none');
+            })
 
-        $(".hi-container").on('click', '.rollback', function() {
-            $(this).parent().addClass('d-none')
-            $(this).parent().parent().find('.remove').removeClass('d-none');
-            $(this).parent().parent().find('.download').removeClass('d-none');
-        })
+            // ktp button
+            $(".ktp-container .download").on('click', function() {
+                window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'ID']) }}", '_blank');
+            })
 
-        // ei button
-        $(".ei-container .download").on('click', function() {
-            window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'EI']) }}", '_blank');
-        })
+            $(".ktp-container .remove").on('click', function() {
+                $(this).parent().find('.upload-file').removeClass('d-none');
+                $(this).addClass('d-none')
+                $(this).parent().find('.download').addClass('d-none');
+            })
 
-        $(".ei-container .remove").on('click', function() {
-            $(this).parent().find('.upload-file').removeClass('d-none');
-            $(this).addClass('d-none')
-            $(this).parent().find('.download').addClass('d-none');
-        })
+            $(".ktp-container").on('click', '.rollback', function() {
+                $(this).parent().addClass('d-none')
+                $(this).parent().parent().find('.remove').removeClass('d-none');
+                $(this).parent().parent().find('.download').removeClass('d-none');
+            })
 
-        $(".ei-container").on('click', '.rollback', function() {
-            $(this).parent().addClass('d-none')
-            $(this).parent().parent().find('.remove').removeClass('d-none');
-            $(this).parent().parent().find('.download').removeClass('d-none');
-        })
+            // tax button
+            $(".tax-container .download").on('click', function() {
+                window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'TX']) }}", '_blank');
+            })
+
+            $(".tax-container .remove").on('click', function() {
+                $(this).parent().find('.upload-file').removeClass('d-none');
+                $(this).addClass('d-none')
+                $(this).parent().find('.download').addClass('d-none');
+            })
+
+            $(".tax-container").on('click', '.rollback', function() {
+                $(this).parent().addClass('d-none')
+                $(this).parent().parent().find('.remove').removeClass('d-none');
+                $(this).parent().parent().find('.download').removeClass('d-none');
+            })
+
+            // hi button
+            $(".hi-container .download").on('click', function() {
+                window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'HI']) }}", '_blank');
+            })
+
+            $(".hi-container .remove").on('click', function() {
+                $(this).parent().find('.upload-file').removeClass('d-none');
+                $(this).addClass('d-none')
+                $(this).parent().find('.download').addClass('d-none');
+            })
+
+            $(".hi-container").on('click', '.rollback', function() {
+                $(this).parent().addClass('d-none')
+                $(this).parent().parent().find('.remove').removeClass('d-none');
+                $(this).parent().parent().find('.download').removeClass('d-none');
+            })
+
+            // ei button
+            $(".ei-container .download").on('click', function() {
+                window.open("{{ route('volunteer.file.download', ['volunteer' => $volunteer->volunt_id, 'filetype' => 'EI']) }}", '_blank');
+            })
+
+            $(".ei-container .remove").on('click', function() {
+                $(this).parent().find('.upload-file').removeClass('d-none');
+                $(this).addClass('d-none')
+                $(this).parent().find('.download').addClass('d-none');
+            })
+
+            $(".ei-container").on('click', '.rollback', function() {
+                $(this).parent().addClass('d-none')
+                $(this).parent().parent().find('.remove').removeClass('d-none');
+                $(this).parent().parent().find('.download').removeClass('d-none');
+            })
         @endif
     </script>
 @endsection

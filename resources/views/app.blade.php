@@ -54,7 +54,7 @@
     <script src="{{ asset('js/generate-number.js') }}"></script>
     <script src="{{ asset('js/currency.js') }}"></script>
     @yield('script')
-
+    @yield('style')
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
@@ -245,6 +245,9 @@
             </div>
         </div>
     </div>
+    <script>
+        window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    </script>
     {{-- Tooltip  --}}
     <script>
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -309,7 +312,7 @@
             var myModal = new bootstrap.Modal(document.getElementById('sendToClient--modal'))
             myModal.show()
 
-            var warningMessage = 'You want to send this '+ category +' to user?';
+            var warningMessage = 'You want to send this '+ category +' to client?';
 
             // change form action 
             $("#formActionSendToClient h6").html(warningMessage);
@@ -318,7 +321,6 @@
             $("#send-to-client--app-0604").bind('click', function() {
                 sendToClient(link)
             })
-            
         }
     </script>
 

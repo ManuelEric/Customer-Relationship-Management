@@ -66,15 +66,21 @@ class ReportController extends Controller
 
     public function event(Request $request)
     {
+
         $eventId = null;
         if ($request->get('event_id') != null) {
             $eventId = $request->get('event_id');
         }
 
+        if ($request->ajax()) {
+
+            return $this->clientEventRepository->getReportClientEventsDataTables($eventId);
+        }
+
         $events = $this->eventRepository->getAllEvents();
         $clientEvents = $this->clientEventRepository->getReportClientEvents($eventId);
         $clients = $this->clientEventRepository->getReportClientEventsGroupByRoles($eventId);
-        $conversionLeads = $this->clientEventRepository->getConversionLead($eventId);
+        $conversionLeads = $this->clientEventRepository->getConversionLead($request);
 
         return view('pages.report.event-tracking.index')->with(
             [
@@ -101,7 +107,8 @@ class ReportController extends Controller
         $schoolVisits = $this->schoolVisitRepository->getReportSchoolVisit($start_date, $end_date);
         $partners = $this->corporateRepository->getReportNewPartner($start_date, $end_date);
         $universities = $this->universityRepository->getReportNewUniversity($start_date, $end_date);
-        $referrals = $this->referralRepository->getReportNewReferral($start_date, $end_date);
+        $referrals_in = $this->referralRepository->getReportNewReferral($start_date, $end_date, 'In');
+        $referrals_out = $this->referralRepository->getReportNewReferral($start_date, $end_date, 'Out');
 
         return view('pages.report.partnership.index')->with(
             [
@@ -111,7 +118,8 @@ class ReportController extends Controller
                 'schoolVisits' => $schoolVisits,
                 'partners' => $partners,
                 'universities' => $universities,
-                'referrals' => $referrals,
+                'referrals_in' => $referrals_in,
+                'referrals_out' => $referrals_out,
             ]
         );
     }
@@ -132,17 +140,10 @@ class ReportController extends Controller
         $totalReceipt = 0;
         $countInvoice = 0;
         $totalInvoice = 0;
-        foreach ($receipts as $receipt) {
-            $totalReceipt += (int)filter_var($receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
-        }
-
-        if ($totalReceipt > 0) {
-            $totalReceipt = substr($totalReceipt, 0, -2);
-        }
 
         $data_receipts = $receipts->filter(function ($item) {
             // Return true if you want this item included in the resultant collection
-            return $item->status_where === 1 || $item->referral_type === 'Out';
+            return $item->status_where == 1 || $item->referral_type == 'Out';
         });
 
 
@@ -150,6 +151,10 @@ class ReportController extends Controller
         $countInvoice += count($invoiceB2c->where('inv_paymentmethod', 'Full Payment')) + $invoiceB2c->sum('invoice_detail_count');
 
         $totalInvoice = $invoiceB2b->sum('invb2b_totpriceidr') + $invoiceB2c->sum('inv_totalprice_idr');
+
+        foreach ($data_receipts as $receipt) {
+            $totalReceipt += (int)filter_var($receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
+        }
 
         return view('pages.report.invoice.index')->with(
             [
@@ -176,9 +181,9 @@ class ReportController extends Controller
         $invoiceMerge = $collection->merge($invoiceB2c);
         $invoices = $invoiceMerge->all();
 
-        $totalAmount = $invoiceMerge->sum('total_price_inv');
+        $totalAmount = $invoiceMerge->sum('total_price_inv_idr');
 
-        $totalUnpaid = $invoiceMerge->where('receipt_id', null)->sum('total_price_inv');
+        $totalUnpaid = $invoiceMerge->where('receipt_id', null)->sum('total_price_inv_idr');
 
         $totalReceipt = 0;
         $totalPaid = 0;
@@ -186,7 +191,7 @@ class ReportController extends Controller
         foreach ($invoices as $invoice) {
             if (isset($invoice->receipt_id)) {
                 $totalReceipt += $invoice->receipt_amount_idr;
-                $totalDiff += $invoice->receipt_amount_idr > $invoice->total_price_inv ? $invoice->receipt_amount_idr - $invoice->total_price_inv : 0;
+                $totalDiff += $invoice->receipt_amount_idr > $invoice->total_price_inv_idr ? $invoice->receipt_amount_idr - $invoice->total_price_inv_idr : 0;
             }
         }
 

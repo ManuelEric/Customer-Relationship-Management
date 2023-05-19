@@ -16,25 +16,22 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
     public function getAllPartnerProgramsDataTables($filter = null)
     {
         return Datatables::eloquent(
-            PartnerProg::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_partner_prog.prog_id')->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')->select(
+            PartnerProg::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')->leftJoin('users', 'users.id', '=', 'tbl_partner_prog.empl_id')->select(
                 'tbl_corp.corp_id',
                 'tbl_partner_prog.id',
                 'tbl_corp.corp_name as corp_name',
-                DB::raw('(CASE
-                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                            ELSE tbl_prog.prog_program
-                        END) AS program_name'),
                 'tbl_partner_prog.first_discuss',
                 'tbl_partner_prog.participants',
                 'tbl_partner_prog.total_fee',
                 'tbl_partner_prog.status',
+                'program.program_name',
                 DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
             )->orderBy('tbl_partner_prog.first_discuss', 'DESC')
                 ->when($filter && isset($filter['partner_name']), function ($query) use ($filter) {
                     $query->whereIn('tbl_corp.corp_name', $filter['partner_name']);
                 })
                 ->when($filter && isset($filter['program_name']), function ($query) use ($filter) {
-                    $query->whereIn('tbl_prog.prog_program', $filter['program_name']);
+                    $query->whereIn('program.prog_program', $filter['program_name']);
                 })
                 ->when($filter && isset($filter['pic']), function ($query) use ($filter) {
                     $query->whereIn('users.id', $filter['pic']);
@@ -176,21 +173,22 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
         $month = date('m', strtotime($monthYear));
 
         return PartnerProg::leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
-            ->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_partner_prog.prog_id')
-            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
+            // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->select(
                 'tbl_corp.corp_name as corp_name',
-                DB::raw('(CASE
-                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                            ELSE tbl_prog.prog_program
-                        END) AS program_name')
+                'program.program_name'
             )
+
+            # Status (4: Accepted, 5: Cancel) Temporary by created_at
             ->whereYear(
                 DB::raw('(CASE
                             WHEN tbl_partner_prog.status = 0 THEN tbl_partner_prog.created_at
                             WHEN tbl_partner_prog.status = 1 THEN tbl_partner_prog.success_date
                             WHEN tbl_partner_prog.status = 2 THEN tbl_partner_prog.denied_date
                             WHEN tbl_partner_prog.status = 3 THEN tbl_partner_prog.refund_date
+                            WHEN tbl_partner_prog.status = 4 THEN tbl_partner_prog.accepted_date
+                            WHEN tbl_partner_prog.status = 5 THEN tbl_partner_prog.cancel_date
                         END)'),
                 '=',
                 $year
@@ -201,6 +199,8 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                             WHEN tbl_partner_prog.status = 1 THEN tbl_partner_prog.success_date
                             WHEN tbl_partner_prog.status = 2 THEN tbl_partner_prog.denied_date
                             WHEN tbl_partner_prog.status = 3 THEN tbl_partner_prog.refund_date
+                            WHEN tbl_partner_prog.status = 4 THEN tbl_partner_prog.accepted_date
+                            WHEN tbl_partner_prog.status = 5 THEN tbl_partner_prog.cancel_date
                         END)'),
                 '=',
                 $month
@@ -214,13 +214,20 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
         $year = date('Y', strtotime($monthYear));
         $month = date('m', strtotime($monthYear));
 
-        return PartnerProg::select('status', DB::raw('sum(total_fee) as total_fee'), DB::raw('count(*) as count_status'))
+        return PartnerProg::select(
+            'status',
+            DB::raw('SUM(total_fee) as total_fee'),
+            DB::raw('COUNT(*) as count_status')
+        )
+            # Status (4: Accepted, 5: Cancel) Temporary by created_at
             ->whereYear(
                 DB::raw('(CASE
                             WHEN status = 0 THEN created_at
                             WHEN status = 1 THEN success_date
                             WHEN status = 2 THEN denied_date
                             WHEN status = 3 THEN refund_date
+                            WHEN status = 4 THEN accepted_date  
+                            WHEN status = 5 THEN cancel_date
                         END)'),
                 '=',
                 $year
@@ -231,10 +238,12 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
                             WHEN status = 1 THEN success_date
                             WHEN status = 2 THEN denied_date
                             WHEN status = 3 THEN refund_date
+                            WHEN status = 4 THEN accepted_date  
+                            WHEN status = 5 THEN cancel_date
                         END)'),
                 '=',
                 $month
-            )
+            )->groupBy('status')
             ->get();
     }
 
@@ -308,14 +317,11 @@ class PartnerProgramRepository implements PartnerProgramRepositoryInterface
 
     public function getPartnerProgramComparison($startYear, $endYear)
     {
-        return PartnerProg::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_partner_prog.prog_id')
-            ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
+        return PartnerProg::leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
+            // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
             ->select(
                 'tbl_partner_prog.prog_id',
-                DB::raw('(CASE
-                            WHEN tbl_prog.sub_prog_id > 0 THEN CONCAT(tbl_sub_prog.sub_prog_name," - ",tbl_prog.prog_program)
-                            ELSE tbl_prog.prog_program
-                        END) AS program_name'),
+                'program.program_name',
                 DB::raw("'Partner Program' as type"),
                 DB::raw('(CASE 
                             WHEN SUM(participants) is null THEN 0

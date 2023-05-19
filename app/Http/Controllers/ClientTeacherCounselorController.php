@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreClientTeacherCounselorRequest;
+use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -13,6 +15,7 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Imports\TeacherImport;
 use App\Models\School;
 use Exception;
 use Illuminate\Http\Request;
@@ -21,18 +24,18 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
-class ClientTeacherCounselorController extends Controller
+class ClientTeacherCounselorController extends ClientController
 {
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
-    private SchoolRepositoryInterface $schoolRepository;
-    private CurriculumRepositoryInterface $curriculumRepository;
-    private LeadRepositoryInterface $leadRepository;
-    private EventRepositoryInterface $eventRepository;
-    private EdufLeadRepositoryInterface $edufLeadRepository;
-    private ClientRepositoryInterface $clientRepository;
-    private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
-    private ClientEventRepositoryInterface $clientEventRepository;
+    protected SchoolRepositoryInterface $schoolRepository;
+    protected CurriculumRepositoryInterface $curriculumRepository;
+    protected LeadRepositoryInterface $leadRepository;
+    protected EventRepositoryInterface $eventRepository;
+    protected EdufLeadRepositoryInterface $edufLeadRepository;
+    protected ClientRepositoryInterface $clientRepository;
+    protected SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+    protected ClientEventRepositoryInterface $clientEventRepository;
 
     public function __construct(SchoolRepositoryInterface $schoolRepository, CurriculumRepositoryInterface $curriculumRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ClientRepositoryInterface $clientRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientEventRepositoryInterface $clientEventRepository)
     {
@@ -78,39 +81,7 @@ class ClientTeacherCounselorController extends Controller
 
     public function store(StoreClientTeacherCounselorRequest $request)
     {
-        $teacherCounselorDetails = $request->only([
-            'first_name',
-            'last_name',
-            'mail',
-            'phone',
-            'dob',
-            'insta',
-            'state',
-            'city',
-            'postal_code',
-            'address',
-            'sch_id',
-            'lead_id',
-            'eduf_id',
-            'kol_lead_id',
-            'event_id',
-            'st_levelinterest',
-        ]);
-
-        $teacherCounselorDetails['phone'] = $this->setPhoneNumber($request->phone);
-
-        # set lead_id based on lead_id & kol_lead_id
-        # when lead_id is kol
-        # then put kol_lead_id to lead_id
-        # otherwise
-        # when lead_id is not kol 
-        # then lead_id is lead_id
-        if ($request->lead_id == "kol") {
-
-            unset($teacherCounselorDetails['lead_id']);
-            $teacherCounselorDetails['lead_id'] = $request->kol_lead_id;
-        }
-        unset($teacherCounselorDetails['kol_lead_id']);
+        $data = $this->initializeVariablesForStoreAndUpdate('teacher', $request);
 
         DB::beginTransaction();
         try {
@@ -118,42 +89,17 @@ class ClientTeacherCounselorController extends Controller
             # case 1
             # create new school
             # when sch_id is "add-new" 
-            if ($request->sch_id == "add-new") {
-
-                $schoolDetails = $request->only([
-                    'sch_name',
-                    // 'sch_location',
-                    'sch_type',
-                    'sch_score',
-                ]);
-
-                $last_id = School::max('sch_id');
-                $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-                $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-
-                if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
-                    throw new Exception('Failed to store new school', 1);
-
-                # insert school curriculum
-                if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
-                    throw new Exception('Failed to store school curriculum', 1);
-
-
-                # remove field sch_id from student detail if exist
-                unset($teacherCounselorDetails['sch_id']);
-
-                # create index sch_id to student details
-                # filled with a new school id that was inserted before
-                $teacherCounselorDetails['sch_id'] = $school->sch_id;
-            }
+            if (!$data['teacherDetails']['sch_id'] = $this->createSchoolIfAddNew($data['schoolDetails']))
+                throw new Exception('Failed to store new school', 1);
 
 
             # case 2
             # create new user client as teacher / counselor
-            if (!$this->clientRepository->createClient('Teacher/Counselor', $teacherCounselorDetails))
+            if (!$this->clientRepository->createClient('Teacher/Counselor', $data['teacherDetails']))
                 throw new Exception('Failed to store new teacher / counselor', 2);
 
             DB::commit();
+
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -358,5 +304,16 @@ class ClientTeacherCounselorController extends Controller
     {
         $teacherId = $request->route('teacher');
         return $this->clientEventRepository->getAllClientEventByClientIdDataTables($teacherId);
+    }
+
+    public function import(StoreImportExcelRequest $request)
+    {
+
+        $file = $request->file('file');
+
+        $import = new TeacherImport;
+        $import->import($file);
+
+        return back()->withSuccess('Teacher successfully imported');
     }
 }

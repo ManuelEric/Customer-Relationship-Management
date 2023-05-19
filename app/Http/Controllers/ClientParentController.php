@@ -26,27 +26,30 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ParentTemplate;
+use App\Http\Controllers\Module\ClientController;
+use App\Http\Requests\StoreImportExcelRequest;
+use App\Imports\MasterParentImport;
 use App\Interfaces\ClientEventRepositoryInterface;
 
-class ClientParentController extends Controller
+class ClientParentController extends ClientController
 {
 
     use CreateCustomPrimaryKeyTrait;
     use FindStatusClientTrait;
     use StandardizePhoneNumberTrait;
 
-    private ClientRepositoryInterface $clientRepository;
-    private ClientEventRepositoryInterface $clientEventRepository;
-    private SchoolRepositoryInterface $schoolRepository;
-    private LeadRepositoryInterface $leadRepository;
-    private EventRepositoryInterface $eventRepository;
-    private EdufLeadRepositoryInterface $edufLeadRepository;
-    private ProgramRepositoryInterface $programRepository;
-    private UniversityRepositoryInterface $universityRepository;
-    private MajorRepositoryInterface $majorRepository;
-    private CurriculumRepositoryInterface $curriculumRepository;
-    private TagRepositoryInterface $tagRepository;
-    private SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
+    protected ClientRepositoryInterface $clientRepository;
+    protected ClientEventRepositoryInterface $clientEventRepository;
+    protected SchoolRepositoryInterface $schoolRepository;
+    protected LeadRepositoryInterface $leadRepository;
+    protected EventRepositoryInterface $eventRepository;
+    protected EdufLeadRepositoryInterface $edufLeadRepository;
+    protected ProgramRepositoryInterface $programRepository;
+    protected UniversityRepositoryInterface $universityRepository;
+    protected MajorRepositoryInterface $majorRepository;
+    protected CurriculumRepositoryInterface $curriculumRepository;
+    protected TagRepositoryInterface $tagRepository;
+    protected SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
 
     public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientEventRepositoryInterface $clientEventRepository)
     {
@@ -121,219 +124,45 @@ class ClientParentController extends Controller
 
     public function store(StoreClientParentRequest $request)
     {
+        # request->queryChilId is the primary key for client student
+        # request->queryClientProgId is the primary key for the client program
         $qChildrenId = isset($request->queryChildId) ? "?child=" . $request->queryChildId : null;
         $qClientProgId = isset($request->queryClientProgId) ? "&client_prog=" . $request->queryClientProgId : null;
 
         $query = $qChildrenId . $qClientProgId;
 
-        $parentDetails = $request->only([
-            'pr_firstname',
-            'pr_lastname',
-            'pr_mail',
-            'pr_phone',
-            'pr_dob',
-            'pr_insta',
-            'state',
-            'city',
-            'postal_code',
-            'address',
-            'sch_id',
-            'lead_id',
-            'eduf_id',
-            'kol_lead_id',
-            'event_id',
-            'st_levelinterest',
-            'graduation_year',
-            // 'st_abrcountry',
-            'st_note',
-        ]);
-
-        $parentDetails['first_name'] = $request->pr_firstname;
-        $parentDetails['last_name'] = $request->pr_lastname;
-        $parentDetails['mail'] = $request->pr_mail;
-        $parentDetails['phone'] = $this->setPhoneNumber($request->pr_phone);
-        $parentDetails['dob'] = $request->pr_dob;
-        $parentDetails['insta'] = $request->pr_insta;
-
-        // $parentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
-        $childrenId = $request->child_id;
-
-        # set lead_id based on lead_id & kol_lead_id
-        # when lead_id is kol
-        # then put kol_lead_id to lead_id
-        # otherwise
-        # when lead_id is not kol 
-        # then lead_id is lead_id
-        if ($request->lead_id == "kol") {
-
-            unset($parentDetails['lead_id']);
-            $parentDetails['lead_id'] = $request->kol_lead_id;
-        }
-
-        $studentDetails = [
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'mail' => $request->mail,
-            'phone' => $this->setPhoneNumber($request->phone),
-            'state' => $parentDetails['state'],
-            'city' => $parentDetails['city'],
-            'postal_code' => $parentDetails['postal_code'],
-            'address' => $parentDetails['address'],
-            'lead_id' => $parentDetails['lead_id'],
-            'eduf_id' => $parentDetails['eduf_id'],
-            'event_id' => $parentDetails['event_id'],
-            'st_levelinterest' => $parentDetails['st_levelinterest'],
-            'st_grade' => $request->st_grade,
-            'st_abryear' => $request->st_abryear,
-            'graduation_year' => $request->graduation_year
-        ];
+        $data = $this->initializeVariablesForStoreAndUpdate('parent', $request);
+        
+        $childrens = $request->child_id;
 
         DB::beginTransaction();
         try {
 
             # case 1
-            # create new school
-            # when sch_id is "add-new" 
-            if ($request->sch_id == "add-new") {
+            # create new user client as parent
+            if (!$parent = $this->clientRepository->createClient('Parent', $data['parentDetails']))
+                throw new Exception('Failed to store new parent', 1);
 
-                $schoolDetails = $request->only([
-                    'sch_name',
-                    // 'sch_location',
-                    'sch_type',
-                    'sch_score',
-                ]);
-
-                $last_id = School::max('sch_id');
-                $school_id_without_label = $this->remove_primarykey_label($last_id, 4);
-                $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
-
-                if (!$school = $this->schoolRepository->createSchool(['sch_id' => $school_id_with_label] + $schoolDetails))
-                    throw new Exception('Failed to store new school', 1);
-
-                # insert school curriculum
-                if (!$this->schoolCurriculumRepository->createSchoolCurriculum($school_id_with_label, $request->sch_curriculum))
-                    throw new Exception('Failed to store school curriculum', 1);
-
-
-                # create index sch_id to student details
-                # filled with a new school id that was inserted before
-                unset($parentDetails['sch_id']);
-                $studentDetails['sch_id'] = $school->sch_id;
-            }
+            $newParentId = $parent->id;
 
             # case 2
-            # create new user client as student
-            # when child_id is "add-new" 
-            if (isset($request->child_id) && $request->child_id == "add-new") {
-
-                if (!$student = $this->clientRepository->createClient('Student', $studentDetails))
-                    throw new Exception('Failed to store new student', 2);
-
-                $newStudentId = $student->id;
-            }
-
-
-            # case 3
-            # create new user client as parent
-            if (!$parent = $this->clientRepository->createClient('Parent', $parentDetails))
-                throw new Exception('Failed to store new parent', 3);
-
-            $parentId = $parent->id;
-
-            # case 4
             # add relation between parent and student
             # if they didn't insert parents which parentId = NULL
             # then assumed that register for student only
             # so no need to create parent children relation
-            if (isset($newStudentId)) {
-
-                if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
-                    throw new Exception('Failed to store relation between student and parent', 4);
-            } elseif ($childrenId) {
+            if ($childrens) {
 
                 // return $this->clientRepository->createClientRelation($parentId, $childrenId);
-                if (!$this->clientRepository->createClientRelation($parentId, $childrenId))
-                    throw new Exception('Failed to store relation between student and parent', 4);
+                if (!$this->clientRepository->createManyClientRelation($newParentId, $childrens))
+                    throw new Exception('Failed to store relation between student and parent', 2);
             }
 
-
-            # case 5
-            # create destination countries
-            # if they didn't insert destination countries
-            # then skip this case
-            if (isset($request->st_abrcountry) && count($request->st_abrcountry) > 0) {
-
-                # hari senin lanjutin utk insert destination countries
-                # dan hubungin score nya melalui client view
-                for ($i = 0; $i < count($request->st_abrcountry); $i++) {
-                    $destinationCountryDetails[] = [
-                        'tag_id' => $this->tagRepository->getTagById($request->st_abrcountry[$i])->id,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ];
-                }
-
-                if (!$this->clientRepository->createDestinationCountry($newStudentId, $destinationCountryDetails))
-                    throw new Exception('Failed to store destination country', 5);
-            }
-
-
-            # case 6
+            # case 3
             # create interested program
             # if they didn't insert interested program 
             # then skip this case
-            if (isset($request->prog_id) && count($request->prog_id) > 0) {
-
-                for ($i = 0; $i < count($request->prog_id); $i++) {
-                    $interestProgramDetails[] = [
-                        'prog_id' => $request->prog_id[$i],
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ];
-                }
-
-                if (!$this->clientRepository->createInterestProgram($parentId, $interestProgramDetails))
-                    throw new Exception('Failed to store interest program', 6);
-            }
-
-
-            # case 7
-            # create interested universities
-            # if they didn't insert universities
-            # then skip this case
-            if (isset($request->st_abruniv) && count($request->st_abruniv) > 0) {
-
-                for ($i = 0; $i < count($request->st_abruniv); $i++) {
-                    $interestUnivDetails[] = [
-                        'univ_id' => $request->st_abruniv[$i],
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ];
-                }
-
-                if (!$this->clientRepository->createInterestUniversities($newStudentId, $interestUnivDetails))
-                    throw new Exception('Failed to store interest universities', 7);
-            }
-
-
-            # case 8
-            # create interested major
-            # if they didn't insert major
-            # then skip this case
-            if (isset($request->st_abrmajor) && count($request->st_abrmajor) > 0) {
-
-                for ($i = 0; $i < count($request->st_abrmajor); $i++) {
-                    $interestMajorDetails[] = [
-                        'major_id' => $request->st_abrmajor[$i],
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ];
-                }
-
-                if (!$this->clientRepository->createInterestMajor($newStudentId, $interestMajorDetails))
-                    throw new Exception('Failed to store interest major', 8);
-            }
-
+            if (!$this->createInterestedProgram($data['interestPrograms'], $newParentId))
+                throw new Exception('Failed to store interest program', 3);
 
             DB::commit();
         } catch (Exception $e) {
@@ -342,35 +171,15 @@ class ClientParentController extends Controller
 
             switch ($e->getCode()) {
                 case 1:
-                    Log::error('Store school failed from parent : ' . $e->getMessage());
-                    break;
-
-                case 2:
-                    Log::error('Store student failed from parent : ' . $e->getMessage());
-                    break;
-
-                case 3:
                     Log::error('Store parent failed : ' . $e->getMessage());
                     break;
 
-                case 4:
+                case 2:
                     Log::error('Store relation between student and parent failed : ' . $e->getMessage());
                     break;
 
-                case 5:
+                case 3:
                     Log::error('Store destination country failed : ' . $e->getMessage());
-                    break;
-
-                case 6:
-                    Log::error('Store interest program failed : ' . $e->getMessage());
-                    break;
-
-                case 7:
-                    Log::error('Store interest universities failed : ' . $e->getMessage());
-                    break;
-
-                case 8:
-                    Log::error('Store interest major failed : ' . $e->getMessage());
                     break;
             }
 
@@ -450,81 +259,13 @@ class ClientParentController extends Controller
 
     public function update(StoreClientParentRequest $request)
     {
-        $parentDetails = $request->only([
-            'pr_firstname',
-            'pr_lastname',
-            'pr_mail',
-            'pr_phone',
-            'pr_dob',
-            'pr_insta',
-            'state',
-            'city',
-            'postal_code',
-            'address',
-            'sch_id',
-            'lead_id',
-            'eduf_id',
-            'kol_lead_id',
-            'event_id',
-            'st_levelinterest',
-            'graduation_year',
-            // 'st_abrcountry',
-            'st_note',
-        ]);
+        $data = $this->initializeVariablesForStoreAndUpdate('parent', $request);
 
-
-        $parentDetails['first_name'] = $request->pr_firstname;
-        $parentDetails['last_name'] = $request->pr_lastname;
-        $parentDetails['mail'] = $request->pr_mail;
-        $parentDetails['phone'] = $this->setPhoneNumber($request->pr_phone);
-        $parentDetails['dob'] = $request->pr_dob;
-        $parentDetails['insta'] = $request->pr_insta;
-        unset($parentDetails['pr_firstname']);
-        unset($parentDetails['pr_lastname']);
-        unset($parentDetails['pr_mail']);
-        unset($parentDetails['pr_phone']);
-        unset($parentDetails['pr_dob']);
-        unset($parentDetails['pr_insta']);
-
-        // $parentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
-        $childrenId = $request->child_id;
-
-        # set lead_id based on lead_id & kol_lead_id
-        # when lead_id is kol
-        # then put kol_lead_id to lead_id
-        # otherwise
-        # when lead_id is not kol 
-        # then lead_id is lead_id
-        if ($request->lead_id == "kol") {
-
-            unset($parentDetails['lead_id']);
-            $parentDetails['lead_id'] = $request->kol_lead_id;
-        }
-        unset($parentDetails['kol_lead_id']);
-
-        $studentDetails = [
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'mail' => $request->mail,
-            'phone' => $this->setPhoneNumber($request->phone),
-            'state' => $parentDetails['state'],
-            'city' => $parentDetails['city'],
-            'postal_code' => $parentDetails['postal_code'],
-            'address' => $parentDetails['address'],
-            'lead_id' => $parentDetails['lead_id'],
-            'eduf_id' => $parentDetails['eduf_id'],
-            'event_id' => $parentDetails['event_id'],
-            'st_levelinterest' => $parentDetails['st_levelinterest'],
-            'st_grade' => $request->st_grade,
-            'st_abryear' => $request->st_abryear,
-            'graduation_year' => $request->graduation_year
-        ];
+        $childrens = $request->child_id;
+        $parentId = $request->route('parent');
 
         DB::beginTransaction();
         try {
-
-            $childrens = $request->child_id;
-            $parentId = $request->route('parent');
 
             # case 1
             # add relation between parent and student
@@ -542,23 +283,23 @@ class ClientParentController extends Controller
             # create interested program
             # if they didn't insert interested program 
             # then skip this case
-            if (isset($request->prog_id) && count($request->prog_id) > 0) {
+            if (!$this->createInterestedProgram($data['interestPrograms'], $parentId))
+                throw new Exception('Failed to store interest program', 3);
 
-                for ($i = 0; $i < count($request->prog_id); $i++) {
-                    $interestProgramDetails[] = [
-                        'prog_id' => $request->prog_id[$i],
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ];
-                }
+            # removing the unnecessary information from the parentDetails
+            unset($data['parentDetails']['pr_firstname']);
+            unset($data['parentDetails']['pr_lastname']);
+            unset($data['parentDetails']['pr_mail']);
+            unset($data['parentDetails']['pr_phone']);
+            unset($data['parentDetails']['pr_dob']);
+            unset($data['parentDetails']['pr_insta']);
 
-                if (!$this->clientRepository->createInterestProgram($parentId, $interestProgramDetails))
-                    throw new Exception('Failed to update interest program', 2);
-            }
+            # removing the kol_lead_id from the parentDetails array
+            unset($data['parentDetails']['kol_lead_id']);
 
             # case 3
             # update parent's information
-            if (!$this->clientRepository->updateClient($parentId, $parentDetails))
+            if (!$this->clientRepository->updateClient($parentId, $data['parentDetails']))
                 throw new Exception('Failed to update parent', 3);
 
             DB::commit();
@@ -587,8 +328,16 @@ class ClientParentController extends Controller
         return Redirect::to('client/parent/' . $parentId)->withSuccess('A parent has been updated.');
     }
 
-    public function download_template()
+    public function import(StoreImportExcelRequest $request)
     {
-        return Excel::download(new ParentTemplate, 'parent.xlsx');
+
+        $file = $request->file('file');
+
+        $import = new MasterParentImport();
+        $import->onlySheets('Parent');
+        // $import->import($file);
+        Excel::import($import, $file);
+
+        return back()->withSuccess('Parent successfully imported');
     }
 }

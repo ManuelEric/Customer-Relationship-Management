@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\pivot\AgendaSpeaker;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -31,11 +33,21 @@ class PartnerProg extends Model
         'reason_id',
         'total_fee',
         'success_date',
-        'denied_date',
+        'pending_date',
+        'accepted_date',
+        'cancel_date',
         'refund_date',
+        'denied_date',
         'refund_notes',
         'empl_id',
     ];
+
+    public function firstDiscuss(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('M d, Y', strtotime($value)),
+        );
+    }
 
     public function school_speaker()
     {
@@ -76,4 +88,20 @@ class PartnerProg extends Model
     {
         return $this->belongsTo(Invb2b::class, 'id', 'partnerprog_id');
     }
+
+    public function schoolCollaborators()
+    {
+        return $this->belongsToMany(School::class, 'tbl_partner_prog_sch', 'partnerprog_id', 'sch_id')->withTimestamps();
+    }
+
+    public function univCollaborators()
+    {
+        return $this->belongsToMany(University::class, 'tbl_partner_prog_univ', 'partnerprog_id', 'univ_id')->withTimestamps();
+    }
+
+    public function partnerCollaborators()
+    {
+        return $this->belongsToMany(Corporate::class, 'tbl_partner_prog_partner', 'partnerprog_id', 'corp_id')->withTimestamps();
+    }
+
 }
