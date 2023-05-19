@@ -7,6 +7,7 @@ use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
@@ -16,6 +17,7 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
+use App\Models\UserClient;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -72,9 +74,14 @@ class ReportController extends Controller
         }
 
         $events = $this->eventRepository->getAllEvents();
+
+        $choosen_event = $this->eventRepository->getEventById($eventId);
         $clientEvents = $this->clientEventRepository->getReportClientEvents($eventId);
         $clients = $this->clientEventRepository->getReportClientEventsGroupByRoles($eventId);
-        $conversionLeads = $this->clientEventRepository->getConversionLead($eventId);
+        $conversionLeads = $this->clientEventRepository->getConversionLead(['eventId' => $eventId]);
+
+        # new get feeder data
+        $feeder = $this->schoolRepository->getFeederSchools($eventId);
 
         return view('pages.report.event-tracking.index')->with(
             [
@@ -82,6 +89,8 @@ class ReportController extends Controller
                 'clients' => $clients,
                 'events' => $events,
                 'conversionLeads' => $conversionLeads,
+                'choosen_event' => $choosen_event,
+                'feeder' => $feeder,
             ]
         );
     }

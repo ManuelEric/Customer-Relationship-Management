@@ -22,7 +22,7 @@
                             <div class="card-body overflow-auto" style="height: 350px">
                                 <ul class="list-group" id="successful-program">
                                     @forelse ($allSuccessProgramByMonth as $detail)
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center cursor-pointer btn-light detail-success-program" data-prog="{{ $detail->prog_id }}">
                                             <div class="text-start">{{ $detail->program_name_st }}</div>
                                             <span
                                                 class="badge badge-primary">{{ $detail->total_client_per_program }}</span>
@@ -161,6 +161,69 @@
     </div>
 </div>
 
+{{-- Academic & Test Prep Details Modal  --}}
+<div class="modal modal-md fade" id="acad_prep_modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-5" id="exampleModalLabel">Detail of Academic & Test Preparation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body acad_prep_modal_body">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Success Program Detail  --}}
+<div class="modal modal-md fade" id="success_program_detail_modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-5" id="exampleModalLabel">Detail of Academic & Test Preparation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body success_program_detail_modal_body">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $(".detail-success-program").each(function(e) {
+            $(this).click(function() {
+                showLoading();
+
+                var progId = $(this).data('prog');
+                var month = $(".qdate").val();
+                var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val();
+                var link = "{{ url('/') }}/api/get/detail/successful-program/" + month + "/" + progId;
+
+                if (user !== null)
+                    link += "/" + user;
+
+                axios.get(link)
+                    .then( function (response) {
+                        
+                        let obj = response.data;
+                        let html = obj.ctx;
+
+                        $("#success_program_detail_modal").modal('show');
+                        $("#success_program_detail_modal .success_program_detail_modal_body").html(html);
+                        swal.close();
+                    })
+                    .catch( function (error) {
+                        swal.close();
+                        notification('error', error.message);
+                    })
+
+            });
+        });
+    });
+</script>
 <script>
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
@@ -488,6 +551,30 @@
                         boxWidth: 10,
                     }
                 }
+            },
+            onClick: (e) => {
+
+                var month = $(".qdate").val();
+                var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
+                var link = "{{ url('/') }}/api/get/detail/academic-prep/" + month;
+                if (user !== null)
+                    link += "/" + user;
+
+                showLoading();
+
+                axios.get(link)
+                    .then(function (response) {
+
+                        let obj = response.data;
+                        $("#acad_prep_modal").modal('show');
+                        $("#acad_prep_modal .acad_prep_modal_body").html(obj.ctx) 
+                        swal.close();
+                    })
+                    .catch(function (error) {
+                        swal.close();
+                        notification('error', error.message);
+                    })
+
             }
         }
     });

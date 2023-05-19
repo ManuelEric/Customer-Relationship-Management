@@ -3,6 +3,16 @@
 @section('title', 'Event Tracking - Bigdata Platform')
 
 @section('content')
+    @if (isset($choosen_event))
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-success">
+                Event Tracking of <u>{{ $choosen_event->event_title }}</u>  
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="row">
         <div class="col-md-3">
             <div class="card mb-3">
@@ -67,6 +77,27 @@
                         @empty
                             <li class="text-center">Not conversion lead yet</li>
                         @endforelse
+                    </ul>
+                </div>
+            </div>
+
+            {{-- Feeder Schools --}}
+            <div class="card mb-3">
+                <div class="card-header  d-flex justify-content-between align-items-center">
+                    <h6 class="p-0 m-0">Feeder Schools</h6>
+                </div>
+                <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
+                    <ul class="list-group">
+                        @if ($feeder !== null)
+                            @foreach ($feeder as $key => $val)
+                                <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                                    <div class="">{{ $key }}</div>
+                                    <span class="badge badge-warning">{{ $val }}</span>
+                                </li>
+                            @endforeach
+                        @else
+                            <li class="text-center">There's no feeder schools</li>
+                        @endif
                     </ul>
                 </div>
             </div>
