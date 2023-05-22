@@ -179,7 +179,7 @@
                 let value = e.chart.data.datasets[datasetIndex].data[dataIndex];
                 let label = e.chart.data.labels[dataIndex];
                 $('#event_title').html(label)
-                get_event_lead(label)
+                // get_event_lead(label)
             }
         }
     });
@@ -198,7 +198,7 @@
     @endforeach
 
     @foreach ($conversion_lead_of_event->pluck('count_conversionLead')->toArray() as $key => $value)
-        dataset_info.push('{{ $value == null || $value == '' ? 0 : $value }}')
+        dataset_info.push({{ $value == null || $value == '' ? 0 : $value }})
     @endforeach
     @endif
 
@@ -229,6 +229,7 @@
             }
         }
     });
+
     
 
 </script>
