@@ -1056,16 +1056,25 @@ class SalesDashboardController extends Controller
     public function compare_program(Request $request)
     {
         $query_programs_array = isset($request->prog) ? explode(',', $request->prog) : null;
+
+        $query_month_year_1 = $request->first_monthyear;
+        $query_month_year_2 = $request->second_monthyear;
         $query_year_1 = $request->first_year;
         $query_year_2 = $request->second_year;
+        
         $user = $request->u;
         
         $cp_filter = [
+            'query_use_month' => $request->query_month, 
             'qprogs' => $query_programs_array,
-            'queryParams_year1' => $query_year_1,
-            'queryParams_year2' => $query_year_2,
+            'queryParams_year1' => $query_year_1 ?? null,
+            'queryParams_year2' => $query_year_2 ?? null,
+            'queryParams_monthyear1' => $query_month_year_1 ?? null,
+            'queryParams_monthyear2' => $query_month_year_2 ?? null,
             'quuid' => $user == 'all' ? null : $user,
         ];
+
+        // return $cp_filter;
 
         try {
 

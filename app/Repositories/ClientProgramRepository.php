@@ -956,6 +956,43 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     public function getComparisonBetweenYears($cp_filter)
     {
         $userId = $this->getUser($cp_filter);
+        $q_date = [];
+        $filter_by_month = $cp_filter['query_use_month'] ?? null;
+        if ($filter_by_month) {
+            $q_date = [
+                'year_1' => date('Y', strtotime($cp_filter['queryParams_monthyear1'])),
+                'month_1' => date('m', strtotime($cp_filter['queryParams_monthyear1'])),
+                'year_2' => date('Y', strtotime($cp_filter['queryParams_monthyear2'])),
+                'month_2' => date('m', strtotime($cp_filter['queryParams_monthyear2']))
+            ];
+        }
+
+            $extended_select = [
+                'revenue_year1' => DB::table('tbl_client_prog as scp')
+                    ->leftJoin('tbl_inv as si', 'si.clientprog_id', '=', 'scp.clientprog_id')
+                    ->whereRaw('scp.prog_id = cp.prog_id')
+                    ->when($filter_by_month == "true", function ($q) use ($q_date) {
+                        $q->whereYear('scp.created_at', $q_date['year_1'])
+                        ->whereMonth('scp.created_at', $q_date['month_1']);
+                    }, function ($q) use ($cp_filter) {
+                        $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year1']);
+                    })
+                    ->select([
+                        DB::raw('SUM(si.inv_totalprice_idr)')
+                    ]),
+                'revenue_year2' => DB::table('tbl_client_prog as scp')
+                    ->leftJoin('tbl_inv as si', 'si.clientprog_id', '=', 'scp.clientprog_id')
+                    ->whereRaw('scp.prog_id = cp.prog_id')
+                    ->when($filter_by_month == "true", function ($q) use ($q_date) {
+                        $q->whereYear('scp.created_at', $q_date['year_2'])
+                        ->whereMonth('scp.created_at', $q_date['month_2']);
+                    }, function ($q) use ($cp_filter) {
+                        $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year2']);
+                    })
+                    ->select([
+                        DB::raw('SUM(si.inv_totalprice_idr)')
+                    ])
+            ];
 
         return DB::table('tbl_client_prog as cp')->
             leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'cp.prog_id')->
@@ -963,22 +1000,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             select([
                 'cp.prog_id',
                 'tbl_main_prog.prog_name',
-                'tbl_prog.prog_program',
-                'revenue_year1' => DB::table('tbl_client_prog as scp')
-                    ->leftJoin('tbl_inv as si', 'si.clientprog_id', '=', 'scp.clientprog_id')
-                    ->whereRaw('scp.prog_id = cp.prog_id')
-                    ->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year1'])
-                    ->select([
-                        DB::raw('SUM(si.inv_totalprice_idr)')
-                    ]),
-                'revenue_year2' => DB::table('tbl_client_prog as scp')
-                    ->leftJoin('tbl_inv as si', 'si.clientprog_id', '=', 'scp.clientprog_id')
-                    ->whereRaw('scp.prog_id = cp.prog_id')
-                    ->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year2'])
-                    ->select([
-                        DB::raw('SUM(si.inv_totalprice_idr)')
-                    ])
-            ])
+                'tbl_prog.prog_program'
+            ] + $extended_select)
             ->when($userId, function($query) use ($userId) {
                 $query->where('cp.empl_id', $userId);
             })
