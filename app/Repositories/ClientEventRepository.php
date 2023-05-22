@@ -201,9 +201,10 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 'tbl_client_event.clientevent_id',
                 'tbl_client_event.client_id',
                 'tbl_client_event.created_at',
+                'tbl_client_event.joined_date',
                 'program.main_prog_id',
                 'tbl_roles.role_name',
-                // 'tbl_client_prog.clientprog_id',
+                'tbl_client_prog.status',
                 'tbl_receipt.id as id_receipt'
             );
 
@@ -335,5 +336,10 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         }
 
         return $userId;
+    }
+
+    public function getAllClientEvents()
+    {
+        return ClientEvent::all();
     }
 }

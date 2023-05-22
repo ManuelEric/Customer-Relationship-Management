@@ -18,6 +18,7 @@ use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Models\ClientEvent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class ReportController extends Controller
 {
@@ -80,20 +81,29 @@ class ReportController extends Controller
 
         $events = $this->eventRepository->getAllEvents();
         $clientEvents = $this->clientEventRepository->getReportClientEvents($eventId);
+        $allClientEvents = $this->clientEventRepository->getAllClientEvents();
         $clients = $this->clientEventRepository->getReportClientEventsGroupByRoles($eventId);
         $conversionLeads = $this->clientEventRepository->getConversionLead($request);
 
         $existingMentee = $clients->where('role_name', 'Mentee')->unique('client_id');
 
-        $id_mentee = $this->getIdClientExisting($existingMentee);
+        $id_mentee = $this->getIdClient($existingMentee);
 
-        $existingNonMentee = $clients->where('role_name', '!=', 'Mentee')->where('id_receipt', '!=', null)->where('main_prog_id', '!=', 1)->whereNotIn('client_id', $id_mentee)->unique('client_id');
+        $existingNonMentee = $clients->where('role_name', '!=', 'Mentee')->where('status', 1)->where('main_prog_id', '!=', 1)->whereNotIn('client_id', $id_mentee)->unique('client_id');
 
-        $id_nonMentee = $this->getIdClientExisting($existingNonMentee);
+        $id_nonMentee = $this->getIdClient($existingNonMentee);
 
-        $existingNonClient = $clients->where('id_receipt', null)->whereNotIn('client_id', $id_nonMentee)->whereNotIn('client_id', $id_mentee)->unique('client_id');
-        // return $existingNonClient;
-        // exit;
+        $undefinedClients = $clients->whereNotIn('client_id', $id_nonMentee)->whereNotIn('client_id', $id_mentee)->unique('client_id');
+
+        $checkClient = $this->checkExistingOrNewClientEvent($undefinedClients, $allClientEvents);
+
+        $id_nonClient = $this->getIdClient($checkClient->where('type', 'ExistNonClient'));
+
+        $existingNonClient = $clients->whereIn('client_id', $id_nonClient)->unique('client_id');
+
+        $id_newClient = $this->getIdClient($checkClient->where('type', 'New'));
+
+        $newClient = $clients->whereIn('client_id', $id_newClient)->unique('client_id');
 
         return view('pages.report.event-tracking.index')->with(
             [
@@ -101,6 +111,7 @@ class ReportController extends Controller
                 'existingMentee' => $existingMentee,
                 'existingNonMentee' => $existingNonMentee,
                 'existingNonClient' => $existingNonClient,
+                'newClient' => $newClient,
                 'events' => $events,
                 'conversionLeads' => $conversionLeads,
             ]
@@ -228,7 +239,7 @@ class ReportController extends Controller
         );
     }
 
-    protected function getIdClientExisting($data)
+    protected function getIdClient($data)
     {
         $id_client = array();
 
@@ -239,5 +250,34 @@ class ReportController extends Controller
         }
 
         return $id_client;
+    }
+
+    protected function checkExistingOrNewClientEvent($data, $allClientEvents)
+    {
+
+        $i = 0;
+
+        $dataClient =  new Collection();
+
+        foreach ($data as $data) {
+            $check = $allClientEvents->where('client_id', $data->client_id);
+            if (count($check) > 1) {
+                $dataClient->push((object)[
+                    'type' => 'ExistNonClient',
+                    'client_id' => $check->first()->client_id,
+                ]);
+                // $extNonClient = $clients->where('client_id', $check->first()->client_id)->unique('client_id');
+            } else {
+                // $NewClient = $clients->where('client_id', $check->first()->client_id)->unique('client_id');
+                // $dataClient['type'][$i] = 'New';
+                // $dataClient['id_client'][$i] = $check->first()->client_id;
+                $dataClient->push((object)[
+                    'type' => 'New',
+                    'client_id' => $check->first()->client_id,
+                ]);
+            }
+            $i++;
+        }
+        return $dataClient;
     }
 }
