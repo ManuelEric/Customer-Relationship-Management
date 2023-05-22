@@ -8,7 +8,9 @@ use App\Models\InvoiceProgram;
 use App\Models\pivot\ClientMentor;
 use App\Models\Reason;
 use App\Models\Receipt;
+use App\Models\School;
 use App\Models\User;
+use App\Models\UserClient;
 use App\Models\v1\ClientProgram as CRMClientProgram;
 use App\Models\ViewClientProgram;
 use DataTables;
@@ -418,6 +420,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return $clientProgram;
     }    
 
+    public function endedClientProgram(int $clientprog_id, array $newDetails)
+    {
+        return ClientProgram::whereClientProgramId($clientprog_id)->update($newDetails);
+    }
+
     public function deleteClientProgram($clientProgramId)
     {
         return ClientProgram::where('clientprog_id', $clientProgramId)->delete();
@@ -666,6 +673,132 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return $data;
     }
 
+    public function getClientProgramGroupDataByStatusAndUserArray($cp_filter)
+    {
+        $userId = $this->getUser($cp_filter);
+
+        $data['pending'] = ClientProgram::with(
+                [
+                    'client' => function ($query) {
+                        $query->select(
+                            'id',
+                            DB::raw('CONCAT(first_name, " ", last_name) as client_name'),
+                        );
+                    }, 
+                    'program.sub_prog' => function ($query) {
+                        $query->select(
+                            'id',
+                            'sub_prog_name'
+                        );
+                    }
+                ])->
+                when($cp_filter['program'], function ($q) use ($cp_filter) {
+                    $q->whereHas('program', function ($q2) use ($cp_filter) {
+                        $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('prog_name', $cp_filter['program']);
+                        })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('sub_prog_name', $cp_filter['program']);
+                        });
+                    });
+                })->
+                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                    $q->where('empl_id', $userId);
+                })->where('status', 0)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+                    $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
+                })->get()->groupBy('program.sub_prog.sub_prog_name'); # pending
+
+        $data['failed'] = ClientProgram::with(
+                [
+                    'client' => function ($query) {
+                        $query->select(
+                            'id',
+                            DB::raw('CONCAT(first_name, " ", last_name) as client_name'),
+                        );
+                    }, 
+                    'program.sub_prog' => function ($query) {
+                        $query->select(
+                            'id',
+                            'sub_prog_name'
+                        );
+                    }
+                ])->
+                when($cp_filter['program'], function ($q) use ($cp_filter) {
+                    $q->whereHas('program', function ($q2) use ($cp_filter) {
+                        $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('prog_name', $cp_filter['program']);
+                        })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('sub_prog_name', $cp_filter['program']);
+                        });
+                    });
+                })->
+                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                    $q->where('empl_id', $userId);
+                })->where('status', 2)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+                    $q->whereMonth('failed_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('failed_date', date('Y', strtotime($cp_filter['qdate'])));
+                })->get()->groupBy('program.sub_prog.sub_prog_name'); # failed
+        $data['success'] = ClientProgram::with(
+                [
+                    'client' => function ($query) {
+                        $query->select(
+                            'id',
+                            DB::raw('CONCAT(first_name, " ", last_name) as client_name'),
+                        );
+                    }, 
+                    'program.sub_prog' => function ($query) {
+                        $query->select(
+                            'id',
+                            'sub_prog_name'
+                        );
+                    }
+                ])->
+                when($cp_filter['program'], function ($q) use ($cp_filter) {
+                    $q->whereHas('program', function ($q2) use ($cp_filter) {
+                        $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('prog_name', $cp_filter['program']);
+                        })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('sub_prog_name', $cp_filter['program']);
+                        });
+                    });
+                })->
+                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                    $q->where('empl_id', $userId);
+                })->where('status', 1)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+                    $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
+                })->
+                get()->groupBy('program.sub_prog.sub_prog_name'); # success
+        $data['refund'] = ClientProgram::with(
+                [
+                    'client' => function ($query) {
+                        $query->select(
+                            'id',
+                            DB::raw('CONCAT(first_name, " ", last_name) as client_name'),
+                        );
+                    }, 
+                    'program.sub_prog' => function ($query) {
+                        $query->select(
+                            'id',
+                            'sub_prog_name'
+                        );
+                    }
+                ])->
+                when($cp_filter['program'], function ($q) use ($cp_filter) {
+                    $q->whereHas('program', function ($q2) use ($cp_filter) {
+                        $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('prog_name', $cp_filter['program']);
+                        })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                            $q3->where('sub_prog_name', $cp_filter['program']);
+                        });
+                    });
+                })->
+                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                    $q->where('empl_id', $userId);
+                })->where('status', 3)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+                    $q->whereMonth('refund_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('refund_date', date('Y', strtotime($cp_filter['qdate'])));
+                })->get()->groupBy('program.sub_prog.sub_prog_name'); # refund
+     
+        return $data;
+    }
+
     public function getInitialConsultationInformation($cp_filter)
     {
         $userId = $this->getUser($cp_filter);
@@ -759,14 +892,17 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     {
         $userId = $this->getUser($cp_filter);
 
-        return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-            ->select([
+        return ClientProgram::
+            leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->
+            leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')->
+            leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->
+            select([
+                'tbl_prog.prog_id',
                 DB::raw('CONCAT(tbl_main_prog.prog_name, ": ", tbl_prog.prog_program) as program_name_st'),
-                DB::raw('COUNT(*) as total_client_per_program')
-            ])
-            ->where('status', 1)
-            ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+                DB::raw('COUNT(*) as total_client_per_program'),
+            ])->
+            where('status', 1)->
+            when(isset($cp_filter['quuid']), function ($q) use ($userId) {
                 $q->where('empl_id', $userId);
             })
             // ->whereMonth('tbl_client_prog.created_at', date('m', strtotime($cp_filter['qdate'])))
@@ -775,6 +911,24 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])))
             ->groupBy('program_name_st')
             ->get();
+    }
+
+    public function getDetailSuccessProgramByMonthAndProgram($cp_filter)
+    {
+        $userId = $this->getUser($cp_filter);
+        $progId = $cp_filter['progId'];
+        $queryDate = $cp_filter['qdate'];
+
+        return UserClient::
+            whereHas('clientProgram', function ($q) use ($userId, $progId, $queryDate) {
+                $q->where('status', 1)->
+                    when($userId, function ($q2) use ($userId) {
+                        $q2->where('empl_id', $userId);
+                    })->
+                    where('prog_id', $progId)->
+                    whereMonth('success_date', date('m', strtotime($queryDate)))->
+                    whereYear('success_date', date('Y', strtotime($queryDate)));
+            })->get();
     }
 
     public function getTotalRevenueByProgramAndMonth($cp_filter)
@@ -833,6 +987,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             })
             ->groupBy('cp.prog_id', 'tbl_main_prog.prog_name', 'tbl_prog.prog_program',)->get();
 
+    }
+
+    public function getActiveClientProgramAfterProgramEnd()
+    {
+        return ClientProgram::
+                where('prog_running_status', 1)->
+                where('prog_end_date', '<', now())->
+                whereNotNull('prog_end_date')->
+                get();
     }
 
     # 

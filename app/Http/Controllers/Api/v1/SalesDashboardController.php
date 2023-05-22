@@ -8,6 +8,7 @@ use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
+use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SalesTargetRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
@@ -21,8 +22,16 @@ class SalesDashboardController extends Controller
     protected FollowupRepositoryInterface $followupRepository;
     protected SalesTargetRepositoryInterface $salesTargetRepository;
     protected EventRepositoryInterface $eventRepository;
+    protected ProgramRepositoryInterface $programRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, FollowupRepositoryInterface $followupRepository, SalesTargetRepositoryInterface $salesTargetRepository, EventRepositoryInterface $eventRepository)
+    public function __construct(
+        ClientRepositoryInterface $clientRepository, 
+        ClientProgramRepositoryInterface $clientProgramRepository, 
+        ClientEventRepositoryInterface $clientEventRepository, 
+        FollowupRepositoryInterface $followupRepository, 
+        SalesTargetRepositoryInterface $salesTargetRepository, 
+        EventRepositoryInterface $eventRepository,
+        ProgramRepositoryInterface $programRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->clientProgramRepository = $clientProgramRepository;
@@ -30,6 +39,7 @@ class SalesDashboardController extends Controller
         $this->followupRepository = $followupRepository;
         $this->salesTargetRepository = $salesTargetRepository;
         $this->eventRepository = $eventRepository;
+        $this->programRepository = $programRepository;
 
     }
 
@@ -150,7 +160,7 @@ class SalesDashboardController extends Controller
             $last_month_completed_client = $this->clientRepository->getCountTotalClientByStatus(3, $last_month);
             $monthly_new_completed_client = $this->clientRepository->getCountTotalClientByStatus(3, $month);
 
-            $last_month_mentee = $this->clientRepository->getAllClientByRole('mentee', $last_month)->count();
+            $last_month_mentee = $this->clientRepository->getAllClientByRole('mentee')->count();
             $monthly_new_mentee = $this->clientRepository->getAllClientByRole('mentee', $month)->count();
 
             $last_month_alumni = $this->clientRepository->getAllClientByRole('alumni', $last_month)->count();
@@ -184,11 +194,11 @@ class SalesDashboardController extends Controller
                     'new' => $monthly_new_completed_client,
                     'percentage' => $this->calculatePercentage($type, $last_month_completed_client, $monthly_new_completed_client)
                 ], # completed
-                [
-                    'old' => $type == "all" ? $last_month_mentee-$monthly_new_mentee : $last_month_mentee,
-                    'new' => $monthly_new_mentee,
-                    'percentage' => $this->calculatePercentage($type, $last_month_mentee, $monthly_new_mentee)
-                ], # mentee
+                // [
+                //     'old' => $type == "all" ? $last_month_mentee-$monthly_new_mentee : $last_month_mentee,
+                //     'new' => $monthly_new_mentee,
+                //     'percentage' => $this->calculatePercentage($type, $last_month_mentee, $monthly_new_mentee)
+                // ], # mentee
                 [
                     'old' => $type == "all" ? $last_month_alumni-$monthly_new_alumni : $last_month_alumni,
                     'new' => $monthly_new_alumni,
@@ -233,7 +243,7 @@ class SalesDashboardController extends Controller
                 if ($last_month_data == 0) {
                     return "0,00";
                 }
-                return number_format(($monthly_data/$last_month_data)*100, 2, ',', '.');
+                return number_format(($monthly_data/($last_month_data-$monthly_data))*100, 2, ',', '.');
                 break;
 
             default:
@@ -294,7 +304,7 @@ class SalesDashboardController extends Controller
                                 $html .= '<li class="list-group-item d-flex justify-content-between align-items-center">
                                             <div class="">
                                                 <p class="m-0 p-0 lh-1">'.$info->clientProgram->client->full_name.'</p>
-                                                    <small class="m-0">'.$info->clientProgram->program_name.'</small>
+                                                    <small class="m-0">'.$info->clientProgram->program->program_name.'</small>
                                             </div>
                                             <div class="">
                                                 <input class="form-check-input me-1" type="checkbox" value="1" '.$checked.
@@ -403,6 +413,7 @@ class SalesDashboardController extends Controller
 
     public function getSuccessfulProgramByMonth(Request $request)
     {
+        $cp_filter['progId'] = $request->route('program');
         $cp_filter['qdate'] = $request->route('month');
         $cp_filter['quuid'] = $request->route('user') ?? null;
 
@@ -442,6 +453,56 @@ class SalesDashboardController extends Controller
             ]
         );
 
+    }
+
+    public function getSuccessfulProgramDetailByMonthAndProgram(Request $request) 
+    {
+        $cp_filter['progId'] = $request->route('program');
+        $cp_filter['qdate'] = $request->route('month');
+        $cp_filter['quuid'] = $request->route('user') ?? null;
+
+        try {
+
+
+            $program = $this->programRepository->getProgramById($cp_filter['progId']);
+            $detailClientJoinedProgram = $this->clientProgramRepository->getDetailSuccessProgramByMonthAndProgram($cp_filter);
+
+            $content = '';
+            $html = '<label class="mb-3">Clients joined : <u>'.$program->program_name.'</u></label>';
+                
+            $no = 1;
+            foreach ($detailClientJoinedProgram as $client) {
+                $content .= '<tr>
+                        <td>'.$no++.'.</td>
+                        <td>'.$client->full_name.'</td>
+                    </tr>';
+            }
+            
+            $html .= '<table class="table table-bordered border-primary">
+                    <tr>
+                        <th style="width:2em">No.</th>
+                        <th>Client Name</th>
+                    </tr>
+                    '.$content.'
+                    </table>';
+            
+
+        } catch (Exception $e) {
+
+            Log::error('Failed to get detail of success program dashboard data '.$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get detail of success program'
+            ], 500);
+
+        }
+
+        return response()->json(
+            [
+                'success' => true,
+                'ctx' => $html
+            ]
+        );
     }
 
     public function getAdmissionsProgramByMonth(Request $request)
@@ -555,6 +616,90 @@ class SalesDashboardController extends Controller
             ]
         );
         
+    }
+
+    public function getAcademicPrepByMonthDetail(Request $request)
+    {
+        $cp_filter['qdate'] = $request->route('month');
+        $cp_filter['quuid'] = $request->route('user') ?? null;
+
+        try {
+
+            $academicTestPrep = $this->clientProgramRepository->getClientProgramGroupDataByStatusAndUserArray(['program' => 'Academic & Test Preparation'] + $cp_filter);
+            // return $academicTestPrep;
+
+            $html = $table_content = null;
+            foreach ($academicTestPrep as $title => $data) {
+
+                if ($data->count() > 0) {
+                    $html .= '<label class="fw-bold fs-5 my-3">'.ucfirst($title).'</label>';
+    
+                    foreach ($data as $program_name => $value) {
+    
+                        $no = 1;
+                        $table_content = ''; # reset table content
+                        foreach ($value as $data) {
+
+                            switch ($title) {
+                                case "pending":
+                                    $date_name = 'Created At';
+                                    $date_value = date('l, d M Y', strtotime($data->created_at));
+                                    break;
+
+                                case "failed":
+                                    $date_name = 'Failed Date';
+                                    $date_value = date('l, d M Y', strtotime($data->failed_date));
+                                    break;
+
+                                case "success":
+                                    $date_name = 'Success Date';
+                                    $date_value = date('l, d M Y', strtotime($data->success_date));
+                                    break;
+
+                                case "refund":
+                                    $date_name = 'Refund Date';
+                                    $date_value = date('l, d M Y', strtotime($data->refund_date));
+                                    break;
+                            }
+    
+                            $table_content .= '
+                                <tr>
+                                    <td align="center">'.$no++.'.</td>
+                                    <td>'.$data->client->client_name.'</td>
+                                    <td align="center">'.$date_value.'</td>
+                                </tr>';
+    
+                        }
+    
+                        $html .= '
+                            <table class="table table-bordered border-primary">
+                                <tr>
+                                    <td colspan="3"><label class="fs-6">'.$program_name.'</label></td>
+                                </tr>
+                                <tr align="center">
+                                    <th style="width:2em">No.</th>
+                                    <th>Client Name</th>
+                                    <th style="width:150px">'.$date_name.'</th>
+                                </tr>
+                                '.$table_content.'
+                            </table>';
+    
+                    }
+                }
+
+            }
+
+        } catch (Exception $e) {
+
+            Log::error($e->getMessage().' | Line '.$e->getLine());
+            return response()->json(['message' => 'Failed to get detail academic & test preparation detail : '.$e->getMessage().' | Line '.$e->getLine()]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $academicTestPrep,
+            'ctx' => $html
+        ]);
     }
 
     public function getCareerExplorationByMonth(Request $request)

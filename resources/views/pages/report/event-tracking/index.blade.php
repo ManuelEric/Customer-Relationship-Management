@@ -3,6 +3,16 @@
 @section('title', 'Event Tracking - Bigdata Platform')
 
 @section('content')
+    @if (isset($choosen_event))
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-success">
+                Event Tracking of <u>{{ $choosen_event->event_title }}</u>  
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="row">
         <div class="col-md-3">
             <div class="card mb-3">
@@ -35,19 +45,48 @@
             {{-- Client  --}}
             <div class="card mb-3">
                 <div class="card-header  d-flex justify-content-between align-items-center">
-                    <h6 class="p-0 m-0">Client</h6>
+                    <h6 class="p-0 m-0">Existing Client</h6>
                     {{-- <span class="badge bg-primary">{{ count($clientEvents) }}</span> --}}
                 </div>
                 <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
                     <ul class="list-group">
-                        @forelse ($clients as $client)
                             <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
-                                <div class="">{{ $client->role_name }}</div>
-                                <span class="badge badge-info">{{ $client->count_role }}</span>
+                                <div class="">Mentee</div>
+                                <span class="badge badge-info">{{ $existingMentee->count() }}</span>
                             </li>
-                        @empty
-                            <li class="text-center">Not Client yet</li> 
-                        @endforelse
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                                <div class="">Non Mentee</div>
+                                <span class="badge badge-info">{{ $existingNonMentee->count() }}</span>
+                            </li>
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                                <div class="">Non Client</div>
+                                <span class="badge badge-info">{{ $existingNonClient->count() }}</span>
+                            </li>
+                        
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header  d-flex justify-content-between align-items-center">
+                    <h6 class="p-0 m-0">New Client</h6>
+                    {{-- <span class="badge bg-primary">{{ count($clientEvents) }}</span> --}}
+                </div>
+                <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
+                    <ul class="list-group">
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                                <div class="">Student</div>
+                                <span class="badge badge-info">{{ $newClient->where('role_name', 'Student')->count() }}</span>
+                            </li>
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                                <div class="">Parent</div>
+                                <span class="badge badge-info">{{ $newClient->where('role_name', 'Parent')->count() }}</span>
+                            </li>
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                                <div class="">Teacher / Counselor</div>
+                                <span class="badge badge-info">{{ $newClient->where('role_name', 'Teacher/Counselor')->count() }}</span>
+                            </li>
+                        
                     </ul>
                 </div>
             </div>
@@ -67,6 +106,27 @@
                         @empty
                             <li class="text-center">Not lead source yet</li>
                         @endforelse
+                    </ul>
+                </div>
+            </div>
+
+            {{-- Feeder Schools --}}
+            <div class="card mb-3">
+                <div class="card-header  d-flex justify-content-between align-items-center">
+                    <h6 class="p-0 m-0">Feeder Schools</h6>
+                </div>
+                <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
+                    <ul class="list-group">
+                        @if ($feeder !== null)
+                            @foreach ($feeder as $key => $val)
+                                <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                                    <div class="">{{ $key }}</div>
+                                    <span class="badge badge-warning">{{ $val }}</span>
+                                </li>
+                            @endforeach
+                        @else
+                            <li class="text-center">There's no feeder schools</li>
+                        @endif
                     </ul>
                 </div>
             </div>

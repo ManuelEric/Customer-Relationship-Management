@@ -109,6 +109,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
             ->select(
+                'tbl_client.id as client_id',
                 DB::raw('CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) as client_name'),
                 'tbl_client.mail',
                 'tbl_client.phone',
@@ -121,6 +122,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     ELSE tbl_lead.main_lead
                 END) AS conversion_lead'),
                 'tbl_client_event.joined_date',
+                'tbl_client_event.client_id',
+                'tbl_client_event.clientevent_id',
                 'tbl_events.event_title',
                 DB::raw(isset($eventId) ? "'ByEvent' as filter" : "'ByMonth' as filter"),
             );
@@ -188,29 +191,56 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function getReportClientEventsGroupByRoles($eventId = null)
     {
+        $clientEvent = ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+            ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
+            ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
+            ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
+            ->leftJoin('program', 'program.prog_id', '=', 'tbl_client_prog.prog_id')
+            ->leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')
+            ->leftJoin('tbl_receipt', 'tbl_receipt.inv_id', '=', 'tbl_inv.inv_id')
+            ->select(
+                'tbl_client_event.clientevent_id',
+                'tbl_client_event.client_id',
+                'tbl_client_event.created_at',
+                'tbl_client_event.joined_date',
+                'program.main_prog_id',
+                'tbl_roles.role_name',
+                'tbl_client_prog.status',
+                'tbl_receipt.id as id_receipt'
+            );
+
         if (isset($eventId)) {
-            return ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
-                ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
-                ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
-                ->select(
-                    'tbl_roles.role_name',
-                    DB::raw('count(role_id) as count_role')
-                )
-                ->groupBy('role_name')
+            return $clientEvent
                 ->where('tbl_client_event.event_id', $eventId)
                 ->get();
         } else {
-            return ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
-                ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
-                ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
-                ->select(
-                    'tbl_roles.role_name',
-                    DB::raw('count(role_id) as count_role')
-                )
-                ->groupBy('role_name')
+            return $clientEvent
                 ->whereMonth('tbl_client_event.created_at', date('m'))->whereYear('tbl_client_event.created_at', date('Y'))
                 ->get();
         }
+        // if (isset($eventId)) {
+        //     return ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+        //         ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
+        //         ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
+        //         ->select(
+        //             'tbl_roles.role_name',
+        //             DB::raw('count(role_id) as count_role')
+        //         )
+        //         ->groupBy('role_name')
+        //         ->where('tbl_client_event.event_id', $eventId)
+        //         ->get();
+        // } else {
+        //     return ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+        //         ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
+        //         ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
+        //         ->select(
+        //             'tbl_roles.role_name',
+        //             DB::raw('count(role_id) as count_role')
+        //         )
+        //         ->groupBy('role_name')
+        //         ->whereMonth('tbl_client_event.created_at', date('m'))->whereYear('tbl_client_event.created_at', date('Y'))
+        //         ->get();
+        // }
     }
 
     public function getConversionLead($filter = null)
@@ -307,5 +337,10 @@ class ClientEventRepository implements ClientEventRepositoryInterface
         }
 
         return $userId;
+    }
+
+    public function getAllClientEvents()
+    {
+        return ClientEvent::all();
     }
 }
