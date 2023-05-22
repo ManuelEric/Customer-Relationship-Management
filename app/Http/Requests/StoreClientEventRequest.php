@@ -60,7 +60,10 @@ class StoreClientEventRequest extends FormRequest
         $event = $this->eventRepository->getEventById($this->input('event_id'));
 
         $rules = [
-            'client_id' => 'required|exists:tbl_client,id',
+            'client_id' => [
+                'required',
+                'exists:tbl_client,id'
+            ],
             'event_id' => [
                 'required_if:lead_id,LS004',
                 Rule::unique('tbl_client_event')->where(function ($query) {

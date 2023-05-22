@@ -7,6 +7,7 @@ use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
@@ -17,6 +18,7 @@ use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
 use App\Models\ClientEvent;
+use App\Models\UserClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -80,10 +82,15 @@ class ReportController extends Controller
         }
 
         $events = $this->eventRepository->getAllEvents();
+
+        $choosen_event = $this->eventRepository->getEventById($eventId);
         $clientEvents = $this->clientEventRepository->getReportClientEvents($eventId);
         $allClientEvents = $this->clientEventRepository->getAllClientEvents();
         $clients = $this->clientEventRepository->getReportClientEventsGroupByRoles($eventId);
-        $conversionLeads = $this->clientEventRepository->getConversionLead($request);
+        $conversionLeads = $this->clientEventRepository->getConversionLead(['eventId' => $eventId]);
+
+        # new get feeder data
+        $feeder = $this->schoolRepository->getFeederSchools($eventId);
 
         $existingMentee = $clients->where('role_name', 'Mentee')->unique('client_id');
 
@@ -114,6 +121,8 @@ class ReportController extends Controller
                 'newClient' => $newClient,
                 'events' => $events,
                 'conversionLeads' => $conversionLeads,
+                'choosen_event' => $choosen_event,
+                'feeder' => $feeder,
             ]
         );
     }

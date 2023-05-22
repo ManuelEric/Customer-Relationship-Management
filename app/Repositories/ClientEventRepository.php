@@ -109,6 +109,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
             ->select(
+                'tbl_client.id as client_id',
                 DB::raw('CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) as client_name'),
                 'tbl_client.mail',
                 'tbl_client.phone',

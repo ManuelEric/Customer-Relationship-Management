@@ -12,6 +12,7 @@ interface ClientProgramRepositoryInterface
     public function getClientProgramById($clientProgramId);
     public function createClientProgram(array $clientProgramDetails);
     public function updateClientProgram($clientProgramId, array $clientProgramDetails);
+    public function endedClientProgram(int $clientprog_id, array $newDetails);
     public function deleteClientProgram($clientProgramId);
 
     # sales tracking
@@ -24,12 +25,15 @@ interface ClientProgramRepositoryInterface
 
     # dashboard
     public function getClientProgramGroupByStatusAndUserArray($cp_filter);
+    public function getClientProgramGroupDataByStatusAndUserArray($cp_filter);
     public function getInitialConsultationInformation($cp_filter);
     public function getInitialMaking($dateDetails, $cp_filter);
     public function getConversionTimeProgress($dateDetails, $cp_filter);
     public function getSuccessProgramByMonth($cp_filter);
+    public function getDetailSuccessProgramByMonthAndProgram($cp_filter);
     public function getTotalRevenueByProgramAndMonth($cp_filter);
     public function getComparisonBetweenYears($cp_filter);
+    public function getActiveClientProgramAfterProgramEnd();
 
     # CRM
     public function getClientProgramFromV1();

@@ -17,7 +17,11 @@
     <select name="" id="cp_employee" class="select w-25">
         <option value="all">All</option>
         @foreach ($employees as $employee)
-            <option value="{{ $employee->uuid }}" @selected($employee->uuid == Request::get('quser'))>{{ $employee->full_name }}</option>
+            @if ($isSales && $loggedIn_user == $employee->uuid)
+                <option value="{{ $employee->uuid }}" @selected($employee->uuid == Request::get('quser'))>{{ $employee->full_name }}</option>
+            @elseif ($isAdmin)
+                <option value="{{ $employee->uuid }}" @selected($employee->uuid == Request::get('quser'))>{{ $employee->full_name }}</option>
+            @endif
         @endforeach
     </select>
 </div>
