@@ -246,7 +246,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
     public function getConversionLead($filter = null)
     {
         // return $filter;
-        $eventId = isset($filter['event_id']) ? $filter['event_id'] : null;
+        $eventId = isset($filter['eventId']) ? $filter['eventId'] : null;
         $userId = $this->getUser($filter);
         // $year = $filter['qyear'];
 
