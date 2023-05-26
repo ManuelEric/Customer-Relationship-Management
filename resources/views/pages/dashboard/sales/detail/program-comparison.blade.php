@@ -17,7 +17,21 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-12">
+                            <div class="col-12 d-none" id="filter-withmonth-container">
+                                <label for=""></label>
+                                <div class="row align-items-center g-0">
+                                    <div class="col-5">
+                                        <input type="month" name="q-first-monthyear" id="q-first-monthyear" class="form-control">
+                                    </div>
+                                    <div class="col-2 text-center">
+                                        VS
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="month" name="q-second-monthyear" id="q-second-monthyear" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12" id="filter-year-container">
                                 <label for="">Year</label>
                                 <div class="row align-items-center g-0">
                                     <div class="col">
@@ -40,6 +54,18 @@
                                                     {{ $i }}</option>
                                             @endfor
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="row align-items-center g-0">
+                                <div class="col ps-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="filter-use-monthyear" id="use-filter-by-month">
+                                        <label class="form-check-label" for="use-filter-by-month">
+                                            Use filter by month
+                                        </label>
                                     </div>
                                 </div>
                             </div>
