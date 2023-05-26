@@ -93,6 +93,10 @@
                 client_event_chart_pct.data.datasets[1].data = obj.ctx.participants
                 client_event_chart_pct.update();
 
+                var lead_array = obj.lead.total.map(function (x) {
+                    return parseInt(x);
+                })
+
                 event_lead_chart.data.labels = obj.lead.labels
                 event_lead_chart.data.datasets[0].data = obj.lead.total
                 event_lead_chart.update();
