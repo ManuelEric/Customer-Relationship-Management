@@ -451,7 +451,7 @@ class SalesDashboardController extends Controller
             } else {
                 
                 foreach ($allSuccessProgramByMonth as $program) {
-                    $html .= '<li class="list-group-item d-flex justify-content-between align-items-center">
+                    $html .= '<li class="list-group-item d-flex justify-content-between align-items-center cursor-pointer btn-light detail-success-program" data-prog="'.$program->prog_id.'">
                                 <div class="text-start">'.$program->program_name_st.'</div>
                                 <span class="badge badge-primary">'.$program->total_client_per_program.'</span>
                             </li>';
