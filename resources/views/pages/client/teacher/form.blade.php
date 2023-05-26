@@ -29,11 +29,11 @@
                 @if (isset($teacher_counselor))
                     @method('PUT')
                 @endif
-                <div class="row align-items-center">
-                    <div class="col-4 text-center">
+                <div class="row flex-md-row flex-column align-items-center">
+                    <div class="col-md-4 col text-center mb-md-0 mb-2">
                         <img src="{{ asset('img/teacher.jpg') }}" class="w-50">
                     </div>
-                    <div class="col-8">
+                    <div class="col-md-8 col">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-2">

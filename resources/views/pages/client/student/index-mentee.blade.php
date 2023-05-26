@@ -12,7 +12,7 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs mb-3">
+            <ul class="nav nav-tabs flex-nowrap mb-3">
                 <li class="nav-item">
                     <a class="nav-link {{ Request::get('st') == "active" ? "active" : null }}"
                         href="{{ url('client/mentee?st=active') }}">Active</a>
@@ -62,6 +62,7 @@
 
     {{-- Need Changing --}}
     <script>
+        var widthView = $(window).width();
         $(document).ready(function() {
             var table = $('#clientTable').DataTable({
                 order: [
@@ -81,7 +82,7 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
                 processing: true,

@@ -15,74 +15,73 @@
         <div class="col-md-5">
             <div class="card rounded mb-2">
                 <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between">
                         <div class="">
-                            <h3 class="m-0 p-0">{{ $parent->fullname }}</h3>
+                            <h3 class="m-0 mb-2 p-0">{{ $parent->fullname }}</h3>
                             <small class="text-muted">
                                 <i class="bi bi-calendar-day me-1"></i> Join Date: {{ date('d M Y', strtotime($parent->created_at)) }} |
                                 <i class="bi bi-calendar-date mx-1"></i> Last Update: {{ date('d M Y', strtotime($parent->updated_at)) }}
                             </small>
                         </div>
-                        <div class="">
-                            <a href="{{ url('client/parent/'.$parent->id.'/edit') }}" class="btn btn-warning btn-sm rounded"><i
-                                    class="bi bi-pencil"></i></a>
+                        <div class="col-2 text-end">
+                            <a href="{{ url('client/parent/'.$parent->id.'/edit') }}" class="btn btn-warning btn-sm rounded"><i class="bi bi-pencil"></i></a>
                         </div>
                     </div>
                     <hr>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 E-mail
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ $parent->mail }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Phone Number
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ $parent->phone }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Address
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {!! $parent->address !!} 
                             {!! $parent->postal_code ? $parent->postal_code."<br>" : null !!} 
                             {{ $parent->city }} {{ $parent->state }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Date of Birth
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ isset($parent->dob) ? date('d M Y', strtotime($parent->dob)) : null }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Lead
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ $parent->leadSource }}
                         </div>
                     </div>
@@ -97,7 +96,7 @@
                         List of Child
                     </h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="overflow: auto;">
                     @if (isset($parent->childrens))
                     <table class="table table-bordered">
                         <thead>
@@ -146,8 +145,8 @@
                             <tr class="text-center" role="row">
                                 <th class="text-dark">No</th>
                                 <th class="bg-info text-white">Event Name</th>
-                                <th class="text-dark">Event Start Date</th>
-                                <th class="text-dark">Joined Date</th>
+                                <th>Event Start Date</th>
+                                <th>Joined Date</th>
                             </tr>
                         </thead>
                         <tfoot class="bg-light text-white">
@@ -255,6 +254,7 @@
 
     {{-- Need Changing --}}
     <script>
+        var widthView = $(window).width();
         $(document).ready(function() {
             var table_event = $('#eventTable').DataTable({
                 dom: 'Bfrtip',
@@ -270,8 +270,8 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
-                    right: 2
+                    left: (widthView < 768) ? 1 : 2,
+                    right: 0
                 },
                 processing: true,
                 serverSide: true,

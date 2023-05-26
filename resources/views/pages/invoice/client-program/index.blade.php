@@ -1,6 +1,10 @@
 @extends('layout.main')
 
 @section('title', 'Invoice - Client Program - Bigdata Platform')
+@section('css')
+    <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/client.css') }}">
+@endsection
 @section('style')
 <style>
     .bg-warning-soft {
@@ -27,7 +31,7 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs mb-3">
+            <ul class="nav nav-tabs flex-nowrap mb-3">
                 <li class="nav-item">
                     <a class="nav-link {{ isset($status) && $status == "needed" ? "active" : null }}" aria-current="page" href="{{ url('invoice/client-program?s=needed') }}">Invoice
                         Needed</a>

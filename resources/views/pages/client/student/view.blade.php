@@ -18,50 +18,49 @@
         <div class="col-md-7">
             <div class="card rounded mb-2">
                 <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="">
-                            <h3 class="m-0 p-0">{{ $student->fullname }}</h3>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="col">
+                            <h3 class="m-0 mb-2 p-0">{{ $student->fullname }}</h3>
                             <small class="text-muted">
                                 <i class="bi bi-calendar-day me-1"></i> Join Date: {{ date('d M Y', strtotime($student->created_at)) }} |
                                 <i class="bi bi-calendar-date mx-1"></i> Last Update: {{ date('d M Y', strtotime($student->updated_at)) }}
                             </small>
                         </div>
-                        <div class="">
-                            <a href="{{ url('client/student/'.$student->id.'/edit') }}" class="btn btn-warning btn-sm rounded"><i
-                                    class="bi bi-pencil"></i></a>
+                        <div class="col-2 text-end">
+                            <a href="{{ url('client/student/'.$student->id.'/edit') }}" class="btn btn-warning btn-sm rounded p-2"><i class="bi bi-pencil"></i></a>
                         </div>
                     </div>
                     <hr>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 E-mail
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ $student->mail }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Phone Number
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ $student->phone }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Address
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {!! $student->address !!} 
                             {!! $student->postal_code ? $student->postal_code."<br>" : null !!} 
                             {{ $student->city }} {{ $student->state }}
@@ -69,58 +68,58 @@
                     </div>
                     @if ($student->school != NULL)
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 School Name
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ $student->school->sch_name }}
                         </div>
                     </div>
                     @endif
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Graduation Year
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ $student->graduation_year }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Follow-up Priority
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ $student->st_levelinterest }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Lead
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ $student->leadSource }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Active Status
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             <input type="checkbox" name="st_status" id="status" value="" @checked($student->st_statusact == 1)>
                             {{-- <select name="st_status" id="status">
                                 <option value="1" {{ $student->st_statusact == 1 ? "selected" : null }}>Active</option>
@@ -203,37 +202,36 @@
                 </div>
                 <div class="card-body">
                     @forelse ($student->parents as $parent)
-                        
                         <div class="row mb-2 g-1">
-                            <div class="col-md-3 d-flex justify-content-between">
+                            <div class="col d-flex justify-content-between">
                                 <label>
                                     Parents Name
                                 </label>
                                 <label>:</label>
                             </div>
-                            <div class="col-md-9">
+                            <div class="col-md-9 col-8">
                                 {{ $parent->fullname }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
-                            <div class="col-md-3 d-flex justify-content-between">
+                            <div class="col d-flex justify-content-between">
                                 <label>
                                     Parents Email
                                 </label>
                                 <label>:</label>
                             </div>
-                            <div class="col-md-9">
+                            <div class="col-md-9 col-8">
                                 {{ $parent->mail }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
-                            <div class="col-md-3 d-flex justify-content-between">
+                            <div class="col d-flex justify-content-between">
                                 <label>
                                     Parents Phone
                                 </label>
                                 <label>:</label>
                             </div>
-                            <div class="col-md-9">
+                            <div class="col-md-9 col-8">
                                 {{ $parent->phone }}
                             </div>
                         </div>
@@ -258,14 +256,14 @@
                     <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
                         <thead class="bg-dark text-white">
                             <tr class="text-center" role="row">
-                                <th class="text-dark">No</th>
+                                <th class="bg-info text-white">No</th>
                                 <th class="bg-info text-white">Program Name</th>
                                 <th>Conversion Lead</th>
                                 <th>First Discuss</th>
                                 <th>PIC</th>
                                 <th>Program Status</th>
-                                <th class="text-dark">Running Status</th>
-                                <th class="text-dark">#</th>
+                                <th>Running Status</th>
+                                <th>#</th>
                             </tr>
                         </thead>
                         <tfoot class="bg-light text-white">
@@ -288,10 +286,10 @@
                     <table class="table table-bordered table-hover nowrap align-middle w-100" id="eventTable">
                         <thead class="bg-dark text-white">
                             <tr class="text-center" role="row">
-                                <th class="text-dark">No</th>
+                                <th class="bg-info text-white">No</th>
                                 <th class="bg-info text-white">Event Name</th>
-                                <th class="text-dark">Event Start Date</th>
-                                <th class="text-dark">Joined Date</th>
+                                <th>Event Start Date</th>
+                                <th>Joined Date</th>
                             </tr>
                         </thead>
                         <tfoot class="bg-light text-white">
@@ -341,8 +339,8 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
-                    right: 2
+                    left: 0,
+                    right: 0
                 },
                 processing: true,
                 serverSide: true,
@@ -423,7 +421,7 @@
                 scrollX: true,
                 fixedColumns: {
                     left: 2,
-                    right: 2
+                    right: 0
                 },
                 processing: true,
                 serverSide: true,

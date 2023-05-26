@@ -1,0 +1,12 @@
+@media (max-width: 768px) {
+    h3 {
+        font-size: 1.35rem;
+    }
+    .nav-link {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+    /* .dataTables_scroll.dtfc-has-left.dtfc-has-right * {
+        font-size: 12px !important;
+    } */
+}

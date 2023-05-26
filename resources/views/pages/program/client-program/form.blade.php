@@ -594,7 +594,7 @@
                         </div>
                         <hr>
                         @if (!$disabled)
-                            <div class="mt-3 text-end">
+                            <div class="mt-3 text-md-end text-center">
                                 <button type="submit" class="btn btn-sm btn-primary rounded">
                                     <i class="bi bi-save2 me-2"></i> Submit
                                 </button>

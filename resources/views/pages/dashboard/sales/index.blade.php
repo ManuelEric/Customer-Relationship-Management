@@ -1,6 +1,6 @@
 @include('pages.dashboard.sales.detail.client-status')
-<div class="d-flex justify-content-between align-items-center">
-    <ul class="nav nav-tabs">
+<div class="d-flex flex-md-row flex-column-reverse justify-content-between align-items-center">
+    <ul class="nav nav-tabs flex-nowrap mt-md-0 mt-1">
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','client-program')">
             <div class="nav-link sales client-program active">Client Program</div>
         </li>
