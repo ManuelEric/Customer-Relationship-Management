@@ -193,8 +193,8 @@
 
 <script>
     $(document).ready(function(){
-        $(".detail-success-program").each(function(e) {
-            $(this).click(function() {
+        // $(document).each(function(e) {
+            $(document).on('click', '.detail-success-program', function() {
                 showLoading();
 
                 var progId = $(this).data('prog');
@@ -221,7 +221,7 @@
                     })
 
             });
-        });
+        // });
     });
 </script>
 <script>
