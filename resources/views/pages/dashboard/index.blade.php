@@ -64,8 +64,6 @@
                 axios.get(url)
                     .then(function(response) {
     
-                        console.log(response)
-    
                         let html = null
                         const obj = response.data.data
     

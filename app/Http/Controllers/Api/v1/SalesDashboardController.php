@@ -12,6 +12,7 @@ use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SalesTargetRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class SalesDashboardController extends Controller
@@ -82,7 +83,7 @@ class SalesDashboardController extends Controller
             $clientType = "teacher/counselor";
 
         # this to make sure the clients that being fetch
-        # is the client filter by [prospective, potential, current, completed]
+        # is the client filter by [prospective, potential, current, completed] 
         if (gettype($clientType) == "integer") {
 
             $clients = $this->clientRepository->getClientByStatus($clientType, $month);
@@ -92,7 +93,7 @@ class SalesDashboardController extends Controller
                 $clients = $clients->merge($this->clientRepository->getClientByStatus($clientType, $last_month));
             }
         }
-        else {
+        else { # for mentee, alumni, parents, teacher/counselors
 
             $clients = $this->clientRepository->getAllClientByRoleAndDate($clientType, $month); 
             if ($month != null) {
@@ -101,26 +102,50 @@ class SalesDashboardController extends Controller
             }
         }
 
-
         $index = 1;
         $html = '';
         if ($clients->count() == 0)
             return response()->json(['title' => 'List of '.ucwords(str_replace('-', ' ', $title)), 'html_ctx' => '<tr align="center"><td colspan="5">No '.str_replace('-', ' ', $title).' data</td></tr>']);
 
-        foreach ($clients as $client) {
+        # special case for alumni
+        if ($clientType == 'alumni') {
 
-            $client_register_date = date('Y-m', strtotime($client->created_at));
-            $now = date('Y-m');
-            $styling = $client_register_date == $now ? 'class="bg-primary"' : null;
+            foreach ($clients as $key => $value) {
+                $html .= '<tr>
+                            <td colspan="5">'.$key.'</td>
+                        </tr>';
 
-            $html .= '<tr '.$styling.'>
-                        <td>'.$index++.'</td>
-                        <td>'.$client->full_name.'</td>
-                        <td>'.$client->mail.'</td>
-                        <td>'.$client->phone.'</td>
-                        <td>'.$client->created_at.'</td>
-                    </tr>';
+                foreach ($value as $client) {
+                    $client_register_date = date('Y-m', strtotime($client->created_at));
+                    $now = date('Y-m');
+                    $styling = $client_register_date == $now ? 'class="bg-primary"' : null;
 
+                    $html .= '<tr '.$styling.'>
+                                <td>'.$index++.'</td>
+                                <td>'.$client->full_name.'</td>
+                                <td>'.$client->mail.'</td>
+                                <td>'.$client->phone.'</td>
+                                <td>'.$client->created_at.'</td>
+                            </tr>';
+                }
+            }
+
+        } else {
+            foreach ($clients as $client) {
+    
+                $client_register_date = date('Y-m', strtotime($client->created_at));
+                $now = date('Y-m');
+                $styling = $client_register_date == $now ? 'class="bg-primary"' : null;
+    
+                $html .= '<tr '.$styling.'>
+                            <td>'.$index++.'</td>
+                            <td>'.$client->full_name.'</td>
+                            <td>'.$client->mail.'</td>
+                            <td>'.$client->phone.'</td>
+                            <td>'.$client->created_at.'</td>
+                        </tr>';
+    
+            }
         }
 
         return response()->json(

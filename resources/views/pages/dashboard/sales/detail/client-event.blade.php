@@ -80,6 +80,9 @@
 
         axios.get(url)
             .then(function (response) {
+
+                console.log("a")
+                console.log(response)
                 
                 var obj = response.data.data
 
@@ -91,12 +94,13 @@
                 client_event_chart_pct.update();
 
                 event_lead_chart.data.labels = obj.lead.labels
-                event_lead_chart.data.datasets[0].data = parseInt(obj.lead.total)
+                event_lead_chart.data.datasets[0].data = obj.lead.total
                 event_lead_chart.update();
                 swal.close()
 
             }).catch(function (error) {
-                
+                notification('error', error.message);
+                swal.close()
             })
     }
 </script>

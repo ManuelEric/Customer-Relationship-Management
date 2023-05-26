@@ -731,8 +731,6 @@
             await axios.get(link)
                 .then(function(response) {
 
-                    console.log(response)
-
                     // handle success
                     let data = response.data
                     data.forEach(function(currentValue, index, arr) {

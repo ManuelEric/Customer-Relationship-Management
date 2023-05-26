@@ -115,7 +115,7 @@
                 
                 swal.close()
                 }, (error) => {
-                    console.log(error)
+                    notification('error', error.message);
                     swal.close()
                 })
 

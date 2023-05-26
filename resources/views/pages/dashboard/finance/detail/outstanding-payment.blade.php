@@ -223,7 +223,7 @@
                 $('#tot_unpaid').html(rupiah(total_unpaid))
                 swal.close()
             }, (error) => {
-                console.log(error)
+                notification('error', error.message)
                 swal.close()
             })
             
@@ -302,7 +302,7 @@
                 
                 swal.close()
             }, (error) => {
-                console.log(error)
+                notification('error', error.message);
                 swal.close()
             })
             
