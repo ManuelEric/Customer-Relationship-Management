@@ -10,7 +10,7 @@
                         </select>
                     </div>
                     <div class="col-md-6 text-end d-none" id="monthly" onchange="checkMonthly()">
-                        <input type="month" name="" id="client_status_month"
+                        <input type="month" id="client_status_month"
                             class="form-control form-control-sm"
                             value="{{ isset($filter_bymonth) ? $filter_bymonth : date('Y-m') }}">
                     </div>
@@ -533,6 +533,7 @@
             axios.get(url)
                 .then(function(response) {
                     
+                    console.log(response)
                     var obj = response.data;
 
                     $('#list-detail-client .modal-title').html(obj.title)

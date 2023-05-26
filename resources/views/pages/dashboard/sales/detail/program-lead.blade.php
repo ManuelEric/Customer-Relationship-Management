@@ -1,16 +1,27 @@
 <div class="row mt-3">
     <div class="col-md-12">
         <div class="row align-items-center">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="card mb-3">
                     <div class="card-body text-center">
-                        <h5>Conversion Leads</h5>
-                        <canvas id="leadSource" class="mb-2"></canvas>
-                        <canvas id="programLead"></canvas>
+                        <h5>Conversion Lead Source</h5>
+                        <div class="leadSourceBox" style="height: 350px;">
+                            <canvas id="leadSource" class="mb-2"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-8">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body text-center">
+                        <h5>Conversion Lead Source</h5>
+                        <div class="programLeadBox" style="height: 350px;">
+                            <canvas id="programLead"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
                 <div class="row justify-content-center align-items-center g-3">
                     <div class="col-md-4">
                         <div class="card">
@@ -71,6 +82,16 @@
                 lead_source_chart.data.labels = obj.ctx_leadsource.label
                 lead_source_chart.data.datasets[0].data = obj.ctx_leadsource.dataset
                 lead_source_chart.data.datasets[0].backgroundColor = obj.ctx_leadsource.bgcolor
+                
+                // let chartHeight = 350;
+                // const totalBars = lead_source_chart.config.data.labels.length;
+                // console.log(totalBars);
+                // const leadSourceBox = document.querySelector('.leadSourceBox')
+                // if (totalBars > 5) {
+                //     newHeight = (totalBars - 15) * 20 + chartHeight;
+                //     leadSourceBox.style.height = newHeight + 'px';
+                // }
+                // console.log(leadSourceBox.style.height)
                 lead_source_chart.update();
 
                 conversion_lead_chart.data.labels = obj.ctx_conversionlead.label
@@ -195,7 +216,7 @@
     @foreach ($leadSource as $source)
         dataset_leadsource_label.push('{{ $source->lead_source }}')
         dataset_leadsource.push('{{ $source->lead_source_count }}')
-    @endforeach
+    @endforeach 
 
     var lead_source_chart = new Chart(lead, {
         type: 'bar',
@@ -217,6 +238,7 @@
                     beginAtZero: true
                 }
             },
+            // maintainAspectRatio: false,
             plugins: {
                 datalabels: lbl_prog_lead[0],
                 title: {
