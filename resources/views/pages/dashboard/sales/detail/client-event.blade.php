@@ -96,7 +96,7 @@
                 swal.close()
 
             }).catch(function (error) {
-                
+                swal.close()
             })
     }
 </script>
