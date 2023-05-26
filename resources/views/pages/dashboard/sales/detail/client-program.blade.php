@@ -176,6 +176,21 @@
     </div>
 </div>
 
+{{-- Career Exploration Details Modal  --}}
+<div class="modal modal-md fade" id="career_exp_modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-5" id="exampleModalLabel">Detail of Career Exploration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body career_exp_modal_body">
+
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Success Program Detail  --}}
 <div class="modal modal-md fade" id="success_program_detail_modal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -622,6 +637,30 @@
                         boxWidth: 10,
                     }
                 }
+            }, 
+            onClick: (e) => {
+
+                var month = $(".qdate").val();
+                var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
+                var link = "{{ url('/') }}/api/get/detail/career-exploration/" + month;
+                if (user !== null)
+                    link += "/" + user;
+
+                showLoading();
+
+                axios.get(link)
+                    .then(function (response) {
+
+                        let obj = response.data;
+                        $("#career_exp_modal").modal('show');
+                        $("#career_exp_modal .career_exp_modal_body").html(obj.ctx) 
+                        swal.close();
+                    })
+                    .catch(function (error) {
+                        swal.close();
+                        notification('error', error.message);
+                    })
+
             }
         }
     });
