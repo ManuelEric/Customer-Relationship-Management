@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\FetchClientStatus;
 use App\Http\Controllers\Module\SalesDashboardController;
+use App\Http\Controllers\Module\FinanceDashboardController;
 use App\Http\Controllers\Module\PartnerDashboardController;
 use App\Http\Controllers\Module\testController;
 use App\Http\Traits\Modules\GetClientStatusTrait;
@@ -87,7 +88,7 @@ class DashboardController extends SalesDashboardController
     {
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
-        $data = array_merge($data, $this->indexFinance($request));
+        $data = array_merge($data, (new FinanceDashboardController($this))->get($request));
 
         return view('pages.dashboard.index')->with($data);
     }
