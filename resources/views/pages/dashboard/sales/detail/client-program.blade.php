@@ -581,7 +581,6 @@
                     .then(function (response) {
 
                         let obj = response.data;
-                        console.log(obj)
                         $("#acad_prep_modal").modal('show');
                         $("#acad_prep_modal .acad_prep_modal_body").html(obj.ctx) 
                         swal.close();
@@ -653,7 +652,6 @@
                     .then(function (response) {
 
                         let obj = response.data;
-                        console.log(obj)
                         $("#career_exp_modal").modal('show');
                         $("#career_exp_modal .career_exp_modal_body").html(obj.ctx) 
                         swal.close();
