@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\FetchClientStatus;
 use App\Http\Controllers\Module\SalesDashboardController;
+use App\Http\Controllers\Module\FinanceDashboardController;
 use App\Http\Controllers\Module\testController;
 use App\Http\Traits\Modules\GetClientStatusTrait;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -36,26 +37,26 @@ class DashboardController extends SalesDashboardController
 {
 
     use GetClientStatusTrait;
-    protected ClientRepositoryInterface $clientRepository;
-    protected FollowupRepositoryInterface $followupRepository;
-    protected CorporateRepositoryInterface $corporateRepository;
-    protected SchoolRepositoryInterface $schoolRepository;
-    protected UniversityRepositoryInterface $universityRepository;
-    protected PartnerAgreementRepositoryInterface $partnerAgreementRepository;
-    protected AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
-    protected PartnerProgramRepositoryInterface $partnerProgramRepository;
-    protected SchoolProgramRepositoryInterface $schoolProgramRepository;
-    protected ReferralRepositoryInterface $referralRepository;
-    protected ClientProgramRepositoryInterface $clientProgramRepository;
-    protected UserRepositoryInterface $userRepository;
-    protected SalesTargetRepositoryInterface $salesTargetRepository;
-    protected ProgramRepositoryInterface $programRepository;
-    protected ClientEventRepositoryInterface $clientEventRepository;
-    protected EventRepositoryInterface $eventRepository;
-    protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
-    protected InvoiceProgramRepositoryInterface $invoiceProgramRepository;
-    protected ReceiptRepositoryInterface $receiptRepository;
-    protected RefundRepositoryInterface $refundRepository;
+    public ClientRepositoryInterface $clientRepository;
+    public FollowupRepositoryInterface $followupRepository;
+    public CorporateRepositoryInterface $corporateRepository;
+    public SchoolRepositoryInterface $schoolRepository;
+    public UniversityRepositoryInterface $universityRepository;
+    public PartnerAgreementRepositoryInterface $partnerAgreementRepository;
+    public AgendaSpeakerRepositoryInterface $agendaSpeakerRepository;
+    public PartnerProgramRepositoryInterface $partnerProgramRepository;
+    public SchoolProgramRepositoryInterface $schoolProgramRepository;
+    public ReferralRepositoryInterface $referralRepository;
+    public ClientProgramRepositoryInterface $clientProgramRepository;
+    public UserRepositoryInterface $userRepository;
+    public SalesTargetRepositoryInterface $salesTargetRepository;
+    public ProgramRepositoryInterface $programRepository;
+    public ClientEventRepositoryInterface $clientEventRepository;
+    public EventRepositoryInterface $eventRepository;
+    public InvoiceB2bRepositoryInterface $invoiceB2bRepository;
+    public InvoiceProgramRepositoryInterface $invoiceProgramRepository;
+    public ReceiptRepositoryInterface $receiptRepository;
+    public RefundRepositoryInterface $refundRepository;
 
     public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository, RefundRepositoryInterface $refundRepository)
     {
@@ -86,7 +87,7 @@ class DashboardController extends SalesDashboardController
     {
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, $this->indexPartnership($request));
-        $data = array_merge($data, $this->indexFinance($request));
+        $data = array_merge($data, (new FinanceDashboardController($this))->get($request));
 
         return view('pages.dashboard.index')->with($data);
     }
@@ -173,68 +174,5 @@ class DashboardController extends SalesDashboardController
     {
         $collection = collect($schoolProgram);
         return $collection->merge($partnerProgram)->merge($referral);
-    }
-
-    public function indexFinance()
-    {
-        $totalInvoiceNeededB2b = $this->invoiceB2bRepository->getTotalInvoiceNeeded(date('Y-m'));
-        $totalInvoiceNeededB2c = $this->invoiceProgramRepository->getTotalInvoiceNeeded(date('Y-m'));
-
-        $totalInvoiceB2b = $this->invoiceB2bRepository->getTotalInvoice(date('Y-m'));
-        $totalInvoiceB2c = $this->invoiceProgramRepository->getTotalInvoice(date('Y-m'));
-
-        // $totalRefundRequestB2b = $this->invoiceB2bRepository->getTotalRefundRequest(date('Y-m'));
-        // $totalRefundRequestB2c = $this->invoiceProgramRepository->getTotalRefundRequest(date('Y-m'));
-
-        $totalReceipt = $this->receiptRepository->getTotalReceipt(date('Y-m'));
-
-        $totalInvoiceNeeded = collect($totalInvoiceNeededB2b)->merge($totalInvoiceNeededB2c);
-
-        $totalRefundRequest = $this->refundRepository->getTotalRefundRequest(date('Y-m'));
-
-        $paidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment(date('Y-m'), 'paid', null, null);
-        $paidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment(date('Y-m'), 'paid');
-
-        $paidPayments = collect($paidPaymentB2b)->merge($paidPaymentB2c);
-
-        $unpaidPaymentB2b = $this->invoiceB2bRepository->getInvoiceOutstandingPayment(date('Y-m'), 'unpaid', null, null);
-        $unpaidPaymentB2c = $this->invoiceProgramRepository->getInvoiceOutstandingPayment(date('Y-m'), 'unpaid');
-
-        $unpaidPayments = collect($unpaidPaymentB2b)->merge($unpaidPaymentB2c);
-
-        $totalOutstanding = $unpaidPayments->count();
-
-        $revenueB2b = $this->invoiceB2bRepository->getRevenueByYear(date('Y'));
-        $revenueB2c = $this->invoiceProgramRepository->getRevenueByYear(date('Y'));
-
-        $revenue = collect($revenueB2b)->merge($revenueB2c)->groupBy('month')->map(
-            function ($row) {
-                return $row->sum('total');
-            }
-        );
-
-        $totalInvoice[0] = [
-            'count_invoice' => count($totalInvoiceB2b) + count($totalInvoiceB2b),
-            'total' => $totalInvoiceB2b->where('invb2b_pm', 'Full Payment')->sum('invb2b_totpriceidr') + $totalInvoiceB2b->where('invb2b_pm', 'Installment')->sum('invdtl_amountidr')
-        ];
-
-        $totalInvoice[1] = [
-            'count_invoice' => count($totalInvoiceB2c),
-            'total' => $totalInvoiceB2c->where('inv_paymentmethod', 'Full Payment')->sum('inv_totalprice_idr') + $totalInvoiceB2c->where('inv_paymentmethod', 'Installment')->sum('invdtl_amountidr')
-        ];
-
-        return [
-            'invoiceNeededToday' => count($totalInvoiceNeeded->where('success_date', date('Y-m-d'))),
-            'outstandingToday' => count($unpaidPayments->where('invoice_duedate', date('Y-m-d'))),
-            'refundRequestToday' => count($totalRefundRequest->where('refund_date', date('Y-m-d'))),
-            'totalInvoiceNeeded' => count($totalInvoiceNeeded),
-            'totalInvoice' => $totalInvoice,
-            'totalReceipt' => $totalReceipt,
-            'totalRefundRequest' => count($totalRefundRequest),
-            'paidPayments' => $paidPayments,
-            'unpaidPayments' => $unpaidPayments,
-            'totalOutstanding' => $totalOutstanding,
-            'revenue' => $revenue,
-        ];
     }
 }
