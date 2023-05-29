@@ -22,13 +22,13 @@
     </div>
 @endif
 
-    <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center justify-content-between mb-3 mt-1">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Teacher
         </a>
         <div>
-            <a href="{{ url('api/download/excel-template/teacher') }}" class="btn btn-sm btn-outline-info btn-download"><i class="bi bi-download me-1"></i> <span>Download Template</span></a>
-            <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i> <span>Import</span></a>
+            <a href="{{ url('api/download/excel-template/teacher') }}" class="btn btn-sm btn-outline-info btn-download"><i class="bi bi-download"></i> <span class="ms-1">Download Template</span></a>
+            <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span class="ms-1">Import</span></a>
             <a href="{{ url('client/teacher-counselor/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
                 Teacher</a>
         </div>
@@ -94,6 +94,7 @@
 
     {{-- Need Changing --}}
     <script>
+        var widthView = $(window).width();
         $(document).ready(function() {
             var table = $('#clientTable').DataTable({
                 dom: 'Bfrtip',
@@ -109,8 +110,8 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
-                    right: 2
+                    left: (widthView < 768) ? 1 : 2,
+                    right: 1
                 },
                 processing: true,
                 serverSide: true,

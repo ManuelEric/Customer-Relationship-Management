@@ -20,7 +20,7 @@
 
 <div class="card mb-3">
     <div class="card-body">
-        <div class="row">
+        <div class="row gap-md-0 gap-2">
             <div class="col-md-7">
                 <div id='calendar'></div>
             </div>
