@@ -977,6 +977,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     }, function ($q) use ($cp_filter) {
                         $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year1']);
                     })
+                    ->when($userId, function($query) use ($userId) {
+                        $query->where('scp.empl_id', $userId);
+                    })
                     ->select([
                         DB::raw('SUM(si.inv_totalprice_idr)')
                     ]),
@@ -988,6 +991,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         ->whereMonth('scp.created_at', $q_date['month_2']);
                     }, function ($q) use ($cp_filter) {
                         $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year2']);
+                    })
+                    ->when($userId, function($query) use ($userId) {
+                        $query->where('scp.empl_id', $userId);
                     })
                     ->select([
                         DB::raw('SUM(si.inv_totalprice_idr)')

@@ -34,9 +34,15 @@
 
             $(".btn-compare").on('click', function() {
     
-                showLoading();
+                showLoading()
+                get_program_comparison()
     
-                let prog = $("select[name='q-program']").val();
+            })
+        })
+
+        function get_program_comparison()
+        {
+            let prog = $("select[name='q-program']").val();
                 var first_year = $("select[name='q-first-year']").val();
                 var second_year = $("select[name='q-second-year']").val();
                 var user = $("#cp_employee").val();
@@ -61,6 +67,8 @@
                 url.searchParams.append('u', user)
                 url.searchParams.append('query_month', use_filter_by_month);
     
+                    console.log(url)
+
                 axios.get(url)
                     .then(function(response) {
     
@@ -88,9 +96,7 @@
                     }).catch(function(error) {
                         notification('error', error.message);
                     })
-    
-            })
-        })
+        }
 
         function dashboardTab(type, tab) {
 
@@ -167,7 +173,8 @@
             get_academic_prep_lead(month, uuid)
             get_career_exp_lead(month, uuid)
             get_all_program(month, uuid)
-            get_client_event(year, uuid)
+            get_program_comparison()
+            // get_client_event(year, uuid)
         }
     </script>
 @endsection
