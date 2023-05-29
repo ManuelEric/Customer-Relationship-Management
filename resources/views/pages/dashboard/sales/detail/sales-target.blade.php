@@ -103,8 +103,6 @@
 
         axios.get(url)
            .then(function (response) {
-
-            console.log(response)
             
                 var obj = response.data.data
                 target_people_chart.data.datasets[0].data = obj.dataset.participant // target
@@ -124,8 +122,11 @@
                     actual_of_amount: obj.dataset.revenue[1],
                 })
 
+                swal.close();
+
             }).catch(function (error) {
                 notification('error', 'Ooops! Something went wrong. Please try again.')
+                swal.close();
             })
     }
 </script>
