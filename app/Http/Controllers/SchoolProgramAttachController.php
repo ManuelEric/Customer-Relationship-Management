@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSchoolProgramAttachRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\StoreAttachmentProgramTrait;
 // use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 // use App\Interfaces\SchoolRepositoryInterface;
@@ -20,6 +21,7 @@ use Illuminate\Support\Str;
 class SchoolProgramAttachController extends Controller
 {
     use CreateCustomPrimaryKeyTrait;
+    use StoreAttachmentProgramTrait;
 
     // protected SchoolRepositoryInterface $schoolRepository;
     // protected SchoolProgramRepositoryInterface $schoolProgramRepository;
@@ -46,12 +48,9 @@ class SchoolProgramAttachController extends Controller
         $schProgAttachs = $request->all();
         $schProgAttachs['schprog_id'] = $schoolProgramId;
 
-        $schprog_file = Str::slug($schProgAttachs['schprog_file'], "_") . '_' . Str::slug(Carbon::now(), "_");
-        $file = $request->file('schprog_attach');
-        $extension = $file->getClientOriginalExtension();
-        $file_location = 'attachment/sch_prog_attach/' . $schoolProgramId . '/';
-        $schprog_attach = $file_location . $schprog_file . '.' . $extension;
-        $file->move($file_location, $schprog_file . '.' . $extension);
+        $schprog_file =  $this->getFileNameAttachment($schProgAttachs['schprog_file']);
+
+        $schprog_attach = $this->attachmentProgram($request->file('schprog_attach'), $schoolProgramId, $schprog_file);
 
 
         $schProgAttachs['schprog_file'] = $schprog_file;
