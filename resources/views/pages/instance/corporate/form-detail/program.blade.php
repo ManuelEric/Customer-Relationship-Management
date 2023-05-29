@@ -15,7 +15,8 @@
     </div>
 
     <div class="card-body">
-        <table class="table table-borderless table-hover">
+        <table class="table table-borderless table-hover"
+            style="display: block; overflow-x: auto; white-space: nowrap;">
             <tr>
                 <th>No.</th>
                 <th>Program Name</th>
@@ -28,7 +29,8 @@
                 <tr>
                     <td>{{ $loop->iteration }}.</td>
                     <td>{{ $partnerProgram->program->prog_program }}</td>
-                    <td class="text-center">{{ $partnerProgram->user->first_name }} {{ $partnerProgram->user->last_name }}</td>
+                    <td class="text-center">{{ $partnerProgram->user->first_name }}
+                        {{ $partnerProgram->user->last_name }}</td>
                     <td class="text-center">{{ $partnerProgram->first_discuss }}</td>
                     <td class="text-center">
                         @if ($partnerProgram->status == 0)
@@ -46,8 +48,10 @@
                         @endif
                     </td>
                     <td class="text-end">
-                        <a href="{{ route('corporate_prog.detail.show', ['corp' => $corporate->corp_id, 'detail' => $partnerProgram->id]) }}">
-                            <button type="button" class="btn btn-sm btn-outline-warning editCorporate"><i class="bi bi-eye"></i></button>
+                        <a
+                            href="{{ route('corporate_prog.detail.show', ['corp' => $corporate->corp_id, 'detail' => $partnerProgram->id]) }}">
+                            <button type="button" class="btn btn-sm btn-outline-warning editCorporate"><i
+                                    class="bi bi-eye"></i></button>
                         </a>
                     </td>
                 </tr>
