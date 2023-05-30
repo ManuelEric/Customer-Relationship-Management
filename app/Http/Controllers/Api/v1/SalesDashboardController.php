@@ -623,7 +623,7 @@ class SalesDashboardController extends Controller
         $type = '';
 
         switch ($cp_filter['qtype']) {
-            case 'academic-pre':
+            case 'academic-prep':
                 $type = 'Academic & Test Preparation';
                 break;
             case 'career-exploration':
