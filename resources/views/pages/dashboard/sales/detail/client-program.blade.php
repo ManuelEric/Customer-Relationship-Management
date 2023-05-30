@@ -161,15 +161,15 @@
     </div>
 </div>
 
-{{-- Academic & Test Prep Details Modal  --}}
-<div class="modal modal-md fade" id="acad_prep_modal" tabindex="-1">
+{{-- Academic & Test Prep Details Modal Test  --}}
+<div class="modal modal-lg fade" id="acad_prep_modal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fs-5" id="exampleModalLabel">Detail of Academic & Test Preparation</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body acad_prep_modal_body">
+            <div class="modal-body acad_prep_modal_body overflow-auto" style="max-height: 400px">
 
             </div>
         </div>
@@ -177,14 +177,14 @@
 </div>
 
 {{-- Career Exploration Details Modal  --}}
-<div class="modal modal-md fade" id="career_exp_modal" tabindex="-1">
+<div class="modal modal-lg fade" id="career_exp_modal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fs-5" id="exampleModalLabel">Detail of Career Exploration</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body career_exp_modal_body">
+            <div class="modal-body career_exp_modal_body overflow-auto" style="max-height: 400px">
 
             </div>
         </div>

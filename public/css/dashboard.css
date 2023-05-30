@@ -1,0 +1,22 @@
+@media (max-width: 768px) {
+    h3 {
+        font-size: 1.35rem;
+    }
+    .nav-link.sales,
+    .nav-link.partnership {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+    #cp_employee {
+        width: 100% !important;
+    }
+    .fc .fc-toolbar-title {
+        font-size: 18px !important;
+    }
+    .fc-dayGridMonth-view {
+        overflow: auto;
+    }
+    .fc-dayGridMonth-view table {
+        table-layout: auto !important;
+    }
+}

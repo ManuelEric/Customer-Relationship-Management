@@ -91,8 +91,7 @@ class SalesDashboardController extends Controller
                 $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
                 $clients = $clients->merge($this->clientRepository->getClientByStatus($clientType, $last_month));
             }
-        }
-        else { # for mentee, alumni, parents, teacher/counselors
+        } else {
 
             $clients = $this->clientRepository->getAllClientByRoleAndDate($clientType, $month);
             if ($month != null) {
@@ -106,45 +105,19 @@ class SalesDashboardController extends Controller
         if ($clients->count() == 0)
             return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $title)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $title) . ' data</td></tr>']);
 
-        # special case for alumni
-        if ($clientType == 'alumni') {
+        foreach ($clients as $client) {
 
-            foreach ($clients as $key => $value) {
-                $html .= '<tr>
-                            <td colspan="5">'.$key.'</td>
-                        </tr>';
+            $client_register_date = date('Y-m', strtotime($client->created_at));
+            $now = date('Y-m');
+            $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
 
-                foreach ($value as $client) {
-                    $client_register_date = date('Y-m', strtotime($client->created_at));
-                    $now = date('Y-m');
-                    $styling = $client_register_date == $now ? 'class="bg-primary"' : null;
-
-                    $html .= '<tr '.$styling.'>
-                                <td>'.$index++.'</td>
-                                <td>'.$client->full_name.'</td>
-                                <td>'.$client->mail.'</td>
-                                <td>'.$client->phone.'</td>
-                                <td>'.$client->created_at.'</td>
-                            </tr>';
-                }
-            }
-
-        } else {
-            foreach ($clients as $client) {
-    
-                $client_register_date = date('Y-m', strtotime($client->created_at));
-                $now = date('Y-m');
-                $styling = $client_register_date == $now ? 'class="bg-primary"' : null;
-    
-                $html .= '<tr '.$styling.'>
-                            <td>'.$index++.'</td>
-                            <td>'.$client->full_name.'</td>
-                            <td>'.$client->mail.'</td>
-                            <td>'.$client->phone.'</td>
-                            <td>'.$client->created_at.'</td>
-                        </tr>';
-    
-            }
+            $html .= '<tr ' . $styling . '>
+                        <td>' . $index++ . '</td>
+                        <td>' . $client->full_name  . '</td>
+                        <td>' . $client->mail . '</td>
+                        <td>' . $client->phone . '</td>
+                        <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
+                    </tr>';
         }
 
         return response()->json(
@@ -434,9 +407,9 @@ class SalesDashboardController extends Controller
             } else {
 
                 foreach ($allSuccessProgramByMonth as $program) {
-                    $html .= '<li class="list-group-item d-flex justify-content-between align-items-center cursor-pointer btn-light detail-success-program" data-prog="'.$program->prog_id.'">
-                                <div class="text-start">'.$program->program_name_st.'</div>
-                                <span class="badge badge-primary">'.$program->total_client_per_program.'</span>
+                    $html .= '<li class="list-group-item d-flex justify-content-between align-items-center cursor-pointer btn-light detail-success-program" data-prog="' . $program->prog_id . '">
+                                <div class="text-start">' . $program->program_name_st . '</div>
+                                <span class="badge badge-primary">' . $program->total_client_per_program . '</span>
                             </li>';
                 }
             }
@@ -626,7 +599,7 @@ class SalesDashboardController extends Controller
             foreach ($academicTestPrep as $title => $data) {
 
                 if ($data->count() > 0) {
-                    $html .= '<label class="fw-bold fs-5 my-3">' . ucfirst($title) . '</label>';
+                    $html .= '<label class="fw-semibold fs-6 mt-3">' . ucfirst($title) . '</label>';
 
                     foreach ($data as $program_name => $value) {
 
@@ -658,19 +631,19 @@ class SalesDashboardController extends Controller
 
                             $table_content .= '
                                 <tr>
-                                    <td align="center">' . $no++ . '.</td>
+                                    <td>' . $no++ . '.</td>
                                     <td>' . $data->client->client_name . '</td>
-                                    <td align="center">' . $date_value . '</td>
+                                    <td>' . $date_value . '</td>
                                 </tr>';
                         }
 
                         $html .= '
-                            <table class="table table-bordered border-primary">
+                            <table class="table table-hover table-striped my-2">
                                 <tr>
-                                    <td colspan="3"><label class="fs-6">' . $program_name . '</label></td>
+                                    <td colspan="3" class="text-center text-white bg-primary"><label class="fs-6">' . $program_name . '</label></td>
                                 </tr>
-                                <tr align="center">
-                                    <th style="width:2em">No.</th>
+                                <tr>
+                                    <th width="5%">No.</th>
                                     <th>Client Name</th>
                                     <th style="width:150px">' . $date_name . '</th>
                                 </tr>
@@ -735,7 +708,7 @@ class SalesDashboardController extends Controller
             foreach ($careerExploration as $title => $data) {
 
                 if ($data->count() > 0) {
-                    $html .= '<label class="fw-bold fs-5 my-3">' . ucfirst($title) . '</label>';
+                    $html .= '<label class="fw-semibold fs-6 mt-3">' . ucfirst($title) . '</label>';
 
                     foreach ($data as $program_name => $value) {
 
@@ -747,39 +720,43 @@ class SalesDashboardController extends Controller
                                 case "pending":
                                     $date_name = 'Created At';
                                     $date_value = date('l, d M Y', strtotime($data->created_at));
+                                    $prog = $data->program->prog_program;
                                     break;
 
                                 case "failed":
                                     $date_name = 'Failed Date';
                                     $date_value = date('l, d M Y', strtotime($data->failed_date));
+                                    $prog = $data->program->prog_program;
                                     break;
 
                                 case "success":
                                     $date_name = 'Success Date';
                                     $date_value = date('l, d M Y', strtotime($data->success_date));
+                                    $prog = $data->program->prog_program;
                                     break;
 
                                 case "refund":
                                     $date_name = 'Refund Date';
                                     $date_value = date('l, d M Y', strtotime($data->refund_date));
+                                    $prog = $data->program->prog_program;
                                     break;
                             }
 
                             $table_content .= '
                                 <tr>
-                                    <td align="center">' . $no++ . '.</td>
+                                    <td>' . $no++ . '.</td>
                                     <td>' . $data->client->client_name . '</td>
-                                    <td align="center">' . $date_value . '</td>
+                                    <td>' . $date_value . '</td>
                                 </tr>';
                         }
 
                         $html .= '
-                            <table class="table table-bordered border-primary">
+                            <table class="table table-hover table-striped my-2">
                                 <tr>
-                                    <td colspan="3"><label class="fs-6">' . $program_name . '</label></td>
+                                    <td colspan="3" class="text-center text-white bg-primary"><label class="fs-6">' . $prog . '</label></td>
                                 </tr>
-                                <tr align="center">
-                                    <th style="width:2em">No.</th>
+                                <tr>
+                                    <th width="5%">No.</th>
                                     <th>Client Name</th>
                                     <th style="width:150px">' . $date_name . '</th>
                                 </tr>

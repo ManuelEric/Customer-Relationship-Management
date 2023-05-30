@@ -20,8 +20,8 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', function () {
-    return view('home');
-});
+    return view('auth.login');
+})->middleware('guest');
 
 Route::get('404', function() {
     return view('auth.404');

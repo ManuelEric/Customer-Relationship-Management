@@ -1,6 +1,6 @@
 @include('pages.dashboard.partnership.detail.partner-status')
 <div class="d-flex justify-content-between align-items-center">
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs flex-nowrap">
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('partnership','agenda')">
             <div class="nav-link partnership agenda active">Speaker Agenda</div>
         </li>

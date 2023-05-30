@@ -2,6 +2,11 @@
 
 @section('title', 'Dashboard - Bigdata Platform')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+@endsection
+
 @section('content')
 
     {{-- Sales --}}
@@ -13,7 +18,7 @@
     @endif
     {{-- Partnership --}}
     @if ($isPartnership || $isAdmin)
-        <h3 class="my-3">
+        <h3 class="my-3 pt-3">
             <i class="bi bi-building me-2"></i>
             Partnership Dashboard
         </h3>
@@ -21,7 +26,7 @@
     @endif
     {{-- Finance  --}}
     @if ($isFinance || $isAdmin)
-        <h3 class="my-3">
+        <h3 class="my-3 pt-3">
             <i class="bi bi-currency-dollar me-2"></i>
             Finance Dashboard
         </h3>

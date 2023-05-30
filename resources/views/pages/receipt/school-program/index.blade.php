@@ -40,8 +40,8 @@
 
     {{-- Need Changing --}}
     <script>
+        var widthView = $(window).width();
         $(document).ready(function() {
-           
             var table = $('#receiptTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
@@ -56,7 +56,7 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
                 processing: true,

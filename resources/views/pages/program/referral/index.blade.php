@@ -55,12 +55,13 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
                 processing: true,
                 serverSide: true,
                 ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'id',
                         className: 'text-center',
@@ -79,7 +80,8 @@
                         data: 'program_name',
                         name: 'program.prog_program',
                         render: function(data, type, row, meta) {
-                            return row.referral_type == "Out" ? row.additional_prog_name : row.program_name
+                            return row.referral_type == "Out" ? row.additional_prog_name : row
+                                .program_name
                         }
                     },
                     {
@@ -88,10 +90,10 @@
                     {
                         data: 'revenue',
                         render: function(data, type, row, meta) {
-                    
+
                             return formatRupiah(row.revenue)
-                                           
-                            
+
+
                         }
                     },
                     {
@@ -101,7 +103,7 @@
                                 case "USD":
                                     return formatUsd(row.revenue_other)
                                     break;
-                                
+
                                 case "SGD":
                                     return 'S' + formatSingUsd(row.revenue_other)
                                     break;
@@ -113,7 +115,7 @@
                                 case "IDR":
                                     return '-'
                                     break;
-                                    
+
                             }
                         }
                     },
@@ -128,13 +130,13 @@
                 ]
             });
 
-            @php            
+            @php
                 $privilage = $menus['Program']->where('submenu_name', 'Referral')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });
@@ -150,29 +152,33 @@
             });
 
             const formatRupiah = (money) => {
-                return new Intl.NumberFormat('id-ID',
-                    { style: 'currency', currency: 'IDR' }
-                ).format(money);
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR'
+                }).format(money);
             }
 
             const formatUsd = (money) => {
-                return new Intl.NumberFormat('en-US',
-                    { style: 'currency', currency: 'USD' }
-                ).format(money)
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD'
+                }).format(money)
             }
 
             const formatSingUsd = (money) => {
-                return new Intl.NumberFormat('en-SG',
-                    { style: 'currency', currency: 'SGD' }
-                ).format(money)
+                return new Intl.NumberFormat('en-SG', {
+                    style: 'currency',
+                    currency: 'SGD'
+                }).format(money)
             }
-            
+
             const formatGbp = (money) => {
-                return new Intl.NumberFormat('en-GB',
-                    { style: 'currency', currency: 'GBP' }
-                ).format(money)
+                return new Intl.NumberFormat('en-GB', {
+                    style: 'currency',
+                    currency: 'GBP'
+                }).format(money)
             }
-           
+
         });
     </script>
 

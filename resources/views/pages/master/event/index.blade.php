@@ -52,12 +52,13 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
                 processing: true,
                 serverSide: true,
                 ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'event_id',
                         className: 'text-center',
@@ -96,13 +97,13 @@
                 ]
             });
 
-            @php            
+            @php
                 $privilage = $menus['Master']->where('submenu_name', 'Event')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });

@@ -38,7 +38,7 @@
             </table>
         </div>
     </div>
-    
+
     <script>
         $(document).ready(function() {
             var table = $('#assetTable').DataTable({
@@ -55,7 +55,7 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
                 processing: true,
@@ -116,18 +116,17 @@
                         defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning ms-1 showDetail"><i class="bi bi-eye"></i></button>' +
                             '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteAsset"><i class="bi bi-trash2"></i></button>'
                     }
-                ]
-                
-                
+                ],
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
             });
 
-            @php         
+            @php
                 $privilage = $menus['Master']->where('submenu_name', 'Assets')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });
@@ -154,6 +153,5 @@
                 confirmDelete('master/asset', data.asset_id)
             });
         });
-
     </script>
 @endsection

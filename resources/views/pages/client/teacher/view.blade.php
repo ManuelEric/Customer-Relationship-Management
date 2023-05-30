@@ -14,101 +14,99 @@
 
 
     <div class="row align-items-center">
-        <div class="col-md-8">
+        <div class="col-md-8 order-md-1 order-2">
             <div class="card rounded mb-2">
                 <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="">
-                            <h3 class="m-0 p-0">{{ $teacher_counselor->fullname }}</h3>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="col">
+                            <h3 class="m-0 mb-2 p-0">{{ $teacher_counselor->fullname }}</h3>
                             <small class="text-muted">
                                 <i class="bi bi-calendar-day me-1"></i> Join Date: {{ date('d M Y', strtotime($teacher_counselor->created_at)) }} |
                                 <i class="bi bi-calendar-date mx-1"></i> Last Update: {{ date('d M Y', strtotime($teacher_counselor->updated_at)) }}
                             </small>
                         </div>
-                        <div class="">
-                            <a href="{{ route('teacher-counselor.edit', ['teacher_counselor' => $teacher_counselor->id]) }}" class="btn btn-warning btn-sm rounded"><i
-                                    class="bi bi-pencil"></i></a>
+                        <div class="col-2 text-end">
+                            <a href="{{ route('teacher-counselor.edit', ['teacher_counselor' => $teacher_counselor->id]) }}" class="btn btn-warning btn-sm rounded p-2"><i class="bi bi-pencil"></i></a>
                         </div>
                     </div>
                     <hr>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 E-mail
                             </label>
                             <label>:</label>
                         </div>
-                    <div class="col-md-9">
+                    <div class="col-md-9 col-8">
                             {{ $teacher_counselor->mail }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Phone Number
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ $teacher_counselor->phone }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Address
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {!! $teacher_counselor->address !!} 
                             {!! $teacher_counselor->postal_code ? $teacher_counselor->postal_code."<br>" : null !!} 
                             {{ $teacher_counselor->city }} {{ $teacher_counselor->state }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Date of Birth
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ date('d M Y', strtotime($teacher_counselor->dob)) }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Lead
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             {{ $teacher_counselor->leadSource }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
-                        <div class="col-md-3 d-flex justify-content-between">
+                        <div class="col d-flex justify-content-between">
                             <label>
                                 Active Status
                             </label>
                             <label>:</label>
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-9 col-8">
                             <input type="checkbox" name="st_status" id="status" value="" @checked($teacher_counselor->st_statusact == 1)>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 text-center">
+        <div class="col-md-4 order-md-2 order-1 text-center">
             <div class="mb-2">
                 <img src="{{ asset('img/teacher.jpg') }}" alt="" class="w-50 rounded-circle">
             </div>
         </div>
-
-        <div class="col-md-12">
+        <div class="col-md-12 order-3">
             <div class="card rounded">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="">
@@ -137,6 +135,7 @@
     </div>
 
     <script>
+        var widthView = $(window).width();
         $(document).ready(function(){
             var table = $('#eventTable').DataTable({
                 dom: 'Bfrtip',
@@ -152,8 +151,8 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
-                    right: 2
+                    left: (widthView < 768) ? 1 : 2,
+                    right: 0
                 },
                 processing: true,
                 serverSide: true,

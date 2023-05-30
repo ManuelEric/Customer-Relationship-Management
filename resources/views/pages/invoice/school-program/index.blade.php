@@ -2,6 +2,11 @@
 
 @section('title', 'Invoice - School Program - Bigdata Platform')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/client.css') }}">
+@endsection
+
 @section('content')
 
     <div class="d-flex align-items-center justify-content-between mb-3">
@@ -10,10 +15,9 @@
         </a>
     </div>
 
-
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs mb-3">
+            <ul class="nav nav-tabs flex-nowrap mb-3">
                 <li class="nav-item">
                     <a class="nav-link {{ $status =='needed' ? 'active' : '' }}" aria-current="page" href="{{ url('invoice/school-program/status/needed') }}">Invoice
                         Needed</a>

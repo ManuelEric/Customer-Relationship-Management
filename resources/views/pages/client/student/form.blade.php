@@ -24,12 +24,12 @@
                 @if (isset($student))
                     @method('PUT')
                 @endif
-                <div class="row align-items-center">
-                    <div class="col-4 text-center">
+                <div class="row flex-md-row flex-column align-items-center">
+                    <div class="col-md-4 col text-center">
                         <img src="{{ asset('img/mentee.jpg') }}" class="w-50">
                     </div>
-                    <div class="col-8">
-                        <div class="row">
+                    <div class="col-md-8 col">
+                        <div class="row gap-md-0 gap-2">
                             <div class="col-md-6">
                                 <div class="mb-2">
                                     <label>First Name <i class="text-danger font-weight-bold">*</i>
@@ -133,7 +133,7 @@
 
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-12 mt-md-0 mt-2">
                         <div class="mb-2">
                             <label>Address</label>
                             <textarea name="address" class="form-control form-control-sm" placeholder="Address" rows="5">{{ isset($student->address) ? $student->address : old('address') }}</textarea>

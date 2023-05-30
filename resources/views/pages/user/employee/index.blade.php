@@ -8,7 +8,8 @@
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Employee
         </a>
-        <a href="{{ url('user/'.Request::route('user_role').'/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i>
+        <a href="{{ url('user/' . Request::route('user_role') . '/create') }}" class="btn btn-sm btn-primary"><i
+                class="bi bi-plus-square me-1"></i>
             Add
             {{ ucfirst(Request::route('user_role')) }}</a>
     </div>
@@ -18,23 +19,27 @@
         <div class="card-body">
             <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::route('user_role') == "employee" ? 'active' : null }}" aria-current="page" href="{{ url('user/employee') }}">Employee</a>
+                    <a class="nav-link {{ Request::route('user_role') == 'employee' ? 'active' : null }}"
+                        aria-current="page" href="{{ url('user/employee') }}">Employee</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::route('user_role') == "mentor" ? 'active' : null }}" aria-current="page" href="{{ url('user/mentor') }}">Mentor</a>
+                    <a class="nav-link {{ Request::route('user_role') == 'mentor' ? 'active' : null }}" aria-current="page"
+                        href="{{ url('user/mentor') }}">Mentor</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::route('user_role') == "editor" ? 'active' : null }}" aria-current="page" href="{{ url('user/editor') }}">Editor</a>
+                    <a class="nav-link {{ Request::route('user_role') == 'editor' ? 'active' : null }}" aria-current="page"
+                        href="{{ url('user/editor') }}">Editor</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::route('user_role') == "tutor" ? 'active' : null }}" aria-current="page" href="{{ url('user/tutor') }}">Tutor</a>
+                    <a class="nav-link {{ Request::route('user_role') == 'tutor' ? 'active' : null }}" aria-current="page"
+                        href="{{ url('user/tutor') }}">Tutor</a>
                 </li>
             </ul>
 
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="userTable">
                 <thead class="bg-dark text-white">
                     <tr>
-                        <th class="text-dark">#</th>
+                        <th class="bg-white text-dark">#</th>
                         <th class="bg-info text-white">Employee ID</th>
                         <th class="bg-info text-white">Full Name</th>
                         <th>E-mail</th>
@@ -78,12 +83,13 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
                 processing: true,
                 serverSide: true,
                 ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'id',
                         className: 'text-center',
@@ -134,7 +140,7 @@
                     {
                         data: 'active',
                         render: function(data, type, row, meta) {
-                            if (data == 1) 
+                            if (data == 1)
                                 return "Active"
                             else
                                 return "Not Active"
@@ -158,13 +164,13 @@
                 }
             });
 
-            @php            
+            @php
                 $privilage = $menus['Users']->where('submenu_name', 'Employee')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });
@@ -176,7 +182,8 @@
 
             $('#userTable tbody').on('click', '.editUser ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('user/'.Request::route('user_role')) }}/" + data.id + '/edit';
+                window.location.href = "{{ url('user/' . Request::route('user_role')) }}/" + data.id +
+                    '/edit';
             });
 
             $('#userTable tbody').on('click', '.deleteUser ', function() {

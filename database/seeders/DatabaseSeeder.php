@@ -23,6 +23,6 @@ class DatabaseSeeder extends Seeder
         //     'password' => bcrypt('password')
         // ]);
 
-        // $this->call(\Lwwcas\LaravelCountries\Database\Seeders\LcDatabaseSeeder::class);
+        $this->call(\Lwwcas\LaravelCountries\Database\Seeders\LcDatabaseSeeder::class);
     }
 }

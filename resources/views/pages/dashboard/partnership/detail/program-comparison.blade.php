@@ -22,7 +22,7 @@
                 </select>
             </div>
         </div>
-        <div class="row row-cols-md-3">
+        <div class="row row-cols-md-3 flex-md-row flex-column gap-md-0 gap-1">
             <div class="col">
                 <div class="card">
                     <div class="card-header text-center">
