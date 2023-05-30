@@ -2,7 +2,8 @@
     <div class="card-body">
         <div class="row justify-content-end mb-2">
             <div class="col-md-2">
-                <input type="month" class="form-control form-control-sm qdate" value="{{ Request::get('qdate') ?? date('Y-m') }}">
+                <input type="month" class="form-control form-control-sm qdate"
+                    value="{{ Request::get('qdate') ?? date('Y-m') }}">
             </div>
         </div>
         <div class="row">
@@ -39,17 +40,19 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($salesDetail as $detail)
-                                    <tr class="text-center">
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $detail->prog_id }}</td>
-                                        <td class="text-start">{{ $detail->program_name_sales }}</td>
-                                        <td>{{ $detail->total_target_participant ??= 0 }}</td>
-                                        <td>{{ number_format($detail->total_target_amount,'2',',','.') }}</td>
-                                        <td>{{ $detail->total_actual_participant }}</td>
-                                        <td>{{ number_format($detail->total_actual_amount,'2',',','.') }}</td>
-                                        <td>{{ $detail->total_target_participant != 0 ? round(($detail->total_actual_participant/$detail->total_target_participant) * 100, 2) : 0 }}%</td>
-                                        <td>{{ $detail->total_target_amount != 0 ? ($detail->total_actual_amount/$detail->total_target_amount) * 100 : 0 }}%</td>
-                                    </tr>
+                                        <tr class="text-center">
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $detail->prog_id }}</td>
+                                            <td class="text-start">{{ $detail->program_name_sales }}</td>
+                                            <td>{{ $detail->total_target_participant ??= 0 }}</td>
+                                            <td>{{ number_format($detail->total_target_amount, '2', ',', '.') }}</td>
+                                            <td>{{ $detail->total_actual_participant }}</td>
+                                            <td>{{ number_format($detail->total_actual_amount, '2', ',', '.') }}</td>
+                                            <td>{{ $detail->total_target_participant != 0 ? round(($detail->total_actual_participant / $detail->total_target_participant) * 100, 2) : 0 }}%
+                                            </td>
+                                            <td>{{ $detail->total_target_amount != 0 ? ($detail->total_actual_amount / $detail->total_target_amount) * 100 : 0 }}%
+                                            </td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
                             </table>
@@ -66,8 +69,7 @@
     var target_revenue_chart, target_people_chart = null;
 
     // sales target context
-    function get_all_program(month = null, user = null)
-    {
+    function get_all_program(month = null, user = null) {
         var today = new Date()
 
         if (!month)
@@ -79,20 +81,20 @@
         var url = window.location.origin + '/api/get/all-program/target/' + month + '/' + user
 
         axios.get(url)
-           .then(function (response) {
-            
+            .then(function(response) {
+
                 var obj = response.data.data
                 target_people_chart.data.datasets[0].data = obj.dataset.participant
                 target_people_chart.data.datasets[1].data = obj.dataset.participant
                 target_people_chart.update();
-                
+
                 target_revenue_chart.data.datasets[0].data = obj.dataset.revenue
                 target_revenue_chart.data.datasets[1].data = obj.dataset.revenue
                 target_revenue_chart.update();
 
                 $("#sales-target-detail tbody").html(obj.html_txt)
 
-            }).catch(function (error) {
+            }).catch(function(error) {
                 notification('error', 'Ooops! Something went wrong. Please try again.')
             })
     }
@@ -106,28 +108,17 @@
 
     dataset_sales_target.push({{ $salesTarget->total_participant ?? 0 }})
     dataset_sales_target.push({{ $salesActual->total_participant ?? 0 }})
-    
+
     dataset_sales_actual.push({{ $salesTarget->total_target ?? 0 }})
     dataset_sales_actual.push({{ $salesActual->total_target ?? 0 }})
 
     var target_people_chart = new Chart(st, {
         data: {
             labels: ['Target', 'Actual'],
-            datasets: [{
-                    type: 'line',
-                    label: 'Target',
-                    data: dataset_sales_target,
-                    borderWidth: 4,
-                    datalabels: {
-                        color: '#fff',
-                        backgroundColor: '#2f6ba8',
-                        borderRadius: 40,
-                        padding: 5,
-                    }
-                },
+            datasets: [
                 {
                     type: 'bar',
-                    label: 'Actual',
+                    label: 'Actual Sales',
                     data: dataset_sales_target,
                     borderWidth: 1,
                     borderRadius: 5,
@@ -138,6 +129,18 @@
                         padding: 5,
                         anchor: 'end',
                     }
+                },
+                {
+                    type: 'line',
+                    label: 'Target',
+                    data: dataset_sales_target,
+                    borderWidth: 1,
+                    datalabels: {
+                        color: '#fff',
+                        backgroundColor: '#2f6ba8',
+                        borderRadius: 40,
+                        padding: 5,
+                    }
                 }
             ]
         },
@@ -146,7 +149,11 @@
             responsive: true,
             plugins: {
                 legend: {
-                    position: 'top',
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 10,
+                    }
                 },
                 title: {
                     display: true,
@@ -160,20 +167,8 @@
         data: {
             labels: ['Target', 'Actual'],
             datasets: [{
-                    type: 'line',
-                    label: 'Target',
-                    data: dataset_sales_actual,
-                    borderWidth: 4,
-                    datalabels: {
-                        color: '#fff',
-                        backgroundColor: '#2f6ba8',
-                        borderRadius: 40,
-                        padding: 5,
-                    }
-                },
-                {
                     type: 'bar',
-                    label: 'Actual',
+                    label: 'Actual Sales',
                     data: dataset_sales_actual,
                     borderWidth: 1,
                     borderRadius: 5,
@@ -184,6 +179,18 @@
                         padding: 5,
                         anchor: 'end',
                     }
+                },
+                {
+                    type: 'line',
+                    label: 'Target',
+                    data: dataset_sales_actual,
+                    borderWidth: 1,
+                    datalabels: {
+                        color: '#fff',
+                        backgroundColor: '#2f6ba8',
+                        borderRadius: 40,
+                        padding: 5,
+                    }
                 }
             ]
         },
@@ -192,7 +199,11 @@
             responsive: true,
             plugins: {
                 legend: {
-                    position: 'top',
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 10,
+                    }
                 },
                 title: {
                     display: true,

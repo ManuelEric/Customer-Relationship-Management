@@ -522,7 +522,7 @@
                 datalabels: lbl_client_prog[0],
                 title: {
                     display: true,
-                    text: 'Career Exploration',
+                    text: 'Experiential Learning',
                     font: {
                         size: 15,
                         weight: 'normal'

@@ -8,9 +8,9 @@
                 </select>
             </div>
         </div>
-        <div class="row">
+        <div class="row d-flex align-items-stretch">
             <div class="col-md-4">
-                <div class="card">
+                <div class="card h-100">
                     <div class="card-header">
                         Client Event Percentage
                     </div>
@@ -26,13 +26,14 @@
                                 @forelse ($events as $event)
                                     <tr>
                                         <td>{{ $event->event_title }}</td>
-                                        <td class="text-end">{{ $event->participants != 0 && $event->event_target != null ? ($event->participants/$event->event_target)*100 : 0 }}%</td>
+                                        <td class="text-end">
+                                            {{ $event->participants != 0 && $event->event_target != null ? ($event->participants / $event->event_target) * 100 : 0 }}%
+                                        </td>
                                     </tr>
-                                    @empty
+                                @empty
                                     <tr>
                                         <td colspan="2">No Data</td>
                                     </tr>
-
                                 @endforelse
                             </tbody>
                         </table>
@@ -40,16 +41,17 @@
                 </div>
             </div>
             <div class="col-md-5">
-                <div class="card">
-                    <div class="card-body">
+                <div class="card h-100">
+                    <div class="card-body d-flex align-items-center">
                         <canvas id="client_event"></canvas>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card">
+                <div class="card h-100">
                     <div class="card-header d-flex justify-content-between">
-                        <div class="" id="event_title">{{ count($events) > 0 ? $events[0]->event_title : null }}</div>
+                        <div class="" id="event_title">{{ count($events) > 0 ? $events[0]->event_title : null }}
+                        </div>
                         <div class="">Conversion Lead</div>
                     </div>
                     <div class="card-body client-event-lead">
@@ -71,16 +73,15 @@
 
     });
 
-    function get_client_event(year = null, user = null)
-    {
+    function get_client_event(year = null, user = null) {
         if (!user)
             user = '';
 
         var url = window.location.origin + '/api/get/client-event/' + year + '/' + user
 
         axios.get(url)
-            .then(function (response) {
-                
+            .then(function(response) {
+
                 var obj = response.data.data
 
                 $("#client-event-percentage-tbl tbody").html(obj.html_txt)
@@ -95,8 +96,8 @@
                 event_lead_chart.update();
                 swal.close()
 
-            }).catch(function (error) {
-                
+            }).catch(function(error) {
+
             })
     }
 </script>
@@ -138,7 +139,7 @@
         @foreach ($events as $event)
             dataset_participants.push('{{ $event->participants }}')
             dataset_target.push('{{ $event->event_target == null ? 0 : $event->event_target }}')
-            dataset_events.push('{{ $event->event_title }}')        
+            dataset_events.push('{{ $event->event_title }}')
         @endforeach
     @endif
 
@@ -146,31 +147,42 @@
         data: {
             labels: dataset_events,
             datasets: [{
-                type: 'line',
-                label: 'Target Participants',
-                data: dataset_target,
-                borderWidth: 6,
-                datalabels: {
-                    color: '#fff',
-                    backgroundColor: '#2f6ba8',
-                    borderRadius: 40,
-                    padding: 5,
+                    type: 'bar',
+                    label: 'Join Event',
+                    data: dataset_participants,
+                    borderWidth: 1,
+                    datalabels: {
+                        color: '#000',
+                        backgroundColor: '#fff',
+                        borderRadius: 40,
+                        padding: 5,
+                    }
+                },
+                {
+                    type: 'line',
+                    label: 'Target Participants',
+                    data: dataset_target,
+                    borderWidth: 1,
+                    datalabels: {
+                        color: '#fff',
+                        backgroundColor: '#2f6ba8',
+                        borderRadius: 40,
+                        padding: 5,
+                    }
                 }
-            }, {
-                type: 'bar',
-                label: 'Join Event',
-                data: dataset_participants,
-                borderWidth: 1,
-                datalabels: {
-                    color: '#000',
-                    backgroundColor: '#fff',
-                    borderRadius: 40,
-                    padding: 5,
-                }
-            }]
+            ]
         },
         plugins: [ChartDataLabels],
         options: {
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 10,
+                    }
+                },
+            },
             indexAxis: 'y',
             onClick: (e, activeEls) => {
                 let datasetIndex = activeEls[0].datasetIndex;
@@ -193,13 +205,13 @@
     const dataset_labels = new Array();
     const dataset_info = new Array();
     @if (isset($conversion_lead_of_event))
-    @foreach ($conversion_lead_of_event->pluck('conversion_lead')->toArray() as $key => $value)
-        dataset_labels.push('{{ $value }}')
-    @endforeach
+        @foreach ($conversion_lead_of_event->pluck('conversion_lead')->toArray() as $key => $value)
+            dataset_labels.push('{{ $value }}')
+        @endforeach
 
-    @foreach ($conversion_lead_of_event->pluck('count_conversionLead')->toArray() as $key => $value)
-        dataset_info.push('{{ $value == null || $value == '' ? 0 : $value }}')
-    @endforeach
+        @foreach ($conversion_lead_of_event->pluck('count_conversionLead')->toArray() as $key => $value)
+            dataset_info.push('{{ $value == null || $value == '' ? 0 : $value }}')
+        @endforeach
     @endif
 
     const event_lead = document.getElementById('client_event_lead');
@@ -229,6 +241,4 @@
             }
         }
     });
-    
-
 </script>

@@ -1,7 +1,7 @@
 <div class="row mt-3">
     <div class="col-md-12">
         <div class="row align-items-center">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="card mb-3">
                     <div class="card-body text-center">
                         <h5>Conversion Leads</h5>
@@ -10,9 +10,9 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-8">
-                <div class="row justify-content-center align-items-center g-3">
-                    <div class="col-md-4">
+            <div class="col-md-6">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-6">
                         <div class="card">
                             <div class="card-body text-center">
                                 <h6 class="text-muted">Admissions Mentoring</h6>
@@ -20,7 +20,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="card">
                             <div class="card-body text-center">
                                 <h6 class="text-muted">Academic & Test Preparation</h6>
@@ -28,10 +28,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="card">
                             <div class="card-body text-center">
-                                <h6 class="text-muted">Career Exploration</h6>
+                                <h6 class="text-muted">Experiential Learning</h6>
                                 <canvas id="careerLead"></canvas>
                             </div>
                         </div>
