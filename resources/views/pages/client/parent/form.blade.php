@@ -19,7 +19,6 @@
             </h5>
         </div>
         <div class="card-body">
-           
             <form action="{{ isset($parent) ? route('parent.update', ['parent' => $parent->id]) : route('parent.store') }}" method="post">
                 @csrf
                 @if (isset($parent))
@@ -27,11 +26,11 @@
                 @endif
                 <input type="hidden" name="queryChildId" value="{{ isset($_GET['child']) ? $_GET['child'] : null }}">
                 <input type="hidden" name="queryClientProgId" value="{{ isset($_GET['client_prog']) ? $_GET['client_prog'] : null }}">
-                <div class="row align-items-center">
-                    <div class="col-4 text-center">
+                <div class="row flex-md-row flex-column align-items-center">
+                    <div class="col-md-4 col text-center mb-md-0 mb-3">
                         <img src="{{ asset('img/parent.jpeg') }}" class="w-50">
                     </div>
-                    <div class="col-8">
+                    <div class="col-md-8 col">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-2">

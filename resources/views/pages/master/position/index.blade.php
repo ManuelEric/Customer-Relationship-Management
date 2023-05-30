@@ -101,11 +101,12 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
                 processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: '',
                 columns: [{
                         data: 'id',
@@ -131,16 +132,17 @@
                         defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#positionForm" class="btn btn-sm btn-outline-warning editPosition"><i class="bi bi-pencil"></i></button>' +
                             '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deletePosition"><i class="bi bi-trash2"></i></button>'
                     }
-                ]
+                ],
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
             });
 
-            @php            
+            @php
                 $privilage = $menus['Master']->where('submenu_name', 'Position')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });

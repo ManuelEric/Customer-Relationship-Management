@@ -20,6 +20,7 @@
 
             {{-- Need Changing --}}
             <script>
+                var widthView = $(window).width();
                 $(document).ready(function() {
                     var table = $('#programTable').DataTable({
                         dom: 'Bfrtip',
@@ -35,7 +36,7 @@
                         ],
                         scrollX: true,
                         fixedColumns: {
-                            left: 2,
+                            left: (widthView < 768) ? 1 : 2,
                             right: 1
                         },
                         processing: true,

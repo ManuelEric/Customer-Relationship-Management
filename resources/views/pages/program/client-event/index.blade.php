@@ -3,24 +3,27 @@
 @section('title', 'Client Event - Bigdata Platform')
 
 @section('content')
-<style>
-    .btn-download span, .btn-import span {
-        display: none;
-    }
-    .btn-download:hover > span, .btn-import:hover > span {
-        display: inline-block;
-    }
-</style>
+    <style>
+        .btn-download span,
+        .btn-import span {
+            display: none;
+        }
 
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+        .btn-download:hover>span,
+        .btn-import:hover>span {
+            display: inline-block;
+        }
+    </style>
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
@@ -28,10 +31,11 @@
         </a>
         <div class="">
 
-            <a href="{{ url('api/download/excel-template/client-event') }}" class="btn btn-sm btn-outline-info btn-download"><i
-                    class="bi bi-download me-1"></i> <span>Download Templates</span></a>
-            <a href="#" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal" data-bs-target="#importData"><i
-                    class="bi bi-cloud-upload me-1"></i> <span>Import</span></a>
+            <a href="{{ url('api/download/excel-template/client-event') }}"
+                class="btn btn-sm btn-outline-info btn-download"><i class="bi bi-download me-1"></i> <span>Download
+                    Templates</span></a>
+            <a href="#" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal"
+                data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i> <span>Import</span></a>
             <a href="{{ url('program/event/create') }}" class="btn btn-sm btn-primary"><i
                     class="bi bi-plus-square me-1"></i>
                 Add Client Event </a>
@@ -65,7 +69,7 @@
 
     <div class="modal fade" id="importData" tabindex="-1" aria-labelledby="importDataLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <form action="{{route('program.event.import')}}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('program.event.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
@@ -80,7 +84,8 @@
                             </div>
                             <small class="text-warning mt-3">
                                 * Please clean the file first, before importing the csv file. <br>
-                                You can download the csv template <a href="{{ url('api/download/excel-template/client-event') }}">here</a>
+                                You can download the csv template <a
+                                    href="{{ url('api/download/excel-template/client-event') }}">here</a>
                             </small>
                         </div>
                     </div>
@@ -113,12 +118,13 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
                 processing: true,
                 serverSide: true,
                 ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'clientevent_id',
                         className: 'text-center',
@@ -128,13 +134,18 @@
                     },
                     {
                         data: 'client_name',
-                         render: function(data, type, row, meta) {
-                            var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm') == moment(row.client_created_at).format('MMMM Do YYYY, h:mm');
-                            var newClientEvent = moment().format("MMM Do YY") == moment(row.created_at).format('MMM Do YY');
-                            
-                            if(newClientEvent == true){
-                                return data + (existing == true ? ' <span class="badge text-bg-primary" style="font-size:8px;">New</span>' : ' <span class="badge text-bg-success" style="font-size:8px";>Existing</span>');
-                            }else{
+                        render: function(data, type, row, meta) {
+                            var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm') ==
+                                moment(row.client_created_at).format('MMMM Do YYYY, h:mm');
+                            var newClientEvent = moment().format("MMM Do YY") == moment(row
+                                .created_at).format('MMM Do YY');
+
+                            if (newClientEvent == true) {
+                                return data + (existing == true ?
+                                    ' <span class="badge text-bg-primary" style="font-size:8px;">New</span>' :
+                                    ' <span class="badge text-bg-success" style="font-size:8px";>Existing</span>'
+                                );
+                            } else {
                                 return data;
                             }
                         }
@@ -165,7 +176,7 @@
                                 case 1:
                                     return "Attend"
                                     break;
-                                
+
                             }
                         }
                     },
@@ -177,19 +188,19 @@
                 ],
                 createdRow: function(row, data, index) {
                     let currentDate = new Date().toJSON().slice(0, 10);
-                    if (data['created_at'].slice(0,10) == currentDate) {
+                    if (data['created_at'].slice(0, 10) == currentDate) {
                         $('td', row).addClass('table-success');
                     }
                 }
             });
 
-            @php            
+            @php
                 $privilage = $menus['Program']->where('submenu_name', 'Client Event')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });

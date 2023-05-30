@@ -2,6 +2,11 @@
 
 @section('title', 'Student - Bigdata Platform')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/client.css') }}">
+@endsection
+
 @section('content')
 <style>
     .btn-download span, .btn-import span {
@@ -22,13 +27,13 @@
     </div>
 @endif
 
-    <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center justify-content-between mb-3 mt-md-0 mt-1">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Student
         </a>
         <div>
-            <a href="{{ url('api/download/excel-template/student') }}" class="btn btn-sm btn-outline-info btn-download"><i class="bi bi-download me-1"></i> <span>Download Template</span></a>
-            <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i> <span>Import</span></a>
+            <a href="{{ url('api/download/excel-template/student') }}" class="btn btn-sm btn-outline-info btn-download"><i class="bi bi-download"></i> <span class="ms-1">Download Template</span></a>
+            <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span class="ms-1">Import</span></a>
             <a href="{{ url('client/student/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add Student</a>
         </div>
     </div>
@@ -36,7 +41,7 @@
 
     <div class="card rounded">
         <div class="card-body">
-            <ul class="nav nav-tabs mb-3">
+            <ul class="nav nav-tabs flex-nowrap mb-3">
                 <li class="nav-item">
                     <a class="nav-link {{ Request::get('st') == 'prospective' ? 'active' : '' }}" aria-current="page"
                         href="{{ url('client/student?st=prospective') }}">Prospective</a>
@@ -133,6 +138,7 @@
 
     {{-- Need Changing --}}
     <script>
+        var widthView = $(window).width();
         $(document).ready(function() {
             var table = $('#clientTable').DataTable({
                 order: [
@@ -152,7 +158,7 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
                 processing: true,

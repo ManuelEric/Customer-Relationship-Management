@@ -58,7 +58,9 @@
                                     <select name="prog_id" id="prog_id" class="modal-select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($programs as $program)
-                                            <option value="{{ $program->prog_id }}" {{ $program->prog_id == old('prog_id') ? 'selected' : ''}}>{{$program->program_name }}</option>
+                                            <option value="{{ $program->prog_id }}"
+                                                {{ $program->prog_id == old('prog_id') ? 'selected' : '' }}>
+                                                {{ $program->program_name }}</option>
                                         @endforeach
                                     </select>
                                     @error('prog_id')
@@ -72,7 +74,8 @@
                                         Participants Target <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="number" name="total_participant" id="total_participant"
-                                        class="form-control form-control-sm rounded" required value="{{ old('total_participant') }}">
+                                        class="form-control form-control-sm rounded" required
+                                        value="{{ old('total_participant') }}">
                                     @error('total_participant')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -84,7 +87,8 @@
                                         Total Amount Target <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="number" name="total_target" id="total_target"
-                                        class="form-control form-control-sm rounded" required value="{{ old('total_target') }}">
+                                        class="form-control form-control-sm rounded" required
+                                        value="{{ old('total_target') }}">
                                     @error('total_target')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -96,7 +100,8 @@
                                         Month <sup class="text-danger">*</sup>
                                     </label>
                                     <input type="month" name="month_year" id="month_year"
-                                        class="form-control form-control-sm rounded" required value="{{ old('month_year') }}">
+                                        class="form-control form-control-sm rounded" required
+                                        value="{{ old('month_year') }}">
                                     @error('month_year')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -142,12 +147,13 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
                 processing: true,
                 serverSide: true,
                 ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'id',
                         className: 'text-center',
@@ -193,13 +199,13 @@
                 ]
             });
 
-            @php            
+            @php
                 $privilage = $menus['Master']->where('submenu_name', 'Sales Target')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });
@@ -265,20 +271,16 @@
         }
     </script>
 
-    @if(
-        $errors->has('prog_id') | 
-        $errors->has('total_target') | 
-        $errors->has('total_participant') | 
-        $errors->has('month_year')
-        )
-                
+    @if (
+        $errors->has('prog_id') |
+            $errors->has('total_target') |
+            $errors->has('total_participant') |
+            $errors->has('month_year'))
         <script>
-            $(document).ready(function(){
-                $('#salesTargetForm').modal('show'); 
+            $(document).ready(function() {
+                $('#salesTargetForm').modal('show');
             })
-
         </script>
-
     @endif
 
 @endsection

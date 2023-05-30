@@ -109,14 +109,14 @@ class SalesDashboardController extends Controller
 
             $client_register_date = date('Y-m', strtotime($client->created_at));
             $now = date('Y-m');
-            $styling = $client_register_date == $now ? 'class="bg-primary"' : null;
+            $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
 
             $html .= '<tr ' . $styling . '>
                         <td>' . $index++ . '</td>
-                        <td>' . $client->full_name . '</td>
+                        <td>' . $client->full_name  . '</td>
                         <td>' . $client->mail . '</td>
                         <td>' . $client->phone . '</td>
-                        <td>' . $client->created_at . '</td>
+                        <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
                     </tr>';
         }
 
@@ -599,7 +599,7 @@ class SalesDashboardController extends Controller
             foreach ($academicTestPrep as $title => $data) {
 
                 if ($data->count() > 0) {
-                    $html .= '<label class="fw-bold fs-5 my-3">' . ucfirst($title) . '</label>';
+                    $html .= '<label class="fw-semibold fs-6 mt-3">' . ucfirst($title) . '</label>';
 
                     foreach ($data as $program_name => $value) {
 
@@ -631,19 +631,19 @@ class SalesDashboardController extends Controller
 
                             $table_content .= '
                                 <tr>
-                                    <td align="center">' . $no++ . '.</td>
+                                    <td>' . $no++ . '.</td>
                                     <td>' . $data->client->client_name . '</td>
-                                    <td align="center">' . $date_value . '</td>
+                                    <td>' . $date_value . '</td>
                                 </tr>';
                         }
 
                         $html .= '
-                            <table class="table table-bordered border-primary">
+                            <table class="table table-hover table-striped my-2">
                                 <tr>
-                                    <td colspan="3"><label class="fs-6">' . $program_name . '</label></td>
+                                    <td colspan="3" class="text-center text-white bg-primary"><label class="fs-6">' . $program_name . '</label></td>
                                 </tr>
-                                <tr align="center">
-                                    <th style="width:2em">No.</th>
+                                <tr>
+                                    <th width="5%">No.</th>
                                     <th>Client Name</th>
                                     <th style="width:150px">' . $date_name . '</th>
                                 </tr>
@@ -708,7 +708,7 @@ class SalesDashboardController extends Controller
             foreach ($careerExploration as $title => $data) {
 
                 if ($data->count() > 0) {
-                    $html .= '<label class="fw-bold fs-5 my-3">' . ucfirst($title) . '</label>';
+                    $html .= '<label class="fw-semibold fs-6 mt-3">' . ucfirst($title) . '</label>';
 
                     foreach ($data as $program_name => $value) {
 
@@ -744,19 +744,19 @@ class SalesDashboardController extends Controller
 
                             $table_content .= '
                                 <tr>
-                                    <td align="center">' . $no++ . '.</td>
+                                    <td>' . $no++ . '.</td>
                                     <td>' . $data->client->client_name . '</td>
-                                    <td align="center">' . $date_value . '</td>
+                                    <td>' . $date_value . '</td>
                                 </tr>';
                         }
 
                         $html .= '
-                            <table class="table table-bordered border-primary">
+                            <table class="table table-hover table-striped my-2">
                                 <tr>
-                                    <td colspan="3"><label class="fs-6">' . $prog . '</label></td>
+                                    <td colspan="3" class="text-center text-white bg-primary"><label class="fs-6">' . $prog . '</label></td>
                                 </tr>
-                                <tr align="center">
-                                    <th style="width:2em">No.</th>
+                                <tr>
+                                    <th width="5%">No.</th>
                                     <th>Client Name</th>
                                     <th style="width:150px">' . $date_name . '</th>
                                 </tr>

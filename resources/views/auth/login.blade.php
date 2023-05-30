@@ -12,7 +12,7 @@
     <section id="main">
         <div class="container-fluid h-100 p-0">
             <div class="row h-100 g-0">
-                <div class="col-6 h-100 bg-light">
+                <div class="d-none d-md-block col-md-6 h-100 bg-light">
                     <div class="d-flex align-items-center justify-content-center h-100">
                         <div class="text-center">
                             <img src="{{ asset('img/logo.png') }}" alt="" class="w-25">
@@ -21,7 +21,7 @@
                     </div>
                 </div>
 
-                <div class="col-6 h-100 bg-dark">
+                <div class="col-md-6 h-100 bg-dark">
                     <div class="container h-100">
                         <div class="row align-items-center justify-content-center h-100">
                             <div class="col-6 text-white">
@@ -31,15 +31,15 @@
                                         <i class="bi bi-box-arrow-in-right me-1"></i>
                                         LOG IN
                                     </h3>
-                                        @if ($errors->any())
-                                            <div class="alert alert-danger">
-                                                <ul>
-                                                    @foreach ($errors->all() as $error)
-                                                        <li>{{ $error }}</li>
-                                                    @endforeach
-                                                </ul>
-                                            </div>
-                                        @endif
+                                    @if ($errors->any())
+                                        <div class="alert alert-danger">
+                                            <ul>
+                                                @foreach ($errors->all() as $error)
+                                                    <li>{{ $error }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
                                     <div class="my-3">
                                         <label for="">Email</label>
                                         <input type="text" class="form-control @error('email') is-invalid @enderror"
