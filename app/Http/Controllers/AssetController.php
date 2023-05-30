@@ -49,9 +49,9 @@ class AssetController extends Controller
         ]);
 
         $last_id = Asset::max('asset_id');
-        $asset_id_without_label = $this->remove_primarykey_label($last_id, 3);
+        $asset_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 3) : '0000';
         $asset_id_with_label = 'AS-' . $this->add_digit($asset_id_without_label + 1, 4);
-
+        
         DB::beginTransaction();
         try {
 

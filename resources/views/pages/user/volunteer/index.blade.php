@@ -19,7 +19,7 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="volunteerTable">
                 <thead class="bg-dark text-white">
                     <tr>
-                        <th class="text-dark">#</th>
+                        <th class="bg-white text-dark">#</th>
                         <th class="bg-info text-white">Volunteer ID</th>
                         <th class="bg-info text-white">Full Name</th>
                         <th>E-mail</th>
@@ -58,12 +58,13 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
                 processing: true,
                 serverSide: true,
                 ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'volunt_id',
                         className: 'text-center',
@@ -118,13 +119,13 @@
                 ]
             });
 
-            @php            
+            @php
                 $privilage = $menus['Users']->where('submenu_name', 'Volunteer')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });

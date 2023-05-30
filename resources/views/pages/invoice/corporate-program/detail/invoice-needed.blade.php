@@ -19,6 +19,7 @@
 
             {{-- Need Changing --}}
             <script>
+            var widthView = $(window).width();
             $(document).ready(function() {
             
                 $('#cancel').click(function() {
@@ -39,7 +40,7 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
                 processing: true,

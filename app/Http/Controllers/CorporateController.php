@@ -65,7 +65,7 @@ class CorporateController extends Controller
         ]);
 
         $last_id = Corporate::max('corp_id');
-        $corp_id_without_label = $this->remove_primarykey_label($last_id, 5);
+        $corp_id_without_label =  $last_id ? $this->remove_primarykey_label($last_id, 5) : '0000';
         $corp_id_with_label = 'CORP-' . $this->add_digit($corp_id_without_label + 1, 4);
         $corporateDetails['corp_password'] = Hash::make($request->corp_password);
 
@@ -108,7 +108,7 @@ class CorporateController extends Controller
             // 'corp_password',
         ]);
 
-        // if ($corp_password = $newDetails['corp_password']) 
+        // if ($corp_password = $newDetails['corp_password'])
         //     $newDetails['corp_password'] = Hash::make($corp_password);
         $corporateId = $request->route('corporate');
 
@@ -131,13 +131,13 @@ class CorporateController extends Controller
     {
         $corporateId = $request->route('corporate');
         $corporate = $this->corporateRepository->getCorporateById($corporateId);
-        
-        
+
+
         # retrieve School Program data by schoolId
         $partnerPrograms = $this->partnerProgramRepository->getAllPartnerProgramsByPartnerId($corporateId);
-        
+
         $partnerAgreements = $this->partnerAgreementRepository->getAllPartnerAgreementsByPartnerId($corporateId);
-        
+
         $pics = $this->corporatePicRepository->getAllCorporatePicByCorporateId($corporateId);
 
         # retrieve employee from partnership team data

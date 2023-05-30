@@ -14,13 +14,15 @@
                 data-bs-auto-close="false" id="filter">
                 <i class="bi bi-funnel me-2"></i> Filter
             </button>
-            <form action="{{ route('school.index') }}" class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 300px" method="GET">
-            
+            <form action="{{ route('school.index') }}" class="dropdown-menu dropdown-menu-end pt-0 shadow"
+                style="width: 300px" method="GET">
+
                 <h6 class="dropdown-header bg-secondary text-white rounded-top">Advanced Filter</h6>
                 <div class="row p-3">
                     <div class="col-md-12 mb-2">
                         <label for="">School Name</label>
-                        <select name="school_name[]" id="" class="select form-select form-select-sm w-100" multiple>
+                        <select name="school_name[]" id="" class="select form-select form-select-sm w-100"
+                            multiple>
                             @foreach ($schools as $school)
                                 <option value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
                             @endforeach
@@ -28,7 +30,8 @@
                     </div>
                     <div class="col-md-12 mb-2">
                         <label for="">Program Name</label>
-                        <select name="program_name[]" id="" class="select form-select form-select-sm w-100" multiple>
+                        <select name="program_name[]" id="" class="select form-select form-select-sm w-100"
+                            multiple>
                             @foreach ($programs as $program)
                                 <option value="{{ $program->program_name }}">{{ $program->program_name }}</option>
                             @endforeach
@@ -63,7 +66,8 @@
                         <label for="">PIC</label>
                         <select name="pic[]" id="" class="select form-select form-select-sm w-100" multiple>
                             @foreach ($employees as $employee)
-                                <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }}</option>
+                                <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -95,7 +99,7 @@
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
-                
+
                 <tfoot class="bg-light text-white">
                     <tr>
                         <td colspan="8"></td>
@@ -125,12 +129,13 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
                 processing: true,
                 serverSide: true,
                 ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'id',
                         className: 'text-center',
@@ -140,7 +145,7 @@
                     },
                     {
                         data: 'school_name',
-                        name: 'tbl_sch.sch_name' 
+                        name: 'tbl_sch.sch_name'
                     },
                     {
                         data: 'program_name',
@@ -156,7 +161,7 @@
                                 case 1:
                                     return data
                                     break;
-                                
+
                                 default:
                                     return "-"
                             }
@@ -172,7 +177,7 @@
                                         currency: "IDR"
                                     }).format(data);
                                     break;
-                                
+
                                 default:
                                     return "-"
                             }
@@ -189,15 +194,15 @@
                                 case 1:
                                     return "Success"
                                     break;
-                                
+
                                 case 2:
                                     return "Rejected"
                                     break;
-                                
+
                                 case 3:
                                     return "Refund"
                                     break;
-                                
+
                                 case 4:
                                     return "Accepted"
                                     break;
@@ -219,13 +224,13 @@
                 ]
             });
 
-            @php            
+            @php
                 $privilage = $menus['Program']->where('submenu_name', 'School Program')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });
@@ -239,12 +244,13 @@
 
             $('#schProgTable tbody').on('click', '.editSchProg', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('program/school') }}/" + data.sch_id.toLowerCase() + "/detail/" + data.id;    
+                window.location.href = "{{ url('program/school') }}/" + data.sch_id.toLowerCase() +
+                    "/detail/" + data.id;
             });
 
-        
+
         });
     </script>
 
-  
+
 @endsection

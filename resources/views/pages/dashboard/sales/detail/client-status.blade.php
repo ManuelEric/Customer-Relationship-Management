@@ -1,7 +1,7 @@
 <div class="card mb-3">
     <div class="card-body">
-        <div class="row justify-content-between g-1 mb-2">
-            <div class="col-md-4">
+        <div class="row justify-content-md-between align-items-center g-1 mb-md-2 mb-3">
+            <div class="col-md-4 mb-md-0 mb-3">
                 <div class="row g-1">
                     <div class="col-md-6">
                         <select id="period" class="select w-100" onchange="checkPeriod()">
@@ -16,7 +16,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 text-end">
+            <div class="col-md-4 text-md-end text-center">
 
                 <button type="button" id="btn-follow-up" class="btn btn-sm btn-info position-relative pe-3"
                     style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#follow_up">

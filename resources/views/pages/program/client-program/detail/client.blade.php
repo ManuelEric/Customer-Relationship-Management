@@ -13,35 +13,35 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
+                            <div class="col d-flex justify-content-between">
                                 <label>
                                     E-mail
                                 </label>
                                 <label>:</label>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-8 col-8">
                                 {{ $student->mail }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
+                            <div class="col d-flex justify-content-between">
                                 <label>
                                     Phone Number
                                 </label>
                                 <label>:</label>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-8 col-8">
                                 {{ $student->phone }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
+                            <div class="col d-flex justify-content-between">
                                 <label>
                                     Address
                                 </label>
                                 <label>:</label>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-8 col-8">
                                 {!! $student->address !!} 
                                 {!! $student->postal_code ? $student->postal_code."<br>" : null !!} 
                                 {{ $student->city }} {{ $student->state }}
@@ -50,47 +50,47 @@
                         
                         @if ($student->school)
                         <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
+                            <div class="col d-flex justify-content-between">
                                 <label>
                                     School Name
                                 </label>
                                 <label>:</label>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-8 col-8">
                                 {{ $student->school->sch_name }}
                             </div>
                         </div>
                         @endif
                         <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
+                            <div class="col d-flex justify-content-between">
                                 <label>
                                     Graduation Year
                                 </label>
                                 <label>:</label>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-8 col-8">
                                 {{ $student->graduation_year }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
+                            <div class="col d-flex justify-content-between">
                                 <label>
                                     Follow-up Priority
                                 </label>
                                 <label>:</label>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-8 col-8">
                                 {{ $student->st_levelinterest }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
-                            <div class="col-md-4 d-flex justify-content-between">
+                            <div class="col d-flex justify-content-between">
                                 <label>
                                     Lead
                                 </label>
                                 <label>:</label>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-8 col-8">
                                 {{ $student->leadSource }}
                             </div>
                         </div>
@@ -116,35 +116,35 @@
                     <div class="card-body">
                         @if ($student->parents()->count() > 0)
                             <div class="row mb-2 g-1">
-                                <div class="col-md-4 d-flex justify-content-between">
+                                <div class="col d-flex justify-content-between">
                                     <label>
                                         Parents Name
                                     </label>
                                     <label>:</label>
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-md-8 col-8">
                                     {{ $student->parents()->first()->fullname }}
                                 </div>
                             </div>
                             <div class="row mb-2 g-1">
-                                <div class="col-md-4 d-flex justify-content-between">
+                                <div class="col d-flex justify-content-between">
                                     <label>
                                         Parents Email
                                     </label>
                                     <label>:</label>
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-md-8 col-8">
                                     {{ $student->parents()->first()->mail }}
                                 </div>
                             </div>
                             <div class="row mb-2 g-1">
-                                <div class="col-md-4 d-flex justify-content-between">
+                                <div class="col d-flex justify-content-between">
                                     <label>
                                         Parents Phone
                                     </label>
                                     <label>:</label>
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-md-8 col-8">
                                     {{ $student->parents()->first()->phone }}
                                 </div>
                             </div>

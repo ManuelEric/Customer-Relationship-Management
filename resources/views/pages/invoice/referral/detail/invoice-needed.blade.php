@@ -40,6 +40,7 @@
 
             {{-- Need Changing --}}
             <script>
+            var widthView = $(window).width();
             $(document).ready(function() {
                 $('#cancel').click(function() {
                     $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
@@ -59,7 +60,7 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: (widthView < 768) ? 1 : 2,
                     right: 1
                 },
                 processing: true,

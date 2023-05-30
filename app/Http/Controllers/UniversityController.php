@@ -64,7 +64,7 @@ class UniversityController extends Controller
         ]);
 
         $last_id = University::max('univ_id');
-        $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
+        $univ_id_without_label =  $last_id ? $this->remove_primarykey_label($last_id, 5) : '0000';
         $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label + 1, 3);
 
         DB::beginTransaction();
@@ -76,10 +76,10 @@ class UniversityController extends Controller
 
             DB::rollBack();
             Log::error('Store university failed : ' . $e->getMessage());
-            return Redirect::to('instance/university/'.$univ_id_with_label)->withError('Failed to create a new university');
+            return Redirect::to('instance/university/' . $univ_id_with_label)->withError('Failed to create a new university');
         }
 
-        return Redirect::to('instance/university/'.$univ_id_with_label)->withSuccess('University successfully created');
+        return Redirect::to('instance/university/' . $univ_id_with_label)->withSuccess('University successfully created');
     }
 
     public function create()

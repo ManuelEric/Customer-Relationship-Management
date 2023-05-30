@@ -94,12 +94,13 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: 2,
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
                     right: 1
                 },
                 processing: true,
                 serverSide: true,
                 ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'id',
                         className: 'text-center',
@@ -124,7 +125,7 @@
                         defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#curriculumForm" class="btn btn-sm btn-outline-warning editcurriculum"><i class="bi bi-pencil"></i></button>' +
                             '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deletecurriculum"><i class="bi bi-trash2"></i></button>'
                     }
-                ]
+                ],
             });
 
             $('#curriculumTable tbody').on('click', '.editcurriculum ', function() {
@@ -137,13 +138,13 @@
                 confirmDelete('master/curriculum', data.id)
             });
 
-            @php            
+            @php
                 $privilage = $menus['Master']->where('submenu_name', 'Curriculum')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });
@@ -185,16 +186,11 @@
         }
     </script>
 
-    @if(
-        $errors->has('name')
-        )
-        
+    @if ($errors->has('name'))
         <script>
-            $(document).ready(function(){
+            $(document).ready(function() {
                 $('#curriculumForm').modal('show');
             })
-
         </script>
-
     @endif
 @endsection
