@@ -778,6 +778,99 @@ class SalesDashboardController extends Controller
         ]);
     }
 
+    public function getClientProgramByMonthDetail(Request $request)
+    {
+        $cp_filter['qdate'] = $request->route('month');
+        $cp_filter['quuid'] = $request->route('user') ?? null;
+        $cp_filter['qtype'] = $request->route('type');
+
+        $type = '';
+
+        switch ($cp_filter['qtype']) {
+            case 'academic-pre':
+                $type = 'Academic & Test Preparation';
+                break;
+            case 'academic-pre':
+                $type = 'Career Exploration';
+                break;
+        }
+
+        try {
+
+            $clientProg = $this->clientProgramRepository->getClientProgramGroupDataByStatusAndUserArray(['program' => $type] + $cp_filter);
+            // return $clientProg;
+
+            $html = $table_content = null;
+            foreach ($clientProg as $title => $data) {
+
+                if ($data->count() > 0) {
+                    $html .= '<label class="fw-bold fs-5 my-3">' . ucfirst($title) . '</label>';
+
+                    foreach ($data as $program_name => $value) {
+
+                        $no = 1;
+                        $table_content = ''; # reset table content
+                        foreach ($value as $data) {
+
+                            switch ($title) {
+                                case "pending":
+                                    $date_name = 'Created At';
+                                    $date_value = date('l, d M Y', strtotime($data->created_at));
+                                    break;
+
+                                case "failed":
+                                    $date_name = 'Failed Date';
+                                    $date_value = date('l, d M Y', strtotime($data->failed_date));
+                                    break;
+
+                                case "success":
+                                    $date_name = 'Success Date';
+                                    $date_value = date('l, d M Y', strtotime($data->success_date));
+                                    break;
+
+                                case "refund":
+                                    $date_name = 'Refund Date';
+                                    $date_value = date('l, d M Y', strtotime($data->refund_date));
+                                    break;
+                            }
+                            $prog = $data->program->prog_program;
+
+                            $table_content .= '
+                                <tr>
+                                    <td align="center">' . $no++ . '.</td>
+                                    <td>' . $data->client->client_name . '</td>
+                                    <td align="center">' . $date_value . '</td>
+                                </tr>';
+                        }
+
+                        $html .= '
+                            <table class="table table-bordered border-primary">
+                                <tr>
+                                    <td colspan="3"><label class="fs-6">' . $prog . '</label></td>
+                                </tr>
+                                <tr align="center">
+                                    <th style="width:2em">No.</th>
+                                    <th>Client Name</th>
+                                    <th style="width:150px">' . $date_name . '</th>
+                                </tr>
+                                ' . $table_content . '
+                            </table>';
+                    }
+                }
+            }
+        } catch (Exception $e) {
+
+            Log::error($e->getMessage() . ' | Line ' . $e->getLine());
+            return response()->json(['message' => 'Failed to get detail ' . $type . 'detail : ' . $e->getMessage() . ' | Line ' . $e->getLine()]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $clientProg,
+            'ctx' => $html
+        ]);
+    }
+
     public function getConversionLeadByMonth(Request $request)
     {
         $dataset_leadsource_labels = $dataset_leadsource = $dataset_conversionlead_labels = $dataset_conversionlead = [];

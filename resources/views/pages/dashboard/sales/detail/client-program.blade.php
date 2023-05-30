@@ -571,7 +571,7 @@
 
                 var month = $(".qdate").val();
                 var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
-                var link = "{{ url('/') }}/api/get/detail/academic-prep/" + month;
+                var link = "{{ url('/') }}/api/get/detail/client-program/" + month + "/academic-prep";
                 if (user !== null)
                     link += "/" + user;
 
@@ -642,7 +642,7 @@
 
                 var month = $(".qdate").val();
                 var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
-                var link = "{{ url('/') }}/api/get/detail/career-exploration/" + month;
+                var link = "{{ url('/') }}/api/get/detail/client-program/" + month + "/career-exploration";
                 if (user !== null)
                     link += "/" + user;
 

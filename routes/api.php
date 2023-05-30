@@ -52,6 +52,7 @@ Route::get('get/academic-prep/{month}/{user?}', [SalesDashboardController::class
 Route::get('get/detail/academic-prep/{month}/{user?}', [SalesDashboardController::class, 'getAcademicPrepByMonthDetail']);
 Route::get('get/career-exploration/{month}/{user?}', [SalesDashboardController::class, 'getCareerExplorationByMonth']);
 Route::get('get/detail/career-exploration/{month}/{user?}', [SalesDashboardController::class, 'getCareerExplorationByMonthDetail']);
+Route::get('get/detail/client-program/{month}/{detail}/{user?}', [SalesDashboardController::class, 'getClientProgramByMonthDetail']);
 Route::get('get/conversion-lead/{month}/{user?}', [SalesDashboardController::class, 'getConversionLeadByMonth']);
 Route::get('get/lead/admissions-mentoring/{month}/{user?}', [SalesDashboardController::class, 'getLeadAdmissionsProgramByMonth']);
 Route::get('get/lead/academic-prep/{month}/{user?}', [SalesDashboardController::class, 'getLeadAcademicPrepByMonth']);
