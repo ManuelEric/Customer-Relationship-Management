@@ -529,8 +529,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->when(isset($cp_filter['qdate']), function ($q) use ($cp_filter) {
                 $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
             })
-            
-            // ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->when(!empty($dateDetails), function ($q) use ($dateDetails) {
+                $q->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']]);
+            })
             ->groupBy('lead_source')
             ->get();
     }
@@ -577,7 +578,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->when(isset($cp_filter['qdate']), function ($q) use ($cp_filter) {
                 $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
             })
-            // ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->when(!empty($dateDetails), function ($q) use ($dateDetails) {
+                $q->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']]);
+            })
             ->groupBy('conversion_lead')
             ->get();
     }

@@ -24,7 +24,7 @@ class MainProgramSeeder extends Seeder
                 'updated_at' => Carbon::now()
             ],
             [
-                'prog_name' => 'Career Exploration',
+                'prog_name' => 'Experiential Learning',
                 'prog_status' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()

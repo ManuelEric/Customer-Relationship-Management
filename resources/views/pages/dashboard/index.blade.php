@@ -66,8 +66,6 @@
                 // }
                 url.searchParams.append('u', user)
                 url.searchParams.append('query_month', use_filter_by_month);
-    
-                    console.log(url)
 
                 axios.get(url)
                     .then(function(response) {

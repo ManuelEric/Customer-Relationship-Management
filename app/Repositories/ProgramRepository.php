@@ -76,7 +76,9 @@ class ProgramRepository implements ProgramRepositoryInterface
             unset($programDetails['prog_sub']);
 
             $subProg = $this->subProgRepository->getSubProgById($programDetails['sub_prog_id']);
+            return $subProg;
             $programDetails['prog_sub'] = $subProg->sub_prog_name;
+            
         }
 
         # fetch prog name & sub prog name

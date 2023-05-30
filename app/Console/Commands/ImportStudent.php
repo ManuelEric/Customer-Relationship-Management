@@ -512,13 +512,27 @@ class ImportStudent extends Command
             # check if program does not exists in database v2
             if (!$program = $this->programRepository->getProgramById($interestedProgramId))
             {
-                $main_prog = $this->mainProgRepository->getMainProgByName($studentHasInterestedProgram->prog_main);
-                $sub_prog = $this->subProgRepository->getSubProgBySubProgName($studentHasInterestedProgram->prog_sub);
+                # special case
+                # because career exploration has changed to experiential learning
+                
+                $mainProgName = $studentHasInterestedProgram->prog_main;
+                if ($mainProgName == 'Career Exploration')
+                    $mainProgName = 'Experiential Learning';
+
+                $main_prog = $this->mainProgRepository->getMainProgByName($mainProgName);
+                $this->info('nama sub prog : '.$studentHasInterestedProgram->prog_sub);
+
+                if ($studentHasInterestedProgram->prog_sub != NULL || empty($studentHasInterestedProgram))
+                {
+                    $sub_prog = $this->subProgRepository->getSubProgBySubProgName($studentHasInterestedProgram->prog_sub);
+                    $this->info('sub program yg keinsert : '.json_encode($sub_prog));
+                    $sub_prog_id = $sub_prog->id;
+                }
     
                 $programDetails = [
                     'prog_id' => $studentHasInterestedProgram->prog_id,
                     'main_prog_id' => $main_prog->id, //!
-                    'sub_prog_id'=> $sub_prog->id, //!
+                    'sub_prog_id'=> $sub_prog_id ??= null, //!
                     'prog_main' => $studentHasInterestedProgram->prog_main,
                     'main_number' => $studentHasInterestedProgram->main_number,
                     'prog_sub' => $studentHasInterestedProgram->prog_sub,

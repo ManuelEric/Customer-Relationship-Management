@@ -948,7 +948,7 @@ class SalesDashboardController extends Controller
         $dataset_lead_labels = $dataset_lead = $dataset_bgcolor = [];
         $cp_filter['qdate'] = $request->route('month');
         $cp_filter['quuid'] = $request->route('user') ?? null;
-        $cp_filter['prog'] = 'Career Exploration';
+        $cp_filter['prog'] = 'Experiential Learning'; # new
 
         $dateDetails = [
             'startDate' => $cp_filter['qdate'] . '-01',
@@ -966,7 +966,7 @@ class SalesDashboardController extends Controller
             }
         } catch (Exception $e) {
 
-            Log::error('Failed to get career exploration lead dashboard data ' . $e->getMessage());
+            Log::error('Failed to get experiential learning lead dashboard data ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to get career exploration lead data'

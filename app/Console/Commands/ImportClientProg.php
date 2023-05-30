@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
@@ -29,6 +30,7 @@ use Terbilang;
 
 class ImportClientProg extends Command
 {
+    use CreateCustomPrimaryKeyTrait;
     /**
      * The name and signature of the console command.
      *
@@ -155,7 +157,7 @@ class ImportClientProg extends Command
             
             DB::rollBack();
             $this->info($e->getMessage().' | line '.$e->getLine());
-            Log::warning('Failed to import client program '. $e->getMessage());
+            Log::warning('Failed to import client program '. $e->getMessage().' | line '.$e->getLine().' | '.$e->getTraceAsString());
 
         }
 
@@ -207,7 +209,9 @@ class ImportClientProg extends Command
                 'prog_payment' => $crm_clientprog->program->prog_payment,
             ];
 
+            $this->info(json_encode($programDetails));
             $program_v2 = $this->programRepository->createProgram($programDetails);
+            $this->info('ini sub prog : '. $program_v2);
         }
 
         return $program_v2->prog_id;
