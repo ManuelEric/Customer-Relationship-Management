@@ -191,6 +191,21 @@
     </div>
 </div>
 
+{{-- Admissions Mentoring Details Modal  --}}
+<div class="modal modal-lg fade" id="adm_mentor_modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-5" id="exampleModalLabel">Detail of Admissions Mentoring</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body adm_mentor_modal_body overflow-auto" style="max-height: 400px">
+
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Success Program Detail  --}}
 <div class="modal modal-md fade" id="success_program_detail_modal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -519,6 +534,30 @@
                     }
                 },
                 datalabels: lbl_client_prog[0]
+            },
+            onClick: (e) => {
+
+                var month = $(".qdate").val();
+                var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val()
+                var link = "{{ url('/') }}/api/get/detail/client-program/" + month + "/admissions-mentoring";
+                if (user !== null)
+                    link += "/" + user;
+
+                showLoading();
+
+                axios.get(link)
+                    .then(function (response) {
+
+                        let obj = response.data;
+                        $("#adm_mentor_modal").modal('show');
+                        $("#adm_mentor_modal .adm_mentor_modal_body").html(obj.ctx) 
+                        swal.close();
+                    })
+                    .catch(function (error) {
+                        swal.close();
+                        notification('error', error.message);
+                    })
+
             }
         }
     });
