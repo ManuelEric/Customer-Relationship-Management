@@ -27,33 +27,33 @@
                     <tr class="text-center" role="row">
                         <th class="bg-info text-white">No</th>
                         <th class="bg-info text-white">Name</th>
-                        <th>Mail</th>
-                        <th>Phone</th>
+                        {{--  <th>Mail</th>  --}}
+                        {{--  <th>Phone</th>  --}}
                         <th>Parents Name</th>
-                        <th>Parents Phone</th>
+                        {{--  <th>Parents Phone</th>  --}}
                         <th>School</th>
-                        <th>Graduation Year</th>
+                        {{--  <th>Graduation Year</th>  --}}
                         <th>Grade</th>
-                        <th>Instagram</th>
-                        <th>Location</th>
-                        <th>Lead</th>
-                        <th>Level of Interest</th>
-                        <th>Interested Program</th>
+                        {{--  <th>Instagram</th>  --}}
+                        {{--  <th>Location</th>  --}}
+                        {{--  <th>Lead</th>  --}}
+                        {{--  <th>Level of Interest</th>  --}}
+                        {{--  <th>Interested Program</th>  --}}
                         {{-- <th>Success Program</th>
                         <th>Mentor/Tutor</th> --}}
-                        <th>Year of Study Abroad</th>
-                        <th>Country of Study Abroad</th>
-                        <th>University Destination</th>
-                        <th>Interest Major</th>
-                        <th>Last Update</th>
-                        <th>Status</th>
+                        {{--  <th>Year of Study Abroad</th>  --}}
+                        {{--  <th>Country of Study Abroad</th>  --}}
+                        {{--  <th>University Destination</th>  --}}
+                        {{--  <th>Interest Major</th>  --}}
+                        {{--  <th>Last Update</th>  --}}
+                        {{--  <th>Status</th>  --}}
                         {{-- <th class="bg-info text-white">Score</th> --}}
                         <th class="bg-info text-white"># Action</th>
                     </tr>
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="21"></td>
+                        <td colspan="6"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -101,12 +101,15 @@
                             return data
                         }
                     },
+                    /*
                     {
                         data: 'mail',
                     },
+                    
                     {
                         data: 'phone',
                     },
+                    */
                     {
                         data: 'parent_name',
                         name: 'parent_name',
@@ -114,24 +117,29 @@
                         orderable:true,
                         searchable:true,
                     },
+                    /*
                     {
                         data: 'parent_phone',
                         name: 'parent_phone',
                         defaultContent: '-'
                     },
+                    */
                     {
                         data: 'school_name',
                         name: 'school_name',
                         defaultContent: '-'
                     },
+                    /*
                     {
                         data: 'graduation_year',
                         defaultContent: '-'
                     },
+                    */
                     {
                         data: 'st_grade',
                         defaultContent: '-'
                     },
+                    /*
                     {
                         data: 'insta',
                         defaultContent: '-'
@@ -177,6 +185,7 @@
                             return data == 1 ? "Active" : "Non-active";
                         }
                     },
+                    */
                     // {
                     //     data: 'total_score',
                     //     className: 'text-primary',

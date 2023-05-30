@@ -193,19 +193,48 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getAllClientByRole($roleName, $month = null) # mentee, parent, teacher
     {
+        $alumnis = UserClient::whereHas('clientProgram', function ($q2) {
+                $q2->whereIn('prog_running_status', [2]);
+            })->withCount([
+                'clientProgram as client_program_count' => function ($query) {
+                    $query->whereIn('prog_running_status', [0, 1, 2])->whereHas('program', function ($q2) {
+                        $q2->whereHas('main_prog', function ($q3) {
+                            $q3->where('prog_name', 'Admissions Mentoring');
+                        });
+                    });
+                },
+                'clientProgram as client_program_finish_count' => function ($query) {
+                    $query->where('prog_running_status', 2)->whereHas('program', function ($q2) {
+                        $q2->whereHas('main_prog', function ($q3) {
+                            $q3->where('prog_name', 'Admissions Mentoring');
+                        });
+                    });
+                }
+            ])->havingRaw('client_program_count = client_program_finish_count')->pluck('tbl_client.id')->toArray();
+
         return UserClient::when($roleName == "alumni", function ($query) {
             $query->whereHas('clientProgram', function ($q2) {
                 $q2->whereIn('prog_running_status', [2]);
             })->withCount([
                 'clientProgram as client_program_count' => function ($query) {
-                    $query->whereIn('prog_running_status', [0, 1, 2]);
+                    $query->whereIn('prog_running_status', [0, 1, 2])->whereHas('program', function ($q2) {
+                        $q2->whereHas('main_prog', function ($q3) {
+                            $q3->where('prog_name', 'Admissions Mentoring');
+                        });
+                    });
                 },
                 'clientProgram as client_program_finish_count' => function ($query) {
-                    $query->where('prog_running_status', 2);
+                    $query->where('prog_running_status', 2)->whereHas('program', function ($q2) {
+                        $q2->whereHas('main_prog', function ($q3) {
+                            $q3->where('prog_name', 'Admissions Mentoring');
+                        });
+                    });
                 }
             ])->havingRaw('client_program_count = client_program_finish_count');
-        }, function ($query) use ($roleName) {
-            $query->whereHas('roles', function ($query2) use ($roleName) {
+        }, function ($query) use ($roleName, $alumnis) {
+            $query->when($roleName == 'mentee', function ($query2) use ($alumnis) {
+               $query2->whereNotIn('tbl_client.id', $alumnis);
+            })->whereHas('roles', function ($query2) use ($roleName) {
                 $query2->where('role_name', $roleName);
             });
         })->when($month, function ($query) use ($month) {
@@ -219,23 +248,39 @@ class ClientRepository implements ClientRepositoryInterface
     # is that the above function is not using ordering by created at
     public function getAllClientByRoleAndDate($roleName, $month = null) # mentee, parent, teacher
     {
-        return UserClient::
-        when($roleName == "alumni", function ($query) {
-            $query->whereHas('clientProgram', function ($q2) {
-                $q2->whereIn('prog_running_status', [2]);
-            })->withCount([
-                'clientProgram as client_program_count' => function ($query) {
-                    $query->whereIn('prog_running_status', [0, 1, 2]);
-                },
-                'clientProgram as client_program_finish_count' => function ($query) {
-                    $query->where('prog_running_status', 2);
-                }
-            ])->havingRaw('client_program_count = client_program_finish_count');
-        }, function ($query) use ($roleName) {
-            $query->whereRoleName($roleName);
-        })->when($month, function ($query) use ($month) {
-            $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
-        })->orderBy('tbl_client.created_at', 'desc')->get();
+        $selectQuery = UserClient::
+                when($roleName == "alumni", function ($query) {
+                    $query->whereHas('clientProgram', function ($q2) {
+                        $q2->whereIn('prog_running_status', [2]);
+                    })->withCount([
+                        'clientProgram as client_program_count' => function ($query) {
+                            $query->whereIn('prog_running_status', [0, 1, 2])->whereHas('program', function ($q2) {
+                                $q2->whereHas('main_prog', function ($q3) {
+                                    $q3->where('prog_name', 'Admissions Mentoring');
+                                });
+                            });
+                        },
+                        'clientProgram as client_program_finish_count' => function ($query) {
+                            $query->where('prog_running_status', 2)->whereHas('program', function ($q2) {
+                                $q2->whereHas('main_prog', function ($q3) {
+                                    $q3->where('prog_name', 'Admissions Mentoring');
+                                });
+                            });
+                        }
+                    ])->havingRaw('client_program_count = client_program_finish_count');
+                }, function ($query) use ($roleName) {
+                    $query->whereRoleName($roleName);
+                })->when($month, function ($query) use ($month) {
+                    $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
+                });
+
+        if ($roleName == "alumni") {
+            $get = $selectQuery->addSelect(DB::raw('YEAR(tbl_client.created_at) AS year'))->orderBy('tbl_client.created_at', 'desc')->get()->groupBy('year');
+        } else {
+            $get = $selectQuery->orderBy('tbl_client.created_at', 'desc')->get();
+        }
+        
+        return $get;
     }
 
     public function getAllClientByRoleAndStatus($roleName, $statusClient)

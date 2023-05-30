@@ -91,13 +91,18 @@
                 client_event_chart_pct.data.datasets[1].data = obj.ctx.participants
                 client_event_chart_pct.update();
 
+                var lead_array = obj.lead.total.map(function (x) {
+                    return parseInt(x);
+                })
+
                 event_lead_chart.data.labels = obj.lead.labels
                 event_lead_chart.data.datasets[0].data = obj.lead.total
                 event_lead_chart.update();
                 swal.close()
 
-            }).catch(function(error) {
-
+            }).catch(function (error) {
+                notification('error', error.message);
+                swal.close()
             })
     }
 </script>
@@ -191,7 +196,7 @@
                 let value = e.chart.data.datasets[datasetIndex].data[dataIndex];
                 let label = e.chart.data.labels[dataIndex];
                 $('#event_title').html(label)
-                get_event_lead(label)
+                // get_event_lead(label)
             }
         }
     });
@@ -209,9 +214,9 @@
             dataset_labels.push('{{ $value }}')
         @endforeach
 
-        @foreach ($conversion_lead_of_event->pluck('count_conversionLead')->toArray() as $key => $value)
-            dataset_info.push('{{ $value == null || $value == '' ? 0 : $value }}')
-        @endforeach
+    @foreach ($conversion_lead_of_event->pluck('count_conversionLead')->toArray() as $key => $value)
+        dataset_info.push({{ $value == null || $value == '' ? 0 : $value }})
+    @endforeach
     @endif
 
     const event_lead = document.getElementById('client_event_lead');
@@ -241,4 +246,5 @@
             }
         }
     });
+
 </script>

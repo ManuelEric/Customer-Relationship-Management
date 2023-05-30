@@ -8,14 +8,16 @@ use App\Models\InvoiceProgram;
 use App\Models\pivot\ClientMentor;
 use App\Models\Reason;
 use App\Models\Receipt;
+use App\Models\School;
 use App\Models\User;
+use App\Models\UserClient;
 use App\Models\v1\ClientProgram as CRMClientProgram;
 use App\Models\ViewClientProgram;
 use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ClientProgramRepository implements ClientProgramRepositoryInterface 
+class ClientProgramRepository implements ClientProgramRepositoryInterface
 {
     public function getAllClientProgramDataTables($searchQuery = NULL)
     {
@@ -29,87 +31,88 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     case $status == 1: # success
                         $fieldKey[] = "success_date";
                         break;
-    
+
                     case $status == 2: # failed
                         $fieldKey[] = "failed_date";
                         break;
-    
+
                     case $status == 3: # refund
                         $fieldKey[] = "refund_date";
                         break;
-    
+
                     default: # pending
                         $fieldKey = ["created_at"];
                 }
             }
         }
 
-        return Datatables::eloquent(ViewClientProgram::when($searchQuery['clientId'], function($query) use ($searchQuery) {
+        return Datatables::eloquent(
+            ViewClientProgram::when($searchQuery['clientId'], function ($query) use ($searchQuery) {
                 $query->where('client_id', $searchQuery['clientId']);
             })
-            # search by program name 
-            ->when(isset($searchQuery['programName']), function ($query) use ($searchQuery) {
-                $query->whereIn('prog_id', $searchQuery['programName']);
-            })
-            # search by conversion lead
-            ->when(isset($searchQuery['leadId']), function ($query) use ($searchQuery) {
-                $query->whereIn('lead_id', $searchQuery['leadId']);
-            })
-            # search by status
-            ->when(isset($searchQuery['status']), function ($query) use ($searchQuery) {
-                $query->whereIn('status', $searchQuery['status']);
-            })
-            # search by date
-            # when start date && end date filled
-            ->when(isset($searchQuery['startDate']) && isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
-                $no = 0;
-                foreach ($fieldKey as $key => $val) {
-                    if ($no == 0)
-                        $query->whereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
-                    else
-                        $query->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                # search by program name 
+                ->when(isset($searchQuery['programName']), function ($query) use ($searchQuery) {
+                    $query->whereIn('prog_id', $searchQuery['programName']);
+                })
+                # search by conversion lead
+                ->when(isset($searchQuery['leadId']), function ($query) use ($searchQuery) {
+                    $query->whereIn('lead_id', $searchQuery['leadId']);
+                })
+                # search by status
+                ->when(isset($searchQuery['status']), function ($query) use ($searchQuery) {
+                    $query->whereIn('status', $searchQuery['status']);
+                })
+                # search by date
+                # when start date && end date filled
+                ->when(isset($searchQuery['startDate']) && isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
+                    $no = 0;
+                    foreach ($fieldKey as $key => $val) {
+                        if ($no == 0)
+                            $query->whereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
+                        else
+                            $query->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['endDate']]);
 
-                    $no++;
-                }
-            })
-            # when start date filled && end date null
-            ->when(isset($searchQuery['startDate']) && !isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
-                $no = 0;
-                foreach ($fieldKey as $key => $val) {
-                    if ($no == 0)
-                        $query->whereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
-                    else
-                        $query->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
+                        $no++;
+                    }
+                })
+                # when start date filled && end date null
+                ->when(isset($searchQuery['startDate']) && !isset($searchQuery['endDate']), function ($query) use ($searchQuery, $fieldKey) {
+                    $no = 0;
+                    foreach ($fieldKey as $key => $val) {
+                        if ($no == 0)
+                            $query->whereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
+                        else
+                            $query->orWhereBetween($val, [$searchQuery['startDate'], $searchQuery['startDate']]);
 
-                    $no++;
-                }
-            })
-            ->when(isset($searchQuery['endDate']) && !isset($searchQuery['startDate']), function ($query) use ($searchQuery, $fieldKey) {
-                $no = 0;
-                foreach ($fieldKey as $key => $val) {
-                    if ($no == 0)
-                        $query->whereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
-                    else
-                        $query->orWhereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
+                        $no++;
+                    }
+                })
+                ->when(isset($searchQuery['endDate']) && !isset($searchQuery['startDate']), function ($query) use ($searchQuery, $fieldKey) {
+                    $no = 0;
+                    foreach ($fieldKey as $key => $val) {
+                        if ($no == 0)
+                            $query->whereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
+                        else
+                            $query->orWhereBetween($val, [$searchQuery['endDate'], $searchQuery['endDate']]);
 
-                    $no++;
-                }
-            })
+                        $no++;
+                    }
+                })
 
 
-            # search by mentor / tutor id
-            ->when(isset($searchQuery['userId']), function ($query) use ($searchQuery) {
-                $query->whereHas('clientMentor', function ($query2) use ($searchQuery) {
-                    $query2->whereIn('users.id', $searchQuery['userId']);
-                });
-            })
-            # search by pic id
-            ->when(isset($searchQuery['emplId']), function ($query) use ($searchQuery) {
-                $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
-                    $query2->whereIn('users.id', $searchQuery['emplId']);
-                });
-            })
-            ->orderBy('updated_at', 'desc')
+                # search by mentor / tutor id
+                ->when(isset($searchQuery['userId']), function ($query) use ($searchQuery) {
+                    $query->whereHas('clientMentor', function ($query2) use ($searchQuery) {
+                        $query2->whereIn('users.id', $searchQuery['userId']);
+                    });
+                })
+                # search by pic id
+                ->when(isset($searchQuery['emplId']), function ($query) use ($searchQuery) {
+                    $query->whereHas('internalPic', function ($query2) use ($searchQuery) {
+                        $query2->whereIn('users.id', $searchQuery['emplId']);
+                    });
+                })
+                ->orderBy('updated_at', 'desc')
         )->filterColumn(
             'status',
             function ($query, $keyword) {
@@ -173,11 +176,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     ]
                 );
                 $reasonId = $reason->reason_id;
-                $clientProgramDetails['reason_id'] = $reasonId;    
-
+                $clientProgramDetails['reason_id'] = $reasonId;
             }
         }
-        
+
         $clientProgram = ClientProgram::create($clientProgramDetails);
 
         # when main_mentor and backup_mentor is filled which is not null
@@ -189,7 +191,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             # then put status into 0 else 1
             // $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
             $status = 1;
-            
+
             if (isset($clientProgramDetails['main_mentor'])) {
 
                 # if program end date was less than today 
@@ -197,9 +199,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 // $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
                 $status = 1;
                 $clientProgram->clientMentor()->attach($clientProgramDetails['main_mentor'], ['status' => $status]);
-    
-            } 
-            
+            }
+
             if (isset($clientProgramDetails['backup_mentor'])) {
 
                 # if program end date was less than today 
@@ -207,12 +208,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 // $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
                 $status = 1;
                 $clientProgram->clientMentor()->attach($clientProgramDetails['backup_mentor'], ['status' => $status]);
-    
-            } 
+            }
+        }
 
-        } 
 
-        
         # when tutor id is filled which is not null
         # then assumed the user want to input "tutoring" program
         # do attach tutor as client mentor
@@ -223,14 +222,13 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
 
             $clientProgram->clientMentor()->attach($clientProgramDetails['tutor_id'], ['status' => $status]);
-
         }
 
         # when tutor_1 is filled which is not null
         # then assumed the user want to input "sat / act" program
         # do attach tutor_1 AND or OR tutor_2 as client mentor
         elseif (array_key_exists('tutor_1', $clientProgramDetails) || array_key_exists('tutor_2', $clientProgramDetails)) {
-            
+
             # hardcode
             $status = 1;
 
@@ -239,12 +237,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
             if (isset($clientProgramDetails['tutor_2']))
                 $tutors['tutor_2'] = $clientProgramDetails['tutor_2'];
-            
-            $clientProgram->clientMentor()->attach($tutors, ['status' => $status]);
 
+            $clientProgram->clientMentor()->attach($tutors, ['status' => $status]);
         }
 
-            
+
         return $clientProgram;
     }
 
@@ -298,18 +295,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             if (isset($clientProgramDetails['main_mentor'])) {
 
                 $additionalDetails['main_mentor'] =  $clientProgramDetails['main_mentor'];
-
             }
 
             if (isset($clientProgramDetails['backup_mentor'])) {
 
                 $additionalDetails['backup_mentor'] =  $clientProgramDetails['backup_mentor'];
-                
             }
 
             unset($clientProgramDetails['main_mentor']);
             unset($clientProgramDetails['backup_mentor']);
-        
         } elseif (array_key_exists('tutor_id', $clientProgramDetails)) {
 
             $additionalDetails = [
@@ -317,7 +311,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ];
 
             unset($clientProgramDetails['tutor_id']);
-
         } elseif (array_key_exists('tutor_1', $clientProgramDetails) || array_key_exists('tutor_2', $clientProgramDetails)) {
 
             $additionalDetails = [
@@ -327,7 +320,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
             unset($clientProgramDetails['tutor_1']);
             unset($clientProgramDetails['tutor_2']);
-
         }
 
         if (array_key_exists('reason_id', $clientProgramDetails) || array_key_exists('other_reason', $clientProgramDetails)) {
@@ -344,21 +336,19 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 }
 
                 $reasonId = $reason->reason_id;
-                $clientProgramDetails['reason_id'] = $reasonId;    
-                
+                $clientProgramDetails['reason_id'] = $reasonId;
             }
             unset($clientProgramDetails['other_reason']);
         }
-        
+
         $clientProgram = ClientProgram::where('clientprog_id', $clientProgramId)->update(array_merge($fullDetails, $clientProgramDetails));
         $clientProgram = ClientProgram::whereClientProgramId($clientProgramId);
 
         # delete the client mentor when status client program changed to pending
         if ($clientProgram->status == 0 && $clientProgram->clientMentor()->count() > 0) {
 
-                $mentorsId = $clientProgram->clientMentor()->pluck('users.id')->toArray();
-                $clientProgram->clientMentor()->detach($mentorsId);
-
+            $mentorsId = $clientProgram->clientMentor()->pluck('users.id')->toArray();
+            $clientProgram->clientMentor()->detach($mentorsId);
         }
 
 
@@ -380,9 +370,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             }
 
             $clientProgram->clientMentor()->syncWithPivotValues($mentors, ['status' => $status]);
+        }
 
-        } 
-        
         # when tutor id is filled which is not null
         # then assumed the user want to input "tutoring" program
         # do attach tutor as client mentor
@@ -393,14 +382,13 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
 
             $clientProgram->clientMentor()->syncWithPivotValues($additionalDetails['tutor_id'], ['status' => $status]);
-
         }
 
         # when tutor_1 is filled which is not null
         # then assumed the user want to input "sat / act" program
         # do attach tutor_1 AND or OR tutor_2 as client mentor
         elseif (array_key_exists('tutor_1', $additionalDetails) || array_key_exists('tutor_2', $additionalDetails)) {
-            
+
             # hardcode
             $status = 1;
 
@@ -409,14 +397,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
             if (isset($additionalDetails['tutor_2']))
                 $tutors['tutor_2'] = $additionalDetails['tutor_2'];
-            
-            $clientProgram->clientMentor()->syncWithPivotValues($tutors, ['status' => $status]);
 
+            $clientProgram->clientMentor()->syncWithPivotValues($tutors, ['status' => $status]);
         }
 
-            
+
         return $clientProgram;
-    }    
+    }
+
+    public function endedClientProgram(int $clientprog_id, array $newDetails)
+    {
+        return ClientProgram::whereClientProgramId($clientprog_id)->update($newDetails);
+    }
 
     public function deleteClientProgram($clientProgramId)
     {
@@ -442,7 +434,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             case "Success":
                 $statusId = 1;
                 break;
-
         }
         return $statusId;
     }
@@ -463,7 +454,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         $no = 0;
         $data = [];
         foreach ($clientPrograms as $mainProg) {
-            
+
             $data[$mainProg->program->main_prog->prog_name][$mainProg->program->prog_program][] = $no++;
         }
 
@@ -495,7 +486,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     public function getLeadSource($dateDetails, $cp_filter = null)
     {
         $userId = $this->getUser($cp_filter);
-        
+
         return ClientProgram::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
             ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client.lead_id')
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client.eduf_id')
@@ -522,7 +513,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->when(isset($cp_filter['qdate']), function ($q) use ($cp_filter) {
                 $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
             })
-            
+
             // ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('lead_source')
             ->get();
@@ -557,12 +548,12 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
                 $q->where('empl_id', $userId);
             })
-            ->when($program, function($query) use ($program) {
+            ->when($program, function ($query) use ($program) {
                 $query->whereHas('program', function ($query) use ($program) {
                     $query->whereHas('main_prog', function ($query2) use ($program) {
-                        $query2->where('prog_name', 'like', '%'.$program.'%');
+                        $query2->where('prog_name', 'like', '%' . $program . '%');
                     })->orWhereHas('sub_prog', function ($query2) use ($program) {
-                        $query2->where('sub_prog_name', 'like', '%'.$program.'%');
+                        $query2->where('sub_prog_name', 'like', '%' . $program . '%');
                     });
                 });
             })
@@ -601,68 +592,162 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     {
         $userId = $this->getUser($cp_filter);
 
-        $data[0] = ClientProgram::
-                when($cp_filter['program'], function ($q) use ($cp_filter) {
-                    $q->whereHas('program', function ($q2) use ($cp_filter) {
-                        $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
-                            $q3->where('prog_name', $cp_filter['program']);
-                        })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
-                            $q3->where('sub_prog_name', $cp_filter['program']);
-                        });
-                    });
-                })->
-                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
-                    $q->where('empl_id', $userId);
-                })->where('status', 0)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
-                    $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
-                })->count();
+        $data[0] = ClientProgram::when($cp_filter['program'], function ($q) use ($cp_filter) {
+            $q->whereHas('program', function ($q2) use ($cp_filter) {
+                $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('prog_name', $cp_filter['program']);
+                })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('sub_prog_name', $cp_filter['program']);
+                });
+            });
+        })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })->where('status', 0)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+            $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
+        })->count();
 
-        $data[1] = ClientProgram::
-                when($cp_filter['program'], function ($q) use ($cp_filter) {
-                    $q->whereHas('program', function ($q2) use ($cp_filter) {
-                        $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
-                            $q3->where('prog_name', $cp_filter['program']);
-                        })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
-                            $q3->where('sub_prog_name', $cp_filter['program']);
-                        });
-                    });
-                })->
-                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
-                    $q->where('empl_id', $userId);
-                })->where('status', 2)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
-                    $q->whereMonth('failed_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('failed_date', date('Y', strtotime($cp_filter['qdate'])));
-                })->count(); # failed
-        $data[2] = ClientProgram::
-                when($cp_filter['program'], function ($q) use ($cp_filter) {
-                    $q->whereHas('program', function ($q2) use ($cp_filter) {
-                        $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
-                            $q3->where('prog_name', $cp_filter['program']);
-                        })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
-                            $q3->where('sub_prog_name', $cp_filter['program']);
-                        });
-                    });
-                })->
-                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
-                    $q->where('empl_id', $userId);
-                })->where('status', 1)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
-                    $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
-                })->count(); # success
-        $data[3] = ClientProgram::
-                when($cp_filter['program'], function ($q) use ($cp_filter) {
-                    $q->whereHas('program', function ($q2) use ($cp_filter) {
-                        $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
-                            $q3->where('prog_name', $cp_filter['program']);
-                        })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
-                            $q3->where('sub_prog_name', $cp_filter['program']);
-                        });
-                    });
-                })->
-                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
-                    $q->where('empl_id', $userId);
-                })->where('status', 3)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
-                    $q->whereMonth('refund_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('refund_date', date('Y', strtotime($cp_filter['qdate'])));
-                })->count(); # refund
-     
+        $data[1] = ClientProgram::when($cp_filter['program'], function ($q) use ($cp_filter) {
+            $q->whereHas('program', function ($q2) use ($cp_filter) {
+                $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('prog_name', $cp_filter['program']);
+                })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('sub_prog_name', $cp_filter['program']);
+                });
+            });
+        })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })->where('status', 2)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+            $q->whereMonth('failed_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('failed_date', date('Y', strtotime($cp_filter['qdate'])));
+        })->count(); # failed
+        $data[2] = ClientProgram::when($cp_filter['program'], function ($q) use ($cp_filter) {
+            $q->whereHas('program', function ($q2) use ($cp_filter) {
+                $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('prog_name', $cp_filter['program']);
+                })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('sub_prog_name', $cp_filter['program']);
+                });
+            });
+        })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })->where('status', 1)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+            $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
+        })->count(); # success
+        $data[3] = ClientProgram::when($cp_filter['program'], function ($q) use ($cp_filter) {
+            $q->whereHas('program', function ($q2) use ($cp_filter) {
+                $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('prog_name', $cp_filter['program']);
+                })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('sub_prog_name', $cp_filter['program']);
+                });
+            });
+        })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })->where('status', 3)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+            $q->whereMonth('refund_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('refund_date', date('Y', strtotime($cp_filter['qdate'])));
+        })->count(); # refund
+
+        return $data;
+    }
+
+    public function getClientProgramGroupDataByStatusAndUserArray($cp_filter)
+    {
+        $userId = $this->getUser($cp_filter);
+
+        $data['pending'] = ClientProgram::with(
+            [
+                'client' => function ($query) {
+                    $query->select(
+                        'id',
+                        DB::raw('CONCAT(first_name, " ", COALESCE(last_name,"")) as client_name'),
+                    );
+                },
+                'program'
+            ]
+        )->when($cp_filter['program'], function ($q) use ($cp_filter) {
+            $q->whereHas('program', function ($q2) use ($cp_filter) {
+                $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('prog_name', $cp_filter['program']);
+                })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('sub_prog_name', $cp_filter['program']);
+                });
+            });
+        })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })->where('status', 0)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+            $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
+        })->get()->groupBy('program.prog_program'); # pending
+
+        $data['failed'] = ClientProgram::with(
+            [
+                'client' => function ($query) {
+                    $query->select(
+                        'id',
+                        DB::raw('CONCAT(first_name, " ", COALESCE(last_name,"")) as client_name'),
+                    );
+                },
+                'program'
+            ]
+        )->when($cp_filter['program'], function ($q) use ($cp_filter) {
+            $q->whereHas('program', function ($q2) use ($cp_filter) {
+                $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('prog_name', $cp_filter['program']);
+                })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('sub_prog_name', $cp_filter['program']);
+                });
+            });
+        })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })->where('status', 2)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+            $q->whereMonth('failed_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('failed_date', date('Y', strtotime($cp_filter['qdate'])));
+        })->get()->groupBy('program.prog_program'); # failed
+
+        $data['success'] = ClientProgram::with(
+            [
+                'client' => function ($query) {
+                    $query->select(
+                        'id',
+                        DB::raw('CONCAT(first_name, " ", COALESCE(last_name,"")) as client_name'),
+                    );
+                },
+                'program'
+            ]
+        )->when($cp_filter['program'], function ($q) use ($cp_filter) {
+            $q->whereHas('program', function ($q2) use ($cp_filter) {
+                $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('prog_name', $cp_filter['program']);
+                })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('sub_prog_name', $cp_filter['program']);
+                });
+            });
+        })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })->where('status', 1)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+            $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
+        })->get()->groupBy('program.prog_program'); # success
+        $data['refund'] = ClientProgram::with(
+            [
+                'client' => function ($query) {
+                    $query->select(
+                        'id',
+                        DB::raw('CONCAT(first_name, " ", COALESCE(last_name,"")) as client_name'),
+                    );
+                },
+                'program'
+            ]
+        )->when($cp_filter['program'], function ($q) use ($cp_filter) {
+            $q->whereHas('program', function ($q2) use ($cp_filter) {
+                $q2->whereHas('main_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('prog_name', $cp_filter['program']);
+                })->orWhereHas('sub_prog', function ($q3) use ($cp_filter) {
+                    $q3->where('sub_prog_name', $cp_filter['program']);
+                });
+            });
+        })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })->where('status', 3)->when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+            $q->whereMonth('refund_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('refund_date', date('Y', strtotime($cp_filter['qdate'])));
+        })->get()->groupBy('program.prog_program'); # refund
+
         return $data;
     }
 
@@ -670,33 +755,27 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     {
         $userId = $this->getUser($cp_filter);
 
-        $data[0] = ClientProgram::
-                when($cp_filter['qdate'], function ($q) use ($cp_filter) {
-                    // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
-                    $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
-                })->
-                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
-                    $q->where('empl_id', $userId);
-                })->where('status', 0)->where('initconsult_date', '>', Carbon::now())->count(); # soon
-                
+        $data[0] = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+            // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
+            $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
+        })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })->where('status', 0)->where('initconsult_date', '>', Carbon::now())->count(); # soon
+
         // $data[0] = $query->where('status', 0)->where('initconsult_date', '>', Carbon::now())->count(); # soon
-        $data[1] = ClientProgram::
-                when($cp_filter['qdate'], function ($q) use ($cp_filter) {
-                    // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
-                    $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
-                })->
-                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
-                    $q->where('empl_id', $userId);
-                })->where('status', 0)->where('initconsult_date', '<', Carbon::now())->count(); # already
-        $data[2] = ClientProgram::
-                when($cp_filter['qdate'], function ($q) use ($cp_filter) {
-                    // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
-                    $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
-                })->
-                when(isset($cp_filter['quuid']), function ($q) use ($userId) {
-                    $q->where('empl_id', $userId);
-                })->where('status', 1)->whereNotNull('success_date')->count(); # success
-        
+        $data[1] = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+            // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
+            $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
+        })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })->where('status', 0)->where('initconsult_date', '<', Carbon::now())->count(); # already
+        $data[2] = ClientProgram::when($cp_filter['qdate'], function ($q) use ($cp_filter) {
+            // $q->whereMonth('created_at', date('m', strtotime($cp_filter['qdate'])))->whereYear('created_at', date('Y', strtotime($cp_filter['qdate'])));
+            $q->whereMonth('initconsult_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('initconsult_date', date('Y', strtotime($cp_filter['qdate'])));
+        })->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })->where('status', 1)->whereNotNull('success_date')->count(); # success
+
         return $data;
     }
 
@@ -759,22 +838,32 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     {
         $userId = $this->getUser($cp_filter);
 
-        return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-            ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
-            ->select([
-                DB::raw('CONCAT(tbl_main_prog.prog_name, ": ", tbl_prog.prog_program) as program_name_st'),
-                DB::raw('COUNT(*) as total_client_per_program')
-            ])
-            ->where('status', 1)
-            ->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
-                $q->where('empl_id', $userId);
-            })
+        return ClientProgram::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->select([
+            'tbl_prog.prog_id',
+            DB::raw('CONCAT(tbl_main_prog.prog_name, ": ", tbl_prog.prog_program) as program_name_st'),
+            DB::raw('COUNT(*) as total_client_per_program'),
+        ])->where('status', 1)->when(isset($cp_filter['quuid']), function ($q) use ($userId) {
+            $q->where('empl_id', $userId);
+        })
             // ->whereMonth('tbl_client_prog.created_at', date('m', strtotime($cp_filter['qdate'])))
             // ->whereYear('tbl_client_prog.created_at', date('Y', strtotime($cp_filter['qdate'])))
             ->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))
             ->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])))
             ->groupBy('program_name_st')
             ->get();
+    }
+
+    public function getDetailSuccessProgramByMonthAndProgram($cp_filter)
+    {
+        $userId = $this->getUser($cp_filter);
+        $progId = $cp_filter['progId'];
+        $queryDate = $cp_filter['qdate'];
+
+        return UserClient::whereHas('clientProgram', function ($q) use ($userId, $progId, $queryDate) {
+            $q->where('status', 1)->when($userId, function ($q2) use ($userId) {
+                $q2->where('empl_id', $userId);
+            })->where('prog_id', $progId)->whereMonth('success_date', date('m', strtotime($queryDate)))->whereYear('success_date', date('Y', strtotime($queryDate)));
+        })->get();
     }
 
     public function getTotalRevenueByProgramAndMonth($cp_filter)
@@ -802,37 +891,61 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     public function getComparisonBetweenYears($cp_filter)
     {
         $userId = $this->getUser($cp_filter);
+        $q_date = [];
+        $filter_by_month = $cp_filter['query_use_month'] ?? null;
+        if ($filter_by_month) {
+            $q_date = [
+                'year_1' => date('Y', strtotime($cp_filter['queryParams_monthyear1'])),
+                'month_1' => date('m', strtotime($cp_filter['queryParams_monthyear1'])),
+                'year_2' => date('Y', strtotime($cp_filter['queryParams_monthyear2'])),
+                'month_2' => date('m', strtotime($cp_filter['queryParams_monthyear2']))
+            ];
+        }
 
-        return DB::table('tbl_client_prog as cp')->
-            leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'cp.prog_id')->
-            leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->
-            select([
-                'cp.prog_id',
-                'tbl_main_prog.prog_name',
-                'tbl_prog.prog_program',
-                'revenue_year1' => DB::table('tbl_client_prog as scp')
-                    ->leftJoin('tbl_inv as si', 'si.clientprog_id', '=', 'scp.clientprog_id')
-                    ->whereRaw('scp.prog_id = cp.prog_id')
-                    ->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year1'])
-                    ->select([
-                        DB::raw('SUM(si.inv_totalprice_idr)')
-                    ]),
-                'revenue_year2' => DB::table('tbl_client_prog as scp')
-                    ->leftJoin('tbl_inv as si', 'si.clientprog_id', '=', 'scp.clientprog_id')
-                    ->whereRaw('scp.prog_id = cp.prog_id')
-                    ->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year2'])
-                    ->select([
-                        DB::raw('SUM(si.inv_totalprice_idr)')
-                    ])
-            ])
-            ->when($userId, function($query) use ($userId) {
+        $extended_select = [
+            'revenue_year1' => DB::table('tbl_client_prog as scp')
+                ->leftJoin('tbl_inv as si', 'si.clientprog_id', '=', 'scp.clientprog_id')
+                ->whereRaw('scp.prog_id = cp.prog_id')
+                ->when($filter_by_month == "true", function ($q) use ($q_date) {
+                    $q->whereYear('scp.created_at', $q_date['year_1'])
+                        ->whereMonth('scp.created_at', $q_date['month_1']);
+                }, function ($q) use ($cp_filter) {
+                    $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year1']);
+                })
+                ->select([
+                    DB::raw('SUM(si.inv_totalprice_idr)')
+                ]),
+            'revenue_year2' => DB::table('tbl_client_prog as scp')
+                ->leftJoin('tbl_inv as si', 'si.clientprog_id', '=', 'scp.clientprog_id')
+                ->whereRaw('scp.prog_id = cp.prog_id')
+                ->when($filter_by_month == "true", function ($q) use ($q_date) {
+                    $q->whereYear('scp.created_at', $q_date['year_2'])
+                        ->whereMonth('scp.created_at', $q_date['month_2']);
+                }, function ($q) use ($cp_filter) {
+                    $q->where(DB::raw('YEAR(scp.created_at)'), $cp_filter['queryParams_year2']);
+                })
+                ->select([
+                    DB::raw('SUM(si.inv_totalprice_idr)')
+                ])
+        ];
+
+        return DB::table('tbl_client_prog as cp')->leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'cp.prog_id')->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')->select([
+            'cp.prog_id',
+            'tbl_main_prog.prog_name',
+            'tbl_prog.prog_program'
+        ] + $extended_select)
+            ->when($userId, function ($query) use ($userId) {
                 $query->where('cp.empl_id', $userId);
             })
             ->when(isset($cp_filter['qprogs']), function ($query) use ($cp_filter) {
                 $query->whereIn('cp.prog_id', $cp_filter['qprogs']);
             })
             ->groupBy('cp.prog_id', 'tbl_main_prog.prog_name', 'tbl_prog.prog_program',)->get();
+    }
 
+    public function getActiveClientProgramAfterProgramEnd()
+    {
+        return ClientProgram::where('prog_running_status', 1)->where('prog_end_date', '<', now())->whereNotNull('prog_end_date')->get();
     }
 
     # 

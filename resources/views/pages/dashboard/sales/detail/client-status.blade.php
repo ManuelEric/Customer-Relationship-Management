@@ -10,7 +10,7 @@
                         </select>
                     </div>
                     <div class="col-md-6 text-end d-none" id="monthly" onchange="checkMonthly()">
-                        <input type="month" name="" id="client_status_month"
+                        <input type="month" id="client_status_month"
                             class="form-control form-control-sm"
                             value="{{ isset($filter_bymonth) ? $filter_bymonth : date('Y-m') }}">
                     </div>
@@ -182,10 +182,10 @@
                     <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client" data-f-date="all" data-f-client-type="mentee">
                         <div class="d-flex">
                             <h5 class="p-0 m-0">Mentee <br> Total</h5>
-                            <h3 class="p-0 client-status ms-auto">
+                            <h3 class="p-0 ms-auto">
                                 {{ $totalClientInformation['mentee']['old'] }}
                                 @if ($totalClientInformation['mentee']['new'] != 0)
-                                <sup>
+                                <sup class="d-none">
                                     <span class="badge bg-primary text-white p-1 px-2">
                                         <small>{{ $totalClientInformation['mentee']['new'] }} New</small>
                                     </span>
@@ -194,8 +194,9 @@
                             </h3>
                         </div>
                         <div class="mt-3 border-top pt-3">
-                            <p class="mb-0 text-muted client-status-detail">
+                            <p class="mb-0 text-muted">
                                 <span @class([
+                                    'invisible',
                                     'me-2',
                                     'text-success'
 
@@ -206,7 +207,7 @@
                                     ])></i>
                                     {{ $totalClientInformation['mentee']['percentage'] }}%
                                 </span>
-                                <span>Since before</span>
+                                <span class="invisible">Since before</span>
                             </p>
                         </div>
                     </div>
@@ -337,7 +338,7 @@
                     </div>
                 </div>
                 <div class="overflow-auto" style="height: 400px">
-                    <table class="table table-bordered table-hover" id="listClientTable">
+                    <table class="table table-hover" id="listClientTable">
                         <thead class="text-center">
                             <tr>
                                 <th>No</th>
@@ -442,7 +443,7 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div class="">
                                         <p class="m-0 p-0 lh-1">{{ $info->clientProgram->client->full_name }}</p>
-                                        <small class="m-0">{{ $info->clientProgram->program_name }}</small>
+                                        <small class="m-0">{{ $info->clientProgram->program->program_name }}</small>
                                     </div>
                                     <div class="">
                                         <input class="form-check-input me-1" type="checkbox" value="1"
@@ -532,6 +533,7 @@
             axios.get(url)
                 .then(function(response) {
                     
+                    console.log(response)
                     var obj = response.data;
 
                     $('#list-detail-client .modal-title').html(obj.title)

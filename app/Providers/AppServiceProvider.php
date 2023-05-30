@@ -121,6 +121,7 @@ class AppServiceProvider extends ServiceProvider
                         'isSales' => $isSales ?? false,
                         'isPartnership' => $isPartnership ?? false,
                         'isFinance' => $isFinance ?? false,
+                        'loggedIn_user' => $user,
                     ]
                 );
             }
