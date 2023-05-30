@@ -161,7 +161,7 @@
     </div>
 </div>
 
-{{-- Academic & Test Prep Details Modal  --}}
+{{-- Academic & Test Prep Details Modal Test  --}}
 <div class="modal modal-lg fade" id="acad_prep_modal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
