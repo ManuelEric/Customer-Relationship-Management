@@ -21,6 +21,7 @@ return new class extends Migration
             r.reason_name as reason,
             CONCAT(c.first_name, " ", COALESCE(c.last_name, "")) as fullname,
             sch.sch_name as school_name,
+            sch.sch_id,
             CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_fullname,
             parent.phone as parent_phone,
             parent.mail as parent_mail,

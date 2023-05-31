@@ -13,6 +13,7 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\Program;
 use Exception;
 use Illuminate\Http\Request;
@@ -33,8 +34,9 @@ class ClientProgramController extends Controller
     private ReasonRepositoryInterface $reasonRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private ClientEventRepositoryInterface $clientEventRepository;
+    private SchoolRepositoryInterface $schoolRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -46,6 +48,7 @@ class ClientProgramController extends Controller
         $this->reasonRepository = $reasonRepository;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->clientEventRepository = $clientEventRepository;
+        $this->schoolRepository = $schoolRepository;
 
         $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
@@ -69,6 +72,7 @@ class ClientProgramController extends Controller
 
         $data['clientId'] = NULL;
         $data['programName'] = $request->get('program_name') ?? null;
+        $data['schoolName'] = $request->get('school_name') ?? null;
         $data['leadId'] = $request->get('conversion_lead') ?? null;
 
         if ($request->get('program_status')) {
@@ -100,6 +104,7 @@ class ClientProgramController extends Controller
 
         # advanced filter data
         $programs = $this->clientProgramRepository->getAllProgramOnClientProgram();
+        $schools = $this->schoolRepository->getAllSchools();
         $conversion_leads = $this->clientProgramRepository->getAllConversionLeadOnClientProgram();
         $mentor_tutors = $this->clientProgramRepository->getAllMentorTutorOnClientProgram();
         $pics = $this->clientProgramRepository->getAllPICOnClientProgram();
@@ -107,6 +112,7 @@ class ClientProgramController extends Controller
         return view('pages.program.client-program.index')->with(
             [
                 'programs' => $programs,
+                'schools' => $schools,
                 'conversion_leads' => $conversion_leads,
                 'mentor_tutors' => $mentor_tutors,
                 'pics' => $pics,
@@ -218,7 +224,7 @@ class ClientProgramController extends Controller
 
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
-        if ($student->st_statusact != 1) 
+        if ($student->st_statusact != 1)
             return Redirect::back()->withError('The student is no longer active');
 
         $status = $request->status;
@@ -642,7 +648,7 @@ class ClientProgramController extends Controller
 
                 case 2: # failed
                 case 3: # refund
-                
+
                     # if he/she has already join admission mentoring program
                     # remove role mentee
                     if (in_array($progId, $this->admission_prog_list)) {
