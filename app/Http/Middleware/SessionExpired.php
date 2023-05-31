@@ -11,7 +11,7 @@ use Illuminate\Session\Store;
 class SessionExpired
 {
     protected $session;
-    protected $timeout = 120;
+    protected $timeout = 1200;
 
     public function __construct(Store $session){
         $this->session = $session;
