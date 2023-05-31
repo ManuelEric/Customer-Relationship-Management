@@ -109,6 +109,7 @@
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
+                        <th>School</th>
                         <th>Grade</th>
                         <th>Program Name</th>
                         <th>Mentor/Tutor Name</th>
@@ -227,6 +228,9 @@
                     },
                     {
                         data: 'fullname',
+                    },
+                    {
+                        data: 'school_name',
                     },
                     {
                         data: 'st_grade',
