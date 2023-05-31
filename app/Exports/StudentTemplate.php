@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PDO;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -57,7 +58,6 @@ class StudentTemplate implements FromCollection, WithHeadings, WithEvents, WithS
             'Interested Program',
             'Year of Study Abroad',
             'Country of Study Abroad',
-            'University Destination',
             'Interest Major',
         ];
 
@@ -205,6 +205,19 @@ class StudentTemplate implements FromCollection, WithHeadings, WithEvents, WithS
                 $validation->setPrompt('Please pick a value from the drop-down list.');
                 $validation->setFormula1(sprintf('"%s"', implode(',', $levelOfInterest_options)));
 
+                $event->sheet->getDelegate()->getComment('A1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('B1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('C1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('G1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('I1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('N1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('O1')->getText()->createTextRun('Required if lead source All-In Event');
+                $event->sheet->getDelegate()->getComment('P1')->getText()->createTextRun('Required if lead source All-In Partners');
+                $event->sheet->getDelegate()->getComment('Q1')->getText()->createTextRun('Required if lead source External Edufair');
+                $event->sheet->getDelegate()->getComment('R1')->getText()->createTextRun('Required if lead source KOL');
+                $event->sheet->getDelegate()->getComment('T1')->getText()->createTextRun('Not Required, you can input more than 1 interest program with separator comma and space (, ) example : Admissions Mentoring : Pay As You Go, Events & Info Sessions : Education Fair');
+                $event->sheet->getDelegate()->getComment('W1')->getText()->createTextRun('Not Required, you can input more than 1 interest major with separator comma and space (, ) example : Accounting, Agribusiness');
+
                 // set columns to autosize
                 for ($i = 1; $i <= $column_count; $i++) {
                     $column = Coordinate::stringFromColumnIndex($i);
@@ -221,8 +234,19 @@ class StudentTemplate implements FromCollection, WithHeadings, WithEvents, WithS
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('A1:X1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'D9D9D9'],]);
-        $sheet->getStyle('A1:X1')->getFont()->setSize(14);
+        $sheet->getStyle('A1:W1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'D9D9D9'],]);
+        $sheet->getStyle('A1:W1')->getFont()->setSize(14);
+        $sheet->getStyle('A1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('B1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('C1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('G1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('I1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('N1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('O1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('P1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('Q1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('R1')->getFont()->getColor()->setARGB('FF0000');
+        // $sheet->setStyle('A1')
         foreach ($sheet->getColumnIterator() as $column) {
             $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
         }
