@@ -585,86 +585,6 @@ class SalesDashboardController extends Controller
         );
     }
 
-    public function getAcademicPrepByMonthDetail(Request $request)
-    {
-        $cp_filter['qdate'] = $request->route('month');
-        $cp_filter['quuid'] = $request->route('user') ?? null;
-
-        try {
-
-            $academicTestPrep = $this->clientProgramRepository->getClientProgramGroupDataByStatusAndUserArray(['program' => 'Academic & Test Preparation'] + $cp_filter);
-            // return $academicTestPrep;
-
-            $html = $table_content = null;
-            foreach ($academicTestPrep as $title => $data) {
-
-                if ($data->count() > 0) {
-                    $html .= '<label class="fw-semibold fs-6 mt-3">' . ucfirst($title) . '</label>';
-
-                    foreach ($data as $program_name => $value) {
-
-                        $no = 1;
-                        $table_content = ''; # reset table content
-                        foreach ($value as $data) {
-
-                            switch ($title) {
-                                case "pending":
-                                    $date_name = 'Created At';
-                                    $date_value = date('l, d M Y', strtotime($data->created_at));
-                                    break;
-
-                                case "failed":
-                                    $date_name = 'Failed Date';
-                                    $date_value = date('l, d M Y', strtotime($data->failed_date));
-                                    break;
-
-                                case "success":
-                                    $date_name = 'Success Date';
-                                    $date_value = date('l, d M Y', strtotime($data->success_date));
-                                    break;
-
-                                case "refund":
-                                    $date_name = 'Refund Date';
-                                    $date_value = date('l, d M Y', strtotime($data->refund_date));
-                                    break;
-                            }
-
-                            $table_content .= '
-                                <tr>
-                                    <td>' . $no++ . '.</td>
-                                    <td>' . $data->client->client_name . '</td>
-                                    <td>' . $date_value . '</td>
-                                </tr>';
-                        }
-
-                        $html .= '
-                            <table class="table table-hover table-striped my-2">
-                                <tr>
-                                    <td colspan="3" class="text-center text-white bg-primary"><label class="fs-6">' . $program_name . '</label></td>
-                                </tr>
-                                <tr>
-                                    <th width="5%">No.</th>
-                                    <th>Client Name</th>
-                                    <th style="width:150px">' . $date_name . '</th>
-                                </tr>
-                                ' . $table_content . '
-                            </table>';
-                    }
-                }
-            }
-        } catch (Exception $e) {
-
-            Log::error($e->getMessage() . ' | Line ' . $e->getLine());
-            return response()->json(['message' => 'Failed to get detail academic & test preparation detail : ' . $e->getMessage() . ' | Line ' . $e->getLine()]);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $academicTestPrep,
-            'ctx' => $html
-        ]);
-    }
-
     public function getCareerExplorationByMonth(Request $request)
     {
         $cp_filter['qdate'] = $request->route('month');
@@ -694,21 +614,36 @@ class SalesDashboardController extends Controller
         );
     }
 
-    public function getCareerExplorationByMonthDetail(Request $request)
+    public function getClientProgramByMonthDetail(Request $request)
     {
         $cp_filter['qdate'] = $request->route('month');
         $cp_filter['quuid'] = $request->route('user') ?? null;
+        $cp_filter['qtype'] = $request->route('type');
+
+        $type = '';
+
+        switch ($cp_filter['qtype']) {
+            case 'academic-prep':
+                $type = 'Academic & Test Preparation';
+                break;
+            case 'career-exploration':
+                $type = 'Career Exploration';
+                break;
+            case 'admissions-mentoring':
+                $type = 'Admissions Mentoring';
+                break;
+        }
 
         try {
 
-            $careerExploration = $this->clientProgramRepository->getClientProgramGroupDataByStatusAndUserArray(['program' => 'Career Exploration'] + $cp_filter);
-            // return $careerExploration;
+            $clientProg = $this->clientProgramRepository->getClientProgramGroupDataByStatusAndUserArray(['program' => $type] + $cp_filter);
+            // return $clientProg;
 
             $html = $table_content = null;
-            foreach ($careerExploration as $title => $data) {
+            foreach ($clientProg as $title => $data) {
 
                 if ($data->count() > 0) {
-                    $html .= '<label class="fw-semibold fs-6 mt-3">' . ucfirst($title) . '</label>';
+                    $html .= '<label class="fw-bold fs-5 my-3">' . ucfirst($title) . '</label>';
 
                     foreach ($data as $program_name => $value) {
 
@@ -720,37 +655,35 @@ class SalesDashboardController extends Controller
                                 case "pending":
                                     $date_name = 'Created At';
                                     $date_value = date('l, d M Y', strtotime($data->created_at));
-                                    $prog = $data->program->prog_program;
                                     break;
 
                                 case "failed":
                                     $date_name = 'Failed Date';
                                     $date_value = date('l, d M Y', strtotime($data->failed_date));
-                                    $prog = $data->program->prog_program;
                                     break;
 
                                 case "success":
                                     $date_name = 'Success Date';
                                     $date_value = date('l, d M Y', strtotime($data->success_date));
-                                    $prog = $data->program->prog_program;
                                     break;
 
                                 case "refund":
                                     $date_name = 'Refund Date';
                                     $date_value = date('l, d M Y', strtotime($data->refund_date));
-                                    $prog = $data->program->prog_program;
                                     break;
                             }
+                            $prog = $data->program->prog_program;
 
                             $table_content .= '
                                 <tr>
-                                    <td>' . $no++ . '.</td>
+                                    <td align="center">' . $no++ . '.</td>
                                     <td>' . $data->client->client_name . '</td>
-                                    <td>' . $date_value . '</td>
+                                    <td align="center">' . $date_value . '</td>
                                 </tr>';
                         }
 
-                        $html .= '
+                        $html .=
+                            '
                             <table class="table table-hover table-striped my-2">
                                 <tr>
                                     <td colspan="3" class="text-center text-white bg-primary"><label class="fs-6">' . $prog . '</label></td>
@@ -768,12 +701,12 @@ class SalesDashboardController extends Controller
         } catch (Exception $e) {
 
             Log::error($e->getMessage() . ' | Line ' . $e->getLine());
-            return response()->json(['message' => 'Failed to get detail career exploration detail : ' . $e->getMessage() . ' | Line ' . $e->getLine()]);
+            return response()->json(['message' => 'Failed to get detail ' . $type . 'detail : ' . $e->getMessage() . ' | Line ' . $e->getLine()]);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $careerExploration,
+            'data' => $clientProg,
             'ctx' => $html
         ]);
     }
