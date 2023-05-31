@@ -119,7 +119,7 @@ class ImportClientProg extends Command
                 # then store as a new student
                 if (!$student_v2 = $this->clientRepository->getStudentByStudentName($crm_student_name))
                 {
-                    $this->info('Please running a function import:student');
+                    $this->info('Please run the import:student function');
                 }
     
                 $student_v2_id = $student_v2->id;
@@ -181,6 +181,19 @@ class ImportClientProg extends Command
 
                 $main_prog = $this->mainProgRepository->createMainProg($mainProgDetails);
             }
+
+            $programDetails = [
+                'prog_id' => $crm_clientprog_progid,
+                'main_prog_id' => $main_prog->id, //!
+                'sub_prog_id' => null, //!
+                'prog_main' => $crm_clientprog->program->prog_main,
+                'main_number' => $crm_clientprog->program->main_number,
+                'prog_sub' => $crm_clientprog->program->prog_sub,
+                'prog_program' => $crm_clientprog->program->prog_program,
+                'prog_type' => $crm_clientprog->program->prog_type,
+                'prog_mentor' => $crm_clientprog->program->prog_mentor,
+                'prog_payment' => $crm_clientprog->program->prog_payment,
+            ];
             
             if ($crm_clientprog->program->prog_sub != "" && $crm_clientprog->program->prog_sub != NULL)
             {
@@ -193,25 +206,12 @@ class ImportClientProg extends Command
                     ];
 
                     $sub_prog = $this->subProgRepository->createSubProg($subProgDetails);
+                    
+                    $programDetails['sub_prog_id'] = $sub_prog->id;
                 }
             }
 
-            $programDetails = [
-                'prog_id' => $crm_clientprog_progid,
-                'main_prog_id' => $main_prog->id, //!
-                'sub_prog_id'=> $sub_prog->id, //!
-                'prog_main' => $crm_clientprog->program->prog_main,
-                'main_number' => $crm_clientprog->program->main_number,
-                'prog_sub' => $crm_clientprog->program->prog_sub,
-                'prog_program' => $crm_clientprog->program->prog_program,
-                'prog_type' => $crm_clientprog->program->prog_type,
-                'prog_mentor' => $crm_clientprog->program->prog_mentor,
-                'prog_payment' => $crm_clientprog->program->prog_payment,
-            ];
-
-            $this->info(json_encode($programDetails));
-            $program_v2 = $this->programRepository->createProgram($programDetails);
-            $this->info('ini sub prog : '. $program_v2);
+            $program_v2 = $this->programRepository->createProgramFromV1($programDetails);
         }
 
         return $program_v2->prog_id;

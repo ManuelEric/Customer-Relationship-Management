@@ -520,12 +520,12 @@ class ImportStudent extends Command
                     $mainProgName = 'Experiential Learning';
 
                 $main_prog = $this->mainProgRepository->getMainProgByName($mainProgName);
-                $this->info('nama sub prog : '.$studentHasInterestedProgram->prog_sub);
+                // $this->info('nama sub prog : '.$studentHasInterestedProgram->prog_sub);
 
                 if ($studentHasInterestedProgram->prog_sub != NULL || empty($studentHasInterestedProgram))
                 {
                     $sub_prog = $this->subProgRepository->getSubProgBySubProgName($studentHasInterestedProgram->prog_sub);
-                    $this->info('sub program yg keinsert : '.json_encode($sub_prog));
+                    // $this->info('sub program yg keinsert : '.json_encode($sub_prog));
                     $sub_prog_id = $sub_prog->id;
                 }
     

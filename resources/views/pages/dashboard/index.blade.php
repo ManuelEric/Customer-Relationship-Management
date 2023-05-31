@@ -179,5 +179,6 @@
             get_program_comparison()
             // get_client_event(year, uuid)
         }
+        
     </script>
 @endsection
