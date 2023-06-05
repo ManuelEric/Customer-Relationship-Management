@@ -229,23 +229,15 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getFeederSchools($eventId)
     {
-        $schools = School::
-                join('tbl_client as c', 'c.sch_id', '=', 'tbl_sch.sch_id')->
-                join('tbl_client_event as ce', 'ce.client_id', '=', 'c.id')->
-                join('tbl_client_prog as cp', 'cp.client_id', '=', 'c.id')->
-                    join('tbl_prog as p', 'p.prog_id', '=', 'cp.prog_id')->
-                where('ce.event_id', $eventId)->
-                where('p.main_prog_id', '=', 1)->
-                select([
-                    'tbl_sch.sch_name',
-                    'tbl_sch.sch_location',
-                    'c.id',
-                    'c.first_name',
-                    // DB::raw('count(*) as school_has_sent_student')
-                ])->
-                distinct('c.first_name')->
-                // groupBy(['c.sch_id'])->
-                get();
+        $schools = School::join('tbl_client as c', 'c.sch_id', '=', 'tbl_sch.sch_id')->join('tbl_client_event as ce', 'ce.client_id', '=', 'c.id')->join('tbl_client_prog as cp', 'cp.client_id', '=', 'c.id')->join('tbl_prog as p', 'p.prog_id', '=', 'cp.prog_id')->where('ce.event_id', $eventId)->where('p.main_prog_id', '=', 1)->select([
+            'tbl_sch.sch_name',
+            'tbl_sch.sch_location',
+            'c.id',
+            'c.first_name',
+            // DB::raw('count(*) as school_has_sent_student')
+        ])->distinct('c.first_name')->
+            // groupBy(['c.sch_id'])->
+            get();
 
         $sum_students = 0;
         foreach ($schools as $school) {
@@ -255,6 +247,10 @@ class SchoolRepository implements SchoolRepositoryInterface
         return $response ?? null;
     }
 
+    public function getUncompeteSchools()
+    {
+        return School::whereNull('sch_type')->orWhereNull('sch_score')->get();
+    }
     # CRM
     public function getAllSchoolFromV1()
     {

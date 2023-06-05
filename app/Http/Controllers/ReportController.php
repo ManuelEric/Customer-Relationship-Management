@@ -112,6 +112,14 @@ class ReportController extends Controller
 
         $newClient = $clients->whereIn('client_id', $id_newClient)->unique('client_id');
 
+        $dataClient = new Collection();
+
+        $dataClient = collect($this->getAllDataClient($existingMentee, 'existMentee'));
+        $mergeDataClient = $dataClient->merge($this->getAllDataClient($existingNonMentee, 'existNonMentee'))
+            ->merge($this->getAllDataClient($existingNonClient, 'existNonClient'))
+            ->merge($this->getAllDataClient($newClient, 'newClient'));
+
+
         return view('pages.report.event-tracking.index')->with(
             [
                 'clientEvents' => $clientEvents,
@@ -123,6 +131,7 @@ class ReportController extends Controller
                 'conversionLeads' => $conversionLeads,
                 'choosen_event' => $choosen_event,
                 'feeder' => $feeder,
+                'dataClient' => $mergeDataClient
             ]
         );
     }
@@ -287,6 +296,20 @@ class ReportController extends Controller
             }
             $i++;
         }
+        return $dataClient;
+    }
+
+    protected function getAllDataClient($data, $type)
+    {
+        $dataClient =  new Collection();
+        foreach ($data as $d) {
+            $dataClient->push((object)[
+                'type' => $type,
+                'client_id' => $d->client_id,
+                'role_name' => $d->role_name
+            ]);
+        }
+
         return $dataClient;
     }
 }
