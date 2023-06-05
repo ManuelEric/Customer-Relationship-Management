@@ -214,7 +214,7 @@
                 <h5 class="modal-title fs-5" id="exampleModalLabel">Detail of Success Program</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body success_program_detail_modal_body">
+            <div class="modal-body success_program_detail_modal_body overflow-auto" style="max-height: 400px">
 
             </div>
         </div>

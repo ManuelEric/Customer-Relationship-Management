@@ -271,7 +271,7 @@ class PartnerDashboardController extends Controller
             case 'Partner':
                 $partners = $this->corporateRepository->getCorporateByMonthly($monthYear, 'list');
                 if ($partners->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="7">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
                 foreach ($partners as $partner) {
 
@@ -290,7 +290,7 @@ class PartnerDashboardController extends Controller
             case 'School':
                 $schools = $this->schoolRepository->getSchoolByMonthly($monthYear, 'list');
                 if ($schools->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="6">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
                 foreach ($schools as $school) {
 
@@ -308,7 +308,7 @@ class PartnerDashboardController extends Controller
             case 'University':
                 $universities = $this->universityRepository->getUniversityByMonthly($monthYear, 'list');
                 if ($universities->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="8">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
                 foreach ($universities as $university) {
 
@@ -328,7 +328,7 @@ class PartnerDashboardController extends Controller
             case 'Agreement':
                 $agreements = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($monthYear, 'list');
                 if ($agreements->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="9">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
                 foreach ($agreements as $agreement) {
 
