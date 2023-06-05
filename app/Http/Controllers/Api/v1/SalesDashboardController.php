@@ -445,7 +445,7 @@ class SalesDashboardController extends Controller
             $detailClientJoinedProgram = $this->clientProgramRepository->getDetailSuccessProgramByMonthAndProgram($cp_filter);
 
             $content = '';
-            $html = '<label class="mb-3">Clients joined : <u>' . $program->program_name . '</u></label>';
+            $html = '<label class="mb-3">Clients joined : <u><br>' . $program->program_name . '</u></label>';
 
             $no = 1;
             foreach ($detailClientJoinedProgram as $client) {
@@ -455,9 +455,9 @@ class SalesDashboardController extends Controller
                     </tr>';
             }
 
-            $html .= '<table class="table table-bordered border-primary">
+            $html .= '<table class="table table-striped table-hover">
                     <tr>
-                        <th style="width:2em">No.</th>
+                        <th width="8%">No.</th>
                         <th>Client Name</th>
                     </tr>
                     ' . $content . '
@@ -643,7 +643,6 @@ class SalesDashboardController extends Controller
             foreach ($clientProg as $title => $data) {
 
                 if ($data->count() > 0) {
-                    $html .= '<label class="fw-bold fs-5 my-3">' . ucfirst($title) . '</label>';
 
                     foreach ($data as $program_name => $value) {
 
@@ -653,21 +652,25 @@ class SalesDashboardController extends Controller
 
                             switch ($title) {
                                 case "pending":
+                                    $style_title = 'text-warning';
                                     $date_name = 'Created At';
                                     $date_value = date('l, d M Y', strtotime($data->created_at));
                                     break;
 
                                 case "failed":
+                                    $style_title = 'text-danger';
                                     $date_name = 'Failed Date';
                                     $date_value = date('l, d M Y', strtotime($data->failed_date));
                                     break;
 
                                 case "success":
+                                    $style_title = 'text-success';
                                     $date_name = 'Success Date';
                                     $date_value = date('l, d M Y', strtotime($data->success_date));
                                     break;
 
                                 case "refund":
+                                    $style_title = 'text-info';
                                     $date_name = 'Refund Date';
                                     $date_value = date('l, d M Y', strtotime($data->refund_date));
                                     break;
@@ -684,10 +687,16 @@ class SalesDashboardController extends Controller
 
                         $html .=
                             '
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="">
+                                <label class="fw-semibold fs-6 ' . $style_title . '">' . ucfirst($title) . '</label>
+                                </div>
+                                <div class="bg-secondary p-1 px-3 rounded shadow text-white">
+                                <label class="">' . $prog . '</label>
+                                </div>
+                            </div>
                             <table class="table table-hover table-striped my-2">
-                                <tr>
-                                    <td colspan="3" class="text-center text-white bg-primary"><label class="fs-6">' . $prog . '</label></td>
-                                </tr>
                                 <tr>
                                     <th width="5%">No.</th>
                                     <th>Client Name</th>

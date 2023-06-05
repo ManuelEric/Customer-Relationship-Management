@@ -14,7 +14,7 @@
                 <div class="row align-items-center g-3">
                     <div class="col-md-6">
                         <div class="card">
-                            <div class="card-body text-center px-5">
+                            <div class="card-body text-center px-4">
                                 <h6 class="text-muted">Admissions Mentoring</h6>
                                 <canvas id="admissionsLead"></canvas>
                             </div>
@@ -22,7 +22,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="card">
-                            <div class="card-body text-center px-5">
+                            <div class="card-body text-center px-4">
                                 <h6 class="text-muted">Academic & Test Preparation</h6>
                                 <canvas id="academicLead"></canvas>
                             </div>
@@ -30,7 +30,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="card">
-                            <div class="card-body text-center px-5">
+                            <div class="card-body text-center px-4">
                                 <h6 class="text-muted">Experiential Learning</h6>
                                 <canvas id="careerLead"></canvas>
                             </div>

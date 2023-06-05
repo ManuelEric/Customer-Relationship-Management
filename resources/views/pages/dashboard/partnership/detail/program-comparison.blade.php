@@ -134,23 +134,23 @@
 
             <div class="col-md-12 mt-3">
                 <div class="card">
-                    <div class="card-body overflow-auto" style="height: 300px">
-                        <table class="table table-bordered table-hover">
+                    <div class="card-body">
+                        <table class="table table-striped table-hover">
                             <thead class="bg-dark text-white">
                                 <tr class="text-center">
-                                    <th rowspan="2">No</th>
-                                    <th rowspan="2">Program Name</th>
-                                    <th rowspan="2">Type</th>
-                                    <th colspan="3">Year</th>
+                                    <th rowspan="2" class="bg-secondary rounded border-1 border-white">No</th>
+                                    <th rowspan="2" class="bg-secondary rounded border-1 border-white">Program Name</th>
+                                    <th rowspan="2" class="bg-secondary rounded border-1 border-white">Type</th>
+                                    <th colspan="3" class="bg-secondary rounded border-1 border-white">Year</th>
                                 </tr> 
                                 <tr class="text-center">
-                                    <th class="comparison_start" id="label-start-table">2022 <br>
+                                    <th class="comparison_start bg-secondary rounded border-1 border-white" id="label-start-table">2022 <br>
                                        
                                     </th>
-                                    <th class="comparison_end" id="label-end-table">2023</th>
+                                    <th class="comparison_end bg-secondary rounded border-1 border-white" id="label-end-table">2023</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbl_comparison">
+                            <tbody id="tbl_comparison" class="overflow-auto" style="max-height: 300px">
                                 @php
                                     $startYear = date('Y') - 1;
                                     $endYear = date('Y');

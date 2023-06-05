@@ -106,7 +106,7 @@
                     </div>
                 </div>
                 <div class="overflow-auto" style="height: 400px">
-                    <table class="table table-bordered table-hover" id="listFinanceTable">
+                    <table class="table table-striped table-hover" id="listFinanceTable">
                         <thead class="text-center" id="thead-finance">
                             {{-- Head table --}}
                         </thead>
@@ -135,36 +135,36 @@
 
             switch (type) {
                 case 'invoice-needed':
-                        html = "<tr>"
-                        html += "<th>No</th>"
-                        html += "<th>Client Name</th>"
-                        html += "<th>Program Name</th>"
-                        html += "<th>Success Date</th>"
-                        html += "<th>PIC</th>"
+                        html = "<tr class='text-white'>"
+                        html += "<th class='bg-secondary rounded border border-white'>No</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Client Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Program Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Success Date</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>PIC</th>"
                         html += "</tr>"
                     break;
                 
                 case 'outstanding':
-                        html = "<tr>"
-                        html += "<th>No</th>"
-                        html += "<th>Client Name</th>"
-                        html += "<th>Invoice ID</th>"
-                        html += "<th>Type</th>"
-                        html += "<th>Program Name</th>"
-                        html += "<th>Installment</th>"
-                        html += "<th>Invoice Duedate</th>"
-                        html += "<th>Amount</th>"
+                        html = "<tr class='text-white'>"
+                        html += "<th class='bg-secondary rounded border border-white'>No</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Client Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Invoice ID</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Type</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Program Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Installment</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Invoice Duedate</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Amount</th>"
                         html += "</tr>"
                     break;
 
                 case 'refund-request':
-                        html = "<tr>"
-                        html += "<th>No</th>"
-                        html += "<th>Client Name</th>"
-                        html += "<th>Receipt ID</th>"
-                        html += "<th>Program Name</th>"
-                        html += "<th>Refund Date</th>"
-                        html += "<th>PIC</th>"
+                        html = "<tr class='text-white'>"
+                        html += "<th class='bg-secondary rounded border border-white'>No</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Client Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Receipt ID</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Program Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Refund Date</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>PIC</th>"
                         html += "</tr>"
                     break;          
             }

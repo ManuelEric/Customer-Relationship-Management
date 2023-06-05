@@ -44,16 +44,16 @@
                             <div class="card-header text-center">
                                 Paid Payments
                             </div>
-                            <div class="card-body overflow-auto" style="height: 300px">
+                            <div class="card-body overflow-auto" style="max-height: 300px">
                                 <table class="table table-hover">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Invoice ID</th>
-                                        <th>Full Name</th>
-                                        <th>Type</th>
-                                        <th>Program Name</th>
-                                        <th>Installment</th>
-                                        <th>Amount</th>
+                                    <tr class="text-center">
+                                        <th class='bg-secondary rounded border border-white text-white'>ID</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Invoice ID</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Full Name</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Type</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Program Name</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Installment</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Amount</th>
                                     </tr>
                                         <tbody id="tbl_paid_payment">
                                             @foreach ($paidPayments as $paidPayment)
@@ -81,16 +81,16 @@
                             <div class="card-header text-center">
                                 Unpaid Payments
                             </div>
-                            <div class="card-body overflow-auto" style="height: 300px">
+                            <div class="card-body overflow-auto" style="max-height: 300px">
                                 <table class="table table-hover">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Invoice ID</th>
-                                        <th>Full Name</th>
-                                        <th>Type</th>
-                                        <th>Program Name</th>
-                                        <th>Installment</th>
-                                        <th>Amount</th>
+                                    <tr class="text-center">
+                                        <th class='bg-secondary rounded border border-white text-white'>ID</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Invoice ID</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Full Name</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Type</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Program Name</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Installment</th>
+                                        <th class='bg-secondary rounded border border-white text-white'>Amount</th>
                                     </tr>
                                     <tbody id="tbl_unpaid_payment">
                                         @foreach ($unpaidPayments as $unpaidPayment)
