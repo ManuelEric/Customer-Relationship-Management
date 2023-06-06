@@ -5,9 +5,8 @@
                 <div class="card mb-3">
                     <div class="card-body text-center">
                         <h5>Conversion Lead Source</h5>
-                        <div class="leadSourceBox" style="height: 350px;">
-                            <canvas id="leadSource" class="mb-2"></canvas>
-                        </div>
+                        <canvas id="leadSource" class="mb-2"></canvas>
+                        <canvas id="programLead"></canvas>
                     </div>
                 </div>
             </div>
