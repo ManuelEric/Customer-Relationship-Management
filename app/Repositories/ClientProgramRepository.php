@@ -48,12 +48,16 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         }
 
         return Datatables::eloquent(
-                ViewClientProgram::when($searchQuery['clientId'], function ($query) use ($searchQuery) {
-                    $query->where('client_id', $searchQuery['clientId']);
-                })
+            ViewClientProgram::when($searchQuery['clientId'], function ($query) use ($searchQuery) {
+                $query->where('client_id', $searchQuery['clientId']);
+            })
                 # search by program name 
                 ->when(isset($searchQuery['programName']), function ($query) use ($searchQuery) {
                     $query->whereIn('prog_id', $searchQuery['programName']);
+                })
+                # search by school name 
+                ->when(isset($searchQuery['schoolName']), function ($query) use ($searchQuery) {
+                    $query->whereIn('sch_id', $searchQuery['schoolName']);
                 })
                 # search by conversion lead
                 ->when(isset($searchQuery['leadId']), function ($query) use ($searchQuery) {

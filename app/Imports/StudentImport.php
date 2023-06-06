@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
 use App\Models\Lead;
@@ -86,8 +87,9 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
                         'address' => isset($row['address']) ? $row['address'] : null,
                         'sch_id' => isset($school) ? $school : $newSchool->sch_id,
                         'st_grade' => $row['grade'],
-                        'lead_id' => $row['lead'],
+                        'lead_id' => $row['lead'] == 'KOL' ? $row['kol'] : $row['lead'],
                         'event_id' => isset($row['event']) && $row['lead'] == 'LS004' ? $row['event'] : null,
+                        'partner_id' => isset($row['partner']) && $row['lead'] == 'LS015' ? $row['partner'] : null,
                         'eduf_id' => isset($row['edufair'])  && $row['lead'] == 'LS018' ? $row['edufair'] : null,
                         'st_levelinterest' => $row['level_of_interest'],
                         'graduation_year' => isset($row['graduation_year']) ? $row['graduation_year'] : null,
@@ -118,9 +120,9 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
                 }
 
                 // Sync university destination
-                if (isset($row['university_destination'])) {
-                    $this->createUniversityIfNotExists($row['university_destination'], $student);
-                }
+                // if (isset($row['university_destination'])) {
+                //     $this->createUniversityIfNotExists($row['university_destination'], $student);
+                // }
 
                 // Sync interest major
                 if (isset($row['interest_major'])) {
@@ -144,12 +146,19 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
             if ($data['lead'] == 'School' || $data['lead'] == 'Counselor') {
                 $data['lead'] = 'School/Counselor';
             }
-            $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
+
+            if ($data['lead'] == 'KOL') {
+                $lead = 'KOL';
+            } else {
+                $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
+            }
 
             // $parentId = UserClient::where(DB::raw('CONCAT(first_name, " ", COALESCE(last_name))'), $data['parents_name'])->get()->pluck('id')->first();
             $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
             $getAllEduf = EdufLead::all();
             $edufair = $getAllEduf->where('organizerName', $data['edufair'])->pluck('id')->first();
+            $partner = Corporate::where('corp_name', $data['partner'])->get()->pluck('corp_id')->first();
+            $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['kol'])->get()->pluck('lead_id')->first();
 
             DB::commit();
         } catch (Exception $e) {
@@ -157,7 +166,6 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
             DB::rollBack();
             Log::error('Import student failed : ' . $e->getMessage());
         }
-
 
         $data = [
             'full_name' => $data['full_name'],
@@ -176,12 +184,14 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
             'address' => $data['address'],
             'lead' => isset($lead) ? $lead : $data['lead'],
             'event' => isset($event) ? $event : $data['event'],
+            'partner' => isset($partner) ? $partner : $data['partner'],
             'edufair' => isset($edufair) ? $edufair : $data['edufair'],
+            'kol' => isset($kol) ? $kol : $data['kol'],
             'level_of_interest' => $data['level_of_interest'],
             'interested_program' => $data['interested_program'],
             'year_of_study_abroad' => $data['year_of_study_abroad'],
             'country_of_study_abroad' => $data['country_of_study_abroad'],
-            'university_destination' => $data['university_destination'],
+            // 'university_destination' => $data['university_destination'],
             'interest_major' => $data['interest_major'],
         ];
         return $data;
@@ -203,14 +213,15 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
             '*.state' => ['nullable'],
             '*.city' => ['nullable'],
             '*.address' => ['nullable'],
-            '*.lead' => ['required', 'exists:tbl_lead,lead_id'],
-            '*.event' => ['nullable', 'exists:tbl_events,event_id'],
-            '*.edufair' => ['nullable', 'exists:tbl_eduf_lead,id'],
-            '*.level_of_interest' => ['required', 'in:High,Medium,Low'],
+            '*.lead' => ['required'],
+            '*.event' => ['required_if:lead,LS004', 'nullable', 'exists:tbl_events,event_id'],
+            '*.partner' => ['required_if:lead,LS015', 'nullable', 'exists:tbl_corp,corp_id'],
+            '*.edufair' => ['required_if:lead,LS018', 'nullable', 'exists:tbl_eduf_lead,id'],
+            '*.kol' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
+            '*.level_of_interest' => ['nullable', 'in:High,Medium,Low'],
             '*.interested_program' => ['nullable'],
             '*.year_of_study_abroad' => ['nullable', 'integer'],
             '*.country_of_study_abroad' => ['nullable'],
-            '*.university_destination' => ['nullable'],
             '*.interest_major' => ['nullable'],
         ];
     }
@@ -341,35 +352,35 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
         isset($destinationCountryDetails) ? $student->destinationCountries()->sync($destinationCountryDetails) : null;
     }
 
-    private function createUniversityIfNotExists($univ_name, $student)
-    {
-        $univDetails = []; # default
-        $universities = explode(', ', $univ_name);
+    // private function createUniversityIfNotExists($univ_name, $student)
+    // {
+    //     $univDetails = []; # default
+    //     $universities = explode(', ', $univ_name);
 
-        foreach ($universities as $university) {
-            $univFromDB = University::where('univ_name', $university)->first();
-            if (isset($univFromDB)) {
-                $univDetails[] = [
-                    'univ_id' => $univFromDB->univ_id,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
-            } else {
-                $last_id = University::max('univ_id');
-                $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
-                $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label + 1, 3);
+    //     foreach ($universities as $university) {
+    //         $univFromDB = University::where('univ_name', $university)->first();
+    //         if (isset($univFromDB)) {
+    //             $univDetails[] = [
+    //                 'univ_id' => $univFromDB->univ_id,
+    //                 'created_at' => Carbon::now(),
+    //                 'updated_at' => Carbon::now()
+    //             ];
+    //         } else {
+    //             $last_id = University::max('univ_id');
+    //             $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
+    //             $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label + 1, 3);
 
-                $newUniv = Major::create(['univ_id' => $univ_id_with_label, 'univ_name' => $university]);
-                $univDetails[] = [
-                    'univ_id' => $newUniv->newUniv,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ];
-            }
-        }
+    //             $newUniv = Major::create(['univ_id' => $univ_id_with_label, 'univ_name' => $university]);
+    //             $univDetails[] = [
+    //                 'univ_id' => $newUniv->newUniv,
+    //                 'created_at' => Carbon::now(),
+    //                 'updated_at' => Carbon::now()
+    //             ];
+    //         }
+    //     }
 
-        isset($univDetails) ? $student->interestUniversities()->sync($univDetails) : null;
-    }
+    //     isset($univDetails) ? $student->interestUniversities()->sync($univDetails) : null;
+    // }
 
     private function createMajorIfNotExists($arrayMajorName, $student)
     {
