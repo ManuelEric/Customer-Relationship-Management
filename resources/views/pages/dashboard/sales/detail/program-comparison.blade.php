@@ -85,19 +85,19 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover table-bordered" id="comparison-table">
+                            <table class="table table-striped table-hover" id="comparison-table">
                                 <thead class="text-center">
-                                    <tr>
-                                        <th rowspan="2">#</th>
-                                        <th rowspan="2">Program Name</th>
-                                        <th colspan="2">Comparison (IDR)</th>
+                                    <tr class="text-white">
+                                        <th rowspan="2" class="bg-secondary rounded border-1 border-white">#</th>
+                                        <th rowspan="2" class="bg-secondary rounded border-1 border-white">Program Name</th>
+                                        <th colspan="2" class="bg-secondary rounded border-1 border-white">Comparison (IDR)</th>
                                     </tr>
-                                    <tr>
-                                        <th class="dashboard-pc--year_1">2022</th>
-                                        <th class="dashboard-pc--year_2">2023</th>
+                                    <tr class="text-white">
+                                        <th class="dashboard-pc--year_1 bg-secondary rounded border-1 border-white">2022</th>
+                                        <th class="dashboard-pc--year_2 bg-secondary rounded border-1 border-white">2023</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="overflow-auto" style="max-height: 400px;">
                                     @foreach ($comparisons as $comparison)
                                         <tr>
                                             <td class="text-center">{{ $loop->iteration }}</td>

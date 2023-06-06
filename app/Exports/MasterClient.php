@@ -27,6 +27,7 @@ class MasterClient implements WithMultipleSheets
                 $sheets = [
                     new StudentTemplate('Student'),
                     new ProgramList('Program List'),
+                    new MajorList('Major List'),
                 ];
                 break;
 
@@ -34,6 +35,7 @@ class MasterClient implements WithMultipleSheets
                 $sheets = [
                     new ParentTemplate('Parent'),
                     new ProgramList('Program List'),
+                    new MajorList('Major List'),
                 ];
                 break;
         }

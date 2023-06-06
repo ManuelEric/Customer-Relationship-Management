@@ -40,6 +40,7 @@ class UserClient extends Authenticatable
         'st_grade',
         'lead_id',
         'eduf_id',
+        'partner_id',
         'event_id',
         'st_levelinterest',
         'graduation_year',

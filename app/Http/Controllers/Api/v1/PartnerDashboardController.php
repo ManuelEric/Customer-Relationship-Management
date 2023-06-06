@@ -265,13 +265,16 @@ class PartnerDashboardController extends Controller
         $type = $request->route('type');
 
         $index = 1;
+        $index_additional = 1;
         $html = '';
+        $additional_header = '';
+        $additional_content = '';
 
         switch ($type) {
             case 'Partner':
                 $partners = $this->corporateRepository->getCorporateByMonthly($monthYear, 'list');
                 if ($partners->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="7">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
                 foreach ($partners as $partner) {
 
@@ -288,13 +291,52 @@ class PartnerDashboardController extends Controller
                 break;
 
             case 'School':
+                $uncompletedSchools = $this->schoolRepository->getUncompeteSchools();
+
                 $schools = $this->schoolRepository->getSchoolByMonthly($monthYear, 'list');
+                if ($uncompletedSchools->count() > 0) {
+                    $additional_header .=
+                        '<tr><th colspan="6" class="text-start bg-secondary rounded border border-white text-white">Need Complete Data</th></tr>
+                        <tr class="text-white">
+                        <th class="bg-secondary rounded border border-white">No</th>
+                        <th class="bg-secondary rounded border border-white">School Name</th>
+                        <th class="bg-secondary rounded border border-white">Type</th>
+                        <th class="bg-secondary rounded border border-white">City</th>
+                        <th class="bg-secondary rounded border border-white">Location</th>
+                        <th class="bg-secondary rounded border border-white">Craeted At</th>
+                        </tr>';
+
+                    foreach ($uncompletedSchools as $uncompletedSchool) {
+
+                        $additional_content .= '
+                            <tr class="table-danger detail" data-schid="' . $uncompletedSchool->sch_id . '" style="cursor:pointer">
+                            <td>' . $index_additional++ . '</td>
+                            <td>' . $uncompletedSchool->sch_name . '</td>
+                            <td>' . $uncompletedSchool->sch_type . '</td>
+                            <td>' . $uncompletedSchool->sch_city . '</td>
+                            <td>' . $uncompletedSchool->sch_location . '</td>
+                            <td>' . $uncompletedSchool->created_at . '</td>
+                        </tr>
+                        ';
+                    }
+                }
+
                 if ($schools->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                    return response()->json(
+                        [
+                            'title' => 'List of ' . ucwords(str_replace('-', ' ', $type)),
+                            'html_ctx' => '<tr align="center"><td colspan="6">No ' . str_replace('-', ' ', $type) . ' data</td></tr>',
+                            'additional_header' => $additional_header,
+                            'additional_content' => $additional_content,
+                            'total_additional' => $uncompletedSchools->count()
+                        ]
+                    );
+
 
                 foreach ($schools as $school) {
 
-                    $html .= '<tr>
+                    $html .= '
+                        <tr>
                         <td>' . $index++ . '</td>
                         <td>' . $school->sch_name . '</td>
                         <td>' . $school->sch_type . '</td>
@@ -308,7 +350,9 @@ class PartnerDashboardController extends Controller
             case 'University':
                 $universities = $this->universityRepository->getUniversityByMonthly($monthYear, 'list');
                 if ($universities->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                    return response()->json(
+                        ['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']
+                    );
 
                 foreach ($universities as $university) {
 
@@ -328,7 +372,7 @@ class PartnerDashboardController extends Controller
             case 'Agreement':
                 $agreements = $this->partnerAgreementRepository->getPartnerAgreementByMonthly($monthYear, 'list');
                 if ($agreements->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="9">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
                 foreach ($agreements as $agreement) {
 
@@ -366,7 +410,10 @@ class PartnerDashboardController extends Controller
         return response()->json(
             [
                 'title' => 'List of ' . ucwords($type),
-                'html_ctx' => $html
+                'html_ctx' => $html,
+                'additional_header' => $additional_header,
+                'additional_content' => $additional_content,
+                'total_additional' => $uncompletedSchools->count()
             ]
         );
     }

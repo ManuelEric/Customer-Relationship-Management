@@ -127,9 +127,6 @@ class ImportEmployee extends Command
             $progressBar->start();
             foreach ($employees as $employee) {
 
-                if ($employee->empl_id !== 'EMPL-0024')
-                    continue;
-
                 $position = $this->createPositionIfNotExists($employee);
 
                 $selectedUser = $this->createUserIfNotExists($employee, $position);
@@ -147,7 +144,7 @@ class ImportEmployee extends Command
         } catch (Exception $e) {
             
             DB::rollBack();
-            Log::warning('Import employees failed : ' . $e->getMessage(). ' | Line '. $e->getLine());
+            Log::warning('Import employees failed : ' . $e->getMessage(). ' | Line '. $e->getLine().' | '.$e->getTraceAsString());
             
         }
 
@@ -268,64 +265,60 @@ class ImportEmployee extends Command
             $departmentId = $this->getDepartment($role);
             if (!$selectedUser->user_type()->wherePivot('department_id', $departmentId)->first())
             {   
-                $userTypev1 = $employee->empl_status;
-                $userTypev2 = $this->userTypeRepository->getUserTypeByTypeName($userTypev1);
-                $userTypev2Id = $userTypev2->id;
-                $userTypev2Name = $userTypev2->type_name;
+                if ($userTypev1 = $employee->empl_status)
+                {
+                    $userTypev2 = $this->userTypeRepository->getUserTypeByTypeName($userTypev1);
+                    $userTypev2Id = $userTypev2->id;
+                    $userTypev2Name = $userTypev2->type_name;
 
-                // $userTypeId = 1; # hardcode user type fulltime
-                $hireDate = $this->getValueWithoutSpace($employee->empl_hiredate);
-                $endDate = $this->getValueWithoutSpace($employee->empl_statusenddate);
-                $statusActive = $employee->empl_isactive === 1 ? 'active' : 'inactive';
-                $status = $statusActive === 'active' ? true : false;
-
-                # kalau statusnya active dan end datenya ada isinya
-                # maka ubah end datenya menjadi null
-                # asumsikan bahwa client tsb masih aktif
-
-                $loop = 1;
-                if ($statusActive === 'active' && $userTypev2Name != 'Full-Time' && $endDate !== NULL) {
-                    
-                    # create a non full-time record
-                    $loop = 2;
-                    
-                }
-                
-                for ($typeRecord = 0; $typeRecord < $loop ; $typeRecord++) {
-
-                    if ($loop === 2) 
-                        $status = false;
-
-                    # kalau sebelumnya bukan full time
-                    # maka insert record selama probation dan tambahkan record full-time
-                    if ($typeRecord === 1 && $loop === 2) {
-
-                        $userTypev2Id = 1; # which means full-time
-                        $hireDate = $endDate;
-                        $endDate = NULL;
-                        $status = true;
-
-                    }
-
-                    $typeDetail = [
-                        'department_id' => $departmentId,
-                        'start_date' => $hireDate,
-                        'end_date' => $endDate,
-                        'status' => $status
-                    ];
+                    // $userTypeId = 1; # hardcode user type fulltime
+                    $hireDate = $this->getValueWithoutSpace($employee->empl_hiredate);
+                    $endDate = $this->getValueWithoutSpace($employee->empl_statusenddate);
+                    $statusActive = $employee->empl_isactive === 1 ? 'active' : 'inactive';
+                    $status = $statusActive === 'active' ? true : false;
     
-                    if (!$selectedUser->user_type()->wherePivot('user_type_id', $userTypev2Id)->first())
-                        $selectedUser->user_type()->attach($userTypev2Id, $typeDetail);
-                    else
-                        $selectedUser->user_type()->updateExistingPivot($userTypev2Id, $typeDetail);
-
-                }
-                
+                    # kalau statusnya active dan end datenya ada isinya
+                    # maka ubah end datenya menjadi null
+                    # asumsikan bahwa client tsb masih aktif
+    
+                    $loop = 1;
+                    if ($statusActive === 'active' && $userTypev2Name != 'Full-Time' && $endDate !== NULL) {
                         
-
-                
-                
-                
+                        # create a non full-time record
+                        $loop = 2;
+                        
+                    }
+                    
+                    for ($typeRecord = 0; $typeRecord < $loop ; $typeRecord++) {
+    
+                        if ($loop === 2) 
+                            $status = false;
+    
+                        # kalau sebelumnya bukan full time
+                        # maka insert record selama probation dan tambahkan record full-time
+                        if ($typeRecord === 1 && $loop === 2) {
+    
+                            $userTypev2Id = 1; # which means full-time
+                            $hireDate = $endDate;
+                            $endDate = NULL;
+                            $status = true;
+    
+                        }
+    
+                        $typeDetail = [
+                            'department_id' => $departmentId,
+                            'start_date' => $hireDate,
+                            'end_date' => $endDate,
+                            'status' => $status
+                        ];
+        
+                        if (!$selectedUser->user_type()->wherePivot('user_type_id', $userTypev2Id)->first())
+                            $selectedUser->user_type()->attach($userTypev2Id, $typeDetail);
+                        else
+                            $selectedUser->user_type()->updateExistingPivot($userTypev2Id, $typeDetail);
+    
+                    }
+                }
             }
             
 
@@ -399,7 +392,7 @@ class ImportEmployee extends Command
                             'updated_at' => Carbon::now(),
                         ];
 
-                        $createdMajor = $this->majorRepository->createMajors($majorDetail);
+                        $createdMajor = $this->majorRepository->createMajor($majorDetail);
 
                         $userMajorDetails[] = [
                             'user_id' => $selectedUser->id,

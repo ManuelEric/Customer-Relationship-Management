@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Interfaces\ClientProgramRepositoryInterface;
+use App\Models\AcadTutorDetail;
 use App\Models\ClientProgram;
 use App\Models\InvoiceProgram;
 use App\Models\pivot\ClientMentor;
@@ -53,6 +54,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 # search by program name 
                 ->when(isset($searchQuery['programName']), function ($query) use ($searchQuery) {
                     $query->whereIn('prog_id', $searchQuery['programName']);
+                })
+                # search by school name 
+                ->when(isset($searchQuery['schoolName']), function ($query) use ($searchQuery) {
+                    $query->whereIn('sch_id', $searchQuery['schoolName']);
                 })
                 # search by conversion lead
                 ->when(isset($searchQuery['leadId']), function ($query) use ($searchQuery) {
@@ -179,6 +184,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $clientProgramDetails['reason_id'] = $reasonId;
             }
         }
+        $howManySession = $clientProgramDetails['session_tutor'];
+        $academicTutorSessionDetail = $clientProgramDetails['session_tutor_detail'];
+        unset($clientProgramDetails['session_tutor_detail']);
 
         $clientProgram = ClientProgram::create($clientProgramDetails);
 
@@ -222,6 +230,23 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
 
             $clientProgram->clientMentor()->attach($clientProgramDetails['tutor_id'], ['status' => $status]);
+
+            $clientprog_id = $clientProgram->clientprog_id;
+            # fetch the session schedule detail
+            $i = 0;
+            while ($i < $howManySession)
+            {
+                # insert academic tutor detail
+                # insert academic tutor detail
+                $acadTutorDetail[] = new AcadTutorDetail([
+                    'date' => date('Y-m-d', strtotime($academicTutorSessionDetail['datetime'][$i])),
+                    'time' => date('H:i:s', strtotime($academicTutorSessionDetail['datetime'][$i])),
+                    'link' => $academicTutorSessionDetail['linkmeet'][$i]
+                ]);
+                $i++;
+            }
+
+            $clientProgram->acadTutorDetail()->saveMany($acadTutorDetail);
         }
 
         # when tutor_1 is filled which is not null
@@ -309,8 +334,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $additionalDetails = [
                 'tutor_id' => $clientProgramDetails['tutor_id']
             ];
-
+            
             unset($clientProgramDetails['tutor_id']);
+
         } elseif (array_key_exists('tutor_1', $clientProgramDetails) || array_key_exists('tutor_2', $clientProgramDetails)) {
 
             $additionalDetails = [
@@ -340,6 +366,11 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             }
             unset($clientProgramDetails['other_reason']);
         }
+
+        
+        $howManySession = $clientProgramDetails['session_tutor'];
+        $academicTutorSessionDetail = $clientProgramDetails['session_tutor_detail'];
+        unset($clientProgramDetails['session_tutor_detail']);
 
         $clientProgram = ClientProgram::where('clientprog_id', $clientProgramId)->update(array_merge($fullDetails, $clientProgramDetails));
         $clientProgram = ClientProgram::whereClientProgramId($clientProgramId);
@@ -382,6 +413,23 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $status = (strtotime($clientProgramDetails['prog_end_date']) < strtotime(date('Y-m-d'))) ? 0 : 1; # status mentoring [0: inactive, 1: active]
 
             $clientProgram->clientMentor()->syncWithPivotValues($additionalDetails['tutor_id'], ['status' => $status]);
+
+            $clientprog_id = $clientProgram->clientprog_id;
+            # fetch the session schedule detail
+            $i = 0;
+            while ($i < $howManySession)
+            {
+                # insert academic tutor detail
+                $acadTutorDetail[] = new AcadTutorDetail([
+                    'date' => date('Y-m-d', strtotime($academicTutorSessionDetail['datetime'][$i])),
+                    'time' => date('H:i:s', strtotime($academicTutorSessionDetail['datetime'][$i])),
+                    'link' => $academicTutorSessionDetail['linkmeet'][$i]
+                ]);
+                $i++;
+            }
+
+            $clientProgram->acadTutorDetail()->delete();
+            $clientProgram->acadTutorDetail()->saveMany($acadTutorDetail);
         }
 
         # when tutor_1 is filled which is not null
@@ -513,8 +561,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->when(isset($cp_filter['qdate']), function ($q) use ($cp_filter) {
                 $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
             })
-
-            ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->when(!empty($dateDetails), function ($q) use ($dateDetails) {
+                $q->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']]);
+            })
             ->groupBy('lead_source')
             ->get();
     }
@@ -561,7 +610,9 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->when(isset($cp_filter['qdate']), function ($q) use ($cp_filter) {
                 $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
             })
-            ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->when(!empty($dateDetails), function ($q) use ($dateDetails) {
+                $q->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']]);
+            })
             ->groupBy('conversion_lead')
             ->get();
     }

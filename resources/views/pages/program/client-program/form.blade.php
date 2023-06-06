@@ -769,6 +769,51 @@
     <script>
         $(document).ready(function() {
 
+            $("input[name=session]").on('change', function() {
+                var start_date = $("input[name=prog_start_date]").val();
+                var end_date = $("input[name=prog_end_date]").val();
+
+                var start_date_local = start_date+"T00:00";
+                var end_date_local = end_date+"T23:59";
+
+                if (start_date == '' || end_date == '') {
+                    notification('error', 'Please fill the start date and end date before fill the schedule session.');
+                    $(this).val(null);
+                    return;
+                }
+
+                var val = $(this).val();
+                
+                if (val < 1) {
+                    $(this).val(1)
+                    val = 1;
+                }
+
+                var i = 1;
+                var html = '';
+
+                while (i <= val) {
+
+                    html += '<div class="row mb-3 schedule-'+i+'">'+
+                                '<div class="col-md-3">'+
+                                '<label>Session '+i+'.<sup class="text-danger">*</sup></label>' +
+                                '</div>' +
+                                '<div class="col-md-5">' +
+                                    '<small>Schedule</small>' +
+                                    '<input type="datetime-local" required class="form-control form-control-sm rounded" min="'+start_date_local+'" max="'+end_date_local+'" name="sessionDetail[]">' +
+                                '</div>' +
+                                '<div class="col-md-4">'+
+                                    '<small>Zoom link</small>' +
+                                    '<input type="url" required class="form-control form-control-sm rounded" name="sessionLinkMeet[]">'+   
+                                '</div>' +                    
+                            '</div>';
+
+                    i++;
+                }
+
+                $("#section-session").html(html);
+            })
+
             @if (isset($clientProgram) && $clientProgram->status !== false)
                 $("#program_status").val("{{ $clientProgram->status }}").trigger('change');
             @endif

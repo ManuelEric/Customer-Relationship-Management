@@ -91,7 +91,7 @@ class SalesDashboardController extends Controller
                 $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
                 $clients = $clients->merge($this->clientRepository->getClientByStatus($clientType, $last_month));
             }
-        } else {
+        } else { # is the client filter for [mentee, alulmni, parents, teacher/counselor]
 
             $clients = $this->clientRepository->getAllClientByRoleAndDate($clientType, $month);
             if ($month != null) {
@@ -105,19 +105,46 @@ class SalesDashboardController extends Controller
         if ($clients->count() == 0)
             return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $title)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $title) . ' data</td></tr>']);
 
-        foreach ($clients as $client) {
 
-            $client_register_date = date('Y-m', strtotime($client->created_at));
-            $now = date('Y-m');
-            $styling = $client_register_date == $now ? 'class="bg-primary"' : null;
+        # when is mentee    
+        # special case because already grouped by year
+        # so we need to extract as they are
+        if ($clientType == 'alumni') {
 
-            $html .= '<tr ' . $styling . '>
-                        <td>' . $index++ . '</td>
-                        <td>' . $client->full_name . '</td>
-                        <td>' . $client->mail . '</td>
-                        <td>' . $client->phone . '</td>
-                        <td>' . $client->created_at . '</td>
-                    </tr>';
+            foreach ($clients as $key => $value) {
+                $html .= '<tr>
+                            <td colspan="5">'.$key.'</td>
+                        </tr>';
+
+                foreach ($value as $client) {
+                    $client_register_date = date('Y-m', strtotime($client->created_at));
+                    $now = date('Y-m');
+                    $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
+
+                    $html .= '<tr '.$styling.'>
+                                <td>'.$index++.'</td>
+                                <td>'.$client->full_name.'</td>
+                                <td>'.$client->mail.'</td>
+                                <td>'.$client->phone.'</td>
+                                <td>'.$client->created_at.'</td>
+                            </tr>';
+                }
+            }
+        } else {
+            foreach ($clients as $client) {
+
+                $client_register_date = date('Y-m', strtotime($client->created_at));
+                $now = date('Y-m');
+                $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
+
+                $html .= '<tr ' . $styling . '>
+                            <td>' . $index++ . '</td>
+                            <td>' . $client->full_name  . '</td>
+                            <td>' . $client->mail . '</td>
+                            <td>' . $client->phone . '</td>
+                            <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
+                        </tr>';
+            }
         }
 
         return response()->json(
@@ -445,7 +472,7 @@ class SalesDashboardController extends Controller
             $detailClientJoinedProgram = $this->clientProgramRepository->getDetailSuccessProgramByMonthAndProgram($cp_filter);
 
             $content = '';
-            $html = '<label class="mb-3">Clients joined : <u>' . $program->program_name . '</u></label>';
+            $html = '<label class="mb-3">Clients joined : <u><br>' . $program->program_name . '</u></label>';
 
             $no = 1;
             foreach ($detailClientJoinedProgram as $client) {
@@ -455,9 +482,9 @@ class SalesDashboardController extends Controller
                     </tr>';
             }
 
-            $html .= '<table class="table table-bordered border-primary">
+            $html .= '<table class="table table-striped table-hover">
                     <tr>
-                        <th style="width:2em">No.</th>
+                        <th width="8%">No.</th>
                         <th>Client Name</th>
                     </tr>
                     ' . $content . '
@@ -585,86 +612,6 @@ class SalesDashboardController extends Controller
         );
     }
 
-    public function getAcademicPrepByMonthDetail(Request $request)
-    {
-        $cp_filter['qdate'] = $request->route('month');
-        $cp_filter['quuid'] = $request->route('user') ?? null;
-
-        try {
-
-            $academicTestPrep = $this->clientProgramRepository->getClientProgramGroupDataByStatusAndUserArray(['program' => 'Academic & Test Preparation'] + $cp_filter);
-            // return $academicTestPrep;
-
-            $html = $table_content = null;
-            foreach ($academicTestPrep as $title => $data) {
-
-                if ($data->count() > 0) {
-                    $html .= '<label class="fw-bold fs-5 my-3">' . ucfirst($title) . '</label>';
-
-                    foreach ($data as $program_name => $value) {
-
-                        $no = 1;
-                        $table_content = ''; # reset table content
-                        foreach ($value as $data) {
-
-                            switch ($title) {
-                                case "pending":
-                                    $date_name = 'Created At';
-                                    $date_value = date('l, d M Y', strtotime($data->created_at));
-                                    break;
-
-                                case "failed":
-                                    $date_name = 'Failed Date';
-                                    $date_value = date('l, d M Y', strtotime($data->failed_date));
-                                    break;
-
-                                case "success":
-                                    $date_name = 'Success Date';
-                                    $date_value = date('l, d M Y', strtotime($data->success_date));
-                                    break;
-
-                                case "refund":
-                                    $date_name = 'Refund Date';
-                                    $date_value = date('l, d M Y', strtotime($data->refund_date));
-                                    break;
-                            }
-
-                            $table_content .= '
-                                <tr>
-                                    <td align="center">' . $no++ . '.</td>
-                                    <td>' . $data->client->client_name . '</td>
-                                    <td align="center">' . $date_value . '</td>
-                                </tr>';
-                        }
-
-                        $html .= '
-                            <table class="table table-bordered border-primary">
-                                <tr>
-                                    <td colspan="3"><label class="fs-6">' . $program_name . '</label></td>
-                                </tr>
-                                <tr align="center">
-                                    <th style="width:2em">No.</th>
-                                    <th>Client Name</th>
-                                    <th style="width:150px">' . $date_name . '</th>
-                                </tr>
-                                ' . $table_content . '
-                            </table>';
-                    }
-                }
-            }
-        } catch (Exception $e) {
-
-            Log::error($e->getMessage() . ' | Line ' . $e->getLine());
-            return response()->json(['message' => 'Failed to get detail academic & test preparation detail : ' . $e->getMessage() . ' | Line ' . $e->getLine()]);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $academicTestPrep,
-            'ctx' => $html
-        ]);
-    }
-
     public function getCareerExplorationByMonth(Request $request)
     {
         $cp_filter['qdate'] = $request->route('month');
@@ -694,21 +641,35 @@ class SalesDashboardController extends Controller
         );
     }
 
-    public function getCareerExplorationByMonthDetail(Request $request)
+    public function getClientProgramByMonthDetail(Request $request)
     {
         $cp_filter['qdate'] = $request->route('month');
         $cp_filter['quuid'] = $request->route('user') ?? null;
+        $cp_filter['qtype'] = $request->route('type');
+
+        $type = '';
+
+        switch ($cp_filter['qtype']) {
+            case 'academic-prep':
+                $type = 'Academic & Test Preparation';
+                break;
+            case 'career-exploration':
+                $type = 'Career Exploration';
+                break;
+            case 'admissions-mentoring':
+                $type = 'Admissions Mentoring';
+                break;
+        }
 
         try {
 
-            $careerExploration = $this->clientProgramRepository->getClientProgramGroupDataByStatusAndUserArray(['program' => 'Career Exploration'] + $cp_filter);
-            // return $careerExploration;
+            $clientProg = $this->clientProgramRepository->getClientProgramGroupDataByStatusAndUserArray(['program' => $type] + $cp_filter);
+            // return $clientProg;
 
             $html = $table_content = null;
-            foreach ($careerExploration as $title => $data) {
+            foreach ($clientProg as $title => $data) {
 
                 if ($data->count() > 0) {
-                    $html .= '<label class="fw-bold fs-5 my-3">' . ucfirst($title) . '</label>';
 
                     foreach ($data as $program_name => $value) {
 
@@ -718,29 +679,30 @@ class SalesDashboardController extends Controller
 
                             switch ($title) {
                                 case "pending":
+                                    $style_title = 'text-warning';
                                     $date_name = 'Created At';
                                     $date_value = date('l, d M Y', strtotime($data->created_at));
-                                    $prog = $data->program->prog_program;
                                     break;
 
                                 case "failed":
+                                    $style_title = 'text-danger';
                                     $date_name = 'Failed Date';
                                     $date_value = date('l, d M Y', strtotime($data->failed_date));
-                                    $prog = $data->program->prog_program;
                                     break;
 
                                 case "success":
+                                    $style_title = 'text-success';
                                     $date_name = 'Success Date';
                                     $date_value = date('l, d M Y', strtotime($data->success_date));
-                                    $prog = $data->program->prog_program;
                                     break;
 
                                 case "refund":
+                                    $style_title = 'text-info';
                                     $date_name = 'Refund Date';
                                     $date_value = date('l, d M Y', strtotime($data->refund_date));
-                                    $prog = $data->program->prog_program;
                                     break;
                             }
+                            $prog = $data->program->prog_program;
 
                             $table_content .= '
                                 <tr>
@@ -750,13 +712,20 @@ class SalesDashboardController extends Controller
                                 </tr>';
                         }
 
-                        $html .= '
-                            <table class="table table-bordered border-primary">
+                        $html .=
+                            '
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="">
+                                <label class="fw-semibold fs-6 ' . $style_title . '">' . ucfirst($title) . '</label>
+                                </div>
+                                <div class="bg-secondary p-1 px-3 rounded shadow text-white">
+                                <label class="">' . $prog . '</label>
+                                </div>
+                            </div>
+                            <table class="table table-hover table-striped my-2">
                                 <tr>
-                                    <td colspan="3"><label class="fs-6">' . $prog . '</label></td>
-                                </tr>
-                                <tr align="center">
-                                    <th style="width:2em">No.</th>
+                                    <th width="5%">No.</th>
                                     <th>Client Name</th>
                                     <th style="width:150px">' . $date_name . '</th>
                                 </tr>
@@ -768,12 +737,12 @@ class SalesDashboardController extends Controller
         } catch (Exception $e) {
 
             Log::error($e->getMessage() . ' | Line ' . $e->getLine());
-            return response()->json(['message' => 'Failed to get detail career exploration detail : ' . $e->getMessage() . ' | Line ' . $e->getLine()]);
+            return response()->json(['message' => 'Failed to get detail ' . $type . 'detail : ' . $e->getMessage() . ' | Line ' . $e->getLine()]);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $careerExploration,
+            'data' => $clientProg,
             'ctx' => $html
         ]);
     }
@@ -925,7 +894,7 @@ class SalesDashboardController extends Controller
         $dataset_lead_labels = $dataset_lead = $dataset_bgcolor = [];
         $cp_filter['qdate'] = $request->route('month');
         $cp_filter['quuid'] = $request->route('user') ?? null;
-        $cp_filter['prog'] = 'Career Exploration';
+        $cp_filter['prog'] = 'Experiential Learning'; # new
 
         $dateDetails = [
             'startDate' => $cp_filter['qdate'] . '-01',
@@ -943,7 +912,7 @@ class SalesDashboardController extends Controller
             }
         } catch (Exception $e) {
 
-            Log::error('Failed to get career exploration lead dashboard data ' . $e->getMessage());
+            Log::error('Failed to get experiential learning lead dashboard data ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to get career exploration lead data'

@@ -55,9 +55,9 @@
                                 <p class="fw-light text-muted mb-0">{{ Auth::user()->email }}</p>
                             </div>
                             <a class="dropdown-item">
-                                <i class="bi bi-person text-primary me-2"></i>
+                                {{-- <i class="bi bi-person text-primary me-2"></i>
                                 My
-                                Profile
+                                Profile --}}
                                 <a class="dropdown-item" href="{{route('logout')}}">
                                     <i class="bi bi-box-arrow-down-left text-primary me-2"></i> Sign
                                     Out</a>

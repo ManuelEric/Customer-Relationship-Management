@@ -19,6 +19,7 @@ interface SchoolRepositoryInterface
     public function cleaningSchoolDetail();
     public function getReportNewSchool($start_date, $end_date);
     public function getFeederSchools($eventId);
+    public function getUncompeteSchools();
 
     public function getAllSchoolFromV1();
 }

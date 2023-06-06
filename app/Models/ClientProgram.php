@@ -61,6 +61,7 @@ class ClientProgram extends Model
         'refund_notes',
         'timesheet_link',
         'trial_date',
+        'session_tutor',
         'created_at',
         'updated_at'
     ];
@@ -142,5 +143,10 @@ class ClientProgram extends Model
     public function invoice()
     {
         return $this->hasOne(InvoiceProgram::class, 'clientprog_id', 'clientprog_id');
+    }
+
+    public function acadTutorDetail()
+    {
+        return $this->hasMany(AcadTutorDetail::class, 'clientprog_id', 'clientprog_id');   
     }
 }

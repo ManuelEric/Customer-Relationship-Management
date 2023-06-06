@@ -259,7 +259,7 @@ class FinanceDashboardController extends Controller
 
                 $unpaidPayments = collect($unpaidPaymentB2b)->merge($unpaidPaymentB2c);
                 if ($unpaidPayments->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="8">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
                 foreach ($unpaidPayments as $unpaidPayment) {
 
@@ -279,7 +279,7 @@ class FinanceDashboardController extends Controller
             case 'refund-request':
                 $refundRequest = $this->refundRepository->getTotalRefundRequest($monthYear);
                 if ($refundRequest->count() == 0)
-                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
+                    return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="6">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
                 foreach ($refundRequest as $refund_req) {
 

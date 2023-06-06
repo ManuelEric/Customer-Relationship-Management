@@ -62,6 +62,7 @@ class PartnerDashboardController extends Controller
 
         $conversion_lead_of_event = $this->clientEventRepository->getConversionLead($cp_filter);
 
+        $uncompleteSchools = $this->schoolRepository->getUncompeteSchools();
         return [
             'totalPartner' => $totalPartner,
             'totalSchool' => $totalSchool,
@@ -76,7 +77,8 @@ class PartnerDashboardController extends Controller
             'programComparisons' => $programComparisons,
             # client event tab
             'events' => $events,
-            'conversion_lead_of_event' => $conversion_lead_of_event
+            'conversion_lead_of_event' => $conversion_lead_of_event,
+            'totalUncompleteSchool' => $uncompleteSchools->count()
         ];
     }
 

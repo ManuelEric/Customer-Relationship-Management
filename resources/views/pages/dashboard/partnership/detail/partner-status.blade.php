@@ -47,6 +47,12 @@
             <div class="col-md-3">
                 <div class="card rounded border h-100 card-partner cursor-pointer" data-partner-type="School">
                     <div class="card-body d-flex justify-content-between align-items-center">
+                        @if($totalUncompleteSchool > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger today"
+                                style="font-size: 11px">
+                                {{$totalUncompleteSchool}}
+                            </span>
+                        @endif                        
                         <h5 class="m-0 p-0">Total School</h5>
                         <h4 class="m-0 p-0" id="tot_school">
                             {{ $totalSchool }}<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>{{$newSchool}} New</small></span></sup>
@@ -126,8 +132,19 @@
                             value="{{ date('Y-m') }}"> --}}
                     </div>
                 </div>
+                <div class="overflow-auto d-none" style="max-height:400px; margin-bottom:25px" id="additionalTable">
+                    <table class="table table-striped table-hover" id="listAdditionalTable">
+                        <thead class="text-center" id="thead-additional">
+                            {{-- Head table --}}
+                        </thead>
+                        <tbody id="tbody-additional">
+                            <!-- content here -->
+                        </tbody>
+                    </table>
+                </div>
+    
                 <div class="overflow-auto" style="height: 400px">
-                    <table class="table table-bordered table-hover" id="listPartnerTable">
+                    <table class="table table-striped table-hover" id="listPartnerTable">
                         <thead class="text-center" id="thead-partner">
                             {{-- Head table --}}
                         </thead>
@@ -172,52 +189,52 @@
 
             switch (type) {
                 case 'Partner':
-                        html = "<tr>"
-                        html += "<th>No</th>"
-                        html += "<th>Corporate Name</th>"
-                        html += "<th>Email</th>"
-                        html += "<th>Office Number</th>"
-                        html += "<th>Type</th>"
-                        html += "<th>Country Type</th>"
-                        html += "<th>Created At</th>"
+                        html = "<tr class='text-white'>"
+                        html += "<th class='bg-secondary rounded border border-white'>No</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Corporate Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Email</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Office Number</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Type</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Country Type</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Created At</th>"
                         html += "</tr>"
                     break;
                 
                 case 'School':
-                        html = "<tr>"
-                        html += "<th>No</th>"
-                        html += "<th>School Name</th>"
-                        html += "<th>Type</th>"
-                        html += "<th>City</th>"
-                        html += "<th>Location</th>"
-                        html += "<th>Created At</th>"
+                        html = "<tr class='text-white'>"
+                        html += "<th class='bg-secondary rounded border border-white'>No</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>School Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Type</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>City</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Location</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Created At</th>"
                         html += "</tr>"
                     break;
 
                 case 'University':
-                        html = "<tr>"
-                        html += "<th>No</th>"
-                        html += "<th>University ID</th>"
-                        html += "<th>University Name</th>"
-                        html += "<th>Address</th>"
-                        html += "<th>Email</th>"
-                        html += "<th>Phone</th>"
-                        html += "<th>Country</th>"
-                        html += "<th>Created At</th>"
+                        html = "<tr class='text-white'>"
+                        html += "<th class='bg-secondary rounded border border-white'>No</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>University ID</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>University Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Address</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Email</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Phone</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Country</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Created At</th>"
                         html += "</tr>"
                     break;
 
                 case 'Agreement':
-                        html = "<tr>"
-                        html += "<th>No</th>"
-                        html += "<th>Partner Name</th>"
-                        html += "<th>Agreement Name</th>"
-                        html += "<th>Agreement Type</th>"
-                        html += "<th>Start Date</th>"
-                        html += "<th>End Date</th>"
-                        html += "<th>Partner PIC</th>"
-                        html += "<th>ALL In PIC</th>"
-                        html += "<th>Created At</th>"
+                        html = "<tr class='text-white'>"
+                        html += "<th class='bg-secondary rounded border border-white'>No</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Partner Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Agreement Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Agreement Type</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Start Date</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>End Date</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Partner PIC</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>ALL In PIC</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Created At</th>"
                         html += "</tr>"
                     break;
           
@@ -229,6 +246,25 @@
                     var result = response.data;
                     $('#list-detail-partner .modal-title').html(result.title)
                     $('#listPartnerTable tbody').html(result.html_ctx)
+                    
+                    console.log(result)
+                    if(result.additional_content != '' || result.additional_content != null){
+                
+
+                        $('#additionalTable').removeClass('d-none')
+                        $('#thead-additional').html(result.additional_header)
+                        $('#listAdditionalTable tbody').html(result.additional_content)
+
+                        $("#listAdditionalTable .detail").each(function() {
+                            $(this).click(function() {
+                                var link = "{{ url('/') }}/instance/school/" + $(this).data('schid')
+                                window.location = link
+                            })
+                        })
+                    }else{
+                        
+                        $('#additionalTable').addClass('d-none')
+                    }
                     swal.close()
 
                     $('#list-detail-partner').modal('show')
@@ -353,6 +389,7 @@
     
 
     }
+    
 
     checkPartnerStatusbyMonth()
 

@@ -289,4 +289,18 @@ class ReportController extends Controller
         }
         return $dataClient;
     }
+
+    protected function getAllDataClient($data, $type)
+    {
+        $dataClient =  new Collection();
+        foreach ($data as $d) {
+            $dataClient->push((object)[
+                'type' => $type,
+                'client_id' => $d->client_id,
+                'role_name' => $d->role_name
+            ]);
+        }
+
+        return $dataClient;
+    }
 }

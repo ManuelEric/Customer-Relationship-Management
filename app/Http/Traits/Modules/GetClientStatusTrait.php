@@ -17,7 +17,7 @@ trait GetClientStatusTrait {
         $total_completed_client = $this->clientRepository->getCountTotalClientByStatus(3);
         $monthly_new_completed_client = $this->clientRepository->getCountTotalClientByStatus(3, $month);
 
-        $total_mentee = $this->clientRepository->getAllClientByRole('mentee')->count();
+        $total_mentee = $this->clientRepository->getAllClientByRoleAndDate('mentee')->count();
         $monthly_new_mentee = $this->clientRepository->getAllClientByRole('mentee', $month)->count();
 
         $total_alumni = $this->clientRepository->getAllClientByRole('alumni')->count();
