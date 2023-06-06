@@ -247,9 +247,7 @@
                     $('#list-detail-partner .modal-title').html(result.title)
                     $('#listPartnerTable tbody').html(result.html_ctx)
                     
-                    console.log(result)
                     if(result.additional_content != '' || result.additional_content != null){
-                
 
                         $('#additionalTable').removeClass('d-none')
                         $('#thead-additional').html(result.additional_header)
