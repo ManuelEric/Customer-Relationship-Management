@@ -212,7 +212,8 @@ class ClientRepository implements ClientRepositoryInterface
                 }
             ])->havingRaw('client_program_count = client_program_finish_count')->pluck('tbl_client.id')->toArray();
 
-        return UserClient::when($roleName == "alumni", function ($query) {
+        return UserClient::
+            when($roleName == "alumni", function ($query) {
             $query->whereHas('clientProgram', function ($q2) {
                 $q2->whereIn('prog_running_status', [2]);
             })->withCount([
@@ -248,6 +249,25 @@ class ClientRepository implements ClientRepositoryInterface
     # is that the above function is not using ordering by created at
     public function getAllClientByRoleAndDate($roleName, $month = null) # mentee, parent, teacher
     {
+        $alumnis = UserClient::whereHas('clientProgram', function ($q2) {
+                $q2->whereIn('prog_running_status', [2]);
+            })->withCount([
+                'clientProgram as client_program_count' => function ($query) {
+                    $query->whereIn('prog_running_status', [0, 1, 2])->whereHas('program', function ($q2) {
+                        $q2->whereHas('main_prog', function ($q3) {
+                            $q3->where('prog_name', 'Admissions Mentoring');
+                        });
+                    });
+                },
+                'clientProgram as client_program_finish_count' => function ($query) {
+                    $query->where('prog_running_status', 2)->whereHas('program', function ($q2) {
+                        $q2->whereHas('main_prog', function ($q3) {
+                            $q3->where('prog_name', 'Admissions Mentoring');
+                        });
+                    });
+                }
+            ])->havingRaw('client_program_count = client_program_finish_count')->pluck('tbl_client.id')->toArray();
+
         $selectQuery = UserClient::
                 when($roleName == "alumni", function ($query) {
                     $query->whereHas('clientProgram', function ($q2) {
@@ -268,8 +288,12 @@ class ClientRepository implements ClientRepositoryInterface
                             });
                         }
                     ])->havingRaw('client_program_count = client_program_finish_count');
-                }, function ($query) use ($roleName) {
-                    $query->whereRoleName($roleName);
+                }, function ($query) use ($roleName, $alumnis) {
+                    $query->when($roleName == 'mentee', function ($query2) use ($alumnis) {
+                        $query2->whereNotIn('tbl_client.id', $alumnis);
+                     })->whereHas('roles', function ($query2) use ($roleName) {
+                         $query2->where('role_name', $roleName);
+                     });
                 })->when($month, function ($query) use ($month) {
                     $query->whereMonth('tbl_client.created_at', date('m', strtotime($month)))->whereYear('tbl_client.created_at', date('Y', strtotime($month)));
                 });
