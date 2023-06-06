@@ -119,6 +119,8 @@ class ReportController extends Controller
             ->merge($this->getAllDataClient($existingNonClient, 'existNonClient'))
             ->merge($this->getAllDataClient($newClient, 'newClient'));
 
+        // return $newClient;
+        // exit;
 
         return view('pages.report.event-tracking.index')->with(
             [

@@ -50,15 +50,35 @@
                 </div>
                 <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
                     <ul class="list-group">
-                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
+                                title="
+                                        @foreach ($existingMentee as $existMentee)
+                                            <p>
+                                                <b>{{$existMentee->client->full_name}}</b> From {{$existMentee->client->school->sch_name}}
+                                            </p>
+                                        @endforeach
+                                        ">
                                 <div class="">Mentee</div>
                                 <span class="badge badge-info">{{ $existingMentee->count() }}</span>
                             </li>
-                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
+                                title="
+                                        @foreach ($existingNonMentee as $existNonMentee)
+                                            <p>
+                                                <b>{{$existNonMentee->client->full_name}}</b> From {{$existNonMentee->client->school->sch_name}}
+                                            </p>
+                                        @endforeach
+                                        ">
                                 <div class="">Non Mentee</div>
                                 <span class="badge badge-info">{{ $existingNonMentee->count() }}</span>
                             </li>
-                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
+                                title="
+                                        @foreach ($existingNonClient as $existNonClient)
+                                            <p>
+                                                <b>{{$existNonClient->client->full_name}}</b> From {{$existNonClient->client->school->sch_name}}
+                                            </p>
+                                        @endforeach">
                                 <div class="">Non Client</div>
                                 <span class="badge badge-info">{{ $existingNonClient->count() }}</span>
                             </li>
@@ -74,15 +94,33 @@
                 </div>
                 <div class="card-body p-2 overflow-auto" style="max-height: 150px ">
                     <ul class="list-group">
-                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
+                                title="
+                                        @foreach ($newClient->where('role_name', 'Student') as $newStudent)
+                                            <p>
+                                                <b>{{$newStudent->client->full_name}}</b> From {{$newStudent->client->school->sch_name}}
+                                            </p>
+                                        @endforeach">
                                 <div class="">Student</div>
                                 <span class="badge badge-info">{{ $newClient->where('role_name', 'Student')->count() }}</span>
                             </li>
-                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
+                                title="
+                                        @foreach ($newClient->where('role_name', 'Parent') as $newParent)
+                                            <p>
+                                                <b>{{$newParent->client->full_name}}</b> From {{$newParent->client->school->sch_name}}
+                                            </p>
+                                        @endforeach">
                                 <div class="">Parent</div>
                                 <span class="badge badge-info">{{ $newClient->where('role_name', 'Parent')->count() }}</span>
                             </li>
-                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center">
+                            <li class="list-group-item py-1 px-2 d-flex justify-content-between align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
+                                title="
+                                        @foreach ($newClient->where('role_name', 'Teacher/Counselor') as $newTeacher)
+                                            <p>
+                                                <b>{{$newTeacher->client->full_name}}</b> From {{$newTeacher->client->school->sch_name}}
+                                            </p>
+                                        @endforeach">
                                 <div class="">Teacher / Counselor</div>
                                 <span class="badge badge-info">{{ $newClient->where('role_name', 'Teacher/Counselor')->count() }}</span>
                             </li>
@@ -221,6 +259,9 @@
                     event.preventDefault();
                 });
             @endif
+           
+            $('[data-toggle="tooltip"]').tooltip(); 
+
         });
 
         $(document).ready(function() {
