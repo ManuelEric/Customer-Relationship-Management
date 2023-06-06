@@ -296,14 +296,14 @@ class PartnerDashboardController extends Controller
                 $schools = $this->schoolRepository->getSchoolByMonthly($monthYear, 'list');
                 if ($uncompletedSchools->count() > 0) {
                     $additional_header .=
-                        '<tr><th colspan="6" class="text-start">Need Complete Data</th></tr>
-                        <tr>
-                        <th>No</th>
-                        <th>School Name</th>
-                        <th>Type</th>
-                        <th>City</th>
-                        <th>Location</th>
-                        <th>Craeted At</th>
+                        '<tr><th colspan="6" class="text-start bg-secondary rounded border border-white text-white">Need Complete Data</th></tr>
+                        <tr class="text-white">
+                        <th class="bg-secondary rounded border border-white">No</th>
+                        <th class="bg-secondary rounded border border-white">School Name</th>
+                        <th class="bg-secondary rounded border border-white">Type</th>
+                        <th class="bg-secondary rounded border border-white">City</th>
+                        <th class="bg-secondary rounded border border-white">Location</th>
+                        <th class="bg-secondary rounded border border-white">Craeted At</th>
                         </tr>';
 
                     foreach ($uncompletedSchools as $uncompletedSchool) {
@@ -325,7 +325,7 @@ class PartnerDashboardController extends Controller
                     return response()->json(
                         [
                             'title' => 'List of ' . ucwords(str_replace('-', ' ', $type)),
-                            'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>',
+                            'html_ctx' => '<tr align="center"><td colspan="6">No ' . str_replace('-', ' ', $type) . ' data</td></tr>',
                             'additional_header' => $additional_header,
                             'additional_content' => $additional_content,
                             'total_additional' => $uncompletedSchools->count()

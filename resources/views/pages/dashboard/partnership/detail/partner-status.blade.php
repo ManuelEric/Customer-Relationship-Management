@@ -133,7 +133,7 @@
                     </div>
                 </div>
                 <div class="overflow-auto d-none" style="max-height:400px; margin-bottom:25px" id="additionalTable">
-                    <table class="table table-bordered table-hover" id="listAdditionalTable">
+                    <table class="table table-striped table-hover" id="listAdditionalTable">
                         <thead class="text-center" id="thead-additional">
                             {{-- Head table --}}
                         </thead>
