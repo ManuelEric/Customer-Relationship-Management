@@ -63,7 +63,8 @@
                 serverSide: true,
                 ajax: '',
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
-                columns: [{
+                columns: [
+                    {
                         data: 'prog_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
@@ -72,6 +73,17 @@
                     },
                     {
                         data: 'prog_id',
+                        render: function(data, type, row, meta) {
+                            var badge = '';
+                            if (row.active === 0)
+                                badge = '<span class="badge text-bg-danger" style="font-size:8px";>Inactive</span>';
+
+                            console.log(row.created_at)
+                            if (row.active == 1 && row.created_at == Date.now())
+                                badge = '<span class="badge text-bg-success" style="font-size: 8px;">New</span>'
+
+                            return data + ' ' + badge;
+                        }
                     },
                     {
                         data: 'main_prog_name',
@@ -97,7 +109,10 @@
                     {
                         data: 'prog_scope',
                         render: function(data, type, row, meta) {
-                            return row.prog_scope.charAt(0).toUpperCase() + row.prog_scope.slice(1);
+                            if (data != null)
+                                return row.prog_scope.charAt(0).toUpperCase() + row.prog_scope.slice(1);
+                            
+                            return data;
                         }
                     },
                     {

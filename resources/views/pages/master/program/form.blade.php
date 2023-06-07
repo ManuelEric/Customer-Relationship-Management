@@ -104,7 +104,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-2">
                                     <label for="">
                                         Need Mentor/Tutor <sup class="text-danger">*</sup>
@@ -120,7 +120,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-2">
                                     <label for="">
                                         Payment Category <sup class="text-danger">*</sup>
@@ -136,7 +136,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-2">
                                     <label for="">
                                         Program Scope <sup class="text-danger">*</sup>
@@ -149,6 +149,21 @@
                                         <option value="partner" {{ (isset($program->prog_scope) && $program->prog_scope == "partner") || (old('prog_scope') == "partner") ? "selected" : null }}>Partner</option>
                                     </select>
                                     @error('prog_scope')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-2">
+                                    <label for="">
+                                        Status <sup class="text-danger">*</sup>
+                                    </label>
+                                    <select name="active" class="select w-100">
+                                        <option data-placeholder="true"></option>
+                                        <option value="1" @selected(isset($program->prog_scope) && $program->active == 1)>Active</option>
+                                        <option value="0" @selected(isset($program->prog_scope) && $program->active == 0)>Inactive</option>
+                                    </select>
+                                    @error('active')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>

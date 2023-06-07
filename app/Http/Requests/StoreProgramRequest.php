@@ -34,6 +34,7 @@ class StoreProgramRequest extends FormRequest
             'prog_mentor' => 'required|in:Mentor,Tutor,No',
             'prog_payment' => 'required|in:idr,usd,session',
             'prog_scope' => 'required|in:mentee,public,school,partner',
+            'active' => 'required|in:1,0',
         ];
     }
 }

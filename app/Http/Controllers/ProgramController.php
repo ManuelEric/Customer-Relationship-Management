@@ -48,6 +48,7 @@ class ProgramController extends Controller
             'prog_mentor',
             'prog_payment',
             'prog_scope',
+            'active',
         ]);
 
         DB::beginTransaction();
@@ -86,6 +87,7 @@ class ProgramController extends Controller
             'prog_mentor',
             'prog_payment',
             'prog_scope',
+            'active',
         ]);
 
         DB::beginTransaction();
