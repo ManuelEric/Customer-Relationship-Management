@@ -32,6 +32,21 @@ class Kernel extends ConsoleKernel
         // $schedule->command('import:editor')->hourly();
         
         // $schedule->command('deactivated:user')->daily();
+
+        # import data from big data v1
+        $schedule->command('import:university')->hourly();
+        $schedule->command('import:employee')->hourly();
+        $schedule->command('import:mentor')->hourly();
+        $schedule->command('import:editor')->hourly();
+        $schedule->command('import:corp')->hourly();
+        $schedule->command('import:school')->hourly();
+        $schedule->command('import:school_detail')->hourly();
+        $schedule->command('import:school_curriculum')->hourly();
+        $schedule->command('import:student')->hourly();
+        $schedule->command('import:parent')->hourly();
+        $schedule->command('import:eduf')->hourly();
+        $schedule->command('import:clientprog')->hourly();
+
     }
 
     /**

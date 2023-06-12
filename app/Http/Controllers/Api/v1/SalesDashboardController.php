@@ -91,7 +91,7 @@ class SalesDashboardController extends Controller
                 $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
                 $clients = $clients->merge($this->clientRepository->getClientByStatus($clientType, $last_month));
             }
-        } else {
+        } else { # is the client filter for [mentee, alulmni, parents, teacher/counselor]
 
             $clients = $this->clientRepository->getAllClientByRoleAndDate($clientType, $month);
             if ($month != null) {
@@ -105,19 +105,46 @@ class SalesDashboardController extends Controller
         if ($clients->count() == 0)
             return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $title)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $title) . ' data</td></tr>']);
 
-        foreach ($clients as $client) {
 
-            $client_register_date = date('Y-m', strtotime($client->created_at));
-            $now = date('Y-m');
-            $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
+        # when is mentee    
+        # special case because already grouped by year
+        # so we need to extract as they are
+        if ($clientType == 'alumni') {
 
-            $html .= '<tr ' . $styling . '>
-                        <td>' . $index++ . '</td>
-                        <td>' . $client->full_name  . '</td>
-                        <td>' . $client->mail . '</td>
-                        <td>' . $client->phone . '</td>
-                        <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
-                    </tr>';
+            foreach ($clients as $key => $value) {
+                $html .= '<tr>
+                            <td colspan="5">'.$key.'</td>
+                        </tr>';
+
+                foreach ($value as $client) {
+                    $client_register_date = date('Y-m', strtotime($client->created_at));
+                    $now = date('Y-m');
+                    $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
+
+                    $html .= '<tr '.$styling.'>
+                                <td>'.$index++.'</td>
+                                <td>'.$client->full_name.'</td>
+                                <td>'.$client->mail.'</td>
+                                <td>'.$client->phone.'</td>
+                                <td>'.$client->created_at.'</td>
+                            </tr>';
+                }
+            }
+        } else {
+            foreach ($clients as $client) {
+
+                $client_register_date = date('Y-m', strtotime($client->created_at));
+                $now = date('Y-m');
+                $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
+
+                $html .= '<tr ' . $styling . '>
+                            <td>' . $index++ . '</td>
+                            <td>' . $client->full_name  . '</td>
+                            <td>' . $client->mail . '</td>
+                            <td>' . $client->phone . '</td>
+                            <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
+                        </tr>';
+            }
         }
 
         return response()->json(
@@ -867,7 +894,7 @@ class SalesDashboardController extends Controller
         $dataset_lead_labels = $dataset_lead = $dataset_bgcolor = [];
         $cp_filter['qdate'] = $request->route('month');
         $cp_filter['quuid'] = $request->route('user') ?? null;
-        $cp_filter['prog'] = 'Career Exploration';
+        $cp_filter['prog'] = 'Experiential Learning'; # new
 
         $dateDetails = [
             'startDate' => $cp_filter['qdate'] . '-01',
@@ -885,7 +912,7 @@ class SalesDashboardController extends Controller
             }
         } catch (Exception $e) {
 
-            Log::error('Failed to get career exploration lead dashboard data ' . $e->getMessage());
+            Log::error('Failed to get experiential learning lead dashboard data ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to get career exploration lead data'

@@ -488,8 +488,7 @@
 
             axios.get(url)
                 .then(function(response) {
-
-                    console.log(response)
+                    
                     var obj = response.data;
 
                     $('#list-detail-client .modal-title').html(obj.title)

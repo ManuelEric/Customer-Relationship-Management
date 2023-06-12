@@ -16,6 +16,7 @@ use App\Models\Role;
 use App\Models\School;
 use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Models\Corporate;
 use App\Models\EdufLead;
 use App\Models\Event;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
@@ -101,11 +102,16 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
             if ($data['lead'] == 'School' || $data['lead'] == 'Counselor') {
                 $data['lead'] = 'School/Counselor';
             }
-            $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
-
+            if ($data['lead'] == 'KOL') {
+                $lead = 'KOL';
+            } else {
+                $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
+            }
             $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
             $getAllEduf = EdufLead::all();
             $edufair = $getAllEduf->where('organizerName', $data['edufair'])->pluck('id')->first();
+            $partner = Corporate::where('corp_name', $data['partner'])->get()->pluck('corp_id')->first();
+            $kol = Lead::where('main_lead', 'KOL')->where('sub_lead', $data['kol'])->get()->pluck('lead_id')->first();
 
             DB::commit();
         } catch (Exception $e) {
@@ -127,7 +133,9 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
             'school' => $data['school'],
             'lead' => isset($lead) ? $lead : $data['lead'],
             'event' => isset($event) ? $event : $data['event'],
+            'partner' => isset($partner) ? $partner : $data['partner'],
             'edufair' => isset($edufair) ? $edufair : $data['edufair'],
+            'kol' => isset($kol) ? $kol : $data['kol'],
             'level_of_interest' => $data['level_of_interest'],
         ];
 
@@ -146,10 +154,12 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
             '*.city' => ['nullable'],
             '*.address' => ['nullable'],
             '*.school' => ['required'],
-            '*.lead' => ['required', 'exists:tbl_lead,lead_id'],
-            '*.event' => ['nullable', 'exists:tbl_events,event_id'],
-            '*.edufair' => ['nullable', 'exists:tbl_eduf_lead,id'],
-            '*.level_of_interest' => ['required', 'in:High,Medium,Low'],
+            '*.lead' => ['required'],
+            '*.event' => ['required_if:lead,LS004', 'nullable', 'exists:tbl_events,event_id'],
+            '*.partner' => ['required_if:lead,LS015', 'nullable', 'exists:tbl_corp,corp_id'],
+            '*.edufair' => ['required_if:lead,LS018', 'nullable', 'exists:tbl_eduf_lead,id'],
+            '*.kol' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
+            '*.level_of_interest' => ['nullable', 'in:High,Medium,Low'],
         ];
     }
 

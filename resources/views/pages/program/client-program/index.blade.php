@@ -30,6 +30,17 @@
                         </select>
                     </div>
                     <div class="col-md-12 mb-2">
+                        <label for="">School Name</label>
+                        <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
+                            id="school-name">
+                            @foreach ($schools as $school)
+                                <option value="{{ $school->sch_id }}"
+                                    @if ($request->get('school_name') !== null && in_array($school->sch_name, $request->get('school_name'))) {{ 'selected' }} @endif>
+                                    {{ $school->sch_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-12 mb-2">
                         <label for="">Conversion Lead</label>
                         <select name="conversion_lead[]" class="select form-select form-select-sm w-100" multiple
                             id="conversion-lead">
@@ -109,6 +120,7 @@
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
+                        <th>School</th>
                         <th>Grade</th>
                         <th>Program Name</th>
                         <th>Mentor/Tutor Name</th>
@@ -181,6 +193,14 @@
             @endforeach
             $("#program-name").val(program_name).trigger('change')
         @endif
+        
+        @if ($request->get('school_name') !== null)
+            var school_name = new Array();
+            @foreach ($request->get('school_name') as $key => $val)
+                school_name.push("{{ $val }}")
+            @endforeach
+            $("#school-name").val(school_name).trigger('change')
+        @endif
 
         @if ($request->get('conversion_lead') !== null)
             var conversion_lead = new Array();
@@ -227,6 +247,9 @@
                     },
                     {
                         data: 'fullname',
+                    },
+                    {
+                        data: 'school_name',
                     },
                     {
                         data: 'st_grade',

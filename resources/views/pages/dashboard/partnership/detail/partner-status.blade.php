@@ -47,6 +47,12 @@
             <div class="col-md-3">
                 <div class="card rounded border h-100 card-partner cursor-pointer" data-partner-type="School">
                     <div class="card-body d-flex justify-content-between align-items-center">
+                        @if($totalUncompleteSchool > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger today"
+                                style="font-size: 11px">
+                                {{$totalUncompleteSchool}}
+                            </span>
+                        @endif                        
                         <h5 class="m-0 p-0">Total School</h5>
                         <h4 class="m-0 p-0" id="tot_school">
                             {{ $totalSchool }}<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>{{$newSchool}} New</small></span></sup>
@@ -126,6 +132,17 @@
                             value="{{ date('Y-m') }}"> --}}
                     </div>
                 </div>
+                <div class="overflow-auto d-none" style="max-height:400px; margin-bottom:25px" id="additionalTable">
+                    <table class="table table-striped table-hover" id="listAdditionalTable">
+                        <thead class="text-center" id="thead-additional">
+                            {{-- Head table --}}
+                        </thead>
+                        <tbody id="tbody-additional">
+                            <!-- content here -->
+                        </tbody>
+                    </table>
+                </div>
+    
                 <div class="overflow-auto" style="height: 400px">
                     <table class="table table-striped table-hover" id="listPartnerTable">
                         <thead class="text-center" id="thead-partner">
@@ -229,6 +246,23 @@
                     var result = response.data;
                     $('#list-detail-partner .modal-title').html(result.title)
                     $('#listPartnerTable tbody').html(result.html_ctx)
+                    
+                    if(result.additional_content != '' || result.additional_content != null){
+
+                        $('#additionalTable').removeClass('d-none')
+                        $('#thead-additional').html(result.additional_header)
+                        $('#listAdditionalTable tbody').html(result.additional_content)
+
+                        $("#listAdditionalTable .detail").each(function() {
+                            $(this).click(function() {
+                                var link = "{{ url('/') }}/instance/school/" + $(this).data('schid')
+                                window.location = link
+                            })
+                        })
+                    }else{
+                        
+                        $('#additionalTable').addClass('d-none')
+                    }
                     swal.close()
 
                     $('#list-detail-partner').modal('show')
@@ -353,6 +387,7 @@
     
 
     }
+    
 
     checkPartnerStatusbyMonth()
 

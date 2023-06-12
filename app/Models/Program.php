@@ -35,6 +35,7 @@ class Program extends Model
         'prog_payment',
         'prog_scope',
         'program_name',
+        'active', # active status
     ];
 
     public static function whereProgId($id)

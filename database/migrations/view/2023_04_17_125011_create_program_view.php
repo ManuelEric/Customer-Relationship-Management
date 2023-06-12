@@ -27,6 +27,8 @@ return new class extends Migration
             pr.prog_program as prog_program,
             mp.prog_name as main_prog_name,
             sp.sub_prog_name as sub_prog_name,
+            pr.active,
+            pr.created_at,
             (CASE WHEN pr.sub_prog_id > 0 THEN
                 (CASE WHEN mp.prog_name = sp.sub_prog_name THEN
                     CONCAT(mp.prog_name COLLATE utf8mb4_unicode_ci, ' : ', pr.prog_program COLLATE utf8mb4_unicode_ci)

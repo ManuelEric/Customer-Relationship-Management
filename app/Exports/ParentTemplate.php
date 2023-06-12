@@ -210,6 +210,15 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
                 $validation->setPrompt('Please pick a value from the drop-down list.');
                 $validation->setFormula1(sprintf('"%s"', implode(',', $levelOfInterest_options)));
 
+                $event->sheet->getDelegate()->getComment('A1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('B1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('C1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('L1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('M1')->getText()->createTextRun('Required if lead source All-In Event');
+                $event->sheet->getDelegate()->getComment('N1')->getText()->createTextRun('Required if lead source All-In Partners');
+                $event->sheet->getDelegate()->getComment('O1')->getText()->createTextRun('Required if lead source External Edufair');
+                $event->sheet->getDelegate()->getComment('P1')->getText()->createTextRun('Required if lead source KOL');
+
                 // set columns to autosize
                 for ($i = 1; $i <= $column_count; $i++) {
                     $column = Coordinate::stringFromColumnIndex($i);
@@ -223,6 +232,14 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
     {
         $sheet->getStyle('A1:R1')->getFill()->applyFromArray(['fillType' => 'solid', 'rotation' => 0, 'color' => ['rgb' => 'D9D9D9'],]);
         $sheet->getStyle('A1:R1')->getFont()->setSize(14);
+        $sheet->getStyle('A1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('B1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('C1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('L1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('M1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('N1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('O1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('P1')->getFont()->getColor()->setARGB('f0a318');
         foreach ($sheet->getColumnIterator() as $column) {
             $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
         }
