@@ -78,7 +78,6 @@
                             if (row.active === 0)
                                 badge = '<span class="badge text-bg-danger" style="font-size:8px";>Inactive</span>';
 
-                            console.log(row.created_at)
                             if (row.active == 1 && row.created_at == Date.now())
                                 badge = '<span class="badge text-bg-success" style="font-size: 8px;">New</span>'
 

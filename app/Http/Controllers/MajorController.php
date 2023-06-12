@@ -31,7 +31,8 @@ class MajorController extends Controller
     public function store(StoreMajorRequest $request)
     {
         $majorDetails = $request->only([
-            'name'
+            'name',
+            'active'
         ]);
 
         DB::beginTransaction();
@@ -61,7 +62,8 @@ class MajorController extends Controller
     public function update(StoreMajorRequest $request)
     {
         $majorDetails = $request->only([
-            'name'
+            'name',
+            'active'
         ]);
 
         $id = $request->route('major');

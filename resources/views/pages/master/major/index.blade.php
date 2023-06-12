@@ -68,6 +68,13 @@
                                         required value="" id="major_name">
                                 </div>
                             </div>
+                            <div class="col-md-12">
+                                <label for="">Status</label>
+                                <select name="active" id="major_status" class="form-select form-select-sm rounded">
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </div>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between">
@@ -116,7 +123,17 @@
                         }
                     },
                     {
-                        data: 'name'
+                        data: 'name',
+                        render: function(data, type, row, meta) {
+                            var badge = '';
+                            if (row.active === 0)
+                                badge = '<span class="badge text-bg-danger" style="font-size:8px";>Inactive</span>';
+
+                            if (row.active == 1 && row.created_at == Date.now())
+                                badge = '<span class="badge text-bg-success" style="font-size: 8px;">New</span>'
+
+                            return data + ' ' + badge;
+                        }
                     },
                     {
                         data: 'created_at',
@@ -176,9 +193,9 @@
 
                     // handle success
                     let data = response.data.major
-                    console.log(data)
 
-                    $('#major_name').val(data.name)
+                    $('#major_name').val(data.name);
+                    $("#major_status").val(data.active).change();
 
                     let html =
                         '@method('put')' +
