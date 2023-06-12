@@ -3,7 +3,7 @@
 @section('content')
     <p style="margin:0;">Hi {{ ucwords($recipient['name']) }},</p>
     <p>
-        I hope this message finds you well. This is a friendly reminder about your upcoming tutoring sessions. Please mark your calendar and make note of the following details:
+        I hope this message finds you well. This is a friendly reminder about your upcoming tutoring sessions. Please mark <a href="{{ $calendar }}" target="_blank" class="btn btn-primary title-primary mt-4 w-100 mx-auto" rel="nofollow">your calendar</a> and make note of the following details:
     </p>
     <table>
         <tr>
