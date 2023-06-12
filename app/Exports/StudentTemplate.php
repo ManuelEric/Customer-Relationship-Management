@@ -242,10 +242,10 @@ class StudentTemplate implements FromCollection, WithHeadings, WithEvents, WithS
         $sheet->getStyle('G1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('I1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('N1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('O1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('P1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('Q1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('R1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('O1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('P1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('Q1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('R1')->getFont()->getColor()->setARGB('f0a318');
         // $sheet->setStyle('A1')
         foreach ($sheet->getColumnIterator() as $column) {
             $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
