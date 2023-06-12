@@ -3,6 +3,13 @@
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/step.css') }}">
 @endsection
+@section('style')
+    <style>
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 29px !important;
+        }
+    </style>
+@endsection
 @section('script')
     <script src="{{ asset('library/dashboard/js/off-canvas.js') }}"></script>
     <script src="{{ asset('library/dashboard/js/hoverable-collapse.js') }}"></script>
@@ -38,32 +45,98 @@
             <div class="navbar-menu-wrapper d-flex align-items-top border-bottom">
                 <ul class="navbar-nav">
                     <li class="nav-item font-weight-semibold d-none d-lg-block ms-0">
-                        <h1 class="welcome-text">Welcome Back, <span class="text-black fw-bold">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span></h1>
+                        <h1 class="welcome-text">Welcome Back, <span
+                                class="text-black fw-bold">{{ Auth::user()->first_name }}
+                                {{ Auth::user()->last_name }}</span></h1>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown d-none d-lg-block user-dropdown me-lg-3 me-0">
+                        <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell"></i>
+                            <span
+                                class="position-absolute ms-1 top-1 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 11px">
+                                <small>
+                                    5
+                                </small>
+                            </span>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-right navbar-dropdown py-2 px-4" style="width: 400px;">
+                            @for ($i = 0; $i < 3; $i++)
+                                <li class="d-flex align-items-center border-bottom py-2">
+                                    <i class="bi bi-exclamation-circle me-2"></i>
+                                    <span class="lh-sm">
+                                        The number of hot leads is less than the target
+                                    </span>
+                                </li>
+                            @endfor
+                        </ul>
+                    </li>
                     <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                         <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown"
                             aria-expanded="false">
-                            <img class="img-xs rounded-circle" src="{{ asset('library/dashboard/images/faces/face8.jpg') }}"
-                                alt="Profile image"> </a>
+                            <img class="img-xs rounded-circle"
+                                src="{{ asset('library/dashboard/images/faces/face8.jpg') }}" alt="Profile image"> </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
                             <div class="dropdown-header text-center">
-                                <img class="img-md rounded-circle" src="{{ asset('library/dashboard/images/faces/face8.jpg') }}"
-                                    alt="Profile image">
-                                <p class="mb-1 mt-3 font-weight-semibold">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
+                                <img class="img-md rounded-circle"
+                                    src="{{ asset('library/dashboard/images/faces/face8.jpg') }}" alt="Profile image">
+                                <p class="mb-1 mt-3 font-weight-semibold">{{ Auth::user()->first_name }}
+                                    {{ Auth::user()->last_name }}</p>
                                 <p class="fw-light text-muted mb-0">{{ Auth::user()->email }}</p>
                             </div>
                             <a class="dropdown-item">
-                                <i class="bi bi-person text-primary me-2"></i>
-                                My
-                                Profile
-                                <a class="dropdown-item" href="{{route('logout')}}">
-                                    <i class="bi bi-box-arrow-down-left text-primary me-2"></i> Sign
-                                    Out</a>
+                                <a class="dropdown-item" href="{{ route('logout') }}">
+                                    <i class="bi bi-box-arrow-down-left text-primary me-2"></i>
+                                    Sign Out
+                                </a>
                         </div>
                     </li>
                 </ul>
+                <div class="dropdown d-block d-lg-none me-3">
+                    <a class="" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-bell" style="font-size: 2em;"></i>
+                        <span class="position-absolute ms-1 top-1 start-100 translate-middle badge rounded-pill bg-danger"
+                            style="font-size: 11px">
+                            <small>
+                                5
+                            </small>
+                        </span>
+                    </a>
+
+                    <ul class="dropdown-menu py-2 px-4" style="width: 300px; left:-250px;">
+                        @for ($i = 0; $i < 3; $i++)
+                            <li class="d-flex align-items-center border-bottom py-2">
+                                <i class="bi bi-exclamation-circle me-2"></i>
+                                <span class="lh-sm">
+                                    The number of hot leads is less than the target
+                                </span>
+                            </li>
+                        @endfor
+                    </ul>
+                </div>
+                <div class="dropdown d-block d-lg-none user-dropdown me-0">
+                    <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img class="img-xs rounded-circle" src="{{ asset('library/dashboard/images/faces/face8.jpg') }}"
+                            alt="Profile image"> </a>
+                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown"
+                        style="left:-150px;">
+                        <div class="dropdown-header text-center">
+                            <img class="img-md rounded-circle"
+                                src="{{ asset('library/dashboard/images/faces/face8.jpg') }}" alt="Profile image">
+                            <p class="mb-1 mt-3 font-weight-semibold">{{ Auth::user()->first_name }}
+                                {{ Auth::user()->last_name }}</p>
+                            <p class="fw-light text-muted mb-0">{{ Auth::user()->email }}</p>
+                        </div>
+                        <a class="dropdown-item">
+                            <a class="dropdown-item" href="{{ route('logout') }}">
+                                <i class="bi bi-box-arrow-down-left text-primary me-2"></i>
+                                Sign Out
+                            </a>
+                    </div>
+                </div>
                 <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
                     data-bs-toggle="offcanvas">
                     <span class="bi bi-list"></span>
@@ -72,32 +145,6 @@
         </nav>
         <!-- partial -->
         <div class="container-fluid page-body-wrapper">
-            <!-- partial:partials/_settings-panel.html -->
-            <div class="theme-setting-wrapper">
-                <div id="settings-trigger">
-                    <i class="bi bi-gear"></i>
-                </div>
-                <div id="theme-settings" class="settings-panel">
-                    <i class="settings-close bi bi-x"></i>
-                    <p class="settings-heading">SIDEBAR SKINS</p>
-                    <div class="sidebar-bg-options selected" id="sidebar-light-theme">
-                        <div class="img-ss rounded-circle bg-light border me-3"></div>Light
-                    </div>
-                    <div class="sidebar-bg-options" id="sidebar-dark-theme">
-                        <div class="img-ss rounded-circle bg-dark border me-3"></div>Dark
-                    </div>
-                    <p class="settings-heading mt-2">HEADER SKINS</p>
-                    <div class="color-tiles mx-0 px-4">
-                        <div class="tiles success"></div>
-                        <div class="tiles warning"></div>
-                        <div class="tiles danger"></div>
-                        <div class="tiles info"></div>
-                        <div class="tiles dark"></div>
-                        <div class="tiles default"></div>
-                    </div>
-                </div>
-            </div>
-            <!-- partial -->
             <!-- partial:partials/_sidebar.html -->
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <ul class="nav">
@@ -108,54 +155,57 @@
                         </a>
                     </li>
                     <li class="nav-item nav-category">Pages</li>
-    
+
                     @foreach ($menus as $key => $menu)
-                    <li class="nav-item">
-                        @php
-                            $key = $key == 'Users' ? 'User' : $key;
-                        @endphp
-                        <a class="nav-link  {{ Request::is(strtolower($key).'*') ? 'text-primary' : '' }}" data-bs-toggle="collapse"
-                            href="#{{strtolower($key)}}" aria-expanded="false" aria-controls="{{strtolower($key)}}">
-                            <i class="{{$menu[0]['icon']}} mx-2"></i>
-                            <span class="menu-title">{{$key}}</span>
-                            <i class="menu-arrow bi bi-arrow-right"></i>
-                        </a>
-                        <div class="collapse {{ Request::is(strtolower($key).'*') ? 'show' : 'hide' }}" id="{{strtolower($key)}}">
-                            <ul class="nav flex-column sub-menu">
-                                @foreach ($menu as $key2 => $submenu)
-                                    @php
-                                        $submenu_link = $submenu['submenu_link'];
-                                        $explode = explode('/', $submenu_link);
-                                        $length = count($explode);
-                                        if ($length > 2) {
-                                            $submenu_link_array = array_slice($explode, 0, 2);
-                                            $submenu_link = implode('/', $submenu_link_array);
-                                        }
-                                    @endphp
-                                    @if ($position = strpos($submenu['submenu_link'], '?'))
+                        <li class="nav-item">
+                            @php
+                                $key = $key == 'Users' ? 'User' : $key;
+                            @endphp
+                            <a class="nav-link  {{ Request::is(strtolower($key) . '*') ? 'text-primary' : '' }}"
+                                data-bs-toggle="collapse" href="#{{ strtolower($key) }}" aria-expanded="false"
+                                aria-controls="{{ strtolower($key) }}">
+                                <i class="{{ $menu[0]['icon'] }} mx-2"></i>
+                                <span class="menu-title">{{ $key }}</span>
+                                <i class="menu-arrow bi bi-arrow-right"></i>
+                            </a>
+                            <div class="collapse {{ Request::is(strtolower($key) . '*') ? 'show' : 'hide' }}"
+                                id="{{ strtolower($key) }}">
+                                <ul class="nav flex-column sub-menu">
+                                    @foreach ($menu as $key2 => $submenu)
                                         @php
-                                            $submenu_link = substr($submenu['submenu_link'], 0, $position);
+                                            $submenu_link = $submenu['submenu_link'];
+                                            $explode = explode('/', $submenu_link);
+                                            $length = count($explode);
+                                            if ($length > 2) {
+                                                $submenu_link_array = array_slice($explode, 0, 2);
+                                                $submenu_link = implode('/', $submenu_link_array);
+                                            }
                                         @endphp
-                                    @endif
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ Request::is($submenu_link . '*') ? 'active' : '' }}"
-                                        href="{{ url($submenu['submenu_link']) }}">{{$submenu['submenu_name']}}</a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </li>
+                                        @if ($position = strpos($submenu['submenu_link'], '?'))
+                                            @php
+                                                $submenu_link = substr($submenu['submenu_link'], 0, $position);
+                                            @endphp
+                                        @endif
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ Request::is($submenu_link . '*') ? 'active' : '' }}"
+                                                href="{{ url($submenu['submenu_link']) }}">{{ $submenu['submenu_name'] }}</a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </li>
                     @endforeach
 
                     @if ($isAdmin)
-                    <li class="nav-item nav-category">Settings</li>
-                    <li class="nav-item">
-                        <a href="{{url('menus')}}" class="nav-link {{ Request::is('menus') ? 'text-primary' : '' }}">
-                            <i class="bi bi-list mx-2"></i>
-                            <span class="menu-title">Menus</span>
-                            <i class="menu-arrow bi bi-arrow-right"></i>
-                        </a>
-                    </li>
+                        <li class="nav-item nav-category">Settings</li>
+                        <li class="nav-item">
+                            <a href="{{ url('menus') }}"
+                                class="nav-link {{ Request::is('menus') ? 'text-primary' : '' }}">
+                                <i class="bi bi-list mx-2"></i>
+                                <span class="menu-title">Menus</span>
+                                <i class="menu-arrow bi bi-arrow-right"></i>
+                            </a>
+                        </li>
                     @endif
                 </ul>
             </nav>

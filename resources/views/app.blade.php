@@ -110,8 +110,6 @@
             display: block !important;
         }
 
-
-
         .select2-container--default .select2-selection--single,
         .select2-container--default .select2-selection--multiple {
             border-radius: 8px !important;
@@ -119,9 +117,6 @@
             border: 1px solid #ced4da;
         }
 
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 29px !important;
-        }
 
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
             color: #fff;

@@ -42,3 +42,13 @@ Route::group(['middleware' => ['auth', 'auth.department']], function() {
 
 // User 
 Route::resource('user/volunteer', VolunteerController::class);
+
+// Form 
+Route::get('form/event', function() {
+    return view('form-embed.form-event');
+});
+
+
+Route::get('form/registration', function() {
+    return view('form-embed.form-website');
+});
