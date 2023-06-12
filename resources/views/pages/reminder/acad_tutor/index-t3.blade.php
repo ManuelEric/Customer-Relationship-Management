@@ -19,7 +19,7 @@
         <tr>
             <td>Link</td>
             <td>:</td>
-            <td><a href="{{ $tutoring_detail['link'] }}">{{ $tutoring_detail['link'] }}</a></td>
+            <td><a href="{{ $tutoring_detail['link'] }}">Join Now</a></td>
         </tr>
     </table>
     <p>
