@@ -19,6 +19,11 @@ class MajorRepository implements MajorRepositoryInterface
         return Major::all();
     }
 
+    public function getAllActiveMajors()
+    {
+        return Major::where('active', true)->get();
+    }
+
     public function getMajorById($id)
     {
         return Major::find($id);

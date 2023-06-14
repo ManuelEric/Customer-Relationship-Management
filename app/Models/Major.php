@@ -19,6 +19,7 @@ class Major extends Model
      */
     protected $fillable = [
         'name',
+        'active',
     ];
 
     public function createdAt(): Attribute

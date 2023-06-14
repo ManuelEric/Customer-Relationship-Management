@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Interfaces\AcadTutorRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
 use App\Interfaces\AssetRepositoryInterface;
 use App\Interfaces\AssetReturnedRepositoryInterface;
@@ -65,6 +66,7 @@ use App\Interfaces\UserTypeRepositoryInterface;
 use App\Interfaces\VendorRepositoryInterface;
 use App\Interfaces\VendorTypeRepositoryInterface;
 use App\Interfaces\VolunteerRepositoryInterface;
+use App\Repositories\AcadTutorRepository;
 use App\Repositories\AgendaSpeakerRepository;
 use App\Repositories\AssetRepository;
 use App\Repositories\AssetReturnedRepository;
@@ -199,6 +201,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AxisRepositoryInterface::class, AxisRepository::class);
         $this->app->bind(PartnerProgramCollaboratorsRepositoryInterface::class, PartnerProgramCollaboratorsRepository::class);
         $this->app->bind(SchoolProgramCollaboratorsRepositoryInterface::class, SchoolProgramCollaboratorsRepository::class);
+        $this->app->bind(AcadTutorRepositoryInterface::class, AcadTutorRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);

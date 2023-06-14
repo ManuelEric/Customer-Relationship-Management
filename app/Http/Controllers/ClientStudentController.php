@@ -241,11 +241,11 @@ class ClientStudentController extends ClientController
         $ext_edufair = $this->edufLeadRepository->getAllEdufairLead();
         $kols = $this->leadRepository->getAllKOLlead();
 
-        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C');
-        $programsB2C = $this->programRepository->getAllProgramByType('B2C');
-        $programs = $programsB2BB2C->merge($programsB2C);
+        $programsB2BB2C = $this->programRepository->getAllProgramByType('B2B/B2C', true);
+        $programsB2C = $this->programRepository->getAllProgramByType('B2C', true);
+        $programs = $programsB2BB2C->merge($programsB2C)->sortBy('program_name');
         $countries = $this->tagRepository->getAllTags();
-        $majors = $this->majorRepository->getAllMajors();
+        $majors = $this->majorRepository->getAllActiveMajors();
         $regions = $this->countryRepository->getAllRegionByLocale('en');
 
         return view('pages.client.student.form')->with(

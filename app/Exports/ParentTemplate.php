@@ -236,10 +236,10 @@ class ParentTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
         $sheet->getStyle('B1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('C1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('L1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('M1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('N1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('O1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('P1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('M1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('N1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('O1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('P1')->getFont()->getColor()->setARGB('f0a318');
         foreach ($sheet->getColumnIterator() as $column) {
             $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
         }

@@ -199,6 +199,21 @@ class RefundRepository implements RefundRepositoryInterface
                                     WHEN tbl_receipt.receipt_cat = "school" THEN tbl_sch_prog.refund_date
                                     WHEN tbl_receipt.receipt_cat = "partner" THEN tbl_partner_prog.refund_date
                                 END) as refund_date'),
+                DB::raw('(CASE 
+                                    WHEN tbl_receipt.receipt_cat = "student" THEN tbl_client_prog.clientprog_id
+                                    WHEN tbl_receipt.receipt_cat = "school" THEN tbl_sch_prog.id
+                                    WHEN tbl_receipt.receipt_cat = "partner" THEN tbl_partner_prog.id
+                                END) as client_prog_id'),
+                DB::raw('(CASE 
+                                    WHEN tbl_receipt.receipt_cat = "student" THEN "client_prog"
+                                    WHEN tbl_receipt.receipt_cat = "school" THEN "sch_prog"
+                                    WHEN tbl_receipt.receipt_cat = "partner" THEN "partner_prog"
+                                END) as typeprog'),
+                DB::raw('(CASE 
+                                    WHEN tbl_receipt.receipt_cat = "student" THEN tbl_inv.inv_id
+                                    WHEN tbl_receipt.receipt_cat = "school" THEN tbl_invb2b.invb2b_id
+                                    WHEN tbl_receipt.receipt_cat = "partner" THEN tbl_invb2b.invb2b_id
+                                END) as invoice_id'),
                 'tbl_receipt.receipt_id'
             )
             ->groupBy('tbl_inv.inv_id', 'tbl_invb2b.invb2b_id')->get();

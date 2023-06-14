@@ -175,6 +175,70 @@
                     var result = response.data;
                     $('#list-detail-finance .modal-title').html(result.title)
                     $('#listFinanceTable tbody').html(result.html_ctx)
+
+                    $("#listFinanceTable .detail").each(function() {
+                        var link = '';
+                            switch ($(this).data('type')) {
+                                case 'invoice-needed':
+                                    switch ($(this).data('typeprog')) {
+                                        case 'sch_prog':
+                                            link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/create"
+                                            break;
+                                        case 'partner_prog':
+                                            link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/create"
+                                            break;
+                                        case 'referral':
+                                            link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/create"
+                                            break;
+                                        case 'client_prog':
+                                            link = "{{ url('/') }}/invoice/client-program/create?prog=" + $(this).data('clientprog')
+                                            break;
+                                    }
+                                    break;
+
+                                case 'outstanding':
+                                    switch ($(this).data('typeprog')) {
+                                        case 'sch_prog':
+                                            link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            break;
+                                        case 'partner_prog':
+                                            link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            break;
+                                        case 'referral':
+                                            link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            break;
+                                        case 'client_prog':
+                                            link = "{{ url('/') }}/invoice/client-program/" + $(this).data('clientprog')
+                                            break;
+                                    }
+                                    break;
+                                break;
+
+                                case 'refund-request':
+                                    switch ($(this).data('typeprog')) {
+                                        case 'sch_prog':
+                                            link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            break;
+                                        case 'partner_prog':
+                                            link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            break;
+                                        case 'referral':
+                                            link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                            break;
+                                        case 'client_prog':
+                                            link = "{{ url('/') }}/invoice/client-program/" + $(this).data('clientprog')
+                                            break;
+                                    }
+                                    break;
+                                break;
+                            
+                             
+                            }
+                            
+                            $(this).click(function() {
+                                window.location = link
+                            })
+                    })
                     swal.close()
 
                     $('#list-detail-finance').modal('show')

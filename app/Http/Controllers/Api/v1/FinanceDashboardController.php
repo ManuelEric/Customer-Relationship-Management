@@ -241,9 +241,9 @@ class FinanceDashboardController extends Controller
                 if ($invoiceNeeded->count() == 0)
                     return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
-                foreach ($invoiceNeeded as $inv) {
+                foreach ($invoiceNeeded->sortBy('success_date') as $inv) {
 
-                    $html .= '<tr' . ($inv->success_date == date('Y-m-d') ?  ' class="table-danger"' : '') . '>
+                    $html .= '<tr' . ($inv->success_date == date('Y-m-d') ?  ' class="table-danger detail"' : ' class="detail"') . ' data-clientprog="' . $inv->client_prog_id . '" data-typeprog="' . $inv->type . '" data-type="invoice-needed" style="cursor:pointer">
                         <td>' . $index++ . '</td>
                         <td>' . $inv->client_name . '</td>
                         <td>' . $inv->program_name . '</td>
@@ -261,9 +261,9 @@ class FinanceDashboardController extends Controller
                 if ($unpaidPayments->count() == 0)
                     return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="8">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
-                foreach ($unpaidPayments as $unpaidPayment) {
+                foreach ($unpaidPayments->sortBy('invoice_duedate') as $unpaidPayment) {
 
-                    $html .= '<tr' . ($unpaidPayment->invoice_duedate == date('Y-m-d') ?  ' class="table-danger"' : '') . '>
+                    $html .= '<tr' . ($unpaidPayment->invoice_duedate == date('Y-m-d') ?  ' class="table-danger detail"' : ' class="detail"') . ' data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding" style="cursor:pointer">
                             <td>' . $index++ . '</td>
                             <td>' . $unpaidPayment->full_name . '</td>
                             <td>' . $unpaidPayment->invoice_id . '</td>
@@ -281,9 +281,9 @@ class FinanceDashboardController extends Controller
                 if ($refundRequest->count() == 0)
                     return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="6">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
-                foreach ($refundRequest as $refund_req) {
+                foreach ($refundRequest->sortBy('refund_date') as $refund_req) {
 
-                    $html .= '<tr' . ($refund_req->refund_date == date('Y-m-d') ?  ' class="table-danger"' : '') . '>
+                    $html .= '<tr' . ($refund_req->refund_date == date('Y-m-d') ?  ' class="table-danger detail"' : ' class="detail"') . ' data-clientprog="' . $refund_req->client_prog_id . '" data-typeprog="' . $refund_req->typeprog . '" data-invid="' . $refund_req->invoice_id . '" data-type="refund-request" style="cursor:pointer">
                             <td>' . $index++ . '</td>
                             <td>' . $refund_req->client_fullname . '</td>
                             <td>' . $refund_req->receipt_id . '</td>

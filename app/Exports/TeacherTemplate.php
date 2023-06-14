@@ -202,10 +202,10 @@ class TeacherTemplate implements WithEvents, WithTitle, WithHeadings, WithStyles
         $sheet->getStyle('C1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('E1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('J1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('K1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('L1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('M1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('N1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('K1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('L1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('M1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('N1')->getFont()->getColor()->setARGB('f0a318');
         foreach ($sheet->getColumnIterator() as $column) {
             $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
         }

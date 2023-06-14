@@ -268,10 +268,10 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
         $sheet->getStyle('H1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('I1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('K1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('L1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('M1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('N1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('O1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('L1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('M1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('N1')->getFont()->getColor()->setARGB('f0a318');
+        $sheet->getStyle('O1')->getFont()->getColor()->setARGB('f0a318');
         foreach ($sheet->getColumnIterator() as $column) {
             $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
         }
