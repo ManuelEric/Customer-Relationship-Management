@@ -121,7 +121,7 @@ class ImportEmployee extends Command
     {
         DB::beginTransaction();
         try {
-            
+
             $employees = $this->employeeRepository->getAllEmployees();
             $progressBar = $this->output->createProgressBar($employees->count());
             $progressBar->start();
@@ -130,22 +130,20 @@ class ImportEmployee extends Command
                 $position = $this->createPositionIfNotExists($employee);
 
                 $selectedUser = $this->createUserIfNotExists($employee, $position);
-                
+
                 $this->attachUserRoleOrDepartmentIfNotExists($employee, $selectedUser);
-                
+
                 $this->attachUserEducationIfNotExists($employee, $selectedUser);
 
                 $progressBar->advance();
             }
-            
-        $progressBar->finish();
-        DB::commit();
 
+            $progressBar->finish();
+            DB::commit();
         } catch (Exception $e) {
-            
+
             DB::rollBack();
-            Log::warning('Import employees failed : ' . $e->getMessage(). ' | Line '. $e->getLine().' | '.$e->getTraceAsString());
-            
+            Log::warning('Import employees failed : ' . $e->getMessage() . ' | Line ' . $e->getLine() . ' | ' . $e->getTraceAsString());
         }
 
         return Command::SUCCESS;
@@ -156,8 +154,7 @@ class ImportEmployee extends Command
         # validate
         # if employee position doesn't exist in the database v2
         # then create a new one
-        if (!$position = $this->positionRepository->getPositionByName($employee->empl_department)) 
-                    {
+        if (!$position = $this->positionRepository->getPositionByName($employee->empl_department)) {
             $positionDetails = [
                 'position_name' => $employee->empl_department,
                 'created_at' => Carbon::now(),
@@ -165,7 +162,6 @@ class ImportEmployee extends Command
             ];
 
             $position = $this->positionRepository->createPosition($positionDetails);
-            
         }
 
         return $position;
@@ -204,12 +200,10 @@ class ImportEmployee extends Command
         ];
 
         # if user doesn not exists in the database v2
-        if (!$createdUser = $this->userRepository->getUserByExtendedId($employee->empl_id)) 
-        {
+        if (!$createdUser = $this->userRepository->getUserByExtendedId($employee->empl_id)) {
             # insert into tbl user
             $createdUser = $this->userRepository->createUser($userDetails);
         } else {
-
             # update position
             if ($createdUser->position_id == NULL) {
 
@@ -219,10 +213,22 @@ class ImportEmployee extends Command
 
                 # update position
                 $this->userRepository->updateUser($createdUser->id, $userDetails);
-
             }
-
         }
+        // else {
+
+        // # update position
+        // if ($createdUser->position_id == NULL) {
+
+        //     $userDetails = [
+        //         'position_id' => $position->id
+        //     ];
+
+        //     # update position
+        //     $this->userRepository->updateUser($createdUser->id, $userDetails);
+        // }
+        // }
+
 
         return $createdUser;
     }
@@ -232,8 +238,7 @@ class ImportEmployee extends Command
         $userRoleDetails = array();
 
         # if imported user doesn't have employee role
-        if (!$selectedUser->roles()->where('role_name', 'Employee')->first())
-        {
+        if (!$selectedUser->roles()->where('role_name', 'Employee')->first()) {
             $roleDetail = $this->roleRepository->getRoleByName('employee');
 
             $userRoleDetails[] = [
@@ -247,12 +252,11 @@ class ImportEmployee extends Command
         //! delete soon 
         # role is equal to department
         if ($role = $this->getRole($employee->empl_role)) {
-            
+
             # if imported user doesn't have role from v1
-            if (!$selectedUser->roles()->where('role_name', $role)->first())
-            {
+            if (!$selectedUser->roles()->where('role_name', $role)->first()) {
                 $roleDetail = $this->roleRepository->getRoleByName($role);
-                
+
                 $userRoleDetails[] = [
                     'user_id' => $selectedUser->id,
                     'role_id' => $roleDetail->id,
@@ -263,10 +267,8 @@ class ImportEmployee extends Command
 
             # put user into department
             $departmentId = $this->getDepartment($role);
-            if (!$selectedUser->user_type()->wherePivot('department_id', $departmentId)->first())
-            {   
-                if ($userTypev1 = $employee->empl_status)
-                {
+            if (!$selectedUser->user_type()->wherePivot('department_id', $departmentId)->first()) {
+                if ($userTypev1 = $employee->empl_status) {
                     $userTypev2 = $this->userTypeRepository->getUserTypeByTypeName($userTypev1);
                     $userTypev2Id = $userTypev2->id;
                     $userTypev2Name = $userTypev2->type_name;
@@ -276,59 +278,55 @@ class ImportEmployee extends Command
                     $endDate = $this->getValueWithoutSpace($employee->empl_statusenddate);
                     $statusActive = $employee->empl_isactive === 1 ? 'active' : 'inactive';
                     $status = $statusActive === 'active' ? true : false;
-    
+
                     # kalau statusnya active dan end datenya ada isinya
                     # maka ubah end datenya menjadi null
                     # asumsikan bahwa client tsb masih aktif
-    
+
                     $loop = 1;
                     if ($statusActive === 'active' && $userTypev2Name != 'Full-Time' && $endDate !== NULL) {
-                        
+
                         # create a non full-time record
                         $loop = 2;
-                        
                     }
-                    
-                    for ($typeRecord = 0; $typeRecord < $loop ; $typeRecord++) {
-    
-                        if ($loop === 2) 
-                            $status = false;
-    
+
+                    for ($typeRecord = 0; $typeRecord < $loop; $typeRecord++) {
+
+                        if ($loop === 2)
+                            $status = true;
+
                         # kalau sebelumnya bukan full time
                         # maka insert record selama probation dan tambahkan record full-time
-                        if ($typeRecord === 1 && $loop === 2) {
-    
-                            $userTypev2Id = 1; # which means full-time
-                            $hireDate = $endDate;
-                            $endDate = NULL;
-                            $status = true;
-    
-                        }
-    
+                        // if ($typeRecord === 1 && $loop === 2) {
+
+                        //     $userTypev2Id = 1; # which means full-time
+                        //     $hireDate = $endDate;
+                        //     $endDate = NULL;
+                        //     $status = true;
+
+                        // }
+
                         $typeDetail = [
                             'department_id' => $departmentId,
                             'start_date' => $hireDate,
                             'end_date' => $endDate,
                             'status' => $status
                         ];
-        
+
                         if (!$selectedUser->user_type()->wherePivot('user_type_id', $userTypev2Id)->first())
                             $selectedUser->user_type()->attach($userTypev2Id, $typeDetail);
                         else
                             $selectedUser->user_type()->updateExistingPivot($userTypev2Id, $typeDetail);
-    
                     }
                 }
             }
-            
-
         }
-    
+
         # insert into tbl user roles
         # end of process insert into user roles
         $selectedUser->roles()->attach($userRoleDetails);
     }
-    
+
     private function attachUserEducationIfNotExists($employee, $selectedUser)
     {
         # initialize new details by education 'bachelor'
@@ -337,16 +335,15 @@ class ImportEmployee extends Command
 
         $userMajorDetails = array();
 
-        if ( ($graduatedFrom != '') && ($graduatedFrom != null) )
-        {
-            
+        if (($graduatedFrom != '') && ($graduatedFrom != null)) {
+
             $graduatedFrom = $this->checkUniversityName($graduatedFrom);
-            
+
             if (!$univDetail = $this->universityRepository->getUniversityByName($graduatedFrom)) {
 
                 $last_id = University::max('univ_id');
                 $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
-                $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label+1, 3);
+                $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label + 1, 3);
 
                 $univDetails = [
                     'univ_id' => $univ_id_with_label,
@@ -358,17 +355,16 @@ class ImportEmployee extends Command
                 ];
 
                 $univDetail = $this->universityRepository->createUniversity($univDetails);
-
             }
 
             # if she/he (employee) has more than one major on table employee v1
             # then do this
-            if ( count($multiMajor = explode(' ; ', $graduatedMajor)) > 0 ) {
-                
-                for ($i = 0 ; $i < count($multiMajor) ; $i++) {
-                    
+            if (count($multiMajor = explode(' ; ', $graduatedMajor)) > 0) {
+
+                for ($i = 0; $i < count($multiMajor); $i++) {
+
                     if ($majorDetail = $this->majorRepository->getMajorByName($multiMajor[$i])) {
-                        
+
                         $userMajorDetails[] = [
                             'user_id' => $selectedUser->id,
                             'univ_id' => $univDetail->univ_id,
@@ -378,14 +374,13 @@ class ImportEmployee extends Command
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ];
-
-                    } 
+                    }
 
                     # if multiMajor[$i] doesn't exist in database
                     # then create a new one
-                    
+
                     else {
-                        
+
                         $majorDetail = [
                             'name' => $multiMajor[$i],
                             'created_at' => Carbon::now(),
@@ -403,16 +398,14 @@ class ImportEmployee extends Command
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ];
-
                     }
-
                 }
             }
 
             # if she/he has only one major on table employee v1
 
             else {
-                
+
                 if ($majorDetail = $this->majorRepository->getMajorByName($graduatedMajor)) {
 
                     $userMajorDetails[] = [
@@ -428,9 +421,9 @@ class ImportEmployee extends Command
 
                 # if multiMajor[$i] doesn't exist in database
                 # then create a new one
-                
+
                 else {
-                    
+
                     $majorDetail = [
                         'name' => $graduatedMajor,
                         'created_at' => Carbon::now(),
@@ -448,31 +441,26 @@ class ImportEmployee extends Command
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ];
-
                 }
-                
-
             }
         }
 
         # initialize new details by education 'magister'
         $graduatedMagisterFrom = ltrim($employee->empl_graduatefr_magister);
         $graduatedMagisterMajor = ltrim($employee->empl_major_magister);
-        
-        if ( ($graduatedMagisterMajor != "") || ($graduatedMagisterMajor != null) )
-        {
+
+        if (($graduatedMagisterMajor != "") || ($graduatedMagisterMajor != null)) {
             # validate university
             # if $graduatedMagisterFrom doesn't exist in database
             # then create a new one
 
             $graduatedMagisterFrom = $this->checkUniversityName($graduatedMagisterFrom);
 
-            if (!$univMagisterDetail = $this->universityRepository->getUniversityByName($graduatedMagisterFrom)) 
-            {
+            if (!$univMagisterDetail = $this->universityRepository->getUniversityByName($graduatedMagisterFrom)) {
 
                 $last_id = University::max('univ_id');
                 $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
-                $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label+1, 3);
+                $univ_id_with_label = 'UNIV-' . $this->add_digit((int)$univ_id_without_label + 1, 3);
 
                 $univDetails = [
                     'univ_id' => $univ_id_with_label,
@@ -484,15 +472,13 @@ class ImportEmployee extends Command
                 ];
 
                 $univMagisterDetail = $this->universityRepository->createUniversity($univDetails);
-        
             }
 
             # validate major magister
             # if $graduatedMagisterMajor doesn't exist in database
             # then create a new one
-            
-            if (!$majorMagisterDetail = $this->majorRepository->getMajorByName($graduatedMagisterMajor))
-            {
+
+            if (!$majorMagisterDetail = $this->majorRepository->getMajorByName($graduatedMagisterMajor)) {
                 $majorDetails = [
                     'name' => $graduatedMagisterMajor,
                     'created_at' => Carbon::now(),
@@ -500,7 +486,6 @@ class ImportEmployee extends Command
                 ];
 
                 $majorMagisterDetail = $this->majorRepository->createMajor($majorDetails);
-                
             }
 
             $userMajorDetails[] = [
@@ -512,7 +497,6 @@ class ImportEmployee extends Command
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ];
-
         }
 
         # insert into tbl_user_educations
@@ -522,7 +506,7 @@ class ImportEmployee extends Command
 
     public function checkUniversityName($univName)
     {
-        switch($univName) {
+        switch ($univName) {
 
             case "Pennsylvania University":
                 return "Pennsylvania State University";
@@ -530,7 +514,6 @@ class ImportEmployee extends Command
 
             default:
                 return $univName;
-
         }
     }
 

@@ -184,9 +184,12 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $clientProgramDetails['reason_id'] = $reasonId;
             }
         }
-        $howManySession = $clientProgramDetails['session_tutor'];
-        $academicTutorSessionDetail = $clientProgramDetails['session_tutor_detail'];
-        unset($clientProgramDetails['session_tutor_detail']);
+
+        if (array_key_exists('session_tutor', $clientProgramDetails)) {
+            $howManySession = $clientProgramDetails['session_tutor'];
+            $academicTutorSessionDetail = $clientProgramDetails['session_tutor_detail'];
+            unset($clientProgramDetails['session_tutor_detail']);
+        }
 
         $clientProgram = ClientProgram::create($clientProgramDetails);
 
@@ -232,21 +235,23 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $clientProgram->clientMentor()->attach($clientProgramDetails['tutor_id'], ['status' => $status]);
 
             $clientprog_id = $clientProgram->clientprog_id;
-            # fetch the session schedule detail
-            $i = 0;
-            while ($i < $howManySession)
-            {
-                # insert academic tutor detail
-                # insert academic tutor detail
-                $acadTutorDetail[] = new AcadTutorDetail([
-                    'date' => date('Y-m-d', strtotime($academicTutorSessionDetail['datetime'][$i])),
-                    'time' => date('H:i:s', strtotime($academicTutorSessionDetail['datetime'][$i])),
-                    'link' => $academicTutorSessionDetail['linkmeet'][$i]
-                ]);
-                $i++;
-            }
 
-            $clientProgram->acadTutorDetail()->saveMany($acadTutorDetail);
+            if (array_key_exists('session_tutor', $clientProgramDetails)) {
+                # fetch the session schedule detail
+                $i = 0;
+                while ($i < $howManySession) {
+                    # insert academic tutor detail
+                    # insert academic tutor detail
+                    $acadTutorDetail[] = new AcadTutorDetail([
+                        'date' => date('Y-m-d', strtotime($academicTutorSessionDetail['datetime'][$i])),
+                        'time' => date('H:i:s', strtotime($academicTutorSessionDetail['datetime'][$i])),
+                        'link' => $academicTutorSessionDetail['linkmeet'][$i]
+                    ]);
+                    $i++;
+                }
+
+                $clientProgram->acadTutorDetail()->saveMany($acadTutorDetail);
+            }
         }
 
         # when tutor_1 is filled which is not null
@@ -334,9 +339,8 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $additionalDetails = [
                 'tutor_id' => $clientProgramDetails['tutor_id']
             ];
-            
-            unset($clientProgramDetails['tutor_id']);
 
+            unset($clientProgramDetails['tutor_id']);
         } elseif (array_key_exists('tutor_1', $clientProgramDetails) || array_key_exists('tutor_2', $clientProgramDetails)) {
 
             $additionalDetails = [
@@ -367,7 +371,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             unset($clientProgramDetails['other_reason']);
         }
 
-        
+
         $howManySession = $clientProgramDetails['session_tutor'];
         $academicTutorSessionDetail = $clientProgramDetails['session_tutor_detail'];
         unset($clientProgramDetails['session_tutor_detail']);
@@ -417,8 +421,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $clientprog_id = $clientProgram->clientprog_id;
             # fetch the session schedule detail
             $i = 0;
-            while ($i < $howManySession)
-            {
+            while ($i < $howManySession) {
                 # insert academic tutor detail
                 $acadTutorDetail[] = new AcadTutorDetail([
                     'date' => date('Y-m-d', strtotime($academicTutorSessionDetail['datetime'][$i])),
