@@ -8,6 +8,18 @@ interface ClientRepositoryInterface
     public function getAllClientDataTables();
     public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = null);
     public function getAllClientByRole($roleName, $month = NULL); # mentee, parent, teacher
+    public function getDataTables($model);
+    public function getNewLeads($asDatatables = false, $month = NULL); # month nullable
+    public function getPotentialClients($asDatatables = false, $month = NULL); # month nullable
+    public function getExistingMentees($asDatatables = false, $month = NULL); # month nullable
+    public function getExistingNonMentees($asDatatables = false, $month = NULL); # month nullable
+    public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
+    public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
+    public function getParents($asDatatables = false, $month = null);
+
+    public function getAlumnisDataTables();
+    public function getMenteesDataTables();
+    public function getNonMenteesDataTables();
     public function getAllClientByRoleAndStatus($roleName, $statusClient);
     public function getAllChildrenWithNoParents($parentId);
     public function getClientById($clientId);
@@ -29,6 +41,7 @@ interface ClientRepositoryInterface
     public function updateClient($clientId, array $newDetails);
     public function updateActiveStatus($clientId, $newStatus);
     public function checkAllProgramStatus($clientId);
+    
     # dashboard
     public function getCountTotalClientByStatus($status, $month = null);
     public function getClientByStatus($status, $month = null);

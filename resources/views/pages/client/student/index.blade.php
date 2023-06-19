@@ -43,20 +43,20 @@
         <div class="card-body">
             <ul class="nav nav-tabs flex-nowrap mb-3">
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == 'prospective' ? 'active' : '' }}" aria-current="page"
-                        href="{{ url('client/student?st=prospective') }}">Prospective</a>
+                    <a class="nav-link {{ Request::get('st') == 'new-leads' ? 'active' : '' }}" aria-current="page"
+                        href="{{ url('client/student?st=new-leads') }}">New Leads</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ Request::get('st') == 'potential' ? 'active' : '' }}"
                         href="{{ url('client/student?st=potential') }}">Potential</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == 'current' ? 'active' : '' }}"
-                        href="{{ url('client/student?st=current') }}">Current</a>
+                    <a class="nav-link {{ Request::get('st') == 'mentee' ? 'active' : '' }}"
+                        href="{{ url('client/student?st=mentee') }}">Mentee</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == 'completed' ? 'active' : '' }}"
-                        href="{{ url('client/student?st=completed') }}">Completed</a>
+                    <a class="nav-link {{ Request::get('st') == 'non-mentee' ? 'active' : '' }}"
+                        href="{{ url('client/student?st=non-mentee') }}">Non-Mentee</a>
                 </li>
             </ul>
             <style>
@@ -279,7 +279,7 @@
                 // }
                 createdRow: function(row, data, index) {
                     // temporary condition
-                    // while change soon
+                    // will change soon
                     if (data['st_statusact'] == 0) {
                         $('td', row).addClass('text-danger');
                         $('td:nth-last-child(1) .deleteUser', row).addClass('d-none');

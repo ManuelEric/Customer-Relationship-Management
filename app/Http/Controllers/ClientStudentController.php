@@ -98,8 +98,33 @@ class ClientStudentController extends ClientController
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
-            $statusClientCode = $this->getStatusClientCode($statusClient);
-            return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
+            $asDatatables = true;
+            switch ($statusClient) {
+
+                // client/student
+                case "new-leads":
+                    $model = $this->clientRepository->getNewLeads($asDatatables);
+                    break;
+                
+                case "potential":
+                    $model = $this->clientRepository->getPotentialClients($asDatatables);
+                    break;
+
+                case "mentee":
+                    $model = $this->clientRepository->getExistingMentees($asDatatables);
+                    break;
+
+                case "non-mentee":
+                    $model = $this->clientRepository->getExistingNonMentees($asDatatables);
+                    break;
+                    
+                default:
+                    $statusClientCode = $this->getStatusClientCode($statusClient);
+                    return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
+
+            }
+            return $this->clientRepository->getDataTables($model);
+            
         }
 
         return view('pages.client.student.index');

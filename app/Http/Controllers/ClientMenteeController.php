@@ -19,8 +19,20 @@ class ClientMenteeController extends Controller
     {
         if ($request->ajax()) {
             $status = $request->get('st');
-            return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Mentee', $status);
+            $asDatatables = true;
+            $groupBy = false;
+            switch ($status) {
 
+                case "mentee":
+                    $model = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables);
+                    break;
+
+                case "non-mentee":
+                    $model = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables);
+                    break;
+                 
+            }
+            return $this->clientRepository->getDataTables($model);
         }
 
         return view('pages.client.student.index-mentee');

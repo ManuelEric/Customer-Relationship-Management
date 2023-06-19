@@ -6,7 +6,7 @@ trait FindStatusClientTrait {
     public function getStatusClientCode($statusClient)
     {
         switch ($statusClient) {
-            case "prospective":
+            case "new-leads":
                 $status = 0;
                 break;
 

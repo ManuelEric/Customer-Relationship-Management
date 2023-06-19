@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\ClientMenteeController;
 use App\Http\Controllers\ClientParentController;
 use App\Http\Controllers\ClientProgramController;
@@ -52,6 +53,7 @@ Route::prefix('student')->name('student.')->group(function () {
     });
 });
 Route::resource('mentee', ClientMenteeController::class);
+Route::resource('alumni', ClientMenteeController::class);
 
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
 Route::prefix('teacher-counselor')->name('teacher-counselor.')->group(function () {
