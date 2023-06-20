@@ -28,6 +28,7 @@ use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
+use App\Models\UserClient;
 use App\Repositories\ClientRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;

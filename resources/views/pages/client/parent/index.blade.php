@@ -151,6 +151,15 @@
                         defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
                     }
                 ],
+                createdRow: function(row, data, index) {
+                    // temporary condition
+                    // will change soon
+                    if (data['st_statusact'] == 0) {
+                        $('td', row).addClass('text-danger');
+                        $('td:nth-last-child(1) .deleteUser', row).addClass('d-none');
+                        // $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
+                    }
+                }
             });
 
             @php            

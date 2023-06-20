@@ -41,15 +41,16 @@
             <div class="col-md-3">
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between text-warning w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="prospective">
+                        data-f-date="all" data-f-client-type="new-leads">
                         <div class="d-flex">
-                            <h5 class="p-0 m-0">Prospective <br> Client</h5>
+                            {{-- <h5 class="p-0 m-0">Prospective <br> Client</h5> --}}
+                            <h5 class="p-0 m-0">New <br> Leads</h5>
                             <h3 class="p-0 client-status ms-auto">
-                                {{ $totalClientInformation['prospective']['old'] }}
-                                @if ($totalClientInformation['prospective']['new'] != 0)
+                                {{ $totalClientInformation['newLeads']['old'] }}
+                                @if ($totalClientInformation['newLeads']['new'] != 0)
                                     <sup>
                                         <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['prospective']['new'] }} New</small>
+                                            <small>{{ $totalClientInformation['newLeads']['new'] }} New</small>
                                         </span>
                                     </sup>
                                 @endif
@@ -59,7 +60,7 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class(['me-2', 'text-success'])>
                                     <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['prospective']['percentage'] }}%
+                                    {{ $totalClientInformation['newLeads']['percentage'] }}%
                                 </span>
                                 <span>Since before</span>
                             </p>
@@ -98,15 +99,15 @@
             <div class="col-md-3">
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between text-success w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="current">
+                        data-f-date="all" data-f-client-type="existing-mentees">
                         <div class="d-flex">
-                            <h5 class="p-0 m-0">Current <br> Client</h5>
+                            <h5 class="p-0 m-0">Existing <br> Mentee</h5>
                             <h3 class="p-0 client-status ms-auto">
-                                {{ $totalClientInformation['current']['old'] }}
-                                @if ($totalClientInformation['current']['new'] != 0)
+                                {{ $totalClientInformation['existingMentees']['old'] }}
+                                @if ($totalClientInformation['existingMentees']['new'] != 0)
                                     <sup>
                                         <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['current']['new'] }} New</small>
+                                            <small>{{ $totalClientInformation['existingMentees']['new'] }} New</small>
                                         </span>
                                     </sup>
                                 @endif
@@ -116,7 +117,7 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class(['me-2', 'text-success'])>
                                     <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['current']['percentage'] }}%
+                                    {{ $totalClientInformation['existingMentees']['percentage'] }}%
                                 </span>
                                 <span>Since before</span>
                             </p>
@@ -127,15 +128,15 @@
             <div class="col-md-3">
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between text-primary w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="completed">
+                        data-f-date="all" data-f-client-type="existing-non-mentees">
                         <div class="d-flex">
-                            <h5 class="p-0 m-0">Completed <br> Client</h5>
+                            <h5 class="p-0 m-0">Existing <br> Non-Mentee</h5>
                             <h3 class="p-0 client-status ms-auto">
-                                {{ $totalClientInformation['completed']['old'] }}
-                                @if ($totalClientInformation['completed']['new'] != 0)
+                                {{ $totalClientInformation['existingNonMentees']['old'] }}
+                                @if ($totalClientInformation['existingNonMentees']['new'] != 0)
                                     <sup>
                                         <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['completed']['new'] }} New</small>
+                                            <small>{{ $totalClientInformation['existingNonMentees']['new'] }} New</small>
                                         </span>
                                     </sup>
                                 @endif
@@ -145,7 +146,7 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class(['me-2', 'text-success'])>
                                     <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['completed']['percentage'] }}%
+                                    {{ $totalClientInformation['existingNonMentees']['percentage'] }}%
                                 </span>
                                 <span>Since before</span>
                             </p>
@@ -156,15 +157,15 @@
             <div class="col-md-3">
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="mentee">
+                        data-f-date="all" data-f-client-type="alumni-mentee">
                         <div class="d-flex">
-                            <h5 class="p-0 m-0">Mentee <br> Total</h5>
+                            <h5 class="p-0 m-0">Alumni <br> Mentee</h5>
                             <h3 class="p-0 ms-auto">
-                                {{ $totalClientInformation['mentee']['old'] }}
-                                @if ($totalClientInformation['mentee']['new'] != 0)
+                                {{ $totalClientInformation['alumniMentees']['old'] }}
+                                @if ($totalClientInformation['alumniMentees']['new'] != 0)
                                     <sup class="d-none">
                                         <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['mentee']['new'] }} New</small>
+                                            <small>{{ $totalClientInformation['alumniMentees']['new'] }} New</small>
                                         </span>
                                     </sup>
                                 @endif
@@ -174,7 +175,7 @@
                             <p class="mb-0 text-muted">
                                 <span @class(['invisible', 'me-2', 'text-success'])>
                                     <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['mentee']['percentage'] }}%
+                                    {{ $totalClientInformation['alumniMentees']['percentage'] }}%
                                 </span>
                                 <span class="invisible">Since before</span>
                             </p>
@@ -185,15 +186,15 @@
             <div class="col-md-3">
                 <div class="card shadow-sm">
                     <div class="card-body d-flex justify-content-between w-full d-flex flex-column cursor-pointer card-client"
-                        data-f-date="all" data-f-client-type="alumni">
+                        data-f-date="all" data-f-client-type="alumni-non-mentee">
                         <div class="d-flex">
-                            <h5 class="p-0 m-0">Alumni <br> Total</h5>
+                            <h5 class="p-0 m-0">Alumni <br> Non-Mentee</h5>
                             <h3 class="p-0 client-status ms-auto">
-                                {{ $totalClientInformation['alumni']['old'] }}
-                                @if ($totalClientInformation['alumni']['new'] != 0)
+                                {{ $totalClientInformation['alumniNonMentees']['old'] }}
+                                @if ($totalClientInformation['alumniNonMentees']['new'] != 0)
                                     <sup>
                                         <span class="badge bg-primary text-white p-1 px-2">
-                                            <small>{{ $totalClientInformation['alumni']['new'] }} New</small>
+                                            <small>{{ $totalClientInformation['alumniNonMentees']['new'] }} New</small>
                                         </span>
                                     </sup>
                                 @endif
@@ -203,7 +204,7 @@
                             <p class="mb-0 text-muted client-status-detail">
                                 <span @class(['me-2', 'text-success'])>
                                     <i @class(['bi', 'bi-arrow-up-short'])></i>
-                                    {{ $totalClientInformation['alumni']['percentage'] }}%
+                                    {{ $totalClientInformation['alumniNonMentees']['percentage'] }}%
                                 </span>
                                 <span>Since before</span>
                             </p>
@@ -488,8 +489,10 @@
 
             axios.get(url)
                 .then(function(response) {
+
                     
                     var obj = response.data;
+                    console.log(obj)
 
                     $('#list-detail-client .modal-title').html(obj.title)
                     $('#listClientTable tbody').html(obj.html_ctx)
@@ -498,11 +501,9 @@
                     $('#list-detail-client').modal('show')
 
                 }).catch(function(error) {
-
                     notification('error',
                         'There was an error while processing your request. Please try again or contact your administrator.'
                         );
-
                 })
         })
     })
@@ -544,6 +545,7 @@
         axios.get(url)
             .then(function(response) {
                 var obj = response.data.data
+                console.log(obj)
 
                 $(".client-status").each(function(index, value) {
                     var title = obj[index]['old']

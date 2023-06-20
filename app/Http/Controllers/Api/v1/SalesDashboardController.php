@@ -51,26 +51,63 @@ class SalesDashboardController extends Controller
 
 
         $type = $request->route('type');
+        $asDatatables = false;
+        $groupBy = true;
+        $title = str_replace('-', ' ', $type) . ' Client';
 
         switch ($type) {
-            case "prospective":
-                $title = $type . ' Client';
+            case "new-leads":
+                $clients = $this->clientRepository->getNewLeads($asDatatables, $month);
+                if ($month != null) {
+                    $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
+                    $clients = $clients->merge($this->clientRepository->getNewLeads($asDatatables, $last_month));
+                }
                 $clientType = 0;
                 break;
 
             case "potential":
-                $title = $type . ' Client';
+                $clients = $this->clientRepository->getPotentialClients($asDatatables, $month);
+                if ($month != null) {
+                    $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
+                    $clients = $clients->merge($this->clientRepository->getPotentialClients($asDatatables, $last_month));
+                }
                 $clientType = 1;
                 break;
 
-            case "current":
-                $title = $type . ' Client';
+            case "existing-mentees":
+                $clients = $this->clientRepository->getExistingMentees($asDatatables, $month);
+                if ($month != null) {
+                    $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
+                    $clients = $clients->merge($this->clientRepository->getExistingMentees($asDatatables, $last_month));
+                }
                 $clientType = 2;
                 break;
 
-            case "completed":
-                $title = $type . ' Client';
+            case "existing-non-mentees":
+                $clients = $this->clientRepository->getExistingNonMentees($asDatatables, $month);
+                if ($month != null) {
+                    $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
+                    $clients = $clients->merge($this->clientRepository->getExistingNonMentees($asDatatables, $last_month));
+                }
                 $clientType = 3;
+                break;
+
+            case "alumni-mentee":
+                $clients = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables, $month);
+                if ($month != null) {
+                    $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
+                    $clients = $clients->merge($this->clientRepository->getAlumniMentees($groupBy, $asDatatables, $last_month));
+                }
+                $clientType = 'alumni';
+                break;
+
+            case "alumni-non-mentee":
+                $clients = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables, $month);
+                if ($month != null) {
+                    $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
+                    $clients = $clients->merge($this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables, $last_month));
+                }
+                $clientType = 'alumni';
                 break;
 
             default:
@@ -83,16 +120,9 @@ class SalesDashboardController extends Controller
 
         # this to make sure the clients that being fetch
         # is the client filter by [prospective, potential, current, completed] 
-        if (gettype($clientType) == "integer") {
-
-            $clients = $this->clientRepository->getClientByStatus($clientType, $month);
-            if ($month != null) {
-
-                $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
-                $clients = $clients->merge($this->clientRepository->getClientByStatus($clientType, $last_month));
-            }
-        } else { # is the client filter for [mentee, alulmni, parents, teacher/counselor]
-
+        if (gettype($clientType) == "string" && $clientType != "alumni") {
+            
+            # is the client filter for [mentee, alumni, parents, teacher/counselor]
             $clients = $this->clientRepository->getAllClientByRoleAndDate($clientType, $month);
             if ($month != null) {
                 $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
@@ -104,7 +134,6 @@ class SalesDashboardController extends Controller
         $html = '';
         if ($clients->count() == 0)
             return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $title)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $title) . ' data</td></tr>']);
-
 
         # when is mentee    
         # special case because already grouped by year
@@ -170,23 +199,24 @@ class SalesDashboardController extends Controller
 
         try {
 
-            $last_month_prospective_client = $this->clientRepository->getCountTotalClientByStatus(0, $last_month);
-            $monthly_new_prospective_client = $this->clientRepository->getCountTotalClientByStatus(0, $month);
+            $asDatatables = $groupBy = false;
+            $last_month_prospective_client = $this->clientRepository->getNewLeads($asDatatables, $last_month)->count();
+            $monthly_new_prospective_client = $this->clientRepository->getNewLeads($asDatatables, $month)->count();
 
-            $last_month_potential_client = $this->clientRepository->getCountTotalClientByStatus(1, $last_month);
-            $monthly_new_potential_client = $this->clientRepository->getCountTotalClientByStatus(1, $month);
+            $last_month_potential_client = $this->clientRepository->getPotentialClients($asDatatables, $last_month)->count();
+            $monthly_new_potential_client = $this->clientRepository->getPotentialClients($asDatatables, $month)->count();
 
-            $last_month_current_client = $this->clientRepository->getCountTotalClientByStatus(2, $last_month);
-            $monthly_new_current_client = $this->clientRepository->getCountTotalClientByStatus(2, $month);
+            $last_month_current_client = $this->clientRepository->getExistingMentees($asDatatables, $last_month)->count();
+            $monthly_new_current_client = $this->clientRepository->getExistingMentees($asDatatables, $month)->count();
 
-            $last_month_completed_client = $this->clientRepository->getCountTotalClientByStatus(3, $last_month);
-            $monthly_new_completed_client = $this->clientRepository->getCountTotalClientByStatus(3, $month);
+            $last_month_completed_client = $this->clientRepository->getExistingNonMentees($asDatatables, $last_month)->count();
+            $monthly_new_completed_client = $this->clientRepository->getExistingNonMentees($asDatatables, $month)->count();
 
-            $last_month_mentee = $this->clientRepository->getAllClientByRole('mentee')->count();
-            $monthly_new_mentee = $this->clientRepository->getAllClientByRole('mentee', $month)->count();
-
-            $last_month_alumni = $this->clientRepository->getAllClientByRole('alumni', $last_month)->count();
-            $monthly_new_alumni = $this->clientRepository->getAllClientByRole('alumni', $month)->count();
+            $total_alumniMentees = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables)->count();
+            $monthly_new_alumniMentees = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables, $month)->count();
+    
+            $total_alumniNonMentees = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables)->count();
+            $monthly_new_alumniNonMentees = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables, $month)->count();
 
             $last_month_parent = $this->clientRepository->getAllClientByRole('parent', $last_month)->count();
             $monthly_new_parent = $this->clientRepository->getAllClientByRole('parent', $month)->count();
@@ -210,22 +240,23 @@ class SalesDashboardController extends Controller
                     'old' => $type == "all" ? $last_month_current_client - $monthly_new_current_client : $last_month_current_client,
                     'new' => $monthly_new_current_client,
                     'percentage' => $this->calculatePercentage($type, $last_month_current_client, $monthly_new_current_client)
-                ], # current
+                ], # existing mentee
                 [
                     'old' =>  $type == "all" ? $last_month_completed_client - $monthly_new_completed_client : $last_month_completed_client,
                     'new' => $monthly_new_completed_client,
                     'percentage' => $this->calculatePercentage($type, $last_month_completed_client, $monthly_new_completed_client)
-                ], # completed
-                // [
-                //     'old' => $type == "all" ? $last_month_mentee-$monthly_new_mentee : $last_month_mentee,
-                //     'new' => $monthly_new_mentee,
-                //     'percentage' => $this->calculatePercentage($type, $last_month_mentee, $monthly_new_mentee)
-                // ], # mentee
+                ], # existing non mentee
                 [
-                    'old' => $type == "all" ? $last_month_alumni - $monthly_new_alumni : $last_month_alumni,
-                    'new' => $monthly_new_alumni,
-                    'percentage' => $this->calculatePercentage($type, $last_month_alumni, $monthly_new_alumni)
-                ], # alumni
+                    'old' => $type == "all" ? $total_alumniMentees - $monthly_new_alumniMentees : $total_alumniMentees,
+                    'new' => $monthly_new_alumniMentees,
+                    'percentage' => $this->calculatePercentage($type, $total_alumniMentees, $monthly_new_alumniMentees)
+                ], # alumni-mentee
+                
+                [
+                    'old' => $type == "all" ? $total_alumniNonMentees-$monthly_new_alumniNonMentees : $total_alumniNonMentees,
+                    'new' => $monthly_new_alumniNonMentees,
+                    'percentage' => $this->calculatePercentage($type, $total_alumniNonMentees, $monthly_new_alumniNonMentees)
+                ], # alumni-non-mentee
                 [
                     'old' => $type == "all" ? $last_month_parent - $monthly_new_parent : $last_month_parent,
                     'new' => $monthly_new_parent,

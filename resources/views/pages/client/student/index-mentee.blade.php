@@ -14,12 +14,12 @@
         <div class="card-body">
             <ul class="nav nav-tabs flex-nowrap mb-3">
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == "active" ? "active" : null }}"
-                        href="{{ url('client/mentee?st=active') }}">Active</a>
+                    <a class="nav-link {{ Request::get('st') == "mentee" ? "active" : null }}"
+                        href="{{ url('client/alumni?st=mentee') }}">Mentee</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == "alumni" ? 'active' : null }}"
-                        href="{{ url('client/mentee?st=alumni') }}">Alumni</a>
+                    <a class="nav-link {{ Request::get('st') == "non-mentee" ? 'active' : null }}"
+                        href="{{ url('client/alumni?st=non-mentee') }}">Non Mentee</a>
                 </li>
             </ul>
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
@@ -195,11 +195,20 @@
                         className: 'text-center',
                         defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editClient"><i class="bi bi-eye"></i></button>'
                     }
-                ]
+                ],
+                createdRow: function(row, data, index) {
+                    // temporary condition
+                    // will change soon
+                    if (data['st_statusact'] == 0) {
+                        $('td', row).addClass('text-danger');
+                        $('td:nth-last-child(1) .deleteUser', row).addClass('d-none');
+                        // $('td:nth-last-child(2)', row).addClass('bg-danger rounded text-white my-2');
+                    }
+                }
             });
 
             @php            
-                $privilage = $menus['Client']->where('submenu_name', 'Mentees')->first();
+                $privilage = $menus['Client']->where('submenu_name', 'Alumnis')->first();
             @endphp
 
             @if($privilage['copy'] == 0)
