@@ -114,27 +114,27 @@
                                 <div class="col">
                                     <label for="i_program" class="mb-2">I would like to know more about</label>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="program[]"
+                                        <input class="form-check-input" type="radio" name="program" checked
                                             value="admission_mentoring">
                                         <label class="form-check-label">Admission Mentoring</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="program[]"
+                                        <input class="form-check-input" type="radio" name="program"
                                             value="university_application_essay">
                                         <label class="form-check-label">University Application Essay</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="program[]"
+                                        <input class="form-check-input" type="radio" name="program"
                                             value="academic_tutoring">
                                         <label class="form-check-label">Academic Tutoring</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="program[]"
+                                        <input class="form-check-input" type="radio" name="program"
                                             value="cv_essay_sat">
                                         <label class="form-check-label">CV, Essay, SAT</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="program[]"
+                                        <input class="form-check-input" type="radio" name="program"
                                             value="career_exploration">
                                         <label class="form-check-label">Career Exploration</label>
                                     </div>
