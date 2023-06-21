@@ -5,6 +5,7 @@ use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolDetailController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Embed\PublicRegistrationController;
+use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,7 +25,7 @@ Route::get('/', function () {
     return view('auth.login');
 })->middleware('guest');
 
-Route::get('404', function() {
+Route::get('404', function () {
     return view('auth.404');
 })->name('auth.404');
 
@@ -34,20 +35,21 @@ Route::get('login', function () {
 
 Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
 
-Route::group(['middleware' => ['auth', 'auth.department']], function() {
+Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
-    
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
 
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
 });
 
 // User 
 Route::resource('user/volunteer', VolunteerController::class);
 
 // Form 
-Route::get('form/event', function() {
-    return view('form-embed.form-event');
-});
+// Route::get('form/event', function() {
+//     return view('form-embed.form-event');
+// });
+Route::get('form/event', [ClientEventController::class, 'createFormEmbed']);
+Route::post('form/event', [ClientEventController::class, 'storeFormEmbed']);
 
 Route::get('form/registration', [PublicRegistrationController::class, 'register']);
 Route::post('form/registration', [PublicRegistrationController::class, 'store'])->name('submit.registration');

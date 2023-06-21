@@ -41,7 +41,11 @@ interface ClientRepositoryInterface
     public function updateClient($clientId, array $newDetails);
     public function updateActiveStatus($clientId, $newStatus);
     public function checkAllProgramStatus($clientId);
-    
+    public function checkExistingByPhoneNumber($phone);
+    public function checkExistingByEmail($email);
+
+
+
     # dashboard
     public function getCountTotalClientByStatus($status, $month = null);
     public function getClientByStatus($status, $month = null);

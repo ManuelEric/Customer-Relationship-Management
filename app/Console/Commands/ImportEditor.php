@@ -66,12 +66,11 @@ class ImportEditor extends Command
     {
         DB::beginTransaction();
         try {
-            
+
             $editors = $this->editorRepository->getAllEditors();
             $progressBar = $this->output->createProgressBar($editors->count());
             $progressBar->start();
-            foreach ($editors as $editor) 
-            {
+            foreach ($editors as $editor) {
 
                 $extended_id = $editor->editor_id;
 
@@ -84,15 +83,13 @@ class ImportEditor extends Command
             }
             $progressBar->finish();
             DB::commit();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::warning('Import editors failed : ' . $e->getMessage());
             echo $e->getMessage();
-
         }
-        
+
         return Command::SUCCESS;
     }
 
@@ -101,48 +98,48 @@ class ImportEditor extends Command
         $extended_id = $editor->editor_id;
         $first_name = $editor->editor_fn;
         $last_name = $editor->editor_ln;
-        $fullname = $first_name.' '.$last_name;
+        $fullname = $first_name . ' ' . $last_name;
         $email = $editor->editor_mail;
 
         # if user doesnt exist in the database
         # then create a new one
-        if (!$user = $this->userRepository->getUserByFullNameOrEmail($fullname, $email)) 
-        {
+        # initialized user detail
+        $userDetails = [
+            'nip' => null,
+            'extended_id' => $extended_id,
+            'first_name' => $editor->editor_fn,
+            'last_name' => $editor->editor_ln == '' ? null : $editor->editor_ln,
+            'address' => $editor->editor_address == '' ? null : $editor->editor_address,
+            'email' => $editor->editor_mail == '' ? null : $editor->editor_mail,
+            'phone' => $editor->editor_phone == '' || $editor->editor_phone == '-' ? null : $this->setPhoneNumber($editor->editor_phone),
+            'emergency_contact' => null,
+            'datebirth' => null,
+            'position_id' => null,
+            'password' => $editor->editor_passw == '' ? null : $editor->editor_passw,
+            'hiredate' => null,
+            'nik' => null,
+            'idcard' => null,
+            'cv' => $editor->editor_cv == '' ? null : $editor->editor_cv,
+            'bankname' => $editor->editor_bankname == '' ? null : $editor->editor_bankname,
+            'bankacc' => $editor->editor_bankacc == '' || $editor->editor_bankacc == "0" ? null : $editor->editor_bankacc,
+            'npwp' => $editor->editor_npwp == '' ? null : $editor->editor_npwp,
+            'tax' => null,
+            'active' => $editor->editor_status == 1 ? true : false,
+            'health_insurance' => null,
+            'empl_insurance' => null,
+            'export' => false,
+            'notes' => $editor->editor_notes,
+            'remember_token' => null,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ];
 
-            # initialized user detail
-            $userDetails = [
-                'nip' => null,
-                'extended_id' => $extended_id,
-                'first_name' => $editor->editor_fn,
-                'last_name' => $editor->editor_ln == '' ? null : $editor->editor_ln,
-                'address' => $editor->editor_address == '' ? null : $editor->editor_address,
-                'email' => $editor->editor_mail == '' ? null : $editor->editor_mail,
-                'phone' => $editor->editor_phone == '' || $editor->editor_phone == '-' ? null : $this->setPhoneNumber($editor->editor_phone),
-                'emergency_contact' => null,
-                'datebirth' => null,
-                'position_id' => null,
-                'password' => $editor->editor_passw == '' ? null : $editor->editor_passw,
-                'hiredate' => null,
-                'nik' => null,
-                'idcard' => null,
-                'cv' => $editor->editor_cv == '' ? null : $editor->editor_cv,
-                'bankname' => $editor->editor_bankname == '' ? null : $editor->editor_bankname,
-                'bankacc' => $editor->editor_bankacc == '' || $editor->editor_bankacc == "0" ? null : $editor->editor_bankacc,
-                'npwp' => $editor->editor_npwp == '' ? null : $editor->editor_npwp,
-                'tax' => null,
-                'active' => $editor->editor_status == 1 ? true : false,
-                'health_insurance' => null,
-                'empl_insurance' => null,
-                'export' => false,
-                'notes' => $editor->editor_notes,
-                'remember_token' => null,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ];
-
-            $user = $this->userRepository->createUser($userDetails);
+        if (!$user = $this->userRepository->getUserByFullNameOrEmail($fullname, $email)) {
+            $this->userRepository->createUser($userDetails);
         }
-
+        //  else {
+        //     $this->userRepository->updateUser($user->id, $userDetails);
+        // }
         return $user;
     }
 
@@ -154,8 +151,7 @@ class ImportEditor extends Command
 
         $userMajorDetails = array();
 
-        if ( ($graduatedFrom != '') && ($graduatedFrom != null) )
-        {
+        if (($graduatedFrom != '') && ($graduatedFrom != null)) {
             # check if university is exists in database university v2
             if (!$univDetail = $this->universityRepository->getUniversityByUnivId($graduatedFrom)) {
 
@@ -173,15 +169,14 @@ class ImportEditor extends Command
                     'univ_name' => $editor->university->univ_name,
                     'univ_address' => $editor->university->univ_address,
                     'univ_country' => $countryDetail->name,
-                ]; 
+                ];
 
                 # insert new university
                 $univDetail = $this->universityRepository->createUniversity($newUnivDetails);
-
             }
 
-            
-                
+
+
             # if she/he has only one major on table employee v1
             if ($majorDetail = $this->majorRepository->getMajorByName($graduatedMajor)) {
 
@@ -198,9 +193,9 @@ class ImportEditor extends Command
 
             # if editor major doesn't exist in database
             # then create a new one
-            
+
             else {
-                
+
                 $majorDetail = [
                     'name' => $graduatedMajor,
                     'created_at' => Carbon::now(),
@@ -218,7 +213,6 @@ class ImportEditor extends Command
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ];
-
             }
 
             # insert into tbl_user_educations
@@ -243,7 +237,7 @@ class ImportEditor extends Command
                     # then add it 
 
                     $roleDetail = $this->roleRepository->getRoleByName("associate editor");
-    
+
                     $userRoleDetails[] = [
                         'user_id' => $user->id,
                         'role_id' => $roleDetail->id,
@@ -266,7 +260,7 @@ class ImportEditor extends Command
                     # then add it 
 
                     $roleDetail = $this->roleRepository->getRoleByName("senior editor");
-    
+
                     $userRoleDetails[] = [
                         'user_id' => $user->id,
                         'role_id' => $roleDetail->id,
@@ -288,7 +282,7 @@ class ImportEditor extends Command
                     # then add it 
 
                     $roleDetail = $this->roleRepository->getRoleByName("managing editor");
-    
+
                     $userRoleDetails[] = [
                         'user_id' => $user->id,
                         'role_id' => $roleDetail->id,
@@ -299,10 +293,8 @@ class ImportEditor extends Command
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ];
-
                 }
                 break;
-
         }
 
         $user->roles()->attach($userRoleDetails);

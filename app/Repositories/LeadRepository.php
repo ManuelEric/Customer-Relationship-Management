@@ -69,4 +69,10 @@ class LeadRepository implements LeadRepositoryInterface
     {
         return V1Lead::where('lead_id', '!=', '')->orderBy('lead_id', 'asc')->select(['lead_id', 'lead_name as main_lead'])->get();
     }
+
+    public function getLeadForFormEmbedEvent()
+    {
+        // Get all lead without All-in Partners and All-in Event
+        return Lead::where('lead_id', '!=', 'LS003')->where('lead_id', '!=', 'LS010')->get();
+    }
 }
