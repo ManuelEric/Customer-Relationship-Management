@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolDetailController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Embed\PublicRegistrationController;
 use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +49,5 @@ Route::get('form/event', function() {
     return view('form-embed.form-event');
 });
 
-Route::get('form/registration', function() {
-    return view('form-embed.form-website');
-});
+Route::get('form/registration', [PublicRegistrationController::class, 'register']);
+Route::post('form/registration', [PublicRegistrationController::class, 'store'])->name('submit.registration');

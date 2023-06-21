@@ -189,7 +189,7 @@
                         data-f-date="all" data-f-client-type="alumni-non-mentee">
                         <div class="d-flex">
                             <h5 class="p-0 m-0">Alumni <br> Non-Mentee</h5>
-                            <h3 class="p-0 client-status ms-auto">
+                            <h3 class="p-0 ms-auto">
                                 {{ $totalClientInformation['alumniNonMentees']['old'] }}
                                 @if ($totalClientInformation['alumniNonMentees']['new'] != 0)
                                     <sup>
@@ -201,12 +201,12 @@
                             </h3>
                         </div>
                         <div class="mt-3 border-top pt-3">
-                            <p class="mb-0 text-muted client-status-detail">
-                                <span @class(['me-2', 'text-success'])>
+                            <p class="mb-0 text-muted">
+                                <span @class(['invisible', 'me-2', 'text-success'])>
                                     <i @class(['bi', 'bi-arrow-up-short'])></i>
                                     {{ $totalClientInformation['alumniNonMentees']['percentage'] }}%
                                 </span>
-                                <span>Since before</span>
+                                <span class="invisible">Since before</span>
                             </p>
                         </div>
                     </div>
@@ -486,6 +486,7 @@
             let f_type = $(this).data('f-client-type')
 
             let url = window.location.origin + '/api/get/client/' + f_date + '/type/' + f_type;
+            console.log(url)
 
             axios.get(url)
                 .then(function(response) {
@@ -493,7 +494,6 @@
                     
                     var obj = response.data;
                     console.log(obj)
-
                     $('#list-detail-client .modal-title').html(obj.title)
                     $('#listClientTable tbody').html(obj.html_ctx)
                     swal.close()
@@ -541,11 +541,12 @@
         // month = moment(today).format('YYYY-MM')
 
         var url = window.location.origin + '/api/get/client-status/' + month
+        $(".card-client").data('f-date', month);
 
         axios.get(url)
             .then(function(response) {
+                console.log(response)
                 var obj = response.data.data
-                console.log(obj)
 
                 $(".client-status").each(function(index, value) {
                     var title = obj[index]['old']

@@ -197,15 +197,18 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('role_name', 'student');
             });
 
-        return $asDatatables === false ? $query->where('st_statusact', 1)->get() : $query->orderBy('st_statusact', 'desc');
+        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getPotentialClients($asDatatables = false, $month = null)
     {
         # new client that have been offered our program but hasnt deal yet
-        $query = Client::whereDoesntHave('clientProgram', function ($subQuery) {
-                $subQuery->where('status', 1); 
-            })-> # menaing "yg tidak punya client program dengan status 1"
+        $query = Client::whereHas('clientProgram', function ($subQuery) {
+                $subQuery->whereIn('status', [0,2,3]); # because refund and cancel still marked as potential client
+            })->
+            whereDoesntHave('clientProgram', function ($subQuery) {
+                $subQuery->where('status', 1);
+            })-> # tidak punya client program dengan status 1 : success
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
             })->
@@ -213,7 +216,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('role_name', 'student');
             });
 
-        return $asDatatables === false ? $query->where('st_statusact', 1)->get() : $query->orderBy('st_statusact', 'desc');
+        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getExistingMentees($asDatatables = false, $month = null)
@@ -234,19 +237,28 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('role_name', 'student');
             });
 
-        return $asDatatables === false ? $query->where('st_statusact', 1)->get() : $query->orderBy('st_statusact', 'desc');
+        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getExistingNonMentees($asDatatables = false, $month = null)
     {
         # has join our program but its not admissions mentoring
-        $query = Client::whereHas('clientProgram', function ($subQuery) {
+        $query = Client::
+            whereDoesntHave('clientProgram', function ($subQuery) {
                 $subQuery->whereHas('program', function ($subQuery_2) {
                         $subQuery_2->whereHas('main_prog', function($subQuery_3) {
-                            $subQuery_3->where('prog_name', '!=', 'Admissions Mentoring');
+                            $subQuery_3->where('prog_name', 'Admissions Mentoring');
                         });
                     })->
-                    where('status', 1); # 1 success
+                    where('status', 1); # meaning 1 is he/she has been offered admissions mentoring before 
+            })->
+            whereHas('clientProgram', function($subQuery) {
+                $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                        $subQuery_2->where('prog_name', '!=', 'Admissions Mentoring');
+                    })->
+                    where(function ($subQuery_2) {
+                        $subQuery_2->where('status', 1)->where('prog_running_status', '!=', 2);
+                    });
             })->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
@@ -255,7 +267,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('role_name', 'student');
             });
 
-        return $asDatatables === false ? $query->where('st_statusact', 1)->get() : $query->orderBy('st_statusact', 'desc');
+        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null)
@@ -266,6 +278,13 @@ class ClientRepository implements ClientRepositoryInterface
                     where('status', 1)->
                     where('prog_running_status', 2);
             })->
+            whereDoesntHave('clientProgram', function ($subQuery) {
+                $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                        $subQuery_2->where('prog_name', 'Admissions Mentoring');
+                    })->
+                    where('status', 1)->
+                    where('prog_running_status', '!=', 2);
+            })->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
             })->
@@ -274,18 +293,24 @@ class ClientRepository implements ClientRepositoryInterface
             });
 
         return $asDatatables === false ? 
-            ($groupBy === true ? $query->where('st_statusact', 1)->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('created_at', 'desc')->get()->groupBy('year') : $query->where('st_statusact', 1)->get()) 
-            : $query->orderBy('st_statusact', 'desc');
+            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('first_name', 'asc')->get()->groupBy('year') : $query->get()) 
+            : $query->orderBy('first_name', 'asc');
     }
 
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null)
     {
         # has finish our program and hasnt joined admission program
-        $query = Client::whereDoesntHave('clientProgram.program.main_prog', function ($subQuery) {
-                $subQuery->where('prog_name', 'Admissions Mentoring');
+        $query = Client::whereDoesntHave('clientProgram', function ($subQuery) {
+                $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                        $subQuery_2->where('prog_name', 'Admissions Mentoring');
+                    })->
+                    where('status', 1);
             })->
             whereHas('clientProgram', function ($subQuery) {
                 $subQuery->where('status', 1)->where('prog_running_status', 2);
+            })->
+            whereDoesntHave('clientProgram', function ($subQuery) {
+                $subQuery->where('status', 1)->whereIn('prog_running_status', [0,1]);
             })->
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
@@ -295,8 +320,8 @@ class ClientRepository implements ClientRepositoryInterface
             });
 
         return $asDatatables === false ? 
-            ($groupBy === true ? $query->where('st_statusact', 1)->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('created_at', 'desc')->get()->groupBy('year') : $query->where('st_statusact', 1)->get())  
-            : $query->orderBy('st_statusact', 'desc');
+            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('first_name', 'asc')->get()->groupBy('year') : $query->get())  
+            : $query->orderBy('first_name', 'asc');
     }
 
     public function getParents($asDatatables = false, $month = null)
@@ -308,7 +333,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
             });
 
-        return $asDatatables === false ? $query->where('st_statusact', 1)->get() : $query->orderBy('st_statusact', 'desc');
+        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
     }
     /* ~ END*/
 
