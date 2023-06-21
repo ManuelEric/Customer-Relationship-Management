@@ -18,4 +18,5 @@ interface LeadRepositoryInterface
 
     # 
     public function getAllLeadFromV1();
+    public function getLeadForFormEmbedEvent();
 }

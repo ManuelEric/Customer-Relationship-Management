@@ -179,11 +179,11 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                     }
 
                     $studentId = null;
-                    if ($row['audience'] == 'Student') {
-                        $last_id = UserClient::max('st_id');
-                        $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                        $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
-                    }
+                    // if ($row['audience'] == 'Student') {
+                    //     $last_id = UserClient::max('st_id');
+                    //     $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                    //     $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+                    // }
 
                     $st_grade = 12 - ($row['class_of'] - date('Y'));
 
