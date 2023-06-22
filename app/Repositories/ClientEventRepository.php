@@ -19,6 +19,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_event.lead_id')
                 ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
                 ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
+                ->leftJoin('tbl_corp as ceduf', 'ceduf.corp_id', '=', 'tbl_eduf_lead.corp_id')
+                ->leftJoin('tbl_sch as seduf', 'seduf.sch_id', '=', 'tbl_eduf_lead.sch_id')
                 ->select(
                     'tbl_client_event.clientevent_id',
                     // 'tbl_client_event.event_id',
@@ -31,7 +33,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     'tbl_client.created_at as client_created_at',
                     DB::raw('(CASE
                     WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
-                    WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT(tbl_eduf_lead.title)
+                    WHEN tbl_lead.main_lead = "External Edufair" THEN (CASE WHEN tbl_eduf_lead.title != null THEN CONCAT(tbl_eduf_lead.title) ELSE (CASE WHEN tbl_eduf_lead.sch_id IS NULL THEN ceduf.corp_name ELSE seduf.sch_name END)END)
                     WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
                     ELSE tbl_lead.main_lead
                 END) AS conversion_lead'),

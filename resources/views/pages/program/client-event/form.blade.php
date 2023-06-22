@@ -326,7 +326,7 @@
                                         @foreach ($leads as $lead)
                                             <option data-lead="{{ $lead->main_lead }}" value="{{ $lead->lead_id }}"
                                                     {{ old('lead_id') == $lead->lead_id ? "selected" : null }}
-                                                >{{ $lead->main_lead }}</option>
+                                                >{{ $lead->main_lead == 'KOL' ? $lead->sub_lead : $lead->main_lead }}</option>
                                         @endforeach
                                         <option data-lead="KOL" value="kol" {{ old('lead_id') == "kol" ? "selected" : null }}>KOL</option>
                                     @endif

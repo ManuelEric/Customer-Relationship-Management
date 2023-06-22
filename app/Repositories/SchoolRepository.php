@@ -249,7 +249,7 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getUncompeteSchools()
     {
-        return School::whereNull('sch_type')->orWhereNull('sch_score')->get();
+        return School::whereNull('sch_type')->get();
     }
     # CRM
     public function getAllSchoolFromV1()
