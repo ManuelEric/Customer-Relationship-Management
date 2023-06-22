@@ -135,7 +135,7 @@ class ClientEventController extends Controller
                 'st_grade',
                 'lead_id',
                 'eduf_id',
-                'partner_id',
+                // 'partner_id',
                 'kol_lead_id',
                 'event_id',
                 'graduation_year',
