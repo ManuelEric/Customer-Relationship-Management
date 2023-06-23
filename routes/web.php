@@ -45,9 +45,9 @@ Route::resource('user/volunteer', VolunteerController::class);
 
 // Form 
 Route::get('form/event', function() {
-    return view('form-embed.form-event');
+    return view('form-embed.form-events');
 });
 
 Route::get('form/registration', function() {
-    return view('form-embed.form-website');
+    return view('form-embed.form-general');
 });
