@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientEventRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Requests\StoreClientEventEmbedRequest;
+use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
@@ -32,6 +33,7 @@ use Illuminate\Support\Facades\Session;
 
 class ClientEventController extends Controller
 {
+    use CheckExistingClient;
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
     protected CurriculumRepositoryInterface $curriculumRepository;
@@ -589,45 +591,5 @@ class ClientEventController extends Controller
         $this->clientEventRepository->createClientEvent($clientEvent);
 
         return 'success';
-    }
-
-    private function checkExistingClient($phone, $email)
-    {
-        $existClient = [];
-
-        // Check existing client by phone number and email
-        $clientExistPhone = $this->clientRepository->checkExistingByPhoneNumber($phone);
-        $clientExistEmail = $this->clientRepository->checkExistingByEmail($email);
-
-        if ($clientExistPhone && $clientExistEmail) {
-            $existClient['isExist'] = true;
-            $existClient['id'] = $clientExistPhone['id'];
-        } else if ($clientExistPhone && !$clientExistEmail) {
-            $existClient['isExist'] = true;
-            $existClient['id'] = $clientExistPhone['id'];
-
-            // Add email to client addtional info
-            $additionalInfo = [
-                'client_id' => $clientExistPhone['id'],
-                'category' => 'mail',
-                'value' => $email,
-            ];
-            UserClientAdditionalInfo::create($additionalInfo);
-        } else if (!$clientExistPhone && $clientExistEmail) {
-            $existClient['isExist'] = true;
-            $existClient['id'] = $clientExistEmail['id'];
-
-            // Add email to client addtional info
-            $additionalInfo = [
-                'client_id' => $clientExistEmail['id'],
-                'category' => 'phone',
-                'value' => $phone,
-            ];
-            UserClientAdditionalInfo::create($additionalInfo);
-        } else {
-            $existClient['isExist'] = false;
-        }
-
-        return $existClient;
     }
 }

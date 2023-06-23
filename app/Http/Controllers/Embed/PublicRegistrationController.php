@@ -37,35 +37,51 @@ class PublicRegistrationController extends Controller
     {
         $parent_or_children = $request->parent_or_children;
 
-        switch ($parent_or_children) {
-
-            case "parent":
-                $first_name = $request->parent_name;
-                $last_name = null;
+        # checking if client was a parent
+        if ($parent_or_children == "parent")
+            $newParent = $this->storeParentIfNotExists($request);
         
-                $explode = explode(" ", $request->parent_name);
-                if (count($explode) > 1 ) {
-                    $first_name = $explode[0];
-                    $last_name = $explode(max($explode));
-                } 
-        
-                $parentDetail = [
-                    'first_name' => $first_name,
-                    'last_name' => $last_name,
-                    'mail' => $request->parent_email,
-                    'phone' => $request->parent_phone,
-                ];
-
-                # check if parent with mail & phone exists
-
-                # store parents
-                $parent = $this->clientRepository->createClient('Parent', $parentDetail);
-
-                break;
-
-        }
+        # checking if client was a child
+        $newChild = $this->storeChildrenIfNotExists($request);
         
 
+        # create relation between parent & student
+        if ($newParent && $newChild) 
+            $this->clientRepository->createClientRelation($newParent['id'], $newChild['id']);
+
+    }
+
+    private function storeParentIfNotExists(Request $request) 
+    {
+        $first_name = $request->parent_name;
+        $last_name = null; # set null as default because the embedded registration form only shows full names which there's no first_name and last_name
+
+        # to retrieve first_name and last_name
+        # check parent_name if there are multiple words
+        $explode = explode(" ", $request->parent_name);
+        if (count($explode) > 1 ) {
+            $first_name = $explode[0];
+            $last_name = $explode(max($explode));
+        } 
+
+        # initialize parent details
+        $parentDetail = [
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'mail' => $request->parent_email,
+            'phone' => $request->parent_phone,
+        ];
+    
+        # check if parent mail & phone exists
+        if ($existingParent = $this->checkExistingClient($parentDetail['phone'], $parentDetail['mail'])) 
+            return $existingParent['id'];
+
+        # when not exist then store it
+        return $existingParent['id'] = $this->clientRepository->createClient('Parent', $parentDetail)->id;
+    }
+
+    private function storeChildrenIfNotExists(Request $request)
+    {
         $explode = explode(" ", $request->child_name);
         if (count($explode) > 1 ) {
             $first_name = $explode[0];
@@ -102,14 +118,12 @@ class PublicRegistrationController extends Controller
             $studentDetail['school'] = $school->sch_id;
         }
 
-        # store student
-        $student = $this->clientRepository->createClient('Student', $studentDetail);
+        # check if student mail & phone exists
+        if ($existingChild = $this->checkExistingClient($studentDetail['phone'], $studentDetail['mail'])) 
+            return $existingChild['id'];
 
-        # create relation between parent & student
-        if (isset($parent)) 
-            $this->clientRepository->createClientRelation($parent->id, $student->id);
+        # when not exist then store it
+        return $existingChild['id'] = $this->clientRepository->createClient('Student', $studentDetail)->id;
         
-
-
     }
 }

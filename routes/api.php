@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\v1\ExtClientController;
 use App\Http\Controllers\Api\v1\SalesDashboardController;
 use App\Http\Controllers\Api\v1\PartnerDashboardController;
 use App\Http\Controllers\Api\v1\FinanceDashboardController;
@@ -110,3 +111,8 @@ Route::get('teacher/{teacher}/events', [ClientTeacherCounselorController::class,
 
 # invoice program menu
 Route::get('current/rate/{base_currency}/{to_currency}', [CurrencyRateController::class, 'getCurrencyRate']);
+
+# external API
+Route::prefix('v1')->group(function () {
+    Route::get('get/mentees', [ExtClientController::class, 'getClientFromAdmissionMentoring']);
+});
