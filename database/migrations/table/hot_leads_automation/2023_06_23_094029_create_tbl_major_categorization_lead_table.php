@@ -13,8 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tbl_school_categorization', function (Blueprint $table) {
+        Schema::create('tbl_major_categorization_lead', function (Blueprint $table) {
             $table->id();
+            $table->string('value');
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tbl_school_categorization');
+        Schema::dropIfExists('tbl_major_categorization_lead');
     }
 };
