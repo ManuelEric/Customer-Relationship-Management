@@ -10,7 +10,7 @@
 @section('content')
 
     {{-- Alert  --}}
-    <div class="row row-cols-md-4 row-cols-1 g-2">
+    {{-- <div class="row row-cols-md-4 row-cols-1 g-2">
         @for ($i = 0; $i < 4; $i++)
             <div class="col">
                 <div class="alert bg-danger text-white d-flex align-items-center py-2 border-alert" role="alert">
@@ -21,7 +21,7 @@
                 </div>
             </div>
         @endfor
-    </div>
+    </div> --}}
 
     {{-- Sales --}}
     @if ($isSales || $isAdmin)
