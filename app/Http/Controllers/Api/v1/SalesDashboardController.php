@@ -157,6 +157,10 @@ class SalesDashboardController extends Controller
             foreach ($clients as $client) {
 
                 $client_register_date = date('Y-m', strtotime($client->created_at));
+
+                if ($month == null)
+                    $month = date('Y-m-d');
+
                 $now = date('Y-m', strtotime($month));
                 $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
 

@@ -15,7 +15,7 @@ return new class extends Migration
     public function up()
     {
         DB::statement('
-        CREATE OR REPLACE VIEW ClientProgram AS
+        CREATE OR REPLACE VIEW clientprogram AS
         SELECT cp.*, 
             c.st_grade,
             r.reason_name as reason,

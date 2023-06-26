@@ -486,7 +486,6 @@
             let f_type = $(this).data('f-client-type')
 
             let url = window.location.origin + '/api/get/client/' + f_date + '/type/' + f_type;
-            console.log(url)
 
             axios.get(url)
                 .then(function(response) {

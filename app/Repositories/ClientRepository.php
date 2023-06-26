@@ -198,7 +198,7 @@ class ClientRepository implements ClientRepositoryInterface
             $subQuery->where('role_name', 'student');
         });
 
-        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getPotentialClients($asDatatables = false, $month = null)
