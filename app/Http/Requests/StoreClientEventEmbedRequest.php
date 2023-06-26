@@ -45,12 +45,13 @@ class StoreClientEventEmbedRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required_if:user_type,Parent|nullable',
-            'child_name' => 'required_with:name,email,phone|nullable',
-            'email' => 'required_if:user_type,Parent|nullable|email',
-            'phone' => 'required_if:user_type,Parent|nullable|min:10|max:15',
-            'email_child' => 'required_with:name,email,phone|email',
-            'phone_child' => 'required_with:name,email,phone|min:10|max:15',
+            'role' => 'required|in:parent,student',
+            'name' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required|min:10|max:15',
+            'child_name' => 'required_if:role,parent|nullable',
+            'child_email' => 'required_if:role,parent|nullable|email',
+            'child_phone' => 'required_if:role,parent|nullable|min:10|max:15',
             'school' => 'required',
             'other_school' => 'sometimes|required_if:school,add-new|unique:tbl_sch,sch_name',
             'grade' => 'required',
