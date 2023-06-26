@@ -59,7 +59,7 @@ class VendorController extends Controller
         $vendorDetails['vendor_phone'] = $this->setPhoneNumber($request->vendor_phone);
 
         $last_id = Vendor::max('vendor_id');
-        $vendor_id_without_label = $this->remove_primarykey_label($last_id, 3);
+        $vendor_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 3) : 000;
         $vendor_id_with_label = 'VD-' . $this->add_digit($vendor_id_without_label + 1, 4);
 
         DB::beginTransaction();

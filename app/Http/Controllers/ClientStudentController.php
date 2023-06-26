@@ -101,11 +101,11 @@ class ClientStudentController extends ClientController
             $asDatatables = true;
             switch ($statusClient) {
 
-                // client/student
+                    // client/student
                 case "new-leads":
                     $model = $this->clientRepository->getNewLeads($asDatatables);
                     break;
-                
+
                 case "potential":
                     $model = $this->clientRepository->getPotentialClients($asDatatables);
                     break;
@@ -117,14 +117,12 @@ class ClientStudentController extends ClientController
                 case "non-mentee":
                     $model = $this->clientRepository->getExistingNonMentees($asDatatables);
                     break;
-                    
+
                 default:
                     $statusClientCode = $this->getStatusClientCode($statusClient);
                     return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
-
             }
             return $this->clientRepository->getDataTables($model);
-            
         }
 
         return view('pages.client.student.index');
@@ -156,9 +154,11 @@ class ClientStudentController extends ClientController
 
             # case 2
             # create new user client as parents
-            if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
-                throw new Exception('Failed to store new parent', 2);
-            
+            if (!$data['parentDetails']) {
+                if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
+                    throw new Exception('Failed to store new parent', 2);
+            }
+
 
             # case 3
             # create new user client as student
@@ -172,10 +172,12 @@ class ClientStudentController extends ClientController
             # if they didn't insert parents which parentId = NULL
             # then assumed that register for student only
             # so no need to create parent children relation
-            if ($parentId !== NULL) {
+            if (!$data['parentDetails']) {
+                if ($parentId !== NULL) {
 
-                if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
-                    throw new Exception('Failed to store relation between student and parent', 4);
+                    if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
+                        throw new Exception('Failed to store relation between student and parent', 4);
+                }
             }
 
             # case 5
@@ -207,7 +209,6 @@ class ClientStudentController extends ClientController
                 throw new Exception('Failed to store interest major', 7);
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -246,7 +247,7 @@ class ClientStudentController extends ClientController
             return Redirect::to('client/student/create')->withError($e->getMessage());
         }
 
-        return Redirect::to('client/student?st=prospective')->withSuccess('A new student has been registered.');
+        return Redirect::to('client/student?st=new-leads')->withSuccess('A new student has been registered.');
     }
 
     public function create(Request $request)
@@ -335,6 +336,7 @@ class ClientStudentController extends ClientController
     {
         $data = $this->initializeVariablesForStoreAndUpdate('student', $request);
 
+        $studentId = $request->route('student');
         DB::beginTransaction();
         try {
 
@@ -357,7 +359,6 @@ class ClientStudentController extends ClientController
 
             # case 3
             # create new user client as student
-            $studentId = $request->route('student');
             if (!$this->clientRepository->updateClient($studentId, $data['studentDetails']))
                 throw new Exception('Failed to update student information', 3);
 
