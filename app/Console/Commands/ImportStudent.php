@@ -263,21 +263,21 @@ class ImportStudent extends Command
         if (!$selectedStudent = $this->clientRepository->getStudentByStudentName($studentName)) {
 
             # check the st id 
-            // if ($this->clientRepository->getStudentByStudentId($studentId) || $studentId == NULL)
-            // {
-            //     # initialize
-            //     $last_id = Student::max('st_id');
-            //     $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-            //     $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+            if ($this->clientRepository->getStudentByStudentId($studentId))
+            {
+                # initialize
+                $last_id = Student::max('st_id');
+                $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
 
-            //     if ($this->clientRepository->getStudentByStudentId($studentId))
-            //     {
-            //         # initialize
-            //         $last_id = UserClient::max('st_id');
-            //         $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-            //         $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
-            //     }
-            // }
+                if ($this->clientRepository->getStudentByStudentId($studentId))
+                {
+                    # initialize
+                    $last_id = UserClient::max('st_id');
+                    $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                    $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+                }
+            }
 
             $sec_phone_info = $sec_mail_info = null;
             $student_phone = $phone1 = $this->getValueWithoutSpace($student->st_phone);
@@ -452,7 +452,7 @@ class ImportStudent extends Command
                 'st_abryear' => $student->st_abryear,
                 'st_statusact' => $student->st_statusact == NULL ? 0 : $student->st_statusact,
                 'st_statuscli' => $student->st_statuscli,
-                'st_password' => $student->st_password,
+                // 'st_password' => $this->setPassword($student->st_password),
                 'created_at' => $student->st_datecreate,
                 'updated_at' => $student->st_datelastedit,
             ];
@@ -750,5 +750,10 @@ class ImportStudent extends Command
     private function getValueWithoutSpace($value)
     {
         return $value == "" || $value == "-" || $value == "0000-00-00" || $value == 'N/A' ? NULL : $value;
+    }
+
+    private function setPassword($value)
+    {
+        return $value == "" || $value == null ? NULL : $value;
     }
 }
