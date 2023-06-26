@@ -653,7 +653,7 @@
     function getMenteesBirthday(month) {
         var today = new Date()
 
-        if (!month)
+        if (!month || month == 'all')
             month = moment(today).format('YYYY-MM')
 
         var url = window.location.origin + '/api/get/mentee-birthday/' + month
