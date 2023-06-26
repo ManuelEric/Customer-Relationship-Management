@@ -57,7 +57,7 @@
                 @include('pages.program.school-program.detail.speaker')
             @endif
 
-            @if (isset($schoolProgram))
+            @if (isset($schoolProgram) && isset($edit) && $edit != true)
             <div class="pt-2">
                 <label class="px-2 w-100 mb-2 border-bottom">
                     <h4>Collaborators</h4>

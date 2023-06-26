@@ -16,6 +16,7 @@ interface ClientEventRepositoryInterface
     public function createClientEvent(array $clientEvents);
     public function updateClientEvent($clientEventId, array $clientEvents);
     public function getAllClientEvents();
+
     // public function getAllClientEvents($eventId);
     // public function getAllClientEventsGroupByRoles($eventId);
 }

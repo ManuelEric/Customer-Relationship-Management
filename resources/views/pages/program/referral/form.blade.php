@@ -67,10 +67,10 @@
                                     {{ $disabled }}>
                                     <option data-placeholder="true"></option>
                                     <option value="In"
-                                        {{ isset($referral->referral_type) && $referral->referral_type == 'In' ? 'selected' : null }}>
+                                        {{ isset($referral->referral_type) && $referral->referral_type == 'In' || old('referral_type') == 'In' ? 'selected' : null }}>
                                         Referral In</option>
                                     <option value="Out"
-                                        {{ isset($referral->referral_type) && $referral->referral_type == 'Out' ? 'selected' : null }}>
+                                        {{ isset($referral->referral_type) && $referral->referral_type == 'Out' || old('referral_type') == 'Out' ? 'selected' : null }}>
                                         Referral Out</option>
                                 </select>
                                 <div id="typeHelpBlock" class="form-text">
@@ -86,7 +86,7 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($partners as $partner)
                                         <option value="{{ $partner->corp_id }}"
-                                            {{ isset($referral->partner_id) && $referral->partner_id == $partner->corp_id ? 'selected' : null }}>
+                                            {{ isset($referral->partner_id) && $referral->partner_id == $partner->corp_id || old('partner_id') == $partner->corp_id ? 'selected' : null }}>
                                             {{ $partner->corp_name }}</option>
                                     @endforeach
                                 </select>
@@ -101,7 +101,7 @@
                                         <option data-placeholder="true"></option>
                                         @foreach ($programs as $program)
                                             <option value="{{ $program->prog_id }}"
-                                                {{ isset($referral->prog_id) && $referral->prog_id == $program->prog_id ? 'selected' : null }}>
+                                                {{ isset($referral->prog_id) && $referral->prog_id == $program->prog_id || old('prog_id') == $program->prog_id ? 'selected' : null }}>
                                                 {{ $program->program_name }}
                                             </option>
                                         @endforeach
@@ -113,7 +113,7 @@
                                 </div>
                                 <div id="inputProgram" class="d-none">
                                     <input type="text" name="additional_prog_name"
-                                        value="{{ isset($referral->additional_prog_name) ? $referral->additional_prog_name : null }}"
+                                        value="{{ isset($referral->additional_prog_name) ? $referral->additional_prog_name : old('additional_prog_name') }}"
                                         class="form-control form-control-sm rounded" {{ $disabled }}>
                                 </div>
                                 @error('additional_prog_name')
@@ -123,7 +123,7 @@
                             <div class="col-md-6 mb-2">
                                 <label>Referral Date <sup class="text-danger">*</sup></label>
                                 <input type="date" name="ref_date"
-                                    value="{{ isset($referral->ref_date) ? $referral->ref_date : null }}"
+                                    value="{{ isset($referral->ref_date) ? $referral->ref_date : old('ref_date') }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
                                 @error('ref_date')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -132,7 +132,7 @@
                             <div class="col-md-6 mb-2">
                                 <label>Participant <sup class="text-danger">*</sup></label>
                                 <input type="number" name="number_of_student"
-                                    value="{{ isset($referral->number_of_student) ? $referral->number_of_student : null }}"
+                                    value="{{ isset($referral->number_of_student) ? $referral->number_of_student : old('number_of_student') }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
                                 @error('number_of_student')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -154,7 +154,7 @@
                                             value=
                                                 "{{ isset($referral) ?
                                                         ($referral->currency == "IDR" ? $referral->revenue : $referral->revenue_other)
-                                                    : null
+                                                    : old('revenue')
                                                 }}"
                                             class="form-control form-control-sm rounded" {{ $disabled }}
                                             oninput="checkReferralOther()">
@@ -167,7 +167,7 @@
                             <div class="col-md-6 mb-2 referral-other d-none">
                                 <label>Current Rate to IDR <sup class="text-danger">*</sup></label>
                                     <input type="text" name="curs_rate" id="curs_rate"
-                                        value="{{ isset($referral->curs_rate) ? $referral->curs_rate : null }}"
+                                        value="{{ isset($referral->curs_rate) ? $referral->curs_rate : old('curs_rate') }}"
                                         class="form-control form-control-sm rounded" {{ $disabled }}>
 
                                     @error('curs_rate')
@@ -179,7 +179,7 @@
                                 <input type="number" name="revenue_idr" id="revenue_idr"
                                     value="{{ 
                                             isset($referral) ?
-                                                (isset($referral->revenue) && $referral->currency != "IDR" ? $referral->revenue : null) 
+                                                (isset($referral->revenue) && $referral->currency != "IDR" ? $referral->revenue : old('revenue_idr')) 
                                             : null
                                         }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
@@ -190,7 +190,7 @@
                             <div class="col-md-12 mb-2">
                                 <label>Notes</label>
                                 <textarea name="notes" {{ $disabled }}>
-                                    {{ isset($referral->notes) ? $referral->notes : null }}
+                                    {{ isset($referral->notes) ? $referral->notes : old('notes') }}
                                 </textarea>
                                 @error('notes')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -202,7 +202,7 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($employees as $employee)
                                         <option value="{{ $employee->id }}"
-                                            {{ isset($referral->empl_id) && $referral->empl_id == $employee->id ? 'selected' : null }}>
+                                            {{ isset($referral->empl_id) && $referral->empl_id == $employee->id || old('empl_id') == $employee->id ? 'selected' : null }}>
                                             {{ $employee->first_name . ' ' . $employee->last_name }}</option>
                                     @endforeach
                                 </select>
@@ -317,6 +317,14 @@
         <script>
             $(document).ready(function() {
                 $('#currency').val("{{ old('currency') }}").trigger('change')
+            })
+        </script>
+    @endif
+
+    @if (!empty(old('referral_type')))
+        <script>
+            $(document).ready(function() {
+                $('#type').val("{{ old('referral_type') }}").trigger('change')
             })
         </script>
     @endif

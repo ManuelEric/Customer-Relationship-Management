@@ -12,6 +12,11 @@ class Client extends Model
 
     protected $table = 'client';
 
+    public function scopeWithAndWhereHas($query, $relation, $constraint){
+        return $query->whereHas($relation, $constraint)
+                     ->with([$relation => $constraint]);
+    }
+
     # attributes
     protected function updatedAt(): Attribute
     {

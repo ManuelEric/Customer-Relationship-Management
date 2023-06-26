@@ -88,38 +88,34 @@ class ImportStudent extends Command
             $crm_students = $this->clientRepository->getStudentFromV1();
             $progressBar = $this->output->createProgressBar($crm_students->count());
             $progressBar->start();
-            foreach ($crm_students as $student) 
-            {
+            foreach ($crm_students as $student) {
 
                 $school = $this->createSchoolIfNotExists($student);
-                    
+
                 $lead = $this->createLeadIfNotExists($student);
-                
+
                 $edufId = $this->createExternalEdufairIfNotExists($student); # already returned id, that's why the name is edufId
-                
+
                 $studentNumPrimaryKey = $this->createStudentIfNotExists($student, $school, $lead, $edufId);
-                
+
                 $this->attachInterestedProgramIfNotExists($student, $studentNumPrimaryKey);
-                
+
                 $this->createParentsIfNotExists($student, $studentNumPrimaryKey);
 
                 $this->createAbroadCountryIfNotExists($student, $studentNumPrimaryKey);
-                
+
                 $this->attachDreamUniversities($student, $studentNumPrimaryKey);
 
                 $this->attachDreamMajors($student, $studentNumPrimaryKey);
                 $progressBar->advance();
-
             }
             $progressBar->finish();
             DB::commit();
             Log::info('Import Student works fine');
-            
         } catch (Exception $e) {
-            
-            DB::rollBack();
-            Log::warning('Failed to import student : '. $e->getMessage() .' | Line : '. $e->getLine());
 
+            DB::rollBack();
+            Log::warning('Failed to import student : ' . $e->getMessage() . ' | Line : ' . $e->getLine());
         }
 
         return Command::SUCCESS;
@@ -129,8 +125,7 @@ class ImportStudent extends Command
     {
         $studentHasSchool = $school = $student->school;
         # check if school id is exists on database v2
-        if ($studentHasSchool)
-        {
+        if ($studentHasSchool) {
             $schoolName = $studentHasSchool->sch_name;
             if (!$school = $this->schoolRepository->getSchoolByName(strtolower($schoolName))) {
 
@@ -151,7 +146,6 @@ class ImportStudent extends Command
                 ];
 
                 $school = $this->schoolRepository->createSchool($schoolDetails);
-
             }
         }
         return $school;
@@ -165,7 +159,7 @@ class ImportStudent extends Command
         # check if lead id is exists on database v2
         if ($studentHasLead) {
             if (!$lead = $this->leadRepository->getLeadByName(strtolower($leadName))) {
-                
+
                 # initialize
                 $last_id = Lead::max('lead_id');
                 $lead_id_without_label = $this->remove_primarykey_label($last_id, 2);
@@ -262,39 +256,36 @@ class ImportStudent extends Command
         # check student data
         // $studentNumPrimaryKey = $student->st_num;
         $studentId = $student->st_id;
-        $studentName = $student->st_firstname.' '.$student->st_lastname;
-        
+        $studentName = $student->st_firstname . ' ' . $student->st_lastname;
+
         # if the student does not exist in database v2
         # check using name because there are some students that doesn't have st_id
-        if (!$selectedStudent = $this->clientRepository->getStudentByStudentName($studentName))
-        {
-            
-            # check the st id 
-            if ($this->clientRepository->getStudentByStudentId($studentId) || $studentId == NULL)
-            {
-                # initialize
-                $last_id = Student::max('st_id');
-                $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+        if (!$selectedStudent = $this->clientRepository->getStudentByStudentName($studentName)) {
 
-                if ($this->clientRepository->getStudentByStudentId($studentId))
-                {
-                    # initialize
-                    $last_id = UserClient::max('st_id');
-                    $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                    $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
-                }
-            }
+            # check the st id 
+            // if ($this->clientRepository->getStudentByStudentId($studentId) || $studentId == NULL)
+            // {
+            //     # initialize
+            //     $last_id = Student::max('st_id');
+            //     $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+            //     $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+
+            //     if ($this->clientRepository->getStudentByStudentId($studentId))
+            //     {
+            //         # initialize
+            //         $last_id = UserClient::max('st_id');
+            //         $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+            //         $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+            //     }
+            // }
 
             $sec_phone_info = $sec_mail_info = null;
             $student_phone = $phone1 = $this->getValueWithoutSpace($student->st_phone);
-            if ($student_phone != NULL) 
-            {
+            if ($student_phone != NULL) {
                 # check the phone number
                 # if it's more than one phone number 
                 # then split into 2 variables
-                if (stripos($student_phone, ','))
-                {
+                if (stripos($student_phone, ',')) {
                     $exp_phone = explode(',', $student_phone);
                     $combination1 = $phone1 = trim($exp_phone[0]);
                     $combination2 = $phone2 = trim($exp_phone[1]);
@@ -306,7 +297,6 @@ class ImportStudent extends Command
                     if (preg_match('#(?<=\d) (?=[a-z]|\()#i', $combination2) && $combination2 != NULL && $combination2 != '') {
                         [$phone2, $phone2_desc] = preg_split('#(?<=\d) (?=[a-z]|\()#i', $combination2);
                     }
-                    
                 } elseif (stripos($student_phone, ';')) {
 
                     $exp_phone = explode(';', $student_phone);
@@ -320,7 +310,6 @@ class ImportStudent extends Command
                     if (preg_match('#(?<=\d) (?=[a-z]|\()#i', $combination2) && $combination2 != NULL && $combination2 != '') {
                         [$phone2, $phone2_desc] = preg_split('#(?<=\d) (?=[a-z]|\()#i', $combination2);
                     }
-                    
                 } else {
                     if (preg_match('#(?<=\d) (?=[a-z]|\()#i', $student_phone)) {
                         if (count(preg_split('#(?<=\d) (?=[a-z]|\()#i', $student_phone)) > 2) {
@@ -331,69 +320,66 @@ class ImportStudent extends Command
                         }
                     }
                 }
-                
+
                 # remove , from phone number
                 $phone1 = str_replace(',', '', $phone1);
 
                 # remove - from phone number
                 $phone1 = str_replace('-', '', $phone1);
-                
+
                 # remove space from phone number
                 $phone1 = str_replace(' ', '', $phone1);
-    
+
                 # add the normalization indonesian number +62
                 switch (substr($phone1, 0, 1)) {
-                    
-                    # check if the first character is 0
+
+                        # check if the first character is 0
                     case 0:
-                        $phone1 = "+62".substr($phone1, 1);
+                        $phone1 = "+62" . substr($phone1, 1);
                         break;
 
-                    # check if the first character is 6 like 62
-                    case 6: 
-                        $phone1 = "+".$phone1;
+                        # check if the first character is 6 like 62
+                    case 6:
+                        $phone1 = "+" . $phone1;
                         break;
 
                     case "+":
                         $phone1 = $phone1;
                         break;
-                        
-                    default:
-                        $phone1 = "+62".$phone1;
 
+                    default:
+                        $phone1 = "+62" . $phone1;
                 }
-            
-                if (isset($phone2) && $phone2 != "" && $phone2 != NULL)
-                {
+
+                if (isset($phone2) && $phone2 != "" && $phone2 != NULL) {
                     # remove , from phone number
                     $phone2 = str_replace(',', '', $phone2);
-                
+
                     # remove - from phone number
                     $phone2 = str_replace('-', '', $phone2);
-                    
+
                     # remove space from phone number
                     $phone2 = str_replace(' ', '', $phone2);
-    
+
                     # check if the first character is 0
                     switch (substr($phone2, 0, 1)) {
-                    
-                        # check if the first character is 0
+
+                            # check if the first character is 0
                         case 0:
-                            $phone2 = "+62".substr($phone2, 1);
+                            $phone2 = "+62" . substr($phone2, 1);
                             break;
-    
-                        # check if the first character is 6 like 62
-                        case 6: 
-                            $phone2 = "+".$phone2;
+
+                            # check if the first character is 6 like 62
+                        case 6:
+                            $phone2 = "+" . $phone2;
                             break;
 
                         case "+":
                             $phone2 = $phone2;
                             break;
-                            
+
                         default:
-                            $phone2 = "+62".$phone2;
-    
+                            $phone2 = "+62" . $phone2;
                     }
 
                     $sec_phone_info = [
@@ -408,11 +394,9 @@ class ImportStudent extends Command
 
             # check the email
             # if he/she has more than one email address
-            if ($mail1 = $this->getValueWithoutSpace($student->st_mail))
-            {
+            if ($mail1 = $this->getValueWithoutSpace($student->st_mail)) {
                 $student_mail = $mail1;
-                if (stripos($student_mail, ','))
-                {
+                if (stripos($student_mail, ',')) {
                     $exp_mail = explode(',', $student_mail);
                     $mail1 = trim($exp_mail[0]);
                     $mail2 = trim($exp_mail[1]);
@@ -426,9 +410,7 @@ class ImportStudent extends Command
                             'updated_at' => Carbon::now()
                         ];
                     }
-                } 
-                else if (stripos($student_mail, ';'))
-                {
+                } else if (stripos($student_mail, ';')) {
                     $exp_mail = explode(';', $student_mail);
                     $mail1 = trim($exp_mail[0]);
                     $mail2 = trim($exp_mail[1]);
@@ -443,11 +425,9 @@ class ImportStudent extends Command
                         ];
                     }
                 }
-                
             }
 
-            if (isset($phone1_desc))
-            {
+            if (isset($phone1_desc)) {
                 $phone1_desc = preg_match('#([a-z])#i', $phone1_desc) ? $phone1_desc : NULL;
             }
 
@@ -476,11 +456,10 @@ class ImportStudent extends Command
                 'created_at' => $student->st_datecreate,
                 'updated_at' => $student->st_datelastedit,
             ];
-            
+
             $selectedStudent = $this->clientRepository->createClient('Student', $studentDetails);
 
-            if ($sec_mail_info || $sec_phone_info)
-            {
+            if ($sec_mail_info || $sec_phone_info) {
                 $additionalInfo = [];
                 if ($sec_mail_info) {
                     $sec_mail_info['client_id'] = $selectedStudent->id;
@@ -496,25 +475,22 @@ class ImportStudent extends Command
                 # into student additional info
                 $this->clientRepository->createClientAdditionalInfo($additionalInfo);
             }
-        }  
+        }
         // $this->info('Child Name : '.$selectedStudent->first_name.' '.$selectedStudent->last_name.'\n');
         return $selectedStudent->id;
-        
     }
 
     private function attachInterestedProgramIfNotExists($student, $studentNumPrimaryKey)
     {
         # check student interested program
         $studentHasInterestedProgram = $student->interestedProgram;
-        if ($studentHasInterestedProgram != NULL)
-        {
+        if ($studentHasInterestedProgram != NULL) {
             $interestedProgramId = $studentHasInterestedProgram->prog_id;
             # check if program does not exists in database v2
-            if (!$program = $this->programRepository->getProgramById($interestedProgramId))
-            {
+            if (!$program = $this->programRepository->getProgramById($interestedProgramId)) {
                 # special case
                 # because career exploration has changed to experiential learning
-                
+
                 $mainProgName = $studentHasInterestedProgram->prog_main;
                 if ($mainProgName == 'Career Exploration')
                     $mainProgName = 'Experiential Learning';
@@ -522,17 +498,16 @@ class ImportStudent extends Command
                 $main_prog = $this->mainProgRepository->getMainProgByName($mainProgName);
                 // $this->info('nama sub prog : '.$studentHasInterestedProgram->prog_sub);
 
-                if ($studentHasInterestedProgram->prog_sub != NULL || empty($studentHasInterestedProgram))
-                {
+                if ($studentHasInterestedProgram->prog_sub != NULL || empty($studentHasInterestedProgram)) {
                     $sub_prog = $this->subProgRepository->getSubProgBySubProgName($studentHasInterestedProgram->prog_sub);
                     // $this->info('sub program yg keinsert : '.json_encode($sub_prog));
                     $sub_prog_id = $sub_prog->id;
                 }
-    
+
                 $programDetails = [
                     'prog_id' => $studentHasInterestedProgram->prog_id,
                     'main_prog_id' => $main_prog->id, //!
-                    'sub_prog_id'=> $sub_prog_id ??= null, //!
+                    'sub_prog_id' => $sub_prog_id ??= null, //!
                     'prog_main' => $studentHasInterestedProgram->prog_main,
                     'main_number' => $studentHasInterestedProgram->main_number,
                     'prog_sub' => $studentHasInterestedProgram->prog_sub,
@@ -541,27 +516,26 @@ class ImportStudent extends Command
                     'prog_mentor' => $studentHasInterestedProgram->prog_mentor,
                     'prog_payment' => $studentHasInterestedProgram->prog_payment,
                 ];
-    
+
                 $program = $this->programRepository->createProgram($programDetails);
             }
-    
+
             $interestProgramDetails = [];
-            if ($getAllInterestedProgramAlreadySavedOnV2 = $this->clientRepository->getInterestedProgram($studentNumPrimaryKey))
-            {
+            if ($getAllInterestedProgramAlreadySavedOnV2 = $this->clientRepository->getInterestedProgram($studentNumPrimaryKey)) {
                 foreach ($getAllInterestedProgramAlreadySavedOnV2 as $interestedProgram) {
-        
+
                     # saved interested program from v2
                     $interestProgramDetails[] = [
                         'prog_id' => $interestedProgram->prog_id,
                     ];
                 }
             }
-    
+
             # add interested program from v1 to interest program v2
             $interestProgramDetails[] = [
                 'prog_id' => $program->prog_id,
             ];
-    
+
             # store interest program
             $this->clientRepository->createInterestProgram($studentNumPrimaryKey, $interestProgramDetails);
         }
@@ -570,29 +544,25 @@ class ImportStudent extends Command
     private function createParentsIfNotExists($student, $studentNumPrimaryKey)
     {
         # check parents data
-        if ($studentHasParent = $student->parent)
-        {
-            $parentName = $studentHasParent->pr_firstname.' '.$studentHasParent->pr_lastname;
+        if ($studentHasParent = $student->parent) {
+            $parentName = $studentHasParent->pr_firstname . ' ' . $studentHasParent->pr_lastname;
 
             # if the parent does not exist in database v2
-            if (!$parent = $this->clientRepository->getParentByParentName($parentName))
-            {
+            if (!$parent = $this->clientRepository->getParentByParentName($parentName)) {
                 $parents_phone = $this->getValueWithoutSpace($studentHasParent->pr_phone);
-                if ($parents_phone != NULL)
-                {
+                if ($parents_phone != NULL) {
                     $parents_phone = str_replace('-', '', $parents_phone);
                     $parents_phone = str_replace(' ', '', $parents_phone);
 
                     switch (substr($parents_phone, 0, 1)) {
 
                         case 0:
-                            $parents_phone = "+62".substr($parents_phone, 1);
+                            $parents_phone = "+62" . substr($parents_phone, 1);
                             break;
 
                         case 6:
-                            $parents_phone = "+".$parents_phone;
+                            $parents_phone = "+" . $parents_phone;
                             break;
-
                     }
                 }
 
@@ -609,10 +579,9 @@ class ImportStudent extends Command
                     'created_at' => $student->st_datecreate,
                     'updated_at' => $student->st_datelastedit
                 ];
-                
+
                 $parent = $this->clientRepository->createClient('Parent', $parentDetails);
-                
-            } 
+            }
 
             # create relation between student & parent
             if ($parentNumPrimaryKey = $parent->id)
@@ -623,23 +592,21 @@ class ImportStudent extends Command
     private function createAbroadCountryIfNotExists($student, $studentNumPrimaryKey)
     {
         $destinationCountryDetails = []; # default
-        if ($studentHasInterestedCountry = $student->st_abrcountry)
-        {
+        if ($studentHasInterestedCountry = $student->st_abrcountry) {
             $arrayStudentInterestedCountry = array_unique(array_map('trim', explode(",", $studentHasInterestedCountry)));
             foreach ($arrayStudentInterestedCountry as $key => $value) {
-    
+
                 $countryName = trim($value);
-                if ($countryTranslations = $this->countryRepository->getCountryNameByUnivCountry($countryName))
-                {
+                if ($countryTranslations = $this->countryRepository->getCountryNameByUnivCountry($countryName)) {
 
                     $regionId = $countryTranslations->has_country->lc_region_id;
                     $region = $this->countryRepository->getRegionByRegionId($regionId);
                     $iso_alpha_2 = $countryTranslations->has_country->iso_alpha_2; # US 
                     $regionName = $region->name;
-                    
-        
+
+
                     switch ($countryName) {
-            
+
                         case preg_match('/australia/i', $countryName) == 1:
                             $regionName = "Australia";
                             break;
@@ -647,28 +614,25 @@ class ImportStudent extends Command
                         case preg_match("/United State|State|US/i", $countryName) == 1:
                             $regionName = "US";
                             break;
-        
+
                         case preg_match('/United Kingdom|Kingdom|UK/i', $countryName) == 1:
                             $regionName = "UK";
                             break;
-        
+
                         case preg_match('/canada/i', $countryName) == 1:
                             $regionName = "Canada";
                             break;
 
-                        default: 
+                        default:
                             $regionName = "Other";
-        
                     }
-        
+
                     $tag = $this->tagRepository->getTagByName($regionName);
-        
+
                     $destinationCountryDetails[] = [
                         'tag_id' => $tag->id,
                         'country_name' => $countryName,
                     ];
-                    
-                    
                 }
             }
             // $this->info('Ini milik : '.$studentNumPrimaryKey.' dengan nama '.$student->st_firstname);
@@ -677,26 +641,24 @@ class ImportStudent extends Command
             if (isset($destinationCountryDetails))
                 $this->clientRepository->createDestinationCountry($studentNumPrimaryKey, $destinationCountryDetails);
         }
-        
     }
 
     private function attachDreamUniversities($student, $studentNumPrimaryKey)
     {
         $studentHasAbroadUniv = $student->st_abruniv;
-        if ($studentHasAbroadUniv)
-        {
+        if ($studentHasAbroadUniv) {
 
             $arrayStudentAbroadUniv = explode(',', $studentHasAbroadUniv);
             foreach ($arrayStudentAbroadUniv as $key => $value) {
-                
+
                 $univId = $value;
                 $crm_university = $this->universityRepository->getUniversityFromCRMByUnivId($univId);
-                
+
                 $crm_universityName = $crm_university->univ_name;
-    
+
                 # check if uni exists or not
                 if (!$university = $this->universityRepository->getUniversityByName($crm_universityName)) {
-    
+
                     # initialize
                     $last_id = University::max('univ_id');
                     $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
@@ -709,16 +671,16 @@ class ImportStudent extends Command
 
                     $tag = null;
                     if ($countryTranslations = $this->countryRepository->getCountryNameByUnivCountry($crm_university->univ_country)) {
-    
+
                         $countryName = strtolower($countryTranslations->name);
-                            
+
                         $regionId = $countryTranslations->has_country->lc_region_id;
                         $region = $this->countryRepository->getRegionByRegionId($regionId);
                         $iso_alpha_2 = $countryTranslations->has_country->iso_alpha_2; # US 
                         $regionName = $region->name;
-                        
+
                         switch ($countryName) {
-            
+
                             case preg_match('/australia/i', $countryName) == 1:
                                 $regionName = "Australia";
                                 break;
@@ -726,23 +688,22 @@ class ImportStudent extends Command
                             case preg_match("/United State|State|US/i", $countryName) == 1:
                                 $regionName = "US";
                                 break;
-            
+
                             case preg_match('/United Kingdom|Kingdom|UK/i', $countryName) == 1:
                                 $regionName = "UK";
                                 break;
-            
+
                             case preg_match('/canada/i', $countryName) == 1:
                                 $regionName = "Canada";
                                 break;
-    
-                            default: 
+
+                            default:
                                 $regionName = "Other";
-            
                         }
-    
+
                         $tag = $this->tagRepository->getTagByName($regionName);
                     }
-    
+
                     # if not exists, create a new university
                     $universityDetails = [
                         'univ_id' => $new_universityId,
@@ -751,12 +712,11 @@ class ImportStudent extends Command
                         'univ_country' => $crm_university->univ_country,
                         'tag' => isset($tag) ? $tag->id : 7, # 7 means Tag : Other
                     ];
-    
+
                     $university = $this->universityRepository->createUniversity($universityDetails);
                 }
-    
+
                 $interestedUnivDetails[] = $university->univ_id;
-    
             }
             $this->clientRepository->createInterestUniversities($studentNumPrimaryKey, $interestedUnivDetails);
         }
@@ -765,8 +725,7 @@ class ImportStudent extends Command
     private function attachDreamMajors($student, $studentNumPrimaryKey)
     {
         # when student has st_abrmajor
-        if ($studentHasDreamMajors = $student->st_abrmajor)
-        {
+        if ($studentHasDreamMajors = $student->st_abrmajor) {
             $arrayStudentDreamMajors = explode(',', $studentHasDreamMajors);
             foreach ($arrayStudentDreamMajors as $key => $value) {
 
@@ -779,9 +738,8 @@ class ImportStudent extends Command
 
                     # create new major
                     $major = $this->majorRepository->createMajor($majorDetails);
-
                 }
-                
+
                 $dreamsMajor[] = $major->id;
             }
 

@@ -56,15 +56,17 @@
                 @include('pages.program.corporate-program.detail.speaker')
             @endif
 
-            <div class="pt-2">
-                <label class="px-2 w-100 mb-2 border-bottom">
-                    <h4>Collaborators</h4>
-                </label>
-    
-                @include('pages.program.corporate-program.detail.school')
-                @include('pages.program.corporate-program.detail.univ')
-                @include('pages.program.corporate-program.detail.partner')
-            </div>
+            @if(isset($partnerProgram) && isset($edit) && $edit != true)
+                <div class="pt-2">
+                    <label class="px-2 w-100 mb-2 border-bottom">
+                        <h4>Collaborators</h4>
+                    </label>
+
+                    @include('pages.program.corporate-program.detail.school')
+                    @include('pages.program.corporate-program.detail.univ')
+                    @include('pages.program.corporate-program.detail.partner')
+                </div>
+            @endif
         </div>
 
         <div class="col-md-8">
