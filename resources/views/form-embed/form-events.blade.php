@@ -42,9 +42,18 @@
 </head>
 
 <body>
+    @if($errors->any())
+     <div class="alert alert-danger">
+          <ul class="list-unstyled">
+                 @foreach ($errors->all() as $error)
+                       <li>{{ $error }}</li>
+                 @endforeach
+          </ul>
+      </div>
+ @endif
     <div class="min-h-screen flex items-center bg-gray-200">
         <div class="max-w-screen-lg w-full mx-auto p-4">
-            <form action="" method="POST">
+            <form action="{{ url('form/event') }}" method="POST">
                 @csrf
                 <section id="role" class="page">
                     <div
@@ -105,7 +114,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Full Name
                             </label>
-                            <input type="text"
+                            <input type="text" name="name"
                                 class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
@@ -113,7 +122,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Email
                             </label>
-                            <input type="text"
+                            <input type="email" name="email"
                                 class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
@@ -121,7 +130,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                 Phone Number
                             </label>
-                            <input type="text"
+                            <input type="text" name="phone"
                                 class="w-full md:w-[126vh] text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                 id="phoneUser1">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
@@ -162,7 +171,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Full Name
                             </label>
-                            <input type="text"
+                            <input type="text" name="child_name"
                                 class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
@@ -170,15 +179,15 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Email
                             </label>
-                            <input type="text"
+                            <input type="text" name="child_email"
                                 class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
-                            <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
                         <div class="mb-4">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                 Phone Number
                             </label>
-                            <input type="text"
+                            <input type="text" name="child_phone"
                                 class="w-full md:w-[126vh] text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                 id="phoneUser2">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
@@ -216,24 +225,24 @@
                         <hr class="my-5">
 
                         <div class="mb-4">
-                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
-                                School
-                            </label>
-                            <select name="" id="schoolList"
-                                class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
-                                placeholder="Pick one school">
-                                <option value=""></option>
-                                @for ($i = 0; $i < 5; $i++)
-                                    <option value="{{ $i }}">{{ $i }}</option>
-                                @endfor
-                            </select>
+                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                                    School
+                                </label>
+                                <select name="school" id="schoolList"
+                                    class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
+                                    placeholder="Pick one school" onChange="addSchool();">
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($schools as $school)
+                                        <option value="{{ $school->sch_id }}"  {{ old('school') == $school->sch_id ? "selected" : null }}>{{ $school->sch_name }}</option>
+                                    @endforeach
+                                </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
                         <div class="mb-4">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Expected Graduation Year
                             </label>
-                            <select name="" id="grade"
+                            <select name="grade" id="grade"
                                 class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
                                 placeholder="Pick one school">
                                 <option value=""></option>
@@ -248,13 +257,13 @@
                                 I know this event from
                             </label>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
-                            <select name="" id="leadSource"
+                            <select name="leadsource" id="leadSource"
                                 class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
                                 placeholder="Pick one item">
-                                <option value=""></option>
-                                @for ($i = 1; $i < 6; $i++)
-                                    <option value="{{ $i }}">Lead - {{ $i }}</option>
-                                @endfor
+                                <option data-placeholder="true"></option>
+                                @foreach ($leads as $lead)
+                                    <option value="{{ $lead->lead_id }}" {{old('leadsource') == $lead->lead_id ? 'selected' : null}}>{{ $lead->main_lead == 'KOL' ? $lead->sub_lead : $lead->main_lead }}</option>
+                                @endforeach                           
                             </select>
                         </div>
 
@@ -361,6 +370,8 @@
             }
         }
     }
+
+    
 </script>
 
 </html>
