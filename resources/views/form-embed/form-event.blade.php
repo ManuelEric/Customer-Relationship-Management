@@ -26,7 +26,7 @@
                         <form action="{{ url('form/event') }}" method="POST">
                             @csrf
                             <input type="hidden" name="event" value="">
-                            <input type="hidden" name="user_type" value="Student">
+                            <input type="hidden" name="user_type" value="Parent">
                             <div class="row row-cols-lg-2 row-cols-1 align-items-start g-3 mb-3">
                                 <div class="col">
                                     <label for="i_name">Name</label>

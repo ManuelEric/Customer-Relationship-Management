@@ -53,11 +53,10 @@ class ImportSchool extends Command
             $schoolIdV2 = $this->schoolRepository->getSchoolById($school->sch_id);
             $schoolNameV2 = $this->schoolRepository->getschoolByName($school->sch_name);
 
-            if (!$schoolIdV2 && !$schoolNameV2 && $school->sch_id != null && $school->sch_name != null && $school->sch_name != '' && $school->sch_name != ' ' && $school->sch_name != '-') {
+            if (!$schoolIdV2 && !$schoolNameV2 && $school->sch_id != null && $school->sch_name != null && $school->sch_name != '' && $school->sch_name != ' ' && $school->sch_name != '-' && $school->sch_name != 'other' && $school->sch_name != 'ALL-IN' && $school->sch_name != 'ALL-in Eduspace') {
 
                 $schoolPhoneV1 = $this->getValueWithoutSpace($school->sch_phone);
-                if ($schoolPhoneV1 != NULL)
-                {
+                if ($schoolPhoneV1 != NULL) {
                     $schoolPhoneV1 = str_replace('-', '', $schoolPhoneV1);
                     $schoolPhoneV1 = str_replace(' ', '', $schoolPhoneV1);
                     $schoolPhoneV1 = str_replace(array('(', ')'), '', $schoolPhoneV1);
@@ -65,13 +64,12 @@ class ImportSchool extends Command
                     switch (substr($schoolPhoneV1, 0, 1)) {
 
                         case 0:
-                            $schoolPhoneV1 = "+62".substr($schoolPhoneV1, 1);
+                            $schoolPhoneV1 = "+62" . substr($schoolPhoneV1, 1);
                             break;
 
                         case 6:
-                            $schoolPhoneV1 = "+".$schoolPhoneV1;
+                            $schoolPhoneV1 = "+" . $schoolPhoneV1;
                             break;
-
                     }
                 }
 
@@ -92,7 +90,7 @@ class ImportSchool extends Command
                     'sch_city' => $school->sch_city == '' || $school->sch_city == '-' ? null : $school->sch_city,
                     'sch_location' => $school->sch_location == '' || $school->sch_location == '-' ? null : $school->sch_location,
                     'sch_score' => $score,
-                    'created_at' => $this->getValueWithoutSpace($school->sch_lastupdate) ?? Carbon::now(), 
+                    'created_at' => $this->getValueWithoutSpace($school->sch_lastupdate) ?? Carbon::now(),
                     'updated_at' => Carbon::now(),
                 ];
             }

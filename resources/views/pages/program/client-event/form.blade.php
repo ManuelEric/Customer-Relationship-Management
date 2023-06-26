@@ -326,9 +326,9 @@
                                         @foreach ($leads as $lead)
                                             <option data-lead="{{ $lead->main_lead }}" value="{{ $lead->lead_id }}"
                                                     {{ old('lead_id') == $lead->lead_id ? "selected" : null }}
-                                                >{{ $lead->main_lead }}</option>
+                                                >{{ $lead->main_lead == 'KOL' ? $lead->sub_lead : $lead->main_lead }}</option>
                                         @endforeach
-                                        <option data-lead="KOL" value="kol" {{ old('lead_id') == "kol" ? "selected" : null }}>KOL</option>
+                                        {{-- <option data-lead="KOL" value="kol" {{ old('lead_id') == "kol" ? "selected" : null }}>KOL</option> --}}
                                     @endif
                                 </select>
                                 @error('lead_id')
@@ -361,7 +361,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-6 mb-2 kol d-none">
+                            {{-- <div class="col-md-6 mb-2 kol d-none">
                                 <label>KOL Name <sup class="text-danger">*</sup></label>
                                 <select name="kol_lead_id" class="select w-100" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
@@ -380,7 +380,7 @@
                                 @error('kol_lead_id')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
-                            </div>
+                            </div> --}}
                             <div class="col-md-6 mb-2 partner d-none">
                                 <label>Partner Name <sup class="text-danger">*</sup></label>
                                 <select name="partner_id" id="partner_id" class="select w-100" {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>

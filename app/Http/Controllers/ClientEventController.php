@@ -137,7 +137,7 @@ class ClientEventController extends Controller
                 'st_grade',
                 'lead_id',
                 'eduf_id',
-                'partner_id',
+                // 'partner_id',
                 'kol_lead_id',
                 'event_id',
                 'graduation_year',
@@ -178,18 +178,18 @@ class ClientEventController extends Controller
             $clientEvents['partner_id'] = null;
             $clientEvents['lead_id'] = $request->kol_lead_id;
 
-            # LS015 = partner
-        } else if ($request->lead_id == 'LS015') {
+            # LS010 = partner
+        } else if ($request->lead_id == 'LS010') {
             $clientEvents['eduf_id'] = null;
         }
-        # LS018 = external edufair
-        else if ($request->lead_id != 'LS018' && $request->lead_id != 'kol') {
+        # LS017 = external edufair
+        else if ($request->lead_id != 'LS017' && $request->lead_id != 'kol') {
 
             $clientEvents['eduf_id'] = null;
             $clientEvents['partner_id'] = null;
         }
-        # LS018 = external edufair
-        else if ($request->lead_id != "kol" && $request->lead_id == 'LS018') {
+        # LS017 = external edufair
+        else if ($request->lead_id != "kol" && $request->lead_id == 'LS017') {
 
             $clientEvents['partner_id'] = null;
         }
@@ -370,19 +370,19 @@ class ClientEventController extends Controller
         # otherwise
         # when lead_id is not kol 
         # then lead_id is lead_id
-        if ($request->lead_id == "kol") {
+        if ($request->lead_id == "kol") { # lead = kol
 
             unset($clientEvent['lead_id']);
             $clientEvent['eduf_id'] = null;
             $clientEvent['partner_id'] = null;
             $clientEvent['lead_id'] = $request->kol_lead_id;
-        } else if ($request->lead_id == 'LS015') {
+        } else if ($request->lead_id == 'LS010') { # lead = All-In Partners
             $clientEvents['eduf_id'] = null;
-        } else if ($request->lead_id != 'LS018' && $request->lead_id != 'kol') {
+        } else if ($request->lead_id != 'LS017' && $request->lead_id != 'kol') {
 
             $clientEvent['eduf_id'] = null;
             $clientEvent['partner_id'] = null;
-        } else if ($request->lead_id == 'LS018' && $request->lead_id != 'kol') {
+        } else if ($request->lead_id == 'LS017' && $request->lead_id != 'kol') { # lead = Edufair
 
             $clientEvent['partner_id'] = null;
         }
@@ -464,80 +464,8 @@ class ClientEventController extends Controller
 
         $existClientStudent = $this->checkExistingClient($phoneStudent, $request->email_child);
 
-
-        // $clientExistPhone = $this->clientRepository->checkExistingByPhoneNumber($phone);
-        // $clientExistEmail = $this->clientRepository->checkExistingByEmail($request->email);
-        // $phone_child = $this->setPhoneNumber($request->phone_child);
-
-        // if ($clientExistPhone && $clientExistEmail) {
-        //     $isExist = true;
-        //     $client_id = $clientExistPhone['id'];
-        // } else if ($clientExistPhone && !$clientExistEmail) {
-        //     $isExist = true;
-        //     $client_id = $clientExistPhone['id'];
-
-        //     // Add email to client addtional info
-        //     $additionalInfo = [
-        //         'client_id' => $clientExistPhone['id'],
-        //         'category' => 'mail',
-        //         'value' => $request->email,
-        //     ];
-        //     UserClientAdditionalInfo::create($additionalInfo);
-        // } else if (!$clientExistPhone && $clientExistEmail) {
-        //     $isExist = true;
-        //     $client_id = $clientExistEmail['id'];
-
-        //     // Add email to client addtional info
-        //     $additionalInfo = [
-        //         'client_id' => $clientExistEmail['id'],
-        //         'category' => 'phone',
-        //         'value' => $phone,
-        //     ];
-        //     UserClientAdditionalInfo::create($additionalInfo);
-        // } else {
-        //     $isExist = false;
-        // }
-
-        // If existing check email same or not
-        if (!$existClientParent['isExist'] && $request->user_type == 'Parent') {
-            $fullname = explode(' ', $request->child_name);
-            $limit = count($fullname);
-
-            $firstname = $lastname = null;
-            if ($limit > 1) {
-                $lastname = $fullname[$limit - 1];
-                unset($fullname[$limit - 1]);
-                $firstname = implode(" ", $fullname);
-            } else {
-                $firstname = implode(" ", $fullname);
-            }
-
-            $clientDetails = [
-                'first_name' => $firstname,
-                'last_name' => $lastname,
-                'mail' => $request->email,
-                'phone' => $phoneParent,
-                'graduation_year' => $request->grade,
-                'lead' => $request->leadsource,
-            ];
-
-            $newClientParent = $this->clientRepository->createClient($request->user_type, $clientDetails);
-        }
-
-        if (!$existClientStudent['isExist']) {
-            $fullname = explode(' ', $request->child_name);
-            $limit = count($fullname);
-
-            $firstname = $lastname = null;
-            if ($limit > 1) {
-                $lastname = $fullname[$limit - 1];
-                unset($fullname[$limit - 1]);
-                $firstname = implode(" ", $fullname);
-            } else {
-                $firstname = implode(" ", $fullname);
-            }
-
-            $st_grade = 12 - ($request->grade - date('Y'));
+        DB::beginTransaction();
+        try {
 
             # when sch_id is "add-new" 
             $choosen_school = $request->school;
@@ -556,39 +484,88 @@ class ClientEventController extends Controller
                 $school = $this->schoolRepository->createSchool($school);
             }
 
-            $clientDetails = [
-                'first_name' => $firstname,
-                'last_name' => $lastname,
-                'mail' => $request->email_child,
-                'phone' => $phoneStudent,
-                'st_grade' => $st_grade,
-                'graduation_year' => $request->grade,
-                'lead' => $request->leadsource,
-                'sch_id' => $request->school == 'add-new' ? $school->sch_id : $request->school,
+            if (!$existClientParent['isExist'] && $request->user_type == 'Parent') {
+                $fullname = explode(' ', $request->name);
+                $limit = count($fullname);
+
+                $firstname = $lastname = null;
+                if ($limit > 1) {
+                    $lastname = $fullname[$limit - 1];
+                    unset($fullname[$limit - 1]);
+                    $firstname = implode(" ", $fullname);
+                } else {
+                    $firstname = implode(" ", $fullname);
+                }
+
+                $clientDetails = [
+                    'first_name' => $firstname,
+                    'last_name' => $lastname,
+                    'mail' => $request->email,
+                    'phone' => $phoneParent,
+                    // 'graduation_year' => $request->grade,
+                    'lead' => $request->leadsource,
+                ];
+
+                $newClientParent = $this->clientRepository->createClient($request->user_type, $clientDetails);
+            }
+
+            if (!$existClientStudent['isExist']) {
+                $fullname = explode(' ', $request->child_name);
+                $limit = count($fullname);
+
+                $firstname = $lastname = null;
+                if ($limit > 1) {
+                    $lastname = $fullname[$limit - 1];
+                    unset($fullname[$limit - 1]);
+                    $firstname = implode(" ", $fullname);
+                } else {
+                    $firstname = implode(" ", $fullname);
+                }
+
+                $st_grade = 12 - ($request->grade - date('Y'));
+
+
+                $clientDetails = [
+                    'first_name' => $firstname,
+                    'last_name' => $lastname,
+                    'mail' => $request->email_child,
+                    'phone' => $phoneStudent,
+                    'st_grade' => $st_grade,
+                    'graduation_year' => $request->grade,
+                    'lead' => $request->leadsource,
+                    'sch_id' => $request->school == 'add-new' ? $school->sch_id : $request->school,
+                ];
+
+                $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);
+            }
+
+            if ($request->user_typ == 'Parent') {
+                if ($existClientParent['isExist'] && $existClientStudent['isExist']) {
+                    $this->clientRepository->createManyClientRelation($existClientParent['id'], $existClientStudent['id']);
+                } else if (!$existClientParent['isExist'] && $existClientStudent['isExist']) {
+                    $this->clientRepository->createManyClientRelation($newClientParent->id, $existClientStudent['id']);
+                } else if ($existClientParent['isExist'] && !$existClientParent['isExist']) {
+                    $this->clientRepository->createManyClientRelation($existClientParent['id'], $newClientStudent->id);
+                }
+            }
+
+            $clientEvent = [
+                'client_id' => $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id,
+                'event_id' => $request->event,
+                'lead_id' => $request->leadsource,
+                'status' => 1,
+                'joined_date' => Carbon::now(),
             ];
 
-            $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);
+            $this->clientEventRepository->createClientEvent($clientEvent);
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Store client event embed failed : ' . $e->getMessage());
+
+            return Redirect::to('form/event/')->withError('Something went wrong!');
         }
 
-        if ($request->user_typ == 'Parent') {
-            if ($existClientParent['isExist'] && $existClientStudent['isExist']) {
-                $this->clientRepository->createManyClientRelation($existClientParent['id'], $existClientStudent['id']);
-            } else if (!$existClientParent['isExist'] && $existClientStudent['isExist']) {
-                $this->clientRepository->createManyClientRelation($newClientParent->id, $existClientStudent['id']);
-            } else if ($existClientParent['isExist'] && !$existClientParent['isExist']) {
-                $this->clientRepository->createManyClientRelation($existClientParent['id'], $newClientStudent->id);
-            }
-        }
-
-        $clientEvent = [
-            'client_id' => $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id,
-            'event_id' => $request->event,
-            'lead_id' => $request->leadsource,
-            'status' => 1,
-            'joined_date' => Carbon::now(),
-        ];
-
-        $this->clientEventRepository->createClientEvent($clientEvent);
 
         return 'success';
     }

@@ -230,6 +230,7 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
                 $event->sheet->getDelegate()->getComment('C1')->getText()->createTextRun('Required');
                 $event->sheet->getDelegate()->getComment('D1')->getText()->createTextRun('Required');
                 $event->sheet->getDelegate()->getComment('E1')->getText()->createTextRun('Required');
+                $event->sheet->getDelegate()->getComment('F1')->getText()->createTextRun('Required');
                 $event->sheet->getDelegate()->getComment('G1')->getText()->createTextRun('Required');
                 $event->sheet->getDelegate()->getComment('H1')->getText()->createTextRun('Required');
                 $event->sheet->getDelegate()->getComment('I1')->getText()->createTextRun('Required');
@@ -264,6 +265,7 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
         $sheet->getStyle('C1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('D1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('E1')->getFont()->getColor()->setARGB('FF0000');
+        $sheet->getStyle('F1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('G1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('H1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('I1')->getFont()->getColor()->setARGB('FF0000');
