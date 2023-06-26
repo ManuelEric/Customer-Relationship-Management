@@ -9,6 +9,8 @@ interface ClientRepositoryInterface
     public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = null);
     public function getAllClientByRole($roleName, $month = NULL); # mentee, parent, teacher
     public function getDataTables($model);
+
+    /* new */
     public function getNewLeads($asDatatables = false, $month = NULL); # month nullable
     public function getPotentialClients($asDatatables = false, $month = NULL); # month nullable
     public function getExistingMentees($asDatatables = false, $month = NULL); # month nullable
@@ -16,6 +18,11 @@ interface ClientRepositoryInterface
     public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getParents($asDatatables = false, $month = null);
+    /* ~ END */
+
+    /* API External use */
+    public function getExistingMenteesAPI();
+    /* ~ API External End */
 
     public function getAlumnisDataTables();
     public function getMenteesDataTables();
@@ -43,8 +50,6 @@ interface ClientRepositoryInterface
     public function checkAllProgramStatus($clientId);
     public function checkExistingByPhoneNumber($phone);
     public function checkExistingByEmail($email);
-
-
 
     # dashboard
     public function getCountTotalClientByStatus($status, $month = null);

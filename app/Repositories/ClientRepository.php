@@ -333,6 +333,23 @@ class ClientRepository implements ClientRepositoryInterface
     }
     /* ~ END*/
 
+    /* for API External use */
+
+    public function getExistingMenteesAPI() {
+        return Client::withAndWhereHas('clientProgram', function ($subQuery) {
+                    $subQuery->with(['clientMentor', 'clientMentor.roles' => function ($subQuery_2) {
+                        $subQuery_2->where('role_name', 'Mentor');
+                    }])->whereHas('program', function ($subQuery_2) {
+                        $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
+                            $subQuery_3->where('prog_name', 'Admissions Mentoring');
+                        });
+                    })->where('status', 1)->where('prog_running_status', '!=', 2); # 1 success, 2 done
+                })->whereHas('roles', function ($subQuery) {
+                    $subQuery->where('role_name', 'student');
+                })->get();
+    }
+    /* ~ API External end */
+
     public function getAlumnisDataTables()
     {
         $query = Client::whereHas('clientProgram', function ($q2) {

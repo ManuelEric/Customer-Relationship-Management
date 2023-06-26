@@ -189,6 +189,7 @@
         $("#registration-form button").click(function (e) {
             e.preventDefault();
 
+            // initiate 
             var form = $("#registration-form");
             var url = form.attr('action');
             var number = phoneInput.getNumber();
