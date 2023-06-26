@@ -68,7 +68,7 @@
                                 <li class="d-flex align-items-center border-bottom py-2">
                                     <i class="bi bi-exclamation-circle me-2"></i>
                                     <span class="lh-sm">
-                                        The number of hot leads is less than the target
+                                        an the target
                                     </span>
                                 </li>
                             @endfor
