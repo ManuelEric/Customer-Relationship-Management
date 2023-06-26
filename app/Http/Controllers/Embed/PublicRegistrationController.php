@@ -10,7 +10,10 @@ use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Models\School;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PublicRegistrationController extends Controller
 {
@@ -70,18 +73,31 @@ class PublicRegistrationController extends Controller
             ];
         }        
 
-        $newParent = false;
-        # checking if client was a parent
-        if ($role == "parent")
-            $newParent = $this->storeParentIfNotExists($parentDetail);
-        
-        # checking if client was a child
-        $newChild = $this->storeChildrenIfNotExists($childrenDetail);
-        
+        DB::beginTransaction();
+        try {
+            
+            $newParent = false;
+            # checking if client was a parent
+            if ($role == "parent")
+                $newParent = $this->storeParentIfNotExists($parentDetail);
+            
+            # checking if client was a child
+            $newChild = $this->storeChildrenIfNotExists($childrenDetail);
+            
+            
+            # create relation between parent & student
+            if ($newParent && $newChild) 
+                $this->clientRepository->createClientRelation($newParent, $newChild);
 
-        # create relation between parent & student
-        if ($newParent && $newChild) 
-            $this->clientRepository->createClientRelation($newParent['id'], $newChild['id']);
+            DB::commit();
+                
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Register from embed form website failed : '. $e->getMessage());
+            return 'Error when processing, please try again or contact our team.';
+
+        }
 
         return 'Registration success';
 
@@ -129,21 +145,22 @@ class PublicRegistrationController extends Controller
             $last_name = $explode(max($explode));
         } 
 
-        $grade = ($detail['grade']) > date('Y') ? $detail['grade'] - date('Y') : 13;
+        $max_grade = 12;
+        $grade = ($detail['grade']) > date('Y') ? $max_grade - ($detail['grade'] - date('Y')) : 13;
 
         $studentDetail = [
             'first_name' => $first_name,
             'last_name' => $last_name,
             'mail' => $detail['mail'],
             'phone' => $detail['phone'],
-            'school' => $detail['school'],
+            'sch_id' => $detail['school'],
             'graduation_year' => $detail['grade'],
             'st_grade' => $grade,
             'preferred_program' => $detail['program'],
 
         ];
 
-        if (!$this->schoolRepository->getSchoolById($studentDetail['school'])) {
+        if (!$this->schoolRepository->getSchoolById($studentDetail['sch_id'])) {
 
             $last_id = School::max('sch_id');
             $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
@@ -156,7 +173,7 @@ class PublicRegistrationController extends Controller
 
             # store school
             $school = $this->schoolRepository->createSchool($schoolDetail);
-            $studentDetail['school'] = $school->sch_id;
+            $studentDetail['sch_id'] = $school->sch_id;
         }
 
         # check if student mail & phone exists
