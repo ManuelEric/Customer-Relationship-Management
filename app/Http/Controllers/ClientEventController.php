@@ -454,18 +454,18 @@ class ClientEventController extends Controller
         $existClientParent = ['isExist' => false];
         $existClientStudent = ['isExist' => false];
         $childDetails = [];
-
+        $schoolId = null;
 
         // Check existing client by phone number and email
         if ($request->role == 'parent') {
             $childDetails = [
                 'name' => $request->child_name,
                 'email' => $request->child_email,
-                'phone' => $request->child_phone,
+                'phone' => $request->child_fullnumber,
             ];
 
-            $phoneParent = $this->setPhoneNumber($request->phone);
-            $phoneStudent = $this->setPhoneNumber($childDetails['phone']);
+            $phoneParent = $request->fullnumber;
+            $phoneStudent = $childDetails['phone'];
 
             $existClientParent = $this->checkExistingClient($phoneParent, $request->email);
             $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
@@ -473,21 +473,20 @@ class ClientEventController extends Controller
             $childDetails = [
                 'name' => $request->name,
                 'email' => $request->email,
-                'phone' => $request->phone,
+                'phone' => $request->fullnumber,
             ];
-            $phoneStudent = $this->setPhoneNumber($childDetails['phone']);
+            $phoneStudent = $childDetails['phone'];
             $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
         }
 
-        // return $childDetails;
 
 
         DB::beginTransaction();
         try {
 
             # when sch_id is "add-new" 
-            $choosen_school = $request->school;
-            if ($choosen_school == "add-new") {
+            // $choosen_school = $request->school;
+            if (!$this->schoolRepository->getSchoolById($request->school)) {
 
                 $last_id = School::max('sch_id');
                 $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
@@ -495,11 +494,12 @@ class ClientEventController extends Controller
 
                 $school = [
                     'sch_id' => $school_id_with_label,
-                    'sch_name' => $request->other_school
+                    'sch_name' => $request->school,
                 ];
 
                 # create a new school
                 $school = $this->schoolRepository->createSchool($school);
+                $schoolId = $school->sch_id;
             }
 
             if (!$existClientParent['isExist'] && $request->role == 'parent') {
@@ -552,7 +552,7 @@ class ClientEventController extends Controller
                     'st_grade' => $st_grade,
                     'graduation_year' => $request->grade,
                     'lead' => $request->leadsource,
-                    'sch_id' => $request->school == 'add-new' ? $school->sch_id : $request->school,
+                    'sch_id' => $schoolId != null ? $schoolId : $request->school,
                 ];
 
                 $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);
