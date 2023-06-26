@@ -38,9 +38,6 @@ class AuthController extends Controller
             }
 
             if ($user_type->type_name != 'Full-Time' && ($user_type->pivot->end_date <= Carbon::now()->toDateString())) {
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
                 return back()->withErrors([
                     'password' => 'Your access is expired',
                 ]);
