@@ -256,7 +256,7 @@
                                 $("#listAdditionalTable .detail").each(function() {
                                     $(this).click(function() {
                                         var link = "{{ url('/') }}/instance/school/" + $(this).data('schid')
-                                        window.location = link
+                                        window.open(link, '_blank')
                                     })
                                 })
                         }else{
