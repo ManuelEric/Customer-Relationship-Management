@@ -261,7 +261,7 @@ class ImportStudent extends Command
         # if the student does not exist in database v2
         # check using name because there are some students that doesn't have st_id
         if (!$selectedStudent = $this->clientRepository->getStudentByStudentName($studentName)) {
-
+            
             # check the st id 
             if ($this->clientRepository->getStudentByStudentId($studentId))
             {
@@ -476,6 +476,7 @@ class ImportStudent extends Command
                 $this->clientRepository->createClientAdditionalInfo($additionalInfo);
             }
         }
+
         // $this->info('Child Name : '.$selectedStudent->first_name.' '.$selectedStudent->last_name.'\n');
         return $selectedStudent->id;
     }

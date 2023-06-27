@@ -34,7 +34,9 @@ use App\Repositories\ClientRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use App\Models\v1\Student as CRMStudent;
 
 class DashboardController extends SalesDashboardController
 {
@@ -88,6 +90,7 @@ class DashboardController extends SalesDashboardController
 
     public function index(Request $request)
     {
+
         # will delete soon
         // $new_lead = $this->clientRepository->getNewLeads(false, null);
         // $potential = $this->clientRepository->getPotentialClients(false, null);

@@ -47,6 +47,8 @@ class ImportSchoolProgram extends Command
     public function handle()
     {
         $schoolPrograms = $this->schoolProgramRepository->getAllSchoolProgramFromCRM();
+        $progressBar = $this->output->createProgressBar($schoolPrograms->count());
+        $progressBar->start();
         $schoolProgramDetails = [];
 
         foreach ($schoolPrograms as $schoolProgram) {
@@ -68,7 +70,7 @@ class ImportSchoolProgram extends Command
                     //         break;
                     // }
 
-                    $schoolProgramDetails[] = [
+                    $schoolProgramDetails[] = $array = [
                         'id' => $schoolProgram->schprog_id,
                         'sch_id' => $schoolProgram->sch_id,
                         'prog_id' => $schoolProgram->prog_id,
@@ -79,21 +81,25 @@ class ImportSchoolProgram extends Command
                         'refund_notes' => null,
                         'refund_date' => null,
                         // 'running_status' => $runing_status,
+                        'running_status' => null,
                         'total_hours' => $schoolProgram->schoolProgFix->schprogfix_totalhours,
                         'total_fee' => null,
                         'participants' => $schoolProgram->schoolProgFix->schprogfix_participantsnum,
                         'place' => $schoolProgram->schoolProgFix->schprogfix_eventplace,
                         'end_program_date' => $schoolProgram->schoolProgFix->schprogfix_eventenddate,
                         'start_program_date' => $schoolProgram->schoolProgFix->schprogfix_eventstartdate,
-                        'success_date' => $schoolProgram->schprog_datelastdis,
+                        'success_date' => $schoolProgram->schprog_status == 1 ? $schoolProgram->schprog_datelastdis : NULL,
+                        'cancel_date' => null,
+                        'accepted_date' => null,
+                        'pending_date' => $schoolProgram->schprog_status == 0 ? $schoolProgram->schprog_datelastdis : NULL,
                         'reason_id' => null,
-                        'denied_date' => null,
+                        'denied_date' => $schoolProgram->schprog_status == 2 ? $schoolProgram->schprog_datelastdis : NULL,
                         'empl_id' => isset($empl) ? $empl->id : null,
                         'created_at' => $schoolProgram->schprog_datefirstdis,
                         'updated_at' => $schoolProgram->schprog_datefirstdis
                     ];
                 } else {
-                    $schoolProgramDetails[] = [
+                    $schoolProgramDetails[] = $array = [
                         'id' => $schoolProgram->schprog_id,
                         'sch_id' => $schoolProgram->sch_id,
                         'prog_id' => $schoolProgram->prog_id,
@@ -111,6 +117,9 @@ class ImportSchoolProgram extends Command
                         'end_program_date' => null,
                         'start_program_date' => null,
                         'success_date' => null,
+                        'cancel_date' => null,
+                        'accepted_date' => null,
+                        'pending_date' => $schoolProgram->schprog_status == 0 ? $schoolProgram->schprog_datelastdis : NULL,
                         'reason_id' => null,
                         'denied_date' => $schoolProgram->schprog_status == 2 ? $schoolProgram->schprog_datelastdis : null,
                         'empl_id' => isset($empl) ? $empl->id : null,
@@ -118,12 +127,17 @@ class ImportSchoolProgram extends Command
                         'updated_at' => $schoolProgram->schprog_datefirstdis
                     ];
                 }
+                $this->schoolProgramRepository->createSchoolProgram($array);
             }
+
+            $progressBar->advance();
         }
 
-        if (count($schoolProgramDetails) > 0) {
-            $this->schoolProgramRepository->createSchoolPrograms($schoolProgramDetails);
-        }
+        $progressBar->finish();
+
+        // if (count($schoolProgramDetails) > 0) {
+        //     $this->schoolProgramRepository->createSchoolPrograms($schoolProgramDetails);
+        // }
         return Command::SUCCESS;
     }
 }

@@ -39,6 +39,8 @@ class ImportProg extends Command
     public function handle()
     {
         $programDetails = $this->programRepository->getProgramFromV1();
+        $progressBar = $this->output->createProgressBar($programDetails->count());
+        $progressBar->start();
         
         DB::beginTransaction();
         try {
@@ -53,8 +55,11 @@ class ImportProg extends Command
                     $this->programRepository->createProgramFromV1($detail);
     
                 }
+
+                $progressBar->advance();
     
             }
+            $progressBar->finish();
             DB::commit();
             Log::info('Import Program works fine');
 

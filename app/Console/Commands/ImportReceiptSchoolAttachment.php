@@ -6,8 +6,10 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use PDF;
 
@@ -56,38 +58,55 @@ class ImportReceiptSchoolAttachment extends Command
             'city' => env('ALLIN_CITY')
         ];
 
-        foreach ($receiptSchools as $receipt) {
+        $progressBar = $this->output->createProgressBar($receiptSchools->count());
+        $progressBar->start();
 
-            $attachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt->receipt_id, 'idr');
-            $invb2b_id = isset($receipt->invdtl_id) ? $receipt->invoiceInstallment->invb2b_id : $receipt->invb2b_id;
-            $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
+        DB::beginTransaction();
+        try {
 
-
-            if (!isset($attachment)) {
-                $file_name = str_replace('/', '_', $receipt->receipt_id) . '_idr.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
-                $path = 'uploaded_file/receipt/sch_prog/';
-
-                $receiptAttachments = [
-                    'receipt_id' => $receipt->receipt_id,
-                    'attachment' => 'storage/' . $path . $file_name,
-                    'currency' => 'idr',
-                    'sign_status' => 'signed',
-                    'approve_date' => Carbon::now(),
-                    'send_to_client' => 'not sent'
-                ];
-
-                $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receipt, 'invoiceSch' => $invoiceSch, 'currency' => 'idr', 'companyDetail' => $companyDetail]);
-
-
-                # Generate PDF file
-                $content = $pdf->download();
-                Storage::disk('public')->put($path . $file_name, $content);
-
-
-                $this->receiptAttachmentRepository->createReceiptAttachment($receiptAttachments);
+            foreach ($receiptSchools as $receipt) {
+    
+                $attachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt->receipt_id, 'idr');
+                $invb2b_id = isset($receipt->invdtl_id) ? $receipt->invoiceInstallment->invb2b_id : $receipt->invb2b_id;
+                $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
+    
+    
+                if (!isset($attachment)) {
+                    $file_name = str_replace('/', '_', $receipt->receipt_id) . '_idr.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
+                    $path = 'uploaded_file/receipt/sch_prog/';
+    
+                    $receiptAttachments = [
+                        'receipt_id' => $receipt->receipt_id,
+                        'attachment' => 'storage/' . $path . $file_name,
+                        'currency' => 'idr',
+                        'sign_status' => 'signed',
+                        'approve_date' => Carbon::now(),
+                        'send_to_client' => 'not sent'
+                    ];
+    
+                    $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receipt, 'invoiceSch' => $invoiceSch, 'currency' => 'idr', 'companyDetail' => $companyDetail]);
+    
+    
+                    # Generate PDF file
+                    $content = $pdf->download();
+                    Storage::disk('public')->put($path . $file_name, $content);
+    
+    
+                    $this->receiptAttachmentRepository->createReceiptAttachment($receiptAttachments);
+                }
+    
+                $progressBar->advance();
             }
-        }
+    
+            $progressBar->finish();
+            DB::commit();
 
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            $this->info($e->getMessage());
+
+        }
 
         return Command::SUCCESS;
     }
