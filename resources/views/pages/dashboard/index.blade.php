@@ -41,11 +41,11 @@
     @endif
     {{-- Digital  --}}
     @if ($isAdmin)
-        <h3 class="my-3 pt-3">
+        {{-- <h3 class="my-3 pt-3">
             <i class="bi bi-bar-chart-line me-2"></i>
             Digital Dashboard
         </h3>
-        @include('pages.dashboard.digital.index')
+        @include('pages.dashboard.digital.index') --}}
     @endif
     {{-- Finance  --}}
     @if ($isFinance || $isAdmin)
