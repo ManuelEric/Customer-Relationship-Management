@@ -269,9 +269,12 @@ class PartnerDashboardController extends Controller
         $html = '';
         $additional_header = '';
         $additional_content = '';
+        $uncompletedSchools = null;
 
         switch ($type) {
             case 'Partner':
+                $additional_header = '';
+                $additional_content = '';
                 $partners = $this->corporateRepository->getCorporateByMonthly($monthYear, 'list');
                 if ($partners->count() == 0)
                     return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="7">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
@@ -348,6 +351,8 @@ class PartnerDashboardController extends Controller
                 break;
 
             case 'University':
+                $additional_header = '';
+                $additional_content = '';
                 $universities = $this->universityRepository->getUniversityByMonthly($monthYear, 'list');
                 if ($universities->count() == 0)
                     return response()->json(
@@ -413,7 +418,7 @@ class PartnerDashboardController extends Controller
                 'html_ctx' => $html,
                 'additional_header' => $additional_header,
                 'additional_content' => $additional_content,
-                'total_additional' => $uncompletedSchools->count()
+                'total_additional' => $uncompletedSchools ? $uncompletedSchools->count() : 0,
             ]
         );
     }

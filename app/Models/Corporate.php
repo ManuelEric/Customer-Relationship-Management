@@ -95,6 +95,11 @@ class Corporate extends Model
         return $this->hasMany(PartnerProg::class, 'corp_id', 'corp_id');
     }
 
+    public function referralProgram()
+    {
+        return $this->hasMany(Referral::class, 'partner_id', 'corp_id');
+    }
+
     public function asCollaboratorInPartnerProgram()
     {
         return $this->belongsToMany(PartnerProg::class, 'tbl_partner_prog_partner', 'corp_id', 'partnerprog_id')->withTimestamps();
