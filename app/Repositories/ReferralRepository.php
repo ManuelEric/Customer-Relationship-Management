@@ -7,6 +7,8 @@ use App\Models\Referral;
 use Carbon\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\DB;
+use App\Models\v1\Referral as CRMRef;
+
 
 class ReferralRepository implements ReferralRepositoryInterface
 {
@@ -184,5 +186,29 @@ class ReferralRepository implements ReferralRepositoryInterface
                     ->get();
                 break;
         }
+    }
+
+    public function getReferralByCorpIdAndDate($corpId, $refDate)
+    {
+        return Referral::where('partner_id', $corpId)->where('ref_date', $refDate)->first();
+    }
+
+    # crm
+    public function getReferralFromV1()
+    {
+        return CRMRef::select([
+            'pt_id',
+            'pt_name',
+            DB::raw('(CASE
+                WHEN pt_email = "" THEN NULL ELSE pt_email
+            END) AS pt_email'),
+            DB::raw('(CASE
+                WHEN pt_phone = "" THEN NULL ELSE pt_phone
+            END) AS pt_phone'),
+            DB::raw('(CASE
+                WHEN pt_ins = "" THEN NULL ELSE pt_ins
+            END) AS pt_ins'),
+            'pt_address',
+        ])->get();
     }
 }

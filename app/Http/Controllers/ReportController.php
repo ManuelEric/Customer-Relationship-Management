@@ -176,10 +176,10 @@ class ReportController extends Controller
         $countInvoice = 0;
         $totalInvoice = 0;
 
-        $data_receipts = $receipts->filter(function ($item) {
-            // Return true if you want this item included in the resultant collection
-            return $item->status_where == 1 || $item->referral_type == 'Out';
-        });
+        // $data_receipts = $receipts->filter(function ($item) {
+        //     // Return true if you want this item included in the resultant collection
+        //     return $item->status_where == 1 || $item->referral_type == 'Out';
+        // });
 
 
         $countInvoice = count($invoiceB2b->where('invb2b_pm', 'Full Payment')) + $invoiceB2b->sum('inv_detail_count');
@@ -187,7 +187,7 @@ class ReportController extends Controller
 
         $totalInvoice = $invoiceB2b->sum('invb2b_totpriceidr') + $invoiceB2c->sum('inv_totalprice_idr');
 
-        foreach ($data_receipts as $receipt) {
+        foreach ($receipts as $receipt) {
             $totalReceipt += (int)filter_var($receipt->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT);
         }
 
@@ -197,7 +197,7 @@ class ReportController extends Controller
                 'countInvoice' => $countInvoice,
                 'totalInvoice' => $totalInvoice,
                 'totalReceipt' => $totalReceipt,
-                'receipts' => $data_receipts,
+                'receipts' => $receipts,
             ]
         );
     }

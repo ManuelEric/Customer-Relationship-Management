@@ -7,7 +7,7 @@
                     <option value="custom">Custom Period</option>
                 </select>
             </div>
-            <div class="col-md-2 text-end finance-period" id="monthly">
+            <div class="col-md-2 text-end monthly" id="monthly">
                 <input type="month" name="" id="month_outstanding" class="form-control form-control-sm" onchange="checkFinancebyMonth()"
                     value="{{ date('Y-m') }}">
             </div>
@@ -272,13 +272,17 @@
                     var diff = (parseInt(item.total) > parseInt(item.total_price_inv) ? parseInt(item.total) - parseInt(item.total_price_inv) : 0);
                     html = "<tr>";
                     html += "<td>" + no + "</td>"
+                    html += "<td>" + item.invoice_id + "</td>"
                     html += "<td>" + item.full_name + "</td>"
+                    html += "<td>" + item.type + "</td>"
                     html += "<td>" + item.program_name + "</td>"
+                    html += "<td class='text-center'>" + (item.installment_name !== null ? item.installment_name : "-") + "</td>"
                     html += "<td>" + rupiah(parseInt(item.total)) + (parseInt(diff) > 0 ? " ("+ rupiah(parseInt(diff)) +")" : '') + "</td>"
-                    total_paid += parseInt(item.total_price_inv);
+                    total_paid += parseInt(item.total);
                     total_paid_diff += parseInt(diff);
                     $('#tbl_paid_payment').append(html);
                     no++;
+                    
                 })
                 
                 $('#tot_paid').html(rupiah(total_paid) + (total_paid_diff > 0 ? " (" +(rupiah(total_paid_diff)+")") : ''));
@@ -290,8 +294,11 @@
                 result.unpaidPayments.forEach(function (item, index) {
                     html = "<tr>";
                     html += "<td>" + no + "</td>"
+                    html += "<td>" + item.invoice_id + "</td>"
                     html += "<td>" + item.full_name + "</td>"
+                    html += "<td>" + item.type + "</td>"
                     html += "<td>" + item.program_name + "</td>"
+                    html += "<td class='text-center'>" + (item.installment_name !== null ? item.installment_name : "-") + "</td>"
                     html += "<td>" + rupiah(parseInt(item.total)) + "</td>"
                     total_unpaid += parseInt(item.total);
                     $('#tbl_unpaid_payment').append(html);
@@ -348,8 +355,9 @@
         $('.finance-period').addClass('d-none')
         if (mode == 'custom') {
             $('#custom').removeClass('d-none')
+            $('.monthly').addClass('d-none')
         } else {
-            $('#monthly').removeClass('d-none')
+            $('.monthly').removeClass('d-none')
         }
     }
 
