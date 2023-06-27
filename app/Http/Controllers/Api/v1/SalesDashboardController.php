@@ -142,9 +142,9 @@ class SalesDashboardController extends Controller
                 foreach ($value as $client) {
                     $client_register_date = date('Y-m', strtotime($client->created_at));
                     $now = date('Y-m');
-                    $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
+                    $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
 
-                    $html .= '<tr '.$styling.'>
+                    $html .= '<tr '.$styling.' data-detail="'.$client->id.'">
                                 <td>'.$index++.'</td>
                                 <td>'.$client->full_name.'</td>
                                 <td>'.$client->mail.'</td>
@@ -162,9 +162,9 @@ class SalesDashboardController extends Controller
                     $month = date('Y-m-d');
 
                 $now = date('Y-m', strtotime($month));
-                $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
+                $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
 
-                $html .= '<tr ' . $styling . '>
+                $html .= '<tr ' . $styling . ' data-detail="'.$client->id.'">
                             <td>' . $index++ . '</td>
                             <td>' . $client->full_name. '</td>
                             <td>' . $client->mail . '</td>

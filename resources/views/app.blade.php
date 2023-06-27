@@ -156,6 +156,8 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+
+        .popup-modal-detail-client { cursor: pointer;}
     </style>
 </head>
 
