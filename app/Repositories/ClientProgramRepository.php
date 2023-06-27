@@ -492,15 +492,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     # sales tracking
     public function getCountProgramByStatus($status, array $dateDetails)
     {
+        $searched_column = $this->getSearchedColumn($status);        
         $statusId = $this->getStatusId($status);
-        return ClientProgram::where('status', $statusId)->whereBetween('created_at', [$dateDetails['startDate'], $dateDetails['endDate']])->count();
+
+        return ClientProgram::where('status', $statusId)->whereBetween($searched_column, [$dateDetails['startDate'], $dateDetails['endDate']])->count();
     }
 
     public function getSummaryProgramByStatus($status, array $dateDetails)
     {
+        $searched_column = $this->getSearchedColumn($status);
         $statusId = $this->getStatusId($status);
 
-        $clientPrograms = ClientProgram::where('status', $statusId)->whereBetween('created_at', [$dateDetails['startDate'], $dateDetails['endDate']])->get();
+        $clientPrograms = ClientProgram::where('status', $statusId)->whereBetween($searched_column, [$dateDetails['startDate'], $dateDetails['endDate']])->get();
 
         $no = 0;
         $data = [];
@@ -1014,6 +1017,34 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         }
 
         return $userId;
+    }
+
+    private function getSearchedColumn(string $status)
+    {
+        switch ($status) {
+
+            case "pending":
+                $searched_column = 'created_at';
+                break;
+                
+            case "failed":
+                $searched_column = 'failed_date';
+                break;
+
+            case "refund":
+                $searched_column = 'refund_date';
+                break;
+
+            case "success":
+                $searched_column = 'success_date';
+                break;
+
+            default:
+                $searched_column = 'created_at';
+
+        }
+
+        return $searched_column;
     }
 
     # CRM

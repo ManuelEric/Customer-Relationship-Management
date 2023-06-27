@@ -810,6 +810,13 @@
 
     })
 
+    $(document).on('click', '.popup-modal-detail-client', function () {
+        var clientId = $(this).data('detail');
+        var url = window.location.origin + '/client/student/' + clientId;
+        window.open(url, '_blank');
+
+    });
+
     function showLoading() {
         Swal.fire({
             width: 100,
