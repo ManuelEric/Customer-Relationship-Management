@@ -41,7 +41,7 @@ class Referral extends Model
 
     public function invoice()
     {
-        return $this->hasMany(InvoiceProgram::class, 'ref_id', 'id');
+        return $this->hasMany(Invb2b::class, 'ref_id', 'id');
     }
 
     public function partner()
