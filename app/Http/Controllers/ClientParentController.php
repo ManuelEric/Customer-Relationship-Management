@@ -70,8 +70,9 @@ class ClientParentController extends ClientController
     public function index(Request $request)
     {
         if ($request->ajax()) {
-
-            return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Parent');
+            $asDatatables = true;
+            $model = $this->clientRepository->getParents($asDatatables);
+            return $this->clientRepository->getDataTables($model);
         }
 
         return view('pages.client.parent.index');

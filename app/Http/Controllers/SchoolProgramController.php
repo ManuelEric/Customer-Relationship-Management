@@ -71,7 +71,7 @@ class SchoolProgramController extends Controller
         $this->agendaSpeakerRepository = $agendaSpeakerRepository;
         $this->schoolDetailRepository = $schoolDetailRepository;
         $this->schoolProgramCollaboratorsRepository = $schoolProgramCollaboratorsRepository;
-        $this->universityRepository = $universityRepository; 
+        $this->universityRepository = $universityRepository;
     }
 
     public function index(Request $request)

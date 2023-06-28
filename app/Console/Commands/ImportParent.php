@@ -43,56 +43,52 @@ class ImportParent extends Command
             $crm_parents = $this->clientRepository->getParentFromV1();
             $progressBar = $this->output->createProgressBar($crm_parents->count());
             $progressBar->start();
-            foreach ($crm_parents as $crm_parent)
-            {
-                $parentName = $crm_parent->pr_firstname.' '.$crm_parent->pr_lastname;
-                if (!$parent = $this->clientRepository->getParentByParentName($parentName))
-                {
+            foreach ($crm_parents as $crm_parent) {
+                $parentName = $crm_parent->pr_firstname . ' ' . $crm_parent->pr_lastname;
 
-                    $parents_phone = $this->getValueWithoutSpace($crm_parent->pr_phone);
-                    if ($parents_phone != NULL)
-                    {
-                        $parents_phone = str_replace('-', '', $parents_phone);
-                        $parents_phone = str_replace(' ', '', $parents_phone);
+                $parents_phone = $this->getValueWithoutSpace($crm_parent->pr_phone);
+                if ($parents_phone != NULL) {
+                    $parents_phone = str_replace('-', '', $parents_phone);
+                    $parents_phone = str_replace(' ', '', $parents_phone);
 
-                        switch (substr($parents_phone, 0, 1)) {
+                    switch (substr($parents_phone, 0, 1)) {
 
-                            case 0:
-                                $parents_phone = "+62".substr($parents_phone, 1);
-                                break;
+                        case 0:
+                            $parents_phone = "+62" . substr($parents_phone, 1);
+                            break;
 
-                            case 6:
-                                $parents_phone = "+".$parents_phone;
-                                break;
-
-                        }
+                        case 6:
+                            $parents_phone = "+" . $parents_phone;
+                            break;
                     }
+                }
 
-                    $parentDetails = [
-                        'first_name' => $crm_parent->pr_firstname,
-                        'last_name' => $crm_parent->pr_lastname,
-                        'mail' => $crm_parent->pr_mail,
-                        'phone' => $parents_phone,
-                        'dob' => $crm_parent->pr_dob,
-                        'insta' => $crm_parent->pr_insta,
-                        'state' => $crm_parent->pr_state,
-                        'address' => $crm_parent->pr_address,
-                        'st_password' => $crm_parent->pr_password,
-                    ];
-    
+                $parentDetails = [
+                    'first_name' => $crm_parent->pr_firstname,
+                    'last_name' => $crm_parent->pr_lastname,
+                    'mail' => $crm_parent->pr_mail,
+                    'phone' => $parents_phone,
+                    'dob' => $crm_parent->pr_dob,
+                    'insta' => $crm_parent->pr_insta,
+                    'state' => $crm_parent->pr_state,
+                    'address' => $crm_parent->pr_address,
+                    'st_password' => $crm_parent->pr_password,
+                ];
+
+                if (!$parent = $this->clientRepository->getParentByParentName($parentName)) {
                     $this->clientRepository->createClient('Parent', $parentDetails);
+                } else {
+                    $this->clientRepository->updateClient($parent->id, $parentDetails);
                 }
                 $progressBar->advance();
             }
             $progressBar->finish();
             DB::commit();
             Log::info('Import parent works fine');
-
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::warning('Import parent failed : '.$e->getMessage());
-
+            Log::warning('Import parent failed : ' . $e->getMessage());
         }
 
         return Command::SUCCESS;

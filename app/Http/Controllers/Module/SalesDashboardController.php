@@ -188,6 +188,9 @@ class SalesDashboardController extends Controller
         if ($total_data == 0)
             return "0,00";
 
+        if (abs($total_data-$monthly_data) == 0)
+            return number_format($total_data * 100, 2, ',', '.');
+
         return number_format(($monthly_data / abs($total_data-$monthly_data)) * 100, 2, ',', '.');
     }
 }

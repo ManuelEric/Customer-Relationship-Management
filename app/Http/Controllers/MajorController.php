@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redirect;
 
 class MajorController extends Controller
@@ -31,7 +32,8 @@ class MajorController extends Controller
     public function store(StoreMajorRequest $request)
     {
         $majorDetails = $request->only([
-            'name'
+            'name',
+            'active'
         ]);
 
         DB::beginTransaction();
@@ -61,7 +63,8 @@ class MajorController extends Controller
     public function update(StoreMajorRequest $request)
     {
         $majorDetails = $request->only([
-            'name'
+            'name',
+            'active'
         ]);
 
         $id = $request->route('major');

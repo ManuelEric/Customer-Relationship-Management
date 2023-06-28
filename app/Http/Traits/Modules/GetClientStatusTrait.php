@@ -5,61 +5,62 @@ trait GetClientStatusTrait {
 
     public function clientStatus($month)
     {
-        $total_prospective_client = $this->clientRepository->getCountTotalClientByStatus(0);
-        $monthly_new_prospective_client = $this->clientRepository->getCountTotalClientByStatus(0, $month);
+        $asDatatables = $groupBy = false;
+        $total_newLeads = $this->clientRepository->getNewLeads($asDatatables)->count();
+        $monthly_new_newLeads = $this->clientRepository->getNewLeads($asDatatables, $month)->count();
 
-        $total_potential_client = $this->clientRepository->getCountTotalClientByStatus(1);
-        $monthly_new_potential_client = $this->clientRepository->getCountTotalClientByStatus(1, $month);
+        $total_potential_client = $this->clientRepository->getPotentialClients($asDatatables)->count();
+        $monthly_new_potential_client = $this->clientRepository->getPotentialClients($asDatatables, $month)->count();
 
-        $total_current_client = $this->clientRepository->getCountTotalClientByStatus(2);
-        $monthly_new_current_client = $this->clientRepository->getCountTotalClientByStatus(2, $month);
+        $total_existingMentees = $this->clientRepository->getExistingMentees($asDatatables)->count();
+        $monthly_new_existingMentees = $this->clientRepository->getExistingMentees($asDatatables, $month)->count();
 
-        $total_completed_client = $this->clientRepository->getCountTotalClientByStatus(3);
-        $monthly_new_completed_client = $this->clientRepository->getCountTotalClientByStatus(3, $month);
+        $total_existingNonMentees = $this->clientRepository->getExistingNonMentees($asDatatables)->count();
+        $monthly_new_existingNonMentees = $this->clientRepository->getExistingNonMentees($asDatatables, $month)->count();
 
-        $total_mentee = $this->clientRepository->getAllClientByRoleAndDate('mentee')->count();
-        $monthly_new_mentee = $this->clientRepository->getAllClientByRole('mentee', $month)->count();
+        $total_alumniMentees = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables)->count();
+        $monthly_new_alumniMentees = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables, $month)->count();
 
-        $total_alumni = $this->clientRepository->getAllClientByRole('alumni')->count();
-        $monthly_new_alumni = $this->clientRepository->getAllClientByRole('alumni', $month)->count();
+        $total_alumniNonMentees = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables)->count();
+        $monthly_new_alumniNonMentees = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables, $month)->count();
 
-        $total_parent = $this->clientRepository->getAllClientByRole('parent')->count();
-        $monthly_new_parent = $this->clientRepository->getAllClientByRole('parent', $month)->count();
+        $total_parent = $this->clientRepository->getParents($asDatatables)->count();
+        $monthly_new_parent = $this->clientRepository->getParents($asDatatables, $month)->count();
 
         $total_teacher = $this->clientRepository->getAllClientByRole('Teacher/Counselor')->count();
         $monthly_new_teacher = $this->clientRepository->getAllClientByRole('Teacher/Counselor', $month)->count();
 
         # data at the top of dashboard
         $response['totalClientInformation'] = [
-            'prospective' => [
-                'old' => $total_prospective_client - $monthly_new_prospective_client,
-                'new' => $monthly_new_prospective_client,
-                'percentage' => $this->calculatePercentage($total_prospective_client, $monthly_new_prospective_client)
+            'newLeads' => [
+                'old' => $total_newLeads - $monthly_new_newLeads,
+                'new' => $monthly_new_newLeads,
+                'percentage' => $this->calculatePercentage($total_newLeads, $monthly_new_newLeads)
             ], # prospective
             'potential' => [
                 'old' => $total_potential_client - $monthly_new_potential_client,
                 'new' => $monthly_new_potential_client,
                 'percentage' => $this->calculatePercentage($total_potential_client, $monthly_new_potential_client)
             ], # potential
-            'current' => [
-                'old' => $total_current_client - $monthly_new_current_client,
-                'new' => $monthly_new_current_client,
-                'percentage' => $this->calculatePercentage($total_current_client, $monthly_new_current_client)
+            'existingMentees' => [
+                'old' => $total_existingMentees - $monthly_new_existingMentees,
+                'new' => $monthly_new_existingMentees,
+                'percentage' => $this->calculatePercentage($total_existingMentees, $monthly_new_existingMentees)
             ], # current
-            'completed' => [
-                'old' => $total_completed_client - $monthly_new_completed_client,
-                'new' => $monthly_new_completed_client,
-                'percentage' => $this->calculatePercentage($total_completed_client, $monthly_new_completed_client)
+            'existingNonMentees' => [
+                'old' => $total_existingNonMentees - $monthly_new_existingNonMentees,
+                'new' => $monthly_new_existingNonMentees,
+                'percentage' => $this->calculatePercentage($total_existingNonMentees, $monthly_new_existingNonMentees)
             ], # current
-            'mentee' => [
-                'old' => $total_mentee - $monthly_new_mentee,
-                'new' => $monthly_new_mentee,
-                'percentage' => $this->calculatePercentage($total_mentee, $monthly_new_mentee)
+            'alumniMentees' => [
+                'old' => $total_alumniMentees - $monthly_new_alumniMentees,
+                'new' => $monthly_new_alumniMentees,
+                'percentage' => $this->calculatePercentage($total_alumniMentees, $monthly_new_alumniMentees)
             ],
-            'alumni' => [
-                'old' => $total_alumni - $monthly_new_alumni,
-                'new' => $monthly_new_alumni,
-                'percentage' => $this->calculatePercentage($total_alumni, $monthly_new_alumni)
+            'alumniNonMentees' => [
+                'old' => $total_alumniNonMentees - $monthly_new_alumniNonMentees,
+                'new' => $monthly_new_alumniNonMentees,
+                'percentage' => $this->calculatePercentage($total_alumniNonMentees, $monthly_new_alumniNonMentees)
             ],
             'parent' => [
                 'old' => $total_parent - $monthly_new_parent,

@@ -44,6 +44,8 @@ class ImportPartnerProgram extends Command
     public function handle()
     {
         $partnerPrograms = $this->partnerProgramRepository->getAllPartnerProgramFromCRM();
+        $progressBar = $this->output->createProgressBar($partnerPrograms->count());
+        $progressBar->start();
         $partnerProgramDetails = [];
 
         foreach ($partnerPrograms as $partnerProgram) {
@@ -73,7 +75,9 @@ class ImportPartnerProgram extends Command
                     'updated_at' => $partnerProgram->corprog_datefirstdiscuss
                 ];
             }
+            $progressBar->advance();
         }
+        $progressBar->finish();
 
         if (count($partnerProgramDetails) > 0) {
             $this->partnerProgramRepository->createPartnerPrograms($partnerProgramDetails);

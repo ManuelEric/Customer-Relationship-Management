@@ -34,6 +34,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('deactivated:user')->daily();
 
         # import data from big data v1
+        $schedule->command('import:prog')->hourly();
+        
         $schedule->command('import:university')->hourly();
         $schedule->command('import:employee')->hourly();
         $schedule->command('import:mentor')->hourly();
@@ -46,6 +48,18 @@ class Kernel extends ConsoleKernel
         $schedule->command('import:parent')->hourly();
         $schedule->command('import:eduf')->hourly();
         $schedule->command('import:clientprog')->hourly();
+
+        $schedule->command('import:corp')->hourly();
+        $schedule->command('import:partner_program')->hourly();
+        $schedule->command('import:partner_program_attach')->hourly();
+
+        $schedule->command('import:school_program')->hourly();
+
+        $schedule->command('import:invoice_school')->hourly();
+        $schedule->command('import:invoice_school_attachment')->hourly();
+        $schedule->command('import:receipt_school')->hourly();
+        $schedule->command('import:receipt_school_attachment')->hourly();
+        
 
     }
 

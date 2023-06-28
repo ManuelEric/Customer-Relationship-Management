@@ -12,6 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.6/flowbite.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         .ts-control {
             border: none !important;
@@ -44,7 +46,7 @@
 <body>
     <div class="min-h-screen flex items-center bg-gray-200">
         <div class="max-w-screen-lg w-full mx-auto p-4">
-            <form action="" method="POST">
+            <form action="{{ route('submit.registration') }}" method="POST" id="registration-form">
                 @csrf
                 <section id="role" class="page">
                     <div
@@ -105,7 +107,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Full Name
                             </label>
-                            <input type="text"
+                            <input type="text" name="fullname[]"
                                 class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
@@ -113,7 +115,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Email
                             </label>
-                            <input type="text"
+                            <input type="text" name="email[]"
                                 class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
@@ -121,9 +123,10 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                 Phone Number
                             </label>
-                            <input type="text"
+                            <input type="text" name="phone[]"
                                 class="w-full md:w-[126vh] text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                 id="phoneUser1">
+                            <input type="hidden" name="fullnumber[]" id="phone1">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
 
@@ -162,7 +165,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Full Name
                             </label>
-                            <input type="text"
+                            <input type="text" name="fullname[]"
                                 class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
@@ -170,7 +173,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Email
                             </label>
-                            <input type="text"
+                            <input type="text" name="email[]"
                                 class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
@@ -178,9 +181,10 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                 Phone Number
                             </label>
-                            <input type="text"
+                            <input type="text" name="phone[]"
                                 class="w-full md:w-[126vh] text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                 id="phoneUser2">
+                            <input type="hidden" name="fullnumber[]" id="phone2">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
 
@@ -219,13 +223,13 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 School
                             </label>
-                            <select name="" id="schoolList"
+                            <select name="school" id="schoolList"
                                 class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
                                 placeholder="Pick one school">
                                 <option value=""></option>
-                                @for ($i = 0; $i < 5; $i++)
-                                    <option value="{{ $i }}">{{ $i }}</option>
-                                @endfor
+                                @foreach ($schools as $school)
+                                    <option value="{{ $school->sch_id }}">{{ $school->sch_name }}</option>
+                                @endforeach
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
@@ -233,7 +237,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Expected Graduation Year
                             </label>
-                            <select name="" id="grade"
+                            <select name="grade" id="grade"
                                 class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
                                 placeholder="Pick one school">
                                 <option value=""></option>
@@ -251,7 +255,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                                 <div
                                     class="flex items-center pl-4 border border-gray-200 rounded dark:border-gray-700">
-                                    <input id="program-1" type="radio" value="" name="program"
+                                    <input id="program-1" type="radio" value="admissions_mentoring" name="program"
                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                     <label for="program-1"
                                         class="w-full py-4 pr-4 ml-4 text-md font-medium text-gray-900 dark:text-gray-300">
@@ -260,7 +264,7 @@
                                 </div>
                                 <div
                                     class="flex items-center pl-4 border border-gray-200 rounded dark:border-gray-700">
-                                    <input checked id="program-2" type="radio" value="" name="program"
+                                    <input checked id="program-2" type="radio" value="university_application_essay" name="program"
                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                     <label for="program-2"
                                         class="w-full py-4 pr-4 ml-4 text-md font-medium text-gray-900 dark:text-gray-300">
@@ -269,7 +273,7 @@
                                 </div>
                                 <div
                                     class="flex items-center pl-4 border border-gray-200 rounded dark:border-gray-700">
-                                    <input id="program-3" type="radio" value="" name="program"
+                                    <input id="program-3" type="radio" value="academic_tutoring" name="program"
                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                     <label for="program-3"
                                         class="w-full py-4 pr-4 ml-4 text-md font-medium text-gray-900 dark:text-gray-300">
@@ -278,7 +282,7 @@
                                 </div>
                                 <div
                                     class="flex items-center pl-4 border border-gray-200 rounded dark:border-gray-700">
-                                    <input id="program-4" type="radio" value="" name="program"
+                                    <input id="program-4" type="radio" value="sat_act" name="program"
                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                     <label for="program-4"
                                         class="w-full py-4 pr-4 ml-4 text-md font-medium text-gray-900 dark:text-gray-300">
@@ -287,7 +291,7 @@
                                 </div>
                                 <div
                                     class="flex items-center pl-4 border border-gray-200 rounded dark:border-gray-700">
-                                    <input id="program-5" type="radio" value="" name="program"
+                                    <input id="program-5" type="radio" value="experiential_learning" name="program"
                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                     <label for="program-5"
                                         class="w-full py-4 pr-4 ml-4 text-md font-medium text-gray-900 dark:text-gray-300">
@@ -307,7 +311,7 @@
                                 </svg>
                                 Previous
                             </button>
-                            <button type="submit"
+                            <button type="submit" id="submit" onclick="swal.showLoading()"
                                 class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-blue-700 bg-white border-2 border-blue-700 rounded-lg hover:bg-blue-800 hover:text-white ease-in-out duration-500">
                                 Submit
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -327,12 +331,12 @@
 <script>
     var user1 = document.querySelector("#phoneUser1");
     var user2 = document.querySelector("#phoneUser2");
-    window.intlTelInput(user1, {
+    const phoneInput1 = window.intlTelInput(user1, {
         utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
         initialCountry: 'id',
         onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
     });
-    window.intlTelInput(user2, {
+    const phoneInput2 = window.intlTelInput(user2, {
         utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
         initialCountry: 'id',
         onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
@@ -396,6 +400,18 @@
             }
         }
     }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    $("#phoneUser1").on('keyup', function(e) {
+        var number1 = phoneInput1.getNumber();
+        $("#phone1").val(number1);
+    });
+
+    $("#phoneUser2").on('keyup', function(e) {
+        var number2 = phoneInput2.getNumber();
+        $("#phone2").val(number2);
+    });
 </script>
 
 </html>

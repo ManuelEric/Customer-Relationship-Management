@@ -98,7 +98,7 @@
                                 title="
                                         @foreach ($newClient->where('role_name', 'Student') as $newStudent)
                                             <p>
-                                                <b>{{$newStudent->client->full_name}}</b> From {{$newStudent->client->school->sch_name}}
+                                                <b>{{$newStudent->client->full_name}}</b> From {{$newStudent->client->school->sch_name ?? ''}}
                                             </p>
                                         @endforeach">
                                 <div class="">Student</div>
@@ -108,7 +108,7 @@
                                 title="
                                         @foreach ($newClient->where('role_name', 'Parent') as $newParent)
                                             <p>
-                                                <b>{{$newParent->client->full_name}}</b> From {{$newParent->client->school->sch_name}}
+                                                <b>{{$newParent->client->full_name}}</b> 
                                             </p>
                                         @endforeach">
                                 <div class="">Parent</div>
@@ -118,7 +118,7 @@
                                 title="
                                         @foreach ($newClient->where('role_name', 'Teacher/Counselor') as $newTeacher)
                                             <p>
-                                                <b>{{$newTeacher->client->full_name}}</b> From {{$newTeacher->client->school->sch_name}}
+                                                <b>{{$newTeacher->client->full_name}}</b> From {{$newTeacher->client->school->sch_name ?? ''}}
                                             </p>
                                         @endforeach">
                                 <div class="">Teacher / Counselor</div>

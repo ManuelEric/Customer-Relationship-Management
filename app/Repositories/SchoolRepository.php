@@ -52,7 +52,7 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getAllSchools()
     {
-        return School::orderBy('sch_id', 'asc')->get();
+        return School::orderBy('sch_id', 'asc')->groupBy('sch_name')->get();
     }
 
     public function getSchoolByMonthly($monthYear, $type)
@@ -249,7 +249,7 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getUncompeteSchools()
     {
-        return School::whereNull('sch_type')->orWhereNull('sch_score')->get();
+        return School::whereNull('sch_type')->get();
     }
     # CRM
     public function getAllSchoolFromV1()

@@ -47,6 +47,7 @@ class SendReminderTutorH1 extends Command
         foreach ($acadTutors as $data) {
 
             $tutor_date = date('d M Y', strtotime($data->date));
+            $tutor_date_for_calendar = date('Ymd', strtotime($data->date));
             $tutor_time = date('H:i', strtotime($data->time));
             $tutor_link = $data->link;
 
@@ -63,6 +64,7 @@ class SendReminderTutorH1 extends Command
                 continue;
 
             $cc = array_merge($pic_email, $master_tutor);
+            $program = "Academic Tutoring";
 
             $params = [
                 'recipient' => [
@@ -74,7 +76,8 @@ class SendReminderTutorH1 extends Command
                     'date' => $tutor_date,
                     'time' => $tutor_time,
                     'link' => $tutor_link
-                ] 
+                ],
+                'calendar' => "https://calendar.google.com/calendar/u/0/r/eventedit?dates=".$tutor_date_for_calendar.'/'.$tutor_date_for_calendar."&text=Academic+Tutoring&details=".str_replace(' ', '+', $program.' on '.$tutor_date)."&location=".urlencode($tutor_link),
             ];
 
             $subject = 'Reminder for Academic Tutoring';

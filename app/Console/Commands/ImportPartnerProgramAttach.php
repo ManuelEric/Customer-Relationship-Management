@@ -47,6 +47,8 @@ class ImportPartnerProgramAttach extends Command
     public function handle()
     {
         $partnerPrograms = $this->partnerProgramRepository->getAllPartnerProgramFromCRM();
+        $progressBar = $this->output->createProgressBar($partnerPrograms->count());
+        $progressBar->start();
         $partnerProgAttDetails = [];
 
         foreach ($partnerPrograms as $partnerProgram) {
@@ -64,7 +66,10 @@ class ImportPartnerProgramAttach extends Command
                     }
                 }
             }
+
+            $progressBar->advance();
         }
+        $progressBar->finish();
 
         if (count($partnerProgAttDetails) > 0) {
             $this->partnerProgramAttachRepository->createPartnerProgramAttachs($partnerProgAttDetails);

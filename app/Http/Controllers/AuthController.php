@@ -20,14 +20,22 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|exists:users',
+            'email' => 'required|exists:users,email',
             'password' => 'required',
         ]);
 
         # check credentials
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            $user_type = $user->user_type->first();
+            
+            if (!$user_type = $user->user_type->first()) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return back()->withErrors([
+                    'password' => 'You don\'t have permission to login. If this problem persists, please contact our administrator.'
+                ]);
+            }
 
             if ($user_type->type_name != 'Full-Time' && ($user_type->pivot->end_date <= Carbon::now()->toDateString())) {
                 return back()->withErrors([

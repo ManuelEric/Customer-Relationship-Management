@@ -68,207 +68,201 @@ class ImportMentor extends Command
         $crm_mentors = $this->mentorRepository->getAllMentors();
         $progressBar = $this->output->createProgressBar($crm_mentors->count());
         $progressBar->start();
-        
+
         DB::beginTransaction();
 
         try {
 
-            foreach ($crm_mentors as $mentor) 
-            {
+            foreach ($crm_mentors as $mentor) {
 
                 $extended_id = $mentor->mt_id;
                 $first_name = $mentor->mt_firstn;
                 $last_name = $mentor->mt_lastn;
-                $fullname = $first_name.' '.$last_name;
+                $fullname = $first_name . ' ' . $last_name;
                 $email = $mentor->mt_email;
-    
+
+                $user = $this->createMentorIfNotExist($fullname, $email, $mentor, $extended_id);
+
                 # if user doesnt exist in the database
                 # then create a new one
-                
-                if (!$user = $this->userRepository->getUserByFullNameOrEmail($fullname, $email)) {
 
-                    # initialized user detail
-                    $userDetails = [
-                        'nip' => null,
-                        'extended_id' => $extended_id,
-                        'first_name' => $mentor->mt_firstn,
-                        'last_name' => $mentor->mt_lastn == '' ? null : $mentor->mt_lastn,
-                        'address' => $mentor->mt_address == '' ? null : $mentor->mt_address,
-                        'email' => $mentor->mt_email == '' || $mentor->mt_email == '-' ? null : $mentor->mt_email,
-                        'phone' => $mentor->mt_phone == '' ? null : $this->setPhoneNumber($mentor->mt_phone),
-                        'emergency_contact' => null,
-                        'datebirth' => null,
-                        'position_id' => null,
-                        'password' => $mentor->mt_password == '' ? null : $mentor->mt_password,
-                        'hiredate' => null,
-                        'nik' => null,
-                        'idcard' => null,
-                        'cv' => $mentor->mt_cv == '' ? null : $mentor->mt_cv,
-                        'bankname' => $mentor->mt_banknm == '' ? null : $mentor->mt_banknm,
-                        'bankacc' => $mentor->mt_bankacc == '' ? null : $mentor->mt_bankacc,
-                        'npwp' => $mentor->mt_npwp == '' ? null : $mentor->mt_npwp,
-                        'tax' => null,
-                        'active' => $mentor->mt_status == 1 ? true : false,
-                        'health_insurance' => null,
-                        'empl_insurance' => null,
-                        'export' => false,
-                        'notes' => $mentor->mt_notes,
-                        'remember_token' => null,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
-                    ];
-    
-                    $user = $this->userRepository->createUser($userDetails);
+                // if (!$user = $this->userRepository->getUserByFullNameOrEmail($fullname, $email)) {
 
-                    # initialize new details by education 'bachelor'
-                    $graduatedFrom = $mentor->univ_id;
-                    $graduatedMajor = $mentor->mt_major;
+                //     # initialized user detail
+                //     $userDetails = [
+                //         'nip' => null,
+                //         'extended_id' => $extended_id,
+                //         'first_name' => $mentor->mt_firstn,
+                //         'last_name' => $mentor->mt_lastn == '' ? null : $mentor->mt_lastn,
+                //         'address' => $mentor->mt_address == '' ? null : $mentor->mt_address,
+                //         'email' => $mentor->mt_email == '' || $mentor->mt_email == '-' ? null : $mentor->mt_email,
+                //         'phone' => $mentor->mt_phone == '' ? null : $this->setPhoneNumber($mentor->mt_phone),
+                //         'emergency_contact' => null,
+                //         'datebirth' => null,
+                //         'position_id' => null,
+                //         'password' => $mentor->mt_password == '' ? null : $mentor->mt_password,
+                //         'hiredate' => null,
+                //         'nik' => null,
+                //         'idcard' => null,
+                //         'cv' => $mentor->mt_cv == '' ? null : $mentor->mt_cv,
+                //         'bankname' => $mentor->mt_banknm == '' ? null : $mentor->mt_banknm,
+                //         'bankacc' => $mentor->mt_bankacc == '' ? null : $mentor->mt_bankacc,
+                //         'npwp' => $mentor->mt_npwp == '' ? null : $mentor->mt_npwp,
+                //         'tax' => null,
+                //         'active' => $mentor->mt_status == 1 ? true : false,
+                //         'health_insurance' => null,
+                //         'empl_insurance' => null,
+                //         'export' => false,
+                //         'notes' => $mentor->mt_notes,
+                //         'remember_token' => null,
+                //         'created_at' => Carbon::now(),
+                //         'updated_at' => Carbon::now(),
+                //     ];
 
-                    $userMajorDetails = array();
+                //     $user = $this->userRepository->createUser($userDetails);
 
-                    if ( ($graduatedFrom != '') && ($graduatedFrom != null) )
-                    {
-                        # check if university is exists in database university v2
-                        if (!$univDetail = $this->universityRepository->getUniversityByUnivId($graduatedFrom)) {
 
-                            # if not exist then create a new one
-                            # initialize
-                            $last_id = University::max('univ_id');
-                            $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
-                            $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label + 1, 3);
+                //     if (($graduatedFrom != '') && ($graduatedFrom != null)) {
+                //         # check if university is exists in database university v2
+                //         if (!$univDetail = $this->universityRepository->getUniversityByUnivId($graduatedFrom)) {
 
-                            # get country name 
-                            $countryDetail = $this->countryRepository->getCountryNameByUnivCountry($mentor->university->univ_country);
+                //             # if not exist then create a new one
+                //             # initialize
+                //             $last_id = University::max('univ_id');
+                //             $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
+                //             $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label + 1, 3);
 
-                            $newUnivDetails = [
-                                'univ_id' => $univ_id_with_label,
-                                'univ_name' => $mentor->university->univ_name,
-                                'univ_address' => $mentor->university->univ_address,
-                                'univ_country' => $countryDetail->name,
-                            ]; 
+                //             # get country name 
+                //             $countryDetail = $this->countryRepository->getCountryNameByUnivCountry($mentor->university->univ_country);
 
-                            # insert new university
-                            $univDetail = $this->universityRepository->createUniversity($newUnivDetails);
+                //             $newUnivDetails = [
+                //                 'univ_id' => $univ_id_with_label,
+                //                 'univ_name' => $mentor->university->univ_name,
+                //                 'univ_address' => $mentor->university->univ_address,
+                //                 'univ_country' => $countryDetail->name,
+                //             ];
 
-                        }
+                //             # insert new university
+                //             $univDetail = $this->universityRepository->createUniversity($newUnivDetails);
+                //         }
 
-                        # if she/he (employee) has more than one major on table employee v1
-                        # then do this
-                        if ( count($multiMajor = explode(' ; ', $graduatedMajor)) > 0 ) {
-                            
-                            for ($i = 0 ; $i < count($multiMajor) ; $i++) {
-                                
-                                # validate just in case if multiMajor[$i] is empty
-                                if ($multiMajor[$i]) {
+                //         # if she/he (employee) has more than one major on table employee v1
+                //         # then do this
+                //         if (count($multiMajor = explode(' ; ', $graduatedMajor)) > 0) {
 
-                                    if ($majorDetail = $this->majorRepository->getMajorByName($multiMajor[$i])) {
-                                        
-                                        $userMajorDetails[] = [
-                                            'user_id' => $user->id,
-                                            'univ_id' => $univDetail->univ_id,
-                                            'major_id' => $majorDetail->id,
-                                            'degree' => 'Bachelor',
-                                            'graduation_date' => null,
-                                            'created_at' => Carbon::now(),
-                                            'updated_at' => Carbon::now()
-                                        ];
-    
-                                    } 
-    
-                                    # if multiMajor[$i] doesn't exist in database
-                                    # then create a new one
-                                    
-                                    else {
-                                        
-                                        $majorDetail = [
-                                            'name' => $multiMajor[$i],
-                                            'created_at' => Carbon::now(),
-                                            'updated_at' => Carbon::now(),
-                                        ];
-    
-                                        $createdMajor = $this->majorRepository->createMajor($majorDetail);
-    
-                                        $userMajorDetails[] = [
-                                            'user_id' => $user->id,
-                                            'univ_id' => $univDetail->univ_id,
-                                            'major_id' => $createdMajor->id,
-                                            'degree' => 'Bachelor',
-                                            'graduation_date' => null,
-                                            'created_at' => Carbon::now(),
-                                            'updated_at' => Carbon::now()
-                                        ];
-    
-                                    }
-                                }
+                //             for ($i = 0; $i < count($multiMajor); $i++) {
 
-                            }
-                        }
+                //                 # validate just in case if multiMajor[$i] is empty
+                //                 if ($multiMajor[$i]) {
 
-                        # if she/he has only one major on table employee v1
-                        else {
-                            
-                            if ($majorDetail = $this->majorRepository->getMajorByName($graduatedMajor)) {
+                //                     if ($majorDetail = $this->majorRepository->getMajorByName($multiMajor[$i])) {
 
-                                $userMajorDetails[] = [
-                                    'user_id' => $user->id,
-                                    'univ_id' => $univDetail->univ_id,
-                                    'major_id' => $majorDetail->id,
-                                    'degree' => 'Bachelor',
-                                    'graduation_date' => null,
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now()
-                                ];
-                            }
+                //                         $userMajorDetails[] = [
+                //                             'user_id' => $user->id,
+                //                             'univ_id' => $univDetail->univ_id,
+                //                             'major_id' => $majorDetail->id,
+                //                             'degree' => 'Bachelor',
+                //                             'graduation_date' => null,
+                //                             'created_at' => Carbon::now(),
+                //                             'updated_at' => Carbon::now()
+                //                         ];
+                //                     }
 
-                            # if multiMajor[$i] doesn't exist in database
-                            # then create a new one
-                            
-                            else {
-                                
-                                $majorDetail = [
-                                    'name' => $graduatedMajor,
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now(),
-                                ];
+                //                     # if multiMajor[$i] doesn't exist in database
+                //                     # then create a new one
 
-                                $createdMajor = $this->majorRepository->createMajor($majorDetail);
+                //                     else {
 
-                                $userMajorDetails[] = [
-                                    'user_id' => $user->id,
-                                    'univ_id' => $univDetail->univ_id,
-                                    'major_id' => $createdMajor->id,
-                                    'degree' => 'Bachelor',
-                                    'graduation_date' => null,
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now()
-                                ];
+                //                         $majorDetail = [
+                //                             'name' => $multiMajor[$i],
+                //                             'created_at' => Carbon::now(),
+                //                             'updated_at' => Carbon::now(),
+                //                         ];
 
-                            }
-                            
+                //                         $createdMajor = $this->majorRepository->createMajor($majorDetail);
 
-                        }
-                    }
-                }
+                //                         $userMajorDetails[] = [
+                //                             'user_id' => $user->id,
+                //                             'univ_id' => $univDetail->univ_id,
+                //                             'major_id' => $createdMajor->id,
+                //                             'degree' => 'Bachelor',
+                //                             'graduation_date' => null,
+                //                             'created_at' => Carbon::now(),
+                //                             'updated_at' => Carbon::now()
+                //                         ];
+                //                     }
+                //                 }
+                //             }
+                //         }
+
+                //         # if she/he has only one major on table employee v1
+                //         else {
+
+                //             if ($majorDetail = $this->majorRepository->getMajorByName($graduatedMajor)) {
+
+                //                 $userMajorDetails[] = [
+                //                     'user_id' => $user->id,
+                //                     'univ_id' => $univDetail->univ_id,
+                //                     'major_id' => $majorDetail->id,
+                //                     'degree' => 'Bachelor',
+                //                     'graduation_date' => null,
+                //                     'created_at' => Carbon::now(),
+                //                     'updated_at' => Carbon::now()
+                //                 ];
+                //             }
+
+                //             # if multiMajor[$i] doesn't exist in database
+                //             # then create a new one
+
+                //             else {
+
+                //                 $majorDetail = [
+                //                     'name' => $graduatedMajor,
+                //                     'created_at' => Carbon::now(),
+                //                     'updated_at' => Carbon::now(),
+                //                 ];
+
+                //                 $createdMajor = $this->majorRepository->createMajor($majorDetail);
+
+                //                 $userMajorDetails[] = [
+                //                     'user_id' => $user->id,
+                //                     'univ_id' => $univDetail->univ_id,
+                //                     'major_id' => $createdMajor->id,
+                //                     'degree' => 'Bachelor',
+                //                     'graduation_date' => null,
+                //                     'created_at' => Carbon::now(),
+                //                     'updated_at' => Carbon::now()
+                //                 ];
+                //             }
+                //         }
+                //     }
+                // }
+
+                # initialize new details by education 'bachelor'
+                $graduatedFrom = $mentor->univ_id;
+                $graduatedMajor = $mentor->mt_major;
+
+                $userMajorDetails = $this->createUnivIfNotExist($graduatedFrom, $mentor, $graduatedMajor, $user);
 
                 # insert into tbl_user_educations
                 if (isset($userMajorDetails))
                     $user->educations()->attach($userMajorDetails);
 
                 $userRoleDetails = array();
-    
+
                 # check whether user is mentor, mentor & tutor, or just a tutor
                 switch ($mentor->mt_istutor) {
-    
+
                     case 1: # mentor
-    
+
                         # check if user already has role mentor
                         if (!$this->userRepository->getUserRoles($user->id, 'mentor')) {
-    
+
                             # if user doesn't have role mentor
                             # then add it 
-    
+
                             $roleDetail = $this->roleRepository->getRoleByName("mentor");
-            
+
                             $userRoleDetails[] = [
                                 'user_id' => $user->id,
                                 'role_id' => $roleDetail->id,
@@ -281,17 +275,17 @@ class ImportMentor extends Command
                             ];
                         }
                         break;
-    
+
                     case 2: # mentor & tutor
-    
+
                         # check if user already has role mentor
                         if (!$this->userRepository->getUserRoles($user->id, 'mentor')) {
-    
+
                             # if user doesn't have role mentor
                             # then add it 
-    
+
                             $roleDetail = $this->roleRepository->getRoleByName("mentor");
-            
+
                             $userRoleDetails[] = [
                                 'user_id' => $user->id,
                                 'role_id' => $roleDetail->id,
@@ -303,15 +297,15 @@ class ImportMentor extends Command
                                 'updated_at' => Carbon::now()
                             ];
                         }
-    
+
                         # check if user already has role tutor
                         if (!$this->userRepository->getUserRoles($user->id, 'tutor')) {
-    
+
                             # if user doesn't have role tutor
                             # then add it 
-    
+
                             $roleDetail = $this->roleRepository->getRoleByName("tutor");
-            
+
                             $userRoleDetails[] = [
                                 'user_id' => $user->id,
                                 'role_id' => $roleDetail->id,
@@ -322,20 +316,19 @@ class ImportMentor extends Command
                                 'created_at' => Carbon::now(),
                                 'updated_at' => Carbon::now()
                             ];
-    
                         }
                         break;
-    
+
                     case 3: # tutor
-    
+
                         # check if user already has role tutor
                         if (!$this->userRepository->getUserRoles($user->id, 'tutor')) {
-    
+
                             # if user doesn't have role tutor
                             # then add it 
-    
+
                             $roleDetail = $this->roleRepository->getRoleByName("tutor");
-            
+
                             $userRoleDetails[] = [
                                 'user_id' => $user->id,
                                 'role_id' => $roleDetail->id,
@@ -346,25 +339,184 @@ class ImportMentor extends Command
                                 'created_at' => Carbon::now(),
                                 'updated_at' => Carbon::now()
                             ];
-    
                         }
                         break;
-    
-                    }
-    
-                    $user->roles()->attach($userRoleDetails);
+                }
+
+                $user->roles()->attach($userRoleDetails);
                 $progressBar->advance();
             }
             $progressBar->finish();
             DB::commit();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
             Log::error('Import mentors failed : ' . $e->getMessage());
-
         }
 
         return Command::SUCCESS;
+    }
+
+    private function createMentorIfNotExist($fullname, $email, $mentor, $extended_id)
+    {
+        # initialized user detail
+        $userDetails = [
+            'nip' => null,
+            'extended_id' => $extended_id,
+            'first_name' => $mentor->mt_firstn,
+            'last_name' => $mentor->mt_lastn == '' ? null : $mentor->mt_lastn,
+            'address' => $mentor->mt_address == '' ? null : $mentor->mt_address,
+            'email' => $mentor->mt_email == '' || $mentor->mt_email == '-' ? null : $mentor->mt_email,
+            'phone' => $mentor->mt_phone == '' ? null : $this->setPhoneNumber($mentor->mt_phone),
+            'emergency_contact' => null,
+            'datebirth' => null,
+            'position_id' => null,
+            'password' => $mentor->mt_password == '' ? null : $mentor->mt_password,
+            'hiredate' => null,
+            'nik' => null,
+            'idcard' => null,
+            'cv' => $mentor->mt_cv == '' ? null : $mentor->mt_cv,
+            'bankname' => $mentor->mt_banknm == '' ? null : $mentor->mt_banknm,
+            'bankacc' => $mentor->mt_bankacc == '' ? null : $mentor->mt_bankacc,
+            'npwp' => $mentor->mt_npwp == '' ? null : $mentor->mt_npwp,
+            'tax' => null,
+            'active' => $mentor->mt_status == 1 ? true : false,
+            'health_insurance' => null,
+            'empl_insurance' => null,
+            'export' => false,
+            'notes' => $mentor->mt_notes,
+            'remember_token' => null,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ];
+
+        if (!$user = $this->userRepository->getUserByFullNameOrEmail($fullname, $email)) {
+            $this->userRepository->createUser($userDetails);
+        }
+        // else {
+        //     $this->userRepository->updateUser($user->id, $userDetails);
+        // }
+
+        return $user;
+    }
+
+    private function createUnivIfNotExist($graduatedFrom, $mentor, $graduatedMajor, $user)
+    {
+        $userMajorDetails = [];
+        if (($graduatedFrom != '') && ($graduatedFrom != null)) {
+            # check if university is exists in database university v2
+            if (!$univDetail = $this->universityRepository->getUniversityByUnivId($graduatedFrom)) {
+
+                # if not exist then create a new one
+                # initialize
+                $last_id = University::max('univ_id');
+                $univ_id_without_label = $this->remove_primarykey_label($last_id, 5);
+                $univ_id_with_label = 'UNIV-' . $this->add_digit($univ_id_without_label + 1, 3);
+
+                # get country name 
+                $countryDetail = $this->countryRepository->getCountryNameByUnivCountry($mentor->university->univ_country);
+
+                $newUnivDetails = [
+                    'univ_id' => $univ_id_with_label,
+                    'univ_name' => $mentor->university->univ_name,
+                    'univ_address' => $mentor->university->univ_address,
+                    'univ_country' => $countryDetail->name,
+                ];
+
+                # insert new university
+                $univDetail = $this->universityRepository->createUniversity($newUnivDetails);
+            }
+
+            # if she/he (employee) has more than one major on table employee v1
+            # then do this
+            if (count($multiMajor = explode(' ; ', $graduatedMajor)) > 0) {
+
+                for ($i = 0; $i < count($multiMajor); $i++) {
+
+                    # validate just in case if multiMajor[$i] is empty
+                    if ($multiMajor[$i]) {
+
+                        if ($majorDetail = $this->majorRepository->getMajorByName($multiMajor[$i])) {
+
+                            $userMajorDetails[] = [
+                                'user_id' => $user->id,
+                                'univ_id' => $univDetail->univ_id,
+                                'major_id' => $majorDetail->id,
+                                'degree' => 'Bachelor',
+                                'graduation_date' => null,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+                        }
+
+                        # if multiMajor[$i] doesn't exist in database
+                        # then create a new one
+
+                        else {
+
+                            $majorDetail = [
+                                'name' => $multiMajor[$i],
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now(),
+                            ];
+
+                            $createdMajor = $this->majorRepository->createMajor($majorDetail);
+
+                            $userMajorDetails[] = [
+                                'user_id' => $user->id,
+                                'univ_id' => $univDetail->univ_id,
+                                'major_id' => $createdMajor->id,
+                                'degree' => 'Bachelor',
+                                'graduation_date' => null,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ];
+                        }
+                    }
+                }
+            }
+
+            # if she/he has only one major on table employee v1
+            else {
+
+                if ($majorDetail = $this->majorRepository->getMajorByName($graduatedMajor)) {
+
+                    $userMajorDetails[] = [
+                        'user_id' => $user->id,
+                        'univ_id' => $univDetail->univ_id,
+                        'major_id' => $majorDetail->id,
+                        'degree' => 'Bachelor',
+                        'graduation_date' => null,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ];
+                }
+
+                # if multiMajor[$i] doesn't exist in database
+                # then create a new one
+
+                else {
+
+                    $majorDetail = [
+                        'name' => $graduatedMajor,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ];
+
+                    $createdMajor = $this->majorRepository->createMajor($majorDetail);
+
+                    $userMajorDetails[] = [
+                        'user_id' => $user->id,
+                        'univ_id' => $univDetail->univ_id,
+                        'major_id' => $createdMajor->id,
+                        'degree' => 'Bachelor',
+                        'graduation_date' => null,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ];
+                }
+            }
+        }
+        return $userMajorDetails;
     }
 }

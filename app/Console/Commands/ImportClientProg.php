@@ -75,7 +75,7 @@ class ImportClientProg extends Command
         $this->refundRepository = $refundRepository;
         $this->mainProgRepository = $mainProgRepository;
         $this->subProgRepository =  $subProgRepository;
-        
+
         $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
         })->orWhereHas('sub_prog', function ($query) {
@@ -104,47 +104,44 @@ class ImportClientProg extends Command
             $crm_clientprogs = $this->clientProgramRepository->getClientProgramFromV1();
             $progressBar = $this->output->createProgressBar($crm_clientprogs->count());
             $progressBar->start();
-            foreach ($crm_clientprogs as $crm_clientprog)
-            {
+            foreach ($crm_clientprogs as $crm_clientprog) {
 
                 # get the student id on database v2 using name
-                if (!isset($crm_clientprog->student->st_firstname)) 
+                if (!isset($crm_clientprog->student->st_firstname))
                     continue; # st num 146 not found in table students v1 deleted soon
-                
+
                 $crm_clientprog_student = $crm_clientprog->student;
                 $crm_student_id = $studentId = $crm_clientprog_student->st_id;
-                $crm_student_name = $crm_clientprog_student->st_firstname.' '.$crm_clientprog_student->st_lastname;
-                
+                $crm_student_name = $crm_clientprog_student->st_firstname . ' ' . $crm_clientprog_student->st_lastname;
+
                 # when the student hasn't be registered in the database v2
                 # then store as a new student
-                if (!$student_v2 = $this->clientRepository->getStudentByStudentName($crm_student_name))
-                {
+                if (!$student_v2 = $this->clientRepository->getStudentByStudentName($crm_student_name)) {
                     $this->info('Please run the import:student function');
                 }
-    
+
                 $student_v2_id = $student_v2->id;
-    
+
                 $progId = $this->createProgIfNotExists($crm_clientprog);
-    
+
                 $lead_v2 = $this->createLeadIfNotExists($crm_clientprog);
 
-                $reason_v2 = $this->createReasonIfNotExists($crm_clientprog);     
-    
+                $reason_v2 = $this->createReasonIfNotExists($crm_clientprog);
+
                 # check if empl id is exists
-                if ($crm_clientprog->pic != "") 
-                {
-                    $crm_clientprog_emplname = $crm_clientprog->pic->empl_firstname.' '.$crm_clientprog->pic->empl_lastname;
+                if ($crm_clientprog->pic != "") {
+                    $crm_clientprog_emplname = $crm_clientprog->pic->empl_firstname . ' ' . $crm_clientprog->pic->empl_lastname;
                     $crm_clientprog_emplmail = $crm_clientprog->pic->empl_email;
                     if (!$employee_v2 = $this->userRepository->getUserByFullNameOrEmail($crm_clientprog_emplname, $crm_clientprog_emplmail))
                         throw new Exception('Could not find employee.');
                 }
-    
+
                 $clientprog_v2 = $this->createClientProgramIfNotExists($student_v2_id, $progId, $lead_v2, $crm_clientprog, $employee_v2, $reason_v2);
 
-                $this->createFollowupIfNotExists($crm_clientprog, $clientprog_v2);                
+                $this->createFollowupIfNotExists($crm_clientprog, $clientprog_v2);
 
                 $this->createInvoiceIfNotExists($crm_clientprog, $clientprog_v2);
-                
+
                 $progressBar->advance();
             }
 
@@ -152,13 +149,11 @@ class ImportClientProg extends Command
 
             DB::commit();
             Log::info('Import client program works fine');
-            
         } catch (Exception $e) {
-            
-            DB::rollBack();
-            $this->info($e->getMessage().' | line '.$e->getLine());
-            Log::warning('Failed to import client program '. $e->getMessage().' | line '.$e->getLine().' | '.$e->getTraceAsString());
 
+            DB::rollBack();
+            $this->info($e->getMessage() . ' | line ' . $e->getLine());
+            Log::warning('Failed to import client program ' . $e->getMessage() . ' | line ' . $e->getLine() . ' | ' . $e->getTraceAsString());
         }
 
         return Command::SUCCESS;
@@ -168,12 +163,10 @@ class ImportClientProg extends Command
     {
         # check if prog id is exists
         $crm_clientprog_progid = $crm_clientprog->prog_id;
-        
-        if (!$program_v2 = $this->programRepository->getProgramById($crm_clientprog_progid))
-        {
 
-            if (!$main_prog = $this->mainProgRepository->getMainProgByName($crm_clientprog->program->prog_main))
-            {
+        if (!$program_v2 = $this->programRepository->getProgramById($crm_clientprog_progid)) {
+
+            if (!$main_prog = $this->mainProgRepository->getMainProgByName($crm_clientprog->program->prog_main)) {
                 $mainProgDetails = [
                     'prog_name' => $crm_clientprog->program->prog_main,
                     'prog_status' => 1
@@ -194,11 +187,9 @@ class ImportClientProg extends Command
                 'prog_mentor' => $crm_clientprog->program->prog_mentor,
                 'prog_payment' => $crm_clientprog->program->prog_payment,
             ];
-            
-            if ($crm_clientprog->program->prog_sub != "" && $crm_clientprog->program->prog_sub != NULL)
-            {
-                if (!$sub_prog = $this->subProgRepository->getSubProgBySubProgName($crm_clientprog->program->prog_sub))
-                {
+
+            if ($crm_clientprog->program->prog_sub != "" && $crm_clientprog->program->prog_sub != NULL) {
+                if (!$sub_prog = $this->subProgRepository->getSubProgBySubProgName($crm_clientprog->program->prog_sub)) {
                     $subProgDetails = [
                         'main_prog_id' => $main_prog->id,
                         'sub_prog_name' => $crm_clientprog->program->prog_sub,
@@ -206,7 +197,7 @@ class ImportClientProg extends Command
                     ];
 
                     $sub_prog = $this->subProgRepository->createSubProg($subProgDetails);
-                    
+
                     $programDetails['sub_prog_id'] = $sub_prog->id;
                 }
             }
@@ -221,8 +212,7 @@ class ImportClientProg extends Command
     {
         # check if lead id is exists
         $crm_clientprog_leadname = $crm_clientprog->lead->lead_name;
-        if (!$lead_v2 = $this->leadRepository->getLeadByName($crm_clientprog_leadname))
-        {
+        if (!$lead_v2 = $this->leadRepository->getLeadByName($crm_clientprog_leadname)) {
             # initialize
             $last_id = Lead::max('lead_id');
             $lead_id_without_label = $this->remove_primarykey_label($last_id, 2);
@@ -242,19 +232,17 @@ class ImportClientProg extends Command
     private function createReasonIfNotExists($crm_clientprog)
     {
         # check if reason id is exists
-        if ($crm_clientprog->reason != NULL)
-        {
+        if ($crm_clientprog->reason != NULL) {
             $crm_clientprog_reasonname = $crm_clientprog->reason->reason_name;
-            if (!$reason_v2 = $this->reasonRepository->getReasonByReasonName($crm_clientprog_reasonname))
-            {
+            if (!$reason_v2 = $this->reasonRepository->getReasonByReasonName($crm_clientprog_reasonname)) {
                 $reasonDetails = [
                     'reason_name' => $crm_clientprog_reasonname
-                    
+
                 ];
 
                 $reason_v2 = $this->reasonRepository->createReason($reasonDetails);
             }
-            
+
             return $reason_v2;
         }
     }
@@ -314,8 +302,7 @@ class ImportClientProg extends Command
             case 1: # success
 
                 # check if he/she already mentee
-                if (!$this->clientRepository->checkIfClientIsMentee($student_v2_id)) 
-                {
+                if (!$this->clientRepository->checkIfClientIsMentee($student_v2_id)) {
                     # if he/she join admission mentoring program
                     # add role mentee
                     if (in_array($progId, $this->admission_prog_list)) {
@@ -367,24 +354,22 @@ class ImportClientProg extends Command
                 }
 
                 if (in_array($progId, $this->admission_prog_list)) {
-                    
+
                     if (isset($crm_clientprog->hasMainMentor) && count($crm_clientprog->hasMainMentor) > 0) {
-                        $crm_clientprog_mentor1name = $crm_clientprog->hasMainMentor[0]->mt_firstn.' '.$crm_clientprog->hasMainMentor[0]->mt_lastn;
+                        $crm_clientprog_mentor1name = $crm_clientprog->hasMainMentor[0]->mt_firstn . ' ' . $crm_clientprog->hasMainMentor[0]->mt_lastn;
                         $crm_clientprog_mentor1email = $crm_clientprog->hasMainMentor[0]->mt_email;
                         # check if main mentor is exists
-                        if ($main_mentor_v2 = $this->userRepository->getUserByFullNameOrEmail($crm_clientprog_mentor1name, $crm_clientprog_mentor1email)) 
+                        if ($main_mentor_v2 = $this->userRepository->getUserByFullNameOrEmail($crm_clientprog_mentor1name, $crm_clientprog_mentor1email))
                             $clientProgramDetails['main_mentor'] = $main_mentor_v2->id;
                     }
 
                     if (isset($crm_clientprog->hasBackupMentor) && count($crm_clientprog->hasBackupMentor) > 0) {
-                        $crm_clientprog_mentor2name = $crm_clientprog->hasBackupMentor[0]->mt_firstn.' '.$crm_clientprog->hasBackupMentor[0]->mt_lastn;
+                        $crm_clientprog_mentor2name = $crm_clientprog->hasBackupMentor[0]->mt_firstn . ' ' . $crm_clientprog->hasBackupMentor[0]->mt_lastn;
                         $crm_clientprog_mentor2email = $crm_clientprog->hasBackupMentor[0]->mt_email;
                         # check if backup mentor is exists
-                        if ($backup_mentor_v2 = $this->userRepository->getUserByFullNameOrEmail($crm_clientprog_mentor2name, $crm_clientprog_mentor2email)) 
+                        if ($backup_mentor_v2 = $this->userRepository->getUserByFullNameOrEmail($crm_clientprog_mentor2name, $crm_clientprog_mentor2email))
                             $clientProgramDetails['backup_mentor'] = $backup_mentor_v2->id;
                     }
-                        
-
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     // $clientProgramDetails['tutor_id'] = null;
@@ -396,12 +381,31 @@ class ImportClientProg extends Command
                 break;
 
             case 2: # failed
-                
+
                 $clientProgramDetails['failed_date'] = $crm_clientprog->stprog_statusprogdate;
                 $clientProgramDetails['reason_id'] = $reason_v2->id ?? null;
                 $failed_date = $crm_clientprog->stprog_statusprogdate;
                 break;
         }
+
+        # check the st id 
+        $client = $this->clientRepository->getClientById($student_v2_id);
+
+        if ($this->clientRepository->getStudentByStudentId($client->st_id) || $client->st_id == NULL) {
+            # initialize
+            $last_id = Student::max('st_id');
+            $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+            $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+
+            if ($this->clientRepository->getStudentByStudentId($studentId)) {
+                # initialize
+                $last_id = UserClient::max('st_id');
+                $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+            }
+        }
+
+        $this->clientRepository->updateClient($student_v2_id, ['st_id' => $studentId]);
 
         # import client program to v2
         $clientprog_v2 = $this->clientProgramRepository->createClientProgram($clientProgramDetails);
@@ -412,11 +416,9 @@ class ImportClientProg extends Command
     private function createFollowupIfNotExists($crm_clientprog, $clientprog_v2)
     {
         # import followup 
-        if (isset($crm_clientprog->followUp) && count($crm_clientprog->followUp) > 0)
-        {
+        if (isset($crm_clientprog->followUp) && count($crm_clientprog->followUp) > 0) {
             $crm_followup = $crm_clientprog->followUp;
-            foreach ($crm_followup as $detail_flw)
-            {
+            foreach ($crm_followup as $detail_flw) {
                 $followupDetails = [
                     'clientprog_id' => $clientprog_v2->clientprog_id,
                     'followup_date' => $detail_flw->flw_date,
@@ -425,7 +427,6 @@ class ImportClientProg extends Command
                 ];
                 $followup_v2 = $this->followupRepository->createFollowup($followupDetails);
             }
-
         }
     }
 
@@ -433,14 +434,12 @@ class ImportClientProg extends Command
     {
         # import invoice program to v2
         $crm_clientprog_invoice = $crm_clientprog->invoice;
-        if ($crm_clientprog_invoice)
-        {
+        if ($crm_clientprog_invoice) {
             $crm_invoiceId = $crm_clientprog_invoice->inv_id;
-            if (!$invoice_v2 = $this->invoiceProgramRepository->getInvoiceByInvoiceId($crm_invoiceId))
-            {
+            if (!$invoice_v2 = $this->invoiceProgramRepository->getInvoiceByInvoiceId($crm_invoiceId)) {
                 $inv_words = $crm_clientprog_invoice->inv_wordsusd;
                 if ($crm_clientprog_invoice->inv_wordsusd == "") {
-                    $inv_words = Terbilang::make($crm_clientprog_invoice->inv_totprusd, ' dollars'); 
+                    $inv_words = Terbilang::make($crm_clientprog_invoice->inv_totprusd, ' dollars');
                 }
 
                 # it supposed to be : one hundred and fifty-three thousand, two hundred
@@ -448,12 +447,12 @@ class ImportClientProg extends Command
                 $inv_words = str_replace(' and', '', $inv_words);
                 $inv_words = str_replace(',', '', $inv_words);
 
-                $curs_rate = $crm_clientprog->stprog_kurs; 
+                $curs_rate = $crm_clientprog->stprog_kurs;
                 # when curs rate from v1 is 0
                 # then create using totprice_idr/totprice_usd
                 if ($crm_clientprog->stprog_kurs == 0 || $crm_clientprog->stprog_kurs == "" || $crm_clientprog->stprog_kurs == NULL) {
                     if ($crm_clientprog_invoice->inv_totprusd != 0)
-                        $curs_rate = $crm_clientprog_invoice->inv_totpridr/$crm_clientprog_invoice->inv_totprusd;
+                        $curs_rate = $crm_clientprog_invoice->inv_totpridr / $crm_clientprog_invoice->inv_totprusd;
                     else
                         $curs_rate = $curs_rate;
                 }
@@ -490,12 +489,10 @@ class ImportClientProg extends Command
 
                 # if the invoice has some installments
                 // $this->info('Ini installment : '.$crm_clientprog_invoice->installment);
-                if (count($crm_clientprog_invoice->installment) > 0)
-                {
+                if (count($crm_clientprog_invoice->installment) > 0) {
                     $crm_clientprog_installment = $crm_clientprog_invoice->installment;
                     $installmentDetails = [];
-                    foreach ($crm_clientprog_installment as $installment)
-                    {
+                    foreach ($crm_clientprog_installment as $installment) {
                         $installmentDetails = [
                             'inv_id' => $invoice_v2->inv_id,
                             'invdtl_installment' => $installment->invdtl_statusname,
@@ -512,8 +509,7 @@ class ImportClientProg extends Command
                         $installment_v2 = $this->invoiceDetailRepository->createOneInvoiceDetail($installmentDetails);
                         // $this->info('Installment stored : '.json_encode($installment_v2));
 
-                        if (isset($installment->receipt))
-                        {
+                        if (isset($installment->receipt)) {
                             $receiptDetails = [
                                 'receipt_id' => $installment->receipt->receipt_id,
                                 'receipt_cat' => 'student',
@@ -532,20 +528,19 @@ class ImportClientProg extends Command
                             ];
 
                             # import receipt installment to v2
-                            if ($this->receiptRepository->getReceiptByReceiptId($installment->receipt->receipt_id)){
-                                $receiptDetails['receipt_id'] = $installment->receipt->receipt_id.'-1';
+                            if ($this->receiptRepository->getReceiptByReceiptId($installment->receipt->receipt_id)) {
+                                $receiptDetails['receipt_id'] = $installment->receipt->receipt_id . '-1';
                             }
 
                             $receipt_v2 = $this->receiptRepository->createReceipt($receiptDetails);
                             // $this->info('Receipt installment stored : '.$receipt_v2->receipt_id);
 
                             # check if the receipt has refund
-                            if ($installment->receipt->receipt_status == 2 && $installment->receipt->receipt_refund != 0)
-                            {
+                            if ($installment->receipt->receipt_status == 2 && $installment->receipt->receipt_refund != 0) {
 
                                 $total_paid = $installment->receipt->receipt_amount;
                                 $refund_amount = $installment->receipt->receipt_refund;
-                                $percentage_refund = ($refund_amount/$total_paid)*100;
+                                $percentage_refund = ($refund_amount / $total_paid) * 100;
 
                                 $refundDetails = [
                                     'inv_id' => $invoice_v2->inv_id,
@@ -561,20 +556,16 @@ class ImportClientProg extends Command
 
                                 $refund_v2 = $this->refundRepository->createRefund($refundDetails);
                                 // $this->info('Refund installment stored : '.$refund_v2->id);
-                                
+
                             }
                         }
-
-                        
                     }
                 }
 
                 # if the invoice has receipt
-                if ($crm_clientprog_invoice->receipt && count($crm_clientprog_invoice->installment) == 0)
-                {
+                if ($crm_clientprog_invoice->receipt && count($crm_clientprog_invoice->installment) == 0) {
                     $crm_clientprog_receipt = $crm_clientprog_invoice->receipt;
-                    foreach ($crm_clientprog_receipt as $crm_receipt)
-                    {
+                    foreach ($crm_clientprog_receipt as $crm_receipt) {
                         // $this->info('ini Receipt master : '.$crm_receipt);
                         # store into receipt v2
                         $receiptDetails = [
@@ -596,12 +587,11 @@ class ImportClientProg extends Command
                         $receipt_v2 = $this->receiptRepository->createReceipt($receiptDetails);
 
                         # check if the receipt has refund
-                        if ($crm_receipt->receipt_status == 2 && $crm_receipt->receipt_refund != 0)
-                        {
+                        if ($crm_receipt->receipt_status == 2 && $crm_receipt->receipt_refund != 0) {
 
                             $total_paid = $crm_receipt->receipt_amount;
                             $refund_amount = $crm_receipt->receipt_refund;
-                            $percentage_refund = ($refund_amount/$total_paid)*100;
+                            $percentage_refund = ($refund_amount / $total_paid) * 100;
 
                             $refundDetails = [
                                 'inv_id' => $receipt_v2->inv_id,

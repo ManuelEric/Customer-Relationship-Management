@@ -27,6 +27,7 @@ class StoreMajorRequest extends FormRequest
 
         return [
             'name' => 'required|unique:tbl_major,name,'.$id,
+            'active' => 'required|boolean',
         ];
     }
 }

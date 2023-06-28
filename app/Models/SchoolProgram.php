@@ -16,12 +16,15 @@ class SchoolProgram extends Model
     protected $table = 'tbl_sch_prog';
     protected $primaryKey = 'id';
 
+    // public $incrementing = false;
+
     /**
      * The attributes that should be visible in arrays.
      *
      * @var array
      */
     protected $fillable = [
+        // 'id',
         'sch_id',
         'prog_id',
         'first_discuss',
