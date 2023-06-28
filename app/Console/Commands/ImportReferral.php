@@ -9,6 +9,8 @@ use App\Interfaces\ReferralRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\InvoiceAttachmentRepositoryInterface;
+use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Models\Corporate;
 use Exception;
 use Illuminate\Console\Command;
@@ -17,6 +19,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Traits\CreateInvoiceIdTrait;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
+use PDF;
 
 class ImportReferral extends Command
 {
@@ -40,11 +44,13 @@ class ImportReferral extends Command
     protected ReceiptRepositoryInterface $receiptRepository;
     protected InvoiceB2bRepositoryInterface $invoiceB2bRepository;
     protected UserRepositoryInterface $userRepository;
+    protected InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
+    protected ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository;
     use CreateInvoiceIdTrait;
     use CreateCustomPrimaryKeyTrait;
 
 
-    public function __construct(CorporateRepositoryInterface $corporateRepository, CorporatePicRepositoryInterface $corporatePicRepository, ReferralRepositoryInterface $referralRepository, ReceiptRepositoryInterface $receiptRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, UserRepositoryInterface $userRepository)
+    public function __construct(CorporateRepositoryInterface $corporateRepository, CorporatePicRepositoryInterface $corporatePicRepository, ReferralRepositoryInterface $referralRepository, ReceiptRepositoryInterface $receiptRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, UserRepositoryInterface $userRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository)
     {
         parent::__construct();
         $this->corporateRepository = $corporateRepository;
@@ -53,6 +59,8 @@ class ImportReferral extends Command
         $this->receiptRepository = $receiptRepository;
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->userRepository = $userRepository;
+        $this->invoiceAttachmentRepository = $invoiceAttachmentRepository;
+        $this->receiptAttachmentRepository = $receiptAttachmentRepository;
     }
     /**
      * Execute the console command.
@@ -132,6 +140,14 @@ class ImportReferral extends Command
 
 
                 if (isset($partner->receipt)) {
+
+                    $companyDetail = [
+                        'name' => env('ALLIN_COMPANY'),
+                        'address' => env('ALLIN_ADDRESS'),
+                        'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+                        'city' => env('ALLIN_CITY')
+                    ];
+
                     // $this->info(json_encode($this->referralRepository->getReferralByCorpIdAndDate($master->corp_id, $partner->receipt->receipt_date)));
                     foreach ($partner->receipt as $receipt) {
                         // $this->info(json_encode($receipt));
@@ -153,14 +169,11 @@ class ImportReferral extends Command
                             ];
                             $referral = $this->referralRepository->createReferral($referralDetails);
                         }
-                        $this->info('ini corp : ' . $master->corp_id . ' dan ref date : ' . $receipt->receipt_date);
-                        $this->info(json_encode($referral));
-                        // }
 
                         $inv_id = str_replace('REC', 'INV', $receipt->receipt_id);
-                        $this->info($inv_id);
                         // $this->info(json_encode($this->invoiceB2bRepository->getInvoiceB2bByInvId($inv_id)));
                         if ($this->invoiceB2bRepository->getInvoiceB2bByInvId($inv_id)->count() == 0) {
+                            !$invoice = $this->invoiceB2bRepository->getInvoiceB2bByInvId($inv_id)->first();
                             $invoiceDetails = [
                                 'invb2b_id' => $inv_id,
                                 'schprog_id' => null,
@@ -189,7 +202,41 @@ class ImportReferral extends Command
 
                             $invoice = $this->invoiceB2bRepository->createInvoiceB2b($invoiceDetails);
 
-                            if (!$this->receiptRepository->getReceiptByReceiptId($receipt->receipt_id)) {
+                            $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceIdentifier('B2B', $invoice->invb2b_id);
+
+                            if (count($attachment) == 0) {
+                                $file_name = str_replace('/', '_', $invoice->invb2b_id) . '_idr.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
+                                $path = 'uploaded_file/invoice/referral/';
+                                $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice->invb2b_id, 'idr');
+
+                                $attachmentDetails = [
+                                    'invb2b_id' => $invoice->invb2b_id,
+                                    'currency' => 'idr',
+                                    'attachment' => 'storage/' . $path . $file_name,
+                                    'sign_status' => 'signed',
+                                    'approve_date' => Carbon::now(),
+                                    'send_to_client' => 'not sent'
+                                ];
+
+                                $pdf = PDF::loadView('pages.invoice.referral.export.invoice-pdf', [
+                                    'invoiceRef' => $invoice,
+                                    'currency' => 'idr',
+                                    'companyDetail' => $companyDetail
+                                ]);
+
+                                # Generate PDF file
+                                $content = $pdf->download();
+                                Storage::disk('public')->put($path . $file_name, $content);
+
+                                # if attachment exist then update attachement else insert attachement
+                                if (isset($attachment)) {
+                                    $this->invoiceAttachmentRepository->updateInvoiceAttachment($attachment->id, $attachmentDetails);
+                                } else {
+                                    $this->invoiceAttachmentRepository->createInvoiceAttachment($attachmentDetails);
+                                }
+                            }
+
+                            if (!$newReceipt = $this->receiptRepository->getReceiptByReceiptId($receipt->receipt_id)) {
 
                                 $receiptDetails = [
                                     'receipt_id' => $receipt->receipt_id,
@@ -211,7 +258,36 @@ class ImportReferral extends Command
                                     'updated_at' => $receipt->receipt_date,
                                 ];
 
-                                $receipt = $this->receiptRepository->createReceipt($receiptDetails);
+                                $newReceipt = $this->receiptRepository->createReceipt($receiptDetails);
+
+                                $attachmentReceipt = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt->receipt_id, 'idr');
+                                $invb2b_id = $newReceipt->invb2b_id;
+                                $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
+
+
+                                if (!isset($attachmentReceipt)) {
+                                    $file_name = str_replace('/', '_', $newReceipt->receipt_id) . '_idr.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
+                                    $path = 'uploaded_file/receipt/referral/';
+
+                                    $receiptAttachments = [
+                                        'receipt_id' => $newReceipt->receipt_id,
+                                        'attachment' => 'storage/' . $path . $file_name,
+                                        'currency' => 'idr',
+                                        'sign_status' => 'signed',
+                                        'approve_date' => Carbon::now(),
+                                        'send_to_client' => 'not sent'
+                                    ];
+
+                                    $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf', ['receiptRef' => $newReceipt, 'invoiceRef' => $invoiceRef, 'currency' => 'idr', 'companyDetail' => $companyDetail]);
+
+
+                                    # Generate PDF file
+                                    $content = $pdf->download();
+                                    Storage::disk('public')->put($path . $file_name, $content);
+
+
+                                    $this->receiptAttachmentRepository->createReceiptAttachment($receiptAttachments);
+                                }
                             }
                         }
                     }
