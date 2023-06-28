@@ -51,3 +51,7 @@ Route::get('form/event', function() {
 Route::get('form/registration', function() {
     return view('form-embed.form-general');
 });
+
+Route::get('form/thanks', function() {
+    return view('form-embed.thanks');
+});
