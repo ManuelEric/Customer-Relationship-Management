@@ -66,6 +66,8 @@ Route::get('get/conversion-lead/event/{event}', [SalesDashboardController::class
 Route::post('/upload', [InvoiceProgramController::class, 'upload']);
 Route::get('mentee/birthday/{month}', [SalesDashboardController::class, 'getMenteesBirthdayByMonth']);
 
+Route::get('export/client', [SalesDashboardController::class, 'exportClient']);
+
 # dashboard partnership
 Route::get('partner/detail/{month}/{type}', [PartnerDashboardController::class, 'getPartnerDetailByMonth']);
 Route::get('partner/total/{month}/{type}', [PartnerDashboardController::class, 'getTotalByMonth']);
