@@ -59,6 +59,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('import:invoice_school_attachment')->hourly();
         $schedule->command('import:receipt_school')->hourly();
         $schedule->command('import:receipt_school_attachment')->hourly();
+
+        $schedule->command('import:referral')->hourly();
         
 
     }

@@ -16,7 +16,7 @@ use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
-
+use App\Models\User;
 
 class ClientRepository implements ClientRepositoryInterface
 {
@@ -335,7 +335,8 @@ class ClientRepository implements ClientRepositoryInterface
 
     /* for API External use */
 
-    public function getExistingMenteesAPI() {
+    public function getExistingMenteesAPI() 
+    {
         return Client::withAndWhereHas('clientProgram', function ($subQuery) {
                     $subQuery->with(['clientMentor', 'clientMentor.roles' => function ($subQuery_2) {
                         $subQuery_2->where('role_name', 'Mentor');
@@ -347,6 +348,13 @@ class ClientRepository implements ClientRepositoryInterface
                 })->whereHas('roles', function ($subQuery) {
                     $subQuery->where('role_name', 'student');
                 })->get();
+    }
+
+    public function getExistingMentorsAPI()
+    {
+        return User::with('educations')->withAndWhereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Mentor');
+        })->whereNotNull('email')->where('active', 1)->get();
     }
     /* ~ API External end */
 
