@@ -77,7 +77,7 @@ Route::prefix('school-program')->name('receipt.school.')->group(function () {
     Route::get('{receipt}/export/{currency}', [ReceiptSchoolController::class, 'export'])->name('export');
     Route::post('{receipt}/upload', [ReceiptSchoolController::class, 'upload'])->name('upload')->withoutMiddleware(['auth', 'auth.department']);
     Route::get('{receipt}/request_sign/{currency}', [ReceiptSchoolController::class, 'requestSign'])->name('request_sign');
-    Route::get('{receipt}/sign/{currency}', [ReceiptSchoolController::class, 'signAttachment'])->name('sign_document');
+    Route::get('{receipt}/sign/{currency}', [ReceiptSchoolController::class, 'signAttachment'])->name('sign_document')->withoutMiddleware(['auth', 'auth.department']);
     Route::get('{receipt}/print/{currency}', [ReceiptSchoolController::class, 'print'])->name('print');
     Route::get('{receipt}/send/{currency}', [ReceiptSchoolController::class, 'sendToClient'])->name('send_to_client');
     Route::get('{receipt}/preview/{currency}', [ReceiptSchoolController::class, 'previewPdf'])->name('preview_pdf')->withoutMiddleware(['auth', 'auth.department']);
@@ -92,7 +92,7 @@ Route::prefix('corporate-program')->name('receipt.corporate.')->group(function (
     Route::get('{receipt}/export/{currency}', [ReceiptPartnerController::class, 'export'])->name('export');
     Route::post('{receipt}/upload', [ReceiptPartnerController::class, 'upload'])->name('upload')->withoutMiddleware(['auth', 'auth.department']);
     Route::get('{receipt}/request_sign/{currency}', [ReceiptPartnerController::class, 'requestSign'])->name('request_sign');
-    Route::get('{receipt}/sign/{currency}', [ReceiptPartnerController::class, 'signAttachment'])->name('sign_document');
+    Route::get('{receipt}/sign/{currency}', [ReceiptPartnerController::class, 'signAttachment'])->name('sign_document')->withoutMiddleware(['auth', 'auth.department']);
     Route::get('{receipt}/print/{currency}', [ReceiptPartnerController::class, 'print'])->name('print');
     Route::get('{receipt}/send/{currency}', [ReceiptPartnerController::class, 'sendToClient'])->name('send_to_client');
     Route::get('{receipt}/preview/{currency}', [ReceiptPartnerController::class, 'previewPdf'])->name('preview_pdf')->withoutMiddleware(['auth', 'auth.department']);
@@ -107,7 +107,7 @@ Route::prefix('referral')->name('receipt.referral.')->group(function () {
     Route::get('{receipt}/export/{currency}', [ReceiptReferralController::class, 'export'])->name('export');
     Route::post('{receipt}/upload', [ReceiptReferralController::class, 'upload'])->name('upload')->withoutMiddleware(['auth', 'auth.department']);
     Route::get('{receipt}/request_sign/{currency}', [ReceiptReferralController::class, 'requestSign'])->name('request_sign');
-    Route::get('{receipt}/sign/{currency}', [ReceiptReferralController::class, 'signAttachment'])->name('sign_document');
+    Route::get('{receipt}/sign/{currency}', [ReceiptReferralController::class, 'signAttachment'])->name('sign_document')->withoutMiddleware(['auth', 'auth.department']);
     Route::get('{receipt}/print/{currency}', [ReceiptReferralController::class, 'print'])->name('print');
     Route::get('{receipt}/send/{currency}', [ReceiptReferralController::class, 'sendToClient'])->name('send_to_client');
     Route::get('{receipt}/preview/{currency}', [ReceiptReferralController::class, 'previewPdf'])->name('preview_pdf')->withoutMiddleware(['auth', 'auth.department']);
