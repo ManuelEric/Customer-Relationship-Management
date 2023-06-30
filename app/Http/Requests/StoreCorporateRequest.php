@@ -48,7 +48,7 @@ class StoreCorporateRequest extends FormRequest
             'corp_mail' => 'required|email',
             'corp_phone' => 'required',
             'corp_insta' => 'nullable',
-            'corp_site' => 'required|url',
+            'corp_site' => 'nullable|url',
             'corp_region' => 'nullable',
             'corp_address' => 'nullable',
             'corp_note' => 'nullable',

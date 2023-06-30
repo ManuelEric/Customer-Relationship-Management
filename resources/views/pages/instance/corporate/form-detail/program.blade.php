@@ -14,9 +14,8 @@
         </div>
     </div>
 
-    <div class="card-body">
-        <table class="table table-borderless table-hover"
-            style="display: block; overflow-x: auto; white-space: nowrap;">
+    <div class="card-body table-responsive">
+        <table class="table table-borderless table-hover">
             <tr>
                 <th>No.</th>
                 <th>Program Name</th>

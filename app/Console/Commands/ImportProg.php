@@ -39,7 +39,7 @@ class ImportProg extends Command
     public function handle()
     {
         $programDetails = $this->programRepository->getProgramFromV1();
-        $progressBar = $this->output->createProgressBar($programDetails->count());
+        $progressBar = $this->output->createProgressBar(count($programDetails));
         $progressBar->start();
         
         DB::beginTransaction();
@@ -47,6 +47,7 @@ class ImportProg extends Command
 
             foreach ($programDetails as $detail)
             {
+                echo json_encode($detail);exit;
     
                 # if prog_id does not exists on tbl_prog v2
                 if (!$this->programRepository->getProgramById($detail['prog_id'])) {

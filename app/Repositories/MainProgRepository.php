@@ -19,6 +19,9 @@ class MainProgRepository implements MainProgRepositoryInterface
 
     public function getMainProgByName($progName)
     {
+        if ($progName == 'Career Exploration')
+            $progName = 'Experiential Learning';
+            
         return MainProg::where('prog_name', $progName)->first();
     }
 

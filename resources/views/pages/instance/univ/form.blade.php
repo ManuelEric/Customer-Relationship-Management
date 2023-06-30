@@ -224,8 +224,8 @@
                             </button>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <table class="table table-hover" style="display: block; overflow-x: auto; white-space: nowrap;">
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>No</th>

@@ -53,8 +53,8 @@ class StoreClientParentRequest extends FormRequest
             'sch_type' => 'required_if:sch_id,add-new',
             'sch_curriculum.*' => 'required_if:sch_id,add-new',
             'sch_score' => 'required_if:sch_id,add-new',
-            'event_id' => 'required_if:lead_id,LS004',
-            'eduf_id' => 'required_if:lead_id,LS018',
+            'event_id' => 'required_if:lead_id,LS003', # make sure id LS003 is all-in event
+            'eduf_id' => 'required_if:lead_id,LS017', # make sure id LS017 is all-in eduf
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
                     if ($this->input('lead_id') == 'kol' && empty($value))
