@@ -126,7 +126,7 @@ class SchoolController extends Controller
         $leads = $this->leadRepository->getAllLead();
 
         # retrieve employee data
-        $employees = $this->userRepository->getAllUsersByRole('Employee');
+        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         # retrieve school detail data by school Id
         $schoolDetails = $this->schoolDetailRepository->getAllSchoolDetailsById($schoolId);
