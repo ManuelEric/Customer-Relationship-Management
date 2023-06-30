@@ -391,7 +391,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->whereRelation('clientprog', 'status', 1);
         // ->groupBy('tbl_inv.inv_id');
 
-        return $queryInv->get();
+        return $queryInv->orderBy('tbl_inv.inv_id', 'asc')->orderBy('tbl_invdtl.invdtl_id', 'asc')->get();
     }
 
     public function getRevenueByYear($year)
