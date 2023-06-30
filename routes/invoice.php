@@ -68,7 +68,7 @@ Route::prefix('client-program')->name('invoice.program.')->group(function () {
     Route::get('{client_program}/print/{currency}', [InvoiceProgramController::class, 'print'])->name('print');
     Route::get('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'preview'])->name('preview')->withoutMiddleware(['auth', 'auth.department']); # new 
     Route::post('{client_program}/preview/{currency}', [InvoiceProgramController::class, 'upload'])->name('upload-signed')->withoutMiddleware(['auth', 'auth.department']); # new
-    Route::get('{client_program}/export', [InvoiceProgramController::class, 'export'])->name('export');
+    Route::get('{client_program}/export/{currency?}', [InvoiceProgramController::class, 'export'])->name('export');
     Route::post('{client_program}/refund', [RefundController::class, 'store'])->name('refund');
     Route::delete('{client_program}/refund', [RefundController::class, 'destroy'])->name('destroy');
     Route::get('{client_program}/request_sign', [InvoiceProgramController::class, 'requestSign'])->name('request_sign');

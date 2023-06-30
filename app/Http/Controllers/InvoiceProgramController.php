@@ -571,15 +571,22 @@ class InvoiceProgramController extends Controller
         // $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
         // return $pdf->download($invoice_id . ".pdf");
 
-        $currency = $request->route('currency');
-
         $invoice = $clientProg->invoice;
+        $currency = $request->route('currency'); # this variable not used from client program detail page
+        # use variable below instead
+        $currency = $invoice->currency;
+
+        if ($currency != 'idr')
+            $currency = 'other';
+        /* ~ END */
+        
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice->inv_id, $currency);
 
         return view('pages.invoice.view-pdf')->with(
             [
                 'invoice' => $invoice,
-                'attachment' => $attachment->attachment
+                // 'attachment' => $attachment->attachment
+                'attachment' => $attachment
             ]
         );
     }
