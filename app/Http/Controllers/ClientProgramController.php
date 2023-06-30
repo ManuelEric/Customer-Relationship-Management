@@ -35,6 +35,9 @@ class ClientProgramController extends Controller
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private ClientEventRepositoryInterface $clientEventRepository;
     private SchoolRepositoryInterface $schoolRepository;
+    private $admission_prog_list;
+    private $tutoring_prog_list;
+    private $satact_prog_list;
 
     public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository)
     {
