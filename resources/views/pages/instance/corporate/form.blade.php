@@ -131,7 +131,7 @@
                             </div>
 
                             <div class="col-md-3 mb-2">
-                                <label>Website</label>
+                                <label>Website </label>
                                 <input type="text" name="corp_site" placeholder="https://xxxxxx.xxxx"
                                     value="{{ isset($corporate->corp_site) ? $corporate->corp_site : old('corp_site') }}"
                                     class="form-control form-control-sm rounded"
