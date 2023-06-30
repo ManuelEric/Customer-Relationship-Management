@@ -572,6 +572,7 @@ class InvoiceProgramController extends Controller
         // return $pdf->download($invoice_id . ".pdf");
 
         $invoice = $clientProg->invoice;
+        /* START ~ */
         $currency = $request->route('currency'); # this variable not used from client program detail page
         # use variable below instead
         $currency = $invoice->currency;
