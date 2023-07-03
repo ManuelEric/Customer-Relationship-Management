@@ -16,14 +16,14 @@ use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
-
+use App\Models\User;
 
 class ClientRepository implements ClientRepositoryInterface
 {
     use FindSchoolYearLeftScoreTrait;
     use FindDestinationCountryScore;
-    private RoleRepositoryInterface $roleRepository;
     use StandardizePhoneNumberTrait;
+    private RoleRepositoryInterface $roleRepository;
 
 
     public function __construct(RoleRepositoryInterface $roleRepository)
@@ -198,7 +198,7 @@ class ClientRepository implements ClientRepositoryInterface
             $subQuery->where('role_name', 'student');
         });
 
-        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getPotentialClients($asDatatables = false, $month = null)
@@ -216,7 +216,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('role_name', 'student');
             });
 
-        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getExistingMentees($asDatatables = false, $month = null)
@@ -234,7 +234,7 @@ class ClientRepository implements ClientRepositoryInterface
             $subQuery->where('role_name', 'student');
         });
 
-        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getExistingNonMentees($asDatatables = false, $month = null)
@@ -264,7 +264,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $subQuery->where('role_name', 'student');
             });
 
-        return $asDatatables === false ? $query->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
     public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null)
@@ -290,7 +290,7 @@ class ClientRepository implements ClientRepositoryInterface
             });
 
         return $asDatatables === false ? 
-            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('first_name', 'asc')->get()->groupBy('year') : $query->get()) 
+            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('created_at', 'desc')->get()->groupBy('year') : $query->get()) 
             : $query->orderBy('first_name', 'asc');
     }
 
@@ -317,7 +317,7 @@ class ClientRepository implements ClientRepositoryInterface
             });
 
         return $asDatatables === false ? 
-            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('first_name', 'asc')->get()->groupBy('year') : $query->get())  
+            ($groupBy === true ? $query->select('*')->addSelect(DB::raw('YEAR(created_at) AS year'))->orderBy('created_at', 'desc')->get()->groupBy('year') : $query->get())  
             : $query->orderBy('first_name', 'asc');
     }
 
@@ -335,7 +335,8 @@ class ClientRepository implements ClientRepositoryInterface
 
     /* for API External use */
 
-    public function getExistingMenteesAPI() {
+    public function getExistingMenteesAPI() 
+    {
         return Client::withAndWhereHas('clientProgram', function ($subQuery) {
                     $subQuery->with(['clientMentor', 'clientMentor.roles' => function ($subQuery_2) {
                         $subQuery_2->where('role_name', 'Mentor');
@@ -347,6 +348,13 @@ class ClientRepository implements ClientRepositoryInterface
                 })->whereHas('roles', function ($subQuery) {
                     $subQuery->where('role_name', 'student');
                 })->get();
+    }
+
+    public function getExistingMentorsAPI()
+    {
+        return User::with('educations')->withAndWhereHas('roles', function ($subQuery) {
+            $subQuery->where('role_name', 'Mentor');
+        })->whereNotNull('email')->where('active', 1)->get();
     }
     /* ~ API External end */
 
@@ -767,18 +775,20 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getStudentByStudentName($studentName)
     {
-        $studentName = explode(' ', $studentName);
+        // $studentName = explode(' ', $studentName);
         // return UserClient::where(DB::raw('CONCAT(first_name, " ", last_name)'), $studentName)->first();
         return UserClient::where(function ($extquery) use ($studentName) {
 
+            $extquery->whereRaw("CONCAT(first_name, ' ', COALESCE(last_name, '')) = ?", [$studentName]);
+
             # search word by word 
             # and loop based on name length
-            for ($i = 0; $i < count($studentName); $i++) {
+            // for ($i = 0; $i < count($studentName); $i++) {
 
-                # looping at least two times
-                if ($i <= 1)
-                    $extquery = $extquery->whereRaw("CONCAT(first_name, ' ', COALESCE(last_name, '')) like ?", ['%' . $studentName[$i] . '%']);
-            }
+            //     # looping at least two times
+            //     if ($i <= 1)
+            //         $extquery = $extquery->whereRaw("CONCAT(first_name, ' ', COALESCE(last_name, '')) like ?", ['%' . $studentName[$i] . '%']);
+            // }
         })->first();
     }
 

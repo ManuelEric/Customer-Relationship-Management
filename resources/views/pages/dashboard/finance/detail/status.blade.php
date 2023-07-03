@@ -236,7 +236,7 @@
                             }
                             
                             $(this).click(function() {
-                                window.location = link
+                                window.open(link, '_blank')
                             })
                     })
                     swal.close()

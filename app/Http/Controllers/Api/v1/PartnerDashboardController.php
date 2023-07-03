@@ -269,16 +269,19 @@ class PartnerDashboardController extends Controller
         $html = '';
         $additional_header = '';
         $additional_content = '';
+        $uncompletedSchools = null;
 
         switch ($type) {
             case 'Partner':
+                $additional_header = '';
+                $additional_content = '';
                 $partners = $this->corporateRepository->getCorporateByMonthly($monthYear, 'list');
                 if ($partners->count() == 0)
                     return response()->json(['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="7">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']);
 
                 foreach ($partners as $partner) {
 
-                    $html .= '<tr>
+                    $html .= '<tr class="detail" data-corpid="' . $partner->corp_id . '" data-type="partner" style="cursor:pointer">
                         <td>' . $index++ . '</td>
                         <td>' . $partner->corp_name . '</td>
                         <td>' . $partner->corp_mail . '</td>
@@ -336,7 +339,7 @@ class PartnerDashboardController extends Controller
                 foreach ($schools as $school) {
 
                     $html .= '
-                        <tr>
+                        <tr class="detail" data-schid="' . $school->sch_id . '" data-type="school" style="cursor:pointer">
                         <td>' . $index++ . '</td>
                         <td>' . $school->sch_name . '</td>
                         <td>' . $school->sch_type . '</td>
@@ -348,6 +351,8 @@ class PartnerDashboardController extends Controller
                 break;
 
             case 'University':
+                $additional_header = '';
+                $additional_content = '';
                 $universities = $this->universityRepository->getUniversityByMonthly($monthYear, 'list');
                 if ($universities->count() == 0)
                     return response()->json(
@@ -356,7 +361,7 @@ class PartnerDashboardController extends Controller
 
                 foreach ($universities as $university) {
 
-                    $html .= '<tr>
+                    $html .= '<tr class="detail" data-univid="' . $university->univ_id . '" data-type="university" style="cursor:pointer">
                         <td>' . $index++ . '</td>
                         <td>' . $university->univ_id . '</td>
                         <td>' . $university->univ_name . '</td>
@@ -392,7 +397,7 @@ class PartnerDashboardController extends Controller
                     }
 
 
-                    $html .= '<tr>
+                    $html .= '<tr class="detail" data-corpid="' . $agreement->corp_id . '" data-agreementid="' . $agreement->id . '" data-type="agreement" style="cursor:pointer">
                         <td>' . $index++ . '</td>
                         <td>' . $agreement->partner->corp_name . '</td>
                         <td>' . $agreement->agreement_name . '</td>
@@ -413,7 +418,7 @@ class PartnerDashboardController extends Controller
                 'html_ctx' => $html,
                 'additional_header' => $additional_header,
                 'additional_content' => $additional_content,
-                'total_additional' => $uncompletedSchools->count()
+                'total_additional' => $uncompletedSchools ? $uncompletedSchools->count() : 0,
             ]
         );
     }

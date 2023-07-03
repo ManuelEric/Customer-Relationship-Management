@@ -96,9 +96,6 @@
                     <h4 class="m-0 p-0">Employee Detail</h4>
                 </div>
                 <div class="card-body">
-                    @if ($errors->any())
-                        {{ $errors }}
-                    @endif
                     <form action="{{ isset($user) ? route('user.update', ['user_role' => Request::route('user_role'), 'user' => $user->id]) : route('user.store', ['user_role' => Request::route('user_role')]) }}" method="POST" enctype="multipart/form-data" id="user-form">
                         @csrf
                         @if (isset($user))

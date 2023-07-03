@@ -60,7 +60,7 @@ class CorporateRepository implements CorporateRepositoryInterface
 
     public function getCorporateByName($corp_name)
     {
-        return Corporate::where('corp_name', $corp_name)->first();
+        return Corporate::where('corp_name', 'like', $corp_name)->first();
     }
 
     public function deleteCorporate($corporateId)

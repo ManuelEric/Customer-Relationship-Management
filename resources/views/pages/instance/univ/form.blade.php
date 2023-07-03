@@ -10,8 +10,13 @@
         </a>
     </div>
 
-    @if($errors->any())
-        {{ implode('', $errors->all('<div>:message</div>')) }}
+    @php
+        $error_pic = false;
+    @endphp
+    @if ($errors->has('name') || $errors->has('email') || $errors->has('phone') || $errors->has('title') || $errors->has('other_title') || $errors->has('is_pic'))
+        @php
+            $error_pic = true;
+        @endphp
     @endif
 
     <div class="row">
@@ -219,8 +224,8 @@
                             </button>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <table class="table table-hover" style="display: block; overflow-x: auto; white-space: nowrap;">
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>No</th>
@@ -291,7 +296,7 @@
                                             <label>Fullname <sup class="text-danger">*</sup></label>
                                             <input type="text" name="name"
                                                 class="form-control form-control-sm rounded" id="cp_fullname">
-                                            @error('pic_name')
+                                            @error('name')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
@@ -299,7 +304,7 @@
                                             <label>E-mail <sup class="text-danger">*</sup></label>
                                             <input type="email" name="email"
                                                 class="form-control form-control-sm rounded" id="cp_mail">
-                                            @error('pic_email')
+                                            @error('email')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
@@ -307,7 +312,7 @@
                                             <label>Phone Number <sup class="text-danger">*</sup></label>
                                             <input type="text" name="phone"
                                                 class="form-control form-control-sm rounded" id="cp_phone">
-                                            @error('pic_phone')
+                                            @error('phone')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
@@ -337,7 +342,10 @@
                                                 </div>
                                             </div>
 
-                                            @error('pic_position')
+                                            @error('title')
+                                                <small class="text-danger fw-light">{{ $message }}</small>
+                                            @enderror
+                                            @error('other_title')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
                                             @enderror
                                         </div>
@@ -412,6 +420,9 @@
         }
 
         $(document).ready(function() {
+            @if ($error_pic === true)
+                $("#picForm").modal('show')
+            @endif
             selectModal()
 
             $("input[type=radio][name=pic_status]").change(function() {
@@ -419,6 +430,7 @@
                 $("#is_pic").val(val);
             })
         });
+
     </script>
     <script>
         @if (isset($university))

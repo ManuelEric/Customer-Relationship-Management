@@ -39,12 +39,15 @@ class ImportProg extends Command
     public function handle()
     {
         $programDetails = $this->programRepository->getProgramFromV1();
+        $progressBar = $this->output->createProgressBar(count($programDetails));
+        $progressBar->start();
         
         DB::beginTransaction();
         try {
 
             foreach ($programDetails as $detail)
             {
+                echo json_encode($detail);exit;
     
                 # if prog_id does not exists on tbl_prog v2
                 if (!$this->programRepository->getProgramById($detail['prog_id'])) {
@@ -53,8 +56,11 @@ class ImportProg extends Command
                     $this->programRepository->createProgramFromV1($detail);
     
                 }
+
+                $progressBar->advance();
     
             }
+            $progressBar->finish();
             DB::commit();
             Log::info('Import Program works fine');
 

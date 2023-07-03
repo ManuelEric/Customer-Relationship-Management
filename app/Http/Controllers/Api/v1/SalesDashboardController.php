@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Exports\DataClient;
 use App\Http\Controllers\Controller;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
@@ -14,6 +15,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SalesDashboardController extends Controller
 {
@@ -92,15 +94,15 @@ class SalesDashboardController extends Controller
                 $clientType = 3;
                 break;
 
-            # both alumni-mentee & alumni-non-mentee
-            # never find alumni by month
+                # both alumni-mentee & alumni-non-mentee
+                # never find alumni by month
             case "alumni-mentee":
-                $clients = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables); 
+                $clients = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables);
                 $clientType = 'alumni';
                 break;
 
             case "alumni-non-mentee":
-                $clients = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables); 
+                $clients = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables);
                 $clientType = 'alumni';
                 break;
 
@@ -115,7 +117,7 @@ class SalesDashboardController extends Controller
         # this to make sure the clients that being fetch
         # is the client filter by [prospective, potential, current, completed] 
         if (gettype($clientType) == "string" && $clientType != "alumni") {
-            
+
             # is the client filter for [mentee, alumni, parents, teacher/counselor]
             $clients = $this->clientRepository->getAllClientByRoleAndDate($clientType, $month);
             if ($month != null) {
@@ -136,20 +138,20 @@ class SalesDashboardController extends Controller
 
             foreach ($clients as $key => $value) {
                 $html .= '<tr>
-                            <td colspan="5">'.$key.'</td>
+                            <td colspan="5">' . $key . '</td>
                         </tr>';
 
                 foreach ($value as $client) {
                     $client_register_date = date('Y-m', strtotime($client->created_at));
                     $now = date('Y-m');
-                    $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
+                    $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
 
-                    $html .= '<tr '.$styling.'>
-                                <td>'.$index++.'</td>
-                                <td>'.$client->full_name.'</td>
-                                <td>'.$client->mail.'</td>
-                                <td>'.$client->phone.'</td>
-                                <td>'.$client->created_at.'</td>
+                    $html .= '<tr ' . $styling . ' data-detail="' . $client->id . '">
+                                <td>' . $index++ . '</td>
+                                <td>' . $client->full_name . '</td>
+                                <td>' . $client->mail . '</td>
+                                <td>' . $client->phone . '</td>
+                                <td>' . $client->created_at . '</td>
                             </tr>';
                 }
             }
@@ -157,12 +159,16 @@ class SalesDashboardController extends Controller
             foreach ($clients as $client) {
 
                 $client_register_date = date('Y-m', strtotime($client->created_at));
-                $now = date('Y-m', strtotime($month));
-                $styling = $client_register_date == $now ? 'class="bg-primary text-white"' : null;
 
-                $html .= '<tr ' . $styling . '>
+                if ($month == null)
+                    $month = date('Y-m-d');
+
+                $now = date('Y-m', strtotime($month));
+                $styling = $client_register_date == $now ? 'class="bg-primary text-white popup-modal-detail-client"' : 'class="popup-modal-detail-client"';
+
+                $html .= '<tr ' . $styling . ' data-detail="' . $client->id . '">
                             <td>' . $index++ . '</td>
-                            <td>' . $client->full_name. '</td>
+                            <td>' . $client->full_name . '</td>
                             <td>' . $client->mail . '</td>
                             <td>' . $client->phone . '</td>
                             <td>' . date('D, d M Y', strtotime($client->created_at))  . '</td>
@@ -209,7 +215,7 @@ class SalesDashboardController extends Controller
 
             $last_month_alumniMentees = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables, $last_month)->count();
             $monthly_new_alumniMentees = $this->clientRepository->getAlumniMentees($groupBy, $asDatatables, $month)->count();
-    
+
             $last_month_alumniNonMentees = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables, $last_month)->count();
             $monthly_new_alumniNonMentees = $this->clientRepository->getAlumniNonMentees($groupBy, $asDatatables, $month)->count();
 
@@ -246,7 +252,7 @@ class SalesDashboardController extends Controller
                 //     'new' => $monthly_new_alumniMentees,
                 //     'percentage' => $this->calculatePercentage($type, $last_month_alumniMentees, $monthly_new_alumniMentees)
                 // ], # alumni-mentee
-                
+
                 // [
                 //     'old' => $type == "all" ? $last_month_alumniNonMentees-$monthly_new_alumniNonMentees : $last_month_alumniNonMentees,
                 //     'new' => $monthly_new_alumniNonMentees,
@@ -1130,5 +1136,10 @@ class SalesDashboardController extends Controller
     public function getConversionLeadsByEventId(Request $request)
     {
         $eventId = $request->route('event');
+    }
+
+    public function exportClient()
+    {
+        return Excel::download(new DataClient(), 'data-client.xlsx');
     }
 }

@@ -329,4 +329,9 @@ class ReceiptRepository implements ReceiptRepositoryInterface
 
         return V1Receipt::whereNotIn('receipt_id', $receipt_v2)->get();
     }
+
+    public function getReceiptRefFromCRM()
+    {
+        return V1Receipt::where('receipt_id', 'like', '%REF%')->get();
+    }
 }

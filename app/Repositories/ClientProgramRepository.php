@@ -371,11 +371,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             unset($clientProgramDetails['other_reason']);
         }
 
-
-        $howManySession = $clientProgramDetails['session_tutor'];
-        $academicTutorSessionDetail = $clientProgramDetails['session_tutor_detail'];
-        unset($clientProgramDetails['session_tutor_detail']);
-
         $clientProgram = ClientProgram::where('clientprog_id', $clientProgramId)->update(array_merge($fullDetails, $clientProgramDetails));
         $clientProgram = ClientProgram::whereClientProgramId($clientProgramId);
 
@@ -419,20 +414,26 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $clientProgram->clientMentor()->syncWithPivotValues($additionalDetails['tutor_id'], ['status' => $status]);
 
             $clientprog_id = $clientProgram->clientprog_id;
-            # fetch the session schedule detail
-            $i = 0;
-            while ($i < $howManySession) {
-                # insert academic tutor detail
-                $acadTutorDetail[] = new AcadTutorDetail([
-                    'date' => date('Y-m-d', strtotime($academicTutorSessionDetail['datetime'][$i])),
-                    'time' => date('H:i:s', strtotime($academicTutorSessionDetail['datetime'][$i])),
-                    'link' => $academicTutorSessionDetail['linkmeet'][$i]
-                ]);
-                $i++;
-            }
+            if (array_key_exists('session_tutor', $clientProgramDetails)) {
 
-            $clientProgram->acadTutorDetail()->delete();
-            $clientProgram->acadTutorDetail()->saveMany($acadTutorDetail);
+                $howManySession = $clientProgramDetails['session_tutor'];
+                $academicTutorSessionDetail = $clientProgramDetails['session_tutor_detail'];
+                unset($clientProgramDetails['session_tutor_detail']);
+                # fetch the session schedule detail
+                $i = 0;
+                while ($i < $howManySession) {
+                    # insert academic tutor detail
+                    $acadTutorDetail[] = new AcadTutorDetail([
+                        'date' => date('Y-m-d', strtotime($academicTutorSessionDetail['datetime'][$i])),
+                        'time' => date('H:i:s', strtotime($academicTutorSessionDetail['datetime'][$i])),
+                        'link' => $academicTutorSessionDetail['linkmeet'][$i]
+                    ]);
+                    $i++;
+                }
+    
+                $clientProgram->acadTutorDetail()->delete();
+                $clientProgram->acadTutorDetail()->saveMany($acadTutorDetail);
+            }
         }
 
         # when tutor_1 is filled which is not null
@@ -492,15 +493,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     # sales tracking
     public function getCountProgramByStatus($status, array $dateDetails)
     {
+        $searched_column = $this->getSearchedColumn($status);        
         $statusId = $this->getStatusId($status);
-        return ClientProgram::where('status', $statusId)->whereBetween('created_at', [$dateDetails['startDate'], $dateDetails['endDate']])->count();
+
+        return ClientProgram::where('status', $statusId)->whereBetween($searched_column, [$dateDetails['startDate'], $dateDetails['endDate']])->count();
     }
 
     public function getSummaryProgramByStatus($status, array $dateDetails)
     {
+        $searched_column = $this->getSearchedColumn($status);
         $statusId = $this->getStatusId($status);
 
-        $clientPrograms = ClientProgram::where('status', $statusId)->whereBetween('created_at', [$dateDetails['startDate'], $dateDetails['endDate']])->get();
+        $clientPrograms = ClientProgram::where('status', $statusId)->whereBetween($searched_column, [$dateDetails['startDate'], $dateDetails['endDate']])->get();
 
         $no = 0;
         $data = [];
@@ -1014,6 +1018,34 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         }
 
         return $userId;
+    }
+
+    private function getSearchedColumn(string $status)
+    {
+        switch ($status) {
+
+            case "pending":
+                $searched_column = 'created_at';
+                break;
+                
+            case "failed":
+                $searched_column = 'failed_date';
+                break;
+
+            case "refund":
+                $searched_column = 'refund_date';
+                break;
+
+            case "success":
+                $searched_column = 'success_date';
+                break;
+
+            default:
+                $searched_column = 'created_at';
+
+        }
+
+        return $searched_column;
     }
 
     # CRM

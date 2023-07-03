@@ -874,7 +874,8 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                         WHEN tbl_invb2b.ref_id > 0 THEN "Out"
                     ELSE 1
                     END)')
-        );
+        )->orderBy('tbl_invb2b.invb2b_id', 'asc')
+            ->orderBy('tbl_invdtl.invdtl_id', 'asc');
         // ->groupBy('tbl_invb2b.invb2b_id');
 
 

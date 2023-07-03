@@ -1,3 +1,5 @@
+
+
 <div class="card mb-3">
     <div class="card-body">
         <div class="row justify-content-md-between align-items-center g-1 mb-md-2 mb-3">
@@ -16,8 +18,10 @@
                 </div>
             </div>
             <div class="col-md-4 text-md-end text-center">
+                        <a href="{{ url('api/export/client') }}"
+                   class="btn btn-sm btn-outline-info btn-export" style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"><i class="bi bi-download"></i></a>
 
-                <button type="button" id="btn-follow-up" class="btn btn-sm btn-info position-relative pe-3"
+                <button type="button" id="btn-follow-up" class="btn btn-sm btn-info position-relative ms-2 pe-3"
                     style="font-size: 11px" data-bs-toggle="modal" data-bs-target="#follow_up">
                     Follow Up Reminder
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -486,7 +490,6 @@
             let f_type = $(this).data('f-client-type')
 
             let url = window.location.origin + '/api/get/client/' + f_date + '/type/' + f_type;
-            console.log(url)
 
             axios.get(url)
                 .then(function(response) {
@@ -654,7 +657,7 @@
     function getMenteesBirthday(month) {
         var today = new Date()
 
-        if (!month)
+        if (!month || month == 'all')
             month = moment(today).format('YYYY-MM')
 
         var url = window.location.origin + '/api/get/mentee-birthday/' + month
@@ -810,6 +813,13 @@
             })
 
     })
+
+    $(document).on('click', '.popup-modal-detail-client', function () {
+        var clientId = $(this).data('detail');
+        var url = window.location.origin + '/client/student/' + clientId;
+        window.open(url, '_blank');
+
+    });
 
     function showLoading() {
         Swal.fire({

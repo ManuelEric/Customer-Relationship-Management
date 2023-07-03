@@ -20,7 +20,6 @@ class ExtClientController extends Controller
     {
         $existingMentees = $this->clientRepository->getExistingMenteesAPI();
         
-
         return response()->json(
             [
                 'success' => true,
@@ -29,5 +28,18 @@ class ExtClientController extends Controller
             ]
         );
 
+    }
+
+    public function getMentors()
+    {
+        $existingMentors = $this->clientRepository->getExistingMentorsAPI();
+
+        return response()->json(
+            [
+                'success' => true,
+                'message' => 'Mentors data found.',
+                'data' => $existingMentors
+            ]
+        );
     }
 }

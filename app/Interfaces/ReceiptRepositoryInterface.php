@@ -22,4 +22,5 @@ interface ReceiptRepositoryInterface
     # CRM
     public function getAllReceiptFromCRM();
     public function getReceiptDifferences();
+    public function getReceiptRefFromCRM();
 }

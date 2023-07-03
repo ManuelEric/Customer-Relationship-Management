@@ -142,7 +142,7 @@ class CorporateController extends Controller
 
         # retrieve employee from partnership team data
         # because for now 29/03/2023 there aren't partnership team, so we use client management
-        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
 
         return view('pages.instance.corporate.form')->with(
             [

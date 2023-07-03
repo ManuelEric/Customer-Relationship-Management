@@ -241,21 +241,21 @@
                         <div class="text-center">
                             <h6>IDR</h6>
                             <section class="step-indicator">
-                                <div class="step step1 {{$receiptRef->download_idr == 1 ? 'active' : ''}}">
+                                <div class="step step1 {{$receiptRef->download_idr == 1 || $receiptAttachmentSigned || isset($receiptAttachmentNotYet) ? 'active' : ''}}">
                                     <div class="step-icon">1</div>
                                     <p>Download</p>
                                 </div>
-                                <div class="indicator-line {{$receiptRef->download_idr == 1 ? 'active' : ''}}"></div>
+                                <div class="indicator-line {{$receiptRef->download_idr == 1 || $receiptAttachmentSigned || isset($receiptAttachmentNotYet) ? 'active' : ''}}"></div>
                                 <div class="step step2 {{isset($receiptAttachmentNotYet) || $receiptAttachmentSigned ? 'active' : ''}}">
                                     <div class="step-icon">2</div>
                                     <p>Upload</p>
                                 </div>
                                 <div class="indicator-line {{isset($receiptAttachmentNotYet) || $receiptAttachmentSigned ? 'active' : ''}}"></div>
-                                <div class="step step3 {{$receiptAttachmentRequested ? 'active' : ''}}">
+                                <div class="step step3 {{$receiptAttachmentRequested || $receiptAttachmentSigned ? 'active' : ''}}">
                                     <div class="step-icon">3</div>
                                     <p>Request Sign</p>
                                 </div>
-                                <div class="indicator-line {{$receiptAttachmentRequested ? 'active' : ''}}"></div>
+                                <div class="indicator-line {{$receiptAttachmentRequested || $receiptAttachmentSigned ? 'active' : ''}}"></div>
                                 <div class="step step4 {{$receiptAttachmentSigned ? 'active' : ''}}">
                                     <div class="step-icon">4</div>
                                     <p>Signed</p>

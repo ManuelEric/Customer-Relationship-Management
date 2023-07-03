@@ -247,21 +247,48 @@
                     $('#list-detail-partner .modal-title').html(result.title)
                     $('#listPartnerTable tbody').html(result.html_ctx)
                     
-                    if(result.additional_content != '' || result.additional_content != null){
-
-                        $('#additionalTable').removeClass('d-none')
-                        $('#thead-additional').html(result.additional_header)
-                        $('#listAdditionalTable tbody').html(result.additional_content)
-
-                        $("#listAdditionalTable .detail").each(function() {
-                            $(this).click(function() {
-                                var link = "{{ url('/') }}/instance/school/" + $(this).data('schid')
-                                window.location = link
-                            })
-                        })
-                    }else{
+                    $('#listPartnerTable .detail').each(function(){
+                        var link = '';
+                        switch ($(this).data('type')) {
+                            case 'partner':
+                                link = "{{ url('/') }}/instance/corporate/" + $(this).data('corpid')
+                                break;
+                            case 'school':
+                                link = "{{ url('/') }}/instance/school/" + $(this).data('schid')
+                                break;
+                            case 'university':
+                                link = "{{ url('/') }}/instance/university/" + $(this).data('univid')
+                                break;
+                            case 'agreement':
+                                link = "{{ url('/') }}/instance/corporate/" + $(this).data('corpid') + "/agreement/" + $(this).data('agreementid')
+                                break;
                         
+                        }
+
+                           $(this).click(function() {
+                                window.open(link, '_blank')
+                            })
+                    })
+
+                    if(type == 'School'){
+                        if(result.additional_content != '' || result.additional_content != null){
+                                $('#additionalTable').removeClass('d-none')
+                                $('#thead-additional').html(result.additional_header)
+                                $('#listAdditionalTable tbody').html(result.additional_content)
+                                
+                                $("#listAdditionalTable .detail").each(function() {
+                                    $(this).click(function() {
+                                        var link = "{{ url('/') }}/instance/school/" + $(this).data('schid')
+                                        window.open(link, '_blank')
+                                    })
+                                })
+                        }else{
+                            
+                            $('#additionalTable').addClass('d-none')
+                        }
+                    }else{
                         $('#additionalTable').addClass('d-none')
+
                     }
                     swal.close()
 
