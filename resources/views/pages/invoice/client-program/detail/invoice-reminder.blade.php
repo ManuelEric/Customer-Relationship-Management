@@ -63,25 +63,25 @@
                             },
                             {
                                 data: 'inv_paymentmethod',
-                                name: 'tbl_inv.inv_paymentmethod',
+                                name: 'inv_paymentmethod',
                             },
                             {
-                                data: 'created_at',
-                                name: 'tbl_inv.created_at',
+                                data: 'show_created_at',
+                                name: 'show_created_at',
                                 render: function(data, type, row, meta) {
                                     return moment(data).format('MMMM Do YYYY');
                                 }
                             },
                             {
                                 data: 'inv_duedate',
-                                name: 'tbl_inv.inv_duedate',
+                                name: 'inv_duedate',
                                 render: function(data, type, row, meta) {
                                     return moment(data).format('MMMM Do YYYY');
                                 }
                             },
                             {
                                 data: 'inv_totalprice_idr',
-                                name: 'tbl_inv.inv_totalprice_idr',
+                                name: 'inv_totalprice_idr',
                                 render: function(data, type, row) {
                                     return new Intl.NumberFormat("id-ID", {
                                         style: "currency",
@@ -136,6 +136,11 @@
                                 }
                             }
                         ],
+                        createdRow: function (row, data, index) {
+                            var today = moment(data).format('MMMM')
+                            if (today == moment(data.inv_duedate).format('MMMM'))
+                                $('td', row).addClass('bg-primary text-light');
+                        }
                         // createdRow: (row, data, cells) => {
                         //     var difference = data.date_difference;
                         //     if (difference > 3 && difference <= 7)

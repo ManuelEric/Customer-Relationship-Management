@@ -85,10 +85,10 @@ class ImportInvoiceSchool extends Command
                         'created_at' => $invSch->invsch_date,
                         'updated_at' => $invSch->invsch_date,
                     ];
+                    $this->invoiceB2bRepository->createInvoiceB2b($array);
                 }
                 $progressBar->advance();
                 
-                $this->invoiceB2bRepository->createInvoiceB2b($array);
             }
             $progressBar->finish();
 
@@ -100,7 +100,7 @@ class ImportInvoiceSchool extends Command
         } catch (Exception $e) {
 
             DB::rollBack();
-            $this->info($e->getMessage());
+            $this->info($e->getMessage().' on Line '.$e->getLine());
         }
 
 
