@@ -403,9 +403,10 @@ class ImportClientProg extends Command
                 $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
                 $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
             }
+            
+            $this->clientRepository->updateClient($student_v2_id, ['st_id' => $studentId]);
         }
 
-        $this->clientRepository->updateClient($student_v2_id, ['st_id' => $studentId]);
 
         # import client program to v2
         $clientprog_v2 = $this->clientProgramRepository->createClientProgram($clientProgramDetails);
