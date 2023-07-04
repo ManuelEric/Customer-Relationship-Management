@@ -137,8 +137,9 @@
                             }
                         ],
                         createdRow: function (row, data, index) {
-                            var today = moment(data).format('MMMM')
-                            if (today == moment(data.inv_duedate).format('MMMM'))
+                            var today_month = moment(data).format('MMMM')
+                            var today_year = moment(data).format('YYYY');
+                            if (today_month == moment(data.inv_duedate).format('MMMM') && today_year == moment(data.inv_duedate).format('YYYY'))
                                 $('td', row).addClass('bg-primary text-light');
                         }
                         // createdRow: (row, data, cells) => {
