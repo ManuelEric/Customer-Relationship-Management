@@ -910,13 +910,15 @@ class InvoiceProgramController extends Controller
         $interval = $datetime_1->diff($datetime_2);
         $date_diff = $interval->format('%a'); # format for the interval : days
 
+        $payment_method = $request->payment_method != 'Full Payment' ? ' (Installment)' : '';
+
         $text = "Dear " . $parent_fullname . ",";
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Thank you for trusting ALL-in Eduspace as your independent university consultant to help your child reach their dream to top universities.";
         $text .= "%0A";
         $text .= "%0A";
-        $text .= "Through this message, we would like to remind you that the payment deadline for " . $joined_program_name . " is due on " . $invoice_duedate . " or in " . $date_diff . " days.";
+        $text .= "Through this message, we would like to remind you that the payment deadline for " . $joined_program_name . " is due on " . $invoice_duedate . " or in " . $date_diff . " days" . $payment_method . ".";
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Amount: " . $total_payment;

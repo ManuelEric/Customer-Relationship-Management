@@ -19,11 +19,54 @@
                 </tfoot>
             </table>
 
+            <div class="modal fade" id="reminderModal" data-bs-backdrop="static" data-bs-keyboard="false"
+                aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <span>
+                                Reminder
+                            </span>
+                            <i class="bi bi-pencil-square"></i>
+                        </div>
+                        <div class="modal-body w-100 text-start">
+                            {{-- <form action="" method="POST" id="reminderForm"> --}}
+                                @csrf
+                                {{-- @method('put') --}}
+                                <div class="form-group">
+
+                                    <label for="">Phone Number Parent</label>
+                                    <input type="text" name="parent_phone" id="phone" class="form-control w-100">
+                                    <input type="hidden" name="clientprog_id" id="clientprog_id">
+                                    <input type="hidden" name="parent_fullname" id="fullname">
+                                    <input type="hidden" name="program_name" id="program_name">
+                                    <input type="hidden" name="invoice_duedate" id="invoice_duedate">
+                                    <input type="hidden" name="total_payment" id="total_payment">
+                                    <input type="hidden" name="payment_method" id="payment_method">
+                                </div>
+                                {{-- <hr> --}}
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                                    data-bs-dismiss="modal">
+                                        <i class="bi bi-x-square me-1"></i>
+                                        Cancel</button>
+                                    <button type="submit" onclick="sendWhatsapp()" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-save2 me-1"></i>
+                                        Send</button>
+                                </div>
+                            {{-- </form> --}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             {{-- Need Changing --}}
             <script>
+                
                 var widthView = $(window).width();
                 $(document).ready(function() {
+                    $('form :input').val('');
                     var table = $('#programTable').DataTable({
                         dom: 'Bfrtip',
                         lengthMenu: [
@@ -122,12 +165,16 @@
                                             row.parent_phone,
                                             row.program_name,
                                             row.inv_duedate,
-                                            row.inv_totalprice_idr
+                                            row.inv_totalprice_idr,
+                                            row.inv_paymentmethod
                                         ];
 
                                         let params = JSON.stringify(whatsapp_params);
 
-                                        var whatsapp_btn = '<a href="#remind_parent" onclick=\'sendWhatsapp('+params+')\' class="mx-1 btn btn-sm btn-outline-success"><i class="bi bi-whatsapp"></i></a>';
+              
+
+                                        var whatsapp_btn = '<a href="#remind_parent" onclick=\'openModalReminder('+params+')\' class="mx-1 btn btn-sm btn-outline-success"><i class="bi bi-whatsapp"></i></a>';
+                                        // var whatsapp_btn = '<button data-bs-toggle="modal" data-bs-target="#reminderModal" class="mx-1 btn btn-sm btn-outline-success reminder"><i class="bi bi-whatsapp"></i></button>';
 
                                         detail_btn += whatsapp_btn;
                                     }
@@ -180,9 +227,8 @@
                         });
                 }
 
-                function sendWhatsapp(params)
-                {
-                    showLoading();
+                function openModalReminder(params){
+                    $('#reminderModal').modal('show'); 
 
                     var clientprog_id = params[0];
                     var parent_fullname = params[1];
@@ -190,6 +236,33 @@
                     var program_name = params[3];
                     var invoice_duedate = params[4];
                     var total_payment = params[5];
+                    var payment_method = params[6];
+
+                    $('#phone').val(parent_phone)
+                    $('#fullname').val(parent_fullname)
+                    $('#program_name').val(program_name)
+                    $('#invoice_duedate').val(invoice_duedate)
+                    $('#total_payment').val(total_payment)
+                    $('#clientprog_id').val(clientprog_id)
+                    $('#payment_method').val(payment_method)
+
+                }
+
+                function sendWhatsapp()
+                {
+                    showLoading();
+
+                    // $('#reminderModal').modal('show'); 
+
+                    var clientprog_id = $('#clientprog_id').val();
+                    var parent_fullname = $('#fullname').val();
+                    var parent_phone = $('#phone').val();
+                    var program_name = $('#program_name').val();
+                    var invoice_duedate = $('#invoice_duedate').val();
+                    var total_payment = $('#total_payment').val();
+                    var payment_method = $('#payment_method').val();
+
+
                     
                     var link = '{{ url("/") }}/invoice/client-program/'+clientprog_id+'/remind/by/whatsapp';
                     axios.post(link, {
@@ -198,15 +271,19 @@
                             program_name : program_name,
                             invoice_duedate : invoice_duedate,
                             total_payment : total_payment,
+                            payment_method : payment_method
                         })
                         .then(function(response) {
                             swal.close();
+                            $('#reminderModal').modal('hide'); 
+                            
                             
                             let obj = response.data;
                             var link = obj.link;
                             window.open(link)
                         })
                         .catch(function(error) {
+                            $('#reminderModal').modal('hide'); 
                             swal.close();
                             notification('error', error)
                         })

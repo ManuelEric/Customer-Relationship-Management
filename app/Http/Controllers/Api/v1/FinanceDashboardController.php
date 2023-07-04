@@ -272,6 +272,7 @@ class FinanceDashboardController extends Controller
                             'invoice_duedate' => $unpaidPayment->invoice_duedate,
                             'total_payment' => $unpaidPayment->total,
                             'clientprog_id' => $unpaidPayment->client_prog_id,
+                            'payment_method' => (isset($unpaidPayment->installment_name)) ? ' (Installment)' : '',
                         ];
                     }
 
