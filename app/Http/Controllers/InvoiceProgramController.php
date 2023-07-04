@@ -9,6 +9,7 @@ use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
 use App\Models\InvoiceProgram;
 use DateTime;
 use Exception;
@@ -30,13 +31,15 @@ class InvoiceProgramController extends Controller
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     private InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
+    private ClientRepositoryInterface $clientRepository;
 
-    public function __construct(InvoiceProgramRepositoryInterface $invoiceProgramRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository)
+    public function __construct(InvoiceProgramRepositoryInterface $invoiceProgramRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, ClientRepositoryInterface $clientRepository)
     {
         $this->invoiceProgramRepository = $invoiceProgramRepository;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->invoiceAttachmentRepository = $invoiceAttachmentRepository;
+        $this->clientRepository = $clientRepository;
     }
 
     public function index(Request $request)
@@ -580,7 +583,7 @@ class InvoiceProgramController extends Controller
         if ($currency != 'idr')
             $currency = 'other';
         /* ~ END */
-        
+
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice->inv_id, $currency);
 
         return view('pages.invoice.view-pdf')->with(
@@ -868,7 +871,7 @@ class InvoiceProgramController extends Controller
             // throw new Exception('Reminder cannot be send without a parent\'s mail. Please complete the parent\'s information.');
             return response()->json(['message' => 'Reminder cannot be send without a parent\'s mail. Please complete the parent\'s information.'], 500);
 
-        $subject = '7 Days Left until the Payment Deadline for '.$program_name;
+        $subject = '7 Days Left until the Payment Deadline for ' . $program_name;
 
         $params = [
             'parent_fullname' => $parent_fullname,
@@ -889,20 +892,23 @@ class InvoiceProgramController extends Controller
             });
         } catch (Exception $e) {
 
-            Log::error($e->getMessage().' | Line '.$e->getLine());
+            Log::error($e->getMessage() . ' | Line ' . $e->getLine());
             return response()->json(['message' => $e->getMessage()]);
-
         }
 
-        return response()->json(['message' => 'Reminder for '.$parent_fullname.' has been sent.']);
+        return response()->json(['message' => 'Reminder for ' . $parent_fullname . ' has been sent.']);
     }
 
     public function remindParentsByWhatsapp(Request $request)
     {
+        $parent = $this->clientRepository->getClientById($request->parent_id);
+
         $parent_fullname = $request->parent_fullname;
         $parent_phone = $request->parent_phone;
 
-        $joined_program_name = ucwords(strtolower($request->program_name)); 
+        $parent->phone == null ? $this->clientRepository->updateClient($request->parent_id, ['phone' => $parent_phone]) : null;
+
+        $joined_program_name = ucwords(strtolower($request->program_name));
         $invoice_duedate = date('d/m/Y', strtotime($request->invoice_duedate));
         $total_payment = "Rp. " . number_format($request->total_payment, '2', ',', '.');
 
@@ -911,16 +917,18 @@ class InvoiceProgramController extends Controller
         $interval = $datetime_1->diff($datetime_2);
         $date_diff = $interval->format('%a'); # format for the interval : days
 
-        $text = "Dear ".$parent_fullname.",";
+        $payment_method = $request->payment_method != 'Full Payment' ? ' (Installment)' : '';
+
+        $text = "Dear " . $parent_fullname . "," . $request->parent_id;
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Thank you for trusting ALL-in Eduspace as your independent university consultant to help your child reach their dream to top universities.";
         $text .= "%0A";
         $text .= "%0A";
-        $text .= "Through this message, we would like to remind you that the payment deadline for ".$joined_program_name." is due on ".$invoice_duedate." or in ".$date_diff." days.";
+        $text .= "Through this message, we would like to remind you that the payment deadline for " . $joined_program_name . " is due on " . $invoice_duedate . " or in " . $date_diff . " days" . $payment_method . ".";
         $text .= "%0A";
         $text .= "%0A";
-        $text .= "Amount: ".$total_payment;
+        $text .= "Amount: " . $total_payment;
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Payment could be done through bank transfer to: BCA 2483016611 a/n PT Jawara Edukasih Indonesia.";
@@ -931,7 +939,9 @@ class InvoiceProgramController extends Controller
         $text .= "%0A";
         $text .= "Regards";
 
-        $link = "https://api.whatsapp.com/send?phone=".$parent_phone."&text=".$text;
+        $link = "https://api.whatsapp.com/send?phone=" . $parent_phone . "&text=" . $text;
+        // echo "<script>window.open('" . $link . "', '_blank')</script>";
+        // return redirect()->to($link);
         return response()->json(['link' => $link]);
     }
 }
