@@ -56,6 +56,11 @@ class ImportReceiptSchool extends Command
 
             foreach ($invoiceSchools as $invSch) {
                 $invoiceDetails = $invSch->invoice_detail;
+
+                # check if invoice does exist
+                if ($this->invoiceB2bRepository->getInvoiceB2bByInvId($invSch->invsch_id)->count() == 0)
+                    continue;
+
                 // if (count($invoiceDetails) > 0) {
                 //     foreach ($invoiceDetails as $invDetail) {
                 //         if (isset($invDetail->receipt) && !$this->receiptRepository->getReceiptByInvoiceIdentifier('Installment', $invDetail->invdtl_id)) {
@@ -77,7 +82,7 @@ class ImportReceiptSchool extends Command
                 //             ];
                 //         }
                 //     }
-                // } else {
+                // } else 
                 if (isset($invSch->receipt) && !$this->receiptRepository->getReceiptByInvoiceIdentifier('B2B', $invSch->invsch_id) && count($invoiceDetails) == 0) {
                     $new_receipts[] = [
                         'id' => $invSch->receipt->receipt_num,
