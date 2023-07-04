@@ -144,6 +144,7 @@
                         <input type="hidden" name="invoice_duedate" id="invoice_duedate">
                         <input type="hidden" name="total_payment" id="total_payment">
                         <input type="hidden" name="payment_method" id="payment_method">
+                        <input type="hidden" name="parent_id" id="parent_id">
                     </div>
                     {{-- <hr> --}}
                     <div class="d-flex justify-content-between">
@@ -230,6 +231,7 @@
                             $('#total_payment').val(result.reminder[$(this).data('clientid')].total_payment)
                             $('#clientprog_id').val(result.reminder[$(this).data('clientid')].clientprog_id)
                             $('#payment_method').val(result.reminder[$(this).data('clientid')].payment_method)
+                            $('#parent_id').val(result.reminder[$(this).data('clientid')].parent_id)
 
                             // $("#reminderForm").attr("action", '{{ url("/") }}/invoice/client-program/'+result.reminder[$(this).data('clientid')].clientprog_id+'/remind/by/whatsapp');
                         })
@@ -422,6 +424,7 @@
                 invoice_duedate : $('#invoice_duedate').val(),
                 total_payment : $('#total_payment').val(),
                 payment_method : $('#payment_method').val(),
+                parent_id : $('#parent_id').val(),
             })
             .then(function(response) {
                 swal.close();

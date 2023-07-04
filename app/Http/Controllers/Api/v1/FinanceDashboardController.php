@@ -273,6 +273,7 @@ class FinanceDashboardController extends Controller
                             'total_payment' => $unpaidPayment->total,
                             'clientprog_id' => $unpaidPayment->client_prog_id,
                             'payment_method' => (isset($unpaidPayment->installment_name)) ? ' (Installment)' : '',
+                            'parent_id' => $unpaidPayment->parent_id,
                         ];
                     }
 

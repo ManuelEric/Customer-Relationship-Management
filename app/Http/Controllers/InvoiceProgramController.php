@@ -9,6 +9,7 @@ use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
 use App\Models\InvoiceProgram;
 use DateTime;
 use Exception;
@@ -30,13 +31,15 @@ class InvoiceProgramController extends Controller
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     private InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
+    private ClientRepositoryInterface $clientRepository;
 
-    public function __construct(InvoiceProgramRepositoryInterface $invoiceProgramRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository)
+    public function __construct(InvoiceProgramRepositoryInterface $invoiceProgramRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, ClientRepositoryInterface $clientRepository)
     {
         $this->invoiceProgramRepository = $invoiceProgramRepository;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->invoiceAttachmentRepository = $invoiceAttachmentRepository;
+        $this->clientRepository = $clientRepository;
     }
 
     public function index(Request $request)
@@ -898,8 +901,12 @@ class InvoiceProgramController extends Controller
 
     public function remindParentsByWhatsapp(Request $request)
     {
+        $parent = $this->clientRepository->getClientById($request->parent_id);
+
         $parent_fullname = $request->parent_fullname;
         $parent_phone = $request->parent_phone;
+
+        $parent->phone == null ? $this->clientRepository->updateClient($request->parent_id, ['phone' => $parent_phone]) : null;
 
         $joined_program_name = ucwords(strtolower($request->program_name));
         $invoice_duedate = date('d/m/Y', strtotime($request->invoice_duedate));
@@ -912,7 +919,7 @@ class InvoiceProgramController extends Controller
 
         $payment_method = $request->payment_method != 'Full Payment' ? ' (Installment)' : '';
 
-        $text = "Dear " . $parent_fullname . ",";
+        $text = "Dear " . $parent_fullname . "," . $request->parent_id;
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Thank you for trusting ALL-in Eduspace as your independent university consultant to help your child reach their dream to top universities.";
