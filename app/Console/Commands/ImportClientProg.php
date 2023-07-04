@@ -503,6 +503,8 @@ class ImportClientProg extends Command
                 $installmentDetails = [];
                 foreach ($crm_clientprog_installment as $installment) {
 
+                    $this->info('Installment no : '.$invoice_v2->inv_id);
+
                     $installmentDetails = [
                         'inv_id' => $invoice_v2->inv_id,
                         'invdtl_installment' => $installment->invdtl_statusname,
@@ -524,7 +526,7 @@ class ImportClientProg extends Command
                     }
 
 
-                    if (isset($installment->receipt) && !isset($installment_v2->receipt)) {
+                    if (isset($installment->receipt) && $installment_v2->receipt->count() == 0) {
                         $receiptDetails = [
                             'receipt_id' => $installment->receipt->receipt_id,
                             'receipt_cat' => 'student',
