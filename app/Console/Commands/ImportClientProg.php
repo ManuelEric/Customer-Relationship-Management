@@ -59,6 +59,7 @@ class ImportClientProg extends Command
     protected MainProgRepositoryInterface $mainProgRepository;
     protected SubProgRepositoryInterface $subProgRepository;
 
+
     public function __construct(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, ReasonRepositoryInterface $reasonRepository, UserRepositoryInterface $userRepository, FollowupRepositoryInterface $followupRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository, MainProgRepositoryInterface $mainProgRepository, SubProgRepositoryInterface $subProgRepository)
     {
         parent::__construct();
@@ -105,7 +106,7 @@ class ImportClientProg extends Command
             $progressBar = $this->output->createProgressBar($crm_clientprogs->count());
             $progressBar->start();
             foreach ($crm_clientprogs as $crm_clientprog) {
-
+                $progressBar->advance();
                 # get the student id on database v2 using name
                 if (!isset($crm_clientprog->student->st_firstname))
                     continue; # st num 146 not found in table students v1 deleted soon
@@ -137,12 +138,13 @@ class ImportClientProg extends Command
                 }
 
                 $clientprog_v2 = $this->createClientProgramIfNotExists($student_v2_id, $progId, $lead_v2, $crm_clientprog, $employee_v2, $reason_v2);
+                if ($clientprog_v2 === false)
+                    continue;
 
                 $this->createFollowupIfNotExists($crm_clientprog, $clientprog_v2);
 
                 $this->createInvoiceIfNotExists($crm_clientprog, $clientprog_v2);
 
-                $progressBar->advance();
             }
 
             $progressBar->finish();
@@ -272,6 +274,9 @@ class ImportClientProg extends Command
             'created_at' => $crm_clientprog->stprog_firstdisdate,
             'updated_at' => $crm_clientprog->stprog_firstdisdate
         ];
+
+        if ($this->clientProgramRepository->getClientProgramByDetail($clientProgramDetails)) 
+            return false;
 
         # additional
         $clientProgramDetails['total_uni'] = $crm_clientprog->stprog_tot_uni;
