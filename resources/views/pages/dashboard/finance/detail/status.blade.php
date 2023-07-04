@@ -120,6 +120,47 @@
     </div>
 </div>
 
+<div class="modal fade" id="reminderModal" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>
+                    Reminder
+                </span>
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div class="modal-body w-100 text-start">
+                {{-- <form action="" method="POST" id="reminderForm"> --}}
+                    @csrf
+                    {{-- @method('put') --}}
+                    <div class="form-group">
+
+                        <label for="">Phone Number Parent</label>
+                        <input type="text" name="parent_phone" id="phone" class="form-control w-100">
+                        <input type="hidden" name="clientprog_id" id="clientprog_id">
+                        <input type="hidden" name="parent_fullname" id="fullname">
+                        <input type="hidden" name="program_name" id="program_name">
+                        <input type="hidden" name="invoice_duedate" id="invoice_duedate">
+                        <input type="hidden" name="total_payment" id="total_payment">
+                        <input type="hidden" name="payment_method" id="payment_method">
+                        <input type="hidden" name="parent_id" id="parent_id">
+                    </div>
+                    {{-- <hr> --}}
+                    <div class="d-flex justify-content-between">
+                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                          data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="submit" onclick="sendWhatsapp()" class="btn btn-primary btn-sm">
+                            <i class="bi bi-save2 me-1"></i>
+                            Send</button>
+                    </div>
+                {{-- </form> --}}
+            </div>
+        </div>
+    </div>
+ </div>
 
 <script>
 
@@ -148,6 +189,7 @@
                         html = "<tr class='text-white'>"
                         html += "<th class='bg-secondary rounded border border-white'>No</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Client Name</th>"
+                        html += "<th class='bg-secondary rounded border border-white'>Reminder</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Invoice ID</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Type</th>"
                         html += "<th class='bg-secondary rounded border border-white'>Program Name</th>"
@@ -176,69 +218,88 @@
                     $('#list-detail-finance .modal-title').html(result.title)
                     $('#listFinanceTable tbody').html(result.html_ctx)
 
+                    $('#phone').val('');
+                    $("#listFinanceTable .reminder").each(function() {
+                         $(this).click(function() {
+                            if($(this).data('clientid') != undefined){
+
+                                $('#phone').val(result.reminder[$(this).data('clientid')].parent_phone)
+                            }
+                            $('#fullname').val(result.reminder[$(this).data('clientid')].parent_fullname)
+                            $('#program_name').val(result.reminder[$(this).data('clientid')].program_name)
+                            $('#invoice_duedate').val(result.reminder[$(this).data('clientid')].invoice_duedate)
+                            $('#total_payment').val(result.reminder[$(this).data('clientid')].total_payment)
+                            $('#clientprog_id').val(result.reminder[$(this).data('clientid')].clientprog_id)
+                            $('#payment_method').val(result.reminder[$(this).data('clientid')].payment_method)
+                            $('#parent_id').val(result.reminder[$(this).data('clientid')].parent_id)
+
+                            // $("#reminderForm").attr("action", '{{ url("/") }}/invoice/client-program/'+result.reminder[$(this).data('clientid')].clientprog_id+'/remind/by/whatsapp');
+                        })
+                    })
+                    
                     $("#listFinanceTable .detail").each(function() {
                         var link = '';
-                            switch ($(this).data('type')) {
-                                case 'invoice-needed':
-                                    switch ($(this).data('typeprog')) {
-                                        case 'sch_prog':
-                                            link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/create"
-                                            break;
-                                        case 'partner_prog':
-                                            link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/create"
-                                            break;
-                                        case 'referral':
-                                            link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/create"
-                                            break;
-                                        case 'client_prog':
-                                            link = "{{ url('/') }}/invoice/client-program/create?prog=" + $(this).data('clientprog')
-                                            break;
-                                    }
+                        switch ($(this).data('type')) {
+                                    case 'invoice-needed':
+                                        switch ($(this).data('typeprog')) {
+                                            case 'sch_prog':
+                                                link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/create"
+                                                break;
+                                            case 'partner_prog':
+                                                link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/create"
+                                                break;
+                                            case 'referral':
+                                                link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/create"
+                                                break;
+                                            case 'client_prog':
+                                                link = "{{ url('/') }}/invoice/client-program/create?prog=" + $(this).data('clientprog')
+                                                break;
+                                        }
+                                        break;
+    
+                                    case 'outstanding':
+                                        switch ($(this).data('typeprog')) {
+                                            case 'sch_prog':
+                                                link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                                break;
+                                            case 'partner_prog':
+                                                link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                                break;
+                                            case 'referral':
+                                                link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                                break;
+                                            case 'client_prog':
+                                                link = "{{ url('/') }}/invoice/client-program/" + $(this).data('clientprog')
+                                                break;
+                                        }
+                                        break;
                                     break;
-
-                                case 'outstanding':
-                                    switch ($(this).data('typeprog')) {
-                                        case 'sch_prog':
-                                            link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
-                                            break;
-                                        case 'partner_prog':
-                                            link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
-                                            break;
-                                        case 'referral':
-                                            link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
-                                            break;
-                                        case 'client_prog':
-                                            link = "{{ url('/') }}/invoice/client-program/" + $(this).data('clientprog')
-                                            break;
-                                    }
+    
+                                    case 'refund-request':
+                                        switch ($(this).data('typeprog')) {
+                                            case 'sch_prog':
+                                                link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                                break;
+                                            case 'partner_prog':
+                                                link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                                break;
+                                            case 'referral':
+                                                link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
+                                                break;
+                                            case 'client_prog':
+                                                link = "{{ url('/') }}/invoice/client-program/" + $(this).data('clientprog')
+                                                break;
+                                        }
+                                        break;
                                     break;
-                                break;
-
-                                case 'refund-request':
-                                    switch ($(this).data('typeprog')) {
-                                        case 'sch_prog':
-                                            link = "{{ url('/') }}/invoice/school-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
-                                            break;
-                                        case 'partner_prog':
-                                            link = "{{ url('/') }}/invoice/corporate-program/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
-                                            break;
-                                        case 'referral':
-                                            link = "{{ url('/') }}/invoice/referral/" + $(this).data('clientprog') + "/detail/" + $(this).data('invid')
-                                            break;
-                                        case 'client_prog':
-                                            link = "{{ url('/') }}/invoice/client-program/" + $(this).data('clientprog')
-                                            break;
-                                    }
-                                    break;
-                                break;
-                            
-                             
-                            }
-                            
-                            $(this).click(function() {
-                                window.open(link, '_blank')
-                            })
-                    })
+                                
+                                 
+                                }
+                                $(this).click(function() {
+                                    window.open(link, '_blank')
+                                })
+                        })
+                    
                     swal.close()
 
                     $('#list-detail-finance').modal('show')
@@ -352,5 +413,31 @@
             
     }
 
+    function sendWhatsapp()
+    {
+
+        var link = '{{ url("/") }}/invoice/client-program/'+$('#clientprog_id').val()+'/remind/by/whatsapp';
+            axios.post(link, {
+                parent_fullname : $('#fullname').val(),
+                parent_phone : $('#phone').val(),
+                program_name : $('#program_name').val(),
+                invoice_duedate : $('#invoice_duedate').val(),
+                total_payment : $('#total_payment').val(),
+                payment_method : $('#payment_method').val(),
+                parent_id : $('#parent_id').val(),
+            })
+            .then(function(response) {
+                swal.close();
+                            
+                let obj = response.data;
+                var link = obj.link;
+                window.open(link)
+            })
+                .catch(function(error) {
+                swal.close();
+                notification('error', error)
+            })
+    }
     checkInvoiceStatusbyMonth()
+
 </script>
