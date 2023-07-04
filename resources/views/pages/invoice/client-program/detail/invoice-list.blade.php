@@ -63,24 +63,25 @@
                             },
                             {
                                 data: 'inv_paymentmethod',
-                                name: 'tbl_inv.inv_paymentmethod'
+                                name: 'inv_paymentmethod'
                             },
                             {
                                 data: 'created_at',
+                                name: 'created_at',
                                 render: function(data, type, row) {
                                     return moment(data).format('MMMM Do YYYY')
                                 }
                             },
                             {
                                 data: 'inv_duedate',
-                                name: 'tbl_inv.inv_duedate',
+                                name: 'inv_duedate',
                                 render: function(data, type, row) {
                                     return moment(data).format('MMMM Do YYYY')
                                 }
                             },
                             {
                                 data: 'inv_totalprice_idr',
-                                name: 'tbl_inv.inv_totalprice_idr',
+                                name: 'inv_totalprice_idr',
                                 render: function(data, type, row) {
                                     return new Intl.NumberFormat("id-ID", {
                                         style: "currency",
