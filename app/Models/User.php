@@ -59,7 +59,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
+        // 'password',
         'remember_token',
     ];
 
@@ -142,7 +142,7 @@ class User extends Authenticatable
     public function educations()
     {
         return $this->belongsToMany(University::class, 'tbl_user_educations', 'user_id', 'univ_id')
-            ->withPivot('major_id', 'degree', 'graduation_date')->withTimestamps()
+            ->withPivot('major_id', 'tbl_major.name as major_name', 'degree', 'graduation_date')->withTimestamps()
             ->join('tbl_major', 'major_id', '=', 'tbl_major.id');
     }
 
