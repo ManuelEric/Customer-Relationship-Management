@@ -138,8 +138,6 @@ class ImportClientProg extends Command
                 }
 
                 $clientprog_v2 = $this->createClientProgramIfNotExists($student_v2_id, $progId, $lead_v2, $crm_clientprog, $employee_v2, $reason_v2);
-                if ($clientprog_v2 === false)
-                    continue;
 
                 $this->createFollowupIfNotExists($crm_clientprog, $clientprog_v2);
 
@@ -275,8 +273,8 @@ class ImportClientProg extends Command
             'updated_at' => $crm_clientprog->stprog_firstdisdate
         ];
 
-        if ($this->clientProgramRepository->getClientProgramByDetail($clientProgramDetails)) 
-            return false;
+        if ($clientprog_v2 = $this->clientProgramRepository->getClientProgramByDetail($clientProgramDetails)) 
+            return $clientprog_v2;
 
         # additional
         $clientProgramDetails['total_uni'] = $crm_clientprog->stprog_tot_uni;
@@ -443,6 +441,7 @@ class ImportClientProg extends Command
         if ($crm_clientprog_invoice) {
             $crm_invoiceId = $crm_clientprog_invoice->inv_id;
             
+            # check existing invoice
             if (!$invoice_v2 = $this->invoiceProgramRepository->getInvoiceByInvoiceId($crm_invoiceId)) {
                 $inv_words = $crm_clientprog_invoice->inv_wordsusd;
                 if ($crm_clientprog_invoice->inv_wordsusd == "") {
@@ -526,7 +525,7 @@ class ImportClientProg extends Command
                     }
 
 
-                    if (isset($installment->receipt) && $installment_v2->receipt->count() == 0) {
+                    if (isset($installment->receipt) && !isset($installment_v2->receipt)) {
                         $receiptDetails = [
                             'receipt_id' => $installment->receipt->receipt_id,
                             'receipt_cat' => 'student',
@@ -581,6 +580,7 @@ class ImportClientProg extends Command
             }
 
             # if the invoice has receipt
+            $this->info('Invoice ID : '.$crm_clientprog_invoice->inv_id.' dan '.count($crm_clientprog_invoice->installment));
             if ($crm_clientprog_invoice->receipt && count($crm_clientprog_invoice->installment) == 0) {
                 $crm_clientprog_receipt = $crm_clientprog_invoice->receipt;
                 foreach ($crm_clientprog_receipt as $crm_receipt) {
