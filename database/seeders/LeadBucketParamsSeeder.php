@@ -20,6 +20,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Admission | School
             [
+                'bucket_id' => 'L-1',
                 'initialprogram_id' => 1,
                 'param_id' => 1,
                 'weight_new' => 40,
@@ -31,6 +32,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Admission | Grade
             [
+                'bucket_id' => 'L-2',
                 'initialprogram_id' => 1,
                 'param_id' => 2,
                 'weight_new' => 25,
@@ -42,6 +44,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Admission | Country
             [
+                'bucket_id' => 'L-3',
                 'initialprogram_id' => 1,
                 'param_id' => 3,
                 'weight_new' => 10,
@@ -53,6 +56,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Admission | Status
             [
+                'bucket_id' => 'L-4',
                 'initialprogram_id' => 1,
                 'param_id' => 4,
                 'weight_new' => 25,
@@ -64,6 +68,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Experiential Learning | School
             [
+                'bucket_id' => 'L-5',
                 'initialprogram_id' => 2,
                 'param_id' => 1,
                 'weight_new' => 40,
@@ -75,6 +80,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Experiential Learning | Grade
             [
+                'bucket_id' => 'L-6',
                 'initialprogram_id' => 2,
                 'param_id' => 2,
                 'weight_new' => 30,
@@ -86,6 +92,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Experiential Learning | Status
             [
+                'bucket_id' => 'L-7',
                 'initialprogram_id' => 2,
                 'param_id' => 4,
                 'weight_new' => 25,
@@ -97,6 +104,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Experiential Learning | Major
             [
+                'bucket_id' => 'L-8',
                 'initialprogram_id' => 2,
                 'param_id' => 5,
                 'weight_new' => null,
@@ -108,6 +116,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Academic Performance (SAT) | School
             [
+                'bucket_id' => 'L-9',
                 'initialprogram_id' => 3,
                 'param_id' => 1,
                 'weight_new' => 60,
@@ -119,6 +128,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Academic Performance (SAT) | Grade
             [
+                'bucket_id' => 'L-10',
                 'initialprogram_id' => 3,
                 'param_id' => 2,
                 'weight_new' => 40,
@@ -130,6 +140,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Academic Performance (Academic Tutoring) | School
             [
+                'bucket_id' => 'L-11',
                 'initialprogram_id' => 4,
                 'param_id' => 1,
                 'weight_new' => 70,
@@ -141,6 +152,7 @@ class LeadBucketParamsSeeder extends Seeder
 
             // Academic Performance (Academic Tutoring) | Grade
             [
+                'bucket_id' => 'L-12',
                 'initialprogram_id' => 4,
                 'param_id' => 2,
                 'weight_new' => 30,

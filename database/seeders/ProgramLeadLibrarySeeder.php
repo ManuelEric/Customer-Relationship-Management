@@ -18,968 +18,830 @@ class ProgramBucketParamsSeeder extends Seeder
     {
         $seeds = [
 
-            // Admission | School | International
+            // Program | Admission | School | International
             [
                 'programbucket_id' => 'B-1',
+                'leadbucket_id' => null,
                 'value_category' => 1,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | School | National +
+            // Program | Admission | School | National +
             [
                 'programbucket_id' => 'B-1',
+                'leadbucket_id' => null,
                 'value_category' => 2,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | School | Homeschool
+            // Program | Admission | School | Homeschool
             [
                 'programbucket_id' => 'B-1',
+                'leadbucket_id' => null,
                 'value_category' => 3,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | School | Homeschool $
+            // Program | Admission | School | Homeschool $
             [
                 'programbucket_id' => 'B-1',
+                'leadbucket_id' => null,
                 'value_category' => 4,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | School | National - Private
+            // Program | Admission | School | National - Private
             [
                 'programbucket_id' => 'B-1',
+                'leadbucket_id' => null,
                 'value_category' => 5,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | School | National - Private $
+            // Program | Admission | School | National - Private $
             [
                 'programbucket_id' => 'B-1',
+                'leadbucket_id' => null,
                 'value_category' => 6,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | School | National - Negeri
+            // Program | Admission | School | National - Negeri
             [
                 'programbucket_id' => 'B-1',
+                'leadbucket_id' => null,
                 'value_category' => 7,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 0,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | School | National - Negeri $
+            // Program | Admission | School | National - Negeri $
             [
                 'programbucket_id' => 'B-1',
+                'leadbucket_id' => null,
                 'value_category' => 7,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 0,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Grade | 0
+            // Program | Admission | Grade | 0
             [
                 'programbucket_id' => 'B-2',
+                'leadbucket_id' => null,
                 'value_category' => 1,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Grade | -1
+            // Program | Admission | Grade | -1
             [
                 'programbucket_id' => 'B-2',
+                'leadbucket_id' => null,
                 'value_category' => 2,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Grade | -2
+            // Program | Admission | Grade | -2
             [
                 'programbucket_id' => 'B-2',
+                'leadbucket_id' => null,
                 'value_category' => 3,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Grade | -3
+            // Program | Admission | Grade | -3
             [
                 'programbucket_id' => 'B-2',
+                'leadbucket_id' => null,
                 'value_category' => 4,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Grade | -4
+            // Program | Admission | Grade | -4
             [
                 'programbucket_id' => 'B-2',
+                'leadbucket_id' => null,
                 'value_category' => 5,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Grade | -5
+            // Program | Admission | Grade | -5
             [
                 'programbucket_id' => 'B-2',
+                'leadbucket_id' => null,
                 'value_category' => 6,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Country | US
+            // Program | Admission | Country | US
             [
                 'programbucket_id' => 'B-3',
+                'leadbucket_id' => null,
                 'value_category' => 1,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Country | UK
+            // Program | Admission | Country | UK
             [
                 'programbucket_id' => 'B-3',
+                'leadbucket_id' => null,
                 'value_category' => 2,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Country | Canada
+            // Program | Admission | Country | Canada
             [
                 'programbucket_id' => 'B-3',
+                'leadbucket_id' => null,
                 'value_category' => 3,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Country | Australia
+            // Program | Admission | Country | Australia
             [
                 'programbucket_id' => 'B-3',
+                'leadbucket_id' => null,
                 'value_category' => 4,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Country | Hongkong
+            // Program | Admission | Country | Hongkong
             [
                 'programbucket_id' => 'B-3',
+                'leadbucket_id' => null,
                 'value_category' => 5,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Country | Singapore
+            // Program | Admission | Country | Singapore
             [
                 'programbucket_id' => 'B-3',
+                'leadbucket_id' => null,
                 'value_category' => 6,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Country | Other
+            // Program | Admission | Country | Other
             [
                 'programbucket_id' => 'B-3',
+                'leadbucket_id' => null,
                 'value_category' => 7,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Country | Undecided
+            // Program | Admission | Country | Undecided
             [
                 'programbucket_id' => 'B-3',
+                'leadbucket_id' => null,
                 'value_category' => 8,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Admission | Country | Undecided $
+            // Program | Admission | Country | Undecided $
             [
                 'programbucket_id' => 'B-3',
+                'leadbucket_id' => null,
                 'value_category' => 9,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | School | International
+            // Program | Experiential Learning | School | International
             [
                 'programbucket_id' => 'B-6',
+                'leadbucket_id' => null,
                 'value_category' => 1,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | School | National +
+            // Program | Experiential Learning | School | National +
             [
                 'programbucket_id' => 'B-6',
+                'leadbucket_id' => null,
                 'value_category' => 2,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | School | Homeschool
+            // Program | Experiential Learning | School | Homeschool
             [
                 'programbucket_id' => 'B-6',
+                'leadbucket_id' => null,
                 'value_category' => 3,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | School | Homeschool $
+            // Program | Experiential Learning | School | Homeschool $
             [
                 'programbucket_id' => 'B-6',
+                'leadbucket_id' => null,
                 'value_category' => 4,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | School | National - Private
+            // Program | Experiential Learning | School | National - Private
             [
                 'programbucket_id' => 'B-6',
+                'leadbucket_id' => null,
                 'value_category' => 5,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | School | National - Private $
+            // Program | Experiential Learning | School | National - Private $
             [
                 'programbucket_id' => 'B-6',
+                'leadbucket_id' => null,
                 'value_category' => 6,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | School | National - Negeri
+            // Program | Experiential Learning | School | National - Negeri
             [
                 'programbucket_id' => 'B-6',
+                'leadbucket_id' => null,
                 'value_category' => 7,
                 'new' => 0,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 0,
-                'new_temp' => 0,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | School | National - Negeri $
+            // Program | Experiential Learning | School | National - Negeri $
             [
                 'programbucket_id' => 'B-6',
+                'leadbucket_id' => null,
                 'value_category' => 8,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 0,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Grade | 0
+            // Program | Experiential Learning | Grade | 0
             [
                 'programbucket_id' => 'B-7',
+                'leadbucket_id' => null,
                 'value_category' => 1,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 0,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Grade | -1
+            // Program | Experiential Learning | Grade | -1
             [
                 'programbucket_id' => 'B-7',
+                'leadbucket_id' => null,
                 'value_category' => 2,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Grade | -2
+            // Program | Experiential Learning | Grade | -2
             [
                 'programbucket_id' => 'B-7',
+                'leadbucket_id' => null,
                 'value_category' => 3,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Grade | -3
+            // Program | Experiential Learning | Grade | -3
             [
                 'programbucket_id' => 'B-7',
+                'leadbucket_id' => null,
                 'value_category' => 4,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Grade | -4
+            // Program | Experiential Learning | Grade | -4
             [
                 'programbucket_id' => 'B-7',
+                'leadbucket_id' => null,
                 'value_category' => 5,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Grade | -5
+            // Program | Experiential Learning | Grade | -5
             [
                 'programbucket_id' => 'B-7',
+                'leadbucket_id' => null,
                 'value_category' => 6,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 0,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Country | US
+            // Program | Experiential Learning | Country | US
             [
                 'programbucket_id' => 'B-8',
+                'leadbucket_id' => null,
                 'value_category' => 1,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Country | UK
+            // Program | Experiential Learning | Country | UK
             [
                 'programbucket_id' => 'B-8',
+                'leadbucket_id' => null,
                 'value_category' => 2,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Country | Canada
+            // Program | Experiential Learning | Country | Canada
             [
                 'programbucket_id' => 'B-8',
+                'leadbucket_id' => null,
                 'value_category' => 3,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Country | Australia
+            // Program | Experiential Learning | Country | Australia
             [
                 'programbucket_id' => 'B-8',
+                'leadbucket_id' => null,
                 'value_category' => 4,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Country | Hongkong
+            // Program | Experiential Learning | Country | Hongkong
             [
                 'programbucket_id' => 'B-8',
+                'leadbucket_id' => null,
                 'value_category' => 5,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Country | Singapore
+            // Program | Experiential Learning | Country | Singapore
             [
                 'programbucket_id' => 'B-8',
+                'leadbucket_id' => null,
                 'value_category' => 6,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Country | Other
+            // Program | Experiential Learning | Country | Other
             [
                 'programbucket_id' => 'B-8',
+                'leadbucket_id' => null,
                 'value_category' => 7,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Country | Undecided
+            // Program | Experiential Learning | Country | Undecided
             [
                 'programbucket_id' => 'B-8',
+                'leadbucket_id' => null,
                 'value_category' => 8,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Experiential Learning | Country | Undecided $
+            // Program | Experiential Learning | Country | Undecided $
             [
                 'programbucket_id' => 'B-8',
+                'leadbucket_id' => null,
                 'value_category' => 9,
                 'new' => 1,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | School | International
+            // Program | Academic Performance (SAT) | School | International
             [
                 'programbucket_id' => 'B-12',
+                'leadbucket_id' => null,
                 'value_category' => 1,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | School | National +
+            // Program | Academic Performance (SAT) | School | National +
             [
                 'programbucket_id' => 'B-12',
+                'leadbucket_id' => null,
                 'value_category' => 2,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | School | Homeschool
+            // Program | Academic Performance (SAT) | School | Homeschool
             [
                 'programbucket_id' => 'B-12',
+                'leadbucket_id' => null,
                 'value_category' => 3,
                 'new' => 0,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | School | Homeschool $
+            // Program | Academic Performance (SAT) | School | Homeschool $
             [
                 'programbucket_id' => 'B-12',
+                'leadbucket_id' => null,
                 'value_category' => 4,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | School | National - Private
+            // Program | Academic Performance (SAT) | School | National - Private
             [
                 'programbucket_id' => 'B-12',
+                'leadbucket_id' => null,
                 'value_category' => 5,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | School | National - Private $
+            // Program | Academic Performance (SAT) | School | National - Private $
             [
                 'programbucket_id' => 'B-12',
+                'leadbucket_id' => null,
                 'value_category' => 6,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | School | National - Negeri
+            // Program | Academic Performance (SAT) | School | National - Negeri
             [
                 'programbucket_id' => 'B-12',
+                'leadbucket_id' => null,
                 'value_category' => 7,
                 'new' => 0,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 0,
-                'new_temp' => 0,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | School | National - Negeri $
+            // Program | Academic Performance (SAT) | School | National - Negeri $
             [
                 'programbucket_id' => 'B-12',
+                'leadbucket_id' => null,
                 'value_category' => 8,
                 'new' => 0,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 0,
-                'new_temp' => 0,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Grade | 0
+            // Program | Academic Performance (SAT) | Grade | 0
             [
                 'programbucket_id' => 'B-13',
+                'leadbucket_id' => null,
                 'value_category' => 1,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Grade | -1
+            // Program | Academic Performance (SAT) | Grade | -1
             [
                 'programbucket_id' => 'B-13',
+                'leadbucket_id' => null,
                 'value_category' => 2,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Grade | -2
+            // Program | Academic Performance (SAT) | Grade | -2
             [
                 'programbucket_id' => 'B-13',
+                'leadbucket_id' => null,
                 'value_category' => 3,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Grade | -3
+            // Program | Academic Performance (SAT) | Grade | -3
             [
                 'programbucket_id' => 'B-13',
+                'leadbucket_id' => null,
                 'value_category' => 4,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Grade | -4
+            // Program | Academic Performance (SAT) | Grade | -4
             [
                 'programbucket_id' => 'B-13',
+                'leadbucket_id' => null,
                 'value_category' => 5,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 0,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Grade | -5
+            // Program | Academic Performance (SAT) | Grade | -5
             [
                 'programbucket_id' => 'B-13',
+                'leadbucket_id' => null,
                 'value_category' => 6,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 0,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Country | US
+            // Program | Academic Performance (SAT) | Country | US
             [
                 'programbucket_id' => 'B-14',
+                'leadbucket_id' => null,
                 'value_category' => 1,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Country | UK
+            // Program | Academic Performance (SAT) | Country | UK
             [
                 'programbucket_id' => 'B-14',
+                'leadbucket_id' => null,
                 'value_category' => 2,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Country | Canada
+            // Program | Academic Performance (SAT) | Country | Canada
             [
                 'programbucket_id' => 'B-14',
+                'leadbucket_id' => null,
                 'value_category' => 3,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Country | Australia
+            // Program | Academic Performance (SAT) | Country | Australia
             [
                 'programbucket_id' => 'B-14',
+                'leadbucket_id' => null,
                 'value_category' => 4,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Country | Hongkong
+            // Program | Academic Performance (SAT) | Country | Hongkong
             [
                 'programbucket_id' => 'B-14',
+                'leadbucket_id' => null,
                 'value_category' => 5,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Country | Singapore
+            // Program | Academic Performance (SAT) | Country | Singapore
             [
                 'programbucket_id' => 'B-14',
+                'leadbucket_id' => null,
                 'value_category' => 6,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Country | Other
+            // Program | Academic Performance (SAT) | Country | Other
             [
                 'programbucket_id' => 'B-14',
+                'leadbucket_id' => null,
                 'value_category' => 7,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 1,
-                'existing_mentee_temp' => 1,
-                'existing_non_mentee_temp' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Country | Undecided
+            // Program | Academic Performance (SAT) | Country | Undecided
             [
                 'programbucket_id' => 'B-14',
+                'leadbucket_id' => null,
                 'value_category' => 8,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 0,
-                'new_temp' => 0,
-                'existing_mentee_temp' => 0,
-                'existing_non_mentee_temp' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
 
-            // Academic Performance (SAT) | Country | Undecided $
+            // Program | Academic Performance (SAT) | Country | Undecided $
             [
                 'programbucket_id' => 'B-14',
+                'leadbucket_id' => null,
                 'value_category' => 9,
                 'new' => 1,
                 'existing_mentee' => 1,
                 'existing_non_mentee' => 1,
-                'new_temp' => 2,
-                'existing_mentee_temp' => 2,
-                'existing_non_mentee_temp' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
