@@ -35,7 +35,8 @@
                                 <div class="form-group">
 
                                     <label for="">Phone Number Parent</label>
-                                    <input type="text" name="parent_phone" id="phone" class="form-control w-100">
+                                    <input type="text" name="phone" id="phone" class="form-control w-100">
+                                    <input type="hidden" name="client_id" id="client_id">
                                     <input type="hidden" name="clientprog_id" id="clientprog_id">
                                     <input type="hidden" name="parent_fullname" id="fullname">
                                     <input type="hidden" name="program_name" id="program_name">
@@ -71,22 +72,25 @@
     
                         var clientprog_id = $('#clientprog_id').val();
                         var parent_fullname = $('#fullname').val();
-                        var parent_phone = $('#phone').val();
+                        var phone = $('#phone').val();
                         var program_name = $('#program_name').val();
                         var invoice_duedate = $('#invoice_duedate').val();
                         var total_payment = $('#total_payment').val();
                         var payment_method = $('#payment_method').val();
                         var parent_id = $('#parent_id').val();
+                        var client_id = $('#client_id').val();
+
                         
                         var link = '{{ url("/") }}/invoice/client-program/'+clientprog_id+'/remind/by/whatsapp';
                         axios.post(link, {
                                 parent_fullname : parent_fullname,
-                                parent_phone : parent_phone,
+                                phone : phone,
                                 program_name : program_name,
                                 invoice_duedate : invoice_duedate,
                                 total_payment : total_payment,
                                 payment_method : payment_method,
-                                parent_id : parent_id
+                                parent_id : parent_id,
+                                client_id : client_id
                             })
                             .then(function(response) {
                                 swal.close();
@@ -115,8 +119,10 @@
                     var total_payment = params[5];
                     var payment_method = params[6];
                     var parent_id = params[7];
+                    var client_id = params[8];
+                    var child_phone = params[9];
 
-                    $('#phone').val(parent_phone)
+                    $('#phone').val(parent_phone == null ? child_phone : parent_phone)
                     $('#fullname').val(parent_fullname)
                     $('#program_name').val(program_name)
                     $('#invoice_duedate').val(invoice_duedate)
@@ -124,6 +130,7 @@
                     $('#clientprog_id').val(clientprog_id)
                     $('#payment_method').val(payment_method)
                     $('#parent_id').val(parent_id)
+                    $('#client_id').val(client_id)
 
                 }
 
@@ -232,6 +239,8 @@
                                             row.inv_totalprice_idr,
                                             row.inv_paymentmethod,
                                             row.parent_id,
+                                            row.client_id,
+                                            row.child_phone,
                                         ];
 
                                         var params = JSON.stringify(whatsapp_params);

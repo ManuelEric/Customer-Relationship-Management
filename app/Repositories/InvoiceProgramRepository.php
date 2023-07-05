@@ -48,6 +48,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     'clientprogram.parent_fullname',
                     'clientprogram.parent_phone',
                     'parent.id as parent_id',
+                    'child.id as client_id',
+                    'child.phone as child_phone',
                     'program_name',
                     'tbl_inv.inv_id',
                     DB::raw('
@@ -392,6 +394,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     'tbl_inv.clientprog_id as client_prog_id',
                     'child.id as client_id',
                     DB::raw('CONCAT(child.first_name, " ", COALESCE(child.last_name, "")) as full_name'),
+                    'child.phone as child_phone',
                     'parent.phone as parent_phone',
                     'parent.id as parent_id',
                     'program.program_name',
