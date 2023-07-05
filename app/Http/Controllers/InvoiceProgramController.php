@@ -901,12 +901,13 @@ class InvoiceProgramController extends Controller
 
     public function remindParentsByWhatsapp(Request $request)
     {
-        $parent = $this->clientRepository->getClientById($request->parent_id);
+        $parent = $request->parent_id != null ? $this->clientRepository->getClientById($request->parent_id) : null;
+        $client = $this->clientRepository->getClientById($parent != null && $parent->phone != null ? $request->parent_id : $request->client_id);
 
         $parent_fullname = $request->parent_fullname;
-        $parent_phone = $request->parent_phone;
+        $phone = $request->phone;
 
-        $parent->phone == null ? $this->clientRepository->updateClient($request->parent_id, ['phone' => $parent_phone]) : null;
+        $client->phone != $phone ? $this->clientRepository->updateClient($client->id, ['phone' => $phone]) : null;
 
         $joined_program_name = ucwords(strtolower($request->program_name));
         $invoice_duedate = date('d/m/Y', strtotime($request->invoice_duedate));
@@ -939,7 +940,7 @@ class InvoiceProgramController extends Controller
         $text .= "%0A";
         $text .= "Regards";
 
-        $link = "https://api.whatsapp.com/send?phone=" . $parent_phone . "&text=" . $text;
+        $link = "https://api.whatsapp.com/send?phone=" . $phone . "&text=" . $text;
         // echo "<script>window.open('" . $link . "', '_blank')</script>";
         // return redirect()->to($link);
         return response()->json(['link' => $link]);

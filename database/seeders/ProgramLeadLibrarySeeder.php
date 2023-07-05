@@ -846,6 +846,30 @@ class ProgramBucketParamsSeeder extends Seeder
                 'updated_at' => Carbon::now()
             ],
 
+            // Program | Academic Performance (Academic Tutoring) | School | International
+            [
+                'programbucket_id' => 'B-18',
+                'leadbucket_id' => null,
+                'value_category' => 1,
+                'new' => 1,
+                'existing_mentee' => 1,
+                'existing_non_mentee' => 1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+
+            // Program | Academic Performance (Academic Tutoring) | School | National +
+            [
+                'programbucket_id' => 'B-18',
+                'leadbucket_id' => null,
+                'value_category' => 2,
+                'new' => 1,
+                'existing_mentee' => 1,
+                'existing_non_mentee' => 1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+
 
 
         ];
