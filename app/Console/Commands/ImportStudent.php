@@ -82,12 +82,12 @@ class ImportStudent extends Command
      */
     public function handle()
     {
+        $crm_students = $this->clientRepository->getStudentFromV1();
+        $progressBar = $this->output->createProgressBar($crm_students->count());
+        $progressBar->start();
         DB::beginTransaction();
         try {
 
-            $crm_students = $this->clientRepository->getStudentFromV1();
-            $progressBar = $this->output->createProgressBar($crm_students->count());
-            $progressBar->start();
             foreach ($crm_students as $student) {
 
                 $school = $this->createSchoolIfNotExists($student);
