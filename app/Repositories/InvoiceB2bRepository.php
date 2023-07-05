@@ -473,7 +473,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             $queryInv->whereBetween('tbl_invb2b.created_at', [$firstDay, $lastDay]);
         }
 
-        return $queryInv->orderBy('tbl_invb2b.created_at', 'DESC')->withCount('inv_detail')->get();
+        return $queryInv->orderBy('tbl_invb2b.invb2b_id', 'ASC')->withCount('inv_detail')->get();
     }
 
 

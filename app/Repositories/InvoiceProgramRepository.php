@@ -169,7 +169,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             $queryInv->whereBetween('tbl_inv.created_at', [$firstDay, $lastDay]);
         }
 
-        return $queryInv->orderBy('tbl_inv.created_at', 'DESC')->withCount('invoiceDetail')->get();
+        return $queryInv->orderBy('tbl_inv.inv_id', 'ASC')->withCount('invoiceDetail')->get();
     }
 
 
