@@ -118,4 +118,5 @@ Route::get('current/rate/{base_currency}/{to_currency}', [CurrencyRateController
 Route::prefix('v1')->group(function () {
     Route::get('get/mentees', [ExtClientController::class, 'getClientFromAdmissionMentoring']);
     Route::get('get/mentors', [ExtClientController::class, 'getMentors']);
+    Route::get('get/alumnis', [ExtClientController::class, 'getAlumnis']);
 });

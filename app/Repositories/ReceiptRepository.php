@@ -270,7 +270,7 @@ class ReceiptRepository implements ReceiptRepositoryInterface
                 ->get();
         }
 
-        return $queryReceipt->get();
+        return $queryReceipt->orderBy('tbl_receipt.receipt_id', 'ASC')->get();
     }
 
     public function getTotalReceipt($monthYear)

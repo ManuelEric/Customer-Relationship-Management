@@ -356,6 +356,15 @@ class ClientRepository implements ClientRepositoryInterface
             $subQuery->where('role_name', 'Mentor');
         })->whereNotNull('email')->where('active', 1)->get();
     }
+
+    public function getExistingAlumnisAPI()
+    {
+        $alumni_mentees = $this->getAlumniMentees();
+        $alumni_nonmentees = $this->getAlumniNonMentees();
+        
+        $alumni = $alumni_mentees->merge($alumni_nonmentees);
+        return $alumni;
+    }
     /* ~ API External end */
 
     public function getAlumnisDataTables()
