@@ -392,23 +392,23 @@ class ImportClientProg extends Command
         }
 
         # check the st id 
-        $client = $this->clientRepository->getClientById($student_v2_id);
+        // $client = $this->clientRepository->getClientById($student_v2_id);
 
-        if ($this->clientRepository->getStudentByStudentId($client->st_id) || $client->st_id == NULL) {
-            # initialize
-            $last_id = Student::max('st_id');
-            $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-            $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+        // if ($this->clientRepository->getStudentByStudentId($client->st_id) || $client->st_id == NULL) {
+        //     # initialize
+        //     $last_id = Student::max('st_id');
+        //     $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+        //     $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
 
-            if ($this->clientRepository->getStudentByStudentId($studentId)) {
-                # initialize
-                $last_id = UserClient::max('st_id');
-                $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
-            }
+        //     if ($this->clientRepository->getStudentByStudentId($studentId)) {
+        //         # initialize
+        //         $last_id = UserClient::max('st_id');
+        //         $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+        //         $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+        //     }
             
-            $this->clientRepository->updateClient($student_v2_id, ['st_id' => $studentId]);
-        }
+        //     $this->clientRepository->updateClient($student_v2_id, ['st_id' => $studentId]);
+        // }
 
 
         # import client program to v2
