@@ -518,6 +518,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
             ->select(
                 'tbl_invb2b.invb2b_id',
+                DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 1), '/', -1) as 'invb2b_id_num'"),
+                DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 4), '/', -1) as 'invb2b_id_month'"),
+                DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 5), '/', -1) as 'invb2b_id_year'"),
                 'tbl_invb2b.schprog_id',
                 'tbl_invb2b.partnerprog_id',
                 'tbl_invb2b.ref_id',
@@ -559,23 +562,27 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
         if (isset($start_date) && isset($end_date)) {
             return $invoiceB2b->whereBetween($whereBy, [$start_date, $end_date])
-                ->orderBy('invb2b_id', 'asc')
-                ->orderBy('invdtl_id', 'asc')
+                ->orderBy('invb2b_id_num', 'asc')
+                ->orderBy('invb2b_id_month', 'asc')
+                ->orderBy('invb2b_id_year', 'asc')
                 ->get();
         } else if (isset($start_date) && !isset($end_date)) {
             return $invoiceB2b->whereDate($whereBy, '>=', $start_date)
-                ->orderBy('invb2b_id', 'asc')
-                ->orderBy('invdtl_id', 'asc')
+                ->orderBy('invb2b_id_num', 'asc')
+                ->orderBy('invb2b_id_month', 'asc')
+                ->orderBy('invb2b_id_year', 'asc')
                 ->get();
         } else if (!isset($start_date) && isset($end_date)) {
             return $invoiceB2b->whereDate($whereBy, '<=', $end_date)
-                ->orderBy('invb2b_id', 'asc')
-                ->orderBy('invdtl_id', 'asc')
+                ->orderBy('invb2b_id_num', 'asc')
+                ->orderBy('invb2b_id_month', 'asc')
+                ->orderBy('invb2b_id_year', 'asc')
                 ->get();
         } else {
             return $invoiceB2b->whereBetween($whereBy, [$firstDay, $lastDay])
-                ->orderBy('invb2b_id', 'asc')
-                ->orderBy('invdtl_id', 'asc')
+                ->orderBy('invb2b_id_num', 'asc')
+                ->orderBy('invb2b_id_month', 'asc')
+                ->orderBy('invb2b_id_year', 'asc')
                 ->get();
         }
     }
@@ -783,6 +790,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             case 'paid':
                 $queryInv->select(
                     'tbl_invb2b.invb2b_id as invoice_id',
+                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 1), '/', -1) as 'invb2b_id_num'"),
+                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 4), '/', -1) as 'invb2b_id_month'"),
+                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 5), '/', -1) as 'invb2b_id_year'"),
                     DB::raw('(CASE 
                                 WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch.sch_name
                                 WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_corp.corp_name
@@ -811,6 +821,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
             case 'unpaid':
                 $queryInv->select(
                     'tbl_invb2b.invb2b_id as invoice_id',
+                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 1), '/', -1) as 'invb2b_id_num'"),
+                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 4), '/', -1) as 'invb2b_id_month'"),
+                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_invb2b.invb2b_id, '/', 5), '/', -1) as 'invb2b_id_year'"),
                     DB::raw('(CASE 
                                 WHEN tbl_invb2b.schprog_id > 0 THEN tbl_sch.sch_name
                                 WHEN tbl_invb2b.partnerprog_id > 0 THEN tbl_corp.corp_name
@@ -874,8 +887,9 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                         WHEN tbl_invb2b.ref_id > 0 THEN "Out"
                     ELSE 1
                     END)')
-        )->orderBy('tbl_invb2b.invb2b_id', 'asc')
-            ->orderBy('tbl_invdtl.invdtl_id', 'asc');
+        )->orderBy('invb2b_id_num', 'asc')
+            ->orderBy('invb2b_id_month', 'asc')
+            ->orderBy('invb2b_id_year', 'asc');
         // ->groupBy('tbl_invb2b.invb2b_id');
 
 
