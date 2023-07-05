@@ -919,7 +919,7 @@ class InvoiceProgramController extends Controller
 
         $payment_method = $request->payment_method != 'Full Payment' ? ' (Installment)' : '';
 
-        $text = "Dear " . $parent_fullname . "," . $request->parent_id;
+        $text = "Dear " . $parent_fullname . ",";
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Thank you for trusting ALL-in Eduspace as your independent university consultant to help your child reach their dream to top universities.";
