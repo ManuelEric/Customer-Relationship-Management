@@ -35,9 +35,63 @@
         </div>
     </div>
 
+    <div class="modal fade" id="linkEmbed" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>
+                    Reminder
+                </span>
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div class="modal-body w-100 text-start">
+                {{-- <form action="" method="POST" id="reminderForm"> --}}
+                    @csrf
+                    {{-- @method('put') --}}
+                    <div class="form-group">
+
+                        {{-- <label for="">Phone Number Parent</label> --}}
+                        <input type="text" name="link" id="link" disabled class="form-control w-100">
+                    </div>
+                    {{-- <hr> --}}
+                    <div class="d-flex justify-content-between">
+                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                          data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="submit" onclick="copyLink()" class="btn btn-primary btn-sm">
+                            <i class="bi bi-save2 me-1"></i>
+                            Copy</button>
+                    </div>
+                {{-- </form> --}}
+            </div>
+        </div>
+    </div>
+ </div>
+
     {{-- Need Changing --}}
     <script>
+        function copyLink(){
+            $('#linkEmbed').modal('hide');
+            // Get the text field
+            var copyText = document.getElementById("link");
+            // Select the text field
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText.value);
+            
+
+            // Alert the copied text
+            // alert("Copied the text: " + copyText.value);
+            Swal.fire("Form embed successfully copied ", '', 'success');
+        //    swal("Copied the text: " + copyText.value);
+        }
         $(document).ready(function() {
+
+            
             var table = $('#eventTable').DataTable({
                 dom: 'Bfrtip',
                 lengthMenu: [
@@ -91,7 +145,8 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning showEvent"><i class="bi bi-eye"></i></button>' +
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-info generateLinkEmbed"><i class="bi bi-link"></i></button>' + 
+                            '<button type="button" class="btn btn-sm btn-outline-warning ms-1 showEvent"><i class="bi bi-eye"></i></button>' +
                             '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteEvent"><i class="bi bi-trash2"></i></button>'
                     }
                 ]
@@ -115,6 +170,13 @@
 
 
             realtimeData(table)
+
+            $('#eventTable tbody').on('click', '.generateLinkEmbed ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                $('#link').val("{{url('form/event')}}?event_name=" + encodeURIComponent(data.event_title))
+                $('#linkEmbed').modal('show')
+                // window.location.href = "{{ url('master/event') }}/" + data.event_id;
+            });
 
             $('#eventTable tbody').on('click', '.showEvent ', function() {
                 var data = table.row($(this).parents('tr')).data();
