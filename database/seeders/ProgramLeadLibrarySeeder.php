@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ProgramBucketParamsSeeder extends Seeder
+class ProgramLeadLibrarySeeder extends Seeder
 {
     /**
      * Run the database seeds.

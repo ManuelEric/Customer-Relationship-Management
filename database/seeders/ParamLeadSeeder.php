@@ -48,6 +48,12 @@ class ParamLeadSeeder extends Seeder
                 'updated_at' => Carbon::now()
             ],
             [
+                'name' => 'Priority',
+                'value' => 1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+            [
                 'name' => 'Seasonal',
                 'value' => 1,
                 'created_at' => Carbon::now(),
