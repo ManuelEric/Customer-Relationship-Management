@@ -168,6 +168,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return ClientProgram::whereClientProgramId($clientProgramId);
     }
 
+    public function getClientProgramByDetail(array $detail)
+    {
+        return ClientProgram::
+                where('client_id', $detail['client_id'])->
+                where('prog_id', $detail['prog_id'])->
+                where('first_discuss_date', $detail['first_discuss_date'])->
+                where('last_discuss_date', $detail['last_discuss_date'])->
+                where('status', $detail['status'])->
+                where('statusprog_date', $detail['statusprog_date'])->
+                first();
+    }
+
     public function createClientProgram($clientProgramDetails)
     {
 

@@ -82,6 +82,11 @@ class UserClient extends Authenticatable
         });
     }
 
+    public function scopeWithAndWhereHas($query, $relation, $constraint){
+        return $query->whereHas($relation, $constraint)
+                     ->with([$relation => $constraint]);
+    }
+
     public function getLeadSource($parameter)
     {
         switch ($parameter) {

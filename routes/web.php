@@ -53,3 +53,7 @@ Route::post('form/event', [ClientEventController::class, 'storeFormEmbed']);
 
 Route::get('form/registration', [PublicRegistrationController::class, 'register']);
 Route::post('form/registration', [PublicRegistrationController::class, 'store'])->name('submit.registration');
+
+Route::get('form/thanks', function() {
+    return view('form-embed.thanks');
+});
