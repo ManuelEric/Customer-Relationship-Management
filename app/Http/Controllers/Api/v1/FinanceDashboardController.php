@@ -53,7 +53,7 @@ class FinanceDashboardController extends Controller
         $totalOutstanding = $unpaidPayments->count();
 
         $totalInvoice[0] = [
-            'count_invoice' => count($totalInvoiceB2b),
+            'count_invoice' => count($totalInvoiceB2b) + count($totalInvoiceB2b),
             'total' => $totalInvoiceB2b->where('invb2b_pm', 'Full Payment')->sum('invb2b_totpriceidr') + $totalInvoiceB2b->where('invb2b_pm', 'Installment')->sum('invdtl_amountidr')
         ];
 
