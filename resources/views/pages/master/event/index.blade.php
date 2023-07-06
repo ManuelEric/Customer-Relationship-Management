@@ -41,7 +41,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <span>
-                    Reminder
+                    Link Form Embed
                 </span>
                 <i class="bi bi-pencil-square"></i>
             </div>
