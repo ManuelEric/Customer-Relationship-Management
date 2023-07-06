@@ -1978,6 +1978,6 @@ class ProgramBucketParamsSeeder extends Seeder
 
         ];
 
-        DB::table('tbl_program_buckets_params')->insert($seeds);
+        DB::table('tbl_program_lead_library')->insert($seeds);
     }
 }
