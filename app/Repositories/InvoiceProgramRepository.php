@@ -401,7 +401,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 $queryInv->select([
                     'tbl_inv.inv_id as invoice_id',
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 1), '/', -1) as 'inv_id_num'"),
-                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 4), '/', -1) as 'inv_id_month'"),
+                    DB::raw("ABS(SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 4), '/', -1)) as 'inv_id_month'"),
                     DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 5), '/', -1) as 'inv_id_year'"),
                     'tbl_inv.clientprog_id',
                     'tbl_inv.clientprog_id as client_prog_id',
@@ -444,7 +444,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->whereRelation('clientprog', 'status', 1);
         // ->groupBy('tbl_inv.inv_id');
 
-        return $queryInv->orderBy('inv_id_num', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_year', 'asc')->get();
+        return $queryInv->orderBy('inv_id_year', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_num', 'asc')->get();
     }
 
     public function getRevenueByYear($year)
