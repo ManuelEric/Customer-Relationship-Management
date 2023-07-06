@@ -14,7 +14,9 @@ use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
+use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Models\Program;
+use App\Models\UserClient;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -38,6 +40,8 @@ class ClientProgramController extends Controller
     private $admission_prog_list;
     private $tutoring_prog_list;
     private $satact_prog_list;
+
+    use CreateCustomPrimaryKeyTrait;
 
     public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository)
     {
@@ -327,7 +331,6 @@ class ClientProgramController extends Controller
 
                     $clientProgramDetails['main_mentor'] = $request->main_mentor;
                     $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
-
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;
@@ -336,7 +339,6 @@ class ClientProgramController extends Controller
                         'datetime' => $request->sessionDetail,
                         'linkmeet' => $request->sessionLinkMeet
                     ];
-
                 } elseif (in_array($progId, $this->satact_prog_list)) {
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
@@ -381,6 +383,11 @@ class ClientProgramController extends Controller
                     # if he/she join admission mentoring program
                     # add role mentee
                     if (in_array($progId, $this->admission_prog_list)) {
+                        $last_id = UserClient::max('st_id');
+                        $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                        $stId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+                        $this->clientRepository->updateClient($studentId, ['st_id' => $stId]);
+
                         $this->clientRepository->addRole($studentId, 'Mentee');
                     }
 
@@ -555,7 +562,6 @@ class ClientProgramController extends Controller
                     // $clientProgramDetails['backup_mentor'] = isset($request->backup_mentor) ? $request->backup_mentor : NULL;
                     $clientProgramDetails['installment_notes'] = $request->installment_notes;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     # add additional values
@@ -566,7 +572,6 @@ class ClientProgramController extends Controller
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
                     // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-
                 } elseif (in_array($progId, $this->satact_prog_list)) {
 
                     # add additional values
@@ -592,7 +597,6 @@ class ClientProgramController extends Controller
                         'datetime' => $request->sessionDetail,
                         'linkmeet' => $request->sessionLinkMeet
                     ];
-
                 } elseif (in_array($progId, $this->satact_prog_list)) {
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
@@ -644,6 +648,11 @@ class ClientProgramController extends Controller
                     # if he/she join admission mentoring program
                     # add role mentee
                     if (in_array($progId, $this->admission_prog_list)) {
+                        $last_id = UserClient::max('st_id');
+                        $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                        $stId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+                        $this->clientRepository->updateClient($studentId, ['st_id' => $stId]);
+
                         $this->clientRepository->addRole($studentId, 'Mentee');
                     }
 
