@@ -587,6 +587,6 @@ class ClientEventController extends Controller
         }
 
 
-        return 'success';
+        return Redirect::to('form/thanks');
     }
 }

@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 
 class PublicRegistrationController extends Controller
 {
@@ -99,7 +100,7 @@ class PublicRegistrationController extends Controller
 
         }
 
-        return 'Registration success';
+        return Redirect::to('form/thanks');
 
     }
 
