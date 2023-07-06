@@ -571,7 +571,7 @@ class ClientEventController extends Controller
 
             $clientEvent = [
                 'client_id' => $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id,
-                'event_id' => $event->id,
+                'event_id' => $event->event_id,
                 'lead_id' => $request->leadsource,
                 'status' => 0,
                 'joined_date' => Carbon::now(),
