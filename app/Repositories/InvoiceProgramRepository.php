@@ -409,6 +409,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     DB::raw('CONCAT(child.first_name, " ", COALESCE(child.last_name, "")) as full_name'),
                     'child.phone as child_phone',
                     'parent.phone as parent_phone',
+                    DB::raw('CONCAT(parent.first_name, " ", COALESCE(parent.last_name, "")) as parent_name'),
                     'parent.id as parent_id',
                     'program.program_name',
                     // DB::raw('CONCAT(prog_program, " - ", COALESCE(tbl_main_prog.prog_name, ""), COALESCE(CONCAT(" / ", tbl_sub_prog.sub_prog_name), "")) as program_name'),

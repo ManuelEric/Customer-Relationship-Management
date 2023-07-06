@@ -266,14 +266,14 @@ class FinanceDashboardController extends Controller
 
                     if ($unpaidPayment->typeprog == 'client_prog') {
                         $reminder[$unpaidPayment->client_id] = [
-                            'parent_fullname' => $unpaidPayment->full_name,
+                            'parent_fullname' => $unpaidPayment->parent_name,
                             'child_phone' => $unpaidPayment->child_phone,
                             'parent_phone' => $unpaidPayment->parent_phone,
                             'program_name' => $unpaidPayment->program_name,
                             'invoice_duedate' => $unpaidPayment->invoice_duedate,
                             'total_payment' => $unpaidPayment->total,
                             'clientprog_id' => $unpaidPayment->client_prog_id,
-                            'payment_method' => (isset($unpaidPayment->installment_name)) ? ' (Installment)' : '',
+                            'payment_method' => (isset($unpaidPayment->installment_name)) ? ' ' . $unpaidPayment->installment_name  : '',
                             'parent_id' => $unpaidPayment->parent_id,
                             'client_id' => $unpaidPayment->client_id,
                         ];
