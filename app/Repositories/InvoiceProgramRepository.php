@@ -48,6 +48,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     'clientprogram.parent_fullname',
                     'clientprogram.parent_phone',
                     'parent.id as parent_id',
+                    'child.id as client_id',
+                    'child.phone as child_phone',
                     'program_name',
                     'tbl_inv.inv_id',
                     DB::raw('
@@ -211,6 +213,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
             ->select(
                 'tbl_inv.inv_id',
+                DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 1), '/', -1) as 'inv_id_num'"),
+                DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 4), '/', -1) as 'inv_id_month'"),
+                DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 5), '/', -1) as 'inv_id_year'"),
                 'tbl_inv.clientprog_id',
                 'tbl_inv.inv_duedate as invoice_duedate',
                 'tbl_inv.currency',
@@ -239,23 +244,27 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
         if (isset($start_date) && isset($end_date)) {
             return $invoiceB2c->whereBetween($whereBy, [$start_date, $end_date])
-                ->orderBy('inv_id', 'asc')
-                ->orderBy('invdtl_id', 'asc')
+                ->orderBy('inv_id_num', 'asc')
+                ->orderBy('inv_id_month', 'asc')
+                ->orderBy('inv_id_year', 'asc')
                 ->get();
         } else if (isset($start_date) && !isset($end_date)) {
             return $invoiceB2c->whereDate($whereBy, '>=', $start_date)
-                ->orderBy('inv_id', 'asc')
-                ->orderBy('invdtl_id', 'asc')
+                ->orderBy('inv_id_num', 'asc')
+                ->orderBy('inv_id_month', 'asc')
+                ->orderBy('inv_id_year', 'asc')
                 ->get();
         } else if (!isset($start_date) && isset($end_date)) {
             return $invoiceB2c->whereDate($whereBy, '<=', $end_date)
-                ->orderBy('inv_id', 'asc')
-                ->orderBy('invdtl_id', 'asc')
+                ->orderBy('inv_id_num', 'asc')
+                ->orderBy('inv_id_month', 'asc')
+                ->orderBy('inv_id_year', 'asc')
                 ->get();
         } else {
             return $invoiceB2c->whereBetween($whereBy, [$firstDay, $lastDay])
-                ->orderBy('inv_id', 'asc')
-                ->orderBy('invdtl_id', 'asc')
+                ->orderBy('inv_id_num', 'asc')
+                ->orderBy('inv_id_month', 'asc')
+                ->orderBy('inv_id_year', 'asc')
                 ->get();
         }
     }
@@ -366,6 +375,9 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             case 'paid':
                 $queryInv->select([
                     'tbl_inv.inv_id as invoice_id',
+                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 1), '/', -1) as 'inv_id_num'"),
+                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 4), '/', -1) as 'inv_id_month'"),
+                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 5), '/', -1) as 'inv_id_year'"),
                     'tbl_inv.clientprog_id',
                     DB::raw('CONCAT(child.first_name, " ", COALESCE(child.last_name, "")) as full_name'),
                     'parent.phone as parent_phone',
@@ -388,10 +400,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             case 'unpaid':
                 $queryInv->select([
                     'tbl_inv.inv_id as invoice_id',
+                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 1), '/', -1) as 'inv_id_num'"),
+                    DB::raw("ABS(SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 4), '/', -1)) as 'inv_id_month'"),
+                    DB::raw("SUBSTRING_INDEX(SUBSTRING_INDEX(tbl_inv.inv_id, '/', 5), '/', -1) as 'inv_id_year'"),
                     'tbl_inv.clientprog_id',
                     'tbl_inv.clientprog_id as client_prog_id',
                     'child.id as client_id',
                     DB::raw('CONCAT(child.first_name, " ", COALESCE(child.last_name, "")) as full_name'),
+                    'child.phone as child_phone',
                     'parent.phone as parent_phone',
                     'parent.id as parent_id',
                     'program.program_name',
@@ -428,7 +444,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->whereRelation('clientprog', 'status', 1);
         // ->groupBy('tbl_inv.inv_id');
 
-        return $queryInv->orderBy('tbl_inv.inv_id', 'asc')->orderBy('tbl_invdtl.invdtl_id', 'asc')->get();
+        return $queryInv->orderBy('inv_id_year', 'asc')->orderBy('inv_id_month', 'asc')->orderBy('inv_id_num', 'asc')->get();
     }
 
     public function getRevenueByYear($year)

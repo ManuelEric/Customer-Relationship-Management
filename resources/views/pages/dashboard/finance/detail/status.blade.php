@@ -137,7 +137,8 @@
                     <div class="form-group">
 
                         <label for="">Phone Number Parent</label>
-                        <input type="text" name="parent_phone" id="phone" class="form-control w-100">
+                        <input type="text" name="phone" id="phone" class="form-control w-100">
+                        <input type="hidden" name="client_id" id="client_id">
                         <input type="hidden" name="clientprog_id" id="clientprog_id">
                         <input type="hidden" name="parent_fullname" id="fullname">
                         <input type="hidden" name="program_name" id="program_name">
@@ -222,9 +223,11 @@
                     $("#listFinanceTable .reminder").each(function() {
                          $(this).click(function() {
                             if($(this).data('clientid') != undefined){
-
-                                $('#phone').val(result.reminder[$(this).data('clientid')].parent_phone)
+                                var parent_phone = result.reminder[$(this).data('clientid')].parent_phone;
+                                var child_phone = result.reminder[$(this).data('clientid')].child_phone;
+                                $('#phone').val(parent_phone == null ? child_phone : parent_phone);
                             }
+                            $('#client_id').val($(this).data('clientid'))
                             $('#fullname').val(result.reminder[$(this).data('clientid')].parent_fullname)
                             $('#program_name').val(result.reminder[$(this).data('clientid')].program_name)
                             $('#invoice_duedate').val(result.reminder[$(this).data('clientid')].invoice_duedate)
@@ -232,7 +235,7 @@
                             $('#clientprog_id').val(result.reminder[$(this).data('clientid')].clientprog_id)
                             $('#payment_method').val(result.reminder[$(this).data('clientid')].payment_method)
                             $('#parent_id').val(result.reminder[$(this).data('clientid')].parent_id)
-
+                            $('#client_id').val(result.reminder[$(this).data('clientid')].client_id)
                             // $("#reminderForm").attr("action", '{{ url("/") }}/invoice/client-program/'+result.reminder[$(this).data('clientid')].clientprog_id+'/remind/by/whatsapp');
                         })
                     })
@@ -419,12 +422,13 @@
         var link = '{{ url("/") }}/invoice/client-program/'+$('#clientprog_id').val()+'/remind/by/whatsapp';
             axios.post(link, {
                 parent_fullname : $('#fullname').val(),
-                parent_phone : $('#phone').val(),
+                phone : $('#phone').val(),
                 program_name : $('#program_name').val(),
                 invoice_duedate : $('#invoice_duedate').val(),
                 total_payment : $('#total_payment').val(),
                 payment_method : $('#payment_method').val(),
                 parent_id : $('#parent_id').val(),
+                client_id : $('#client_id').val(),
             })
             .then(function(response) {
                 swal.close();
