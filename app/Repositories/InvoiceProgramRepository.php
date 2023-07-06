@@ -298,6 +298,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->leftJoin('clientprogram', 'clientprogram.clientprog_id', '=', 'tbl_inv.clientprog_id')
             ->select(
                 'tbl_inv.id',
+                'tbl_inv.inv_id',
                 'tbl_invdtl.invdtl_id',
                 'tbl_inv.inv_totalprice_idr',
                 'tbl_inv.inv_paymentmethod',
