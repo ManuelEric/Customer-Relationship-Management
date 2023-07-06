@@ -44,7 +44,7 @@
 </head>
 
 <body>
-    <div class="min-h-screen flex items-center bg-gray-200">
+    <div class="min-h-screen flex items-center bg-transparent">
         <div class="max-w-screen-lg w-full mx-auto p-4">
             <form action="{{ route('submit.registration') }}" method="POST" id="registration-form">
                 @csrf

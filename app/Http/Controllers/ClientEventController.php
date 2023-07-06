@@ -455,6 +455,7 @@ class ClientEventController extends Controller
         $existClientStudent = ['isExist' => false];
         $childDetails = [];
         $schoolId = null;
+        $event = $this->eventRepository->getEventByName(urldecode($request->event_name));
 
         // Check existing client by phone number and email
         if ($request->role == 'parent') {
@@ -570,7 +571,7 @@ class ClientEventController extends Controller
 
             $clientEvent = [
                 'client_id' => $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id,
-                'event_id' => $request->event,
+                'event_id' => $event->id,
                 'lead_id' => $request->leadsource,
                 'status' => 0,
                 'joined_date' => Carbon::now(),
