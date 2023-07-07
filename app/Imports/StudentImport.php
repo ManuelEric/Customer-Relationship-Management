@@ -49,9 +49,9 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
 
                 $studentName = $this->explodeName($row['full_name']);
 
-                $last_id = UserClient::max('st_id');
-                $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+                // $last_id = UserClient::max('st_id');
+                // $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+                // $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
 
                 // Check existing school
                 $school = School::where('sch_name', $row['school'])->get()->pluck('sch_id')->first();
@@ -75,7 +75,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
 
                 if (!isset($student)) {
                     $studentDetails = [
-                        'st_id' => $studentId,
+                        // 'st_id' => $studentId,
                         'first_name' => $studentName['firstname'],
                         'last_name' => isset($studentName['lastname']) ? $studentName['lastname'] : null,
                         'mail' => $row['email'],
@@ -200,8 +200,8 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
     public function rules(): array
     {
         return [
-            '*.full_name' => ['required'],
-            '*.email' => ['required', 'email', 'unique:tbl_client,mail'],
+            '*.full_name' => ['nullable'],
+            '*.email' => ['nullable', 'email', 'unique:tbl_client,mail'],
             '*.phone_number' => ['required', 'min:10', 'max:15'],
             '*.date_of_birth' => ['nullable', 'date'],
             '*.parents_name' => ['nullable'],

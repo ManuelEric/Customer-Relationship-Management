@@ -463,16 +463,16 @@ class ClientEventController extends Controller
         // Check existing client by phone number and email
         if ($request->role == 'parent') {
             $childDetails = [
-                'name' => $request->child_name,
-                'email' => $request->child_email,
-                'phone' => $request->child_fullnumber,
+                'name' => $request->parent_child_name,
+                // 'email' => $request->child_email,
+                // 'phone' => $request->child_fullnumber,
             ];
 
             $phoneParent = $request->fullnumber;
             $phoneStudent = $childDetails['phone'];
 
             $existClientParent = $this->checkExistingClient($phoneParent, $request->email);
-            $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
+            // $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
         } else {
             $childDetails = [
                 'name' => $request->name,
@@ -551,8 +551,8 @@ class ClientEventController extends Controller
                 $clientDetails = [
                     'first_name' => $firstname,
                     'last_name' => $lastname,
-                    'mail' => $childDetails['email'],
-                    'phone' => $phoneStudent,
+                    // 'mail' => $childDetails['email'],
+                    // 'phone' => $phoneStudent,
                     'st_grade' => $st_grade,
                     'graduation_year' => $request->grade,
                     'lead' => $request->leadsource,
