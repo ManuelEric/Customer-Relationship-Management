@@ -888,6 +888,7 @@ class InvoiceProgramController extends Controller
         try {
             Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                 $message->to($params['parent_mail'], $params['parent_fullname'])
+                    ->cc(env('FINANCE_CC'))
                     ->subject($subject);
             });
         } catch (Exception $e) {
@@ -902,7 +903,7 @@ class InvoiceProgramController extends Controller
     public function remindParentsByWhatsapp(Request $request)
     {
         $parent = $request->parent_id != null ? $this->clientRepository->getClientById($request->parent_id) : null;
-        $client = $this->clientRepository->getClientById($parent != null && $parent->phone != null ? $request->parent_id : $request->client_id);
+        $client = $this->clientRepository->getClientById($parent != null ? $request->parent_id : $request->client_id);
 
         $parent_fullname = $request->parent_fullname;
         $phone = $request->phone;
@@ -918,15 +919,15 @@ class InvoiceProgramController extends Controller
         $interval = $datetime_1->diff($datetime_2);
         $date_diff = $interval->format('%a'); # format for the interval : days
 
-        $payment_method = $request->payment_method != 'Full Payment' ? ' (Installment)' : '';
+        $payment_method = $request->payment_method != 'Full Payment' ? ' (' . $request->payment_method . ')' : '';
 
-        $text = "Dear " . $parent_fullname . ",";
+        $text = $parent != null ? "Dear Mr/Mrs " . $parent_fullname . "," : "Dear " . $client->first_name . " " . $client->last_name . ",";
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Thank you for trusting ALL-in Eduspace as your independent university consultant to help your child reach their dream to top universities.";
         $text .= "%0A";
         $text .= "%0A";
-        $text .= "Through this message, we would like to remind you that the payment deadline for " . $joined_program_name . " is due on " . $invoice_duedate . " or in " . $date_diff . " days" . $payment_method . ".";
+        $text .= "Through this message, we would like to remind you that the payment deadline for " . $joined_program_name . " " . $payment_method . " is due on " . $invoice_duedate . " or in " . $date_diff . " days.";
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Amount: " . $total_payment;

@@ -122,7 +122,7 @@
                     var client_id = params[8];
                     var child_phone = params[9];
 
-                    $('#phone').val(parent_phone == null ? child_phone : parent_phone)
+                    $('#phone').val(parent_id == null ? child_phone : parent_phone)
                     $('#fullname').val(parent_fullname)
                     $('#program_name').val(program_name)
                     $('#invoice_duedate').val(invoice_duedate)
@@ -176,8 +176,8 @@
                                 name: 'tbl_inv.inv_id',
                             },
                             {
-                                data: 'inv_paymentmethod',
-                                name: 'inv_paymentmethod',
+                                data: 'payment_method',
+                                name: 'payment_method',
                             },
                             {
                                 data: 'show_created_at',
@@ -187,15 +187,15 @@
                                 }
                             },
                             {
-                                data: 'inv_duedate',
-                                name: 'inv_duedate',
+                                data: 'due_date',
+                                name: 'due_date',
                                 render: function(data, type, row, meta) {
                                     return moment(data).format('MMMM Do YYYY');
                                 }
                             },
                             {
-                                data: 'inv_totalprice_idr',
-                                name: 'inv_totalprice_idr',
+                                data: 'total_price_idr',
+                                name: 'total_price_idr',
                                 render: function(data, type, row) {
                                     return new Intl.NumberFormat("id-ID", {
                                         style: "currency",
@@ -262,7 +262,7 @@
                         createdRow: function (row, data, index) {
                             var today_month = moment(data).format('MMMM')
                             var today_year = moment(data).format('YYYY');
-                            if (today_month == moment(data.inv_duedate).format('MMMM') && today_year == moment(data.inv_duedate).format('YYYY'))
+                            if (today_month == moment(data.due_date).format('MMMM') && today_year == moment(data.due_date).format('YYYY'))
                                 $('td', row).addClass('bg-primary text-light');
                         }
                         // createdRow: (row, data, cells) => {
