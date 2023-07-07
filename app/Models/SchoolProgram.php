@@ -14,7 +14,6 @@ class SchoolProgram extends Model
     use HasFactory;
 
     protected $table = 'tbl_sch_prog';
-    protected $primaryKey = 'id';
 
     // public $incrementing = false;
 

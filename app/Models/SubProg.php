@@ -32,4 +32,9 @@ class SubProg extends Model
     {
         return $this->hasMany(SubProg::class, 'sub_prog_id', 'id');
     }
+
+    public function spesificConcern()
+    {
+        return $this->belongsToMany(InitialProgram::class, 'tbl_initial_prog_sub_lead', 'subprogram_id', 'id');
+    }
 }

@@ -22,6 +22,8 @@ interface ClientRepositoryInterface
 
     /* API External use */
     public function getExistingMenteesAPI();
+    public function getExistingMentorsAPI();
+    public function getExistingAlumnisAPI();
     /* ~ API External End */
 
     public function getAlumnisDataTables();

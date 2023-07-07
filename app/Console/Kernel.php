@@ -44,21 +44,24 @@ class Kernel extends ConsoleKernel
         $schedule->command('import:school')->hourly();
         $schedule->command('import:school_detail')->hourly();
         $schedule->command('import:school_curriculum')->hourly();
-        $schedule->command('import:student')->hourly();
-        $schedule->command('import:parent')->hourly();
-        $schedule->command('import:eduf')->hourly();
-        $schedule->command('import:clientprog')->hourly();
+        $schedule->command('import:student')->hourly(); #
+        $schedule->command('import:parent')->hourly(); #
+        $schedule->command('import:eduf')->hourly(); 
+        $schedule->command('import:clientprog')->hourly(); #
 
-        $schedule->command('import:corp')->hourly();
+        $schedule->command('import:corp')->hourly(); #
         $schedule->command('import:partner_program')->hourly();
         $schedule->command('import:partner_program_attach')->hourly();
 
-        $schedule->command('import:school_program')->hourly();
+        $schedule->command('import:school_program')->hourly(); #
 
-        $schedule->command('import:invoice_school')->hourly();
-        $schedule->command('import:invoice_school_attachment')->hourly();
-        $schedule->command('import:receipt_school')->hourly();
-        $schedule->command('import:receipt_school_attachment')->hourly();
+        $schedule->command('import:invoice_school')->hourly(); #
+        $schedule->command('import:invoice_detail_school')->hourly(); #
+        $schedule->command('import:invoice_school_attachment')->hourly(); #
+        $schedule->command('import:receipt_school')->hourly(); #
+        $schedule->command('import:receipt_school_attachment')->hourly(); #
+
+        $schedule->command('import:referral')->hourly(); #
         
 
     }

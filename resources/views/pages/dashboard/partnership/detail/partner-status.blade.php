@@ -247,6 +247,29 @@
                     $('#list-detail-partner .modal-title').html(result.title)
                     $('#listPartnerTable tbody').html(result.html_ctx)
                     
+                    $('#listPartnerTable .detail').each(function(){
+                        var link = '';
+                        switch ($(this).data('type')) {
+                            case 'partner':
+                                link = "{{ url('/') }}/instance/corporate/" + $(this).data('corpid')
+                                break;
+                            case 'school':
+                                link = "{{ url('/') }}/instance/school/" + $(this).data('schid')
+                                break;
+                            case 'university':
+                                link = "{{ url('/') }}/instance/university/" + $(this).data('univid')
+                                break;
+                            case 'agreement':
+                                link = "{{ url('/') }}/instance/corporate/" + $(this).data('corpid') + "/agreement/" + $(this).data('agreementid')
+                                break;
+                        
+                        }
+
+                           $(this).click(function() {
+                                window.open(link, '_blank')
+                            })
+                    })
+
                     if(type == 'School'){
                         if(result.additional_content != '' || result.additional_content != null){
                                 $('#additionalTable').removeClass('d-none')

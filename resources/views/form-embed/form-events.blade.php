@@ -101,7 +101,8 @@
                         </div>
                     </div>
                 </section>
-
+                <input type="hidden" name="event_name" value="{{$_GET['event_name']}}">
+                
                 <section id="user1" class="page hidden">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -109,7 +110,6 @@
                             Please fill in your information!
                         </h2>
                         <hr class="my-5">
-
                         <div class="mb-4">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Full Name

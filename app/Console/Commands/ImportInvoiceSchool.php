@@ -53,9 +53,15 @@ class ImportInvoiceSchool extends Command
         try {
 
             foreach ($invoiceSchools as $invSch) {
+                $this->info($invSch->invsch_id);
+                $this->info(' dan ');
                 $invoiceV2 = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invSch->invsch_id);
+                $this->info(json_encode($invoiceV2));
+                // $this->info('');
                 if (count($invoiceV2) == 0) {
-
+                    $this->info('masuk dan schprog_id : '.$invSch->schprog_id);
+                    $this->info(' school prog : '.json_encode($this->schoolProgramRepository->getSchoolProgramById($invSch->schprog_id)));
+                    $this->info('');
                     if (!$schoolProgCheck = $this->schoolProgramRepository->getSchoolProgramById($invSch->schprog_id))
                         continue;
     
@@ -85,10 +91,10 @@ class ImportInvoiceSchool extends Command
                         'created_at' => $invSch->invsch_date,
                         'updated_at' => $invSch->invsch_date,
                     ];
+                    $this->invoiceB2bRepository->createInvoiceB2b($array);
                 }
                 $progressBar->advance();
                 
-                $this->invoiceB2bRepository->createInvoiceB2b($array);
             }
             $progressBar->finish();
 
@@ -100,7 +106,7 @@ class ImportInvoiceSchool extends Command
         } catch (Exception $e) {
 
             DB::rollBack();
-            $this->info($e->getMessage());
+            $this->info($e->getMessage().' on Line '.$e->getLine());
         }
 
 

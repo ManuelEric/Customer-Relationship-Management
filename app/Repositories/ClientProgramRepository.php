@@ -168,6 +168,18 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         return ClientProgram::whereClientProgramId($clientProgramId);
     }
 
+    public function getClientProgramByDetail(array $detail)
+    {
+        return ClientProgram::
+                where('client_id', $detail['client_id'])->
+                where('prog_id', $detail['prog_id'])->
+                where('first_discuss_date', $detail['first_discuss_date'])->
+                where('last_discuss_date', $detail['last_discuss_date'])->
+                where('status', $detail['status'])->
+                where('statusprog_date', $detail['statusprog_date'])->
+                first();
+    }
+
     public function createClientProgram($clientProgramDetails)
     {
 
@@ -371,11 +383,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             unset($clientProgramDetails['other_reason']);
         }
 
-
-        $howManySession = $clientProgramDetails['session_tutor'];
-        $academicTutorSessionDetail = $clientProgramDetails['session_tutor_detail'];
-        unset($clientProgramDetails['session_tutor_detail']);
-
         $clientProgram = ClientProgram::where('clientprog_id', $clientProgramId)->update(array_merge($fullDetails, $clientProgramDetails));
         $clientProgram = ClientProgram::whereClientProgramId($clientProgramId);
 
@@ -419,20 +426,26 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $clientProgram->clientMentor()->syncWithPivotValues($additionalDetails['tutor_id'], ['status' => $status]);
 
             $clientprog_id = $clientProgram->clientprog_id;
-            # fetch the session schedule detail
-            $i = 0;
-            while ($i < $howManySession) {
-                # insert academic tutor detail
-                $acadTutorDetail[] = new AcadTutorDetail([
-                    'date' => date('Y-m-d', strtotime($academicTutorSessionDetail['datetime'][$i])),
-                    'time' => date('H:i:s', strtotime($academicTutorSessionDetail['datetime'][$i])),
-                    'link' => $academicTutorSessionDetail['linkmeet'][$i]
-                ]);
-                $i++;
-            }
+            if (array_key_exists('session_tutor', $clientProgramDetails)) {
 
-            $clientProgram->acadTutorDetail()->delete();
-            $clientProgram->acadTutorDetail()->saveMany($acadTutorDetail);
+                $howManySession = $clientProgramDetails['session_tutor'];
+                $academicTutorSessionDetail = $clientProgramDetails['session_tutor_detail'];
+                unset($clientProgramDetails['session_tutor_detail']);
+                # fetch the session schedule detail
+                $i = 0;
+                while ($i < $howManySession) {
+                    # insert academic tutor detail
+                    $acadTutorDetail[] = new AcadTutorDetail([
+                        'date' => date('Y-m-d', strtotime($academicTutorSessionDetail['datetime'][$i])),
+                        'time' => date('H:i:s', strtotime($academicTutorSessionDetail['datetime'][$i])),
+                        'link' => $academicTutorSessionDetail['linkmeet'][$i]
+                    ]);
+                    $i++;
+                }
+    
+                $clientProgram->acadTutorDetail()->delete();
+                $clientProgram->acadTutorDetail()->saveMany($acadTutorDetail);
+            }
         }
 
         # when tutor_1 is filled which is not null
@@ -1021,7 +1034,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     private function getSearchedColumn(string $status)
     {
-        switch ($status) {
+        switch (strtolower($status)) {
 
             case "pending":
                 $searched_column = 'created_at';

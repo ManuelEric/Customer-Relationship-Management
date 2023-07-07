@@ -59,6 +59,7 @@ class ImportClientProg extends Command
     protected MainProgRepositoryInterface $mainProgRepository;
     protected SubProgRepositoryInterface $subProgRepository;
 
+
     public function __construct(ClientRepositoryInterface $clientRepository, ClientProgramRepositoryInterface $clientProgramRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, ReasonRepositoryInterface $reasonRepository, UserRepositoryInterface $userRepository, FollowupRepositoryInterface $followupRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, ReceiptRepositoryInterface $receiptRepository, RefundRepositoryInterface $refundRepository, MainProgRepositoryInterface $mainProgRepository, SubProgRepositoryInterface $subProgRepository)
     {
         parent::__construct();
@@ -105,7 +106,7 @@ class ImportClientProg extends Command
             $progressBar = $this->output->createProgressBar($crm_clientprogs->count());
             $progressBar->start();
             foreach ($crm_clientprogs as $crm_clientprog) {
-
+                $progressBar->advance();
                 # get the student id on database v2 using name
                 if (!isset($crm_clientprog->student->st_firstname))
                     continue; # st num 146 not found in table students v1 deleted soon
@@ -142,7 +143,6 @@ class ImportClientProg extends Command
 
                 $this->createInvoiceIfNotExists($crm_clientprog, $clientprog_v2);
 
-                $progressBar->advance();
             }
 
             $progressBar->finish();
@@ -273,6 +273,9 @@ class ImportClientProg extends Command
             'updated_at' => $crm_clientprog->stprog_firstdisdate
         ];
 
+        if ($clientprog_v2 = $this->clientProgramRepository->getClientProgramByDetail($clientProgramDetails)) 
+            return $clientprog_v2;
+
         # additional
         $clientProgramDetails['total_uni'] = $crm_clientprog->stprog_tot_uni;
         $clientProgramDetails['total_foreign_currency'] = $crm_clientprog->stprog_tot_dollar;
@@ -389,23 +392,24 @@ class ImportClientProg extends Command
         }
 
         # check the st id 
-        $client = $this->clientRepository->getClientById($student_v2_id);
+        // $client = $this->clientRepository->getClientById($student_v2_id);
 
-        if ($this->clientRepository->getStudentByStudentId($client->st_id) || $client->st_id == NULL) {
-            # initialize
-            $last_id = Student::max('st_id');
-            $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-            $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+        // if ($this->clientRepository->getStudentByStudentId($client->st_id) || $client->st_id == NULL) {
+        //     # initialize
+        //     $last_id = Student::max('st_id');
+        //     $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+        //     $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
 
-            if ($this->clientRepository->getStudentByStudentId($studentId)) {
-                # initialize
-                $last_id = UserClient::max('st_id');
-                $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
-                $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
-            }
-        }
+        //     if ($this->clientRepository->getStudentByStudentId($studentId)) {
+        //         # initialize
+        //         $last_id = UserClient::max('st_id');
+        //         $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
+        //         $studentId = 'ST-' . $this->add_digit((int) $student_id_without_label + 1, 4);
+        //     }
+            
+        //     $this->clientRepository->updateClient($student_v2_id, ['st_id' => $studentId]);
+        // }
 
-        $this->clientRepository->updateClient($student_v2_id, ['st_id' => $studentId]);
 
         # import client program to v2
         $clientprog_v2 = $this->clientProgramRepository->createClientProgram($clientProgramDetails);
@@ -436,6 +440,8 @@ class ImportClientProg extends Command
         $crm_clientprog_invoice = $crm_clientprog->invoice;
         if ($crm_clientprog_invoice) {
             $crm_invoiceId = $crm_clientprog_invoice->inv_id;
+            
+            # check existing invoice
             if (!$invoice_v2 = $this->invoiceProgramRepository->getInvoiceByInvoiceId($crm_invoiceId)) {
                 $inv_words = $crm_clientprog_invoice->inv_wordsusd;
                 if ($crm_clientprog_invoice->inv_wordsusd == "") {
@@ -487,86 +493,102 @@ class ImportClientProg extends Command
                 $invoice_v2 = $this->invoiceProgramRepository->createInvoice($invoiceDetails);
                 // $this->info('Invoice stored : '.$invoice_v2->inv_id);
 
-                # if the invoice has some installments
-                // $this->info('Ini installment : '.$crm_clientprog_invoice->installment);
-                if (count($crm_clientprog_invoice->installment) > 0) {
-                    $crm_clientprog_installment = $crm_clientprog_invoice->installment;
-                    $installmentDetails = [];
-                    foreach ($crm_clientprog_installment as $installment) {
-                        $installmentDetails = [
-                            'inv_id' => $invoice_v2->inv_id,
-                            'invdtl_installment' => $installment->invdtl_statusname,
-                            'invdtl_duedate' => $installment->invdtl_duedate,
-                            'invdtl_percentage' => $installment->invdtl_percentage,
-                            'invdtl_amount' => $installment->invdtl_amountusd,
-                            'invdtl_amountidr' => $installment->invdtl_amountidr,
-                            'invdtl_status' => $installment->invdtl_status == "" ? 0 : $installment->invdtl_status,
-                            'invdtl_cursrate' => $crm_clientprog->stprog_kurs, # take the value from stprog
-                            'invdtl_currency' => $crm_clientprog_invoice->inv_category,
-                        ];
+            }
+
+            # if the invoice has some installments
+            // $this->info('Ini installment : '.$crm_clientprog_invoice->installment);
+            if (count($crm_clientprog_invoice->installment) > 0) {
+                $crm_clientprog_installment = $crm_clientprog_invoice->installment;
+                $installmentDetails = [];
+                foreach ($crm_clientprog_installment as $installment) {
+
+                    $this->info('Installment no : '.$invoice_v2->inv_id);
+
+                    $installmentDetails = [
+                        'inv_id' => $invoice_v2->inv_id,
+                        'invdtl_installment' => $installment->invdtl_statusname,
+                        'invdtl_duedate' => $installment->invdtl_duedate,
+                        'invdtl_percentage' => $installment->invdtl_percentage,
+                        'invdtl_amount' => $installment->invdtl_amountusd,
+                        'invdtl_amountidr' => $installment->invdtl_amountidr,
+                        'invdtl_status' => $installment->invdtl_status == "" ? 0 : $installment->invdtl_status,
+                        'invdtl_cursrate' => $crm_clientprog->stprog_kurs, # take the value from stprog
+                        'invdtl_currency' => $crm_clientprog_invoice->inv_category,
+                    ];
+
+                    # check if invoice detail does exist
+                    if (!$installment_v2 = $this->invoiceDetailRepository->getInvoiceDetailByInvIdandName($installmentDetails['inv_id'], $installmentDetails['invdtl_installment'])) {
 
                         # import invoice installment to v2
                         $installment_v2 = $this->invoiceDetailRepository->createOneInvoiceDetail($installmentDetails);
                         // $this->info('Installment stored : '.json_encode($installment_v2));
+                    }
 
-                        if (isset($installment->receipt)) {
-                            $receiptDetails = [
-                                'receipt_id' => $installment->receipt->receipt_id,
-                                'receipt_cat' => 'student',
+
+                    if (isset($installment->receipt) && !isset($installment_v2->receipt)) {
+                        $receiptDetails = [
+                            'receipt_id' => $installment->receipt->receipt_id,
+                            'receipt_cat' => 'student',
+                            'inv_id' => $invoice_v2->inv_id,
+                            'receipt_method' => $installment->receipt->receipt_mtd,
+                            'receipt_cheque' => $installment->receipt->receipt_cheque == "" ? NULL : $installment->receipt->receipt_cheque,
+                            'receipt_amount' => $installment->receipt->receipt_amountusd,
+                            'receipt_words' => $installment->receipt->receipt_wordsusd,
+                            'receipt_amount_idr' => $installment->receipt->receipt_amount,
+                            'receipt_words_idr' => $installment->receipt->receipt_word,
+                            'receipt_notes' => $installment->receipt->receipt_notes == "" ? NULL : $installment->receipt->receipt_notes,
+                            'receipt_status' => $installment->receipt->receipt_status,
+                            'invdtl_id' => $installment_v2->invdtl_id,
+                            'created_at' => $installment->receipt->receipt_date,
+                            'updated_at' => $installment->receipt->receipt_date
+                        ];
+
+                        # import receipt installment to v2
+                        if ($this->receiptRepository->getReceiptByReceiptId($installment->receipt->receipt_id)) {
+                            $receiptDetails['receipt_id'] = $installment->receipt->receipt_id . '-1';
+                        }
+
+                        $receipt_v2 = $this->receiptRepository->createReceipt($receiptDetails);
+                        $this->info('Receipt installment stored : '.$receipt_v2->receipt_id);
+
+                        # check if the invoice has refund
+                        $refund_v2 = $this->refundRepository->getRefundByInvId($invoice_v2->inv_id);
+                        if ($installment->receipt->receipt_status == 2 && $installment->receipt->receipt_refund != 0 && !$refund_v2) {
+
+                            $total_paid = $installment->receipt->receipt_amount;
+                            $refund_amount = $installment->receipt->receipt_refund;
+                            $percentage_refund = ($refund_amount / $total_paid) * 100;
+
+                            $refundDetails = [
                                 'inv_id' => $invoice_v2->inv_id,
-                                'receipt_method' => $installment->receipt->receipt_mtd,
-                                'receipt_cheque' => $installment->receipt->receipt_cheque == "" ? NULL : $installment->receipt->receipt_cheque,
-                                'receipt_amount' => $installment->receipt->receipt_amountusd,
-                                'receipt_words' => $installment->receipt->receipt_wordsusd,
-                                'receipt_amount_idr' => $installment->receipt->receipt_amount,
-                                'receipt_words_idr' => $installment->receipt->receipt_word,
-                                'receipt_notes' => $installment->receipt->receipt_notes == "" ? NULL : $installment->receipt->receipt_notes,
-                                'receipt_status' => $installment->receipt->receipt_status,
-                                'invdtl_id' => $installment_v2->invdtl_id,
-                                'created_at' => $installment->receipt->receipt_date,
-                                'updated_at' => $installment->receipt->receipt_date
+                                'total_payment' => $invoice_v2->inv_totalprice_idr,
+                                'total_paid' => $total_paid,
+                                'refund_amount' => $refund_amount,
+                                'percentage_refund' => $percentage_refund,
+                                'tax_amount' => 0,
+                                'tax_percentage' => 0,
+                                'total_refunded' => $refund_amount,
+                                'status' => 1, # //?
                             ];
 
-                            # import receipt installment to v2
-                            if ($this->receiptRepository->getReceiptByReceiptId($installment->receipt->receipt_id)) {
-                                $receiptDetails['receipt_id'] = $installment->receipt->receipt_id . '-1';
-                            }
+                            $refund_v2 = $this->refundRepository->createRefund($refundDetails);
+                            // $this->info('Refund installment stored : '.$refund_v2->id);
 
-                            $receipt_v2 = $this->receiptRepository->createReceipt($receiptDetails);
-                            // $this->info('Receipt installment stored : '.$receipt_v2->receipt_id);
-
-                            # check if the receipt has refund
-                            if ($installment->receipt->receipt_status == 2 && $installment->receipt->receipt_refund != 0) {
-
-                                $total_paid = $installment->receipt->receipt_amount;
-                                $refund_amount = $installment->receipt->receipt_refund;
-                                $percentage_refund = ($refund_amount / $total_paid) * 100;
-
-                                $refundDetails = [
-                                    'inv_id' => $invoice_v2->inv_id,
-                                    'total_payment' => $invoice_v2->inv_totalprice_idr,
-                                    'total_paid' => $total_paid,
-                                    'refund_amount' => $refund_amount,
-                                    'percentage_refund' => $percentage_refund,
-                                    'tax_amount' => 0,
-                                    'tax_percentage' => 0,
-                                    'total_refunded' => $refund_amount,
-                                    'status' => 1, # //?
-                                ];
-
-                                $refund_v2 = $this->refundRepository->createRefund($refundDetails);
-                                // $this->info('Refund installment stored : '.$refund_v2->id);
-
-                            }
                         }
                     }
                 }
+            }
 
-                # if the invoice has receipt
-                if ($crm_clientprog_invoice->receipt && count($crm_clientprog_invoice->installment) == 0) {
-                    $crm_clientprog_receipt = $crm_clientprog_invoice->receipt;
-                    foreach ($crm_clientprog_receipt as $crm_receipt) {
-                        // $this->info('ini Receipt master : '.$crm_receipt);
+            # if the invoice has receipt
+            $this->info('Invoice ID : '.$crm_clientprog_invoice->inv_id.' dan '.count($crm_clientprog_invoice->installment));
+            if ($crm_clientprog_invoice->receipt && count($crm_clientprog_invoice->installment) == 0) {
+                $crm_clientprog_receipt = $crm_clientprog_invoice->receipt;
+                foreach ($crm_clientprog_receipt as $crm_receipt) {
+                    // $this->info('ini Receipt master : '.$crm_receipt);
+
+                    # check if receipt does exist
+                    if (!$receipt_v2 = $this->receiptRepository->getReceiptByReceiptId($crm_receipt->receipt_id)) {
+
                         # store into receipt v2
                         $receiptDetails = [
                             'receipt_id' => $crm_receipt->receipt_id,
@@ -583,30 +605,34 @@ class ImportClientProg extends Command
                             'created_at' => $crm_receipt->receipt_date,
                             'updated_at' => $crm_receipt->receipt_date
                         ];
-
+    
                         $receipt_v2 = $this->receiptRepository->createReceipt($receiptDetails);
+                    }
 
-                        # check if the receipt has refund
-                        if ($crm_receipt->receipt_status == 2 && $crm_receipt->receipt_refund != 0) {
 
-                            $total_paid = $crm_receipt->receipt_amount;
-                            $refund_amount = $crm_receipt->receipt_refund;
-                            $percentage_refund = ($refund_amount / $total_paid) * 100;
+                    # check if the invoice has refund
+                    $refund_v2 = $this->refundRepository->getRefundByInvId($invoice_v2->inv_id);
 
-                            $refundDetails = [
-                                'inv_id' => $receipt_v2->inv_id,
-                                'total_payment' => $invoice_v2->inv_totalprice_idr,
-                                'total_paid' => $total_paid,
-                                'refund_amount' => $refund_amount,
-                                'percentage_refund' => $percentage_refund,
-                                'tax_amount' => 0,
-                                'tax_percentage' => 0,
-                                'total_refunded' => $refund_amount,
-                                'status' => 1, # //?
-                            ];
+                    # check if the receipt has refund
+                    if ($crm_receipt->receipt_status == 2 && $crm_receipt->receipt_refund != 0 && !$refund_v2) {
 
-                            $this->refundRepository->createRefund($refundDetails);
-                        }
+                        $total_paid = $crm_receipt->receipt_amount;
+                        $refund_amount = $crm_receipt->receipt_refund;
+                        $percentage_refund = ($refund_amount / $total_paid) * 100;
+
+                        $refundDetails = [
+                            'inv_id' => $receipt_v2->inv_id,
+                            'total_payment' => $invoice_v2->inv_totalprice_idr,
+                            'total_paid' => $total_paid,
+                            'refund_amount' => $refund_amount,
+                            'percentage_refund' => $percentage_refund,
+                            'tax_amount' => 0,
+                            'tax_percentage' => 0,
+                            'total_refunded' => $refund_amount,
+                            'status' => 1, # //?
+                        ];
+
+                        $this->refundRepository->createRefund($refundDetails);
                     }
                 }
             }

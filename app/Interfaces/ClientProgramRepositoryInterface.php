@@ -10,6 +10,7 @@ interface ClientProgramRepositoryInterface
     public function getAllMentorTutorOnClientProgram();
     public function getAllPICOnClientProgram();
     public function getClientProgramById($clientProgramId);
+    public function getClientProgramByDetail(array $detail);
     public function createClientProgram(array $clientProgramDetails);
     public function updateClientProgram($clientProgramId, array $clientProgramDetails);
     public function endedClientProgram(int $clientprog_id, array $newDetails);

@@ -26,6 +26,11 @@ class InvoiceDetailRepository implements InvoiceDetailRepositoryInterface
         return InvDetail::where('invb2b_id', $invb2b_id)->where('invdtl_installment', $name)->first();
     }
 
+    public function getInvoiceDetailByInvIdandName($invoiceId, $name)
+    {
+        return InvDetail::where('inv_id', $invoiceId)->where('invdtl_installment', $name)->first();
+    }
+
     public function getInvoiceDetailByInvId($invoiceId)
     {
         return InvDetail::where('inv_id', $invoiceId)->get();
