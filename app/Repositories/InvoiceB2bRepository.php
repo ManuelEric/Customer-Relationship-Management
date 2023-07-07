@@ -75,7 +75,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 break;
 
             case 'reminder':
-                $query = Invb2b::leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
+                $query = Invb2b::leftJoin('tbl_invdtl', 'tbl_invdtl.invb2b_id', '=', 'tbl_invb2b.invb2b_id')->leftJoin('tbl_sch_prog', 'tbl_sch_prog.id', '=', 'tbl_invb2b.schprog_id')
                     ->leftJoin('tbl_sch', 'tbl_sch_prog.sch_id', '=', 'tbl_sch.sch_id')
                     ->leftJoin('program', 'program.prog_id', '=', 'tbl_sch_prog.prog_id')
                     // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
@@ -87,18 +87,58 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                         'tbl_invb2b.schprog_id',
                         'tbl_invb2b.invb2b_id',
                         'tbl_invb2b.invb2b_status',
-                        'tbl_invb2b.invb2b_pm',
-                        'tbl_invb2b.created_at',
-                        'tbl_invb2b.invb2b_duedate',
+                        DB::raw('
+                            (CASE
+                                WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN tbl_invb2b.invb2b_pm
+                                WHEN tbl_invb2b.invb2b_pm = "Installment" THEN tbl_invdtl.invdtl_installment
+                            END) as invb2b_pm
+                        '),
+                        // 'tbl_invb2b.invb2b_pm',
+                        DB::raw('
+                            (CASE
+                                WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN tbl_invb2b.created_at
+                                WHEN tbl_invb2b.invb2b_pm = "Installment" THEN tbl_invdtl.created_at
+                            END) as created_at
+                        '),
+                        // 'tbl_invb2b.created_at',
+                        DB::raw('
+                            (CASE
+                                WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN tbl_invb2b.invb2b_duedate
+                                WHEN tbl_invb2b.invb2b_pm = "Installment" THEN tbl_invdtl.invdtl_duedate
+                            END) as invb2b_duedate
+                        '),
+                        // 'tbl_invb2b.invb2b_duedate',
                         'tbl_invb2b.currency',
-                        'tbl_invb2b.invb2b_totpriceidr',
+                        DB::raw('
+                            (CASE
+                                WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN tbl_invb2b.invb2b_totpriceidr
+                                WHEN tbl_invb2b.invb2b_pm = "Installment" THEN tbl_invdtl.invdtl_amountidr
+                            END) as invb2b_totpriceidr
+                        '),
+                        // 'tbl_invb2b.invb2b_totpriceidr',
                         'tbl_invb2b.invb2b_totprice',
-                        DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
+                        DB::raw('
+                            (CASE
+                                WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
+                                WHEN tbl_invb2b.invb2b_pm = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                            END) as date_difference
+                        '),
+                        // DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
                     )
                     ->where('tbl_sch_prog.status', 1)
                     ->whereDoesntHave('receipt')
-                    ->where(DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now())'), '<=', 7)
-                    ->orderBy('date_difference', 'asc');
+                    ->where(DB::raw('
+                    (CASE
+                        WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
+                        WHEN tbl_invb2b.invb2b_pm = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                    END)
+                '), '<=', 7)
+                    ->orderBy(DB::raw('
+                    (CASE
+                        WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
+                        WHEN tbl_invb2b.invb2b_pm = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                    END)
+                '), 'desc');
                 break;
         }
         return DataTables::eloquent($query)->make(true);
@@ -220,7 +260,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                 break;
 
             case 'reminder':
-                $query = Invb2b::leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
+                $query = Invb2b::leftJoin('tbl_invdtl', 'tbl_invdtl.invb2b_id', '=', 'tbl_invb2b.invb2b_id')->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
                     ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
                     ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
                     // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
@@ -232,18 +272,56 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                         'tbl_invb2b.partnerprog_id',
                         'tbl_invb2b.invb2b_id',
                         'tbl_invb2b.invb2b_status',
-                        'tbl_invb2b.invb2b_pm',
-                        'tbl_invb2b.created_at',
-                        'tbl_invb2b.invb2b_duedate',
+                        DB::raw('
+                                (CASE
+                                    WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN tbl_invb2b.invb2b_pm
+                                    WHEN tbl_invb2b.invb2b_pm = "Installment" THEN tbl_invdtl.invdtl_installment
+                                END) as invb2b_pm
+                            '),
+                        // 'tbl_invb2b.invb2b_pm',
+                        DB::raw('
+                                (CASE
+                                    WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN tbl_invb2b.created_at
+                                    WHEN tbl_invb2b.invb2b_pm = "Installment" THEN tbl_invdtl.created_at
+                                END) as created_at
+                            '),
+                        // 'tbl_invb2b.created_at',
+                        DB::raw('
+                                (CASE
+                                    WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN tbl_invb2b.invb2b_duedate
+                                    WHEN tbl_invb2b.invb2b_pm = "Installment" THEN tbl_invdtl.invdtl_duedate
+                                END) as invb2b_duedate
+                            '),
+                        // 'tbl_invb2b.invb2b_duedate',
                         'tbl_invb2b.currency',
-                        'tbl_invb2b.invb2b_totpriceidr',
+                        DB::raw('
+                                (CASE
+                                    WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN tbl_invb2b.invb2b_totpriceidr
+                                    WHEN tbl_invb2b.invb2b_pm = "Installment" THEN tbl_invdtl.invdtl_amountidr
+                                END) as invb2b_totpriceidr
+                            '),
+                        // 'tbl_invb2b.invb2b_totpriceidr',
                         'tbl_invb2b.invb2b_totprice',
-                        DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
+                        DB::raw('
+                                (CASE
+                                    WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
+                                    WHEN tbl_invb2b.invb2b_pm = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                                END) as date_difference
+                            '),
+                        // DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now()) as date_difference')
                     )
                     ->where('tbl_partner_prog.status', 1)
                     ->whereDoesntHave('receipt')
-                    ->where(DB::raw('DATEDIFF(tbl_invb2b.invb2b_duedate, now())'), '<=', 7)
-                    ->orderBy('date_difference', 'asc');
+                    ->where(DB::raw('
+                            (CASE
+                                WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
+                                WHEN tbl_invb2b.invb2b_pm = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                            END)'), '<=', 7)->orderBy(DB::raw('
+                    (CASE
+                        WHEN tbl_invb2b.invb2b_pm = "Full Payment" THEN DATEDIFF(tbl_invb2b.invb2b_duedate, now())
+                        WHEN tbl_invb2b.invb2b_pm = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                    END)
+                '), 'desc');
                 break;
         }
         $response = DataTables::eloquent($query)->make(true);
