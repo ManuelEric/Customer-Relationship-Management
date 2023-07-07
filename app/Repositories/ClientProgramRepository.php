@@ -1034,7 +1034,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
     private function getSearchedColumn(string $status)
     {
-        switch ($status) {
+        switch (strtolower($status)) {
 
             case "pending":
                 $searched_column = 'created_at';
