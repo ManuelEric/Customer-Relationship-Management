@@ -275,7 +275,7 @@
     }
 
     var user1 = document.querySelector("#phoneUser1");
-    var user2 = document.querySelector("#phoneUser2");
+    // var user2 = document.querySelector("#phoneUser2");
     const phoneInput1 = window.intlTelInput(user1, {
         utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
         initialCountry: 'id',
@@ -348,10 +348,10 @@
     }
 </script>
 <script>
-    // $("#phoneUser1").on('keyup', function(e) {
-    //     var number1 = phoneInput1.getNumber();
-    //     $("#phone1").val(number1);
-    // });
+    $("#phoneUser1").on('keyup', function(e) {
+        var number1 = phoneInput1.getNumber();
+        $("#phone1").val(number1);
+    });
 </script>
 
 </html>
