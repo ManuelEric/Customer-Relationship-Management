@@ -44,10 +44,11 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
 
             foreach ($rows as $row) {
                 $student = null;
-                $phoneNumber = $this->setPhoneNumber($row['phone_number']);
+                $phoneNumber = isset($row['phone_number']) ? $this->setPhoneNumber($row['phone_number']) : null;
                 isset($row['parents_phone']) ? $parentPhone = $this->setPhoneNumber($row['parents_phone']) : $parentPhone = null;
 
-                $studentName = $this->explodeName($row['full_name']);
+                $studentName = $row['full_name'] != null ? $this->explodeName($row['full_name']) : null;
+                $parentName = $row['parents_name'] != null ? $this->explodeName($row['parents_name']) : null;
 
                 // $last_id = UserClient::max('st_id');
                 // $student_id_without_label = $this->remove_primarykey_label($last_id, 3);
@@ -76,9 +77,9 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
                 if (!isset($student)) {
                     $studentDetails = [
                         // 'st_id' => $studentId,
-                        'first_name' => $studentName['firstname'],
-                        'last_name' => isset($studentName['lastname']) ? $studentName['lastname'] : null,
-                        'mail' => $row['email'],
+                        'first_name' => $studentName != null ? $studentName['firstname'] : ($parentName != null ? $parentName['firstname'] . ' ' . $parentName['lastname'] : null),
+                        'last_name' =>  $studentName != null && isset($studentName['lastname']) ? $studentName['lastname'] : ($parentName != null ? 'Child' : null),
+                        'mail' => isset($row['email']) ? $row['email'] : null,
                         'phone' => $phoneNumber,
                         'dob' => isset($row['date_of_birth']) ? $row['date_of_birth'] : null,
                         'insta' => isset($row['instagram']) ? $row['instagram'] : null,
@@ -202,7 +203,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
         return [
             '*.full_name' => ['nullable'],
             '*.email' => ['nullable', 'email', 'unique:tbl_client,mail'],
-            '*.phone_number' => ['required', 'min:10', 'max:15'],
+            '*.phone_number' => ['nullable', 'min:10', 'max:15'],
             '*.date_of_birth' => ['nullable', 'date'],
             '*.parents_name' => ['nullable'],
             '*.parents_phone' => ['nullable', 'min:10', 'max:15'],
