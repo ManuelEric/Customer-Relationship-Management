@@ -56,7 +56,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             (CASE
                                 WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
                                 WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_installment
-                            END) as inv_paymentmethod
+                            END) as payment_method
                         '),
                     // 'tbl_inv.inv_paymentmethod',
                     DB::raw('
@@ -70,14 +70,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                             (CASE
                                 WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_duedate
                                 WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_duedate
-                            END) as inv_duedate
+                            END) as due_date
                         '),
                     // 'tbl_inv.inv_duedate',
                     DB::raw('
                             (CASE
                                 WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice_idr
                                 WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amountidr
-                            END) as inv_totalprice_idr
+                            END) as total_price_idr
                         '),
                     // 'tbl_inv.inv_totalprice_idr',
                     DB::raw('
@@ -91,6 +91,37 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     ->whereNull('receipt.inv_id')
                     ->where(DB::raw('DATEDIFF(tbl_inv.inv_duedate, now())'), '<=', 7)
                     ->orderBy('date_difference', 'desc');
+
+                return DataTables::eloquent($query)->
+                            filterColumn('payment_method', function ($query, $keyword) {
+                                $sql = '(CASE
+                                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
+                                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_installment
+                                        END) like ?';
+                                $query->whereRaw($sql, ["%{$keyword}%"]);
+                            })->
+                            filterColumn('show_created_at', function ($query, $keyword) {
+                                $sql = '(CASE
+                                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.created_at
+                                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.created_at
+                                        END) like ?';
+                                $query->whereRaw($sql, ["%{$keyword}%"]);
+                            })->
+                            filterColumn('due_date', function ($query, $keyword) {
+                                $sql = '(CASE
+                                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_duedate
+                                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_duedate
+                                        END) like ?';
+                                $query->whereRaw($sql, ["%{$keyword}%"]);
+                            })->
+                            filterColumn('total_price_idr', function ($query, $keyword) {
+                                $sql = '(CASE
+                                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice_idr
+                                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amountidr
+                                        END) like ?';
+                                $query->whereRaw($sql, ["%{$keyword}%"]);
+                            })->
+                            toJson();
                 break;
         }
 
