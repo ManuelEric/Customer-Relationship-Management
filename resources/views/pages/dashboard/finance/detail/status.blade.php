@@ -225,7 +225,8 @@
                             if($(this).data('clientid') != undefined){
                                 var parent_phone = result.reminder[$(this).data('clientid')].parent_phone;
                                 var child_phone = result.reminder[$(this).data('clientid')].child_phone;
-                                $('#phone').val(parent_phone == null ? child_phone : parent_phone);
+                                var parent_id = result.reminder[$(this).data('clientid')].parent_id;
+                                $('#phone').val(parent_id == null ? child_phone : parent_phone);
                             }
                             $('#client_id').val($(this).data('clientid'))
                             $('#fullname').val(result.reminder[$(this).data('clientid')].parent_fullname)

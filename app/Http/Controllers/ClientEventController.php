@@ -434,8 +434,11 @@ class ClientEventController extends Controller
         return back()->withSuccess('Client event successfully imported');
     }
 
-    public function createFormEmbed()
+    public function createFormEmbed(Request $request)
     {
+        if ($request->get('event_name') == null) {
+            abort('404');
+        }
         $leads = $this->leadRepository->getLeadForFormEmbedEvent();
         $schools = $this->schoolRepository->getAllSchools();
 
