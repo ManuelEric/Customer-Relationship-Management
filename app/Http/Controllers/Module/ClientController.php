@@ -83,7 +83,8 @@ class ClientController extends Controller
                     'st_levelinterest' => $parentDetails['st_levelinterest'],
                     'st_grade' => $request->st_grade,
                     'st_abryear' => $request->st_abryear,
-                    'graduation_year' => $request->graduation_year
+                    'graduation_year' => $request->graduation_year,
+                    'is_funding' => $request->is_funding
                 ];
                 return compact('studentDetails', 'parentDetails');
                 break;
@@ -111,6 +112,7 @@ class ClientController extends Controller
                     // 'st_abrcountry',
                     'st_note',
                     'pr_id',
+                    'is_funding'
                 ]);
 
                 $studentDetails['phone'] = $this->setPhoneNumber($request->phone);
@@ -181,7 +183,6 @@ class ClientController extends Controller
 
                 return compact('teacherDetails');
                 break;
-
         }
     }
 
@@ -215,7 +216,7 @@ class ClientController extends Controller
         $interestMajors = $request->st_abrmajor ??= [];
 
         return compact(
-            'studentDetails', 
+            'studentDetails',
             'parentDetails',
             'teacherDetails',
             'schoolDetails',
