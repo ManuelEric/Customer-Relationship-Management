@@ -181,7 +181,7 @@ class InvoicePartnerController extends Controller
         $now = Carbon::now();
         $thisMonth = $now->month;
 
-        $last_id = Invb2b::whereMonth('created_at', $thisMonth)->max(DB::raw('substr(invb2b_id, 1, 4)'));
+        $last_id = Invb2b::whereMonth('created_at', $thisMonth)->whereYear('created_at', date('Y'))->max(DB::raw('substr(invb2b_id, 1, 4)'));
 
         $partnerProgram = $this->partnerProgramRepository->getPartnerProgramById($partnerProgId);
         $prog_id = $partnerProgram->prog_id;

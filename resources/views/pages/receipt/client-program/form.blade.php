@@ -315,7 +315,7 @@
                         </tr>
                         <tr>
                             <td>Receipt Date :</td>
-                            <td>{{ date('d M Y H:i:s', strtotime($receipt->created_at)) }}</td>
+                            <td>{{ isset($receipt->receipt_date) ? date('d M Y', strtotime($receipt->receipt_date)) : date('d M Y H:i:s', strtotime($receipt->created_at)) }}</td>
                         </tr>
                         @if (isset($receipt->invoiceInstallment))
                             <tr>
