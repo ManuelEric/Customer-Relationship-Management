@@ -126,7 +126,16 @@ class User extends Authenticatable
 
     public function department()
     {
-        return $this->belongsToMany(Department::class, 'tbl_user_type_detail', 'user_id', 'department_id')->withTimestamps();
+        return $this->belongsToMany(Department::class, 'tbl_user_type_detail', 'user_id', 'department_id')->withPivot(
+            [
+                'user_type_id',
+                'user_id',
+                'department_id',
+                'start_date',
+                'end_date',
+                'status'
+            ]
+        )->withTimestamps();
     }
 
     public function access_menus()

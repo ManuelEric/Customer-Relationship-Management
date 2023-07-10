@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Interfaces\MenuRepositoryInterface;
+use App\Models\Department;
 use App\Repositories\MenuRepository;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -38,8 +39,9 @@ class AppServiceProvider extends ServiceProvider
             $user = auth()->user();
             $collection = new Collection();
 
-            if (isset($user) && ($user->department->count() > 0 || $user->roles()->where('role_name', 'admin')->count() > 0) ) {
-                foreach ($user->department as $menus) {
+
+            if (isset($user) && ($user->department()->wherePivot('status', 1)->count() > 0 || $user->roles()->where('role_name', 'admin')->count() > 0) ) {
+                foreach ($user->department()->wherePivot('status', 1)->get() as $menus) {
                     foreach ($menus->access_menus as $menu) {
                         $collection->push([
                             'order_no' => $menu->mainmenu->order_no,
@@ -56,47 +58,57 @@ class AppServiceProvider extends ServiceProvider
                     }
                 }
 
-                foreach ($user->access_menus as $menu) {
-                    // Get key same submenu name 
-                    $keyMenu = $collection->where('submenu_name', $menu->submenu_name)->keys()->first();
-                    // Delete submenu by key
-                    $collection->forget($keyMenu);
+                if ($user->access_menus->count() > 0) {
 
-                    $collection->push([
-                        'order_no' => $menu->mainmenu->order_no,
-                        'order_no_submenu' => $menu->order_no,
-                        'menu_id' => $menu->pivot->menu_id,
-                        'mainmenu_id' => $menu->mainmenu->id,
-                        'mainmenu_name' => $menu->mainmenu->mainmenu_name,
-                        'submenu_name' => $menu->submenu_name,
-                        'submenu_link' => $menu->submenu_link,
-                        'copy' => $menu->pivot->copy,
-                        'export' => $menu->pivot->export,
-                        'icon' => $menu->mainmenu->icon,
-                    ]);
+                    foreach ($user->access_menus as $menu) {
+                        // Get key same submenu name 
+                        $keyMenu = $collection->where('submenu_name', $menu->submenu_name)->keys()->first();
+                        // Delete submenu by key
+                        $collection->forget($keyMenu);
+    
+                        $collection->push([
+                            'order_no' => $menu->mainmenu->order_no,
+                            'order_no_submenu' => $menu->order_no,
+                            'menu_id' => $menu->pivot->menu_id,
+                            'mainmenu_id' => $menu->mainmenu->id,
+                            'mainmenu_name' => $menu->mainmenu->mainmenu_name,
+                            'submenu_name' => $menu->submenu_name,
+                            'submenu_link' => $menu->submenu_link,
+                            'copy' => $menu->pivot->copy,
+                            'export' => $menu->pivot->export,
+                            'icon' => $menu->mainmenu->icon,
+                        ]);
+                    }
                 }
+
 
                 # if logged in user is admin
                 if ($user->roles()->where('role_name', 'admin')->exists()) {
                     $isAdmin = true;
+                    $department = null;
                     $collection = [];
                     $collection = app('menu-repository-services')->getMenu();
                 }
 
                 # if logged in user is from department sales
-                if ($user->department()->where('dept_name', 'Client Management')->exists()) {
+                if ($user->department()->where('dept_name', 'Client Management')->where('status', 1)->exists()) {
                     $isSales = true;
+                    $department = 'Client Management';
                 }
 
                 # if logged in user is from department partnership
-                if ($user->department()->where('dept_name', 'Business Development')->exists()) {
+                if ($user->department()->where('dept_name', 'Business Development')->where('status', 1)->exists()) {
                     $isPartnership = true;
+                    $department = 'Business Development';
                 }
 
                 # if logged in user is from department finance
-                if ($user->department()->where('dept_name', 'Finance & Operation')->exists()) {
+                if ($user->department()->where('dept_name', 'Finance & Operation')->where('status', 1)->exists()) {
                     $isFinance = true;
+                    $department = 'Finance & Operation';
                 }
+
+                $deptId = $department !== null ? Department::where('dept_name', $department)->first()->id : null;
 
                 $grouped = $collection->sortBy(['order_no', 'order_no_submenu'])->values()->mapToGroups(function (array $item, int $key) {
                     return [
@@ -108,7 +120,7 @@ class AppServiceProvider extends ServiceProvider
                             'submenu_link' => $item['submenu_link'],
                             'copy' => $item['copy'],
                             'export' => $item['export'],
-                            'icon' => $item['icon'],
+                            'icon' => $item['icon']
                         ]
 
                     ];
@@ -122,6 +134,7 @@ class AppServiceProvider extends ServiceProvider
                         'isPartnership' => $isPartnership ?? false,
                         'isFinance' => $isFinance ?? false,
                         'loggedIn_user' => $user,
+                        'deptId' => $deptId
                     ]
                 );
             }

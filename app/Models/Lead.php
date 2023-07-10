@@ -22,6 +22,7 @@ class Lead extends Model
         'main_lead',
         'sub_lead',
         'score',
+        'department_id',
         'color_code',
     ];
 
