@@ -78,7 +78,7 @@ class ReceiptController extends Controller
         $last_id = Receipt::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(receipt_id, 1, 4)'));
     
         # Use Trait Create Invoice Id
-        $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, $client_prog->prog_id);
+        $receiptDetails['receipt_id'] = $this->getInvoiceId($last_id, $client_prog->prog_id);
         
         $receiptDetails['inv_id'] = $invoice->inv_id;
         $invoice_payment_method = $invoice->inv_paymentmethod;

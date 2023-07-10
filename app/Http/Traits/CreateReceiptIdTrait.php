@@ -5,7 +5,7 @@ use Carbon\Carbon;
 
 trait CreateReceiptIdTrait {
 
-    public function getLatestReceiptId($last_id, $prog_id) {
+    public function getInvoiceId($last_id, $prog_id) {
 
         if($last_id == null){
             $last_id = 0;
