@@ -46,7 +46,7 @@ class StoreClientTeacherCounselorRequest extends FormRequest
                     }
                 }
             ],
-            'sch_name' => 'sometimes|required_if:sch_id,add-new|unique:tbl_sch,sch_name',
+            'sch_name' => 'sometimes|required_if:sch_id,add-new', #|unique:tbl_sch,sch_name
             // 'sch_location' => 'sometimes|required_if:sch_id,add-new',
             'sch_type' => 'required_if:sch_id,add-new',
             'sch_curriculum.*' => 'required_if:sch_id,add-new',
