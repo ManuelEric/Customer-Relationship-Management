@@ -17,7 +17,7 @@
                 Thank you for submitting your form!
             </h2>
             <h4 class="text-xl">
-                We have received your information and will process it shortly. Our team will review your submission and get back to you as soon as possible.
+                Your information has been successfully received. You can expect a call from us in the next 24 hours.
             </h4>
         </div>
     </div>
