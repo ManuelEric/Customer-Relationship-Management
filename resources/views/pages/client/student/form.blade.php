@@ -130,6 +130,19 @@
                                     @enderror
                                 </div>
                             </div>
+                             <div class="col-md-12">
+                                <div class="mb-2">
+                                    <label>Is Funding</label>
+                                    <select class="select w-100" name="is_funding">
+                                        <option data-placeholder="true"></option>
+                                            <option value="1" {{ old('is_funding') == "1" || (isset($student->is_funding) && $student->is_funding == 1) ? "selected" : null }}>Yes</option>
+                                            <option value="0" {{ old('is_funding') == "0" || (isset($student->is_funding) && $student->is_funding == 0) ? "selected" : null }}>No</option>
+                                    </select>
+                                    @error('is_funding')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -512,6 +525,8 @@
                             @enderror
                         </div>
                     </div>
+                   
+                    
                 </div>
 
                 <div class="line" style="margin-top:15px; margin-bottom:0px;"></div>

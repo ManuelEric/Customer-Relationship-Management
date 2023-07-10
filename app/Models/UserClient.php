@@ -52,6 +52,7 @@ class UserClient extends Authenticatable
         // 'st_prospect_status',
         'st_password',
         'preferred_program',
+        'is_funding',
         'created_at',
         'updated_at',
     ];
@@ -82,9 +83,10 @@ class UserClient extends Authenticatable
         });
     }
 
-    public function scopeWithAndWhereHas($query, $relation, $constraint){
+    public function scopeWithAndWhereHas($query, $relation, $constraint)
+    {
         return $query->whereHas($relation, $constraint)
-                     ->with([$relation => $constraint]);
+            ->with([$relation => $constraint]);
     }
 
     public function getLeadSource($parameter)

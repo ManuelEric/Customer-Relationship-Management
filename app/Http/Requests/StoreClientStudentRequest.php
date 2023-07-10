@@ -39,10 +39,10 @@ class StoreClientStudentRequest extends FormRequest
         $rules = [
             'first_name' => 'required',
             'last_name' => 'nullable',
-            'mail' => 'required|email|unique:tbl_client,mail,'.$studentId.',id',
+            'mail' => 'required|email|unique:tbl_client,mail,' . $studentId . ',id',
             'phone' => 'required|min:10|max:15',
             'dob' => 'required',
-            'insta' => 'nullable|unique:tbl_client,insta,'.$studentId.',id',
+            'insta' => 'nullable|unique:tbl_client,insta,' . $studentId . ',id',
             'state' => 'required',
             'city' => 'nullable',
             'postal_code' => 'nullable',
@@ -69,7 +69,7 @@ class StoreClientStudentRequest extends FormRequest
                     if ($this->input('lead_id') == 'kol' && empty($value))
                         $fail('The KOL name field is required');
 
-                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get()) 
+                    if (!Lead::where('main_lead', 'KOL')->where('lead_id', $value)->get())
                         $fail('The KOL name is invalid');
                 }
             ],
@@ -77,8 +77,8 @@ class StoreClientStudentRequest extends FormRequest
             'prog_id.*' => 'sometimes|required|exists:tbl_prog,prog_id',
             'st_abryear' => [
                 'sometimes',
-                function($attribute, $value, $fail) {
-                    if ( ($value <= date('Y')) && ($value >= date('Y', strtotime("+5 years"))) ) {
+                function ($attribute, $value, $fail) {
+                    if (($value <= date('Y')) && ($value >= date('Y', strtotime("+5 years")))) {
                         $fail('The abroad year is invalid');
                     }
                 }
@@ -91,6 +91,7 @@ class StoreClientStudentRequest extends FormRequest
             'pr_lastname' => 'nullable',
             'pr_mail' => 'nullable|email',
             'pr_phone' => 'required_if:pr_id,add-new',
+            'is_funding' => 'nullable|in:0,1'
         ];
 
         if ($this->input('lead_id') != "kol") {

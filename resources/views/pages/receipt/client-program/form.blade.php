@@ -56,7 +56,7 @@
                 </div>
 
                 {{-- IDR  --}}
-                @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'idr')->first())
+                @if (!$receipt->invoiceProgram->invoiceAttachment()->where('currency', 'idr')->first())
                 <div class="d-flex align-items-stretch">
                     <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                     <div class="border p-1 text-center">
