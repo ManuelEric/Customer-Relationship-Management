@@ -33,6 +33,7 @@
                         <th>Lead Name</th>
                         <th>Lead Detail</th>
                         <th>Score</th>
+                        <th>Department</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -63,6 +64,22 @@
                         <div class="put"></div>
 
                         <div class="row g-2">
+                            @if ($isAdmin)
+                            <div class="col-md-12">
+                                <div class="mb-0">
+                                    <label for="">
+                                        Department <sup class="text-danger">*</sup>
+                                    </label>
+                                    <select name="department_id" class="form-select form-select-sm">
+                                        @foreach ($departments as $department)
+                                            <option value="{{ $department->id }}">{{ $department->dept_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            @else
+                            <input type="hidden" name="department_id" value="{{ $deptId }}">
+                            @endif
                             <div class="col-md-10">
                                 <div class="mb-0">
                                     <label for="">
@@ -159,6 +176,10 @@
                         className: 'text-center'
                     },
                     {
+                        data: 'dept_name',
+                        name: 'dept_name',
+                    },
+                    {
                         data: '',
                         className: 'text-center',
                         defaultContent: '<button data-bs-toggle="modal" data-bs-target="#leadForm" type="button" class="btn btn-sm btn-outline-warning editLead"><i class="bi bi-pencil"></i></button>' +
@@ -225,6 +246,7 @@
                         $('#kol').prop('checked', false);
                     }
                     $('#score').val(data.score)
+                    $('select[name=department_id]').val(data.department_id).change();
 
 
                     let html =
