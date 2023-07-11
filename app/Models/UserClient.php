@@ -124,11 +124,10 @@ class UserClient extends Authenticatable
     {
         $grade = $this->st_grade;
         $max_grade = 12;
-        $year = date('Y');
 
         # calculate
         $diff = $max_grade-$grade;
-        return date('Y', strtotime('+'.$diff.' years', strtotime($year)));
+        return date('Y', strtotime('+'.$diff.' years', strtotime($this->created_at)));
     }
 
 
