@@ -133,7 +133,7 @@ class InvoiceReferralController extends Controller
         $now = Carbon::now();
         $thisMonth = $now->month;
 
-        $last_id = Invb2b::whereMonth('created_at', $thisMonth)->max(DB::raw('substr(invb2b_id, 1, 4)'));
+        $last_id = Invb2b::whereMonth('created_at', $thisMonth)->whereYear('created_at', date('Y'))->max(DB::raw('substr(invb2b_id, 1, 4)'));
 
         // Use Trait Create Invoice Id
         $inv_id = $this->getInvoiceId($last_id, 'REF-OUT');
@@ -245,7 +245,7 @@ class InvoiceReferralController extends Controller
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
 
-        
+
         $invoices['ref_id'] = $ref_id;
         $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $inv_id = $inv_b2b->invb2b_id;

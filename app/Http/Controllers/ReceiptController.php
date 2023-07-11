@@ -31,12 +31,12 @@ class ReceiptController extends Controller
         $this->clientProgramRepository = $clientProgramRepository;
         $this->receiptAttachmentRepository = $receiptAttachmentRepository;
     }
-    
+
     public function index(Request $request)
     {
-        if ($request->ajax()) 
+        if ($request->ajax())
             return $this->receiptRepository->getAllReceiptByStatusDataTables();
-        
+
         return view('pages.receipt.client-program.index');
     }
 
@@ -71,6 +71,9 @@ class ReceiptController extends Controller
         ]);
         $receiptDetails['receipt_cat'] = 'student';
 
+        $receiptDetails['created_at'] = $receiptDetails['receipt_date'];
+        $receiptDetails['updated_at'] = Carbon::now();
+
         $client_prog = $this->clientProgramRepository->getClientProgramById($request->clientprog_id);
         $invoice = $client_prog->invoice()->first();
 
@@ -78,8 +81,8 @@ class ReceiptController extends Controller
         $last_id = Receipt::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(receipt_id, 1, 4)'));
     
         # Use Trait Create Invoice Id
-        $receiptDetails['receipt_id'] = $this->getInvoiceId($last_id, $client_prog->prog_id);
-        
+        $receiptDetails['receipt_id'] = $this->getLatestReceiptId($last_id, $client_prog->prog_id, $receiptDetails);
+
         $receiptDetails['inv_id'] = $invoice->inv_id;
         $invoice_payment_method = $invoice->inv_paymentmethod;
         if ($invoice_payment_method == "Installment")
@@ -91,7 +94,6 @@ class ReceiptController extends Controller
 
             $total_invoice = $invoice->inv_totalprice_idr;
             $total_receipt = $request->receipt_amount_idr;
-
         } elseif ($invoice_payment_method == "Installment") {
 
             $total_invoice = $invoice->invoiceDetail()->where('invdtl_id', $identifier)->first()->invdtl_amountidr;
@@ -107,13 +109,11 @@ class ReceiptController extends Controller
 
             $this->receiptRepository->createReceipt($receiptDetails);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Store receipt failed : ' . $e->getMessage());
             return Redirect::back()->withError('Failed to create receipt');
-
         }
 
         return Redirect::to('invoice/client-program/' . $request->clientprog_id)->withSuccess('A receipt has been made');
@@ -128,13 +128,11 @@ class ReceiptController extends Controller
 
             $this->receiptRepository->deleteReceipt($receiptId);
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::error('Delete receipt failed : ' . $e->getMessage());
             return Redirect::back()->withError('Failed to delete receipt');
-
         }
 
         return Redirect::to('receipt/client-program?s=list')->withSuccess('Receipt has been deleted');
@@ -159,7 +157,7 @@ class ReceiptController extends Controller
                 $receipt->download_idr = 1;
             else
                 $receipt->download_other = 1;
-            
+
             $receipt->save();
 
             $companyDetail = [
@@ -169,14 +167,12 @@ class ReceiptController extends Controller
                 'city' => env('ALLIN_CITY')
             ];
             $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
-            return $pdf->download($receipt->receipt_id.".pdf");
-
+            return $pdf->download($receipt->receipt_id . ".pdf");
         } catch (Exception $e) {
-            
+
             Log::info('Export receipt failed: ' . $e->getMessage());
             return response()->json(['message' => $e->getMessage()], 500);
         }
-       
     }
 
     public function upload(Request $request)
@@ -201,8 +197,8 @@ class ReceiptController extends Controller
         DB::beginTransaction();
         try {
 
-             # insert to invoice attachment
-             $attachmentDetails = [
+            # insert to invoice attachment
+            $attachmentDetails = [
                 'receipt_id' => $receipt->receipt_id,
                 'currency' => $currency,
                 'sign_status' => 'not yet',
@@ -215,17 +211,14 @@ class ReceiptController extends Controller
                 $this->receiptAttachmentRepository->createReceiptAttachment($attachmentDetails);
             }
             DB::commit();
-            
         } catch (Exception $e) {
 
             DB::rollBack();
             Log::info('Failed to request sign invoice : ' . $e->getMessage());
             return Redirect::back()->withError('Failed to upload receipt. Please try again.');
-
         }
 
-        return Redirect::to('receipt/client-program/'.$receipt_id)->withSuccess('Receipt has been uploaded.');
-
+        return Redirect::to('receipt/client-program/' . $receipt_id)->withSuccess('Receipt has been uploaded.');
     }
 
     public function requestSign(Request $request)
@@ -264,7 +257,7 @@ class ReceiptController extends Controller
             $attachment = $receipt->receiptAttachment()->where('currency', $type)->first();
             $attachment->request_status = 'requested';
             $attachment->save();
-            
+
             $file_name = str_replace('/', '_', $receipt->receipt_id);
             $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
 
@@ -273,7 +266,6 @@ class ReceiptController extends Controller
                     ->subject($data['title'])
                     ->attachData($pdf->output(), $receipt->receipt_id . '.pdf');
             });
-
         } catch (Exception $e) {
 
             Log::info('Failed to request sign receipt : ' . $e->getMessage());
@@ -290,7 +282,7 @@ class ReceiptController extends Controller
 
         if (!$receipt = $this->receiptRepository->getReceiptById($receipt_id))
             abort(404);
-        
+
 
         $attachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt->receipt_id, $currency);
 
@@ -309,7 +301,7 @@ class ReceiptController extends Controller
 
         if (!$receipt = $this->receiptRepository->getReceiptById($receipt_id))
             abort(404);
-        
+
         $attachment = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt->receipt_id, $currency);
 
         return view('pages.receipt.sign-pdf')->with(
@@ -343,7 +335,7 @@ class ReceiptController extends Controller
             if (!$pdfFile->storeAs('public/uploaded_file/receipt/client/', $name))
                 throw new Exception('Failed to store signed receipt file');
 
-            $data['title'] = 'Receipt No. '.$receipt->receipt_id.' has been signed';
+            $data['title'] = 'Receipt No. ' . $receipt->receipt_id . ' has been signed';
             $data['receipt_id'] = $receipt->receipt_id;;
 
             # send mail when document has been signed
@@ -354,12 +346,10 @@ class ReceiptController extends Controller
             });
 
             DB::commit();
-
         } catch (Exception $e) {
 
-            Log::error('Failed to update status after being signed : ' . $e->getMessage().' | Line '.$e->getLine());
+            Log::error('Failed to update status after being signed : ' . $e->getMessage() . ' | Line ' . $e->getLine());
             return response()->json(['status' => 'success', 'message' => 'Failed to update'], 500);
-
         }
 
         return response()->json(['status' => 'success', 'message' => 'Receipt signed successfully']);
@@ -396,7 +386,6 @@ class ReceiptController extends Controller
             # update status send to client
             $newDetails['send_to_client'] = 'sent';
             $this->receiptAttachmentRepository->updateReceiptAttachment($attachment->id, $newDetails);
-
         } catch (Exception $e) {
 
             Log::info('Failed to send receipt to client : ' . $e->getMessage());

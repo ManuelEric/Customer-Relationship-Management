@@ -94,6 +94,9 @@ class ReceiptPartnerController extends Controller
 
         $receipts['receipt_cat'] = 'partner';
 
+        $receipts['created_at'] = $receipts['receipt_date'];
+        $receipts['updated_at'] = Carbon::now();
+
         $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invb2b_num);
         $partnerProgId = $invoice->partnerprog_id;
         $partner_prog = $this->partnerProgramRepository->getPartnerProgramById($partnerProgId);
@@ -104,10 +107,10 @@ class ReceiptPartnerController extends Controller
         $invb2b_id = $invoice->invb2b_id;
 
         # generate receipt id
-        $last_id = Receipt::whereMonth('created_at', date('m'))->max(DB::raw('substr(receipt_id, 1, 4)'));
+        $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->max(DB::raw('substr(receipt_id, 1, 4)'));
 
         # Use Trait Create Invoice Id
-        $receipt_id = $this->getInvoiceId($last_id, $partner_prog->prog_id);
+        $receipt_id = $this->getLatestReceiptId($last_id, $partner_prog->prog_id, $receipts);
 
         $receipts['receipt_id'] = substr_replace($receipt_id, 'REC', 5) . substr($receipt_id, 8, strlen($receipt_id));
 
