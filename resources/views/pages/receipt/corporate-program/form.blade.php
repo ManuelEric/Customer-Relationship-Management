@@ -59,7 +59,7 @@
                         $receiptAttachmentNotYet = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first();
                         $receiptAttachmentSent = $receiptPartner->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
                     @endphp
-                    @if ($invoicePartner->invoiceAttachment()->where('currency', 'idr')->first())
+                    {{-- @if (!$invoicePartner->invoiceAttachment()->where('currency', 'idr')->first()) --}}
                     <div class="d-flex align-items-stretch">
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                         <div class="border p-1 text-center">
@@ -108,7 +108,7 @@
                             </div>
                         </div>
                     </div>
-                    @endif
+                    {{-- @endif --}}
 
                     {{-- Other  --}}
                     
@@ -119,7 +119,7 @@
                         $receiptAttachmentNotYetOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
                         $receiptAttachmentSentOther = $receiptPartner->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
                     @endphp
-                    @if($invoicePartner->currency != 'idr' && $invoicePartner->invoiceAttachment()->where('currency', 'other')->first())
+                    @if($invoicePartner->currency != 'idr')
                         <div class="d-flex align-items-stretch">
                             <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                             <div class="border p-1 text-center">
@@ -403,7 +403,11 @@
                         responseType: 'arraybuffer'
                     })
                     .then(response => {
-                        console.log(response)
+                        // console.log(response)
+
+                        @php
+                            $file_name = str_replace('/', '-', $receiptPartner->receipt_id) . '-' . 'other' . '.pdf';
+                        @endphp
 
                         let blob = new Blob([response.data], { type: 'application/pdf' }),
                             url = window.URL.createObjectURL(blob)
@@ -412,7 +416,7 @@
                             fileLink.href = url;
 
                             // it forces the name of the downloaded file
-                            fileLink.download = '{{ $receiptPartner->receipt_id }}' + '_other';;
+                            fileLink.download = '{{ $file_name }}';
 
                             // triggers the click event
                             fileLink.click();
@@ -437,7 +441,11 @@
                         responseType: 'arraybuffer'
                     })
                     .then(response => {
-                        console.log(response)
+                        // console.log(response)
+
+                        @php
+                            $file_name = str_replace('/', '-', $receiptPartner->receipt_id) . '-' . 'idr' . '.pdf';
+                        @endphp
 
                         let blob = new Blob([response.data], { type: 'application/pdf' }),
                             url = window.URL.createObjectURL(blob)
@@ -446,7 +454,7 @@
                             fileLink.href = url;
 
                             // it forces the name of the downloaded file
-                            fileLink.download = '{{ $receiptPartner->receipt_id }}' + '_idr';;
+                            fileLink.download = '{{ $file_name }}';
 
                             // triggers the click event
                             fileLink.click();

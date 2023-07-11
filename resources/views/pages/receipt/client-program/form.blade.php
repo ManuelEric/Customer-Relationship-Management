@@ -56,7 +56,7 @@
                 </div>
 
                 {{-- IDR  --}}
-                @if (!$receipt->invoiceProgram->invoiceAttachment()->where('currency', 'idr')->first())
+                {{-- @if (!$receipt->invoiceProgram->invoiceAttachment()->where('currency', 'idr')->first()) --}}
                 <div class="d-flex align-items-stretch">
                     <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                     <div class="border p-1 text-center">
@@ -101,16 +101,16 @@
                         </div>
                     </div>
                 </div>
-                @endif
+                {{-- @endif --}}
 
                 {{-- Other  --}}
-                @if ($receipt->invoiceProgram->currency != 'idr' && $receipt->invoiceProgram->invoiceAttachment->where('currency', 'other')->first())
+                @if ($receipt->invoiceProgram->currency != 'idr')
                     <div class="d-flex align-items-stretch">
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                         <div class="border p-1 text-center">
                             <div class="d-flex gap-1 justify-content-center">
                                 @if (!$receipt->receiptAttachment()->where('currency', 'other')->first())
-                                    @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'other')->first())
+                                    {{-- @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'other')->first()) --}}
                                         <div id="print-other" class="btn btn-sm py-1 border btn-light"
                                             data-bs-toggle="tooltip" data-bs-title="Download">
                                             <a href="" class="text-info">
@@ -124,7 +124,7 @@
                                                 <i class="bi bi-upload"></i>
                                             </a>
                                         </div>
-                                    @endif
+                                    {{-- @endif --}}
                                 @elseif ($receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
                                     <div id="request-acc-other" class="btn btn-sm py-1 border btn-light"
                                         data-bs-toggle="tooltip" data-bs-title="Request Sign" id="request-acc-other">
@@ -235,7 +235,7 @@
                         $receiptHasBeenSigned_other = $receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
                         $receiptHasBeenSentToClient_other = $receipt->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
                     @endphp
-                    @if ($receipt->invoiceProgram->currency != 'idr' && $receipt->invoiceProgram->invoiceAttachment->where('currency', 'other')->first())
+                    @if ($receipt->invoiceProgram->currency != 'idr')
                     <div class="text-center mt-5">
                         <hr>
                         <h6>Other Currency</h6>
@@ -315,7 +315,7 @@
                         </tr>
                         <tr>
                             <td>Receipt Date :</td>
-                            <td>{{ date('d M Y H:i:s', strtotime($receipt->created_at)) }}</td>
+                            <td>{{ isset($receipt->receipt_date) ? date('d M Y', strtotime($receipt->receipt_date)) : date('d M Y H:i:s', strtotime($receipt->created_at)) }}</td>
                         </tr>
                         @if (isset($receipt->invoiceInstallment))
                             <tr>
@@ -522,6 +522,10 @@
                     })
                     .then(response => {
 
+                        @php
+                            $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . 'idr' . '.pdf';
+                        @endphp
+
                         let blob = new Blob([response.data], {
                                 type: 'application/pdf'
                             }),
@@ -532,7 +536,7 @@
                         fileLink.href = url;
 
                         // it forces the name of the downloaded file
-                        fileLink.download = '{{ $receipt->receipt_id }}' + '_idr';;
+                        fileLink.download = '{{ $file_name }}';
 
                         // triggers the click event
                         fileLink.click();
@@ -563,6 +567,10 @@
                     })
                     .then(response => {
 
+                        @php
+                            $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . 'other' . '.pdf';
+                        @endphp
+
                         let blob = new Blob([response.data], {
                                 type: 'application/pdf'
                             }),
@@ -573,7 +581,7 @@
                         fileLink.href = url;
 
                         // it forces the name of the downloaded file
-                        fileLink.download = '{{ $receipt->receipt_id }}' + '_other';
+                        fileLink.download = '{{ $file_name }}';
 
                         // triggers the click event
                         fileLink.click();

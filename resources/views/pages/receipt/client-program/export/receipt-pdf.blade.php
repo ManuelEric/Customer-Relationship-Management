@@ -88,13 +88,13 @@
                                     Received from :
                                 </td>
                                 <td>
-                                    {{ $receipt->invoiceProgram->clientprog->client->parents[0]->full_name }}
+                                    {{ $receipt->invoiceProgram->clientprog->client->full_name }}
                                     <br>
-                                    @if ($receipt->invoiceProgram->clientProg->client->parents[0]->state != NULL)
-                                        {{ $receipt->invoiceProgram->clientProg->client->parents[0]->state }}
-                                    @elseif ($receipt->invoiceProgram->clientProg->client->parents[0]->city != NULL)
-                                        {{ $receipt->invoiceProgram->clientProg->client->parents[0]->city }}
-                                    @elseif ($receipt->invoiceProgram->clientProg->client->parents[0]->address != NULL)
+                                    @if ($receipt->invoiceProgram->clientProg->client->state != NULL)
+                                        {{ $receipt->invoiceProgram->clientProg->client->state }}
+                                    @elseif ($receipt->invoiceProgram->clientProg->client->city != NULL)
+                                        {{ $receipt->invoiceProgram->clientProg->client->city }}
+                                    @elseif ($receipt->invoiceProgram->clientProg->client->address != NULL)
                                         {!! $receipt->invoiceProgram->clientProg->client->address !!}
                                     @endif
                                 </td>
@@ -220,7 +220,7 @@
                     </td>
                     <td width="40%" align="center" valign="top">
                         {{-- PT. Jawara Edukasih Indonesia --}}
-                        Jakarta, {{ date('d F Y') }}
+                        Jakarta, {{ isset($receipt->receipt_date) ? date('d F Y', strtotime($receipt->receipt_date)) : date('d F Y', strtotime($receipt->created_at)) }}
                         <br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director
