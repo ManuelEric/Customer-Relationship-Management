@@ -196,6 +196,8 @@ class ReceiptSchoolController extends Controller
         $receipt_id = $request->route('receipt');
         $currency = $request->route('currency');
 
+        $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf';
+
         $receiptSch = $this->receiptRepository->getReceiptById($receipt_id);
         $invb2b_id = isset($receiptSch->invdtl_id) ? $receiptSch->invoiceInstallment->invb2b_id : $receiptSch->invb2b_id;
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
@@ -214,7 +216,7 @@ class ReceiptSchoolController extends Controller
         # Update status download
         $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
 
-        return $pdf->download($receiptSch->receipt_id . ".pdf");
+        return $pdf->download($file_name . ".pdf");
     }
 
     public function upload(StoreReceiptAttachmentRequest $request)
@@ -228,7 +230,7 @@ class ReceiptSchoolController extends Controller
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
         $receipt_id = $receipt->receipt_id;
 
-        $file_name = str_replace('/', '_', $receipt_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
+        $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
         $path = 'uploaded_file/receipt/sch_prog/';
 
         $receiptAttachments = [

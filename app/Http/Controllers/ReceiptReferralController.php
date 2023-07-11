@@ -213,7 +213,7 @@ class ReceiptReferralController extends Controller
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
         $receipt_id = $receipt->receipt_id;
 
-        $file_name = str_replace('/', '_', $receipt_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
+        $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
         $path = 'uploaded_file/receipt/referral/';
 
         $receiptAttachments = [

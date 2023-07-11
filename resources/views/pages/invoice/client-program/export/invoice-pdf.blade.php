@@ -82,9 +82,9 @@
                                 <tr>
                                     <td valign="top">To : </td>
                                     <td><b>
-                                            {{ $clientProg->client->full_name }}<br>
+                                            {{ $clientProg->client->full_name }}
+                                        </b><br>
                                             {{ strip_tags($clientProg->client->address) }}
-                                        <br>
                                     </td>
                                 </tr>
                             </table>

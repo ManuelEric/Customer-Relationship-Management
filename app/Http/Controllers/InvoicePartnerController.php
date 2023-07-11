@@ -438,7 +438,7 @@ class InvoicePartnerController extends Controller
         $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoicePartner->invb2b_id;
         $invoice_num = $invoicePartner->invb2b_num;
-        $file_name = str_replace('/', '_', $invoice_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
+        $file_name = str_replace('/', '-', $invoice_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
         $path = 'uploaded_file/invoice/partner_prog/';
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 

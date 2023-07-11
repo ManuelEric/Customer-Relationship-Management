@@ -658,7 +658,7 @@ class InvoiceProgramController extends Controller
         try {
 
             # generate invoice as a PDF file
-            $file_name = str_replace('/', '_', $invoice_id) . '_' . $type;
+            $file_name = str_replace('/', '-', $invoice_id) . '-' . $type;
             $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
             Storage::put('public/uploaded_file/invoice/client/' . $file_name . '.pdf', $pdf->output());
 
@@ -756,7 +756,7 @@ class InvoiceProgramController extends Controller
         $invoice = $clientProg->invoice;
         $inv_id = $invoice->inv_id;
         $currency = $request->route('currency');
-        $file_name = str_replace('/', '_', $inv_id) . '_' . $currency . '.pdf';
+        $file_name = str_replace('/', '-', $inv_id) . '-' . $currency . '.pdf';
 
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $inv_id, $currency);
 

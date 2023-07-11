@@ -686,6 +686,14 @@ class ClientRepository implements ClientRepositoryInterface
         return $student;
     }
 
+    public function removeClientRelation($parentId, $studentId)
+    {
+        $student = UserClient::where('id', $studentId)->first();
+
+        $student->parents()->detach($parentId);
+        return $student;
+    }
+
     public function createManyClientRelation($parentId, $studentId)
     {
         $parent = UserClient::find($parentId);
