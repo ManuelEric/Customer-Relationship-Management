@@ -220,7 +220,7 @@
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                @if ($receiptSch->receipt_amount != null && $invoiceSch->currency != "idr")
+                                @if ($receiptSch->receipt_amount != "null" && $invoiceSch->currency != "idr")
                                     {{ $receiptSch->receipt_amount }}
                                      ( {{ $receiptSch->receipt_amount_idr }} )
                                 @else

@@ -112,6 +112,7 @@ class ClientController extends Controller
                     // 'st_abrcountry',
                     'st_note',
                     'pr_id',
+                    'pr_id_old',
                     'is_funding'
                 ]);
 
@@ -253,7 +254,7 @@ class ClientController extends Controller
             return $parent->id;
         }
 
-        return $choosen_parent;
+        return $choosen_parent ?? $studentDetails['pr_id_old'];
     }
 
     public function createInterestedProgram(array $interestPrograms, int $clientId) # clientId can be studentId & parentId
