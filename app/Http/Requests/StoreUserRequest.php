@@ -43,9 +43,9 @@ class StoreUserRequest extends FormRequest
             'datebirth' => 'required',
             'address' => 'required',
 
-            'graduated_from.*' => 'required',
-            'degree.*' => 'required',
-            'major.*' => 'required',
+            'graduated_from.*' => 'nullable',
+            'degree.*' => 'nullable',
+            'major.*' => 'nullable',
 
             'role.*' => 'required|in:1,2,4,8',
             'department' => 'required',
@@ -79,9 +79,9 @@ class StoreUserRequest extends FormRequest
             'datebirth' => 'required',
             'address' => 'required',
 
-            'graduated_from.*' => 'required',
-            'degree.*' => 'required',
-            'major.*' => 'required',
+            'graduated_from.*' => 'nullable',
+            'degree.*' => 'nullable',
+            'major.*' => 'nullable',
 
             'role.*' => 'required|in:1,2,4,8',
             'department' => 'required',
@@ -113,7 +113,7 @@ class StoreUserRequest extends FormRequest
 
         // if ($user->health_insurance == null)
         //     $rules['health_insurance'] = 'required|mimes:pdf|max:5000';
-        
+
         // if ($user->empl_insurance == null)
         //     $rules['empl_insurance'] = 'required|mimes:pdf|max:5000';
 
