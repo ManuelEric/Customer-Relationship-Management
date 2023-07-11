@@ -12,7 +12,7 @@
                         <div class="col-md-12 education edu-{{ $loop->index }}">
                             <div class="row g-2">
                                 <div class="col-md-4 mb-3">
-                                    <label for="" class="text-muted">Graduated From <sup class="text-danger">*</sup></label>
+                                    <label for="" class="text-muted">Graduated From</label>
                                     <select name="graduated_from[]" class="select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($univ_countries as $country)
@@ -39,7 +39,7 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-2 mb-3">
-                                    <label for="" class="text-muted">Degree <sup class="text-danger">*</sup></label>
+                                    <label for="" class="text-muted">Degree</label>
                                     <select name="degree[]" id="" class="select w-100">
                                         <option data-placeholder="true"></option>
                                         <option value="Bachelor" @selected($education->pivot->degree == "Bachelor")>Bachelor</option>
@@ -57,7 +57,7 @@
                                     @if ($loop->index > 0)
                                     <div style="width: 85%">
                                     @endif
-                                        <label for="" class="text-muted">Major <sup class="text-danger">*</sup></label>
+                                        <label for="" class="text-muted">Major</label>
                                         <select name="major[]" id="" class="select w-100">
                                             <option data-placeholder="true"></option>
                                             @foreach ($majors as $major)
@@ -80,7 +80,7 @@
                         <div class="col-md-12 education">
                             <div class="row g-2">
                                 <div class="col-md-4 mb-3">
-                                    <label for="" class="text-muted">Graduated From <sup class="text-danger">*</sup></label>
+                                    <label for="" class="text-muted">Graduated From</label>
                                     <select name="graduated_from[]" class="select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($univ_countries as $country)
@@ -107,7 +107,7 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-2 mb-3">
-                                    <label for="" class="text-muted">Degree <sup class="text-danger">*</sup></label>
+                                    <label for="" class="text-muted">Degree</label>
                                     <select name="degree[]" id="" class="select w-100">
                                         <option data-placeholder="true"></option>
                                         <option value="Bachelor" @selected(old('degree.'.$i) == "Bachelor")>Bachelor</option>
@@ -118,7 +118,7 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="" class="text-muted">Major <sup class="text-danger">*</sup></label>
+                                    <label for="" class="text-muted">Major</label>
                                     <select name="major[]" id="" class="select w-100">
                                         <option data-placeholder="true"></option>
                                         @foreach ($majors as $major)
@@ -136,7 +136,7 @@
                 <div class="col-md-12 education">
                     <div class="row g-2">
                         <div class="col-md-4 mb-3">
-                            <label for="" class="text-muted">Graduated From <sup class="text-danger">*</sup></label>
+                            <label for="" class="text-muted">Graduated From</label>
                             <select name="graduated_from[]" class="select w-100">
                                 <option data-placeholder="true"></option>
                                 @foreach ($univ_countries as $country)
@@ -159,7 +159,7 @@
                             @enderror
                         </div>
                         <div class="col-md-2 mb-3">
-                            <label for="" class="text-muted">Degree <sup class="text-danger">*</sup></label>
+                            <label for="" class="text-muted">Degree</label>
                             <select name="degree[]" id="" class="select w-100">
                                 <option data-placeholder="true"></option>
                                 <option value="Bachelor">Bachelor</option>
@@ -170,7 +170,7 @@
                             @enderror
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label for="" class="text-muted">Major <sup class="text-danger">*</sup></label>
+                            <label for="" class="text-muted">Major</label>
                             <select name="major[]" id="" class="select w-100">
                                 <option data-placeholder="true"></option>
                                 @foreach ($majors as $major)

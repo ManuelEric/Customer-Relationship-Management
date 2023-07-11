@@ -919,7 +919,12 @@ class InvoiceProgramController extends Controller
         $interval = $datetime_1->diff($datetime_2);
         $date_diff = $interval->format('%a'); # format for the interval : days
 
-        $payment_method = $request->payment_method != 'Full Payment' ? ' (' . $request->payment_method . ')' : '';
+        if ($request->payment_method != 'Full Payment') {
+            $payment_method = $request->payment_method;
+        } else {
+            $payment_method = '';
+        }
+        // $payment_method = $request->payment_method != 'Full Payment' ? ' (' . $request->payment_method . ')' : '';
 
         $text = $parent != null ? "Dear Mr/Mrs " . $parent_fullname . "," : "Dear " . $client->first_name . " " . $client->last_name . ",";
         $text .= "%0A";
@@ -927,7 +932,7 @@ class InvoiceProgramController extends Controller
         $text .= "Thank you for trusting ALL-in Eduspace as your independent university consultant to help your child reach their dream to top universities.";
         $text .= "%0A";
         $text .= "%0A";
-        $text .= "Through this message, we would like to remind you that the payment deadline for " . $joined_program_name . " " . $payment_method . " is due on " . $invoice_duedate . " or in " . $date_diff . " days.";
+        $text .= "Through this message, we would like to remind you that the payment deadline for " . $joined_program_name . " " . ($payment_method) . " is due on " . $invoice_duedate . " or in " . $date_diff . " days.";
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Amount: " . $total_payment;
