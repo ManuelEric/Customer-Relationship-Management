@@ -652,9 +652,9 @@
         }
 
         function setDefault(other_amount, idr_amount) {
-            $("#receipt_amount").val(idr_amount).keyup()
+            $("#receipt_amount").val(idr_amount)
             if (other_amount > 0)
-                $("#receipt_amount_other").val(other_amount).keyup()
+                $("#receipt_amount_other").val(other_amount)
         }
 
         $(document).ready(function() {
