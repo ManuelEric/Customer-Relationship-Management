@@ -81,14 +81,9 @@
                                 <tr>
                                     <td valign="top">To : </td>
                                     <td><b>
-                                        @if ($clientProg->client->parents()->count() > 0)
-                                            {{ $clientProg->client->parents[0]->full_name }}
-                                        </b><br>
-                                        {{ strip_tags($clientProg->client->parents[0]->address) }}
-                                        @else
                                             {{ $clientProg->client->full_name }}
-                                        @endif
-                                        <br>
+                                        </b><br>
+                                            {{ strip_tags($clientProg->client->address) }}
                                     </td>
                                 </tr>
                             </table>

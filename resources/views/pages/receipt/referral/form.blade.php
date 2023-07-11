@@ -63,7 +63,7 @@
                         $receiptAttachmentSent = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
                     @endphp
 
-                    @if ($invoiceRef->invoiceAttachment()->where('currency', 'idr')->first())
+                    {{-- @if (!$invoiceRef->invoiceAttachment()->where('currency', 'idr')->first()) --}}
                     <div class="d-flex align-items-stretch">
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                         <div class="border p-1 text-center">
@@ -112,7 +112,7 @@
                             </div>
                         </div>
                     </div>
-                    @endif
+                    {{-- @endif --}}
 
                     {{-- Other  --}}
 
@@ -123,7 +123,7 @@
                         $receiptAttachmentNotYetOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
                         $receiptAttachmentSentOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
                     @endphp
-                    @if($invoiceRef->currency != 'idr' && $invoiceRef->invoiceAttachment()->where('currency', 'other')->first())
+                    @if($invoiceRef->currency != 'idr')
                         <div class="d-flex align-items-stretch">
                             <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                             <div class="border p-1 text-center">
@@ -387,7 +387,11 @@
                         responseType: 'arraybuffer'
                     })
                     .then(response => {
-                        console.log(response)
+                        // console.log(response)
+
+                        @php
+                            $file_name = str_replace('/', '-', $receiptRef->receipt_id) . '-' . 'other' . '.pdf';
+                        @endphp
 
                         let blob = new Blob([response.data], { type: 'application/pdf' }),
                             url = window.URL.createObjectURL(blob)
@@ -396,7 +400,7 @@
                             fileLink.href = url;
 
                             // it forces the name of the downloaded file
-                            fileLink.download = '{{ $receiptRef->receipt_id }}' + '_other';;
+                            fileLink.download = '{{ $file_name }}';
 
                             // triggers the click event
                             fileLink.click();
@@ -421,7 +425,11 @@
                         responseType: 'arraybuffer'
                     })
                     .then(response => {
-                        console.log(response)
+                        // console.log(response)
+
+                        @php
+                            $file_name = str_replace('/', '-', $receiptRef->receipt_id) . '-' . 'idr' . '.pdf';
+                        @endphp
 
                         let blob = new Blob([response.data], { type: 'application/pdf' }),
                             url = window.URL.createObjectURL(blob)
@@ -430,7 +438,7 @@
                             fileLink.href = url;
 
                             // it forces the name of the downloaded file
-                            fileLink.download = '{{ $receiptRef->receipt_id }}' + '_idr';;
+                            fileLink.download = '{{ $file_name }}';
 
                             // triggers the click event
                             fileLink.click();

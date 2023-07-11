@@ -145,6 +145,8 @@ class ReceiptController extends Controller
 
         $type = $request->get('type');
 
+        $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . ($type == 'idr' ? $type : 'other') . '.pdf';
+
         if ($type == "idr")
             $view = 'pages.receipt.client-program.export.receipt-pdf';
         else
@@ -167,7 +169,7 @@ class ReceiptController extends Controller
                 'city' => env('ALLIN_CITY')
             ];
             $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
-            return $pdf->download($receipt->receipt_id . ".pdf");
+            return $pdf->download($file_name . ".pdf");
         } catch (Exception $e) {
 
             Log::info('Export receipt failed: ' . $e->getMessage());
@@ -191,7 +193,7 @@ class ReceiptController extends Controller
 
         $attachment = $request->file('attachment');
         $file_name = $attachment->getClientOriginalName();
-        $file_name = str_replace('/', '_', $receipt->receipt_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
+        $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
         $path = 'public/uploaded_file/receipt/client/';
 
         DB::beginTransaction();
@@ -336,7 +338,7 @@ class ReceiptController extends Controller
                 throw new Exception('Failed to store signed receipt file');
 
             $data['title'] = 'Receipt No. ' . $receipt->receipt_id . ' has been signed';
-            $data['receipt_id'] = $receipt->receipt_id;;
+            $data['receipt_id'] = $receipt->receipt_id;
 
             # send mail when document has been signed
             Mail::send('pages.receipt.client-program.mail.signed', $data, function ($message) use ($data, $name) {
