@@ -911,6 +911,7 @@ class InvoiceProgramController extends Controller
         $client->phone != $phone ? $this->clientRepository->updateClient($client->id, ['phone' => $phone]) : null;
 
         $joined_program_name = ucwords(strtolower($request->program_name));
+        $joined_program_name = str_replace('&', '%26', $joined_program_name);
         $invoice_duedate = date('d/m/Y', strtotime($request->invoice_duedate));
         $total_payment = "Rp. " . number_format($request->total_payment, '2', ',', '.');
 
@@ -919,10 +920,9 @@ class InvoiceProgramController extends Controller
         $interval = $datetime_1->diff($datetime_2);
         $date_diff = $interval->format('%a'); # format for the interval : days
 
+        $payment_method = '';
         if ($request->payment_method != 'Full Payment') {
             $payment_method = $request->payment_method;
-        } else {
-            $payment_method = '';
         }
         // $payment_method = $request->payment_method != 'Full Payment' ? ' (' . $request->payment_method . ')' : '';
 
