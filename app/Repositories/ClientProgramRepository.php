@@ -383,6 +383,12 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             unset($clientProgramDetails['other_reason']);
         }
 
+        if (array_key_exists('session_tutor', $clientProgramDetails)) {
+            $howManySession = $clientProgramDetails['session_tutor'];
+            $academicTutorSessionDetail = $clientProgramDetails['session_tutor_detail'];
+            unset($clientProgramDetails['session_tutor_detail']);
+        }
+
         $clientProgram = ClientProgram::where('clientprog_id', $clientProgramId)->update(array_merge($fullDetails, $clientProgramDetails));
         $clientProgram = ClientProgram::whereClientProgramId($clientProgramId);
 
@@ -428,9 +434,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             $clientprog_id = $clientProgram->clientprog_id;
             if (array_key_exists('session_tutor', $clientProgramDetails)) {
 
-                $howManySession = $clientProgramDetails['session_tutor'];
-                $academicTutorSessionDetail = $clientProgramDetails['session_tutor_detail'];
-                unset($clientProgramDetails['session_tutor_detail']);
                 # fetch the session schedule detail
                 $i = 0;
                 while ($i < $howManySession) {

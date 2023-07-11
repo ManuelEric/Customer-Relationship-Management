@@ -171,7 +171,7 @@
                                     <div class="col-md-8">
                                         <div class="mb-2">
                                             <label>Parent's Name</label>
-                                            <input type="text" name="pr_id_old" value="{{ isset($student->parents) && $student->parents()->first() ? $student->parents()->first()->id : null }}">
+                                            <input type="hidden" name="pr_id_old" value="{{ isset($student->parents) && $student->parents()->first() ? $student->parents()->first()->id : null }}">
                                             <select class="select w-100" name="pr_id" id="prName"
                                                 onchange="addParent()">
                                                 <option data-placeholder="true"></option>
