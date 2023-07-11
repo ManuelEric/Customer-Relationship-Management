@@ -64,6 +64,8 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('import:referral')->hourly();
 
+        $schedule->command('set:graduation_year')->hourly();
+
         $schedule->command('send:reminder_invoiceprogram')->daily();
         $schedule->command('send:reminder_invoiceschool_program')->daily();
         $schedule->command('send:reminder_invoicepartner_program')->daily();

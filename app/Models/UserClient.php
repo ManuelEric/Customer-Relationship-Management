@@ -65,14 +65,6 @@ class UserClient extends Authenticatable
         );
     }
 
-    
-    protected function graduationYear(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $value !== NULL ? $value : ($this->st_grade !== NULL ? $this->getGraduationYearByGrade() : NULL)
-        );
-    }
-
     protected function leadSource(): Attribute
     {
         return Attribute::make(
@@ -118,16 +110,6 @@ class UserClient extends Authenticatable
             default:
                 return $this->lead->main_lead;
         }
-    }
-
-    public function getGraduationYearByGrade()
-    {
-        $grade = $this->st_grade;
-        $max_grade = 12;
-
-        # calculate
-        $diff = $max_grade-$grade;
-        return date('Y', strtotime('+'.$diff.' years', strtotime($this->created_at)));
     }
 
 
