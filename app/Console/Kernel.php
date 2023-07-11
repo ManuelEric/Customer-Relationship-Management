@@ -64,12 +64,15 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('import:referral')->hourly();
 
-        $schedule->command('set:graduation_year')->hourly();
+        // $schedule->command('set:graduation_year')->everyMinute();
 
-        $schedule->command('send:reminder_invoiceprogram')->daily();
-        $schedule->command('send:reminder_invoiceschool_program')->daily();
-        $schedule->command('send:reminder_invoicepartner_program')->daily();
-        $schedule->command('send:reminder_invoicereferral_program')->daily();
+        // $schedule->command('send:reminder_invoiceprogram')->daily();
+        // $schedule->command('send:reminder_invoiceschool_program')->daily();
+        // $schedule->command('send:reminder_invoicepartner_program')->daily();
+        // $schedule->command('send:reminder_invoicereferral_program')->daily();
+
+        // $schedule->command('send:reminder_tutor_h1')->daily();
+        // $schedule->command('send:reminder_tutor_t3')->daily();
     }
 
     /**
