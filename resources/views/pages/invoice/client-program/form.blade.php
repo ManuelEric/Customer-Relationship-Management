@@ -653,8 +653,11 @@
 
         function setDefault(other_amount, idr_amount) {
             $("#receipt_amount").val(idr_amount)
+            $("#receipt_word").val(wordConverter(idr_amount) + " Rupiah")
+            
             if (other_amount > 0)
                 $("#receipt_amount_other").val(other_amount)
+                $("#receipt_word_other").val(wordConverter(other_amount))
         }
 
         $(document).ready(function() {
