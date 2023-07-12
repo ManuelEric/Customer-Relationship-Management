@@ -491,7 +491,7 @@ class StoreClientProgramRequest extends FormRequest
             'success_date' => 'required',
             'trial_date' => 'required|date',
             'prog_start_date' => 'required|date',
-            'prog_end_date' => 'required|date|after:prog_start_date',
+            'prog_end_date' => 'required|date|after_or_equal:prog_start_date',
             'timesheet_link' => 'required|url',
             'tutor_id' => [
                 'required_if:status,1',
