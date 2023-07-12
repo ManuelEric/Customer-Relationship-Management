@@ -146,6 +146,9 @@
                                 {{ $receipt->invoiceInstallment->invdtl_installment }} ( {{ $receipt->invoiceInstallment->invdtl_percentage }}% )
                             </p>
                             @endif
+                            <p>
+                                {{ strip_tags($receipt->invoiceProgram->inv_notes) }}
+                            </p>
                         </div>
                     </td>
                     <td valign="top" align="center">
