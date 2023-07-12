@@ -652,12 +652,29 @@
         }
 
         function setDefault(other_amount, idr_amount) {
+              var currency = $("#receipt input[name=rec_currency]").val()
+                var curs_rate = $("#current_rate").val();
+                switch (currency) {
+                    case 'usd':
+                        currency = ' Dollars';
+                        break;
+                    case 'sgd':
+                        currency = ' Singapore Dollars';
+                        break;
+                    case 'gbp':
+                        currency = ' British Pounds';
+                        break;
+                    default:
+                        currency = '';
+                        totprice = '-'
+                        break;
+                }
             $("#receipt_amount").val(idr_amount)
             $("#receipt_word").val(wordConverter(idr_amount) + " Rupiah")
             
             if (other_amount > 0)
                 $("#receipt_amount_other").val(other_amount)
-                $("#receipt_word_other").val(wordConverter(other_amount))
+                $("#receipt_word_other").val(wordConverter(wordConverter(other_amount) + currency))
         }
 
         $(document).ready(function() {
