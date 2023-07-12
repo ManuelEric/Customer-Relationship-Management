@@ -101,12 +101,16 @@ class UserController extends Controller
         $listMajor = $request->major;
         $listDegree = $request->degree;
         $listGraduationDate = $request->graduation_date;
-        $userEducationDetails = [
-            'listGraduatedFrom' => $listGraduatedFrom,
-            'listMajor' => $listMajor,
-            'listDegree' => $listDegree,
-            'listGraduationDate' => $listGraduationDate,
-        ];
+
+        $userEducationDetails = null;
+        if ($request->graduated_from[0] != null) {
+            $userEducationDetails = [
+                'listGraduatedFrom' => $listGraduatedFrom,
+                'listMajor' => $listMajor,
+                'listDegree' => $listDegree,
+                'listGraduationDate' => $listGraduationDate,
+            ];
+        }
 
         # variables for user roles
         $listRoles = $request->role;
@@ -292,17 +296,22 @@ class UserController extends Controller
             # update user
             $newUser = $this->userRepository->updateUser($userId, $newDetails);
 
-            # update user education to tbl_user_education
-            for ($i = 0; $i < count($request->graduated_from); $i++) {
-                $detailEducations[] = [
-                    'univ_id' => $request->graduated_from[$i],
-                    'major_id' => (int) $request->major[$i],
-                    'degree' => $request->degree[$i],
-                    'graduation_date' => $request->graduation_date[$i] ?? null
-                ];
+            $detailEducations = null;
+
+            if ($request->graduated_from[0] != null) {
+                # update user education to tbl_user_education
+                for ($i = 0; $i < count($request->graduated_from); $i++) {
+                    $detailEducations[] = [
+                        'univ_id' => $request->graduated_from[$i],
+                        'major_id' => (int) $request->major[$i],
+                        'degree' => $request->degree[$i],
+                        'graduation_date' => $request->graduation_date[$i] ?? null
+                    ];
+                }
+
+                $user->educations()->sync($detailEducations);
             }
 
-            $user->educations()->sync($detailEducations);
 
             # update user role to tbl_user_roles
             for ($i = 0; $i < count($request->role); $i++) {
@@ -355,9 +364,6 @@ class UserController extends Controller
                     'start_date' => $request->start_period,
                     'end_date' => $request->type == 1 ? null : $request->end_period,
                 ]]);
-                
-
-
             } else {
                 $user->user_type()->updateExistingPivot($newUserType, ['status' => 1, 'department_id' => $newDepartment, 'deactivated_at' => NULL]);
             }
@@ -417,7 +423,7 @@ class UserController extends Controller
 
             DB::rollBack();
             Log::error('Update user ' . $request->route('user_role') . ' failed : ' . $e->getMessage());
-            return Redirect::back()->withError('Failed to update ' . $request->route('user_role').' | Line '.$e->getLine());
+            return Redirect::back()->withError('Failed to update ' . $request->route('user_role') . ' | Line ' . $e->getLine());
         }
 
         return Redirect::to('user/' . $request->route('user_role') . '/' . $userId . '/edit')->withSuccess(ucfirst($request->route('user_role')) . ' has been updated');
