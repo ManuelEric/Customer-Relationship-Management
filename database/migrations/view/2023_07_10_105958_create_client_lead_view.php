@@ -39,15 +39,17 @@ return new class extends Migration
             
             (SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
                     JOIN tbl_roles role ON role.id = clrole.role_id
-                    WHERE clrole.client_id = cl.id) as roles
+                    WHERE clrole.client_id = cl.id) as roles,
 
-
-            
-              
+            GetClientType(cl.id) as type
 
         FROM tbl_client cl
         LEFT JOIN tbl_sch sc 
             ON sc.sch_id = cl.sch_id
+
+            WHERE (SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
+            JOIN tbl_roles role ON role.id = clrole.role_id
+            WHERE clrole.client_id = cl.id) NOT IN ('Parent')
 
         ");
     }
