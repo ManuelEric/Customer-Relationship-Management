@@ -83,6 +83,7 @@ class AppServiceProvider extends ServiceProvider
 
 
                 # if logged in user is admin
+                $department = null;
                 if ($user->roles()->where('role_name', 'admin')->exists()) {
                     $isAdmin = true;
                     $department = null;
