@@ -417,7 +417,7 @@ class ClientProgramController extends Controller
             DB::rollBack();
             Log::error('Create a student program failed : ' . $e->getMessage());
 
-            return Redirect::to('client/student/' . $studentId . '/program/create' . $query)->withError($e->getMessage());
+            return Redirect::back()->withError($e->getMessage());
         }
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('A new program has been submitted for ' . $student->fullname);
@@ -699,7 +699,7 @@ class ClientProgramController extends Controller
 
             DB::rollBack();
             Log::error('Update a student program failed : ' . $e->getMessage());
-            return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId . '/edit')->withError($e->getMessage());
+            return Redirect::back()->withError($e->getMessage());
         }
 
         return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withSuccess('A program has been updated for ' . $student->fullname);
