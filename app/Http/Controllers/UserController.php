@@ -76,7 +76,7 @@ class UserController extends Controller
         unset($userDetails['phone']);
         unset($userDetails['emergency_contact']);
         $userDetails['phone'] = $this->setPhoneNumber($request->phone);
-        $userDetails['emergency_contact'] = $this->setPhoneNumber($request->emergency_contact);
+        $userDetails['emergency_contact'] = $request->emergency_contact != null ? $this->setPhoneNumber($request->emergency_contact) : null;
 
         # generate default password which is 12345678
         $userDetails['password'] = Hash::make('12345678'); # update
@@ -102,7 +102,7 @@ class UserController extends Controller
         $listDegree = $request->degree;
         $listGraduationDate = $request->graduation_date;
 
-        $userEducationDetails = null;
+        $userEducationDetails = [];
         if ($request->graduated_from[0] != null) {
             $userEducationDetails = [
                 'listGraduatedFrom' => $listGraduatedFrom,
@@ -145,8 +145,10 @@ class UserController extends Controller
             $newUser = $this->userRepository->createUser($userDetails, $userEducationDetails);
             $newUserId = $newUser->id;
 
-            # store new user education to tbl_user_education
-            $this->userRepository->createUserEducation($newUser, $userEducationDetails);
+            if ($request->graduated_from[0] != null) {
+                # store new user education to tbl_user_education
+                $this->userRepository->createUserEducation($newUser, $userEducationDetails);
+            }
 
             # store new user role to tbl_user_roles
             $this->userRepository->createUserRole($newUser, $userRoleDetails);
@@ -286,7 +288,7 @@ class UserController extends Controller
         unset($newDetails['phone']);
         unset($newDetails['emergency_contact']);
         $newDetails['phone'] = $this->setPhoneNumber($request->phone);
-        $newDetails['emergency_contact'] = $this->setPhoneNumber($request->emergency_contact);
+        $newDetails['emergency_contact'] = $request->emergency_contact != null ? $this->setPhoneNumber($request->emergency_contact) : null;
 
         $newDetails['position_id'] = $request->position;
 
@@ -296,7 +298,7 @@ class UserController extends Controller
             # update user
             $newUser = $this->userRepository->updateUser($userId, $newDetails);
 
-            $detailEducations = null;
+            $detailEducations = [];
 
             if ($request->graduated_from[0] != null) {
                 # update user education to tbl_user_education
