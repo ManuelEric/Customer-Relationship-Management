@@ -83,7 +83,7 @@
                                     <td><b>
                                             {{ $clientProg->client->full_name }}
                                         </b><br>
-                                            {{ strip_tags($clientProg->client->address) }}
+                                            {{ html_entity_decode(strip_tags($clientProg->client->address)) }}
                                     </td>
                                 </tr>
                             </table>
@@ -109,6 +109,7 @@
                 </table>
             </div>
 
+            <br>
             <br>
             <table>
                 <tr>
