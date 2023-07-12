@@ -111,7 +111,7 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($universities as $university)
                                         <option value="{{ $university->univ_id }}"
-                                            @if((isset($volunteer) && $volunteer->volunt_graduatedfr == $university->univ_id) || (!empty(old('volunt_graduatedfr')) && old('volunt_graduatedfr') == $university->univ_id))
+                                            @if((isset($volunteer) && $volunteer->univ_id == $university->univ_id) || (!empty(old('volunt_graduatedfr')) && old('volunt_graduatedfr') == $university->univ_id))
                                                 {{'selected'}}
                                             @endif
                                             >
@@ -134,7 +134,7 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($majors as $major)
                                         <option value="{{ $major->id }}"
-                                            @if((isset($volunteer) && $volunteer->volunt_major == $major->id) || (!empty(old('volunt_major')) && old('volunt_major') == $major->id))
+                                            @if((isset($volunteer) && $volunteer->major_id == $major->id) || (!empty(old('volunt_major')) && old('volunt_major') == $major->id))
                                                 {{'selected'}}
                                             @endif
                                             >
@@ -157,7 +157,7 @@
                                     <option data-placeholder="true"></option>
                                     @foreach ($positions as $position)
                                         <option value="{{ $position->id }}"
-                                            @if((isset($volunteer) && $volunteer->volunt_position == $position->id) || (!empty(old('volunt_position')) && old('volunt_position') == $position->id))
+                                            @if((isset($volunteer) && $volunteer->position_id == $position->id) || (!empty(old('volunt_position')) && old('volunt_position') == $position->id))
                                                 {{'selected'}}
                                             @endif
                                             >

@@ -42,6 +42,9 @@ class Volunteer extends Model
         'health_insurance',
         'empl_insurance',
         'volunt_status',
+        'univ_id',
+        'major_id',
+        'position_id'
     ];
 
     public static function whereVolunteerId($id)
