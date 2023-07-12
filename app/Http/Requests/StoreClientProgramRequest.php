@@ -451,6 +451,7 @@ class StoreClientProgramRequest extends FormRequest
     public function store_tutoring_success($isMentee)
     {
         $invoice_exist = $this->input('invoice_exist');
+        $extended_rules = [];
         $rules = [
             'prog_id' => [
                 'required',
