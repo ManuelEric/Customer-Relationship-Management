@@ -19,8 +19,8 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        h4 {
-            font-size: 30px !important;
+        h3 {
+            font-size: 26px !important;
             font-weight: 800;
             font-family: 'Archivo Black', sans-serif;
             letter-spacing: 5px !important;
@@ -61,9 +61,9 @@
         <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
-            <h4 style="">
-                <b>PAYMENT RECEIPT</b>
-            </h4>
+            <h3 style="">
+                PAYMENT RECEIPT
+            </h3>
 
             <table border="0" width="100%">
                 <tr>
@@ -247,7 +247,7 @@
                     </td>
                     <td width="40%" align="center" valign="top">
                         {{-- PT. Jawara Edukasih Indonesia --}}
-                        Jakarta, {{ date('d F Y') }}
+                        Jakarta, {{ isset($receiptPartner->receipt_date) ? date('d F Y', strtotime($receiptPartner->receipt_date)) : date('d F Y', strtotime($receiptPartner->created_at)) }}
                         <br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director

@@ -61,7 +61,7 @@
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
             <h4
                 style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:18px; margin-bottom:10px; ">
-                <u><b>INVOICE</b></u>
+                INVOICE
             </h4>
             <br><br>
             <div style="height:150px;">
@@ -279,11 +279,13 @@
 
 
                         {{-- IF TERMS & CONDITION EXIST  --}}
-                        <br>
-                        Terms & Conditions :
-                        <div style="margin-left:2px;">
-                            {!! $clientProg->invoice->inv_tnc !!}
-                        </div>
+                        @if(isset($clientProg->invoice->inv_tnc))
+                            <br>
+                            Terms & Conditions :
+                            <div style="margin-left:2px;">
+                                {!! $clientProg->invoice->inv_tnc !!}
+                            </div>
+                        @endif
                     </td>
                 </tr>
             </table>
