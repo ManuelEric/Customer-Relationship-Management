@@ -70,7 +70,17 @@ class VolunteerController extends Controller
             'volunt_npwp',
             'health_insurance',
             'empl_insurance',
+            'volunt_graduatedfr',
+            'volunt_major',
+            'volunt_position'
         ]);
+
+        $volunteerDetails['univ_id'] = $volunteerDetails['volunt_graduatedfr'];
+        $volunteerDetails['major_id'] = $volunteerDetails['volunt_major'];
+        $volunteerDetails['position_id'] = $volunteerDetails['volunt_position'];
+        unset($volunteerDetails['volunt_graduatedfr']);
+        unset($volunteerDetails['volunt_major']);
+        unset($volunteerDetails['volunt_position']);
 
         $volunt_name = [
             'first_name' => $volunteerDetails['volunt_firstname'],
@@ -80,7 +90,7 @@ class VolunteerController extends Controller
         $volunteerDetails['volunt_phone'] = $this->setPhoneNumber($request->volunt_phone);
 
         $last_id = Volunteer::max('volunt_id');
-        $volunteer_id_without_label = $this->remove_primarykey_label($last_id, 4);
+        $volunteer_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
         $volunteer_id_with_label = 'VLT-' . $this->add_digit($volunteer_id_without_label + 1, 4);
 
         $volunt_cv = $this->attachment($volunt_name, $request->file('volunt_cv'), 'CV-', $volunteer_id_with_label);
@@ -172,6 +182,13 @@ class VolunteerController extends Controller
             'health_insurance',
             'empl_insurance',
         ]);
+
+        $volunteerDetails['univ_id'] = $volunteerDetails['volunt_graduatedfr'];
+        $volunteerDetails['major_id'] = $volunteerDetails['volunt_major'];
+        $volunteerDetails['position_id'] = $volunteerDetails['volunt_position'];
+        unset($volunteerDetails['volunt_graduatedfr']);
+        unset($volunteerDetails['volunt_major']);
+        unset($volunteerDetails['volunt_position']);
 
         $volunteerDetails['volunt_phone'] = $this->setPhoneNumber($request->volunt_phone);
 
