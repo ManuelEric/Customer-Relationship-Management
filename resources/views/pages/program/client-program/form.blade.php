@@ -6,6 +6,7 @@
 
     @php
         $disabled = !isset($edit) ? 'disabled' : null;
+        $open_information_for_tutor = isset($clientProgram->invoice) && $clientProgram->session_tutor === NULL ? true : false;
     @endphp
 
     <div class="d-flex align-items-center justify-content-between mb-3">
@@ -13,6 +14,12 @@
             <i class="bi bi-arrow-left me-2"></i> Client Program
         </a>
     </div>
+    
+    @if ($open_information_for_tutor)
+    <div class="alert alert-danger">
+        The specific field that needs your attention is "Session Detail". Currently, it appears to be blank, and we kindly request you to provide the necessary information.
+    </div>
+    @endif
 
     <div class="row">
         <div class="col-md-4">

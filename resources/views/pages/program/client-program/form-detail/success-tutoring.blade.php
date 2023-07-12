@@ -44,18 +44,23 @@
                         @enderror
                     </div>
                     <div class="mt-3"></div>
+                    @if (isset($clientProgram->invoice))
                     <hr>
                     <label for="">
                         @if (isset($clientProgram->session_tutor))
                         Detail of academic tutoring programs
                         @else
-                        Fill the detail of academic tutoring program for his/her
+                        <span class="text-danger">Fill the detail of academic tutoring program for his/her</span>
                         @endif
                     </label>
                     <div class="row mt-3">
                         <div class="col-md-3">
+                            <input type="hidden" name="invoice_exist" value="true" />
                             <small>Session <sup class="text-danger">*</sup></small>
                             <input type="number" name="session" class="form-control form-control-sm rounded" {{ $disabled }} value="{{ isset($clientProgram->session_tutor) ? $clientProgram->session_tutor : old('session') }}">
+                            @error('session')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
                     </div>
                     <div class="row mt-4 pt-2" id="section-session">
@@ -71,10 +76,16 @@
                                 <div class="col-md-5">
                                     <small>Schedule</small>
                                     <input type="datetime-local" required class="form-control form-control-sm rounded" min="{{ $clientProgram->prog_start_date.'T00:00' }}" max="{{ $clientProgram->prog_end_date.'T23:59' }}" name="sessionDetail[]" {{$disabled}} value="{{ $value->date.' '.$value->time }}">
+                                    @error('sessionDetail.'.$key)
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-md-4">
                                     <small>Zoom link</small>
                                     <input type="url" required class="form-control form-control-sm rounded" {{$disabled}} name="sessionLinkMeet[]" value="{{ $value->link }}">
+                                    @error('sessionLinkMeet.'.$key)
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
 
@@ -91,34 +102,23 @@
                                 <div class="col-md-5">
                                     <small>Schedule</small>
                                     <input type="datetime-local" required class="form-control form-control-sm rounded" min="{{ old('prog_start_date').'T00:00' }}" max="{{ old('prog_end_date').'T23:59' }}" name="sessionDetail[]" value="{{ old('sessionDetail')[$key] }}">
+                                    @error('sessionDetail.'.$key)
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-md-4">
                                     <small>Zoom link</small>
                                     <input type="url" required class="form-control form-control-sm rounded" name="sessionLinkMeet[]" value="{{ old('sessionLinkMeet')[$key] }}">
+                                    @error('sessionLinkMeet.'.$key)
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
 
                             @endforeach
                         @endif
                     </div>
-                    {{-- <div class="col-md-12 mb-2">
-                        <small>Tutor Name <sup class="text-danger">*</sup></small>
-                        <select name="tutor_id" id="" class="select w-100" {{ $disabled }}>
-                            <option data-placeholder="true"></option>
-                            @foreach ($tutors as $tutor)
-                                <option value="{{ $tutor->id }}"
-                                    @if (isset($clientProgram->clientMentor) && $clientProgram->clientMentor()->count() > 0)
-                                        @if ($clientProgram->clientMentor()->first()->id == $tutor->id)
-                                            {{ "selected" }}
-                                        @endif
-                                    @endif
-                                    >{{ $tutor->first_name.' '.$tutor->last_name.' - '.json_encode($tutor->roles()->where('role_name', 'Tutor')->pluck('tutor_subject')->toArray()) }}</option>
-                            @endforeach
-                        </select>
-                        @error('tutor_id')
-                            <small class="text-danger fw-light">{{ $message }}</small>
-                        @enderror
-                    </div> --}}
+                    @endif
                 </div>
             </div>
         </div>

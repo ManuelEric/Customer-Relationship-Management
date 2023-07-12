@@ -450,7 +450,8 @@ class StoreClientProgramRequest extends FormRequest
 
     public function store_tutoring_success($isMentee)
     {
-        return [
+        $invoice_exist = $this->input('invoice_exist');
+        $rules = [
             'prog_id' => [
                 'required',
                 'exists:tbl_prog,prog_id',
@@ -504,6 +505,17 @@ class StoreClientProgramRequest extends FormRequest
             ],
             'prog_running_status' => 'required',
         ];
+
+        if ($invoice_exist) {
+            $extended_rules = [
+                'session' => 'required',
+                'sessionDetail.*' => 'required',
+                'sessionLinkMeet.*' => 'required|url',
+            ];
+        }
+
+        $rules = array_merge($rules, $extended_rules);
+        return $rules;
     }
 
     public function store_satact_success($isMentee, $studentId)
