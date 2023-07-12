@@ -334,11 +334,17 @@ class ClientProgramController extends Controller
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;
-                    $clientProgramDetails['session_tutor'] = $request->session; // how many session will applied
-                    $clientProgramDetails['session_tutor_detail'] = [
-                        'datetime' => $request->sessionDetail,
-                        'linkmeet' => $request->sessionLinkMeet
-                    ];
+
+                    # if session tutor form doesn't exist then don't detail session tutor
+                    if (isset($request->session)) {
+
+                        $clientProgramDetails['session_tutor'] = $request->session; // how many session will applied
+                        $clientProgramDetails['session_tutor_detail'] = [
+                            'datetime' => $request->sessionDetail,
+                            'linkmeet' => $request->sessionLinkMeet
+                        ];
+                    }
+
                 } elseif (in_array($progId, $this->satact_prog_list)) {
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
@@ -592,11 +598,16 @@ class ClientProgramController extends Controller
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;
-                    $clientProgramDetails['session_tutor'] = $request->session; // how many session will applied
-                    $clientProgramDetails['session_tutor_detail'] = [
-                        'datetime' => $request->sessionDetail,
-                        'linkmeet' => $request->sessionLinkMeet
-                    ];
+
+                    # if session tutor form doesn't exist then don't detail session tutor
+                    if (isset($request->session)) {
+                        
+                        $clientProgramDetails['session_tutor'] = $request->session; // how many session will applied
+                        $clientProgramDetails['session_tutor_detail'] = [
+                            'datetime' => $request->sessionDetail,
+                            'linkmeet' => $request->sessionLinkMeet
+                        ];
+                    }
                 } elseif (in_array($progId, $this->satact_prog_list)) {
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
