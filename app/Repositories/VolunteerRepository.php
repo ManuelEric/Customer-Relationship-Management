@@ -11,21 +11,7 @@ class VolunteerRepository implements VolunteerRepositoryInterface
     public function getAllVolunteerDataTables()
     {
         return Datatables::eloquent(
-            Volunteer::leftJoin('tbl_univ', 'tbl_univ.univ_id', '=', 'tbl_volunt.volunt_graduatedfr')
-                ->leftJoin('tbl_major', 'tbl_major.id', '=', 'tbl_volunt.volunt_major')
-                ->leftJoin('tbl_position', 'tbl_position.id', '=', 'tbl_volunt.volunt_position')
-                ->select(
-                    'tbl_volunt.volunt_id',
-                    'tbl_volunt.volunt_firstname',
-                    'tbl_volunt.volunt_lastname',
-                    'tbl_volunt.volunt_mail',
-                    'tbl_volunt.volunt_phone',
-                    'tbl_univ.univ_name as univ_name',
-                    'tbl_major.name as major_name',
-                    'tbl_position.position_name',
-                    'tbl_volunt.volunt_address',
-                    'tbl_volunt.volunt_status',
-                )
+            Volunteer::query()
         )->make(true);
     }
 
