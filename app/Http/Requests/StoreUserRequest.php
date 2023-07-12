@@ -34,12 +34,24 @@ class StoreUserRequest extends FormRequest
 
     protected function store()
     {
-        return [
+        $i = 0;
+        $total_roles = count($this->input('role'));
+        while (
+            $i < $total_roles
+        ) {
+            $rules = [
+                'emergency_contact' =>  'required_if:role.' . $i . ',1,8'
+            ];
+            $i++;
+        }
+
+        $rules += [
             'first_name' => 'required',
             'last_name' => 'nullable',
             'email' => 'required|email',
             'phone' => 'required|unique:users,phone',
-            'emergency_contact' => 'required',
+
+            // 'emergency_contact' => 'required_if:role.*,1,8',
             'datebirth' => 'required',
             'address' => 'required',
 
@@ -66,16 +78,29 @@ class StoreUserRequest extends FormRequest
             'empl_insurance' => 'nullable|mimes:pdf,jpeg,jpg,png|max:5000'
 
         ];
+
+        return $rules;
     }
 
     protected function update()
     {
-        $rules = [
+        $i = 0;
+        $total_roles = count($this->input('role'));
+        while (
+            $i < $total_roles
+        ) {
+            $rules = [
+                'emergency_contact' =>  'required_if:role.' . $i . ',1,8'
+            ];
+            $i++;
+        }
+
+        $rules += [
             'first_name' => 'required',
             'last_name' => 'nullable',
             'email' => 'required|email',
             'phone' => 'required',
-            'emergency_contact' => 'required',
+            // 'emergency_contact' => 'required_if:role,1,8|nullable',
             'datebirth' => 'required',
             'address' => 'required',
 
