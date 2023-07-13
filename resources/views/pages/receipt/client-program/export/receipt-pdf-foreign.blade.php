@@ -149,7 +149,7 @@
                             </p>
                             @endif
                             <p>
-                                {{ strip_tags($receipt->invoiceProgram->inv_notes) }}
+                                {!! $receipt->invoiceProgram->inv_notes !!}
                             </p>
                         </div>
                     </td>
