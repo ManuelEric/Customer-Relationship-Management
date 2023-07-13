@@ -55,8 +55,8 @@ class PublicRegistrationController extends Controller
 
             $childrenDetail = [
                 'fullname' => $request->fullname[1],
-                'mail' => $request->email[1],
-                'phone' => $request->fullnumber[1],
+                'mail' => null,
+                'phone' => null,
                 'school' => $request->school,
                 'grade' => $request->grade,
                 'program' => $request->program
@@ -83,7 +83,6 @@ class PublicRegistrationController extends Controller
             # checking if client was a child
             $newChild = $this->storeChildrenIfNotExists($childrenDetail);
 
-
             # create relation between parent & student
             if ($newParent && $newChild)
                 $this->clientRepository->createClientRelation($newParent, $newChild);
@@ -106,10 +105,20 @@ class PublicRegistrationController extends Controller
 
         # to retrieve first_name and last_name
         # check parent_name if there are multiple words
+        // $explode = explode(" ", $detail['fullname']);
+        // if (count($explode) > 1) {
+        //     $first_name = $explode[0];
+        //     $last_name = $explode[array_keys($explode, max($explode))[0]];
+        // }
+
         $explode = explode(" ", $detail['fullname']);
-        if (count($explode) > 1) {
-            $first_name = $explode[0];
-            $last_name = $explode[array_keys($explode, max($explode))[0]];
+        $limit = count($explode);
+        if ($limit > 1) {
+            $last_name = $explode[$limit - 1];
+            unset($explode[$limit - 1]);
+            $first_name = implode(" ", $explode);
+        } else {
+            $first_name = implode(" ", $explode);
         }
 
 
@@ -136,10 +145,20 @@ class PublicRegistrationController extends Controller
         $first_name = $detail['fullname'];
         $last_name = null; # set null as default because the embedded registration form only shows full names which there's no first_name and last_name
 
+        // $explode = explode(" ", $detail['fullname']);
+        // if (count($explode) > 1) {
+        //     $first_name = $explode[0];
+        //     $last_name = $explode[array_keys($explode, max($explode))[0]];
+        // }
+
         $explode = explode(" ", $detail['fullname']);
-        if (count($explode) > 1) {
-            $first_name = $explode[0];
-            $last_name = $explode[array_keys($explode, max($explode))[0]];
+        $limit = count($explode);
+        if ($limit > 1) {
+            $last_name = $explode[$limit - 1];
+            unset($explode[$limit - 1]);
+            $first_name = implode(" ", $explode);
+        } else {
+            $first_name = implode(" ", $explode);
         }
 
         $max_grade = 12;
