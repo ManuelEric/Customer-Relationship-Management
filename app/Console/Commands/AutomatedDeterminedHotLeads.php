@@ -107,7 +107,8 @@ class AutomatedDeterminedHotLeads extends Command
                             break;
 
                         case "Status" :
-
+                            # ini berlaku utk menentukan hot warm and cold
+                            # bisa dikonfirmasi kembali ke ka Hafidz
                             break;
 
                         case "Major" :
