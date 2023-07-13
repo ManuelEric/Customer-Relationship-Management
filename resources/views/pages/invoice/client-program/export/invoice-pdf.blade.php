@@ -141,7 +141,7 @@
                                     <strong> {{ $clientProg->program->program_name }} </strong>
                                 </p>
                                 <p>
-                                    {{ strip_tags($clientProg->invoice->inv_notes) }}
+                                    {!! $clientProg->invoice->inv_notes !!}
                                 </p>
                             </div>
 
