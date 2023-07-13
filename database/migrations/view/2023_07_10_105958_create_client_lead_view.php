@@ -17,6 +17,7 @@ return new class extends Migration
         DB::statement("
         CREATE OR REPLACE VIEW client_lead AS
         SELECT 
+            cl.id,
             CONCAT(cl.first_name, ' ', COALESCE(cl.last_name, '')) as name,
             cl.st_grade -12 as grade,
             sc.sch_id as school,

@@ -14,6 +14,7 @@ return new class extends Migration
      */
     public function up()
     {
+
         DB::statement('
         DELIMITER //
 
@@ -27,7 +28,14 @@ return new class extends Migration
         RETURN DOUBLE(2,2)
 
         BEGIN
-            DECLARE 
+            DECLARE initial_program = 1;
+
+            WHILE initial_program < 5 DO
+                SELECT * FROM tbl_program_buckets_params 
+                    WHERE initialprogram_id = initial_program
+            END WHILE;
+            
+            
 
 
         END; //
