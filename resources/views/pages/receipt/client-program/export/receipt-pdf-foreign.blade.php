@@ -90,12 +90,14 @@
                                 <td>
                                     {{ $receipt->invoiceProgram->clientProg->client->parents[0]->full_name }}
                                     <br>
-                                    @if ($receipt->invoiceProgram->clientProg->client->parents[0]->state != NULL)
+                                    {{-- @if ($receipt->invoiceProgram->clientProg->client->parents[0]->state != NULL)
                                         {{ $receipt->invoiceProgram->clientProg->client->parents[0]->state }}
-                                    @elseif ($receipt->invoiceProgram->clientProg->client->parents[0]->city != NULL)
-                                        {{ $receipt->invoiceProgram->clientProg->client->parents[0]->city }}
-                                    @elseif ($receipt->invoiceProgram->clientProg->client->parents[0]->address != NULL)
-                                        {!! $receipt->invoiceProgram->clientProg->client->address !!}
+                                    @endif --}}
+                                    @if ($receipt->invoiceProgram->clientProg->client->address != NULL)
+                                        {{ html_entity_decode(strip_tags($receipt->invoiceProgram->clientProg->client->address)) }}
+                                    @endif
+                                    @if ($receipt->invoiceProgram->clientProg->client->city != NULL)
+                                        {{ $receipt->invoiceProgram->clientProg->client->city }}
                                     @endif
                                 </td>
                             </tr>

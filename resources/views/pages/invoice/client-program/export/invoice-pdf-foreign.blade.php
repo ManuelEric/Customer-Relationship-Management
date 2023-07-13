@@ -84,6 +84,9 @@
                                             {{ $clientProg->client->full_name }}
                                         </b><br>
                                             {{ html_entity_decode(strip_tags($clientProg->client->address)) }}
+                                            @if ($clientProg->client->city != NULL)
+                                                {{ $clientProg->client->city }}
+                                            @endif
                                     </td>
                                 </tr>
                             </table>
