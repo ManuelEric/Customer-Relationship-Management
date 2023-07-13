@@ -26,6 +26,13 @@ return new class extends Migration
         )
         RETURN DOUBLE(2,2)
 
+        BEGIN
+            DECLARE 
+
+
+        END; //
+
+        DELIMITER ;
 
         ');
     }
