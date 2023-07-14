@@ -951,4 +951,16 @@ class InvoiceProgramController extends Controller
         // return redirect()->to($link);
         return response()->json(['link' => $link]);
     }
+
+    public function updateParentMail(Request $request)
+    {
+
+        $client = $this->clientRepository->getClientById($request->parent_id);
+        $parent_mail = $request->parent_mail;
+
+
+        $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+
+        return response()->json(['status' => 'success', 'message' => 'Success Update Email Parent'], 200);
+    }
 }

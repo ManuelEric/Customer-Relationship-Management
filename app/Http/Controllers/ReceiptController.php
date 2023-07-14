@@ -7,6 +7,7 @@ use App\Http\Traits\CreateReceiptIdTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
 use App\Models\Receipt;
 use Exception;
 use Illuminate\Http\Request;
@@ -24,12 +25,14 @@ class ReceiptController extends Controller
     private ReceiptRepositoryInterface $receiptRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository;
+    private ClientRepositoryInterface $clientRepository;
 
-    public function __construct(ReceiptRepositoryInterface $receiptRepository, ClientProgramRepositoryInterface $clientProgramRepository, ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository)
+    public function __construct(ReceiptRepositoryInterface $receiptRepository, ClientProgramRepositoryInterface $clientProgramRepository, ReceiptAttachmentRepositoryInterface $receiptAttachmentRepository, ClientRepositoryInterface $clientRepository)
     {
         $this->receiptRepository = $receiptRepository;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->receiptAttachmentRepository = $receiptAttachmentRepository;
+        $this->clientRepository = $clientRepository;
     }
 
     public function index(Request $request)
@@ -395,5 +398,17 @@ class ReceiptController extends Controller
         }
 
         return response()->json(['message' => 'Successfully sent receipt to client.']);
+    }
+
+    public function updateParentMail(Request $request)
+    {
+
+        $client = $this->clientRepository->getClientById($request->parent_id);
+        $parent_mail = $request->parent_mail;
+
+
+        $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+
+        return response()->json(['status' => 'success', 'message' => 'Success Update Email Parent'], 200);
     }
 }
