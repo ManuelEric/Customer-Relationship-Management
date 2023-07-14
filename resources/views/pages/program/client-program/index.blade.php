@@ -123,6 +123,8 @@
                         <th>School</th>
                         <th>Grade</th>
                         <th>Program Name</th>
+                        <th>Parent Name</th>
+                        <th>Parent Phone</th>
                         <th>Mentor/Tutor Name</th>
                         <th>End Program Date</th>
                         <th>Lead Source</th>
@@ -260,6 +262,12 @@
                             return row.referral_type == "Out" ? row.additional_prog_name : row
                                 .program_name
                         }
+                    },
+                    {
+                        data: 'parent_fullname',
+                    },
+                    {
+                        data: 'parent_phone',
                     },
                     {
                         data: 'mentor_tutor_name',
