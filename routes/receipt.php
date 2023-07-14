@@ -52,6 +52,7 @@ Route::prefix('client-program')->name('receipt.client-program.')->group(function
     Route::get('{receipt}/preview/{currency}', [ReceiptController::class, 'preview'])->name('preview');
     Route::post('{receipt}/preview/{currency}', [ReceiptController::class, 'uploadSigned'])->name('upload-signed');
     Route::get('{receipt}/send/{currency}', [ReceiptController::class, 'sendToClient'])->name('send_to_client'); # new
+    Route::post('{receipt}/update/parent/mail', [ReceiptController::class, 'updateParentMail']);
 });
 
 // CORPORATE 
