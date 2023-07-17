@@ -167,6 +167,7 @@ class AutomatedDeterminedHotLeads extends Command
                                 ->join('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
                                 ->join('tbl_sub_prog', 'tbl_prog.sub_prog_id', '=', 'tbl_sub_prog.id')
                                 ->where('tbl_client_prog.client_id', $clientData->id)
+                                ->where('tbl_client_prog.status', 1)
                                 ->whereIn('tbl_sub_prog.id', $subprog_id)->get()->pluck('count');
 
                             $sub_result = ($weight / 100) * 1;
@@ -187,6 +188,106 @@ class AutomatedDeterminedHotLeads extends Command
 
                 $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
                 $this->info('');
+
+                $this->info('============= Lead ==========');
+
+                // $programBucketDetails = [
+                //     'client_id' => $clientData->id,
+                //     'initialprogram_id' => $initProgramId,
+                //     'type' => 'Program',
+                //     'total_result' => $total_result,
+                //     'status' => 1,
+                //     'created_at' => Carbon::now(),
+                //     'updated_at' => Carbon::now(),
+                // ];
+
+                // $program_tracking = DB::table('tbl_client_lead_tracking')->insert($programBucketDetails);
+
+                $leadBuckets = DB::table('tbl_lead_bucket_params')->leftJoin('tbl_param_lead', 'tbl_param_lead.id', '=', 'tbl_lead_bucket_params.param_id')->where('tbl_lead_bucket_params.initialprogram_id', $initProgramId)->where('tbl_param_lead.value', 1)->orderBy('tbl_lead_bucket_params.id', 'asc')->get();
+
+                $total_result = 0;
+                foreach ($leadBuckets as $leadBucket) {
+                    $leadBucketId = $leadBucket->bucket_id;
+                    $paramName = $leadBucket->name;
+                    $weight = $leadBucket->{$weight_attribute_name};
+
+                    $this->info('leadBucketId = ' . $leadBucketId);
+                    $this->info(json_encode($leadBucket));
+                    $this->info('weight = ' . $weight);
+
+                    switch ($paramName) {
+                        case "School":
+                            $field = "school_categorization";
+                            $value_of_field = $clientData->{$field};
+
+                            # find value from library
+                            $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
+
+                            $sub_result = ($weight / 100) * $value_from_library;
+                            break;
+
+                        case "Grade":
+                            $field = "grade_categorization";
+                            $value_of_field = $clientData->{$field};
+
+                            # find value from library
+                            $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
+
+                            $sub_result = ($weight / 100) * $value_from_library;
+                            break;
+
+                        case "Destination_country":
+                            $field = "country_categorization";
+                            $value_of_field = $clientData->{$field};
+
+                            # find value from library
+                            $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
+
+                            $sub_result = ($weight / 100) * $value_from_library;
+                            break;
+
+                        case "Status":
+                            # ini berlaku utk menentukan hot warm and cold
+                            # bisa dikonfirmasi kembali ke ka Hafidz
+                            $field = "tbl_status_categorization_lead";
+                            $value_of_field = 'Student';
+
+                            # find value from library
+                            $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
+
+                            $sub_result = ($weight / 100) * $value_from_library;
+                            break;
+
+                        case "Major":
+                            $field = "major_categorization";
+                            $value_of_field = $clientData->{$field};
+
+                            # find value from library
+                            $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
+
+                            $sub_result = ($weight / 100) * $value_from_library;
+                            break;
+                    }
+
+                    $total_result += $sub_result;
+
+                    $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
+                }
+
+                $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
+                $this->info('');
+
+                // $leadBucketDetails = [
+                //     'client_id' => $clientData->id,
+                //     'initialprogram_id' => $initProgramId,
+                //     'type' => 'Program',
+                //     'total_result' => $total_result,
+                //     'status' => 1,
+                //     'created_at' => Carbon::now(),
+                //     'updated_at' => Carbon::now(),
+                // ];
+
+                // $program_tracking = DB::table('tbl_client_lead_tracking')->insert($leadBucketDetails);
 
 
                 # buat 1 table dengan nama tbl_client_lead_tracking
