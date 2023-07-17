@@ -13,7 +13,7 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
-use App\Http\Traits\CreateInvoiceIdTrait;
+use App\Http\Traits\CreateReceiptIdTrait;
 use App\Models\Receipt;
 use Carbon\Carbon;
 use Exception;
@@ -30,7 +30,7 @@ use PDF;
 
 class ReceiptReferralController extends Controller
 {
-    use CreateInvoiceIdTrait;
+    use CreateReceiptIdTrait;
     protected CorporateRepositoryInterface $corporateRepository;
     protected ReferralRepositoryInterface $referralRepository;
     protected ProgramRepositoryInterface $programRepository;
