@@ -34,7 +34,9 @@ class AutomatedDeterminedHotLeads extends Command
         $rawData = DB::table('client_lead')->orderBy('id', 'asc')->get();
         foreach ($rawData as $clientData) {
 
-            if ($clientData->id != 5353)
+            $leadTracking = DB::table('tbl_client_lead_tracking')->where('client_id', $clientData->id)->where('status', 1)->get();
+
+            if ($leadTracking->count() > 0)
                 continue;
 
             $this->info($clientData->name);
@@ -52,6 +54,7 @@ class AutomatedDeterminedHotLeads extends Command
                 $initProgramId = $initialProgram->id;
                 $initProgramName = $initialProgram->name;
 
+                # Check Program
                 $programBuckets = DB::table('tbl_program_buckets_params')->leftJoin('tbl_param_lead', 'tbl_param_lead.id', '=', 'tbl_program_buckets_params.param_id')->where('tbl_program_buckets_params.initialprogram_id', $initProgramId)->where('tbl_param_lead.value', 1)->orderBy('tbl_program_buckets_params.id', 'asc')->get();
 
                 $total_result = 0;
@@ -183,26 +186,28 @@ class AutomatedDeterminedHotLeads extends Command
 
                     $total_result += $sub_result;
 
-                    $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
+                    // $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
                 }
 
-                $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
-                $this->info('');
+                // $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
+                // $this->info('');
 
-                $this->info('============= Lead ==========');
+                // $this->info('============= Lead ==========');
 
-                // $programBucketDetails = [
-                //     'client_id' => $clientData->id,
-                //     'initialprogram_id' => $initProgramId,
-                //     'type' => 'Program',
-                //     'total_result' => $total_result,
-                //     'status' => 1,
-                //     'created_at' => Carbon::now(),
-                //     'updated_at' => Carbon::now(),
-                // ];
+                $programBucketDetails = [
+                    'client_id' => $clientData->id,
+                    'initialprogram_id' => $initProgramId,
+                    'type' => 'Program',
+                    'total_result' => $total_result,
+                    'status' => 1,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ];
 
-                // $program_tracking = DB::table('tbl_client_lead_tracking')->insert($programBucketDetails);
+                $program_tracking = DB::table('tbl_client_lead_tracking')->insert($programBucketDetails);
+                # end check program
 
+                # Check Lead
                 $leadBuckets = DB::table('tbl_lead_bucket_params')->leftJoin('tbl_param_lead', 'tbl_param_lead.id', '=', 'tbl_lead_bucket_params.param_id')->where('tbl_lead_bucket_params.initialprogram_id', $initProgramId)->where('tbl_param_lead.value', 1)->orderBy('tbl_lead_bucket_params.id', 'asc')->get();
 
                 $total_result = 0;
@@ -211,17 +216,13 @@ class AutomatedDeterminedHotLeads extends Command
                     $paramName = $leadBucket->name;
                     $weight = $leadBucket->{$weight_attribute_name};
 
-                    $this->info('leadBucketId = ' . $leadBucketId);
-                    $this->info(json_encode($leadBucket));
-                    $this->info('weight = ' . $weight);
-
                     switch ($paramName) {
                         case "School":
                             $field = "school_categorization";
                             $value_of_field = $clientData->{$field};
 
                             # find value from library
-                            $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
+                            $value_from_library = DB::table('tbl_program_lead_library')->where('leadbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
 
                             $sub_result = ($weight / 100) * $value_from_library;
                             break;
@@ -231,7 +232,7 @@ class AutomatedDeterminedHotLeads extends Command
                             $value_of_field = $clientData->{$field};
 
                             # find value from library
-                            $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
+                            $value_from_library = DB::table('tbl_program_lead_library')->where('leadbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
 
                             $sub_result = ($weight / 100) * $value_from_library;
                             break;
@@ -241,7 +242,7 @@ class AutomatedDeterminedHotLeads extends Command
                             $value_of_field = $clientData->{$field};
 
                             # find value from library
-                            $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
+                            $value_from_library = DB::table('tbl_program_lead_library')->where('leadbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
 
                             $sub_result = ($weight / 100) * $value_from_library;
                             break;
@@ -250,10 +251,10 @@ class AutomatedDeterminedHotLeads extends Command
                             # ini berlaku utk menentukan hot warm and cold
                             # bisa dikonfirmasi kembali ke ka Hafidz
                             $field = "tbl_status_categorization_lead";
-                            $value_of_field = 'Student';
+                            $value_of_field = 1; # Student
 
                             # find value from library
-                            $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
+                            $value_from_library = DB::table('tbl_program_lead_library')->where('leadbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
 
                             $sub_result = ($weight / 100) * $value_from_library;
                             break;
@@ -263,51 +264,32 @@ class AutomatedDeterminedHotLeads extends Command
                             $value_of_field = $clientData->{$field};
 
                             # find value from library
-                            $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
+                            $value_from_library = DB::table('tbl_program_lead_library')->where('leadbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
 
                             $sub_result = ($weight / 100) * $value_from_library;
                             break;
                     }
 
-                    $total_result += $sub_result;
+                    $total_result += $sub_result / 2;
 
-                    $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
+                    // $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
                 }
 
-                $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
-                $this->info('');
+                // $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
+                // $this->info('');
 
-                // $leadBucketDetails = [
-                //     'client_id' => $clientData->id,
-                //     'initialprogram_id' => $initProgramId,
-                //     'type' => 'Program',
-                //     'total_result' => $total_result,
-                //     'status' => 1,
-                //     'created_at' => Carbon::now(),
-                //     'updated_at' => Carbon::now(),
-                // ];
+                $leadBucketDetails = [
+                    'client_id' => $clientData->id,
+                    'initialprogram_id' => $initProgramId,
+                    'type' => 'Lead',
+                    'total_result' => $total_result,
+                    'status' => 1,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ];
 
-                // $program_tracking = DB::table('tbl_client_lead_tracking')->insert($leadBucketDetails);
-
-
-                # buat 1 table dengan nama tbl_client_lead_tracking
-                # yg fungsinya utk menyimpan total_result dari sistem sesuai programnya
-                # contoh label : client_id, initialprogram_id, total_result, status, created_at, updated_at
-                # contoh row 1 : 2002, 1, 0.6, 1, 2023-07-13 19:00:00
-                # contoh row 2 : 2002, 2, 0.325, 1, 2023-07-13 19:00:00
-                # dst
-                # sehingga kita bisa tau client 2002 direkomendasikan program apa saja.
-                # yang perlu diperhatikan adalah
-                # ketika sistem digenerate, maka status yg sebelumnya 1 harus di 0 kan dulu sebelum insert data yang baru.
-                # tujuannya agar kita bisa melihat history perubahannya per tanggal berapa
-                # berlaku jg apabila tim sales melakukan perubahan manual, maka akan masuknya ke dalam table ini
-                # dengan syarat, yg sebelumnya statusnya di 0 kan dulu.
-                # contoh : experiential learning dari client id 2002 di ubah ke score hot dari yg sebelumnya warm
-                # jadi khusus utk program experiential learning saja yg sebelumnya di ubah ke 0 lalu yg hasil update oleh tim sales diberi status 1
-
-                # perlu dikonfirmasi jg ke tim sales
-                # sistem perlu di generate tiap berapa bulan
-                # contoh per 6 bulan sekali.
+                $lead_tracking = DB::table('tbl_client_lead_tracking')->insert($leadBucketDetails);
+                # end check Lead
 
             }
         }

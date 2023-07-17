@@ -89,6 +89,8 @@
                         <th>Interest Major</th>
                         <th>Last Update</th>
                         <th>Status</th>
+                        <th>Program Suggest</th>
+                        <th>Status Lead</th>
                         {{-- <th class="bg-info text-white">Score</th> --}}
                         <th class="bg-info text-white"># Action</th>
                     </tr>
@@ -252,6 +254,14 @@
                         render: function(data, type, row, meta) {
                             return data == 1 ? "Active" : "Non-active";
                         }
+                    },
+                    {
+                        data: 'program_suggest',
+                        
+                    },
+                    {
+                        data: 'status_lead',
+                        
                     },
                     // {
                     //     data: 'total_score',

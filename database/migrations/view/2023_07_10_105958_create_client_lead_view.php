@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
-    {
-        DB::statement("
+        /**
+         * Run the migrations.
+         *
+         * @return void
+         */
+        public function up()
+        {
+                DB::statement("
         CREATE OR REPLACE VIEW client_lead AS
         SELECT 
             cl.id,
@@ -22,7 +22,7 @@ return new class extends Migration
             cl.st_grade -12 as grade,
             sc.sch_id as school,
             cl.is_funding,
-            (SELECT GROUP_CONCAT(sqt.name) FROM tbl_client_abrcountry sqac
+            (SELECT GROUP_CONCAT(sqt.name ORDER BY FIELD(name, 'US','UK','Canada','Australia','Other','Asia')) FROM tbl_client_abrcountry sqac
                     JOIN tbl_tag sqt ON sqt.id = sqac.tag_id
                     WHERE sqac.client_id = cl.id GROUP BY sqac.client_id) as interested_country,
             (SELECT GROUP_CONCAT(sqm.name) FROM tbl_dreams_major sqdm
@@ -53,15 +53,15 @@ return new class extends Migration
             WHERE clrole.client_id = cl.id) NOT IN ('Parent')
 
         ");
-    }
+        }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        Schema::dropIfExists('client_lead_view');
-    }
+        /**
+         * Reverse the migrations.
+         *
+         * @return void
+         */
+        public function down()
+        {
+                Schema::dropIfExists('client_lead_view');
+        }
 };
