@@ -15,7 +15,7 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
-use App\Http\Traits\CreateInvoiceIdTrait;
+use App\Http\Traits\CreateReceiptIdTrait;
 use App\Models\Invb2b;
 use App\Models\Receipt;
 use Carbon\Carbon;
@@ -32,7 +32,7 @@ use PDF;
 
 class ReceiptPartnerController extends Controller
 {
-    use CreateInvoiceIdTrait;
+    use CreateReceiptIdTrait;
     protected SchoolRepositoryInterface $schoolRepository;
     protected PartnerProgramRepositoryInterface $partnerProgramRepository;
     protected ProgramRepositoryInterface $programRepository;
