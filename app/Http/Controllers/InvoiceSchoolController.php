@@ -621,7 +621,7 @@ class InvoiceSchoolController extends Controller
             env('FINANCE_CC')
         ];
         $data['recipient'] = $invoiceSch->sch_prog->user->full_name;
-        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
+        $data['title'] = "Invoice of program " . $program_name;
         $data['param'] = [
             'invb2b_num' => $invNum,
             'currency' => $currency,
