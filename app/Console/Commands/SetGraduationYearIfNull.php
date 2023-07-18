@@ -40,7 +40,7 @@ class SetGraduationYearIfNull extends Command
      */
     public function handle()
     {
-        $students = $this->clientRepository->getAllClientByRole('Student');
+        $students = $this->clientRepository->getAllClientsFromViewTable();
         $progressBar = $this->output->createProgressBar($students->count());
         $progressBar->start();
 
@@ -48,21 +48,24 @@ class SetGraduationYearIfNull extends Command
         try {
 
             foreach ($students as $student) {
-                $progressBar->advance();                
+                $progressBar->advance();
                 if ($student->graduation_year == NULL && $student->st_grade !== NULL) {
-    
-                    $student->graduation_year = $this->getGraduationYearByGrade($student->st_grade, $student->created_at);
-                    $student->save();
-    
+
+                    // $student->graduation_year = $this->getGraduationYearByGrade($student->grade_now, date('Y-m-d'));
+                    $graduation_year = $this->getGraduationYearByGrade($student->grade_now, date('Y-m-d'));
+
+                    // $this->info(json_encode($student));
+                    $this->info($student->grade_now . ' : ' . $graduation_year);
+                    $this->clientRepository->updateClient($student->id, ['graduation_year' => $graduation_year]);
+                    // $student->save();
                 }
             }
             DB::commit();
             $progressBar->finish();
-
         } catch (Exception $e) {
-            
+
             DB::rollBack();
-            Log::info('Failed to set graduation year : '.$e->getMessage().' on line '.$e->getLine());
+            Log::info('Failed to set graduation year : ' . $e->getMessage() . ' on line ' . $e->getLine());
         }
 
         return Command::SUCCESS;
@@ -73,7 +76,7 @@ class SetGraduationYearIfNull extends Command
         $max_grade = 12;
 
         # calculate
-        $diff = $max_grade-$grade;
-        return date('Y', strtotime('+'.$diff.' years', strtotime($register_date)));
+        $diff = $max_grade - $grade;
+        return date('Y', strtotime('+' . $diff . ' years', strtotime($register_date)));
     }
 }

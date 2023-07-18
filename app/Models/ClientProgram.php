@@ -21,8 +21,8 @@ class ClientProgram extends Model
      */
     protected $fillable = [
         'client_id',
-        'prog_id', 
-        'lead_id', 
+        'prog_id',
+        'lead_id',
         'eduf_lead_id',
         'partner_id',
         'clientevent_id',
@@ -69,7 +69,7 @@ class ClientProgram extends Model
     public static function whereClientProgramId($id)
     {
         if (is_array($id) && empty($id)) return new Collection;
-        
+
         $instance = new static;
 
         return $instance->newQuery()->where('clientprog_id', $id)->first();
@@ -82,17 +82,22 @@ class ClientProgram extends Model
             get: fn ($value) => $this->program->prog_program . ' - ' . $this->program->main_prog->main_prog_name,
         );
     }
-    
+
     protected function invoiceProgramName(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $this->program->prog_main. ': ' .$this->program->prog_program,
+            get: fn ($value) => $this->program->prog_main . ': ' . $this->program->prog_program,
         );
     }
 
     public function client()
     {
         return $this->belongsTo(UserClient::class, 'client_id', 'id');
+    }
+
+    public function viewClient()
+    {
+        return $this->belongsTo(Client::class, 'client_id', 'id');
     }
 
     public function program()
@@ -147,6 +152,6 @@ class ClientProgram extends Model
 
     public function acadTutorDetail()
     {
-        return $this->hasMany(AcadTutorDetail::class, 'clientprog_id', 'clientprog_id');   
+        return $this->hasMany(AcadTutorDetail::class, 'clientprog_id', 'clientprog_id');
     }
 }
