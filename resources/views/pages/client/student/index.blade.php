@@ -80,6 +80,7 @@
                         <th>Mail</th>
                         <th>Phone</th>
                         <th>Parents Name</th>
+                        <th>Parents Mail</th>
                         <th>Parents Phone</th>
                         <th>School</th>
                         <th>Graduation Year</th>
@@ -198,6 +199,11 @@
                         defaultContent: '-',
                         orderable: true,
                         searchable: true,
+                    },
+                    {
+                        data: 'parent_mail',
+                        name: 'parent_mail',
+                        defaultContent: '-'
                     },
                     {
                         data: 'parent_phone',

@@ -122,9 +122,10 @@ class ClientStudentController extends ClientController
                     $statusClientCode = $this->getStatusClientCode($statusClient);
                     return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
             }
+            
             return $this->clientRepository->getDataTables($model);
         }
-
+        
         return view('pages.client.student.index');
     }
 
