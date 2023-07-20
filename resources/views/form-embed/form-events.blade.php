@@ -210,7 +210,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Expected Graduation Year
                             </label>
-                            <select name="grade" id="grade"
+                            <select name="graduation_year" id="graduation_year"
                                 class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
                                 placeholder="">
                                 <option value=""></option>
@@ -286,7 +286,7 @@
         create: true
     });
 
-    new TomSelect('#grade', {
+    new TomSelect('#graduation_year', {
         create: false
     });
 
