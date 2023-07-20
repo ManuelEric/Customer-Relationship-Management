@@ -27,7 +27,7 @@
                                     <tr>
                                         <td>{{ $event->event_title }}</td>
                                         <td class="text-end">
-                                            {{ $event->participants != 0 && $event->event_target != null ? ($event->participants / $event->event_target) * 100 : 0 }}%
+                                            {{ $event->participants != 0 && $event->event_target != 0 ? ($event->participants / $event->event_target) * 100 : 0 }}%
                                         </td>
                                     </tr>
                                 @empty
