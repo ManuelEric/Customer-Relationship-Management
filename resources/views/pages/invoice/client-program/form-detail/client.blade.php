@@ -68,7 +68,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8">
-                                {{ $clientProg->viewClient->grade_now }}
+                                {{ $clientProg->viewClient->grade_now != null && $clientProg->viewClient->grade_now > 12 ? 'Not high school' : $clientProg->viewClient->grade_now }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">

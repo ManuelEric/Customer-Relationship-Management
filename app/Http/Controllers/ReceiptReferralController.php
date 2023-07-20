@@ -398,7 +398,7 @@ class ReceiptReferralController extends Controller
             env('FINANCE_CC')
         ];
         $data['recipient'] = $receipt->invoiceB2b->referral->user->email;
-        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
+        $data['title'] = "Receipt of program " . $program_name;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,

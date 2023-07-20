@@ -485,7 +485,7 @@ class InvoiceReferralController extends Controller
             env('FINANCE_CC')
         ];
         $data['recipient'] = $invoiceRef->referral->user->email;
-        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
+        $data['title'] = "Invoice of program " . $program_name;
         $data['param'] = [
             'invb2b_num' => $invNum,
             'currency' => $currency,

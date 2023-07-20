@@ -8,33 +8,39 @@
 @endsection
 
 @section('content')
-<style>
-    .btn-download span, .btn-import span {
-        display: none;
-    }
-    .btn-download:hover > span, .btn-import:hover > span {
-        display: inline-block;
-    }
-</style>
+    <style>
+        .btn-download span,
+        .btn-import span {
+            display: none;
+        }
 
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+        .btn-download:hover>span,
+        .btn-import:hover>span {
+            display: inline-block;
+        }
+    </style>
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <div class="d-flex align-items-center justify-content-between mb-3 mt-md-0 mt-1">
         <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
             <i class="bi bi-arrow-left me-2"></i> Student
         </a>
         <div>
-            <a href="{{ url('api/download/excel-template/student') }}" class="btn btn-sm btn-outline-info btn-download"><i class="bi bi-download"></i> <span class="ms-1">Download Template</span></a>
-            <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span class="ms-1">Import</span></a>
-            <a href="{{ url('client/student/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add Student</a>
+            <a href="{{ url('api/download/excel-template/student') }}" class="btn btn-sm btn-outline-info btn-download"><i
+                    class="bi bi-download"></i> <span class="ms-1">Download Template</span></a>
+            <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal"
+                data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span class="ms-1">Import</span></a>
+            <a href="{{ url('client/student/create') }}" class="btn btn-sm btn-primary"><i
+                    class="bi bi-plus-square me-1"></i> Add Student</a>
         </div>
     </div>
 
@@ -59,6 +65,8 @@
                         href="{{ url('client/student?st=non-mentee') }}">Non-Mentee</a>
                 </li>
             </ul>
+
+
             <style>
                 #clientTable tr td.danger {
                     background: rgb(255, 151, 151)
@@ -104,7 +112,7 @@
 
     <div class="modal fade" id="importData" tabindex="-1" aria-labelledby="importDataLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <form action="{{route('student.import')}}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('student.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
@@ -119,7 +127,8 @@
                             </div>
                             <small class="text-warning mt-3">
                                 * Please clean the file first, before importing the csv file. <br>
-                                You can download the csv template <a href="{{ url('api/download/excel-template/student') }}">here</a>
+                                You can download the csv template <a
+                                    href="{{ url('api/download/excel-template/student') }}">here</a>
                             </small>
                         </div>
                     </div>
@@ -205,8 +214,11 @@
                         defaultContent: '-'
                     },
                     {
-                        data: 'st_grade',
-                        defaultContent: '-'
+                        data: 'grade_now',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            return data > 12 ? 'Not high school' : data;
+                        }
                     },
                     {
                         data: 'insta',
@@ -288,14 +300,14 @@
                 // }
             });
 
-            @php            
+            @php
                 $privilage = $menus['Client']->where('submenu_name', 'Students')->first();
             @endphp
-            
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });

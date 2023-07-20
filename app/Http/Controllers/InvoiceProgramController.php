@@ -719,11 +719,11 @@ class InvoiceProgramController extends Controller
             $pic_mail
         ];
         $data['recipient'] = $clientProg->client->parents[0]->full_name;
-        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $clientProg->program_name;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,
             'program_name' => $clientProg->program->program_name
         ];
+        $data['title'] = "Invoice of program " . $clientProg->program->program_name;
 
         try {
 

@@ -376,8 +376,8 @@ class ReceiptController extends Controller
             $pic_mail
         ];
         $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
-        $data['title'] = "ALL-In Eduspace | Receipt of program : " . $receipt->invoiceProgram->clientprog->program_name;
         $data['program_name'] = $receipt->invoiceProgram->clientprog->program->program_name;
+        $data['title'] = "Receipt of program " . $data['program_name'];
 
         try {
 
