@@ -573,6 +573,8 @@ class ClientEventController extends Controller
                     $this->clientRepository->createManyClientRelation($newClientParent->id, $existClientStudent['id']);
                 } else if ($existClientParent['isExist'] && !$existClientParent['isExist']) {
                     $this->clientRepository->createManyClientRelation($existClientParent['id'], $newClientStudent->id);
+                }else{
+                    $this->clientRepository->createManyClientRelation($newClientParent->id, $newClientStudent->id);
                 }
             }
 
