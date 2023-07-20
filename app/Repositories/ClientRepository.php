@@ -175,6 +175,9 @@ class ClientRepository implements ClientRepositoryInterface
             ->addColumn('parent_name', function ($data) {
                 return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
             })
+            ->addColumn('parent_mail', function ($data) {
+                return $data->parents()->count() > 0 ? $data->parents()->first()->mail : null;
+            })
             ->addColumn('parent_phone', function ($data) {
                 return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
             })

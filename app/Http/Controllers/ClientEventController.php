@@ -467,6 +467,7 @@ class ClientEventController extends Controller
                 'name' => $request->fullname[1],
                 'email' => null,
                 'phone' => null,
+                'register_as' => 'parent',
             ];
 
             $phoneParent = $request->fullnumber[0];
@@ -479,6 +480,7 @@ class ClientEventController extends Controller
                 'name' => $request->fullname[0],
                 'email' => $request->email[0],
                 'phone' => $request->fullnumber[0],
+                'register_as' => 'student',
             ];
             $phoneStudent = $childDetails['phone'];
             $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
@@ -554,6 +556,7 @@ class ClientEventController extends Controller
                     'last_name' => $lastname,
                     'mail' => $childDetails['email'],
                     'phone' => $childDetails['phone'],
+                    'register_as' => $childDetails['register_as'],
                     'st_grade' => $st_grade,
                     'graduation_year' => $request->grade,
                     'lead' => $request->leadsource,
@@ -580,6 +583,7 @@ class ClientEventController extends Controller
                 'status' => 0,
                 'joined_date' => Carbon::now(),
             ];
+
 
             $this->clientEventRepository->createClientEvent($clientEvent);
             DB::commit();

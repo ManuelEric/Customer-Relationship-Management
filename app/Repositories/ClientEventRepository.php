@@ -139,21 +139,24 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function getReportClientEventsDataTables($eventId = null)
     {
-        $clientEvent = ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
-            ->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'tbl_client.sch_id')
+        $clientEvent = ClientEvent::leftJoin('tbl_client as child', 'child.id', '=', 'tbl_client_event.client_id')
+            ->leftJoin('tbl_sch', 'tbl_sch.sch_id', '=', 'child.sch_id')
             ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
             ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_event.lead_id')
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
             ->leftJoin('tbl_corp as ceduf', 'ceduf.corp_id', '=', 'tbl_eduf_lead.corp_id')
             ->leftJoin('tbl_sch as seduf', 'seduf.sch_id', '=', 'tbl_eduf_lead.sch_id')
+            ->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')
+            ->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')
 
             ->select(
-                DB::raw('CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) as client_name'),
-                'tbl_client.mail',
-                'tbl_client.phone',
+                DB::raw('CONCAT(child.first_name," ", COALESCE(child.last_name, "")) as client_name'),
+                DB::raw('CONCAT(parent.first_name," ", COALESCE(parent.last_name, "")) as parent_name'),
+                'child.mail',
+                'child.phone',
                 'tbl_sch.sch_name',
-                'tbl_client.st_grade',
+                'child.st_grade',
                 DB::raw('(CASE
                     WHEN tbl_lead.main_lead = "KOL" THEN CONCAT("KOL: ", tbl_lead.sub_lead)
                     WHEN tbl_lead.main_lead = "External Edufair" THEN (CASE WHEN tbl_eduf_lead.title != null THEN CONCAT(tbl_eduf_lead.title) ELSE (CASE WHEN tbl_eduf_lead.sch_id IS NULL THEN ceduf.corp_name ELSE seduf.sch_name END)END)
@@ -204,6 +207,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'tbl_client_prog.clientprog_id')
             ->leftJoin('tbl_receipt', 'tbl_receipt.inv_id', '=', 'tbl_inv.inv_id')
             ->select(
+                'tbl_client.register_as',
                 'tbl_client_event.clientevent_id',
                 'tbl_client_event.client_id',
                 'tbl_client_event.created_at',
