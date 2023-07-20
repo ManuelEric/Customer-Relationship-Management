@@ -67,6 +67,14 @@ return new class extends Migration
                     WHERE ab.client_id = c.id
                 )
             ) AS total_score,
+            UpdateGradeStudent (
+                year(CURDATE()),
+                year(c.created_at),
+                month(CURDATE()),
+                month(c.created_at),
+                c.st_grade
+            ) AS grade_now,
+
             (SELECT GROUP_CONCAT(squ.univ_name) FROM tbl_dreams_uni sqdu
                     LEFT JOIN tbl_univ squ ON squ.univ_id = sqdu.univ_id
                     WHERE sqdu.client_id = c.id GROUP BY sqdu.client_id) as dream_uni,

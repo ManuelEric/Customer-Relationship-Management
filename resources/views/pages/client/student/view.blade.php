@@ -139,6 +139,30 @@
                     <div class="row mb-2 g-1">
                         <div class="col d-flex justify-content-between">
                             <label>
+                                Register As
+                            </label>
+                            <label>:</label>
+                        </div>
+                        <div class="col-md-9 col-8">
+                            @switch($student->register_as)
+                                @case('student')
+                                    Student
+                                    @break
+                            
+                                @case('parent')
+                                    Parent
+                                    @break
+                                
+                                @case(null)
+                                
+                                @break
+                                                                
+                            @endswitch
+                        </div>
+                    </div>
+                    <div class="row mb-2 g-1">
+                        <div class="col d-flex justify-content-between">
+                            <label>
                                 Active Status
                             </label>
                             <label>:</label>

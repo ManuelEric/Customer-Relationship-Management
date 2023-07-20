@@ -719,11 +719,11 @@ class InvoiceProgramController extends Controller
             $pic_mail
         ];
         $data['recipient'] = $clientProg->client->parents[0]->full_name;
-        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $clientProg->program_name;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,
             'program_name' => $clientProg->program->program_name
         ];
+        $data['title'] = "Invoice of program " . $clientProg->program->program_name;
 
         try {
 
@@ -950,5 +950,17 @@ class InvoiceProgramController extends Controller
         // echo "<script>window.open('" . $link . "', '_blank')</script>";
         // return redirect()->to($link);
         return response()->json(['link' => $link]);
+    }
+
+    public function updateParentMail(Request $request)
+    {
+
+        $client = $this->clientRepository->getClientById($request->parent_id);
+        $parent_mail = $request->parent_mail;
+
+
+        $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+
+        return response()->json(['status' => 'success', 'message' => 'Success Update Email Parent'], 200);
     }
 }

@@ -24,7 +24,7 @@
                 <div class="col-md-6 h-100 bg-dark">
                     <div class="container h-100">
                         <div class="row align-items-center justify-content-center h-100">
-                            <div class="col-6 text-white">
+                            <div class="col-md-6 text-white">
                                 <form action="{{ route('login.action') }}" method="POST">
                                     @csrf
                                     <h3 class="text-center">

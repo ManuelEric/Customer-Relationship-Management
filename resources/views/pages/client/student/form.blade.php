@@ -99,6 +99,32 @@
                                     @enderror
                                 </div>
                             </div> --}}
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label>Is Funding</label>
+                                    <select class="select w-100" name="is_funding">
+                                        <option data-placeholder="true"></option>
+                                            <option value="1" {{ old('is_funding') == "1" || (isset($student->is_funding) && $student->is_funding == 1) ? "selected" : null }}>Yes</option>
+                                            <option value="0" {{ old('is_funding') == "0" || (isset($student->is_funding) && $student->is_funding == 0) ? "selected" : null }}>No</option>
+                                    </select>
+                                    @error('is_funding')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label>Register As</label>
+                                    <select class="select w-100" name="register_as">
+                                        <option data-placeholder="true"></option>
+                                            <option value="student" {{ old('register_as') == "student" || (isset($student->register_as) && $student->register_as == 'student') ? "selected" : null }}>Student</option>
+                                            <option value="parent" {{ old('register_as') == "parent" || (isset($student->register_as) && $student->register_as == 'parent') ? "selected" : null }}>Parent</option>
+                                    </select>
+                                    @error('is_funding')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
                             <div class="col-md-4">
                                 <div class="mb-2">
                                     <label>State / Region <i class="text-danger font-weight-bold">*</i></label>
@@ -129,19 +155,7 @@
                                     @enderror
                                 </div>
                             </div>
-                             <div class="col-md-12">
-                                <div class="mb-2">
-                                    <label>Is Funding</label>
-                                    <select class="select w-100" name="is_funding">
-                                        <option data-placeholder="true"></option>
-                                            <option value="1" {{ old('is_funding') == "1" || (isset($student->is_funding) && $student->is_funding == 1) ? "selected" : null }}>Yes</option>
-                                            <option value="0" {{ old('is_funding') == "0" || (isset($student->is_funding) && $student->is_funding == 0) ? "selected" : null }}>No</option>
-                                    </select>
-                                    @error('is_funding')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                            </div>
+                             
 
                         </div>
                     </div>

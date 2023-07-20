@@ -467,6 +467,7 @@ class ClientEventController extends Controller
                 'name' => $request->fullname[1],
                 'email' => null,
                 'phone' => null,
+                'register_as' => 'parent',
             ];
 
             $phoneParent = $request->fullnumber[0];
@@ -479,6 +480,7 @@ class ClientEventController extends Controller
                 'name' => $request->fullname[0],
                 'email' => $request->email[0],
                 'phone' => $request->fullnumber[0],
+                'register_as' => 'student',
             ];
             $phoneStudent = $childDetails['phone'];
             $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
@@ -525,7 +527,7 @@ class ClientEventController extends Controller
                     'last_name' => $lastname,
                     'mail' => $request->email[0],
                     'phone' => $phoneParent,
-                    // 'graduation_year' => $request->grade,
+                    // 'graduation_year' => $request->graduation_year,
                     'lead' => $request->leadsource,
                 ];
 
@@ -546,7 +548,7 @@ class ClientEventController extends Controller
                     $firstname = implode(" ", $fullname);
                 }
 
-                $st_grade = 12 - ($request->grade - date('Y'));
+                $st_grade = 12 - ($request->graduation_year - date('Y'));
 
 
                 $clientDetails = [
@@ -554,8 +556,9 @@ class ClientEventController extends Controller
                     'last_name' => $lastname,
                     'mail' => $childDetails['email'],
                     'phone' => $childDetails['phone'],
+                    'register_as' => $childDetails['register_as'],
                     'st_grade' => $st_grade,
-                    'graduation_year' => $request->grade,
+                    'graduation_year' => $request->graduation_year,
                     'lead' => $request->leadsource,
                     'sch_id' => $schoolId != null ? $schoolId : $request->school,
                 ];
@@ -570,6 +573,8 @@ class ClientEventController extends Controller
                     $this->clientRepository->createManyClientRelation($newClientParent->id, $existClientStudent['id']);
                 } else if ($existClientParent['isExist'] && !$existClientParent['isExist']) {
                     $this->clientRepository->createManyClientRelation($existClientParent['id'], $newClientStudent->id);
+                }else{
+                    $this->clientRepository->createManyClientRelation($newClientParent->id, $newClientStudent->id);
                 }
             }
 
@@ -580,6 +585,7 @@ class ClientEventController extends Controller
                 'status' => 0,
                 'joined_date' => Carbon::now(),
             ];
+
 
             $this->clientEventRepository->createClientEvent($clientEvent);
             DB::commit();

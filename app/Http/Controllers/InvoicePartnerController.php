@@ -617,7 +617,7 @@ class InvoicePartnerController extends Controller
         $data['email'] = $invoicePartner->partner_prog->user->email; # email to pic of the partner program
         $data['cc'] = [env('CEO_CC'), env('FINANCE_CC')];
         $data['recipient'] = $invoicePartner->partner_prog->user->full_name; # name of the pic of the partner program
-        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
+        $data['title'] = "Invoice of program " . $program_name;
         $data['param'] = [
             'invb2b_num' => $invNum,
             'currency' => $currency,

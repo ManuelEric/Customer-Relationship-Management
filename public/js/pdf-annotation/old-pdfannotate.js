@@ -31,7 +31,7 @@ var PDFAnnotate = function (container_id, url, options = {}) {
 				var viewport = page.getViewport({ scale: scale });
 				var canvas = document.createElement('canvas');
 				document.getElementById(inst.container_id).appendChild(canvas);
-				// canvas.className = 'pdf-canvas';
+				canvas.className = 'pdf-canvas';
 				canvas.height = viewport.height;
 				canvas.width = viewport.width;
 				

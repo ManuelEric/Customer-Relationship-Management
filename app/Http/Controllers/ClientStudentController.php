@@ -122,9 +122,10 @@ class ClientStudentController extends ClientController
                     $statusClientCode = $this->getStatusClientCode($statusClient);
                     return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
             }
+            
             return $this->clientRepository->getDataTables($model);
         }
-
+        
         return view('pages.client.student.index');
     }
 
@@ -146,7 +147,8 @@ class ClientStudentController extends ClientController
     {
         $parentId = NULL;
         $data = $this->initializeVariablesForStoreAndUpdate('student', $request);
-
+        $data['studentDetails']['register_as'] == null ? $data['studentDetails']['register_as'] = 'student' : $data['studentDetails']['register_as'];
+        
         DB::beginTransaction();
         try {
 

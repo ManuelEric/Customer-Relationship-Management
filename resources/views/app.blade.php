@@ -315,6 +315,7 @@
             $("#formActionSendToClient h6").html(warningMessage);
 
             var link = subject + '/' + id
+            $('#send-to-client--app-0604').unbind('click');
             $("#send-to-client--app-0604").bind('click', function() {
                 sendToClient(link)
             })

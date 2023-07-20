@@ -60,9 +60,8 @@
         <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
-            <h4
-                style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:18px; margin-bottom:10px; ">
-                <u><b>INVOICE</b></u>
+            <h4 style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:18px; margin-bottom:10px; ">
+                INVOICE
             </h4>
             <br><br>
             <div style="height:150px;">
@@ -84,7 +83,10 @@
                                     <td><b>
                                             {{ $clientProg->client->full_name }}
                                         </b><br>
-                                            {{ strip_tags($clientProg->client->address) }}
+                                            {{ html_entity_decode(strip_tags($clientProg->client->address)) }}
+                                            @if ($clientProg->client->city != NULL)
+                                                {{ $clientProg->client->city }}
+                                            @endif
                                     </td>
                                 </tr>
                             </table>
@@ -110,6 +112,7 @@
                 </table>
             </div>
 
+            <br>
             <br>
             <table>
                 <tr>
@@ -138,7 +141,7 @@
                                     <strong> {{ $clientProg->program->program_name }} </strong>
                                 </p>
                                 <p>
-                                    {{ strip_tags($clientProg->invoice->inv_notes) }}
+                                    {!! $clientProg->invoice->inv_notes !!}
                                 </p>
                             </div>
 
@@ -279,11 +282,13 @@
 
 
                         {{-- IF TERMS & CONDITION EXIST  --}}
-                        <br>
-                        Terms & Conditions :
-                        <div style="margin-left:2px;">
-                            {!! $clientProg->invoice->inv_tnc !!}
-                        </div>
+                        @if(isset($clientProg->invoice->inv_tnc))
+                            <br>
+                            Terms & Conditions :
+                            <div style="margin-left:2px;">
+                                {!! $clientProg->invoice->inv_tnc !!}
+                            </div>
+                        @endif
                     </td>
                 </tr>
             </table>

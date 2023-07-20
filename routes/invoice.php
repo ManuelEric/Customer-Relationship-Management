@@ -76,6 +76,7 @@ Route::prefix('client-program')->name('invoice.program.')->group(function () {
     Route::post('{client_program}/upload', [InvoiceProgramController::class, 'storeSignedAttachment'])->name('upload_signed_document');
     Route::get('{client_program}/send/{currency}', [InvoiceProgramController::class, 'sendToClient'])->name('send_to_client');
     Route::get('{client_program}/attachment/download', [InvoiceProgramController::class, 'download'])->name('download');
+    Route::post('{client_program}/update/parent/mail', [InvoiceProgramController::class, 'updateParentMail']);
 });
 
 
