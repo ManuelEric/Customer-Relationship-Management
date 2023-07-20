@@ -527,7 +527,7 @@ class ClientEventController extends Controller
                     'last_name' => $lastname,
                     'mail' => $request->email[0],
                     'phone' => $phoneParent,
-                    // 'graduation_year' => $request->grade,
+                    // 'graduation_year' => $request->graduation_year,
                     'lead' => $request->leadsource,
                 ];
 
@@ -548,7 +548,7 @@ class ClientEventController extends Controller
                     $firstname = implode(" ", $fullname);
                 }
 
-                $st_grade = 12 - ($request->grade - date('Y'));
+                $st_grade = 12 - ($request->graduation_year - date('Y'));
 
 
                 $clientDetails = [
@@ -558,7 +558,7 @@ class ClientEventController extends Controller
                     'phone' => $childDetails['phone'],
                     'register_as' => $childDetails['register_as'],
                     'st_grade' => $st_grade,
-                    'graduation_year' => $request->grade,
+                    'graduation_year' => $request->graduation_year,
                     'lead' => $request->leadsource,
                     'sch_id' => $schoolId != null ? $schoolId : $request->school,
                 ];
