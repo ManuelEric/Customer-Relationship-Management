@@ -146,7 +146,8 @@ class ClientStudentController extends ClientController
     {
         $parentId = NULL;
         $data = $this->initializeVariablesForStoreAndUpdate('student', $request);
-
+        $data['studentDetails']['register_as'] == null ? $data['studentDetails']['register_as'] = 'student' : $data['studentDetails']['register_as'];
+        
         DB::beginTransaction();
         try {
 

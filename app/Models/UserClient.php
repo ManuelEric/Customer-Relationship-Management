@@ -53,6 +53,7 @@ class UserClient extends Authenticatable
         'st_password',
         'preferred_program',
         'is_funding',
+        'register_as',
         'created_at',
         'updated_at',
     ];

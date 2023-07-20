@@ -84,7 +84,8 @@ class ClientController extends Controller
                     'st_grade' => $request->st_grade,
                     'st_abryear' => $request->st_abryear,
                     'graduation_year' => $request->graduation_year,
-                    'is_funding' => $request->is_funding
+                    'is_funding' => $request->is_funding,
+                    'register_as' => $request->register_as
                 ];
                 return compact('studentDetails', 'parentDetails');
                 break;
@@ -113,7 +114,8 @@ class ClientController extends Controller
                     'st_note',
                     'pr_id',
                     'pr_id_old',
-                    'is_funding'
+                    'is_funding',
+                    'register_as'
                 ]);
 
                 $studentDetails['phone'] = $this->setPhoneNumber($request->phone);

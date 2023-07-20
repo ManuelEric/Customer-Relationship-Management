@@ -77,7 +77,6 @@ class ReportController extends Controller
         }
 
         if ($request->ajax()) {
-
             return $this->clientEventRepository->getReportClientEventsDataTables($eventId);
         }
 
