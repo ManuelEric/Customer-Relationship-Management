@@ -30,6 +30,8 @@ class AutomatedDeterminedHotLeads extends Command
      */
     public function handle()
     {
+        // TODO: Jika is funding true maka, jika sekolahnya homeschool maka pilih homeschool$
+
         # get raw data by the oldest client
         $rawData = DB::table('client_lead')->orderBy('id', 'asc')->get();
         foreach ($rawData as $clientData) {
@@ -111,19 +113,23 @@ class AutomatedDeterminedHotLeads extends Command
 
                         case "Priority":
                             switch ($initProgramName) {
-                                case "Admissions Mentoring":
+                                case "Admission Mentoring":
+                                    $value_from_library = 1;
                                     $sub_result = ($weight / 100) * 1;
                                     break;
-
+                                    
                                 case "Experiential Learning":
+                                    $value_from_library = 0.75;
                                     $sub_result = ($weight / 100) * 0.75;
                                     break;
 
                                 case "Academic Performance (SAT)":
+                                    $value_from_library = 0.50;
                                     $sub_result = ($weight / 100) * 0.50;
                                     break;
 
                                 case "Academic Performance (Academic Tutoring)":
+                                    $value_from_library = 0.25;
                                     $sub_result = ($weight / 100) * 0.25;
                                     break;
                             }
@@ -149,6 +155,19 @@ class AutomatedDeterminedHotLeads extends Command
                             if (isset($checkSeasonal)) {
                                 $sub_result = ($weight / 100) * 1;
                                 $value_from_library = 1;
+                            }else{
+                                switch ($initProgramName) {
+                                    case "Admission Mentoring":
+                                        $sub_result = ($weight / 100) * 1;
+                                        $value_from_library = 1;
+                                        break;
+                                        
+                                    case "Academic Performance (Academic Tutoring)":
+                                        $sub_result = ($weight / 100) * 1;
+                                        $value_from_library = 1;
+                                    break;
+                                }
+                                break;
                             }
                             break;
 
@@ -186,13 +205,13 @@ class AutomatedDeterminedHotLeads extends Command
 
                     $total_result += $sub_result;
 
-                    // $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
+                    $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
                 }
 
-                // $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
-                // $this->info('');
+                $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
+                $this->info('');
 
-                // $this->info('============= Lead ==========');
+                $this->info('============= Lead ==========');
 
                 $programBucketDetails = [
                     'client_id' => $clientData->id,
@@ -204,7 +223,7 @@ class AutomatedDeterminedHotLeads extends Command
                     'updated_at' => Carbon::now(),
                 ];
 
-                $program_tracking = DB::table('tbl_client_lead_tracking')->insert($programBucketDetails);
+                // $program_tracking = DB::table('tbl_client_lead_tracking')->insert($programBucketDetails);
                 # end check program
 
                 # Check Lead
@@ -251,7 +270,15 @@ class AutomatedDeterminedHotLeads extends Command
                             # ini berlaku utk menentukan hot warm and cold
                             # bisa dikonfirmasi kembali ke ka Hafidz
                             $field = "tbl_status_categorization_lead";
-                            $value_of_field = 1; # Student
+                            
+                            switch ($clientData->register_as) {
+                                case 'student':
+                                    $value_of_field = 2; # Student
+                                    break;
+                                case 'parent':
+                                    $value_of_field = 1; # Parent
+                                    break;
+                            }
 
                             # find value from library
                             $value_from_library = DB::table('tbl_program_lead_library')->where('leadbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
@@ -272,11 +299,11 @@ class AutomatedDeterminedHotLeads extends Command
 
                     $total_result += $sub_result / 2;
 
-                    // $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
+                    $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
                 }
 
-                // $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
-                // $this->info('');
+                $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
+                $this->info('');
 
                 $leadBucketDetails = [
                     'client_id' => $clientData->id,
@@ -288,7 +315,7 @@ class AutomatedDeterminedHotLeads extends Command
                     'updated_at' => Carbon::now(),
                 ];
 
-                $lead_tracking = DB::table('tbl_client_lead_tracking')->insert($leadBucketDetails);
+                // $lead_tracking = DB::table('tbl_client_lead_tracking')->insert($leadBucketDetails);
                 # end check Lead
 
             }

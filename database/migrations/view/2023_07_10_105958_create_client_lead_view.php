@@ -42,7 +42,8 @@ return new class extends Migration
                     JOIN tbl_roles role ON role.id = clrole.role_id
                     WHERE clrole.client_id = cl.id) as roles,
 
-            GetClientType(cl.id) as type
+            GetClientType(cl.id) as type,
+            cl.register_as as register_as
 
         FROM tbl_client cl
         LEFT JOIN tbl_sch sc 
