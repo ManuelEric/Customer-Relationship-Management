@@ -21,6 +21,7 @@ return new class extends Migration
             CONCAT(cl.first_name, ' ', COALESCE(cl.last_name, '')) as name,
             cl.st_grade -12 as grade,
             sc.sch_id as school,
+            sc.sch_type as type_school,
             cl.is_funding,
             (SELECT GROUP_CONCAT(sqt.name ORDER BY FIELD(name, 'US','UK','Canada','Australia','Other','Asia')) FROM tbl_client_abrcountry sqac
                     JOIN tbl_tag sqt ON sqt.id = sqac.tag_id
@@ -51,7 +52,7 @@ return new class extends Migration
 
             WHERE (SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
             JOIN tbl_roles role ON role.id = clrole.role_id
-            WHERE clrole.client_id = cl.id) NOT IN ('Parent')
+            WHERE clrole.client_id = cl.id) NOT IN ('Parent') AND cl.st_statusact = 1
 
         ");
         }

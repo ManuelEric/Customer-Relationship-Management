@@ -30,8 +30,7 @@ class AutomatedDeterminedHotLeads extends Command
      */
     public function handle()
     {
-        // TODO: Jika is funding true maka, jika sekolahnya homeschool maka pilih homeschool$
-
+  
         # get raw data by the oldest client
         $rawData = DB::table('client_lead')->orderBy('id', 'asc')->get();
         foreach ($rawData as $clientData) {
@@ -70,8 +69,26 @@ class AutomatedDeterminedHotLeads extends Command
                             $field = "school_categorization";
                             $value_of_field = $clientData->{$field};
 
+                            if($clientData->is_funding != null && $clientData->is_funding == 1){
+                                switch ($clientData->type_school) {
+                                    case 'Home Schooling':
+                                        $value_of_field = 4;
+                                        break;
+                                    case 'National Private':
+                                        $value_of_field = 6;
+                                        break;
+                                    case 'National':
+                                        $value_of_field = 8;
+                                        break;
+                                }
+                            }
+
+                            $this->info($value_of_field);
                             # find value from library
                             $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $programBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
+                            $this->info($programBucketId);
+                            $this->info($value_from_library);
+                            $this->info($type);
 
                             $sub_result = ($weight / 100) * $value_from_library;
                             break;
@@ -89,6 +106,10 @@ class AutomatedDeterminedHotLeads extends Command
                         case "Destination_country":
                             $field = "country_categorization";
                             $value_of_field = $clientData->{$field};
+
+                            if($clientData->is_funding != null && $clientData->is_funding == 1 && $value_of_field == 8){
+                               $value_of_field = 9;
+                            }
 
                             # find value from library
                             $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $programBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
@@ -211,7 +232,7 @@ class AutomatedDeterminedHotLeads extends Command
                 $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
                 $this->info('');
 
-                $this->info('============= Lead ==========');
+                // $this->info('============= Lead ==========');
 
                 $programBucketDetails = [
                     'client_id' => $clientData->id,
