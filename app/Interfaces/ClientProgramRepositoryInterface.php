@@ -22,6 +22,7 @@ interface ClientProgramRepositoryInterface
     public function getInitAssessmentProgress($dateDetails);
     public function getConversionLead($dateDetails, $cp_filter = null);
     public function getLeadSource($dateDetails, $cp_filter = null);
+    public function getLeadSourceDetails($filter);
     public function getConversionTimeSuccessfulPrograms($dateDetails);
 
     # dashboard

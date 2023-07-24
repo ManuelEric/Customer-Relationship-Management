@@ -8,6 +8,7 @@ interface LeadRepositoryInterface
     public function getAllLead();
     public function getAllMainLead();
     public function getAllKOLlead();
+    public function getActiveLead();
     public function getLeadById($leadId);
     public function getLeadByName($leadName); # same with getLeadByMainLead -> next todos diserasiin di setiap controller
     public function getLeadByMainLead($main_lead); # 

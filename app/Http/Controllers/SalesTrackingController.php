@@ -55,6 +55,7 @@ class SalesTrackingController extends Controller
                 'clientProgramDetail' => $clientProgramDetail,
                 'initAssessmentProgress' => $initAssessmentProgress,
                 'leadSource' => $leadSource,
+                'dateDetails' => $dateDetails,
                 'conversionLead' => $conversionLead,
                 'averageConversionSuccessful' => $averageConversionSuccessful
             ]

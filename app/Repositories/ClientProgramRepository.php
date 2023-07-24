@@ -562,6 +562,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client.eduf_id')
             ->leftJoin('tbl_events', 'tbl_events.event_id', 'tbl_client.event_id')
             ->select([
+                'tbl_lead.lead_id',
                 'color_code',
                 DB::raw('(CASE 
                     WHEN tbl_lead.main_lead = "KOL" THEN CONCAT("KOL: ", tbl_lead.sub_lead)
@@ -587,6 +588,36 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $q->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']]);
             })
             ->groupBy('lead_source')
+            ->get();
+    }
+
+    public function getLeadSourceDetails($filter)
+    {
+        return ClientProgram::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+            ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client.lead_id')
+            ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client.eduf_id')
+            ->leftJoin('tbl_events', 'tbl_events.event_id', 'tbl_client.event_id')
+            ->select([
+                'tbl_lead.lead_id',
+                'color_code',
+                DB::raw('(CASE 
+                    WHEN tbl_lead.main_lead = "KOL" THEN CONCAT("KOL: ", tbl_lead.sub_lead)
+                    WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT("External Edufair: ", tbl_eduf_lead.title)
+                    WHEN tbl_lead.main_lead = "All-In Event" THEN CONCAT("All-In Event: ", tbl_events.event_title)
+                    ELSE tbl_lead.main_lead
+                END) AS lead_source'),
+                DB::raw('COUNT((CASE 
+                    WHEN tbl_lead.main_lead = "KOL" THEN CONCAT("KOL: ", tbl_lead.sub_lead)
+                    WHEN tbl_lead.main_lead = "External Edufair" THEN CONCAT("External Edufair: ", tbl_eduf_lead.title)
+                    WHEN tbl_lead.main_lead = "All-In Event" THEN CONCAT("All-In Event: ", tbl_events.event_title)
+                    ELSE tbl_lead.main_lead
+                END)) AS lead_source_count'),
+            ])
+            ->where('tbl_client_prog.status', 1)
+            ->when(!empty($dateDetails), function ($q) use ($filter) {
+                $q->whereBetween('tbl_client_prog.created_at', [$filter['startDate'], $filter['endDate']]);
+            })
+            ->where('tbl_lead.lead_id', $filter['leadId'])
             ->get();
     }
 
