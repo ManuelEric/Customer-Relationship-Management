@@ -296,7 +296,7 @@
                             </div>
                             <ul class="list-group">
                                 @foreach ($leadSource as $detail)
-                                <li class="list-group-item d-flex justify-content-between align-items-center lead-source-item" data-lead="{{ $detail->lead_id }}" data-sdate="{{ $dateDetails['startDate'] }}" data-edate="{{ $dateDetails['endDate'] }}">
+                                <li class="list-group-item d-flex justify-content-between align-items-center lead-source-item cursor-pointer btn btn-sm" data-leadname="{{ $detail->lead_source }}" data-lead="{{ $detail->lead_id }}" data-sdate="{{ $dateDetails['startDate'] }}" data-edate="{{ $dateDetails['endDate'] }}">
                                     <div class="">
                                         {{ $detail->lead_source }}
                                     </div>
@@ -311,7 +311,7 @@
                             </div>
                             <ul class="list-group">
                                 @foreach ($conversionLead as $detail)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <li class="list-group-item d-flex justify-content-between align-items-center conversion-lead-item cursor-pointer btn btn-sm" data-leadname="{{ $detail->conversion_lead }}" data-lead="{{ $detail->lead_id }}" data-sdate="{{ $dateDetails['startDate'] }}" data-edate="{{ $dateDetails['endDate'] }}">
                                     <div class="">
                                         {{ $detail->conversion_lead }}
                                     </div>
@@ -352,7 +352,7 @@
             </div>
         </div>
     </div>
-    <div class="modal" tabindex="-1" id="leadModalDetail">
+    <div class="modal fade" tabindex="-1" id="leadModalDetail">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -360,11 +360,20 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Modal body text goes here.</p>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Name</th>
+                                <th>Program</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-sm btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
@@ -393,12 +402,29 @@
             showDetailLead(requestParam)
         })
 
+        $(document).on('click', '.conversion-lead-item', function() {
+            var _this = $(this);
+            const requestParam = getParam(_this);
+            var url = '{{ url("/api/v1/get/detail/lead-source") }}';
+            requestParam['url'] = url;
+
+            showDetailLead(requestParam)
+        })
+
         function showDetailLead(param)
         {
+            showLoading();
+
             axios.get(param['url'], {params: param})
                 .then(function(response) {
+
+                    const obj = response.data.data;
+
+                    swal.close();
+                    $("#leadModalDetail").modal('show');
+                    $("#leadModalDetail .modal-title").html("Detail of Lead Source \'"+ obj.title +"\'")
+                    $("#leadModalDetail table tbody").html(obj.context);
                     
-                    console.log(response)
                 })
                 .catch(function(error) {
                     // handle error
@@ -410,10 +436,12 @@
         function getParam(_this)
         {
             var leadId = _this.data('lead');
+            var leadName = _this.data('leadname');
             var startDate = _this.data('sdate');
             var endDate = _this.data('edate');
             return {
                 leadId: leadId,
+                leadName: leadName,
                 startDate: startDate,
                 endDate: endDate
             }
