@@ -132,7 +132,7 @@ class EventController extends Controller
 
     public function create()
     {
-        $employees = $this->userRepository->getAllUsersByRole('employee');
+        $employees = $this->userRepository->getAllUsersByRole('Client');
 
         return view('pages.master.event.form')->with(
             [
