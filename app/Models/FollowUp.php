@@ -21,6 +21,7 @@ class FollowUp extends Model
         'followup_date',
         'status',
         'notes',
+        'reminder',
     ];
 
     public function clientProgram()
