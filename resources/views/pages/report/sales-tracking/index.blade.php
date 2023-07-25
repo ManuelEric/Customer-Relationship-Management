@@ -405,7 +405,7 @@
         $(document).on('click', '.conversion-lead-item', function() {
             var _this = $(this);
             const requestParam = getParam(_this);
-            var url = '{{ url("/api/v1/get/detail/lead-source") }}';
+            var url = '{{ url("/api/v1/get/detail/conversion-lead") }}';
             requestParam['url'] = url;
 
             showDetailLead(requestParam)

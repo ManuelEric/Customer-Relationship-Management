@@ -50,6 +50,33 @@ class ExtSalesTrackingController extends Controller
 
     public function getConversionLeadDetail(Request $request)
     {
+        $params = $request->only('leadId', 'leadName', 'startDate', 'endDate');
 
+        if (!$conversionLeadDetail = $this->clientProgramRepository->getConversionLeadDetails($params))
+            return response()->json(['success' => false, 'data' => 'No data found.']);
+        
+        try {
+
+            $html = '';
+            $no = 1;
+            foreach ($conversionLeadDetail as $data) {
+    
+                $html .= '<tr>
+                            <td>'.$no++.'.</td>
+                            <td>'.$data->first_name.' '.$data->last_name.'</td>
+                            <td>'.$data->prog_program.'</td>
+                        </tr>';
+            }
+        } catch (Exception $e) {
+            return response()->json(['success' => false, 'data' => 'Something went wrong. Please try again or contact the administrator.']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                    'title' => $params['leadName'],
+                    'context' => $html
+                ]
+        ]);
     }
 }
