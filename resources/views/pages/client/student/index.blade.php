@@ -39,8 +39,103 @@
                     class="bi bi-download"></i> <span class="ms-1">Download Template</span></a>
             <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal"
                 data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span class="ms-1">Import</span></a>
+                {{-- <div class="dropdown"> --}}
+                    <button href="#" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown"
+                        data-bs-auto-close="false" id="filter">
+                        <i class="bi bi-funnel me-2"></i> Filter
+                    </button>
+                    <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 300px;"
+                        id="advanced-filter">
+                        <h6 class="dropdown-header bg-secondary text-white rounded-top">Advanced Filter</h6>
+                        <div class="row p-3">
+                            <div class="col-md-12 mb-2">
+                                <label for="">School Name</label>
+                                <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
+                                    id="school-name">
+                                    @foreach ($schools as $school)
+                                        <option value="{{ $school->sch_id }}"
+                                            @if ($request->get('school_name') !== null && in_array($school->sch_name, $request->get('school_name'))) {{ 'selected' }} @endif>
+                                            {{ $school->sch_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <label for="">Grade</label>
+                                <select name="grade[]" class="select form-select form-select-sm w-100" multiple
+                                    id="grade">
+                                    {{-- @foreach ($schools as $school)
+                                        <option value="{{ $school->sch_id }}"
+                                            @if ($request->get('school_name') !== null && in_array($school->sch_name, $request->get('school_name'))) {{ 'selected' }} @endif>
+                                            {{ $school->sch_name }}</option>
+                                    @endforeach --}}
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <label for="">Lead Source</label>
+                                <select name="conversion_lead[]" class="select form-select form-select-sm w-100" multiple
+                                    id="conversion-lead">
+                                    {{-- @foreach ($conversion_leads as $lead)
+                                        <option value="{{ $lead->lead_id }}"
+                                            @if ($request->get('conversion_lead') !== null && in_array($lead->lead_id, $request->get('conversion_lead'))) {{ 'selected' }} @endif>
+                                            {{ $lead->conversion_lead }}</option>
+                                    @endforeach --}}
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <label for="">Parents</label>
+                                @php
+                                    $program_status = ['Pending', 'Success', 'Failed', 'Refund'];
+                                @endphp
+                                <select name="program_status[]" class="select form-select form-select-sm w-100" multiple
+                                    id="program-status">
+                                    {{-- @foreach ($program_status as $key => $value)
+                                        <option value="{{ Crypt::encrypt($loop->iteration - 1) }}"
+                                            @if ($status_decrypted !== null && in_array($loop->iteration - 1, $status_decrypted)) {{ 'selected' }} @endif>{{ $value }}
+                                        </option>
+                                    @endforeach --}}
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <label for="">Country</label>
+                                <select name="mentor_tutor[]" class="select form-select form-select-sm w-100" multiple>
+                                    {{-- @foreach ($mentor_tutors as $user)
+                                        <option value="{{ Crypt::encrypt($user->id) }}"
+                                            @if ($mentor_tutor_decrypted !== null && in_array($user->id, $mentor_tutor_decrypted)) {{ 'selected' }} @endif>{{ $user->fullname }}
+                                        </option>
+                                    @endforeach --}}
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <label for="">Program Suggest</label>
+                                <select name="pic[]" id="" class="select form-select form-select-sm w-100" multiple>
+                                    {{-- @foreach ($pics as $pic)
+                                        <option value="{{ Crypt::encrypt($pic->empl_id) }}"
+                                            @if ($pic_decrypted !== null && in_array($pic->empl_id, $pic_decrypted)) {{ 'selected' }} @endif>{{ $pic->pic_name }}
+                                        </option>
+                                    @endforeach --}}
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <label for="">Lead Status</label>
+                                <select name="pic[]" id="" class="select form-select form-select-sm w-100" multiple>
+                                    {{-- @foreach ($pics as $pic)
+                                        <option value="{{ Crypt::encrypt($pic->empl_id) }}"
+                                            @if ($pic_decrypted !== null && in_array($pic->empl_id, $pic_decrypted)) {{ 'selected' }} @endif>{{ $pic->pic_name }}
+                                        </option>
+                                    @endforeach --}}
+                                </select>
+                            </div>
+                            <div class="col-md-12 mt-3">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-sm btn-outline-danger" id="cancel">Cancel</button>
+                                    <button type="button" id="submit" class="btn btn-sm btn-outline-success">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                {{-- </div> --}}
             <a href="{{ url('client/student/create') }}" class="btn btn-sm btn-primary"><i
-                    class="bi bi-plus-square me-1"></i> Add Student</a>
+                class="bi bi-plus-square me-1"></i> Add Student</a>
         </div>
     </div>
 
