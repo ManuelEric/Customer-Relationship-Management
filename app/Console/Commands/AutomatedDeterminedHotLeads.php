@@ -86,9 +86,6 @@ class AutomatedDeterminedHotLeads extends Command
                             $this->info($value_of_field);
                             # find value from library
                             $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $programBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
-                            $this->info($programBucketId);
-                            $this->info($value_from_library);
-                            $this->info($type);
 
                             $sub_result = ($weight / 100) * $value_from_library;
                             break;
@@ -244,7 +241,7 @@ class AutomatedDeterminedHotLeads extends Command
                     'updated_at' => Carbon::now(),
                 ];
 
-                // $program_tracking = DB::table('tbl_client_lead_tracking')->insert($programBucketDetails);
+                $program_tracking = DB::table('tbl_client_lead_tracking')->insert($programBucketDetails);
                 # end check program
 
                 # Check Lead

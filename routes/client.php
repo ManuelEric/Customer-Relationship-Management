@@ -45,6 +45,7 @@ Route::resource('student', ClientStudentController::class);
 Route::prefix('student')->name('student.')->group(function () {
     Route::post('import', [ClientStudentController::class, 'import'])->name('import');
     Route::get('{student}/status/{status}', [ClientStudentController::class, 'updateStatus'])->name('update.status');
+    Route::post('{student}/lead_status', [ClientStudentController::class, 'updateLeadStatus'])->name('update.lead.status');
 
     Route::resource('{student}/program', ClientProgramController::class);
     Route::prefix('{student}/program')->name('program.')->group(function () {

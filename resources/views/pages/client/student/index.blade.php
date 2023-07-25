@@ -279,6 +279,26 @@
                     },
                     {
                         data: 'status_lead',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            var warm = '';
+                            var hot = '';
+                            var cold = '';
+                            switch (data) {
+                                case 'Hot':
+                                    hot = 'selected';
+                                    break;
+
+                                case 'Warm':
+                                    warm = 'selected';
+                                    break;
+
+                                case 'Cold':
+                                    cold = 'selected';
+                                    break;
+                            }
+                            return data != null ? '<select name="status_lead" style="color:#212b3d" id="status_lead"><option></option><option value="hot" '+ hot +'>Hot</option><option value="warm" '+ warm +'>Warm</option><option value="cold" '+ cold +'>Cold</option></select>' : '-';
+                        }
                         
                     },
                     // {
@@ -336,6 +356,13 @@
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('client/student') }}/" + data.id;
+            });
+
+            $('#clientTable tbody').on('change', '#status_lead ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                var lead_status = $(this).val();
+             
+                confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status/" + $(this).val(), data.id, data.program_suggest, lead_status)
             });
 
             // $('#clientTable tbody').on('click', '.deleteClient ', function() {
