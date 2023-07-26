@@ -22,9 +22,24 @@ class ClientLeadTrackingRepository implements ClientLeadTrackingRepositoryInterf
         return ClientLeadTracking::where('id', $id)->first();
     }
 
+    public function getAllClientLeadTrackingByClientId($client_id) 
+    {
+        return ClientLeadTracking::where('client_id', $client_id)->where('status', 1)->get();
+    }
+
+    public function getHistoryClientLead($client_id) 
+    {
+        return ClientLeadTracking::where('client_id', $client_id)->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->get();
+    }
+
     public function updateClientLeadTracking($clientId, $initProgId, array $leadTrackingDetails) 
     {
         return ClientLeadTracking::where('client_id', $clientId)->where('initialprogram_id', $initProgId)->update($leadTrackingDetails);
+    }
+
+    public function updateClientLeadTrackingByType($clientId, $initProgId, $type, array $leadTrackingDetails) 
+    {
+        return ClientLeadTracking::where('client_id', $clientId)->where('initialprogram_id', $initProgId)->where('type', $type)->update($leadTrackingDetails);
     }
 
     public function createClientLeadTracking(array $leadTrackingDetails) 

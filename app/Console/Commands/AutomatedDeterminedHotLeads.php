@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Models\InitialProgram;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -9,6 +10,13 @@ use Illuminate\Support\Facades\DB;
 
 class AutomatedDeterminedHotLeads extends Command
 {
+    private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+
+    public function __construct(ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository)
+    {
+        parent::__construct();
+        $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
+    }
     /**
      * The name and signature of the console command.
      *
@@ -33,14 +41,22 @@ class AutomatedDeterminedHotLeads extends Command
   
         # get raw data by the oldest client
         $rawData = DB::table('client_lead')->orderBy('id', 'asc')->get();
+        $recalculate = false;
         foreach ($rawData as $clientData) {
+        
+            $leadTracking = $this->clientLeadTrackingRepository->getAllClientLeadTrackingByClientId($clientData->id);
+            
+            if(date('m') == 07){
+                $recalculate = true;
+            }
 
-            $leadTracking = DB::table('tbl_client_lead_tracking')->where('client_id', $clientData->id)->where('status', 1)->get();
-
-            if ($leadTracking->count() > 0)
-                continue;
-
+            if ($leadTracking->count() > 0 && $recalculate == false)
+            continue;
+            
+            // $this->info(json_encode($programLeadTracking));
+            // exit;
             $this->info($clientData->name);
+            $this->info($clientData->id);
             $isFunding = $clientData->is_funding;
             $schoolCategorization = $clientData->school_categorization;
             $gradeCategorization = $clientData->grade_categorization;
@@ -48,12 +64,18 @@ class AutomatedDeterminedHotLeads extends Command
             $majorCategorization = $clientData->major_categorization;
             $type = $clientData->type; # existing client (new, existing mentee, existing non mentee)
             $weight_attribute_name = "weight_" . $type;
-
-
+            
+            
             $initialPrograms = InitialProgram::orderBy('id', 'asc')->get();
             foreach ($initialPrograms as $initialProgram) {
                 $initProgramId = $initialProgram->id;
                 $initProgramName = $initialProgram->name;
+
+                $programLeadTracking = $leadTracking->where('initialprogram_id', $initProgramId)->where('type', 'Program')->first();
+                $statusLeadTracking = $leadTracking->where('initialprogram_id', $initProgramId)->where('type', 'Lead')->first();
+                
+                // $this->info(json_encode($statusLeadTracking));
+                // exit;
 
                 # Check Program
                 $programBuckets = DB::table('tbl_program_buckets_params')->leftJoin('tbl_param_lead', 'tbl_param_lead.id', '=', 'tbl_program_buckets_params.param_id')->where('tbl_program_buckets_params.initialprogram_id', $initProgramId)->where('tbl_param_lead.value', 1)->orderBy('tbl_program_buckets_params.id', 'asc')->get();
@@ -83,7 +105,6 @@ class AutomatedDeterminedHotLeads extends Command
                                 }
                             }
 
-                            $this->info($value_of_field);
                             # find value from library
                             $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $programBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
 
@@ -223,11 +244,11 @@ class AutomatedDeterminedHotLeads extends Command
 
                     $total_result += $sub_result;
 
-                    $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
+                    // $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
                 }
 
-                $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
-                $this->info('');
+                // $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
+                // $this->info('');
 
                 // $this->info('============= Lead ==========');
 
@@ -241,7 +262,18 @@ class AutomatedDeterminedHotLeads extends Command
                     'updated_at' => Carbon::now(),
                 ];
 
-                $program_tracking = DB::table('tbl_client_lead_tracking')->insert($programBucketDetails);
+                if($recalculate == true){
+                    if(($programLeadTracking->program_status == 'Yes' && $total_result < 0.5) || ($programLeadTracking->program_status == 'No' && $total_result >= 0.5)){
+                        $this->info('Program is Diff');
+                        $this->clientLeadTrackingRepository->updateClientLeadTrackingByType($clientData->id, $initProgramId, 'program', ['status' => 0, 'reason_id' => 122]);
+                            
+                        $this->clientLeadTrackingRepository->createClientLeadTracking($programBucketDetails);
+                    }
+                    
+                }else{
+                    $this->clientLeadTrackingRepository->createClientLeadTracking($programBucketDetails);
+                }
+
                 # end check program
 
                 # Check Lead
@@ -317,11 +349,11 @@ class AutomatedDeterminedHotLeads extends Command
 
                     $total_result += $sub_result / 2;
 
-                    $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
+                    // $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
                 }
 
-                $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
-                $this->info('');
+                // $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
+                // $this->info('');
 
                 $leadBucketDetails = [
                     'client_id' => $clientData->id,
@@ -333,7 +365,17 @@ class AutomatedDeterminedHotLeads extends Command
                     'updated_at' => Carbon::now(),
                 ];
 
-                // $lead_tracking = DB::table('tbl_client_lead_tracking')->insert($leadBucketDetails);
+                if($recalculate == true){
+                    if(($statusLeadTracking->lead_status == 'Cold' && $total_result >= 0.35) || ($statusLeadTracking->lead_status == 'Hot' && $total_result <= 0.64) || ($statusLeadTracking->lead_status == 'Warm' && $total_result < 0.35) || ($statusLeadTracking->lead_status == 'Warm' && $total_result >= 0.65)){
+                        $this->info('Lead is Diff ' . $statusLeadTracking->lead_status . ' ' . $total_result);
+                        $this->clientLeadTrackingRepository->updateClientLeadTrackingByType($clientData->id, $initProgramId, 'Lead', ['status' => 0, 'reason_id' => 122]);
+                            
+                        $this->clientLeadTrackingRepository->createClientLeadTracking($leadBucketDetails);
+                    }
+                }else{
+                    $this->clientLeadTrackingRepository->createClientLeadTracking($leadBucketDetails);
+                }
+
                 # end check Lead
 
             }

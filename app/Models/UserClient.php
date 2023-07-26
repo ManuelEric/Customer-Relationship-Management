@@ -94,7 +94,10 @@ class UserClient extends Authenticatable
     {
         switch ($parameter) {
             case "All-In Event":
-                return "ALL-In Event - " . $this->event->event_title;
+                if ($this->event != NULL)
+                    return "ALL-In Event - " . $this->event->event_title;
+                else
+                    return "ALL-In Event";
                 break;
 
             case "External Edufair":

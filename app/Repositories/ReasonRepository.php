@@ -15,6 +15,11 @@ class ReasonRepository implements ReasonRepositoryInterface
         return Reason::all();
     }
 
+    public function getReasonByType($type)
+    {
+        return Reason::where('type', $type)->get();
+    }
+
     public function getReasonById($reasonId)
     {
         return Reason::find($reasonId);

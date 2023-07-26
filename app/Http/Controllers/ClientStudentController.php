@@ -26,6 +26,7 @@ use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\InitialProgramRepositoryInterface;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
+use App\Interfaces\ReasonRepositoryInterface;
 use App\Imports\MasterStudentImport;
 use App\Imports\StudentImport;
 use App\Models\Lead;
@@ -64,8 +65,9 @@ class ClientStudentController extends ClientController
     private ClientEventRepositoryInterface $clientEventRepository;
     private InitialProgramRepositoryInterface $initialProgramRepository;
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+    private ReasonRepositoryInterface $reasonRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository, CountryRepositoryInterface $countryRepository, ClientEventRepositoryInterface $clientEventRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository, CountryRepositoryInterface $countryRepository, ClientEventRepositoryInterface $clientEventRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
@@ -83,6 +85,7 @@ class ClientStudentController extends ClientController
         $this->clientEventRepository = $clientEventRepository;
         $this->initialProgramRepository = $initialProgramRepository;
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
+        $this->reasonRepository = $reasonRepository;
     }
 
     # ajax start
@@ -131,20 +134,32 @@ class ClientStudentController extends ClientController
             
             return $this->clientRepository->getDataTables($model);
         }
+
+        $reasons = $this->reasonRepository->getReasonByType('Hot Lead');
         
-        return view('pages.client.student.index');
+        return view('pages.client.student.index')->with(
+            [
+                'reasons' => $reasons
+            ]
+        );
     }
 
     public function show(Request $request)
     {
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
+
+        $initialPrograms = $this->initialProgramRepository->getAllInitProg();
+        $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
+        
         if (!$student)
             abort(404);
 
         return view('pages.client.student.view')->with(
             [
-                'student' => $student
+                'student' => $student,
+                'initialPrograms' => $initialPrograms,
+                'historyLeads' => $historyLeads
             ]
         );
     }
@@ -518,7 +533,13 @@ class ClientStudentController extends ClientController
         $studentId = $request->clientId;
         $initprogName = $request->initProg;
         $leadStatus = $request->leadStatus;
+        $reason = $request->reason_id;
         $programScore = $leadScore = 0;
+
+        if($reason == 'other'){
+            $otherReason = $this->reasonRepository->createReason(['reason_name' => $request->other_reason, 'type' => 'Hot Lead']);
+            $reason = $otherReason->reason_id;
+        }
 
         $initProg = $this->initialProgramRepository->getInitProgByName($initprogName);
         
@@ -558,7 +579,7 @@ class ClientStudentController extends ClientController
         DB::beginTransaction();
         try {
 
-            $this->clientLeadTrackingRepository->updateClientLeadTracking($studentId, $initProg->id, ['status' => 0]);
+            $this->clientLeadTrackingRepository->updateClientLeadTracking($studentId, $initProg->id, ['status' => 0, 'reason_id' => $reason]);
             
             $this->clientLeadTrackingRepository->createClientLeadTracking($programDetails);
             $this->clientLeadTrackingRepository->createClientLeadTracking($leadStatusDetails);
@@ -572,7 +593,7 @@ class ClientStudentController extends ClientController
                     'success' => false,
                     'message' => $e->getMessage()
                 ]
-            );
+            );            
         }
 
         return response()->json(
@@ -581,6 +602,7 @@ class ClientStudentController extends ClientController
                 'message' => "Lead status has been updated",
             ]
         );
+        
     }
 
     public function import(StoreImportExcelRequest $request)

@@ -13,6 +13,7 @@ class ClientLeadTracking extends Model
 
     protected $table = 'tbl_client_lead_tracking';
     protected $primaryKey = 'id';
+    protected $appends = ['lead_status', 'program_status'];
 
     public $incrementing = false;
 
@@ -27,5 +28,53 @@ class ClientLeadTracking extends Model
         'type',
         'total_result',
         'status',
+        'reason_id'
     ];
+
+    public function leadStatus(): Attribute
+    {
+        if ($this->type == 'Lead') {
+
+            if($this->total_result >= 0.65){
+                return Attribute::make(
+                    get: fn ($value) => 'Hot',
+                );
+            }else if($this->total_result >= 0.35 && $this->total_result < 0.65){
+                return Attribute::make(
+                    get: fn ($value) => 'Warm',
+                );
+                
+            }else if($this->total_result < 0.35){
+                return Attribute::make(
+                    get: fn ($value) => 'Cold',
+                );
+            }
+
+        } else {
+            return Attribute::make(
+                get: fn ($value) => null,
+            );
+        }
+    }
+
+    public function programStatus(): Attribute
+    {
+        if ($this->type == 'Program') {
+
+            if($this->total_result >= 0.5){
+                return Attribute::make(
+                    get: fn ($value) => 'Yes',
+                );
+            }else {
+                return Attribute::make(
+                    get: fn ($value) => 'No',
+                );
+            }
+
+        } else {
+            return Attribute::make(
+                get: fn ($value) => null,
+            );
+        }
+    }
 }
