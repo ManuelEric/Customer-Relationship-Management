@@ -491,7 +491,7 @@
                     swal.close();
                                 
                     let obj = response.data;
-                    $('#clientTable').DataTable().ajax.reload();
+                    $('#clientTable').DataTable().ajax.reload(null, false);
                 })
                     .catch(function(error) {
                     swal.close();
