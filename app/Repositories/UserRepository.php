@@ -95,6 +95,19 @@ class UserRepository implements UserRepositoryInterface
         })->where('active', 1)->orderBy('first_name', 'asc')->orderBy('last_name', 'asc')->get();
     }
 
+    public function getAllUsersProbationContracts()
+    {
+        $today = date('Y-m-d');
+        $twoWeeks = date('Y-m-d', strtotime('+2 weeks', strtotime($today)));
+
+        return User::whereHas('user_type', function($query) use ($twoWeeks) {
+                $query->
+                    where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
+                    where('tbl_user_type_detail.end_date', $twoWeeks)-> # dimana end date nya sudah H-2 weeks
+                    where('tbl_user_type.type_name', 'Probation'); 
+            })->get();
+    }
+
     public function getUserById($userId)
     {
         return User::findOrFail($userId);
