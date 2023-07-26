@@ -1,5 +1,5 @@
 @extends('layout.email')
-@section('header', 'Contract Expiration Notification - Probation')
+@section('header', 'Contract Expiration Notification - '.$title)
 @section('content')
     <p style="margin:0;">Dear HR Department,</p>
     <p>

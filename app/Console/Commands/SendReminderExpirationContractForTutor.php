@@ -8,21 +8,21 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class SendReminderForProbation extends Command
+class SendReminderExpirationContractForTutor extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'send:reminder_probation';
+    protected $signature = 'send:reminder_expiration_contracts_tutor';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sending a reminder to HR Team if there are employees contract that must be renewed or almost finished.';
+    protected $description = 'Sending a reminder to HR Team if there are employees (tutor) contract that must be renewed or almost finished.';
 
     private UserRepositoryInterface $userRepository;
 
@@ -31,6 +31,7 @@ class SendReminderForProbation extends Command
         parent::__construct();
         $this->userRepository = $userRepository;
     }
+
     /**
      * Execute the console command.
      *
@@ -38,16 +39,19 @@ class SendReminderForProbation extends Command
      */
     public function handle()
     {
-        Log::info('Cron send reminder probation working properly');
+        Log::info('Cron send reminder expiration contract tutor working properly');
 
         # the contracts that expired soon.
-        $contracts = $this->userRepository->getAllUsersProbationContracts();
+        $contracts = $this->userRepository->getAllUsersTutorContracts();
         $list_contracts_expired_soon = [];
 
         $progressBar = $this->output->createProgressBar($contracts->count());
         $progressBar->start();
 
         foreach ($contracts as $contract) {
+
+            if (!$contract->user_type[0])
+                throw new Exception('Cannot found active contract.');
 
             $list_contracts_expired_soon[] = [
                 'full_name' => $contract->full_name,
@@ -62,10 +66,10 @@ class SendReminderForProbation extends Command
 
         $subject = 'Contract Expiration Notification';
             
-        $mail_resources = 'mail-template.probation-contract-reminder';
+        $mail_resources = 'mail-template.expiration-contract-reminder';
 
         try {
-            Mail::send($mail_resources, ['list_contracts' => $list_contracts_expired_soon], function ($message) use ($subject) {
+            Mail::send($mail_resources, ['list_contracts' => $list_contracts_expired_soon, 'title' => 'Tutor'], function ($message) use ($subject) {
                 $message->to(env('HR_MAIL'))
                     ->cc(env('HR_CC'))
                     ->subject($subject);
@@ -74,7 +78,7 @@ class SendReminderForProbation extends Command
 
         } catch (Exception $e) {
 
-            Log::error('Failed to send expiration contract to HR Team caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+            Log::error('Failed to send expiration contract (tutor) to HR Team caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
             return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
         }
 

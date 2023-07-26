@@ -108,6 +108,82 @@ class UserRepository implements UserRepositoryInterface
             })->get();
     }
 
+    public function getAllUsersTutorContracts()
+    {
+        $today = date('Y-m-d');
+        $twoMonths = date('Y-m-d', strtotime('+2 months', strtotime($today)));
+
+        return User::
+            whereHas('roles', function ($query) {
+                $query->
+                    where('role_name', 'Tutor');
+            })->
+            whereHas('user_type', function($query) use ($twoMonths) {
+                $query->
+                    where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
+                    where('tbl_user_type_detail.end_date', $twoMonths)-> # dimana end date nya sudah H-2 weeks
+                    where('tbl_user_type.type_name', 'Part-Time');
+            })->get();
+    }
+
+    public function getAllUsersEditorContracts()
+    {
+        $today = date('Y-m-d');
+        $twoMonths = date('Y-m-d', strtotime('+2 months', strtotime($today)));
+
+        return User::
+            whereHas('roles', function ($query) {
+                $query->
+                    where('role_name', 'like', '%Editor');
+            })->
+            whereHas('user_type', function($query) use ($twoMonths) {
+                $query->
+                    where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
+                    where('tbl_user_type_detail.end_date', $twoMonths)-> # dimana end date nya sudah H-2 weeks
+                    where('tbl_user_type.type_name', 'Part-Time');
+            })->get();
+    }
+
+    public function getAllUsersExternalMentorContracts()
+    {
+        # make sure external mentor adalah yg part-time??
+
+        $today = date('Y-m-d');
+        $twoMonths = date('Y-m-d', strtotime('+2 months', strtotime($today)));
+
+        return User::
+            whereHas('roles', function ($query) {
+                $query->
+                    where('role_name', 'Mentor');
+            })->
+            whereDoesntHave('roles', function ($query) {
+                $query->
+                    where('role_name', 'Employee');
+            })->
+            whereHas('user_type', function($query) use ($twoMonths) {
+                $query->
+                    where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
+                    where('tbl_user_type_detail.end_date', $twoMonths)-> # dimana end date nya sudah H-2 weeks
+                    where('tbl_user_type.type_name', 'Part-Time');
+            })->
+            get();
+    }
+
+    public function getAllUsersInternshipContracts()
+    {
+        $today = date('Y-m-d');
+        $oneMonth = date('Y-m-d', strtotime('+1 months', strtotime($today)));
+
+        return User::
+            whereHas('user_type', function($query) use ($oneMonth) {
+                $query->
+                    where('tbl_user_type_detail.status', 1)-> # dimana status contractnya active
+                    where('tbl_user_type_detail.end_date', $oneMonth)-> # dimana end date nya sudah H-2 weeks
+                    where('tbl_user_type.type_name', 'Internship');
+            })->
+            get();
+    }
+
     public function getUserById($userId)
     {
         return User::findOrFail($userId);
