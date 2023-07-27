@@ -77,4 +77,9 @@ class ClientLeadTracking extends Model
             );
         }
     }
+
+    public function client()
+    {
+        return $this->belongsTo(UserClient::class, 'client_id', 'id');
+    }
 }
