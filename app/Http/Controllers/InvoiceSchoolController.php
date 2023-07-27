@@ -182,7 +182,7 @@ class InvoiceSchoolController extends Controller
         $now = Carbon::now();
         $thisMonth = $now->month;
 
-        $last_id = Invb2b::whereMonth('created_at', $thisMonth)->max(DB::raw('substr(invb2b_id, 1, 4)'));
+        $last_id = Invb2b::whereMonth('created_at', $thisMonth)->whereYear('created_at', date('Y'))->max(DB::raw('substr(invb2b_id, 1, 4)'));
 
         $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($schProgId);
         $prog_id = $schoolProgram->prog_id;
@@ -438,7 +438,7 @@ class InvoiceSchoolController extends Controller
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoiceSch->invb2b_id;
         $invoice_num = $invoiceSch->invb2b_num;
-        $file_name = str_replace('/', '_', $invoice_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
+        $file_name = str_replace('/', '-', $invoice_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
         $path = 'uploaded_file/invoice/sch_prog/';
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
@@ -621,7 +621,7 @@ class InvoiceSchoolController extends Controller
             env('FINANCE_CC')
         ];
         $data['recipient'] = $invoiceSch->sch_prog->user->full_name;
-        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
+        $data['title'] = "Invoice of program " . $program_name;
         $data['param'] = [
             'invb2b_num' => $invNum,
             'currency' => $currency,

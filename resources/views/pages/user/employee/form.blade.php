@@ -135,7 +135,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="">Emergency Contact <sup class="text-danger">*</sup></label>
+                                <label for="">Emergency Contact {!! Request::route('user_role') == 'employee' || Request::route('user_role') == 'admin' ? '<sup class="text-danger">*</sup>' : '' !!}</label>
                                 <input type="text" name="emergency_contact" value="{{ isset($user->emergency_contact) ? $user->emergency_contact : old('emergency_contact') }}"
                                     class="form-control form-control-sm rounded">
                                 @error('emergency_contact')

@@ -210,7 +210,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Expected Graduation Year
                             </label>
-                            <select name="grade" id="grade"
+                            <select name="graduation_year" id="graduation_year"
                                 class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
                                 placeholder="">
                                 <option value=""></option>
@@ -275,7 +275,7 @@
     }
 
     var user1 = document.querySelector("#phoneUser1");
-    var user2 = document.querySelector("#phoneUser2");
+    // var user2 = document.querySelector("#phoneUser2");
     const phoneInput1 = window.intlTelInput(user1, {
         utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
         initialCountry: 'id',
@@ -286,7 +286,7 @@
         create: true
     });
 
-    new TomSelect('#grade', {
+    new TomSelect('#graduation_year', {
         create: false
     });
 
@@ -348,10 +348,10 @@
     }
 </script>
 <script>
-    // $("#phoneUser1").on('keyup', function(e) {
-    //     var number1 = phoneInput1.getNumber();
-    //     $("#phone1").val(number1);
-    // });
+    $("#phoneUser1").on('keyup', function(e) {
+        var number1 = phoneInput1.getNumber();
+        $("#phone1").val(number1);
+    });
 </script>
 
 </html>

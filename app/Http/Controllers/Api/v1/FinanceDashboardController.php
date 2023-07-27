@@ -64,7 +64,7 @@ class FinanceDashboardController extends Controller
 
         $data = [
             'invoiceNeededToday' => count($totalInvoiceNeeded->where('success_date', date('Y-m-d'))),
-            'outstandingToday' => $unpaidPayments->where('invoice_duedate', date('Y-m-d')),
+            'outstandingToday' => $unpaidPayments->where('invoice_duedate', date('Y-m-d', strtotime("-3 days"))),
             'refundRequestToday' => $totalRefundRequest->where('refund_date', date('Y-m-d')),
             'totalInvoiceNeeded' => count($totalInvoiceNeeded),
             'totalInvoice' => $totalInvoice,
@@ -279,7 +279,7 @@ class FinanceDashboardController extends Controller
                         ];
                     }
 
-                    $html .= '<tr' . ($unpaidPayment->invoice_duedate == date('Y-m-d') ?  ' class="table-danger"' : ' class="a"') . ' style="cursor:pointer">
+                    $html .= '<tr' . ($unpaidPayment->invoice_duedate == date('Y-m-d', strtotime("-3 days")) ?  ' class="table-danger"' : ' class="a"') . ' style="cursor:pointer">
                             <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $index++ . '</td>
                             <td class="detail" data-clientprog="' . $unpaidPayment->client_prog_id . '" data-typeprog="' . $unpaidPayment->typeprog . '" data-invid="' . $unpaidPayment->invoice_id . '" data-type="outstanding">' . $unpaidPayment->full_name . '</td>
                             <td class="reminder text-center" data-clientid="' . $unpaidPayment->client_id .  '">' . ($unpaidPayment->typeprog == 'client_prog' ? '<button data-bs-toggle="modal" data-bs-target="#reminderModal" class="mx-1 btn btn-sm btn-outline-success reminder"><i class="bi bi-whatsapp"></i></button>' : '-') . '</td>

@@ -133,7 +133,7 @@ class InvoiceReferralController extends Controller
         $now = Carbon::now();
         $thisMonth = $now->month;
 
-        $last_id = Invb2b::whereMonth('created_at', $thisMonth)->max(DB::raw('substr(invb2b_id, 1, 4)'));
+        $last_id = Invb2b::whereMonth('created_at', $thisMonth)->whereYear('created_at', date('Y'))->max(DB::raw('substr(invb2b_id, 1, 4)'));
 
         // Use Trait Create Invoice Id
         $inv_id = $this->getInvoiceId($last_id, 'REF-OUT');
@@ -245,7 +245,7 @@ class InvoiceReferralController extends Controller
         unset($invoices['invb2b_totpriceidr_other']);
         unset($invoices['invb2b_wordsidr_other']);
 
-        
+
         $invoices['ref_id'] = $ref_id;
         $inv_b2b = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $inv_id = $inv_b2b->invb2b_id;
@@ -315,7 +315,7 @@ class InvoiceReferralController extends Controller
         $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoiceRef->invb2b_id;
         $invoice_num = $invoiceRef->invb2b_num;
-        $file_name = str_replace('/', '_', $invoice_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
+        $file_name = str_replace('/', '-', $invoice_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_INV_JEI_EF_I_23_idr.pdf
         $path = 'uploaded_file/invoice/referral/';
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('B2B', $invoice_id, $currency);
 
@@ -485,7 +485,7 @@ class InvoiceReferralController extends Controller
             env('FINANCE_CC')
         ];
         $data['recipient'] = $invoiceRef->referral->user->email;
-        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
+        $data['title'] = "Invoice of program " . $program_name;
         $data['param'] = [
             'invb2b_num' => $invNum,
             'currency' => $currency,

@@ -450,7 +450,9 @@ class StoreClientProgramRequest extends FormRequest
 
     public function store_tutoring_success($isMentee)
     {
-        return [
+        $invoice_exist = $this->input('invoice_exist');
+        $extended_rules = [];
+        $rules = [
             'prog_id' => [
                 'required',
                 'exists:tbl_prog,prog_id',
@@ -489,7 +491,7 @@ class StoreClientProgramRequest extends FormRequest
             'success_date' => 'required',
             'trial_date' => 'required|date',
             'prog_start_date' => 'required|date',
-            'prog_end_date' => 'required|date|after:prog_start_date',
+            'prog_end_date' => 'required|date|after_or_equal:prog_start_date',
             'timesheet_link' => 'required|url',
             'tutor_id' => [
                 'required_if:status,1',
@@ -504,6 +506,17 @@ class StoreClientProgramRequest extends FormRequest
             ],
             'prog_running_status' => 'required',
         ];
+
+        if ($invoice_exist) {
+            $extended_rules = [
+                'session' => 'required',
+                'sessionDetail.*' => 'required',
+                'sessionLinkMeet.*' => 'required|url',
+            ];
+        }
+
+        $rules = array_merge($rules, $extended_rules);
+        return $rules;
     }
 
     public function store_satact_success($isMentee, $studentId)

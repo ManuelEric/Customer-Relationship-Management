@@ -5,6 +5,8 @@ namespace App\Interfaces;
 interface ClientRepositoryInterface
 {
     public function getAllClients();
+    public function getAllClientsFromViewTable();
+
     public function getAllClientDataTables();
     public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = null);
     public function getAllClientByRole($roleName, $month = NULL); # mentee, parent, teacher
@@ -41,6 +43,7 @@ interface ClientRepositoryInterface
     public function getParentsByStudentId($studentId);
     public function getParentByParentName($parentName);
     public function createClientRelation($parentId, $studentId);
+    public function removeClientRelation($parentId, $studentId);
     public function createManyClientRelation($parentId, array $studentId);
     public function createDestinationCountry($studentId, $destinationCountryDetails);
     public function getInterestedProgram($studentId);

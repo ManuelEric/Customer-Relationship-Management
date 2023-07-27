@@ -32,7 +32,7 @@ class StoreClientParentRequest extends FormRequest
             'pr_lastname' => 'nullable',
             'pr_mail' => 'required|email|unique:tbl_client,mail,' . $parentId . ',id',
             'pr_phone' => 'required|min:10|max:15',
-            'pr_dob' => 'required',
+            'pr_dob' => 'nullable',
             'pr_insta' => 'nullable|unique:tbl_client,insta,' . $parentId . ',id',
             'state' => 'required',
             'city' => 'nullable',
@@ -48,7 +48,7 @@ class StoreClientParentRequest extends FormRequest
                     }
                 }
             ],
-            'sch_name' => 'sometimes|required_if:sch_id,add-new|unique:tbl_sch,sch_name',
+            'sch_name' => 'sometimes|required_if:sch_id,add-new', #|unique:tbl_sch,sch_name
             // 'sch_location' => 'sometimes|required_if:sch_id,add-new',
             'sch_type' => 'required_if:sch_id,add-new',
             'sch_curriculum.*' => 'required_if:sch_id,add-new',

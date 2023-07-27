@@ -363,10 +363,10 @@
     }
 </script>
 <script>
-    // $("#phoneUser1").on('keyup', function(e) {
-    //     var number1 = phoneInput1.getNumber();
-    //     $("#phone1").val(number1);
-    // });
+    $("#phoneUser1").on('keyup', function(e) {
+        var number1 = phoneInput1.getNumber();
+        $("#phone1").val(number1);
+    });
 </script>
 
 </html>

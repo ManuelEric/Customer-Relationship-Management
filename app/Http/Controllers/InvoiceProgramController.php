@@ -180,7 +180,7 @@ class InvoiceProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->max(DB::raw('substr(inv_id, 1, 4)'));
+            $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
 
             # Use Trait Create Invoice Id
             $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id);
@@ -658,7 +658,7 @@ class InvoiceProgramController extends Controller
         try {
 
             # generate invoice as a PDF file
-            $file_name = str_replace('/', '_', $invoice_id) . '_' . $type;
+            $file_name = str_replace('/', '-', $invoice_id) . '-' . $type;
             $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
             Storage::put('public/uploaded_file/invoice/client/' . $file_name . '.pdf', $pdf->output());
 
@@ -719,11 +719,11 @@ class InvoiceProgramController extends Controller
             $pic_mail
         ];
         $data['recipient'] = $clientProg->client->parents[0]->full_name;
-        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $clientProg->program_name;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,
             'program_name' => $clientProg->program->program_name
         ];
+        $data['title'] = "Invoice of program " . $clientProg->program->program_name;
 
         try {
 
@@ -756,7 +756,7 @@ class InvoiceProgramController extends Controller
         $invoice = $clientProg->invoice;
         $inv_id = $invoice->inv_id;
         $currency = $request->route('currency');
-        $file_name = str_replace('/', '_', $inv_id) . '_' . $currency . '.pdf';
+        $file_name = str_replace('/', '-', $inv_id) . '-' . $currency . '.pdf';
 
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $inv_id, $currency);
 
@@ -911,6 +911,7 @@ class InvoiceProgramController extends Controller
         $client->phone != $phone ? $this->clientRepository->updateClient($client->id, ['phone' => $phone]) : null;
 
         $joined_program_name = ucwords(strtolower($request->program_name));
+        $joined_program_name = str_replace('&', '%26', $joined_program_name);
         $invoice_duedate = date('d/m/Y', strtotime($request->invoice_duedate));
         $total_payment = "Rp. " . number_format($request->total_payment, '2', ',', '.');
 
@@ -919,7 +920,11 @@ class InvoiceProgramController extends Controller
         $interval = $datetime_1->diff($datetime_2);
         $date_diff = $interval->format('%a'); # format for the interval : days
 
-        $payment_method = $request->payment_method != 'Full Payment' ? ' (' . $request->payment_method . ')' : '';
+        $payment_method = '';
+        if ($request->payment_method != 'Full Payment') {
+            $payment_method = $request->payment_method;
+        }
+        // $payment_method = $request->payment_method != 'Full Payment' ? ' (' . $request->payment_method . ')' : '';
 
         $text = $parent != null ? "Dear Mr/Mrs " . $parent_fullname . "," : "Dear " . $client->first_name . " " . $client->last_name . ",";
         $text .= "%0A";
@@ -945,5 +950,17 @@ class InvoiceProgramController extends Controller
         // echo "<script>window.open('" . $link . "', '_blank')</script>";
         // return redirect()->to($link);
         return response()->json(['link' => $link]);
+    }
+
+    public function updateParentMail(Request $request)
+    {
+
+        $client = $this->clientRepository->getClientById($request->parent_id);
+        $parent_mail = $request->parent_mail;
+
+
+        $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+
+        return response()->json(['status' => 'success', 'message' => 'Success Update Email Parent'], 200);
     }
 }

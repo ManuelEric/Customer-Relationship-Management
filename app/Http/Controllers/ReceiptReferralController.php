@@ -13,7 +13,7 @@ use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
-use App\Http\Traits\CreateInvoiceIdTrait;
+use App\Http\Traits\CreateReceiptIdTrait;
 use App\Models\Receipt;
 use Carbon\Carbon;
 use Exception;
@@ -30,7 +30,7 @@ use PDF;
 
 class ReceiptReferralController extends Controller
 {
-    use CreateInvoiceIdTrait;
+    use CreateReceiptIdTrait;
     protected CorporateRepositoryInterface $corporateRepository;
     protected ReferralRepositoryInterface $referralRepository;
     protected ProgramRepositoryInterface $programRepository;
@@ -90,16 +90,19 @@ class ReceiptReferralController extends Controller
 
         $receipts['receipt_cat'] = 'referral';
 
+        $receipts['created_at'] = $receipts['receipt_date'];
+        $receipts['updated_at'] = Carbon::now();
+
         $invoice = $this->invoiceB2bRepository->getInvoiceB2bById($invb2b_num);
         $ref_id = $invoice->ref_id;
 
         $invb2b_id = $invoice->invb2b_id;
 
         # generate receipt id
-        $last_id = Receipt::whereMonth('created_at', date('m'))->max(DB::raw('substr(receipt_id, 1, 4)'));
+        $last_id = Receipt::whereMonth('created_at', isset($request->receipt_date) ? date('m', strtotime($request->receipt_date)) : date('m'))->whereYear('created_at', isset($request->receipt_date) ? date('Y', strtotime($request->receipt_date)) : date('Y'))->max(DB::raw('substr(receipt_id, 1, 4)'));
 
         # Use Trait Create Invoice Id
-        $receipt_id = $this->getInvoiceId($last_id, 'REF-OUT');
+        $receipt_id = $this->getLatestReceiptId($last_id, 'REF-OUT', $receipts);
 
         $receipts['receipt_id'] = substr_replace($receipt_id, 'REC', 5) . substr($receipt_id, 8, strlen($receipt_id));
 
@@ -210,7 +213,7 @@ class ReceiptReferralController extends Controller
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
         $receipt_id = $receipt->receipt_id;
 
-        $file_name = str_replace('/', '_', $receipt_id) . '_' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
+        $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf'; # 0001_REC_JEI_EF_I_23_idr.pdf
         $path = 'uploaded_file/receipt/referral/';
 
         $receiptAttachments = [
@@ -395,7 +398,7 @@ class ReceiptReferralController extends Controller
             env('FINANCE_CC')
         ];
         $data['recipient'] = $receipt->invoiceB2b->referral->user->email;
-        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $program_name;
+        $data['title'] = "Receipt of program " . $program_name;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,

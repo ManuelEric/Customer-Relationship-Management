@@ -43,16 +43,15 @@ class SendReminderInvoiceProgramToPartner extends Command
         $progressBar = $this->output->createProgressBar($invoice_master->count());
         $progressBar->start();
         foreach ($invoice_master as $data) {
-            
+
             $invoiceB2bId = $data->invb2b_id;
             $pic_email = $data->pic_mail;
 
             $program_name = ucwords(strtolower($data->program_name));
-            
+
             $partner_name = $data->corp_name;
             $partner_pics = $data->partner_prog->corp->pic;
-            if ($partner_pics->count() == 0)
-            {
+            if ($partner_pics->count() == 0) {
                 # collect data parents that have no email
                 $partner_have_no_pic[] = [
                     'partner_name' => $partner_name,
@@ -63,7 +62,7 @@ class SendReminderInvoiceProgramToPartner extends Command
             $partner_pic_mail = $partner_pics[0]->pic_mail;
 
 
-            $subject = '7 Days Left until the Payment Deadline for '.$program_name;
+            $subject = '7 Days Left until the Payment Deadline for ' . $program_name;
 
             $params = [
                 'partner_pic' => $partner_pic_name,
@@ -71,7 +70,7 @@ class SendReminderInvoiceProgramToPartner extends Command
                 'program_name' => $program_name,
                 'due_date' => date('d/m/Y', strtotime($data->invb2b_duedate)),
                 'partner_name' => $partner_name,
-                'total_payment' => $data->invoice_totalprice_idr,
+                'total_payment' => "Rp. " . number_format($data->invb2b_totpriceidr),
                 'pic_email' => $pic_email,
             ];
 
@@ -85,12 +84,11 @@ class SendReminderInvoiceProgramToPartner extends Command
                 });
             } catch (Exception $e) {
 
-                Log::error('Failed to send invoice reminder to '.$partner_pic_mail . ' caused by : '. $e->getMessage().' | Line '.$e->getLine());
-                return $this->error($e->getMessage(). ' | Line '.$e->getLine());
-
+                Log::error('Failed to send invoice reminder to ' . $partner_pic_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+                return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
             }
 
-            $this->info('Invoice reminder has been sent to '.$partner_pic_mail);
+            $this->info('Invoice reminder has been sent to ' . $partner_pic_mail);
 
             # update reminded count to 1
             $data->reminded = 1;
@@ -99,8 +97,7 @@ class SendReminderInvoiceProgramToPartner extends Command
             $progressBar->advance();
         }
 
-        if (count($partner_have_no_pic) > 0)
-        {
+        if (count($partner_have_no_pic) > 0) {
             $params = [
                 'finance_name' => env('FINANCE_NAME'),
                 'partner_have_no_pic' => $partner_have_no_pic,
@@ -114,10 +111,9 @@ class SendReminderInvoiceProgramToPartner extends Command
                         ->subject('There are some partner that can\'t be reminded');
                 });
             } catch (Exception $e) {
-                Log::error('Failed to send info to finance team cause by : '. $e->getMessage().' | Line '.$e->getLine());
-                return $this->error($e->getMessage(). ' | Line '.$e->getLine());
+                Log::error('Failed to send info to finance team cause by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+                return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
             }
-
         }
         $progressBar->finish();
         return Command::SUCCESS;

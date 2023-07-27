@@ -43,16 +43,15 @@ class SendReminderInvoiceProgramToSchool extends Command
         $progressBar = $this->output->createProgressBar($invoice_master->count());
         $progressBar->start();
         foreach ($invoice_master as $data) {
-            
+
             $invoiceB2bId = $data->invb2b_id;
             $pic_email = $data->pic_mail;
 
             $program_name = ucwords(strtolower($data->program_name));
-            
+
             $school_name = $data->school_name;
             $school_pics = $data->sch_prog->school->detail;
-            if ($school_pics->count() == 0)
-            {
+            if ($school_pics->count() == 0) {
                 # collect data parents that have no email
                 $school_have_no_pic[] = [
                     'school_name' => $school_name,
@@ -61,11 +60,11 @@ class SendReminderInvoiceProgramToSchool extends Command
             }
             $school_pic_name = $school_pics[0]->schdetail_fullname;
             $school_pic_mail = $school_pics[0]->schdetail_email;
-            
+
             $school_pic_phone = $school_pics[0]->schdetail_phone;
 
 
-            $subject = '7 Days Left until the Payment Deadline for '.$program_name;
+            $subject = '7 Days Left until the Payment Deadline for ' . $program_name;
 
             $params = [
                 'school_pic_name' => $school_pic_name,
@@ -73,7 +72,7 @@ class SendReminderInvoiceProgramToSchool extends Command
                 'program_name' => $program_name,
                 'due_date' => date('d/m/Y', strtotime($data->invb2b_duedate)),
                 'school_name' => $school_name,
-                'total_payment' => $data->invoice_totalprice_idr,
+                'total_payment' => "Rp. " . number_format($data->invb2b_totpriceidr),
                 'pic_email' => $pic_email,
             ];
 
@@ -87,12 +86,11 @@ class SendReminderInvoiceProgramToSchool extends Command
                 });
             } catch (Exception $e) {
 
-                Log::error('Failed to send invoice reminder to '.$school_pic_mail . ' caused by : '. $e->getMessage().' | Line '.$e->getLine());
-                return $this->error($e->getMessage(). ' | Line '.$e->getLine());
-
+                Log::error('Failed to send invoice reminder to ' . $school_pic_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+                return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
             }
 
-            $this->info('Invoice reminder has been sent to '.$school_pic_mail);
+            $this->info('Invoice reminder has been sent to ' . $school_pic_mail);
 
             # update reminded count to 1
             $data->reminded = 1;
@@ -101,8 +99,7 @@ class SendReminderInvoiceProgramToSchool extends Command
             $progressBar->advance();
         }
 
-        if (count($school_have_no_pic) > 0)
-        {
+        if (count($school_have_no_pic) > 0) {
             $params = [
                 'finance_name' => env('FINANCE_NAME'),
                 'school_have_no_pic' => $school_have_no_pic,
@@ -116,10 +113,9 @@ class SendReminderInvoiceProgramToSchool extends Command
                         ->subject('There are some school that can\'t be reminded');
                 });
             } catch (Exception $e) {
-                Log::error('Failed to send info to finance team cause by : '. $e->getMessage().' | Line '.$e->getLine());
-                return $this->error($e->getMessage(). ' | Line '.$e->getLine());
+                Log::error('Failed to send info to finance team cause by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+                return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
             }
-
         }
         $progressBar->finish();
         return Command::SUCCESS;

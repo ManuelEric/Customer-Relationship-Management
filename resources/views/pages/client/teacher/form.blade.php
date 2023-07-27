@@ -78,7 +78,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-2">
-                                    <label>Date of Birth <i class="text-danger font-weight-bold">*</i></label>
+                                    <label>Date of Birth </label>
                                     <input name="dob" type="date" class="form-control form-control-sm" value="{{ isset($teacher_counselor->dob) ? $teacher_counselor->dob : old('dob') }}">
                                     @error('dob')
                                         <small class="text-danger fw-light">{{ $message }}</small>

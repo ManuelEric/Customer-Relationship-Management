@@ -334,11 +334,17 @@ class ClientProgramController extends Controller
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;
-                    $clientProgramDetails['session_tutor'] = $request->session; // how many session will applied
-                    $clientProgramDetails['session_tutor_detail'] = [
-                        'datetime' => $request->sessionDetail,
-                        'linkmeet' => $request->sessionLinkMeet
-                    ];
+
+                    # if session tutor form doesn't exist then don't detail session tutor
+                    if (isset($request->session)) {
+
+                        $clientProgramDetails['session_tutor'] = $request->session; // how many session will applied
+                        $clientProgramDetails['session_tutor_detail'] = [
+                            'datetime' => $request->sessionDetail,
+                            'linkmeet' => $request->sessionLinkMeet
+                        ];
+                    }
+
                 } elseif (in_array($progId, $this->satact_prog_list)) {
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
@@ -411,7 +417,7 @@ class ClientProgramController extends Controller
             DB::rollBack();
             Log::error('Create a student program failed : ' . $e->getMessage());
 
-            return Redirect::to('client/student/' . $studentId . '/program/create' . $query)->withError($e->getMessage());
+            return Redirect::back()->withError($e->getMessage());
         }
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('A new program has been submitted for ' . $student->fullname);
@@ -592,11 +598,16 @@ class ClientProgramController extends Controller
                 } elseif (in_array($progId, $this->tutoring_prog_list)) {
 
                     $clientProgramDetails['tutor_id'] = $request->tutor_id;
-                    $clientProgramDetails['session_tutor'] = $request->session; // how many session will applied
-                    $clientProgramDetails['session_tutor_detail'] = [
-                        'datetime' => $request->sessionDetail,
-                        'linkmeet' => $request->sessionLinkMeet
-                    ];
+
+                    # if session tutor form doesn't exist then don't detail session tutor
+                    if (isset($request->session)) {
+                        
+                        $clientProgramDetails['session_tutor'] = $request->session; // how many session will applied
+                        $clientProgramDetails['session_tutor_detail'] = [
+                            'datetime' => $request->sessionDetail,
+                            'linkmeet' => $request->sessionLinkMeet
+                        ];
+                    }
                 } elseif (in_array($progId, $this->satact_prog_list)) {
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
@@ -688,7 +699,7 @@ class ClientProgramController extends Controller
 
             DB::rollBack();
             Log::error('Update a student program failed : ' . $e->getMessage());
-            return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId . '/edit')->withError($e->getMessage());
+            return Redirect::back()->withError($e->getMessage());
         }
 
         return Redirect::to('client/student/' . $studentId . '/program/' . $clientProgramId)->withSuccess('A program has been updated for ' . $student->fullname);

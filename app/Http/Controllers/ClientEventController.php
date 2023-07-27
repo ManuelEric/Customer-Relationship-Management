@@ -451,33 +451,38 @@ class ClientEventController extends Controller
     }
 
 
-    public function storeFormEmbed(StoreClientEventEmbedRequest $request)
+    public function storeFormEmbed(Request $request)
     {
         $clientEvent = [];
         $existClientParent = ['isExist' => false];
         $existClientStudent = ['isExist' => false];
         $childDetails = [];
         $schoolId = null;
-        $event = $this->eventRepository->getEventByName(urldecode($request->event_name));
+
+        $requested_event_name = str_replace('&quot;', '"', $request->event_name);
+
+        $event = $this->eventRepository->getEventByName(urldecode($requested_event_name));
 
         // Check existing client by phone number and email
         if ($request->role == 'parent') {
             $childDetails = [
-                'name' => $request->child_name,
-                'email' => $request->child_email,
-                'phone' => $request->child_fullnumber,
+                'name' => $request->fullname[1],
+                'email' => null,
+                'phone' => null,
+                'register_as' => 'parent',
             ];
 
-            $phoneParent = $request->fullnumber;
-            $phoneStudent = $childDetails['phone'];
+            $phoneParent = $request->fullnumber[0];
+            // $phoneStudent = $childDetails['phone'];
 
-            $existClientParent = $this->checkExistingClient($phoneParent, $request->email);
-            $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
+            $existClientParent = $this->checkExistingClient($phoneParent, $request->email[0]);
+            // $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
         } else {
             $childDetails = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->fullnumber,
+                'name' => $request->fullname[0],
+                'email' => $request->email[0],
+                'phone' => $request->fullnumber[0],
+                'register_as' => 'student',
             ];
             $phoneStudent = $childDetails['phone'];
             $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
@@ -507,7 +512,7 @@ class ClientEventController extends Controller
             }
 
             if (!$existClientParent['isExist'] && $request->role == 'parent') {
-                $fullname = explode(' ', $request->name);
+                $fullname = explode(' ', $request->fullname[0]);
                 $limit = count($fullname);
 
                 $firstname = $lastname = null;
@@ -522,9 +527,9 @@ class ClientEventController extends Controller
                 $clientDetails = [
                     'first_name' => $firstname,
                     'last_name' => $lastname,
-                    'mail' => $request->email,
+                    'mail' => $request->email[0],
                     'phone' => $phoneParent,
-                    // 'graduation_year' => $request->grade,
+                    // 'graduation_year' => $request->graduation_year,
                     'lead' => $request->leadsource,
                 ];
 
@@ -545,16 +550,17 @@ class ClientEventController extends Controller
                     $firstname = implode(" ", $fullname);
                 }
 
-                $st_grade = 12 - ($request->grade - date('Y'));
+                $st_grade = 12 - ($request->graduation_year - date('Y'));
 
 
                 $clientDetails = [
                     'first_name' => $firstname,
                     'last_name' => $lastname,
                     'mail' => $childDetails['email'],
-                    'phone' => $phoneStudent,
+                    'phone' => $childDetails['phone'],
+                    'register_as' => $childDetails['register_as'],
                     'st_grade' => $st_grade,
-                    'graduation_year' => $request->grade,
+                    'graduation_year' => $request->graduation_year,
                     'lead' => $request->leadsource,
                     'sch_id' => $schoolId != null ? $schoolId : $request->school,
                 ];
@@ -569,6 +575,8 @@ class ClientEventController extends Controller
                     $this->clientRepository->createManyClientRelation($newClientParent->id, $existClientStudent['id']);
                 } else if ($existClientParent['isExist'] && !$existClientParent['isExist']) {
                     $this->clientRepository->createManyClientRelation($existClientParent['id'], $newClientStudent->id);
+                }else{
+                    $this->clientRepository->createManyClientRelation($newClientParent->id, $newClientStudent->id);
                 }
             }
 
@@ -580,12 +588,13 @@ class ClientEventController extends Controller
                 'joined_date' => Carbon::now(),
             ];
 
+
             $this->clientEventRepository->createClientEvent($clientEvent);
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store client event embed failed : ' . $e->getMessage());
+            Log::error('Store client event embed failed : ' . $e->getMessage() . $e->getLine());
 
             return Redirect::to('form/event/')->withError('Something went wrong!');
         }

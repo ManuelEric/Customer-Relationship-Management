@@ -11,7 +11,12 @@ class LeadRepository implements LeadRepositoryInterface
 {
     public function getAllLeadDataTables()
     {
-        return Datatables::eloquent(Lead::query())->make(true);
+        $query = Lead::leftJoin('tbl_department', 'tbl_department.id', '=', 'tbl_lead.department_id')->select('tbl_lead.*', 'tbl_department.dept_name');
+        return Datatables::eloquent($query)->
+                    filterColumn('dept_name', function ($query, $keyword) {
+                        $query->whereRaw('tbl_department.dept_name like ?', ["%{$keyword}%"]);
+                    })->
+                    make(true);
     }
 
     public function getAllLead()
@@ -27,6 +32,11 @@ class LeadRepository implements LeadRepositoryInterface
     public function getAllKOLlead()
     {
         return Lead::where('main_lead', 'KOL')->orderBy('sub_lead', 'asc')->get();
+    }
+
+    public function getActiveLead()
+    {
+        return Lead::where('status', 1)->get();
     }
 
     public function getLeadById($leadId)
@@ -73,6 +83,6 @@ class LeadRepository implements LeadRepositoryInterface
     public function getLeadForFormEmbedEvent()
     {
         // Get all lead without All-in Partners and All-in Event
-        return Lead::where('lead_id', '!=', 'LS003')->where('lead_id', '!=', 'LS010')->get();
+        return Lead::where('lead_id', '!=', 'LS003')->where('lead_id', '!=', 'LS010')->where('status', 1)->get();
     }
 }

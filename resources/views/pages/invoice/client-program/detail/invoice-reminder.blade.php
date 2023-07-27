@@ -122,7 +122,7 @@
                     var client_id = params[8];
                     var child_phone = params[9];
 
-                    $('#phone').val(parent_id == null ? child_phone : parent_phone)
+                    $('#phone').val(parent_phone == null ? child_phone : parent_phone)
                     $('#fullname').val(parent_fullname)
                     $('#program_name').val(program_name)
                     $('#invoice_duedate').val(invoice_duedate)
