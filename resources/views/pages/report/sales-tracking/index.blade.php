@@ -352,8 +352,8 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" tabindex="-1" id="leadModalDetail">
-        <div class="modal-dialog">
+    <div class="modal modal-lg fade" tabindex="-1" id="leadModalDetail">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Modal title</h5>
@@ -361,14 +361,6 @@
                 </div>
                 <div class="modal-body">
                     <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Name</th>
-                                <th>Program</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
                     </table>
                 </div>
                 <div class="modal-footer">
@@ -422,8 +414,9 @@
 
                     swal.close();
                     $("#leadModalDetail").modal('show');
-                    $("#leadModalDetail .modal-title").html("Detail of Lead Source \'"+ obj.title +"\'")
-                    $("#leadModalDetail table tbody").html(obj.context);
+                    $("#leadModalDetail .modal-title").html(obj.title)
+
+                    $("#leadModalDetail table").html(obj.context);
                     
                 })
                 .catch(function(error) {

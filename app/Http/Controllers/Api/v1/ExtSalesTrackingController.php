@@ -25,14 +25,20 @@ class ExtSalesTrackingController extends Controller
         
         try {
 
-            $html = '';
+            $html = '<thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Name</th>
+                            <th>Program</th>
+                        </tr>
+                    </thead>';
             $no = 1;
             foreach ($leadSourceDetail as $data) {
     
                 $html .= '<tr>
                             <td>'.$no++.'.</td>
                             <td>'.$data->first_name.' '.$data->last_name.'</td>
-                            <td>'.$data->prog_program.'</td>
+                            <td>'.$data->invoice_program_name.'</td>
                         </tr>';
             }
         } catch (Exception $e) {
@@ -42,7 +48,7 @@ class ExtSalesTrackingController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                    'title' => $params['leadName'],
+                    'title' => 'Detail of Lead Source \''.$params['leadName'].'\'',
                     'context' => $html
                 ]
         ]);
@@ -57,14 +63,22 @@ class ExtSalesTrackingController extends Controller
         
         try {
 
-            $html = '';
+            $html = '<thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Name</th>
+                            <th>Program</th>
+                            <th>Lead Source</th>
+                        </tr>
+                    </thead>';
             $no = 1;
             foreach ($conversionLeadDetail as $data) {
     
                 $html .= '<tr>
                             <td>'.$no++.'.</td>
                             <td>'.$data->first_name.' '.$data->last_name.'</td>
-                            <td>'.$data->prog_program.'</td>
+                            <td>'.$data->invoice_program_name.'</td>
+                            <td>'.$data->lead_source.'</td>
                         </tr>';
             }
         } catch (Exception $e) {
@@ -74,7 +88,7 @@ class ExtSalesTrackingController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                    'title' => $params['leadName'],
+                    'title' => 'Detail of Conversion Lead \''.$params['leadName'].'\'',
                     'context' => $html
                 ]
         ]);
