@@ -8,6 +8,28 @@
         .select2-container--default .select2-selection--single .select2-selection__rendered {
             line-height: 29px !important;
         }
+
+        @media (min-width: 768px) {
+            .position-md-static {
+                position: static !important;
+            }
+
+            .position-md-relative {
+                position: relative !important;
+            }
+
+            .position-md-absolute {
+                position: absolute !important;
+            }
+
+            .position-md-fixed {
+                position: fixed !important;
+            }
+
+            .position-md-sticky {
+                position: sticky !important;
+            }
+        }
     </style>
 @endsection
 @section('script')
@@ -77,21 +99,19 @@
                     <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                         <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown"
                             aria-expanded="false">
-                            <img class="img-xs rounded-circle"
-                                src="{{ asset('library/dashboard/images/faces/face8.jpg') }}" alt="Profile image"> </a>
+                            <img class="img-xs rounded-circle" src="{{ asset('img/user.png') }}" alt="Profile image"> </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
                             <div class="dropdown-header text-center">
-                                <img class="img-md rounded-circle"
-                                    src="{{ asset('library/dashboard/images/faces/face8.jpg') }}" alt="Profile image">
+                                <img class="img-md rounded-circle w-25" src="{{ asset('img/user.png') }}"
+                                    alt="Profile image">
                                 <p class="mb-1 mt-3 font-weight-semibold">{{ Auth::user()->first_name }}
                                     {{ Auth::user()->last_name }}</p>
                                 <p class="fw-light text-muted mb-0">{{ Auth::user()->email }}</p>
                             </div>
-                            <a class="dropdown-item">
-                                <a class="dropdown-item" href="{{ route('logout') }}">
-                                    <i class="bi bi-box-arrow-down-left text-primary me-2"></i>
-                                    Sign Out
-                                </a>
+                            <a class="dropdown-item" href="{{ route('logout') }}">
+                                <i class="bi bi-box-arrow-down-left text-primary me-2"></i>
+                                Sign Out
+                            </a>
                         </div>
                     </li>
                 </ul>
@@ -119,22 +139,19 @@
                 </div>
                 <div class="dropdown d-block d-lg-none user-dropdown me-0">
                     <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img class="img-xs rounded-circle" src="{{ asset('library/dashboard/images/faces/face8.jpg') }}"
-                            alt="Profile image"> </a>
+                        <img class="img-xs rounded-circle" src="{{ asset('img/user.png') }}" alt="Profile image"> </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown"
                         style="left:-150px;">
                         <div class="dropdown-header text-center">
-                            <img class="img-md rounded-circle"
-                                src="{{ asset('library/dashboard/images/faces/face8.jpg') }}" alt="Profile image">
+                            <img class="img-md rounded-circle w-25" src="{{ asset('img/user.png') }}" alt="Profile image">
                             <p class="mb-1 mt-3 font-weight-semibold">{{ Auth::user()->first_name }}
                                 {{ Auth::user()->last_name }}</p>
                             <p class="fw-light text-muted mb-0">{{ Auth::user()->email }}</p>
                         </div>
-                        <a class="dropdown-item">
-                            <a class="dropdown-item" href="{{ route('logout') }}">
-                                <i class="bi bi-box-arrow-down-left text-primary me-2"></i>
-                                Sign Out
-                            </a>
+                        <a class="dropdown-item" href="{{ route('logout') }}">
+                            <i class="bi bi-box-arrow-down-left text-primary me-2"></i>
+                            Sign Out
+                        </a>
                     </div>
                 </div>
                 <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
@@ -146,7 +163,7 @@
         <!-- partial -->
         <div class="container-fluid page-body-wrapper">
             <!-- partial:partials/_sidebar.html -->
-            <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <nav class="sidebar sidebar-offcanvas position-md-fixed h-75 overflow-auto pt-3 pe-3" id="sidebar">
                 <ul class="nav">
                     <li class="nav-item">
                         <a @class(['nav-link', 'text-primary' => Request::is('dashboard')]) href="{{ url('dashboard') }}">
@@ -210,7 +227,7 @@
                 </ul>
             </nav>
             <!-- partial -->
-            <div class="main-panel">
+            <div class="main-panel position-md-absolute end-0">
                 <div class="content-wrapper">
                     <div class="row">
                         <div class="col-sm-12">
