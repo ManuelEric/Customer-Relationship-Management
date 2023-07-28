@@ -24,7 +24,18 @@ class ClientLeadTrackingRepository implements ClientLeadTrackingRepositoryInterf
     
     public function getAllClientLeadTrackingByClientId($client_id) 
     {
-        return ClientLeadTracking::where('client_id', $client_id)->where('status', 1)->get();
+        return ClientLeadTracking::where('client_id', $client_id)->get();
+    }
+    
+    public function getCurrentClientLead($client_id) 
+    {
+        return ClientLeadTracking::where('client_id', $client_id)->where('status', 1)->orderBy('updated_at', 'desc')->get();
+
+    }
+
+    public function getLatestClientLeadTrackingByType($client_id, $initprogId, $type) 
+    {
+        return ClientLeadTracking::where('client_id', $client_id)->where('initialprogram_id', $initprogId)->where('type', $type)->orderBy('updated_at', 'desc')->first();
     }
     
     public function getHistoryClientLead($client_id) 
@@ -41,6 +52,11 @@ class ClientLeadTrackingRepository implements ClientLeadTrackingRepositoryInterf
     public function updateClientLeadTracking($clientId, $initProgId, array $leadTrackingDetails) 
     {
         return ClientLeadTracking::where('client_id', $clientId)->where('initialprogram_id', $initProgId)->update($leadTrackingDetails);
+    }
+
+    public function updateClientLeadTrackingById($id, array $leadTrackingDetails) 
+    {
+        return ClientLeadTracking::where('id', $id)->update($leadTrackingDetails);
     }
 
     public function updateClientLeadTrackingByType($clientId, $initProgId, $type, array $leadTrackingDetails) 

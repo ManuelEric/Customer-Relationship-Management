@@ -290,47 +290,50 @@
                 </div>
             </div>
 
-            <div class="card rounded mb-2">
-                <div class="card-header">
-                    <div class="">
-                        <h5 class="m-0 p-0">Client Lead Tracking</h5>
+            @if($historyLeads->count() > 0 && $historyLeads->where('status', 1)->count() > 0)          
+                <div class="card rounded mb-2">
+                    <div class="card-header">
+                        <div class="">
+                            <h5 class="m-0 p-0">Client Lead Tracking</h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @forelse ($initialPrograms as $initProg)
+                            <div class="row mb-2 g-1">
+                                <div class="col d-flex justify-content-between">
+                                    <label>
+                                        {{$initProg->name}}
+                                    </label>
+                                    <label>:</label>
+                                </div>
+                                <div class="col-md-9 col-8">
+                                    @php
+                                        $currenctLead = $historyLeads->where('initialprogram_id', $initProg->id)->where('status', 1);
+                                        $historyLead = $historyLeads->where('initialprogram_id', $initProg->id  )->where('status', 0);
+                                        // dd($historyLead);
+                                    @endphp
+                                    Current Lead ({{$currenctLead->where('type', 'Program')->first()->program_status}} | {{$currenctLead->where('type', 'Lead')->first()->lead_status}})
+                                    <br>
+                                    Histoy: 
+                                    @foreach ($historyLead->where('type', 'Program') as $historyProgram)
+                                        {{$historyProgram->program_status}}
+                                        |
+                                    @endforeach
+                                    @foreach ($historyLead->where('type', 'Lead') as $historyLead)
+                                        {{$historyLead->lead_status}}
+                                        <br>
+                                    @endforeach
+                                </div>
+                            </div>
+                            
+
+                            @empty
+                                There's no parent information yet
+                        @endforelse
                     </div>
                 </div>
-                <div class="card-body">
-                    @forelse ($initialPrograms as $initProg)
-                        <div class="row mb-2 g-1">
-                            <div class="col d-flex justify-content-between">
-                                <label>
-                                    {{$initProg->name}}
-                                </label>
-                                <label>:</label>
-                            </div>
-                            <div class="col-md-9 col-8">
-                                @php
-                                    $currenctLead = $historyLeads->where('initialprogram_id', $initProg->id)->where('status', 1);
-                                    $historyLead = $historyLeads->where('initialprogram_id', $initProg->id  )->where('status', 0);
-                                    // dd($historyLead);
-                                @endphp
-                                Current Lead ({{$currenctLead->where('type', 'Program')->first()->program_status}} | {{$currenctLead->where('type', 'Lead')->first()->lead_status}})
-                                <br>
-                                Histoy: 
-                                @foreach ($historyLead->where('type', 'Program') as $historyProgram)
-                                    {{$historyProgram->program_status}}
-                                    |
-                                @endforeach
-                                @foreach ($historyLead->where('type', 'Lead') as $historyLead)
-                                    {{$historyLead->lead_status}}
-                                    <br>
-                                @endforeach
-                            </div>
-                        </div>
-                        
+            @endif
 
-                        @empty
-                            There's no parent information yet
-                    @endforelse
-                </div>
-            </div>
         </div>
         <div class="col-md-12">
             <div class="card rounded">

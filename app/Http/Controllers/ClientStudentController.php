@@ -151,7 +151,7 @@ class ClientStudentController extends ClientController
 
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
-        
+
         if (!$student)
             abort(404);
 
@@ -361,8 +361,18 @@ class ClientStudentController extends ClientController
         $data = $this->initializeVariablesForStoreAndUpdate('student', $request);
 
         $studentId = $request->route('student');
+
+        $leadsTracking = $this->clientLeadTrackingRepository->getCurrentClientLead($studentId);
+
         DB::beginTransaction();
         try {
+
+            # update status client lead tracking
+            if($leadsTracking->count() > 0){
+                foreach($leadsTracking as $leadTracking){
+                    $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0]);
+                }
+            }
 
             # case 1
             # create new school
@@ -542,7 +552,10 @@ class ClientStudentController extends ClientController
         }
 
         $initProg = $this->initialProgramRepository->getInitProgByName($initprogName);
-        
+       
+        $programTracking = $this->clientLeadTrackingRepository->getLatestClientLeadTrackingByType($studentId, $initProg->id, 'Program');
+        $leadTracking = $this->clientLeadTrackingRepository->getLatestClientLeadTrackingByType($studentId, $initProg->id, 'Lead');
+
         switch ($leadStatus) {
             case 'hot':
                 $programScore = 0.99;
@@ -579,7 +592,8 @@ class ClientStudentController extends ClientController
         DB::beginTransaction();
         try {
 
-            $this->clientLeadTrackingRepository->updateClientLeadTracking($studentId, $initProg->id, ['status' => 0, 'reason_id' => $reason]);
+            $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programTracking->id, ['status' => 0, 'reason_id' => $reason]);
+            $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0, 'reason_id' => $reason]);
             
             $this->clientLeadTrackingRepository->createClientLeadTracking($programDetails);
             $this->clientLeadTrackingRepository->createClientLeadTracking($leadStatusDetails);
