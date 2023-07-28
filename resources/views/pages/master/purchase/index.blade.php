@@ -3,13 +3,15 @@
 @section('title', 'Purchase Request - Bigdata Platform')
 
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Purchase Request
-        </a>
-        <a href="{{ url('master/purchase/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
-            Purchase Request</a>
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="d-flex align-items-center justify-content-between">
+            <h5 class="text-white m-0">
+                <i class="bi bi-tag me-1"></i>
+                Purchase Request
+            </h5>
+            <a href="{{ url('master/purchase/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i> Add
+                Purchase Request</a>
+        </div>
     </div>
 
 

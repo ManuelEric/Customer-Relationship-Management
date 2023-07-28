@@ -3,14 +3,16 @@
 @section('title', 'Major - Bigdata Platform')
 
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Major
-        </a>
-        <a href="#" class="btn btn-sm btn-primary" onclick="resetForm()" data-bs-toggle="modal"
-            data-bs-target="#majorForm"><i class="bi bi-plus-square me-1"></i> Add
-            Major</a>
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="d-flex align-items-center justify-content-between">
+            <h5 class="text-white m-0">
+                <i class="bi bi-tag me-1"></i>
+                Major
+            </h5>
+            <a href="#" class="btn btn-sm btn-info" onclick="resetForm()" data-bs-toggle="modal"
+                data-bs-target="#majorForm"><i class="bi bi-plus-square me-1"></i> Add
+                Major</a>
+        </div>
     </div>
 
     @if ($errors->any())
@@ -127,10 +129,12 @@
                         render: function(data, type, row, meta) {
                             var badge = '';
                             if (row.active === 0)
-                                badge = '<span class="badge text-bg-danger" style="font-size:8px";>Inactive</span>';
+                                badge =
+                                '<span class="badge text-bg-danger" style="font-size:8px";>Inactive</span>';
 
                             if (row.active == 1 && row.created_at == Date.now())
-                                badge = '<span class="badge text-bg-success" style="font-size: 8px;">New</span>'
+                                badge =
+                                '<span class="badge text-bg-success" style="font-size: 8px;">New</span>'
 
                             return data + ' ' + badge;
                         }

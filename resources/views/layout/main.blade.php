@@ -163,7 +163,7 @@
         <!-- partial -->
         <div class="container-fluid page-body-wrapper">
             <!-- partial:partials/_sidebar.html -->
-            <nav class="sidebar sidebar-offcanvas position-md-fixed h-75 overflow-auto pt-3 pe-3" id="sidebar">
+            <nav class="sidebar sidebar-offcanvas position-md-fixed h-75 overflow-auto pt-3 pe-1" id="sidebar">
                 <ul class="nav">
                     <li class="nav-item">
                         <a @class(['nav-link', 'text-primary' => Request::is('dashboard')]) href="{{ url('dashboard') }}">
@@ -187,7 +187,7 @@
                             </a>
                             <div class="collapse {{ Request::is(strtolower($key) . '*') ? 'show' : 'hide' }}"
                                 id="{{ strtolower($key) }}">
-                                <ul class="nav flex-column sub-menu">
+                                <ul class="nav flex-column sub-menu bg-secondary p-0" style="list-style-type: none;">
                                     @foreach ($menu as $key2 => $submenu)
                                         @php
                                             $submenu_link = $submenu['submenu_link'];
@@ -203,9 +203,12 @@
                                                 $submenu_link = substr($submenu['submenu_link'], 0, $position);
                                             @endphp
                                         @endif
-                                        <li class="nav-item">
-                                            <a class="nav-link {{ Request::is($submenu_link . '*') ? 'active' : '' }}"
-                                                href="{{ url($submenu['submenu_link']) }}">{{ $submenu['submenu_name'] }}</a>
+                                        <li class="p-0">
+                                            <a class="nav-link py-1 m-0 ps-5 border-bottom rounded-0 {{ Request::is($submenu_link . '*') ? 'active bg-info text-white' : 'text-white' }}"
+                                                href="{{ url($submenu['submenu_link']) }}">
+                                                <i class="bi bi-dash me-2"></i>
+                                                {{ $submenu['submenu_name'] }}
+                                            </a>
                                         </li>
                                     @endforeach
                                 </ul>

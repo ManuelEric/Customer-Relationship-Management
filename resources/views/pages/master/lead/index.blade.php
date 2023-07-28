@@ -3,14 +3,16 @@
 @section('title', 'Lead - Bigdata Platform')
 
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Lead Source
-        </a>
-        <button type="button" href="#" class="btn btn-sm btn-primary" onclick="resetForm()" data-bs-toggle="modal"
-            data-bs-target="#leadForm"><i class="bi bi-plus-square me-1"></i> Add
-            Lead Source</button>
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="d-flex align-items-center justify-content-between">
+            <h5 class="text-white m-0">
+                <i class="bi bi-tag me-1"></i>
+                Lead Source
+            </h5>
+            <button type="button" href="#" class="btn btn-sm btn-info" onclick="resetForm()" data-bs-toggle="modal"
+                data-bs-target="#leadForm"><i class="bi bi-plus-square me-1"></i> Add
+                Lead Source</button>
+        </div>
     </div>
 
     @if ($errors->any())
@@ -65,20 +67,20 @@
 
                         <div class="row g-2">
                             @if ($isAdmin)
-                            <div class="col-md-12">
-                                <div class="mb-0">
-                                    <label for="">
-                                        Department <sup class="text-danger">*</sup>
-                                    </label>
-                                    <select name="department_id" class="form-select form-select-sm">
-                                        @foreach ($departments as $department)
-                                            <option value="{{ $department->id }}">{{ $department->dept_name }}</option>
-                                        @endforeach
-                                    </select>
+                                <div class="col-md-12">
+                                    <div class="mb-0">
+                                        <label for="">
+                                            Department <sup class="text-danger">*</sup>
+                                        </label>
+                                        <select name="department_id" class="form-select form-select-sm">
+                                            @foreach ($departments as $department)
+                                                <option value="{{ $department->id }}">{{ $department->dept_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
                             @else
-                            <input type="hidden" name="department_id" value="{{ $deptId }}">
+                                <input type="hidden" name="department_id" value="{{ $deptId }}">
                             @endif
                             <div class="col-md-10">
                                 <div class="mb-0">

@@ -3,14 +3,16 @@
 @section('title', 'Curriculum - Bigdata Platform')
 
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Curriculum
-        </a>
-        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#curriculumForm"
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="d-flex align-items-center justify-content-between">
+            <h5 class="text-white m-0">
+                <i class="bi bi-tag me-1"></i>
+                Curriculum
+            </h5>
+            <a href="#" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#curriculumForm"
             onclick="resetForm()"><i class="bi bi-plus-square me-1"></i> Add
             Curriculum</a>
+        </div>
     </div>
 
     <div class="card rounded">
