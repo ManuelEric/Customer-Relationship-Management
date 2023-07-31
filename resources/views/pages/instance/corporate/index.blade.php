@@ -1,23 +1,26 @@
 @extends('layout.main')
 
-@section('title', 'Corporate - Bigdata Platform')
+@section('title', 'Partner - Bigdata Platform')
 
 @section('content')
 
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Corporate
-        </a>
-        <a href="{{ url('instance/corporate/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i>
-            Add
-            Partner</a>
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="d-flex align-items-center justify-content-between">
+            <h5 class="text-white m-0">
+                <i class="bi bi-tag me-1"></i>
+                Partners
+            </h5>
+            <a href="{{ url('instance/corporate/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i>
+                Add
+                Partner</a>
+        </div>
     </div>
 
 
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="corporateTable">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Corporate Name</th>

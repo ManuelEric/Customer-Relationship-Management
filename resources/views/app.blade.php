@@ -64,6 +64,14 @@
             color: #494949;
         }
 
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 29px !important;
+        }
+
+        div.dataTables_processing {
+            z-index: 9999 !important;
+        }
+
         #overlay {
             position: fixed;
             background: #FFF;

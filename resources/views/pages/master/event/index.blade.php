@@ -19,7 +19,7 @@
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="eventTable">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Event Title</th>

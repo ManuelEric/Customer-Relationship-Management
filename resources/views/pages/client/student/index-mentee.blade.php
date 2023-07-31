@@ -1,12 +1,58 @@
 @extends('layout.main')
 
-@section('title', 'Mentee - Bigdata Platform')
+@section('title', 'Alumni - Bigdata Platform')
 
 @section('content')
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Mentee
-        </a>
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-md-6">
+                <h5 class="text-white m-0">
+                    <i class="bi bi-tag me-1"></i>
+                    Alumni
+                </h5>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="dropdown">
+                    <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle" data-bs-toggle="dropdown"
+                        data-bs-auto-close="false" id="filter">
+                        <i class="bi bi-funnel me-2"></i> Filter
+                    </button>
+                    <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 400px;"
+                        id="advanced-filter">
+                        <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
+                            Advanced Filter
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <div class="row p-3">
+                            <div class="col-md-12 mb-2">
+                                <label for="">School Name</label>
+                                <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
+                                    id="school-name">
+
+                                </select>
+                            </div>
+
+                            <div class="col-md-12 mb-2">
+                                <label for="">Graduation Year</label>
+                                <select name="graduation_year[]" class="select form-select form-select-sm w-100" multiple
+                                    id="graduation-year">
+
+                                </select>
+                            </div>
+
+                            <div class="col-md-12 mt-3">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                        id="cancel">Cancel</button>
+                                    <button type="button" id="submit"
+                                        class="btn btn-sm btn-outline-success">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -14,16 +60,16 @@
         <div class="card-body">
             <ul class="nav nav-tabs flex-nowrap mb-3">
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == "mentee" ? "active" : null }}"
+                    <a class="nav-link {{ Request::get('st') == 'mentee' ? 'active' : null }}"
                         href="{{ url('client/alumni?st=mentee') }}">Mentee</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::get('st') == "non-mentee" ? 'active' : null }}"
+                    <a class="nav-link {{ Request::get('st') == 'non-mentee' ? 'active' : null }}"
                         href="{{ url('client/alumni?st=non-mentee') }}">Non Mentee</a>
                 </li>
             </ul>
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr class="text-center" role="row">
                         <th class="bg-info text-white">No</th>
                         <th class="bg-info text-white">Name</th>
@@ -32,8 +78,8 @@
                         <th>Parents Name</th>
                         {{--  <th>Parents Phone</th>  --}}
                         <th>School</th>
-                        {{--  <th>Graduation Year</th>  --}}
-                        <th>Grade</th>
+                        <th>Graduation Year</th>
+                        {{-- <th>Grade</th> --}}
                         {{--  <th>Instagram</th>  --}}
                         {{--  <th>Location</th>  --}}
                         {{--  <th>Lead</th>  --}}
@@ -62,6 +108,10 @@
 
     {{-- Need Changing --}}
     <script>
+        $('#cancel').click(function() {
+            $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
+        });
+
         var widthView = $(window).width();
         $(document).ready(function() {
             var table = $('#clientTable').DataTable({
@@ -114,8 +164,8 @@
                         data: 'parent_name',
                         name: 'parent_name',
                         defaultContent: '-',
-                        orderable:true,
-                        searchable:true,
+                        orderable: true,
+                        searchable: true,
                     },
                     /*
                     {
@@ -129,17 +179,16 @@
                         name: 'school_name',
                         defaultContent: '-'
                     },
-                    /*
+
                     {
                         data: 'graduation_year',
                         defaultContent: '-'
                     },
-                    */
+                    /*
                     {
                         data: 'st_grade',
                         defaultContent: '-'
                     },
-                    /*
                     {
                         data: 'insta',
                         defaultContent: '-'
@@ -207,13 +256,13 @@
                 }
             });
 
-            @php            
+            @php
                 $privilage = $menus['Client']->where('submenu_name', 'Alumnis')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });
@@ -225,7 +274,7 @@
 
             $('#clientTable tbody').on('click', '.editClient ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('client/mentee') }}/" + data.id ;
+                window.location.href = "{{ url('client/mentee') }}/" + data.id;
             });
         });
     </script>

@@ -123,3 +123,6 @@ Route::prefix('v1')->group(function () {
     Route::get('get/detail/lead-source', [ExtSalesTrackingController::class, 'getLeadSourceDetail']);
     Route::get('get/detail/conversion-lead', [ExtSalesTrackingController::class, 'getConversionLeadDetail']);
 });
+
+# Client Event Attendance
+Route::get('event/attendance/{id}/{status}', [ClientEventController::class, 'updateAttendance']);

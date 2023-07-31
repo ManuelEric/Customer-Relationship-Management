@@ -302,7 +302,7 @@
                 </div>
                 <div class="card-body">
                     <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
-                        <thead class="bg-dark text-white">
+                        <thead class="bg-secondary text-white">
                             <tr class="text-center" role="row">
                                 <th class="bg-info text-white">No</th>
                                 <th class="bg-info text-white">Program Name</th>
@@ -332,7 +332,7 @@
                 </div>
                 <div class="card-body">
                     <table class="table table-bordered table-hover nowrap align-middle w-100" id="eventTable">
-                        <thead class="bg-dark text-white">
+                        <thead class="bg-secondary text-white">
                             <tr class="text-center" role="row">
                                 <th class="bg-info text-white">No</th>
                                 <th class="bg-info text-white">Event Name</th>

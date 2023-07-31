@@ -4,80 +4,87 @@
 
 @section('content')
 
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Partner Program
-        </a>
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="d-flex align-items-center justify-content-between">
+            <h5 class="text-white m-0">
+                <i class="bi bi-tag me-1"></i>
+                Partner Program
+            </h5>
 
-        <div class="dropdown">
-            <button href="#" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown"
-                data-bs-auto-close="false" id="filter">
-                <i class="bi bi-funnel me-2"></i> Filter
-            </button>
-            <form action="{{ route('program.corporate.index') }}" class="dropdown-menu dropdown-menu-end pt-0 shadow"
-                style="width: 300px" method="GET">
-                <h6 class="dropdown-header bg-secondary text-white rounded-top">Advanced Filter</h6>
-                <div class="row p-3">
-                    <div class="col-md-12 mb-2">
-                        <label for="">Partner Name</label>
-                        <select name="partner_name[]" id="" class="select form-select form-select-sm w-100"
-                            multiple>
-                            @foreach ($partners as $partner)
-                                <option value="{{ $partner->corp_name }}">{{ $partner->corp_name }}</option>
-                            @endforeach
-                        </select>
+            <div class="dropdown">
+                <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle" data-bs-toggle="dropdown"
+                    data-bs-auto-close="false" id="filter">
+                    <i class="bi bi-funnel me-2"></i> Filter
+                </button>
+                <form action="{{ route('program.corporate.index') }}" class="dropdown-menu dropdown-menu-end pt-0 shadow"
+                    style="width: 400px" method="GET">
+                    <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
+                        Advanced Filter
+                        <i class="bi bi-search"></i>
                     </div>
-                    <div class="col-md-12 mb-2">
-                        <label for="">Program Name</label>
-                        <select name="program_name[]" id="" class="select form-select form-select-sm w-100"
-                            multiple>
-                            @foreach ($programs as $program)
-                                <option value="{{ $program->program_name }}">{{ $program->program_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-12 mb-2">
-                        <div class="row g-2">
-                            <div class="col-md-6 mb-2">
-                                <label>Start Date</label>
-                                <input type="date" name="start_date" id=""
-                                    class="form-control form-control-sm rounded">
+                    <div class="row p-3">
+                        <div class="col-md-12 mb-2">
+                            <label for="">Partner Name</label>
+                            <select name="partner_name[]" id="" class="select form-select form-select-sm w-100"
+                                multiple>
+                                @foreach ($partners as $partner)
+                                    <option value="{{ $partner->corp_name }}">{{ $partner->corp_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label for="">Program Name</label>
+                            <select name="program_name[]" id="" class="select form-select form-select-sm w-100"
+                                multiple>
+                                @foreach ($programs as $program)
+                                    <option value="{{ $program->program_name }}">{{ $program->program_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <div class="row g-2">
+                                <div class="col-md-6 mb-2">
+                                    <label>Start Date</label>
+                                    <input type="date" name="start_date" id=""
+                                        class="form-control form-control-sm rounded">
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>End Date</label>
+                                    <input type="date" name="end_date" id=""
+                                        class="form-control form-control-sm rounded">
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-2">
-                                <label>End Date</label>
-                                <input type="date" name="end_date" id=""
-                                    class="form-control form-control-sm rounded">
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label for="">Approach Status</label>
+                            <select name="status[]" id="" class="select form-select form-select-sm w-100" multiple>
+                                <option value="0">Pending</option>
+                                <option value="4">Accepted</option>
+                                <option value="5">Cancel</option>
+                                <option value="2">Rejected</option>
+                                <option value="1">Success</option>
+                                <option value="3">Refund</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label for="">PIC</label>
+                            <select name="pic[]" id="" class="select form-select form-select-sm w-100" multiple>
+                                @foreach ($employees as $employee)
+                                    <option value="{{ $employee->id }}">{{ $employee->first_name }}
+                                        {{ $employee->last_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mt-3">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-sm btn-outline-danger" id="cancel">Cancel</button>
+                                <button type="submit" class="btn btn-sm btn-outline-success">Submit</button>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12 mb-2">
-                        <label for="">Approach Status</label>
-                        <select name="status[]" id="" class="select form-select form-select-sm w-100" multiple>
-                            <option value="0">Pending</option>
-                            <option value="4">Accepted</option>
-                            <option value="5">Cancel</option>
-                            <option value="2">Rejected</option>
-                            <option value="1">Success</option>
-                            <option value="3">Refund</option>
-                        </select>
-                    </div>
-                    <div class="col-md-12 mb-2">
-                        <label for="">PIC</label>
-                        <select name="pic[]" id="" class="select form-select form-select-sm w-100" multiple>
-                            @foreach ($employees as $employee)
-                                <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-12 mt-3">
-                        <div class="d-flex justify-content-between">
-                            <button type="button" class="btn btn-sm btn-outline-danger" id="cancel">Cancel</button>
-                            <button type="submit" class="btn btn-sm btn-outline-success">Submit</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -85,7 +92,7 @@
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="partnerProgTable">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Partner Name</th>
@@ -152,13 +159,15 @@
                     },
                     {
                         data: 'first_discuss',
+                        className: 'text-center',
                     },
                     {
                         data: 'participants',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             switch (parseInt(row.status)) {
                                 case 1:
-                                    return data
+                                    return '<i class="bi bi-person me-2"></i>' + data
                                     break;
 
                                 default:
@@ -169,6 +178,7 @@
                     },
                     {
                         data: 'total_fee',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             switch (parseInt(row.status)) {
                                 case 1:
@@ -186,30 +196,31 @@
                     },
                     {
                         data: 'status',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             switch (parseInt(row.status)) {
                                 case 0:
-                                    return "Pending"
+                                    return "<i class='bi bi-clock me-2 text-warning'></i> Pending"
                                     break;
 
                                 case 1:
-                                    return "Success"
+                                    return "<i class='bi bi-check me-2 text-success'></i> Success"
                                     break;
 
                                 case 2:
-                                    return "Rejected"
+                                    return "<i class='bi bi-x me-2 text-danger'></i> Rejected"
                                     break;
 
                                 case 3:
-                                    return "Refund"
+                                    return "<i class='bi bi-arrow-counterclockwise me-2 text-info'></i> Refund"
                                     break;
 
                                 case 4:
-                                    return "Accepted"
+                                    return "<i class='bi bi-check-circle me-2 text-success'></i> Accepted"
                                     break;
 
                                 case 5:
-                                    return "Cancel"
+                                    return "<i class='bi bi-x-circle me-2 text-danger'></i> Cancel"
                                     break;
                             }
                         }

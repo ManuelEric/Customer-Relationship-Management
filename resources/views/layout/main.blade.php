@@ -5,10 +5,6 @@
 @endsection
 @section('style')
     <style>
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 29px !important;
-        }
-
         @media (min-width: 768px) {
             .position-md-static {
                 position: static !important;
