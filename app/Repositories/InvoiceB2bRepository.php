@@ -331,12 +331,14 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
 
     public function getAllDueDateInvoicePartnerProgram($days)
     {
-        return Invb2b::leftJoin('tbl_invdtl', 'tbl_invdtl.invb2b_id', '=', 'tbl_invb2b.invb2b_id')->leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')
-            ->leftJoin('users as u', 'u.id', '=', 'tbl_partner_prog.empl_id')
-            ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')
-            ->leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')
+        return Invb2b::
+            leftJoin('tbl_invdtl', 'tbl_invdtl.invb2b_id', '=', 'tbl_invb2b.invb2b_id')->
+            leftJoin('tbl_partner_prog', 'tbl_partner_prog.id', '=', 'tbl_invb2b.partnerprog_id')->
+            leftJoin('users as u', 'u.id', '=', 'tbl_partner_prog.empl_id')->
+            leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_partner_prog.corp_id')->
+            leftJoin('program', 'program.prog_id', '=', 'tbl_partner_prog.prog_id')->
             // ->leftJoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')
-            ->select(
+            select(
                 'tbl_invb2b.invb2b_num',
                 'tbl_corp.corp_name',
                 // 'tbl_prog.prog_program as program_name',
