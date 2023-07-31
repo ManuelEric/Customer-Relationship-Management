@@ -7,7 +7,8 @@ interface ClientLeadTrackingRepositoryInterface
     public function getAllClientLeadTracking();
     public function getAllClientLeadTrackingById($id);
     public function getAllClientLeadTrackingByClientId($client_id);
-    public function getAllClientLeadTrackingByDate($start_date, $end_date);
+    public function getMonthlyClientLeadTracking($monthyear); 
+    public function getInitialConsult($monthyear);
     public function getLatestClientLeadTrackingByType($client_id, $initprogId, $type);
     public function getCurrentClientLead($client_id);
     public function updateClientLeadTrackingByType($clientId, $initProgId, $type, array $leadTrackingDetails);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Module;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Modules\GetClientStatusTrait;
 use App\Interfaces\ClientRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class SalesDashboardController extends Controller
@@ -21,10 +22,59 @@ class SalesDashboardController extends Controller
         $this->programRepository = $repositories->programRepository;
         $this->eventRepository = $repositories->eventRepository;
         $this->clientEventRepository = $repositories->clientEventRepository;
+        $this->clientLeadTrackingRepository = $repositories->clientLeadTrackingRepository;
     }
 
     public function get($request)
     {
+
+        # Alarm
+        $salesAlarm = false;
+        $triggerEvent = false;
+        $fullDay = Carbon::now()->daysInMonth;
+        $midOfMonth = floor($fullDay / 2);
+        $endOfMonth = $fullDay;
+
+        $leedNeeded = 36;
+        $referralTarget = 10;
+
+        $today = date('Y-m-d');
+
+        $dataSalesTarget = $this->salesTargetRepository->getMonthlySalesTarget('AAUP', ['qdate' => $today]);
+        $salesTarget = $dataSalesTarget->total_participant;
+        $revenueTarget = $dataSalesTarget->total_target;
+
+        $clientLead = $this->clientLeadTrackingRepository->getMonthlyClientLeadTracking($today)->where('note', 'Sales');
+
+        // Total Leads
+        $totalLeads = $clientLead->count();
+
+        // Admission hot lead dari ic
+        $hotLead = $this->clientLeadTrackingRepository->getInitialConsult($today);
+        $totalHotLead = $hotLead->count();
+
+        # LS005 is Referral
+        $referralLead = $clientLead->where('lead_id', 'LS005');
+        $totalReferralLead = $referralLead->count();
+
+        # Day 1-14 (awal bulan)
+        // if(date('Y-m-d') <= date('Y-m') . '-'. $midOfMonth){
+        $salesAlarm['mid']['leadNeeded'] = $totalLeads < $leedNeeded ? true : false;
+        $salesAlarm['mid']['hotLead'] = $totalHotLead < $salesTarget ? true : false;
+        $salesAlarm['mid']['referral'] = $totalReferralLead < $referralTarget ? true : false;
+
+        $triggerEvent = $salesAlarm['mid']['hotLead'] || $salesAlarm['mid']['referral'] ? true : false;
+
+        $revenue = $this->clientLeadTrackingRepository->getRevenue($today);
+        $totalRevenue = $revenue->sum('total');
+
+        # Day 15-30 (akhir bulan)
+        if (date('Y-m-d') >= date('Y-m') . '-' . $midOfMonth + 1) {
+            $salesAlarm['end']['revenue'] = $totalRevenue < $revenueTarget*50/100 ? true : false;
+            $salesAlarm['end']['IC'] = $totalHotLead < $salesTarget ? true : false;
+
+        }
+
 
         # INITIALIZE PARAMETERS START
         $month = date('Y-m');
@@ -71,7 +121,7 @@ class SalesDashboardController extends Controller
 
         # fetching chart data by initial consultation
         $initialConsultation = $this->clientProgramRepository->getInitialConsultationInformation($cp_filter);
-        
+
         # sum total initial consultation by summing the data
         $totalInitialConsultation = array_sum($initialConsultation);
 
@@ -86,7 +136,7 @@ class SalesDashboardController extends Controller
 
         # get initial consultation success percentage 
         $successPercentage = $successProgram == 0 ? 0 : ($successProgram / $totalInitialConsultation) * 100;
-        
+
         # get total revenue of admission mentoring program
         $totalRevenueAdmMentoringByProgramAndMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $cp_filter);
 
@@ -188,9 +238,9 @@ class SalesDashboardController extends Controller
         if ($total_data == 0)
             return "0,00";
 
-        if (abs($total_data-$monthly_data) == 0)
+        if (abs($total_data - $monthly_data) == 0)
             return number_format($total_data * 100, 2, ',', '.');
 
-        return number_format(($monthly_data / abs($total_data-$monthly_data)) * 100, 2, ',', '.');
+        return number_format(($monthly_data / abs($total_data - $monthly_data)) * 100, 2, ',', '.');
     }
 }
