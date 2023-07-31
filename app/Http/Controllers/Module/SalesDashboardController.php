@@ -48,32 +48,54 @@ class SalesDashboardController extends Controller
 
         // Total Leads
         $totalLeads = $clientLead->count();
-
+        
         // Admission hot lead dari ic
-        $hotLead = $this->clientLeadTrackingRepository->getInitialConsult($today);
+        $hotLead = $this->clientLeadTrackingRepository->getInitialConsult($today, 'success');
         $totalHotLead = $hotLead->count();
+        // $totalHotLead = 50;
+
+        # Gagal 3x berturut-turut
+        $failLeads = $this->clientLeadTrackingRepository->getInitialConsult($today, 'fail');
+        $countFail = 0;
+        foreach ($failLeads as $failLead) {
+            $failLead->status == 2 ? $countFail++ : $countFail--;
+        }
+        $isFailed = $countFail == 3 ? true : false;
 
         # LS005 is Referral
         $referralLead = $clientLead->where('lead_id', 'LS005');
         $totalReferralLead = $referralLead->count();
 
         # Day 1-14 (awal bulan)
-        // if(date('Y-m-d') <= date('Y-m') . '-'. $midOfMonth){
-        $salesAlarm['mid']['leadNeeded'] = $totalLeads < $leedNeeded ? true : false;
-        $salesAlarm['mid']['hotLead'] = $totalHotLead < $salesTarget ? true : false;
+        $salesAlarm['mid']['lead_needed'] = $totalLeads < $leedNeeded ? true : false;
+        $salesAlarm['mid']['hot_lead'] = $totalHotLead < $salesTarget ? true : false;
         $salesAlarm['mid']['referral'] = $totalReferralLead < $referralTarget ? true : false;
 
-        $triggerEvent = $salesAlarm['mid']['hotLead'] || $salesAlarm['mid']['referral'] ? true : false;
+        $triggerEvent = $salesAlarm['mid']['hot_lead'] || $salesAlarm['mid']['referral'] ? true : false;
 
         $revenue = $this->clientLeadTrackingRepository->getRevenue($today);
-        $totalRevenue = $revenue->sum('total');
+        $totalRevenue = $revenue != null ? $revenue->sum('total') : 0;
+        // $totalRevenue = 125000000;
 
         # Day 15-30 (akhir bulan)
-        if (date('Y-m-d') >= date('Y-m') . '-' . $midOfMonth + 1) {
+        if (date('Y-m-d') > date('Y-m') . '-' . $midOfMonth) {
+            unset($salesAlarm['mid']['lead_needed']);
             $salesAlarm['end']['revenue'] = $totalRevenue < $revenueTarget*50/100 ? true : false;
             $salesAlarm['end']['IC'] = $totalHotLead < $salesTarget ? true : false;
-
+            $salesAlarm['end']['lead_needed'] = $totalLeads < 2*$leedNeeded ? true : false;
         }
+
+        $numberOfLeads = [
+            'salesTarget' => $salesTarget,
+            'revenueTarget' => $revenueTarget,
+            'lead_needed' => $totalLeads,
+            'hot_lead' => $totalHotLead,
+            'IC' => $totalHotLead,
+            'referral' => $totalReferralLead,
+            'revenue' => $totalRevenue,
+        ];
+
+        # === end Alarm ===
 
 
         # INITIALIZE PARAMETERS START
@@ -229,7 +251,12 @@ class SalesDashboardController extends Controller
 
             # client event tab
             'events' => $events,
-            'conversion_lead_of_event' => $conversion_lead_of_event
+            'conversion_lead_of_event' => $conversion_lead_of_event,
+
+            # alarm
+            'salesAlarm' => $salesAlarm,
+            'triggerEvent' => $triggerEvent,
+            'numberOfLeads' => $numberOfLeads,
         ];
     }
 

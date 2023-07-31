@@ -133,8 +133,6 @@ class DashboardController extends SalesDashboardController
         // })->pluck('id')->toArray(); 
 
         $data = (new SalesDashboardController($this))->get($request);
-        return $data;
-        exit;
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
         $data = array_merge($data, (new FinanceDashboardController($this))->get($request));
 

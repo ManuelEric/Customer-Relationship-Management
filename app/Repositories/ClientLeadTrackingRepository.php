@@ -58,16 +58,15 @@ class ClientLeadTrackingRepository implements ClientLeadTrackingRepositoryInterf
                 ->get();
     }
 
-    public function getInitialConsult($monthyear)
+    public function getInitialConsult($monthyear, $type)
     {
         $clientLeads = $this->getMonthlyClientLeadTracking($monthyear);
+        $clientId = null;
         foreach ($clientLeads as $clientLead) {
             $clientId[] = $clientLead->client_id;
         }
 
-        $clientId = ['6365', '6446', '6543'];
-
-        return ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
+        $clientProg = ClientProgram::leftJoin('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
             ->leftJoin('tbl_main_prog', 'tbl_main_prog.id', '=', 'tbl_prog.main_prog_id')
             // ->select('client_id')
             ->whereHas('program', function ($query) {
@@ -77,19 +76,23 @@ class ClientLeadTrackingRepository implements ClientLeadTrackingRepositoryInterf
                     $query2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
                 });
             })
-            ->where('status', 1)
-            // ->whereIn('client_id', $clientId)
-            ->whereMonth('tbl_client_prog.assessmentsent_date', date('m', strtotime('2023-05-01')))
-            ->whereYear('tbl_client_prog.assessmentsent_date', date('Y', strtotime('2023-05-01')))
-            // ->whereMonth('tbl_client_prog.assessmentsent_date', date('m', strtotime($monthyear)))
-            // ->whereYear('tbl_client_prog.assessmentsent_date', date('Y', strtotime($monthyear)))
-            ->groupBy('client_id')
-            ->get();
+            ->whereMonth('tbl_client_prog.assessmentsent_date', date('m', strtotime($monthyear)))
+            ->whereYear('tbl_client_prog.assessmentsent_date', date('Y', strtotime($monthyear)));
+        
+        if($type == 'success'){
+            $clientProg->where('status', 1);
+        }
+
+        $clientId != null ?  $clientProg->whereIn('client_id', $clientId) : null;  
+        $clientProg->groupBy('client_id');
+        
+        return $clientId != null ? $clientProg->get() : null;
     }
 
     public function getRevenue($monthyear)
     {
-        $clientprogs = $this->getInitialConsult($monthyear);
+        $clientprogs = $this->getInitialConsult($monthyear, 'success');
+        $clientprogId = null;
         foreach ($clientprogs as $clientprog) {
             $clientprogId[] = $clientprog->clientprog_id;
         }
@@ -98,16 +101,18 @@ class ClientLeadTrackingRepository implements ClientLeadTrackingRepositoryInterf
         $month = date('m', strtotime('2023-05-01'));
 
 
-        return Receipt::leftJoin('tbl_invdtl', 'tbl_invdtl.invdtl_id', '=', 'tbl_receipt.invdtl_id')
+        $receipt = Receipt::leftJoin('tbl_invdtl', 'tbl_invdtl.invdtl_id', '=', 'tbl_receipt.invdtl_id')
             ->leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', DB::raw('(CASE WHEN tbl_receipt.invdtl_id is not null THEN tbl_invdtl.inv_id ELSE tbl_receipt.inv_id END)'))
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
             ->select(DB::raw('COUNT(tbl_receipt.id) as count_receipt'), DB::raw('CAST(SUM(receipt_amount_idr) as integer) as total'))
             ->whereYear('tbl_receipt.created_at', '=', $year)
             ->whereMonth('tbl_receipt.created_at', '=', $month)
-            ->where('tbl_client_prog.status', 1)
-            ->whereIn('tbl_client_prog.clientprog_id', $clientprogId)
-            ->groupBy('tbl_inv.inv_id')
-            ->get();
+            ->where('tbl_client_prog.status', 1);
+        
+        $clientprogId != null ?  $receipt->whereIn('tbl_client_prog.clientprog_id', $clientprogId) : null;
+
+            
+        return $clientprogId != null ? $receipt->groupBy('tbl_inv.inv_id')->get() : null;
     }
 
     public function updateClientLeadTracking($clientId, $initProgId, array $leadTrackingDetails) 
