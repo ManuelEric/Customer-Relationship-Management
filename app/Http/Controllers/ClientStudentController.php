@@ -127,7 +127,18 @@ class ClientStudentController extends ClientController
             return $this->clientRepository->getDataTables($model);
         }
         
-        return view('pages.client.student.index');
+        $schools = $this->schoolRepository->getAllSchools();
+        $parents = $this->clientRepository->getAllClientByRole('Parent');
+        $leads = $this->leadRepository->getAllMainLead();
+
+
+        return view('pages.client.student.index')->with(
+            [
+                'schools' => $schools,
+                'parents' => $parents,
+                'leads' => $leads,
+            ]
+        );
     }
 
     public function show(Request $request)
