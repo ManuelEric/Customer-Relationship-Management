@@ -11,6 +11,8 @@ class LeadTargetTracking extends Model
 
     protected $table = 'target_tracking';
 
+    public $timestamps = true;
+
     /**
      * The attributes that should be visible in arrays.
      *
@@ -18,11 +20,15 @@ class LeadTargetTracking extends Model
      */
     protected $fillable = [
         'divisi',
-        'target',
-        'achieved',
-        'added',
-        'month',
-        'year',
-        'status'
+        'target_lead',
+        'achieved_lead',
+        'target_hotleads',
+        'achieved_hotleads',
+        'target_initconsult',
+        'achieved_initconsult',
+        'contribution_target',
+        'contribution_achieved',
+        'status',
+        'month_year'
     ];
 }

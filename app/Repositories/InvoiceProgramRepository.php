@@ -142,7 +142,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->
             leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->
-            leftJoin('tbl_receipt', 'tbl_receipt.inv_id', '=', 'tbl_inv.inv_id')->
+            leftJoin('tbl_receipt as r', 'r.inv_id', '=', 'tbl_inv.inv_id')->
+            leftJoin('tbl_receipt as dr', 'dr.invdtl_id', '=', 'tbl_invdtl.id')->
             select([
                 'tbl_inv.clientprog_id',
                 'clientprogram.fullname',
@@ -189,7 +190,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 '),
                 // DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
             ])
-            ->whereNull('tbl_receipt.inv_id')
+            // ->whereNull('tbl_receipt.inv_id')
             ->where('tbl_inv.reminded', '=', 0)
             // ->where(DB::raw('DATEDIFF(inv_duedate, now())'), '=', $days)
             ->where(DB::raw('
@@ -197,7 +198,13 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
                     WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
                 END)
-            '), '=', $days)
+            '), '=', $days)->
+            whereNull(DB::raw('
+                (CASE
+                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN r.inv_id
+                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN dr.invdtl_id
+                END)
+            '))
             ->orderBy('date_difference', 'asc')->get();
     }
 

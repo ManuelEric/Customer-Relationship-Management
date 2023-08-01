@@ -3,8 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Interfaces\LeadTargetRepositoryInterface;
+use App\Models\LeadTargetTracking;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class InsertTargetTracking_Monthly extends Command
@@ -43,22 +46,45 @@ class InsertTargetTracking_Monthly extends Command
 
         $now = Carbon::now();
 
-        # if this month data target has been stored into target tracking
-        # then don't allow scheduler to continue the process
-        if ($this->leadTargetRepository->findThisMonthTarget($now)) 
-            return Command::SUCCESS;
+        DB::beginTransaction();
+        try {
 
-        if (!$activeTarget = $this->leadTargetRepository->getThisMonthTarget())
-            Log::error('Cron Insert target tracking monthly cannot be processed because there are no data in the target signal view.');
+            # if this month data target has been stored into target tracking
+            # then don't allow scheduler to continue the process
 
-        foreach ($activeTarget as $target) {
+            if ($this->leadTargetRepository->findThisMonthTarget($now)->count() > 0) 
+                return Command::SUCCESS;
+    
+            if (!$activeTarget = $this->leadTargetRepository->getThisMonthTarget())
+                Log::error('Cron Insert target tracking monthly cannot be processed because there are no data in the target signal view.');
+    
+    
+            foreach ($activeTarget as $target) {
+    
+                $targetTrackingDetails[] = [
+                    'divisi' => $target->divisi,
+                    'target_lead' => $target->lead_needed,
+                    'achieved_lead' => 0,
+                    'target_hotleads' => $target->hot_leads_target,
+                    'achieved_hotleads' => 0,
+                    'target_initconsult' => $target->initial_consult_target,
+                    'achieved_initconsult' => 0,
+                    'contribution_target' => $target->contribution_to_target,
+                    'contribution_achieved' => 0,
+                    'status' => 0,
+                    'month_year' => date('Y-m').'-01'
+                ];
+    
+            }
 
-            $targetTrackingDetails = [
-                'divisi' => $target->divisi,
-                'target' => $target->monthly_target,
-                'achieved' => 0,
-                'added' => 0,
-            ];
+    
+            LeadTargetTracking::insert($targetTrackingDetails);
+            DB::commit();
+
+        } catch (Exception $e) {
+            
+            DB::rollBack();
+            Log::info('Cron Insert target tracking not working normal. Error : '. $e->getMessage() .' | Line '. $e->getCode());
 
         }
 
