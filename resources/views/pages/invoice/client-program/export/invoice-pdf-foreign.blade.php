@@ -212,7 +212,7 @@
                                 <p>
                                     {{-- USD 5,400 (IDR 80,460,000) for Yeriel Abinawa Handoyo. <br>
                                     USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo. --}}
-                                    {{ strip_tags($clientProg->invoice->inv_notes) }}
+                                    {!! $clientProg->invoice->inv_notes !!}
                                 </p>
                             </div>
                         </td>

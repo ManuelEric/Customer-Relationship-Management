@@ -104,6 +104,8 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
+        // $new_leads = $this->clientRepository->getNewLeads(false);
+        // return $this->clientRepository->getAllClientStudent()->count();
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
@@ -128,8 +130,7 @@ class ClientStudentController extends ClientController
                     break;
 
                 default:
-                    $statusClientCode = $this->getStatusClientCode($statusClient);
-                    return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
+                    $model = $this->clientRepository->getAllClientStudent();
             }
             
             return $this->clientRepository->getDataTables($model);

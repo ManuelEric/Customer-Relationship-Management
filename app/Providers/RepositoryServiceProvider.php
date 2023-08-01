@@ -30,6 +30,7 @@ use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InitialProgramRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
+use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Interfaces\MainProgRepositoryInterface;
 use App\Interfaces\MajorRepositoryInterface;
 use App\Interfaces\MentorRepositoryInterface;
@@ -97,6 +98,7 @@ use App\Repositories\InvoiceDetailRepository;
 use App\Repositories\InvoiceB2bRepository;
 use App\Repositories\InitialProgramRepository;
 use App\Repositories\LeadRepository;
+use App\Repositories\LeadTargetRepository;
 use App\Repositories\MainProgRepository;
 use App\Repositories\MajorRepository;
 use App\Repositories\MentorRepository;
@@ -207,6 +209,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(PartnerProgramCollaboratorsRepositoryInterface::class, PartnerProgramCollaboratorsRepository::class);
         $this->app->bind(SchoolProgramCollaboratorsRepositoryInterface::class, SchoolProgramCollaboratorsRepository::class);
         $this->app->bind(AcadTutorRepositoryInterface::class, AcadTutorRepository::class);
+        $this->app->bind(LeadTargetRepositoryInterface::class, LeadTargetRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
