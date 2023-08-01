@@ -231,10 +231,10 @@ class InvoiceProgramController extends Controller
 
     public function create(Request $request)
     {
+        
         if (!isset($request->prog) or !$clientProg = $this->clientProgramRepository->getClientProgramById($request->prog)) {
             return Redirect::to('invoice/client-program?s=needed');
         }
-
 
         return view('pages.invoice.client-program.form')->with(
             [

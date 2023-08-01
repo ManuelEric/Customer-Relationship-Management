@@ -11,6 +11,11 @@ interface UserRepositoryInterface
     public function getAllUsersWithoutUUID();
     public function getAllUsersByRole($role);
     public function getAllUsersByDepartmentAndRole($role, $department);
+    public function getAllUsersProbationContracts();
+    public function getAllUsersTutorContracts();
+    public function getAllUsersEditorContracts();
+    public function getAllUsersExternalMentorContracts();
+    public function getAllUsersInternshipContracts();
     public function getUserById($userId);
     public function getUserByfirstName($first_name);
     public function getUserByExtendedId($extendedId);
