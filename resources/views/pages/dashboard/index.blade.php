@@ -10,7 +10,7 @@
 @section('content')
 
     {{-- Alert  --}}
-    <div class="row row-cols-md-4 row-cols-1 g-2">
+    {{-- <div class="row row-cols-md-4 row-cols-1 g-2">
         @for ($i = 0; $i < 4; $i++)
             <div class="col">
                 <div class="alert bg-danger text-white d-flex align-items-center py-2 border-alert" role="alert">
@@ -21,7 +21,7 @@
                 </div>
             </div>
         @endfor
-    </div>
+    </div> --}}
 
     {{-- Sales --}}
     @if ($isSales || $isAdmin)
@@ -41,11 +41,11 @@
     @endif
     {{-- Digital  --}}
     @if ($isAdmin)
-        <h3 class="my-3 pt-3">
+        {{-- <h3 class="my-3 pt-3">
             <i class="bi bi-bar-chart-line me-2"></i>
             Digital Dashboard
         </h3>
-        @include('pages.dashboard.digital.index')
+        @include('pages.dashboard.digital.index') --}}
     @endif
     {{-- Finance  --}}
     @if ($isFinance || $isAdmin)
