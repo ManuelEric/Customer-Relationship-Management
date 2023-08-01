@@ -14,7 +14,24 @@ return new class extends Migration
     public function up()
     {
         Schema::table('target_tracking', function (Blueprint $table) {
-            $table->tinyInteger('reminder')->default(0)->after('notes');
+            $table->dropColumn('target');
+            $table->dropColumn('achieved');
+            $table->dropColumn('month');
+            $table->dropColumn('year');
+
+            $table->date('month_year')->after('divisi');
+
+            $table->integer('contribution_achieved')->after('divisi');
+            $table->integer('contribution_target')->after('divisi');
+
+            $table->integer('achieved_initconsult')->after('divisi');
+            $table->integer('target_initconsult')->after('divisi');
+            
+            $table->integer('achieved_hotleads')->after('divisi');
+            $table->integer('target_hotleads')->after('divisi');
+            
+            $table->integer('achieved_lead')->after('divisi');
+            $table->integer('target_lead')->after('divisi');
         });
     }
 
@@ -26,7 +43,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('target_tracking', function (Blueprint $table) {
-            // $table->dropColumn('reminder');
+            
         });
     }
 };
