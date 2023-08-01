@@ -143,7 +143,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->
             leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->
             leftJoin('tbl_receipt as r', 'r.inv_id', '=', 'tbl_inv.inv_id')->
-            leftJoin('tbl_receipt as dr', 'dr.invdtl_id', '=', 'tbl_invdtl.id')->
+            leftJoin('tbl_receipt as dr', 'dr.invdtl_id', '=', 'tbl_invdtl.invdtl_id')->
             select([
                 'tbl_inv.clientprog_id',
                 'clientprogram.fullname',
