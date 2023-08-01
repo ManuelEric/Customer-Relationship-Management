@@ -13,6 +13,10 @@
         </a>
     </div>
 
+    @if($errors->any())
+        {{ implode('', $errors->all('<div>:message</div>')) }}
+    @endif
+
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
@@ -643,6 +647,7 @@
         </div>
     </div>
 
+    @if ($clientProg->client->parents->count() > 0) 
     <div class="modal fade" id="sendToClientModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -680,6 +685,7 @@
             </div>
         </div>
     </div>
+    @endif
 
 
     <script>
