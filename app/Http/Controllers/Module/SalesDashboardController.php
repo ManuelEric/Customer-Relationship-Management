@@ -65,7 +65,7 @@ class SalesDashboardController extends Controller
         }
 
         # referral
-        $leadSalesTarget = [
+        $leadReferralTarget = [
             'ic' => 0,
             'hot_lead' => 0,
             'lead_needed' => 0,
@@ -165,6 +165,8 @@ class SalesDashboardController extends Controller
         $leadReferralTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsReferral['IC'], $leadReferralTarget['ic']);
         $leadReferralTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsReferral['contribution'], $leadReferralTarget['contribution']);
         
+        // return $dataSalesTarget;
+        // exit;
         # === end Alarm ===
 
 
