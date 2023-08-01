@@ -18,7 +18,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $month = date('m', strtotime($now));
         $year = date('Y', strtotime($now));
 
-        return LeadTargetTracking::where('month', $month)->where('year', $year)->get();
+        return LeadTargetTracking::whereMonth('month_year', $month)->whereYear('month_year', $year)->get();
     }
 
     public function getIncompleteTargetFromLastMonthByDivision($now, $divisi)
@@ -26,6 +26,6 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $last_month = date('m', strtotime('-1 month', strtotime($now)));
         $last_year = date('Y', strtotime('-1 month', strtotime($now)));
         
-        return LeadTargetTracking::where('month', $last_month)->where('year', $last_year)->where('divisi', $divisi)->first();
+        return LeadTargetTracking::whereMonth('month_year', $last_month)->whereYear('month_year', $last_year)->where('divisi', $divisi)->first();
     }
 }

@@ -12,7 +12,7 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">{{ $actualLeadsSales['lead_needed'] + $actualLeadsDigital['lead_needed'] }}</div>
+                                            <div class="fs-3">{{ $actualLeadsSales['lead_needed'] + $actualLeadsReferral['lead_needed'] + $actualLeadsDigital['lead_needed'] }}</div>
                                             <div class="fs-6">/ {{ $dataLeads['number_of_leads'] }}</div>
                                         </div>
                                     </div>
@@ -60,7 +60,7 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">{{ $actualLeadsSales['hot_lead'] + $actualLeadsDigital['hot_lead'] }}</div>
+                                            <div class="fs-3">{{ $actualLeadsSales['hot_lead'] + $actualLeadsReferral['hot_lead'] + $actualLeadsDigital['hot_lead'] }}</div>
                                             <div class="fs-6">/ {{ $dataLeads['number_of_hot_leads'] }}</div>
                                         </div>
                                     </div>
@@ -109,7 +109,7 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">{{ $actualLeadsSales['IC'] + $actualLeadsDigital['IC'] }}</div>
+                                            <div class="fs-3">{{ $actualLeadsSales['IC'] + $actualLeadsReferral['IC'] + $actualLeadsDigital['IC'] }}</div>
                                             <div class="fs-6">/ {{ $dataLeads['number_of_ic'] }}</div>
                                         </div>
                                     </div>
@@ -157,7 +157,7 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">{{ $actualLeadsSales['contribution'] + $actualLeadsDigital['contribution'] }}</div>
+                                            <div class="fs-3">{{ $actualLeadsSales['contribution'] + $actualLeadsReferral['contribution'] + $actualLeadsDigital['contribution'] }}</div>
                                             <div class="fs-6">/ {{ $dataLeads['number_of_contribution'] }}</div>
                                         </div>
                                     </div>

@@ -136,11 +136,17 @@ class ClientStudentController extends ClientController
             return $this->clientRepository->getDataTables($model);
         }
 
-        $reasons = $this->reasonRepository->getReasonByType('Hot Lead');
-        
+        $reasons = $this->reasonRepository->getReasonByType('Hot Lead');        
+        $schools = $this->schoolRepository->getAllSchools();
+        $parents = $this->clientRepository->getAllClientByRole('Parent');
+        $leads = $this->leadRepository->getAllMainLead();
+
         return view('pages.client.student.index')->with(
             [
-                'reasons' => $reasons
+                'reasons' => $reasons,
+                'schools' => $schools,
+                'parents' => $parents,
+                'leads' => $leads,
             ]
         );
     }

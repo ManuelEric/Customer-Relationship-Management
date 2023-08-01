@@ -58,13 +58,16 @@ return new class extends Migration
         DB::statement("
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION SetInitialConsult ( contribution_to_target INTEGER )
+        CREATE OR REPLACE FUNCTION SetInitialConsult ( contribution_to_target INTEGER, requested_division VARCHAR(20) )
         RETURNS INTEGER
 
             BEGIN
                 DECLARE initial_consult_target INTEGER;
+                DECLARE gap_from_lastmonth INTEGER;
 
-                SET initial_consult_target = contribution_to_target * 1.5;
+                SET gap_from_lastmonth = IFNULL(GetDiffFromLastMonth(requested_division), 0);
+
+                SET initial_consult_target = (contribution_to_target + gap_from_lastmonth) * 1.5;
 
             RETURN initial_consult_target;
         END; //
@@ -126,6 +129,30 @@ return new class extends Migration
         DELIMITER ;
         ");
 
+        # function to get diff from last month
+        # example : target 18 but actually only get 17, then the difference should be added to the target for the next month
+        DB::statement("
+        DELIMITER //
+
+        CREATE OR REPLACE FUNCTION GetDiffFromLastMonth( requested_division VARCHAR(20) )
+        RETURNS INTEGER
+        DETERMINISTIC
+
+            BEGIN
+                DECLARE difference INTEGER;
+
+                SELECT contribution_target - contribution_achieved INTO difference
+                    FROM target_tracking
+                    WHERE MONTH(month_year) = MONTH(now() - INTERVAL 1 MONTH) 
+                        AND YEAR(month_year) = YEAR(now() - INTERVAL 1 MONTH)
+                        AND divisi = requested_division COLLATE utf8mb4_unicode_ci;
+
+            RETURN difference;
+        END; //
+
+        DELIMITER ;
+        "); 
+
         //! find a way to simplify the function per column
         DB::statement('
         CREATE OR REPLACE VIEW target_signal_view AS
@@ -135,9 +162,9 @@ return new class extends Migration
                 contribution_in_percent,
                 GetMonthlyTarget(MONTH(now()), YEAR(now())) as monthly_target,
                 SetContributionToTarget(contribution_in_percent, (SELECT monthly_target)) as contribution_to_target,
-                SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target))) as initial_consult_target,
-                SetHotLeadsByDivision(SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target))), divisi) as hot_leads_target,
-                SetLeadsNeededByDivision(SetHotLeadsByDivision(SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target))), divisi), divisi) as lead_needed
+                SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target)), divisi) as initial_consult_target,
+                SetHotLeadsByDivision(SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target)), divisi), divisi) as hot_leads_target,
+                SetLeadsNeededByDivision(SetHotLeadsByDivision(SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target)), divisi), divisi), divisi) as lead_needed
                 
             FROM contribution_calculation_tmp 
         ');
