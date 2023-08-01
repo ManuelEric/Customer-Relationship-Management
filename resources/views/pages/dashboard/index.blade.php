@@ -9,36 +9,13 @@
 
 @section('content')
 
-    {{-- Alert  --}}
-    <div class="row row-cols-md-4 row-cols-1 g-2">
-        @foreach ($salesAlarm['mid'] as $key => $alarmMid)
-            @if($alarmMid)
-                <div class="col">
-                    <div class="alert bg-danger text-white d-flex align-items-center py-2 border-alert" role="alert">
-                        <i class="bi bi-exclamation-circle"></i>
-                        <div class="">
-                            The number of {{ str_replace('_', ' ', $key) }} <b class="bg-white px-2 rounded text-primary">{{ $numberOfLeads[$key] }}</b> is
-                            less than the target
-                        </div>
-                    </div>
-                </div>
-            @endif
-        @endforeach
-
-        @foreach ($salesAlarm['end'] as $key => $alarmEnd)
-            @if($alarmEnd)
-                <div class="col">
-                    <div class="alert bg-danger text-white d-flex align-items-center py-2 border-alert" role="alert">
-                        <i class="bi bi-exclamation-circle"></i>
-                        <div class="">
-                            The number of {{ str_replace('_', ' ', $key) }} <b class="bg-white px-2 rounded text-primary">{{ $numberOfLeads[$key] }}</b> is
-                            less than the target
-                        </div>
-                    </div>
-                </div>
-            @endif
-        @endforeach
-    </div>
+    {{-- Alarm --}}
+    @if($isSales || $isAdmin)
+        @include('pages.dashboard.sales.detail.alarm')
+    @endif
+    @if($isAdmin)
+        @include('pages.dashboard.digital.detail.alarm')
+    @endif
 
     {{-- Sales --}}
     @if ($isSales || $isAdmin)
@@ -58,6 +35,7 @@
     @endif
     {{-- Digital  --}}
     @if ($isAdmin)
+
         <h3 class="my-3 pt-3">
             <i class="bi bi-bar-chart-line me-2"></i>
             Digital Dashboard

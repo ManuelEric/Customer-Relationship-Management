@@ -61,6 +61,8 @@ use App\Interfaces\SchoolProgramCollaboratorsRepositoryInterface;
 use App\Interfaces\SchoolVisitRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
+use App\Interfaces\TargetTrackingRepositoryInterface;
+use App\Interfaces\TargetSignalRepositoryInterface;
 use App\Interfaces\UniversityEventRepositoryInterface;
 use App\Interfaces\UniversityPicRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
@@ -129,6 +131,8 @@ use App\Repositories\SchoolProgramCollaboratorsRepository;
 use App\Repositories\SchoolVisitRepository;
 use App\Repositories\SubProgRepository;
 use App\Repositories\TagRepository;
+use App\Repositories\TargetTrackingRepository;
+use App\Repositories\TargetSignalRepository;
 use App\Repositories\UniversityEventRepository;
 use App\Repositories\UniversityPicRepository;
 use App\Repositories\UniversityRepository;
@@ -216,6 +220,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(MenuRepositoryInterface::class, MenuRepository::class);
         $this->app->bind(InitialProgramRepositoryInterface::class, InitialProgramRepository::class);
         $this->app->bind(ClientLeadTrackingRepositoryInterface::class, ClientLeadTrackingRepository::class);
+        $this->app->bind(TargetTrackingRepositoryInterface::class, TargetTrackingRepository::class);
+        $this->app->bind(TargetSignalRepositoryInterface::class, TargetSignalRepository::class);
     }
 
     /**

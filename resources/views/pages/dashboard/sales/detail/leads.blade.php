@@ -12,8 +12,8 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">10</div>
-                                            <div class="fs-6">/ 20</div>
+                                            <div class="fs-3">{{ $actualLeadsSales['lead_needed'] + $actualLeadsDigital['lead_needed'] }}</div>
+                                            <div class="fs-6">/ {{ $dataLeads['number_of_leads'] }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -21,31 +21,31 @@
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Sales</label>
-                                        <label id="salesLabel">20/36</label>
+                                        <label id="salesLabel">{{$actualLeadsSales['lead_needed']}}/{{ $leadSalesTarget['lead_needed'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadSalesTarget['percentage_lead_needed'] }}%"></div>
                                     </div>
                                 </div>
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Referral</label>
-                                        <label id="referralLabel">20/36</label>
+                                        <label id="referralLabel">{{$actualLeadsReferral['lead_needed']}}/{{ $leadReferralTarget['lead_needed'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadReferralTarget['percentage_lead_needed'] }}%"></div>
                                     </div>
                                 </div>
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Digital</label>
-                                        <label id="digitalLabel">20/36</label>
+                                        <label id="digitalLabel">{{$actualLeadsDigital['lead_needed']}}/{{ $leadDigitalTarget['lead_needed'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadDigitalTarget['percentage_lead_needed'] }}%"></div>
                                     </div>
                                 </div>
                             </div>
@@ -60,8 +60,8 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">10</div>
-                                            <div class="fs-6">/ 20</div>
+                                            <div class="fs-3">{{ $actualLeadsSales['hot_lead'] + $actualLeadsDigital['hot_lead'] }}</div>
+                                            <div class="fs-6">/ {{ $dataLeads['number_of_hot_leads'] }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -69,31 +69,31 @@
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Sales</label>
-                                        <label id="salesLabel">20/36</label>
+                                        <label id="salesLabel">{{$actualLeadsSales['hot_lead']}}/{{ $leadSalesTarget['hot_lead'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadSalesTarget['percentage_hot_lead'] }}%"></div>
                                     </div>
                                 </div>
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Referral</label>
-                                        <label id="referralLabel">20/36</label>
+                                        <label id="referralLabel">{{$actualLeadsReferral['hot_lead']}}/{{ $leadReferralTarget['hot_lead'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadReferralTarget['percentage_hot_lead'] }}%"></div>
                                     </div>
                                 </div>
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Digital</label>
-                                        <label id="digitalLabel">20/36</label>
+                                        <label id="digitalLabel">{{$actualLeadsDigital['hot_lead']}}/{{ $leadDigitalTarget['hot_lead'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadDigitalTarget['percentage_hot_lead'] }}%"></div>
                                     </div>
                                 </div>
                             </div>
@@ -109,8 +109,8 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">10</div>
-                                            <div class="fs-6">/ 20</div>
+                                            <div class="fs-3">{{ $actualLeadsSales['IC'] + $actualLeadsDigital['IC'] }}</div>
+                                            <div class="fs-6">/ {{ $dataLeads['number_of_ic'] }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -118,31 +118,31 @@
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Sales</label>
-                                        <label id="salesLabel">20/36</label>
+                                        <label id="salesLabel">{{$actualLeadsSales['IC']}}/{{ $leadSalesTarget['ic'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadSalesTarget['percentage_ic'] }}%"></div>
                                     </div>
                                 </div>
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Referral</label>
-                                        <label id="referralLabel">20/36</label>
+                                        <label id="referralLabel">{{$actualLeadsReferral['IC']}}/{{ $leadReferralTarget['ic'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadReferralTarget['percentage_ic'] }}%"></div>
                                     </div>
                                 </div>
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Digital</label>
-                                        <label id="digitalLabel">20/36</label>
+                                        <label id="digitalLabel">{{$actualLeadsDigital['IC']}}/{{ $leadDigitalTarget['ic'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadDigitalTarget['percentage_ic'] }}%"></div>
                                     </div>
                                 </div>
                             </div>
@@ -157,8 +157,8 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">10</div>
-                                            <div class="fs-6">/ 20</div>
+                                            <div class="fs-3">{{ $actualLeadsSales['contribution'] + $actualLeadsDigital['contribution'] }}</div>
+                                            <div class="fs-6">/ {{ $dataLeads['number_of_contribution'] }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -166,31 +166,31 @@
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Sales</label>
-                                        <label id="salesLabel">20/36</label>
+                                        <label id="salesLabel">{{$actualLeadsSales['contribution']}}/{{ $leadSalesTarget['contribution'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadSalesTarget['percentage_contribution'] }}%"></div>
                                     </div>
                                 </div>
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Referral</label>
-                                        <label id="referralLabel">20/36</label>
+                                        <label id="referralLabel">{{$actualLeadsReferral['contribution']}}/{{ $leadReferralTarget['contribution'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadReferralTarget['percentage_contribution'] }}%"></div>
                                     </div>
                                 </div>
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Digital</label>
-                                        <label id="digitalLabel">20/36</label>
+                                        <label id="digitalLabel">{{$actualLeadsDigital['contribution']}}/{{ $leadDigitalTarget['contribution'] }}</label>
                                     </div>
                                     <div class="progress" role="progressbar" aria-label="Basic example"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                        <div class="progress-bar" style="width: 25%"></div>
+                                        <div class="progress-bar" style="width: {{ $leadDigitalTarget['percentage_contribution'] }}%"></div>
                                     </div>
                                 </div>
                             </div>

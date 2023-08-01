@@ -23,6 +23,8 @@ class SalesDashboardController extends Controller
         $this->eventRepository = $repositories->eventRepository;
         $this->clientEventRepository = $repositories->clientEventRepository;
         $this->clientLeadTrackingRepository = $repositories->clientLeadTrackingRepository;
+        $this->targetTrackingRepository = $repositories->targetTrackingRepository;
+        $this->targetSignalRepository = $repositories->targetSignalRepository;
     }
 
     public function get($request)
@@ -33,47 +35,89 @@ class SalesDashboardController extends Controller
         $triggerEvent = false;
         $fullDay = Carbon::now()->daysInMonth;
         $midOfMonth = floor($fullDay / 2);
-        $endOfMonth = $fullDay;
 
         $leedNeeded = 36;
         $referralTarget = 10;
 
         $today = date('Y-m-d');
 
-        $dataSalesTarget = $this->salesTargetRepository->getMonthlySalesTarget('AAUP', ['qdate' => $today]);
-        $salesTarget = $dataSalesTarget->total_participant;
-        $revenueTarget = $dataSalesTarget->total_target;
+        $allTarget = $this->targetSignalRepository->getAllTargetSignal();
+        $dataSalesTarget = $this->targetSignalRepository->getTargetSignalByDivisi('Sales')->first();
+        $dataReferralTarget = $this->targetSignalRepository->getTargetSignalByDivisi('Referral')->first();
+        
+        $leadSalesTarget = [
+            'ic' => 0,
+            'hot_lead' => 0,
+            'lead_needed' => 0,
+            'contribution' => 0,
+            'percentage_lead_needed' => 0,
+            'percentage_hot_lead' => 0,
+            'percentage_ic' => 0,
+            'percentage_contribution' => 0,
+        ];
+        if($dataSalesTarget->count() > 0){
+            $leadSalesTarget = [
+                'ic' => $dataSalesTarget->initial_consult_target,
+                'hot_lead' => $dataSalesTarget->hot_leads_target,
+                'lead_needed' => $dataSalesTarget->lead_needed,
+                'contribution' => $dataSalesTarget->contribution_to_target,
+            ];
+        }
 
-        $clientLead = $this->clientLeadTrackingRepository->getMonthlyClientLeadTracking($today)->where('note', 'Sales');
+        # referral
+        $leadSalesTarget = [
+            'ic' => 0,
+            'hot_lead' => 0,
+            'lead_needed' => 0,
+            'contribution' => 0,
+            'percentage_lead_needed' => 0,
+            'percentage_hot_lead' => 0,
+            'percentage_ic' => 0,
+            'percentage_contribution' => 0,
+        ];
+        if($dataReferralTarget->count() > 0){
+            $leadReferralTarget = [
+                'ic' => $dataReferralTarget->initial_consult_target,
+                'hot_lead' => $dataReferralTarget->hot_leads_target,
+                'lead_needed' => $dataReferralTarget->lead_needed,
+                'contribution' => $dataReferralTarget->contribution_to_target,
+            ];
+        }
+            
 
-        // Total Leads
-        $totalLeads = $clientLead->count();
+        // $revenueTarget = $dataSalesTarget->total_target;
+        $revenueTarget = 0;
+
+        $clientLead = $this->targetTrackingRepository->getTargetTrackingByMonthYear($today)->where('divisi', 'Sales');
+
+        # Total Leads
+        $totalLeads = $clientLead->count() > 0 ? $clientLead->achieved : 0;
         
         // Admission hot lead dari ic
-        $hotLead = $this->clientLeadTrackingRepository->getInitialConsult($today, 'success');
-        $totalHotLead = $hotLead->count();
-        // $totalHotLead = 50;
+        $totalHotLead = $clientLead->count() > 0 ? $clientLead->achieved : 0;
 
         # Gagal 3x berturut-turut
         $failLeads = $this->clientLeadTrackingRepository->getInitialConsult($today, 'fail');
         $countFail = 0;
-        foreach ($failLeads as $failLead) {
-            $failLead->status == 2 ? $countFail++ : $countFail--;
+        if(isset($failLeads) > 0){
+            foreach ($failLeads as $failLead) {
+                $failLead->status == 2 ? $countFail++ : $countFail--;
+            }
         }
         $isFailed = $countFail == 3 ? true : false;
 
         # LS005 is Referral
-        $referralLead = $clientLead->where('lead_id', 'LS005');
-        $totalReferralLead = $referralLead->count();
+        $totalReferralLead = 0;
 
         # Day 1-14 (awal bulan)
         $salesAlarm['mid']['lead_needed'] = $totalLeads < $leedNeeded ? true : false;
-        $salesAlarm['mid']['hot_lead'] = $totalHotLead < $salesTarget ? true : false;
+        $salesAlarm['mid']['hot_lead'] = $totalHotLead < $leadSalesTarget['hot_lead'] ? true : false;
         $salesAlarm['mid']['referral'] = $totalReferralLead < $referralTarget ? true : false;
 
         $triggerEvent = $salesAlarm['mid']['hot_lead'] || $salesAlarm['mid']['referral'] ? true : false;
 
-        $revenue = $this->clientLeadTrackingRepository->getRevenue($today);
+        // $revenue = $this->clientLeadTrackingRepository->getRevenue($today);
+        $revenue = null;
         $totalRevenue = $revenue != null ? $revenue->sum('total') : 0;
         // $totalRevenue = 125000000;
 
@@ -81,20 +125,46 @@ class SalesDashboardController extends Controller
         if (date('Y-m-d') > date('Y-m') . '-' . $midOfMonth) {
             unset($salesAlarm['mid']['lead_needed']);
             $salesAlarm['end']['revenue'] = $totalRevenue < $revenueTarget*50/100 ? true : false;
-            $salesAlarm['end']['IC'] = $totalHotLead < $salesTarget ? true : false;
+            $salesAlarm['end']['IC'] = $totalHotLead < $leadSalesTarget['IC'] ? true : false;
             $salesAlarm['end']['lead_needed'] = $totalLeads < 2*$leedNeeded ? true : false;
         }
 
-        $numberOfLeads = [
-            'salesTarget' => $salesTarget,
-            'revenueTarget' => $revenueTarget,
+        $actualLeadsSales = [
             'lead_needed' => $totalLeads,
             'hot_lead' => $totalHotLead,
             'IC' => $totalHotLead,
             'referral' => $totalReferralLead,
             'revenue' => $totalRevenue,
+            'contribution' => 0,
         ];
 
+        # referral
+        $actualLeadsReferral = [
+            'lead_needed' => 0,
+            'hot_lead' => 0,
+            'IC' => 0,
+            'referral' => 0,
+            'revenue' => 0,
+            'contribution' => 0,
+        ];
+
+        $dataLeads = [
+            'number_of_leads' => $allTarget->sum('lead_needed'), 
+            'number_of_hot_leads' => $allTarget->sum('hot_leads_target'), 
+            'number_of_ic' => $allTarget->sum('initial_consult_target'), 
+            'number_of_contribution' => $allTarget->sum('contribution_to_target'), 
+        ];
+
+        $leadSalesTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsSales['lead_needed'], $leadSalesTarget['lead_needed']);
+        $leadSalesTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsSales['hot_lead'], $leadSalesTarget['hot_lead']);
+        $leadSalesTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsSales['IC'], $leadSalesTarget['ic']);
+        $leadSalesTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsSales['contribution'], $leadSalesTarget['contribution']);
+        
+        $leadReferralTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsReferral['lead_needed'], $leadReferralTarget['lead_needed']);
+        $leadReferralTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsReferral['hot_lead'], $leadReferralTarget['hot_lead']);
+        $leadReferralTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsReferral['IC'], $leadReferralTarget['ic']);
+        $leadReferralTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsReferral['contribution'], $leadReferralTarget['contribution']);
+        
         # === end Alarm ===
 
 
@@ -255,8 +325,12 @@ class SalesDashboardController extends Controller
 
             # alarm
             'salesAlarm' => $salesAlarm,
+            'leadSalesTarget' => $leadSalesTarget,
+            'leadReferralTarget' => $leadReferralTarget,
             'triggerEvent' => $triggerEvent,
-            'numberOfLeads' => $numberOfLeads,
+            'actualLeadsSales' => $actualLeadsSales,
+            'actualLeadsReferral' => $actualLeadsReferral,
+            'dataLeads' => $dataLeads,
         ];
     }
 
@@ -269,5 +343,13 @@ class SalesDashboardController extends Controller
             return number_format($total_data * 100, 2, ',', '.');
 
         return number_format(($monthly_data / abs($total_data - $monthly_data)) * 100, 2, ',', '.');
+    }
+
+    private function calculatePercentageLead($actual, $target)
+    {
+        if ($target == 0)
+            return 0;
+
+        return $actual/$target*100;
     }
 }
