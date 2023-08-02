@@ -82,6 +82,7 @@ class ReceiptSchoolController extends Controller
             'receipt_words_idr',
             'receipt_method',
             'receipt_cheque',
+            'pph23'
         ]);
 
 

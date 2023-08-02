@@ -437,6 +437,23 @@
                             value="{{ isset($invoiceSch->currency) ? $invoiceSch->currency : null }}">
 
                         <div class="row g-2">
+                            <div class="col-md-12">
+                                <div class="mb-1">
+                                    <label for="">
+                                        PPH 23 <sup class="text-danger">*</sup>
+                                    </label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" name="pph23" id="pph23"
+                                        oninput="wordReceipt()" class="form-control" value="">
+                                        <span class="input-group-text" id="basic-addon1">
+                                            %
+                                        </span>
+                                        @error('pph23')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-6 receipt-other d-none">
                                 <div class="mb-1">
                                     <label for="">
@@ -693,6 +710,13 @@
                         totprice = '-'
                         break;
                 }
+            //     total = (price * participant) - discount;
+            //  if((pph23.length > 0 && pph23 == 0) || pph23.length < 1){
+            //         persenPPh = 0
+            //     }else{
+            //         persenPPh = pph23/100 * (total) 
+            //     }
+            //     total = total - persenPPh
                 $("#receipt_word_other").val(wordConverter(val) + currency)
                 $("#receipt_amount").val(amount_idr)
                 $("#receipt_word").val(wordConverter(amount_idr) + " Rupiah")
