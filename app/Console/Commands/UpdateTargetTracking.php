@@ -38,7 +38,9 @@ class UpdateTargetTracking extends Command
     {
         $current_month = date('m');
         
-        $this->leadTargetRepository->getAchievedLeadSalesByMonth($current_month);
+        $achievedLead_thisMonth = $this->leadTargetRepository->getAchievedLeadSalesByMonth($current_month);
+        
+        $this->info(json_encode($achievedLead_thisMonth));
 
         return Command::SUCCESS;
     }

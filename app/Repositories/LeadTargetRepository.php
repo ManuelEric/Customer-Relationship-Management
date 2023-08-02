@@ -37,8 +37,9 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     whereHas('lead', function ($query) {
                         $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
                     })->
-                    whereMonth('pivot.updated_at', $current_month)->
-                    groupBy('pivot.client_id')->
+                    whereHas('leadStatus', function ($query) use ($current_month) {
+                        $query->whereMonth('tbl_client_lead_tracking.updated_at', $current_month);
+                    })->
                     get();
     }
 }

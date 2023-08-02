@@ -191,6 +191,6 @@ class UserClient extends Authenticatable
 
     public function leadStatus()
     {
-        return $this->belongsToMany(ClientLeadTracking::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->use(ClientLeadTracking::class)->withTimestamps();
+        return $this->belongsToMany(InitialProgram::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->using(ClientLeadTracking::class)->withTimestamps();
     }
 }
