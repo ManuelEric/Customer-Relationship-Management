@@ -23,6 +23,14 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         return LeadTargetTracking::whereMonth('month_year', $month)->whereYear('month_year', $year)->get();
     }
 
+    public function findThisMonthTargetByDivision($now, $divisi)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        return LeadTargetTracking::whereMonth('month_year', $month)->whereYear('month_year', $year)->where('divisi', $divisi)->first();
+    }
+
     public function getIncompleteTargetFromLastMonthByDivision($now, $divisi)
     {
         $last_month = date('m', strtotime('-1 month', strtotime($now)));
@@ -31,14 +39,73 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         return LeadTargetTracking::whereMonth('month_year', $last_month)->whereYear('month_year', $last_year)->where('divisi', $divisi)->first();
     }
 
-    public function getAchievedLeadSalesByMonth($current_month)
+    public function updateActualLead($details, $now, $divisi)
     {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        return LeadTargetTracking::
+                whereMonth('month_year', $month)->
+                whereYear('month_year', $year)->
+                where('divisi', $divisi)->
+                update($details);
+    }
+
+    public function getAchievedLeadSalesByMonth($now)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
         return UserClient::
                     whereHas('lead', function ($query) {
                         $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
                     })->
-                    whereHas('leadStatus', function ($query) use ($current_month) {
-                        $query->whereMonth('tbl_client_lead_tracking.updated_at', $current_month);
+                    whereHas('leadStatus', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('tbl_client_lead_tracking.updated_at', $month)->
+                            whereYear('tbl_client_lead_trq.updated_at', $year);
+                    })->
+                    get();
+    }
+
+    public function getAchievedHotLeadSalesByMonth($now)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        return UserClient::
+                    whereHas('lead', function ($query) {
+                        $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
+                    })->
+                    whereHas('leadStatus', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('tbl_client_lead_tracking.updated_at', $month)->
+                            whereYear('tbl_client_lead_trq.updated_at', $year)->
+                            where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
+                            where('tbl_client_lead_tracking.type', 'Lead')->
+                            where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
+                    })->
+                    get();
+    }
+
+    public function getAchievedInitConsultSalesByMonth($now)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        return UserClient::
+                    whereHas('lead', function ($query) {
+                        $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
+                    })->
+                    // whereHas('leadStatus', function ($query) use ($month, $year) {
+                    //     $query->
+                    //         whereMonth('tbl_client_lead_tracking.updated_at', $month)->
+                    //         whereYear('tbl_client_lead_trq.updated_at', $year);
+                    // })->
+                    whereHas('clientProgram', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('assessmentsent_date', $month)->
+                            whereYear('assessmentsent_date', $year);
                     })->
                     get();
     }

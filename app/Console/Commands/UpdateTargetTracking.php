@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Interfaces\LeadTargetRepositoryInterface;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 
 class UpdateTargetTracking extends Command
 {
@@ -36,11 +37,31 @@ class UpdateTargetTracking extends Command
      */
     public function handle()
     {
+        $now = date('Y-m-d');
         $current_month = date('m');
         
-        $achievedLead_thisMonth = $this->leadTargetRepository->getAchievedLeadSalesByMonth($current_month);
-        
-        $this->info(json_encode($achievedLead_thisMonth));
+        # for sales
+        if ($activeTarget_forSales = $this->leadTargetRepository->findThisMonthTargetByDivision($now, 'Sales')) {
+            
+            $achievedLead = $this->leadTargetRepository->getAchievedLeadSalesByMonth($now);
+            $achievedHotLead = $this->leadTargetRepository->getAchievedHotLeadSalesByMonth($now);
+            $achievedInitConsult = $this->leadTargetRepository->getAchievedInitConsultSalesByMonth($now);
+
+            $contribution_target = $activeTarget_forSales->contribution_target;
+            
+
+            $details = [
+                'achieved_lead' => $achievedLead,
+                'achieved_hotleads' => $achievedHotLead,
+                'achieved_initconsult' => 0,
+                'contribution_achieved' => 0,
+                'status' => 0,
+                'updated_at' => Carbon::now(),
+            ];
+
+            $this->leadTargetRepository->updateActualLead($details, $now, 'Sales');
+        }
+
 
         return Command::SUCCESS;
     }
