@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Models\LeadTargetTracking;
+use App\Models\UserClient;
 use App\Models\ViewClientProgram;
 use App\Models\ViewTargetSignal;
 
@@ -30,8 +31,14 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         return LeadTargetTracking::whereMonth('month_year', $last_month)->whereYear('month_year', $last_year)->where('divisi', $divisi)->first();
     }
 
-    public function getAchievedLeadSales($current_month)
+    public function getAchievedLeadSalesByMonth($current_month)
     {
-        
+        return UserClient::
+                    whereHas('lead', function ($query) {
+                        $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
+                    })->
+                    whereMonth('pivot.updated_at', $current_month)->
+                    groupBy('pivot.client_id')->
+                    get();
     }
 }
