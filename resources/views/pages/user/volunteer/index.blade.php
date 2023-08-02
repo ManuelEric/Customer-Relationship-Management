@@ -24,9 +24,6 @@
                         <th class="bg-info text-white">Full Name</th>
                         <th>E-mail</th>
                         <th>Phone</th>
-                        <th>Graduated Form</th>
-                        <th>Major</th>
-                        <th>Position</th>
                         <th>Address</th>
                         <th>Status</th>
                         <th class="bg-info text-white">Action</th>
@@ -88,16 +85,6 @@
                     },
                     {
                         data: 'volunt_phone',
-                    },
-                    {
-                        data: 'univ_name',
-                        name: 'tbl_univ.univ_name',
-                    },
-                    {
-                        data: 'major_name',
-                    },
-                    {
-                        data: 'position_name',
                     },
                     {
                         data: 'volunt_address',

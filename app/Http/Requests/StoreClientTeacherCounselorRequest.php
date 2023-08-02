@@ -32,7 +32,7 @@ class StoreClientTeacherCounselorRequest extends FormRequest
             'last_name' => 'nullable',
             'mail' => 'required|email|unique:tbl_client,mail,' . $teacher_counsellorId . ',id',
             'phone' => 'required|min:10|max:15',
-            'dob' => 'required',
+            'dob' => 'nullable',
             'insta' => 'nullable|unique:tbl_client,insta,' . $teacher_counsellorId . ',id',
             'state' => 'required',
             'city' => 'nullable',
@@ -46,7 +46,7 @@ class StoreClientTeacherCounselorRequest extends FormRequest
                     }
                 }
             ],
-            'sch_name' => 'sometimes|required_if:sch_id,add-new|unique:tbl_sch,sch_name',
+            'sch_name' => 'sometimes|required_if:sch_id,add-new', #|unique:tbl_sch,sch_name
             // 'sch_location' => 'sometimes|required_if:sch_id,add-new',
             'sch_type' => 'required_if:sch_id,add-new',
             'sch_curriculum.*' => 'required_if:sch_id,add-new',

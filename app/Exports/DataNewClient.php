@@ -100,7 +100,7 @@ class DataNewClient implements FromArray, WithHeadings, WithTitle, WithColumnFor
                 $spesificConcern,
                 $client->phone,
                 'New',
-                'Qualified',
+                $client->phone == null || $client->phone == '' ? 'Not Qualified' : 'Qualified',
                 'No',
                 $client->lead == null ? 'Other' : ($client->lead->main_lead == 'Referral' ? 'Referral' : 'Other'),
                 'Student',

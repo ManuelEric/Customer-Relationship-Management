@@ -38,24 +38,39 @@
         .ts-dropdown {
             font-size: 1.25rem !important;
         }
+
+        .step-active {
+            position: relative;
+            opacity: 1;
+            z-index: 1;
+            transition: all 0.4s ease-in-out;
+        }
+
+        .step-inactive {
+            position: absolute;
+            width: 100%;
+            z-index: -1;
+            opacity: 0;
+            transition: all 0.4s ease-in-out;
+        }
     </style>
 </head>
 
 <body>
-    @if($errors->any())
-     <div class="alert alert-danger">
-          <ul class="list-unstyled">
-                 @foreach ($errors->all() as $error)
-                       <li>{{ $error }}</li>
-                 @endforeach
-          </ul>
-      </div>
- @endif
-    <div class="min-h-screen flex items-center bg-gray-200">
-        <div class="max-w-screen-lg w-full mx-auto p-4">
-            <form action="{{ url('form/event') }}" method="POST">
+    @if ($errors->any())
+        <div class="fixed bottom-5 right-5 w-[350px] z-[999]" id="notif">
+            <ul class="grid grid-cols-1 gap-2">
+                @foreach ($errors->all() as $error)
+                    <li class="p-2 border-2 border-red-800 rounded-lg text-red-800 bg-white">{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    <div class="min-h-screen flex items-center bg-transparent">
+        <div class="max-w-screen-lg w-full mx-auto p-4 relative overflow-hidden">
+            <form action="{{ url('form/events') }}" method="POST">
                 @csrf
-                <section id="role" class="page">
+                <section id="role" class="page step-active">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
                         <h2 class="mb-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -64,25 +79,23 @@
                         <hr class="my-5">
 
                         <p class="mb-3 font-normal text-xl text-gray-700 dark:text-gray-400">
-                            Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                            You are a
                         </p>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
-                            <div class="flex items-center pl-4 border border-gray-200 rounded dark:border-gray-700">
+                            <div class="flex">
                                 <input checked id="role-1" type="radio" value="parent" name="role"
-                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                    onchange="checkRole(this)">
+                                    class="hidden peer" onchange="checkRole(this)">
                                 <label for="role-1"
-                                    class="w-full py-4 pr-4 ml-4 text-md font-medium text-gray-900 dark:text-gray-300">
+                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#233872] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#233872] peer-checked:text-white">
                                     Parent
                                 </label>
                             </div>
-                            <div class="flex items-center pl-4 border border-gray-200 rounded dark:border-gray-700">
-                                <input id="role-2" type="radio" value="student" name="role"
-                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            <div class="flex">
+                                <input id="role-2" type="radio" value="student" name="role" class="hidden peer"
                                     onchange="checkRole(this)">
                                 <label for="role-2"
-                                    class="w-full py-4 pr-4 ml-4 text-md font-medium text-gray-900 dark:text-gray-300">
+                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#233872] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#233872] peer-checked:text-white">
                                     Student
                                 </label>
                             </div>
@@ -101,12 +114,13 @@
                         </div>
                     </div>
                 </section>
+                <input type="hidden" name="event_name" value="{{ $_GET['event_name'] }}">
 
-                <section id="user1" class="page hidden">
+                <section id="user1" class="page step-inactive">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
                         <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                            Please fill in your information!
+                            Please fill in your information
                         </h2>
                         <hr class="my-5">
 
@@ -114,7 +128,15 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Full Name
                             </label>
-                            <input type="text" name="name"
+                            <input type="text" name="fullname[]"
+                                class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
+                            <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                        </div>
+                        <div class="mb-4" id="child_name">
+                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                                Your Child Full Name
+                            </label>
+                            <input type="text" name="fullname[]" id="input_child_name"
                                 class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
@@ -122,7 +144,7 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Email
                             </label>
-                            <input type="email" name="email"
+                            <input type="text" name="email[]"
                                 class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
@@ -130,10 +152,10 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                 Phone Number
                             </label>
-                            <input type="text" name="phone"
+                            <input type="text" name="phone[]"
                                 class="w-full md:w-[126vh] text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                 id="phoneUser1">
-                            <input type="hidden" name="fullnumber" id="phone1">
+                            <input type="hidden" name="fullnumber[]" id="phone1">
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
 
@@ -147,7 +169,7 @@
                                 </svg>
                                 Previous
                             </button>
-                            <button type="button" onclick="step('user1','user2','next')"
+                            <button type="button" onclick="step('user1','info','next')"
                                 class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-blue-700 bg-white border-2 border-blue-700 rounded-lg hover:bg-blue-800 hover:text-white ease-in-out duration-500">
                                 Next
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -160,93 +182,37 @@
                     </div>
                 </section>
 
-                <section id="user2" class="page hidden">
+                <section id="info" class="page step-inactive">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
                         <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                            Please fill in your child information!
+                            Please fill in your information
                         </h2>
                         <hr class="my-5">
 
                         <div class="mb-4">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
-                                Full Name
+                                School
                             </label>
-                            <input type="text" name="child_name"
-                                class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
-                            <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
-                        </div>
-                        <div class="mb-4">
-                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
-                                Email
-                            </label>
-                            <input type="text" name="child_email"
-                                class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
-                                <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
-                        </div>
-                        <div class="mb-4">
-                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
-                                Phone Number
-                            </label>
-                            <input type="text" name="child_phone"
-                                class="w-full md:w-[126vh] text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
-                                id="phoneUser2">
-                            <input type="hidden" name="child_fullnumber" id="phone2">
-                            <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
-                        </div>
-
-                        <div class="flex justify-between mt-10">
-                            <button type="button" onclick="step('user2','user1','prev')"
-                                class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-red-700 bg-white border-2 border-red-700 rounded-lg hover:bg-red-700 hover:text-white ease-in-out duration-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                    fill="currentColor" class="bi bi-arrow-left mr-2" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
-                                </svg>
-                                Previous
-                            </button>
-                            <button type="button" onclick="step('user2','info','next')"
-                                class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-blue-700 bg-white border-2 border-blue-700 rounded-lg hover:bg-blue-800 hover:text-white ease-in-out duration-500">
-                                Next
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                    fill="currentColor" class="bi bi-arrow-right ml-2" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="info" class="page hidden">
-                    <div
-                        class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                        <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                            Please fill in your information!
-                        </h2>
-                        <hr class="my-5">
-
-                        <div class="mb-4">
-                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
-                                    School
-                                </label>
-                                <select name="school" id="schoolList"
-                                    class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
-                                    placeholder="Pick one school" onChange="addSchool();">
-                                    <option data-placeholder="true"></option>
-                                    @foreach ($schools as $school)
-                                        <option value="{{ $school->sch_id }}"  {{ old('school') == $school->sch_id ? "selected" : null }}>{{ $school->sch_name }}</option>
-                                    @endforeach
-                                </select>
+                            <select name="school" id="schoolList"
+                                class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
+                                placeholder="Type School Name" onChange="addSchool();">
+                                <option data-placeholder="true"></option>
+                                @foreach ($schools as $school)
+                                    <option value="{{ $school->sch_id }}"
+                                        {{ old('school') == $school->sch_id ? 'selected' : null }}>
+                                        {{ $school->sch_name }}</option>
+                                @endforeach
+                            </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
                         <div class="mb-4">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Expected Graduation Year
                             </label>
-                            <select name="grade" id="grade"
+                            <select name="graduation_year" id="graduation_year"
                                 class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
-                                placeholder="Pick one school">
+                                placeholder="">
                                 <option value=""></option>
                                 @for ($i = date('Y'); $i < date('Y') + 6; $i++)
                                     <option value="{{ $i }}">{{ $i }}</option>
@@ -264,13 +230,15 @@
                                 placeholder="Pick one item">
                                 <option data-placeholder="true"></option>
                                 @foreach ($leads as $lead)
-                                    <option value="{{ $lead->lead_id }}" {{old('leadsource') == $lead->lead_id ? 'selected' : null}}>{{ $lead->main_lead == 'KOL' ? $lead->sub_lead : $lead->main_lead }}</option>
-                                @endforeach                           
+                                    <option value="{{ $lead->lead_id }}"
+                                        {{ old('leadsource') == $lead->lead_id ? 'selected' : null }}>
+                                        {{ $lead->main_lead == 'KOL' ? $lead->sub_lead : $lead->main_lead }}</option>
+                                @endforeach
                             </select>
                         </div>
 
                         <div class="flex justify-between mt-10">
-                            <button type="button" onclick="step('info','user2','prev')"
+                            <button type="button" onclick="step('info','user1','prev')"
                                 class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-red-700 bg-white border-2 border-red-700 rounded-lg hover:bg-red-700 hover:text-white ease-in-out duration-500">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     fill="currentColor" class="bi bi-arrow-left mr-2" viewBox="0 0 16 16">
@@ -295,36 +263,30 @@
         </div>
     </div>
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+    integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
 <script>
+    const myTimeout = setTimeout(notif, 5000);
+
+    function notif() {
+        document.getElementById("notif").classList.add('hidden')
+    }
+
     var user1 = document.querySelector("#phoneUser1");
-    var user2 = document.querySelector("#phoneUser2");
-      const phoneInput1 = window.intlTelInput(user1, {
+    // var user2 = document.querySelector("#phoneUser2");
+    const phoneInput1 = window.intlTelInput(user1, {
         utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
         initialCountry: 'id',
         onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
     });
-    const phoneInput2 = window.intlTelInput(user2, {
-        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
-        initialCountry: 'id',
-        onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
-    });
-    // window.intlTelInput(user1, {
-    //     utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
-    //     initialCountry: 'id',
-    //     onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
-    // });
-    // window.intlTelInput(user2, {
-    //     utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
-    //     initialCountry: 'id',
-    //     onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
-    // });
 
     new TomSelect('#schoolList', {
         create: true
     });
 
-    new TomSelect('#grade', {
+    new TomSelect('#graduation_year', {
         create: false
     });
 
@@ -333,17 +295,16 @@
     });
 
     function checkRole(element) {
-        const buttonUser1 = document.querySelectorAll('#user1 button')
-        const buttonInfo = document.querySelectorAll('#info button')
+        const child_name = document.querySelector('#child_name')
+        const input_child_name = document.querySelector('#input_child_name')
 
         if (element.value == "student") {
-            buttonUser1[0].setAttribute("onclick", "step('user1','role', 'prev')")
-            buttonUser1[1].setAttribute("onclick", "step('user1','info', 'next')")
-            buttonInfo[0].setAttribute("onclick", "step('info','user1', 'prev')")
+            child_name.classList.add('hidden')
+            input_child_name.type = "hidden"
+            input_child_name.value = ""
         } else {
-            buttonUser1[0].setAttribute("onclick", "step('user1','role', 'prev')")
-            buttonUser1[1].setAttribute("onclick", "step('user1','user2', 'next')")
-            buttonInfo[0].setAttribute("onclick", "step('info','user2', 'prev')")
+            child_name.classList.remove('hidden')
+            input_child_name.type = "text"
         }
     }
 
@@ -355,11 +316,12 @@
         const nextPage = document.querySelector("#" + next);
 
         for (var i = 0; i < page.length; ++i) {
-            page[i].classList.add('hidden');
+            page[i].classList.add('step-inactive');
         }
 
         if (type === "prev") {
-            nextPage.classList.remove("hidden");
+            nextPage.classList.remove("step-inactive");
+            nextPage.classList.add("step-active");
         } else {
             const check_input = [];
             for (var i = 0; i < input.length; ++i) {
@@ -376,25 +338,19 @@
 
             var index = check_input.indexOf(false);
             if (index === 0) {
-                currentPage.classList.remove("hidden");
+                currentPage.classList.remove("step-inactive");
+                currentPage.classList.add("step-active");
             } else {
-                nextPage.classList.remove("hidden");
+                nextPage.classList.remove("step-inactive");
+                nextPage.classList.add("step-active");
             }
         }
     }
-
-    
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
     $("#phoneUser1").on('keyup', function(e) {
         var number1 = phoneInput1.getNumber();
         $("#phone1").val(number1);
-    });
-
-    $("#phoneUser2").on('keyup', function(e) {
-        var number2 = phoneInput2.getNumber();
-        $("#phone2").val(number2);
     });
 </script>
 

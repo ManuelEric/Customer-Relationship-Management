@@ -32,6 +32,7 @@ class Receipt extends Model
         'refund_tax_percentage',
         'refund_tax_amount',
         'total_refunded',
+        'receipt_date',
         'download_idr',
         'download_other',
         'created_at',

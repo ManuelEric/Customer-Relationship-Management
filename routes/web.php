@@ -49,7 +49,11 @@ Route::resource('user/volunteer', VolunteerController::class);
 //     return view('form-embed.form-event');
 // });
 Route::get('form/event', [ClientEventController::class, 'createFormEmbed']);
-Route::post('form/event', [ClientEventController::class, 'storeFormEmbed']);
+Route::post('form/events', [ClientEventController::class, 'storeFormEmbed']);
 
 Route::get('form/registration', [PublicRegistrationController::class, 'register']);
-Route::post('form/registration', [PublicRegistrationController::class, 'store'])->name('submit.registration');
+Route::post('form/registrations', [PublicRegistrationController::class, 'store'])->name('submit.registration');
+
+Route::get('form/thanks', function() {
+    return view('form-embed.thanks');
+});

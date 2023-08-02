@@ -42,4 +42,17 @@ class ExtClientController extends Controller
             ]
         );
     }
+
+    public function getAlumnis()
+    {
+        $existingAlumnis = $this->clientRepository->getExistingAlumnisAPI();
+
+        return response()->json(
+            [
+                'success' => true,
+                'message' => 'Alumnis data found.',
+                'data' => $existingAlumnis
+            ]
+        );
+    }
 }

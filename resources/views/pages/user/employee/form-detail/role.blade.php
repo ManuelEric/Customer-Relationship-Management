@@ -73,8 +73,8 @@
                     <option data-placeholder="true"></option>
                     @foreach ($positions as $position)
                         <option value="{{ $position->id }}" 
-                            @selected(isset($user) && $user->position->id == $position->id) 
-                            @selected(old('position') == $position->position_name)>{{ $position->position_name }}</option>
+                            @selected(isset($user) && isset($user->position) && $user->position->id == $position->id) 
+                            @selected(old('position') == $position->id)>{{ $position->position_name }}</option>
                     @endforeach
                 </select>
                 @error('position')

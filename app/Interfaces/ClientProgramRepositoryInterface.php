@@ -10,6 +10,7 @@ interface ClientProgramRepositoryInterface
     public function getAllMentorTutorOnClientProgram();
     public function getAllPICOnClientProgram();
     public function getClientProgramById($clientProgramId);
+    public function getClientProgramByDetail(array $detail);
     public function createClientProgram(array $clientProgramDetails);
     public function updateClientProgram($clientProgramId, array $clientProgramDetails);
     public function endedClientProgram(int $clientprog_id, array $newDetails);
@@ -20,7 +21,9 @@ interface ClientProgramRepositoryInterface
     public function getSummaryProgramByStatus($status, array $dateDetails);
     public function getInitAssessmentProgress($dateDetails);
     public function getConversionLead($dateDetails, $cp_filter = null);
+    public function getConversionLeadDetails($filter);
     public function getLeadSource($dateDetails, $cp_filter = null);
+    public function getLeadSourceDetails($filter);
     public function getConversionTimeSuccessfulPrograms($dateDetails);
 
     # dashboard

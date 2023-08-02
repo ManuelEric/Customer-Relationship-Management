@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 
 class PublicRegistrationController extends Controller
 {
@@ -28,7 +29,7 @@ class PublicRegistrationController extends Controller
         $this->schoolRepository = $schoolRepository;
         $this->clientRepository = $clientRepository;
     }
-    
+
     public function register()
     {
         $schools = $this->schoolRepository->getAllSchools();
@@ -42,25 +43,25 @@ class PublicRegistrationController extends Controller
     {
         // return $request->all();
         $role = $request->role;
-        
+
         if (count(array_filter($request->fullname)) > 1) {
 
             # there are parent and children 
             $parentDetail = [
                 'fullname' => $request->fullname[0],
                 'mail' => $request->email[0],
-                'phone' => $request->fullnumber[0] 
+                'phone' => $request->fullnumber[0]
             ];
 
             $childrenDetail = [
                 'fullname' => $request->fullname[1],
-                'mail' => $request->email[1],
-                'phone' => $request->fullnumber[1],
+                'mail' => null,
+                'phone' => null,
                 'school' => $request->school,
                 'grade' => $request->grade,
-                'program' => $request->program
+                'program' => $request->program,
+                'register_as' => 'parent',
             ];
-
         } else {
 
             $childrenDetail = [
@@ -69,52 +70,59 @@ class PublicRegistrationController extends Controller
                 'phone' => $request->fullnumber[0],
                 'school' => $request->school,
                 'grade' => $request->grade,
-                'program' => $request->program
+                'program' => $request->program,
+                'register_as' => 'student',
             ];
-        }        
+        }
 
         DB::beginTransaction();
         try {
-            
             $newParent = false;
             # checking if client was a parent
             if ($role == "parent")
                 $newParent = $this->storeParentIfNotExists($parentDetail);
-            
+
             # checking if client was a child
             $newChild = $this->storeChildrenIfNotExists($childrenDetail);
-            
-            
+
             # create relation between parent & student
-            if ($newParent && $newChild) 
+            if ($newParent && $newChild)
                 $this->clientRepository->createClientRelation($newParent, $newChild);
 
             DB::commit();
-                
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Register from embed form website failed : '. $e->getMessage());
+            Log::error('Register from embed form website failed : ' . $e->getMessage() . $e->getLine());
             return 'Error when processing, please try again or contact our team.';
-
         }
 
-        return 'Registration success';
-
+        return Redirect::to('form/thanks');
     }
 
-    private function storeParentIfNotExists($detail) 
+    private function storeParentIfNotExists($detail)
     {
         $first_name = $detail['fullname'];
         $last_name = null; # set null as default because the embedded registration form only shows full names which there's no first_name and last_name
 
         # to retrieve first_name and last_name
         # check parent_name if there are multiple words
+        // $explode = explode(" ", $detail['fullname']);
+        // if (count($explode) > 1) {
+        //     $first_name = $explode[0];
+        //     $last_name = $explode[array_keys($explode, max($explode))[0]];
+        // }
+
         $explode = explode(" ", $detail['fullname']);
-        if (count($explode) > 1 ) {
-            $first_name = $explode[0];
-            $last_name = $explode(max($explode));
-        } 
+        $limit = count($explode);
+        if ($limit > 1) {
+            $last_name = $explode[$limit - 1];
+            unset($explode[$limit - 1]);
+            $first_name = implode(" ", $explode);
+        } else {
+            $first_name = implode(" ", $explode);
+        }
+
 
         # initialize parent details
         $parentDetail = [
@@ -123,7 +131,7 @@ class PublicRegistrationController extends Controller
             'mail' => $detail['mail'],
             'phone' => $detail['phone'],
         ];
-    
+
         # check if parent mail & phone exists
         if ($existingParent = $this->checkExistingClient($parentDetail['phone'], $parentDetail['mail'])) {
             if (isset($existingChild['id']))
@@ -139,11 +147,21 @@ class PublicRegistrationController extends Controller
         $first_name = $detail['fullname'];
         $last_name = null; # set null as default because the embedded registration form only shows full names which there's no first_name and last_name
 
+        // $explode = explode(" ", $detail['fullname']);
+        // if (count($explode) > 1) {
+        //     $first_name = $explode[0];
+        //     $last_name = $explode[array_keys($explode, max($explode))[0]];
+        // }
+
         $explode = explode(" ", $detail['fullname']);
-        if (count($explode) > 1 ) {
-            $first_name = $explode[0];
-            $last_name = $explode(max($explode));
-        } 
+        $limit = count($explode);
+        if ($limit > 1) {
+            $last_name = $explode[$limit - 1];
+            unset($explode[$limit - 1]);
+            $first_name = implode(" ", $explode);
+        } else {
+            $first_name = implode(" ", $explode);
+        }
 
         $max_grade = 12;
         $grade = ($detail['grade']) > date('Y') ? $max_grade - ($detail['grade'] - date('Y')) : 13;
@@ -155,6 +173,7 @@ class PublicRegistrationController extends Controller
             'phone' => $detail['phone'],
             'sch_id' => $detail['school'],
             'graduation_year' => $detail['grade'],
+            'register_as' => $detail['register_as'],
             'st_grade' => $grade,
             'preferred_program' => $detail['program'],
 
@@ -184,6 +203,5 @@ class PublicRegistrationController extends Controller
 
         # when not exist then store it
         return $existingChild['id'] = $this->clientRepository->createClient('Student', $studentDetail)->id;
-        
     }
 }

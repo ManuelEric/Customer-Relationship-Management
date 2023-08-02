@@ -95,6 +95,8 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
+        // $new_leads = $this->clientRepository->getNewLeads(false);
+        // return $this->clientRepository->getAllClientStudent()->count();
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
@@ -119,19 +121,32 @@ class ClientStudentController extends ClientController
                     break;
 
                 default:
-                    $statusClientCode = $this->getStatusClientCode($statusClient);
-                    return $this->clientRepository->getAllClientByRoleAndStatusDataTables('Student', $statusClientCode);
+                    $model = $this->clientRepository->getAllClientStudent();
             }
+            
             return $this->clientRepository->getDataTables($model);
         }
+        
+        $schools = $this->schoolRepository->getAllSchools();
+        $parents = $this->clientRepository->getAllClientByRole('Parent');
+        $leads = $this->leadRepository->getAllMainLead();
 
-        return view('pages.client.student.index');
+
+        return view('pages.client.student.index')->with(
+            [
+                'schools' => $schools,
+                'parents' => $parents,
+                'leads' => $leads,
+            ]
+        );
     }
 
     public function show(Request $request)
     {
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
+        if (!$student)
+            abort(404);
 
         return view('pages.client.student.view')->with(
             [
@@ -142,8 +157,10 @@ class ClientStudentController extends ClientController
 
     public function store(StoreClientStudentRequest $request)
     {
+        $parentId = NULL;
         $data = $this->initializeVariablesForStoreAndUpdate('student', $request);
-
+        $data['studentDetails']['register_as'] == null ? $data['studentDetails']['register_as'] = 'student' : $data['studentDetails']['register_as'];
+        
         DB::beginTransaction();
         try {
 
@@ -154,11 +171,11 @@ class ClientStudentController extends ClientController
 
             # case 2
             # create new user client as parents
-            if (!$data['parentDetails']) {
+            if ($data['studentDetails']['pr_id'] !== NULL) {
+
                 if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
                     throw new Exception('Failed to store new parent', 2);
             }
-
 
             # case 3
             # create new user client as student
@@ -172,12 +189,10 @@ class ClientStudentController extends ClientController
             # if they didn't insert parents which parentId = NULL
             # then assumed that register for student only
             # so no need to create parent children relation
-            if (!$data['parentDetails']) {
-                if ($parentId !== NULL) {
+            if ($parentId !== NULL && $data['studentDetails']['pr_id'] !== NULL) {
 
-                    if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
-                        throw new Exception('Failed to store relation between student and parent', 4);
-                }
+                if (!$this->clientRepository->createClientRelation($parentId, $newStudentId))
+                    throw new Exception('Failed to store relation between student and parent', 4);
             }
 
             # case 5
@@ -349,17 +364,22 @@ class ClientStudentController extends ClientController
             # case 2
             # create new user client as parents
             # when pr_id is "add-new" 
+
             if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
                 throw new Exception('Failed to store new parent', 2);
+            
 
             # removing the kol_lead_id & pr_id from studentDetails array
             # if the data still exists it will error because there are no field with kol_lead_id & pr_id
             unset($data['studentDetails']['kol_lead_id']);
+            $newParentId = $data['studentDetails']['pr_id'];
+            $oldParentId = $data['studentDetails']['pr_id_old']; 
             unset($data['studentDetails']['pr_id']);
+            unset($data['studentDetails']['pr_id_old']);
 
             # case 3
             # create new user client as student
-            if (!$this->clientRepository->updateClient($studentId, $data['studentDetails']))
+            if (!$student = $this->clientRepository->updateClient($studentId, $data['studentDetails']))
                 throw new Exception('Failed to update student information', 3);
 
 
@@ -368,12 +388,21 @@ class ClientStudentController extends ClientController
             # if they didn't insert parents which parentId = NULL
             # then assumed that register for student only
             # so no need to create parent children relation
-            if ($parentId !== NULL) {
+            if ($newParentId !== NULL) {
 
                 if (!in_array($parentId, $this->clientRepository->getParentsByStudentId($studentId))) {
 
                     if (!$this->clientRepository->createClientRelation($parentId, $studentId))
                         throw new Exception('Failed to store relation between student and parent', 4);
+                }
+
+            } else {
+
+                # when pr_id is null it means they remove the parent from the child
+                if (in_array($oldParentId, $this->clientRepository->getParentsByStudentId($studentId))) {
+
+                    if (!$this->clientRepository->removeClientRelation($oldParentId, $studentId))
+                        throw new Exception('Failed to remove relation between student and parent', 4);
                 }
             }
 

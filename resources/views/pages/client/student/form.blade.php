@@ -10,7 +10,6 @@
         </a>
     </div>
 
-
     <div class="card rounded">
         <div class="card-header">
             <h5 class="my-1 p-0">
@@ -73,7 +72,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-2">
-                                    <label>Date of Birth <i class="text-danger font-weight-bold">*</i></label>
+                                    <label>Date of Birth </label>
                                     <input name="dob" type="date" class="form-control form-control-sm" value="{{ isset($student->dob) ? $student->dob : old('dob') }}">
                                     @error('dob')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -100,6 +99,32 @@
                                     @enderror
                                 </div>
                             </div> --}}
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label>Is Funding</label>
+                                    <select class="select w-100" name="is_funding">
+                                        <option data-placeholder="true"></option>
+                                            <option value="1" {{ old('is_funding') == "1" || (isset($student->is_funding) && $student->is_funding == 1) ? "selected" : null }}>Yes</option>
+                                            <option value="0" {{ old('is_funding') == "0" || (isset($student->is_funding) && $student->is_funding == 0) ? "selected" : null }}>No</option>
+                                    </select>
+                                    @error('is_funding')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label>Register As</label>
+                                    <select class="select w-100" name="register_as">
+                                        <option data-placeholder="true"></option>
+                                            <option value="student" {{ old('register_as') == "student" || (isset($student->register_as) && $student->register_as == 'student') ? "selected" : null }}>Student</option>
+                                            <option value="parent" {{ old('register_as') == "parent" || (isset($student->register_as) && $student->register_as == 'parent') ? "selected" : null }}>Parent</option>
+                                    </select>
+                                    @error('is_funding')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
                             <div class="col-md-4">
                                 <div class="mb-2">
                                     <label>State / Region <i class="text-danger font-weight-bold">*</i></label>
@@ -130,6 +155,7 @@
                                     @enderror
                                 </div>
                             </div>
+                             
 
                         </div>
                     </div>
@@ -159,6 +185,7 @@
                                     <div class="col-md-8">
                                         <div class="mb-2">
                                             <label>Parent's Name</label>
+                                            <input type="hidden" name="pr_id_old" value="{{ isset($student->parents) && $student->parents()->first() ? $student->parents()->first()->id : null }}">
                                             <select class="select w-100" name="pr_id" id="prName"
                                                 onchange="addParent()">
                                                 <option data-placeholder="true"></option>
@@ -512,6 +539,8 @@
                             @enderror
                         </div>
                     </div>
+                   
+                    
                 </div>
 
                 <div class="line" style="margin-top:15px; margin-bottom:0px;"></div>

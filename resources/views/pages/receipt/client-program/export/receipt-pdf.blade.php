@@ -19,8 +19,8 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        h4 {
-            font-size: 30px !important;
+        h3 {
+            font-size: 26px !important;
             font-weight: 800;
             font-family: 'Archivo Black', sans-serif;
             letter-spacing: 5px !important;
@@ -61,9 +61,9 @@
         <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
-            <h4 style="">
-                <b>PAYMENT RECEIPT</b>
-            </h4>
+            <h3 style="">
+                PAYMENT RECEIPT
+            </h3>
 
             <table border="0" width="100%">
                 <tr>
@@ -88,14 +88,16 @@
                                     Received from :
                                 </td>
                                 <td>
-                                    {{ $receipt->invoiceProgram->clientprog->client->parents[0]->full_name }}
+                                    {{ $receipt->invoiceProgram->clientprog->client->full_name }}
                                     <br>
-                                    @if ($receipt->invoiceProgram->clientProg->client->parents[0]->state != NULL)
-                                        {{ $receipt->invoiceProgram->clientProg->client->parents[0]->state }}
-                                    @elseif ($receipt->invoiceProgram->clientProg->client->parents[0]->city != NULL)
-                                        {{ $receipt->invoiceProgram->clientProg->client->parents[0]->city }}
-                                    @elseif ($receipt->invoiceProgram->clientProg->client->parents[0]->address != NULL)
-                                        {!! $receipt->invoiceProgram->clientProg->client->address !!}
+                                    {{-- @if ($receipt->invoiceProgram->clientProg->client->state != NULL)
+                                        {{ $receipt->invoiceProgram->clientProg->client->state }}
+                                    @endif --}}
+                                    @if ($receipt->invoiceProgram->clientProg->client->address != NULL)
+                                    {{ html_entity_decode(strip_tags($receipt->invoiceProgram->clientProg->client->address)) }}
+                                    @endif
+                                    @if ($receipt->invoiceProgram->clientProg->client->city != NULL)
+                                        {{ $receipt->invoiceProgram->clientProg->client->city }}
                                     @endif
                                 </td>
                             </tr>
@@ -146,6 +148,9 @@
                                 {{ $receipt->invoiceInstallment->invdtl_installment }} ( {{ $receipt->invoiceInstallment->invdtl_percentage }}% )
                             </p>
                             @endif
+                            <p>
+                                {!! $receipt->invoiceProgram->inv_notes !!}
+                            </p>
                         </div>
                     </td>
                     <td valign="top" align="center">
@@ -220,7 +225,7 @@
                     </td>
                     <td width="40%" align="center" valign="top">
                         {{-- PT. Jawara Edukasih Indonesia --}}
-                        Jakarta, {{ date('d F Y') }}
+                        Jakarta, {{ isset($receipt->receipt_date) ? date('d F Y', strtotime($receipt->receipt_date)) : date('d F Y', strtotime($receipt->created_at)) }}
                         <br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director

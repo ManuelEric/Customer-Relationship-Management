@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\v1\ExtClientController;
+use App\Http\Controllers\Api\v1\ExtSalesTrackingController;
 use App\Http\Controllers\Api\v1\SalesDashboardController;
 use App\Http\Controllers\Api\v1\PartnerDashboardController;
 use App\Http\Controllers\Api\v1\FinanceDashboardController;
@@ -118,4 +119,7 @@ Route::get('current/rate/{base_currency}/{to_currency}', [CurrencyRateController
 Route::prefix('v1')->group(function () {
     Route::get('get/mentees', [ExtClientController::class, 'getClientFromAdmissionMentoring']);
     Route::get('get/mentors', [ExtClientController::class, 'getMentors']);
+    Route::get('get/alumnis', [ExtClientController::class, 'getAlumnis']);
+    Route::get('get/detail/lead-source', [ExtSalesTrackingController::class, 'getLeadSourceDetail']);
+    Route::get('get/detail/conversion-lead', [ExtSalesTrackingController::class, 'getConversionLeadDetail']);
 });

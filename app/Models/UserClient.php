@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\pivot\ClientLeadTracking;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -52,6 +53,8 @@ class UserClient extends Authenticatable
         // 'st_prospect_status',
         'st_password',
         'preferred_program',
+        'is_funding',
+        'register_as',
         'created_at',
         'updated_at',
     ];
@@ -82,11 +85,20 @@ class UserClient extends Authenticatable
         });
     }
 
+    public function scopeWithAndWhereHas($query, $relation, $constraint)
+    {
+        return $query->whereHas($relation, $constraint)
+            ->with([$relation => $constraint]);
+    }
+
     public function getLeadSource($parameter)
     {
         switch ($parameter) {
             case "All-In Event":
-                return "ALL-In Event - " . $this->event->event_title;
+                if ($this->event != NULL)
+                    return "ALL-In Event - " . $this->event->event_title;
+                else
+                    return "ALL-In Event";
                 break;
 
             case "External Edufair":
@@ -104,6 +116,7 @@ class UserClient extends Authenticatable
                 return $this->lead->main_lead;
         }
     }
+
 
     # relation
     public function additionalInfo()
@@ -174,5 +187,10 @@ class UserClient extends Authenticatable
     public function clientMentor()
     {
         return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'users.id', 'id', 'clientprog_id');
+    }
+
+    public function leadStatus()
+    {
+        return $this->belongsToMany(ClientLeadTracking::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->use(ClientLeadTracking::class)->withTimestamps();
     }
 }

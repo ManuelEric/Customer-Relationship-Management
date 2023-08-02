@@ -61,7 +61,7 @@
         <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
             <h4
                 style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:18px; margin-bottom:10px; ">
-                <u><b>INVOICE</b></u>
+                INVOICE
             </h4>
             <br><br>
             <div style="height:150px;">
@@ -81,14 +81,12 @@
                                 <tr>
                                     <td valign="top">To : </td>
                                     <td><b>
-                                        @if ($clientProg->client->parents()->count() > 0)
-                                            {{ $clientProg->client->parents[0]->full_name }}
-                                        </b><br>
-                                        {{ strip_tags($clientProg->client->parents[0]->address) }}
-                                        @else
                                             {{ $clientProg->client->full_name }}
-                                        @endif
-                                        <br>
+                                        </b><br>
+                                            {{ html_entity_decode(strip_tags($clientProg->client->address)) }}
+                                            @if ($clientProg->client->city != NULL)
+                                                {{ $clientProg->client->city }}
+                                            @endif
                                     </td>
                                 </tr>
                             </table>
@@ -142,7 +140,7 @@
                                     <strong> {{ $clientProg->program->program_name }} </strong>
                                 </p>
                                 <p>
-                                    {{ strip_tags($clientProg->invoice->inv_notes) }}
+                                    {!! $clientProg->invoice->inv_notes !!}
                                 </p>
                             </div>
 
@@ -214,7 +212,7 @@
                                 <p>
                                     {{-- USD 5,400 (IDR 80,460,000) for Yeriel Abinawa Handoyo. <br>
                                     USD 2,750 (IDR 40,975,000) for Nemuell Jatinarendra Handoyo. --}}
-                                    {{ strip_tags($clientProg->invoice->inv_notes) }}
+                                    {!! $clientProg->invoice->inv_notes !!}
                                 </p>
                             </div>
                         </td>
@@ -284,11 +282,13 @@
 
 
                         {{-- IF TERMS & CONDITION EXIST  --}}
-                        <br>
-                        Terms & Conditions :
-                        <div style="margin-left:2px;">
-                            {!! $clientProg->invoice->inv_tnc !!}
-                        </div>
+                        @if(isset($clientProg->invoice->inv_tnc))
+                            <br>
+                            Terms & Conditions :
+                            <div style="margin-left:2px;">
+                                {!! $clientProg->invoice->inv_tnc !!}
+                            </div>
+                        @endif
                     </td>
                 </tr>
             </table>

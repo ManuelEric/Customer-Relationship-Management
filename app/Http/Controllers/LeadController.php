@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLeadRequest;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\GetDepartmentFromLoggedInUser;
+use App\Interfaces\DepartmentRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Models\Lead;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -17,10 +20,12 @@ class LeadController extends Controller
     use CreateCustomPrimaryKeyTrait;
 
     private LeadRepositoryInterface $leadRepository;
+    private DepartmentRepositoryInterface $departmentRepository;
 
-    public function __construct(LeadRepositoryInterface $leadRepository)
+    public function __construct(LeadRepositoryInterface $leadRepository, DepartmentRepositoryInterface $departmentRepository)
     {
         $this->leadRepository = $leadRepository;
+        $this->departmentRepository = $departmentRepository;
     }
 
     public function index(Request $request)
@@ -29,7 +34,13 @@ class LeadController extends Controller
             return $this->leadRepository->getAllLeadDataTables();
         }
 
-        return view('pages.master.lead.index');
+        $departments = $this->departmentRepository->getAllDepartment();
+
+        return view('pages.master.lead.index')->with(
+            [
+                'departments' => $departments
+            ]
+        );
     }
 
     public function store(StoreLeadRequest $request)
@@ -38,6 +49,7 @@ class LeadController extends Controller
             'lead_name',
             'score',
             'kol',
+            'department_id',
         ]);
 
         $last_id = Lead::max('lead_id');
@@ -112,6 +124,7 @@ class LeadController extends Controller
             'lead_name',
             'score',
             'kol',
+            'department_id',
         ]);
 
         # retrieve lead id from url

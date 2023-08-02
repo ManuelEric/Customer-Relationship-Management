@@ -28,28 +28,38 @@ var PDFAnnotate = function (container_id, url, options = {}) {
 
 		for (var i = 1; i <= pdf.numPages; i++) {
 			pdf.getPage(i).then(function (page) {
+        if (typeof inst.format === 'undefined' ||
+            typeof inst.orientation === 'undefined') {
+            var originalViewport = page.getViewport({ scale: 1 });
+            inst.format = [originalViewport.width, originalViewport.height];
+            inst.orientation =
+              originalViewport.width > originalViewport.height ?
+                'landscape' :
+                'portrait';
+          }
+
 				var viewport = page.getViewport({ scale: scale });
 				var canvas = document.createElement('canvas');
+
 				document.getElementById(inst.container_id).appendChild(canvas);
 				canvas.className = 'pdf-canvas';
 				canvas.height = viewport.height;
 				canvas.width = viewport.width;
-				
 				context = canvas.getContext('2d');
 
 				// Increase the resolution of the canvas
 
-				if (window.devicePixelRatio > 1) {
-					var canvasWidth = canvas.width;
-					var canvasHeight = canvas.height;
+				// if (window.devicePixelRatio > 1) {
+				// 	var canvasWidth = canvas.width;
+				// 	var canvasHeight = canvas.height;
 
-					canvas.width = canvasWidth * window.devicePixelRatio;
-					canvas.height = canvasHeight * window.devicePixelRatio;
-					canvas.style.width = canvasWidth + "px";
-					canvas.style.height = canvasHeight + "px";
+				// 	canvas.width = canvasWidth * window.devicePixelRatio;
+				// 	canvas.height = canvasHeight * window.devicePixelRatio;
+				// 	canvas.style.width = canvasWidth + "px";
+				// 	canvas.style.height = canvasHeight + "px";
 
-					context.scale(window.devicePixelRatio, window.devicePixelRatio);
-				}
+				// 	context.scale(window.devicePixelRatio, window.devicePixelRatio);
+				// }
 
 				var renderContext = {
 					canvasContext: context,

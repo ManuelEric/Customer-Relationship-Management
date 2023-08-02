@@ -9,6 +9,7 @@ use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
+use App\Interfaces\ClientRepositoryInterface;
 use App\Models\InvoiceProgram;
 use DateTime;
 use Exception;
@@ -30,13 +31,15 @@ class InvoiceProgramController extends Controller
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private InvoiceDetailRepositoryInterface $invoiceDetailRepository;
     private InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository;
+    private ClientRepositoryInterface $clientRepository;
 
-    public function __construct(InvoiceProgramRepositoryInterface $invoiceProgramRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository)
+    public function __construct(InvoiceProgramRepositoryInterface $invoiceProgramRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository, InvoiceAttachmentRepositoryInterface $invoiceAttachmentRepository, ClientRepositoryInterface $clientRepository)
     {
         $this->invoiceProgramRepository = $invoiceProgramRepository;
         $this->clientProgramRepository = $clientProgramRepository;
         $this->invoiceDetailRepository = $invoiceDetailRepository;
         $this->invoiceAttachmentRepository = $invoiceAttachmentRepository;
+        $this->clientRepository = $clientRepository;
     }
 
     public function index(Request $request)
@@ -177,7 +180,7 @@ class InvoiceProgramController extends Controller
         DB::beginTransaction();
         try {
 
-            $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->max(DB::raw('substr(inv_id, 1, 4)'));
+            $last_id = InvoiceProgram::whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'))->max(DB::raw('substr(inv_id, 1, 4)'));
 
             # Use Trait Create Invoice Id
             $inv_id = $this->getInvoiceId($last_id, $clientProg->prog_id);
@@ -228,10 +231,10 @@ class InvoiceProgramController extends Controller
 
     public function create(Request $request)
     {
+        
         if (!isset($request->prog) or !$clientProg = $this->clientProgramRepository->getClientProgramById($request->prog)) {
             return Redirect::to('invoice/client-program?s=needed');
         }
-
 
         return view('pages.invoice.client-program.form')->with(
             [
@@ -571,15 +574,23 @@ class InvoiceProgramController extends Controller
         // $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
         // return $pdf->download($invoice_id . ".pdf");
 
-        $currency = $request->route('currency');
-
         $invoice = $clientProg->invoice;
+        /* START ~ */
+        $currency = $request->route('currency'); # this variable not used from client program detail page
+        # use variable below instead
+        $currency = $invoice->currency;
+
+        if ($currency != 'idr')
+            $currency = 'other';
+        /* ~ END */
+
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice->inv_id, $currency);
 
         return view('pages.invoice.view-pdf')->with(
             [
                 'invoice' => $invoice,
-                'attachment' => $attachment->attachment
+                // 'attachment' => $attachment->attachment
+                'attachment' => $attachment
             ]
         );
     }
@@ -647,7 +658,7 @@ class InvoiceProgramController extends Controller
         try {
 
             # generate invoice as a PDF file
-            $file_name = str_replace('/', '_', $invoice_id) . '_' . $type;
+            $file_name = str_replace('/', '-', $invoice_id) . '-' . $type;
             $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
             Storage::put('public/uploaded_file/invoice/client/' . $file_name . '.pdf', $pdf->output());
 
@@ -708,11 +719,11 @@ class InvoiceProgramController extends Controller
             $pic_mail
         ];
         $data['recipient'] = $clientProg->client->parents[0]->full_name;
-        $data['title'] = "ALL-In Eduspace | Invoice of program : " . $clientProg->program_name;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,
             'program_name' => $clientProg->program->program_name
         ];
+        $data['title'] = "Invoice of program " . $clientProg->program->program_name;
 
         try {
 
@@ -745,7 +756,7 @@ class InvoiceProgramController extends Controller
         $invoice = $clientProg->invoice;
         $inv_id = $invoice->inv_id;
         $currency = $request->route('currency');
-        $file_name = str_replace('/', '_', $inv_id) . '_' . $currency . '.pdf';
+        $file_name = str_replace('/', '-', $inv_id) . '-' . $currency . '.pdf';
 
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $inv_id, $currency);
 
@@ -860,7 +871,7 @@ class InvoiceProgramController extends Controller
             // throw new Exception('Reminder cannot be send without a parent\'s mail. Please complete the parent\'s information.');
             return response()->json(['message' => 'Reminder cannot be send without a parent\'s mail. Please complete the parent\'s information.'], 500);
 
-        $subject = '7 Days Left until the Payment Deadline for '.$program_name;
+        $subject = '7 Days Left until the Payment Deadline for ' . $program_name;
 
         $params = [
             'parent_fullname' => $parent_fullname,
@@ -877,24 +888,30 @@ class InvoiceProgramController extends Controller
         try {
             Mail::send($mail_resources, $params, function ($message) use ($params, $subject) {
                 $message->to($params['parent_mail'], $params['parent_fullname'])
+                    ->cc(env('FINANCE_CC'))
                     ->subject($subject);
             });
         } catch (Exception $e) {
 
-            Log::error($e->getMessage().' | Line '.$e->getLine());
+            Log::error($e->getMessage() . ' | Line ' . $e->getLine());
             return response()->json(['message' => $e->getMessage()]);
-
         }
 
-        return response()->json(['message' => 'Reminder for '.$parent_fullname.' has been sent.']);
+        return response()->json(['message' => 'Reminder for ' . $parent_fullname . ' has been sent.']);
     }
 
     public function remindParentsByWhatsapp(Request $request)
     {
-        $parent_fullname = $request->parent_fullname;
-        $parent_phone = $request->parent_phone;
+        $parent = $request->parent_id != null ? $this->clientRepository->getClientById($request->parent_id) : null;
+        $client = $this->clientRepository->getClientById($parent != null ? $request->parent_id : $request->client_id);
 
-        $joined_program_name = ucwords(strtolower($request->program_name)); 
+        $parent_fullname = $request->parent_fullname;
+        $phone = $request->phone;
+
+        $client->phone != $phone ? $this->clientRepository->updateClient($client->id, ['phone' => $phone]) : null;
+
+        $joined_program_name = ucwords(strtolower($request->program_name));
+        $joined_program_name = str_replace('&', '%26', $joined_program_name);
         $invoice_duedate = date('d/m/Y', strtotime($request->invoice_duedate));
         $total_payment = "Rp. " . number_format($request->total_payment, '2', ',', '.');
 
@@ -903,16 +920,22 @@ class InvoiceProgramController extends Controller
         $interval = $datetime_1->diff($datetime_2);
         $date_diff = $interval->format('%a'); # format for the interval : days
 
-        $text = "Dear ".$parent_fullname.",";
+        $payment_method = '';
+        if ($request->payment_method != 'Full Payment') {
+            $payment_method = $request->payment_method;
+        }
+        // $payment_method = $request->payment_method != 'Full Payment' ? ' (' . $request->payment_method . ')' : '';
+
+        $text = $parent != null ? "Dear Mr/Mrs " . $parent_fullname . "," : "Dear " . $client->first_name . " " . $client->last_name . ",";
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Thank you for trusting ALL-in Eduspace as your independent university consultant to help your child reach their dream to top universities.";
         $text .= "%0A";
         $text .= "%0A";
-        $text .= "Through this message, we would like to remind you that the payment deadline for ".$joined_program_name." is due on ".$invoice_duedate." or in ".$date_diff." days.";
+        $text .= "Through this message, we would like to remind you that the payment deadline for " . $joined_program_name . " " . $payment_method . " is due on " . $invoice_duedate . " or in " . $date_diff . " days.";
         $text .= "%0A";
         $text .= "%0A";
-        $text .= "Amount: ".$total_payment;
+        $text .= "Amount: " . $total_payment;
         $text .= "%0A";
         $text .= "%0A";
         $text .= "Payment could be done through bank transfer to: BCA 2483016611 a/n PT Jawara Edukasih Indonesia.";
@@ -923,7 +946,21 @@ class InvoiceProgramController extends Controller
         $text .= "%0A";
         $text .= "Regards";
 
-        $link = "https://api.whatsapp.com/send?phone=".$parent_phone."&text=".$text;
+        $link = "https://api.whatsapp.com/send?phone=" . $phone . "&text=" . $text;
+        // echo "<script>window.open('" . $link . "', '_blank')</script>";
+        // return redirect()->to($link);
         return response()->json(['link' => $link]);
+    }
+
+    public function updateParentMail(Request $request)
+    {
+
+        $client = $this->clientRepository->getClientById($request->parent_id);
+        $parent_mail = $request->parent_mail;
+
+
+        $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+
+        return response()->json(['status' => 'success', 'message' => 'Success Update Email Parent'], 200);
     }
 }

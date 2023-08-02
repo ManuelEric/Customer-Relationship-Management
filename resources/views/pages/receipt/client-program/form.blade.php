@@ -20,7 +20,7 @@
                     <a href="{{ route('student.program.show', ['student' => $client_prog->client->id, 'program' => $client_prog->clientprog_id]) }}"
                         class="text-primary text-decoration-none cursor-pointer" target="_blank">
                         <h6 class="d-flex flex-column">
-                            {{$client_prog->program->program_name}}
+                            {{ $client_prog->program->program_name }}
                             {{-- @php
                                 $programName = explode('-', $client_prog->program_name);
                             @endphp
@@ -56,26 +56,24 @@
                 </div>
 
                 {{-- IDR  --}}
-                @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'idr')->first())
+                {{-- @if (!$receipt->invoiceProgram->invoiceAttachment()->where('currency', 'idr')->first()) --}}
                 <div class="d-flex align-items-stretch">
                     <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                     <div class="border p-1 text-center">
                         <div class="d-flex gap-1 justify-content-center">
                             @if (!$receipt->receiptAttachment()->where('currency', 'idr')->first())
-                                
-                                    <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Download">
-                                        <a href="#" class="text-info">
-                                            <i class="bi bi-download"></i>
-                                        </a>
-                                    </div>
-                                    <div id="upload-idr" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
-                                        class="btn btn-sm py-1 border btn-light" >
-                                        <a href="#" class="text-info" data-bs-toggle="tooltip" 
-                                        data-bs-title="Upload">
-                                            <i class="bi bi-upload"></i>
-                                        </a>
-                                    </div>
+                                <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="Download">
+                                    <a href="#" class="text-info">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                </div>
+                                <div id="upload-idr" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
+                                    class="btn btn-sm py-1 border btn-light">
+                                    <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Upload">
+                                        <i class="bi bi-upload"></i>
+                                    </a>
+                                </div>
                             @elseif ($receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first())
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Request Sign" id="request-acc">
@@ -86,13 +84,20 @@
                             @else
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Print Receipt">
-                                    <a href="{{ route('receipt.client-program.print', ['receipt' => $receipt->id, 'currency' => 'idr']) }}" target="_blank" class="text-info">
+                                    <a href="{{ route('receipt.client-program.print', ['receipt' => $receipt->id, 'currency' => 'idr']) }}"
+                                        target="_blank" class="text-info">
                                         <i class="bi bi-printer"></i>
                                     </a>
                                 </div>
-                                <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light"
+                                {{-- <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light"
                                     data-bs-toggle="tooltip" data-bs-title="Send to Client"
                                     onclick="confirmSendToClient('{{ url('/') }}/receipt/client-program/{{ $receipt->id }}/send', 'idr', 'receipt')">
+                                    <a href="#" class="text-info">
+                                        <i class="bi bi-send"></i>
+                                    </a>
+                                </div> --}}
+                                <div class="btn btn-sm py-1 border btn-light" id="openModalSendToClientIdr" data-curr="idr"
+                                    data-bs-toggle="modal" data-bs-target="#sendToClientModal">
                                     <a href="#" class="text-info">
                                         <i class="bi bi-send"></i>
                                     </a>
@@ -101,30 +106,30 @@
                         </div>
                     </div>
                 </div>
-                @endif
+                {{-- @endif --}}
 
                 {{-- Other  --}}
-                @if ($receipt->invoiceProgram->currency != 'idr' && $receipt->invoiceProgram->invoiceAttachment->where('currency', 'other')->first())
+                @if ($receipt->invoiceProgram->currency != 'idr')
                     <div class="d-flex align-items-stretch">
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                         <div class="border p-1 text-center">
                             <div class="d-flex gap-1 justify-content-center">
                                 @if (!$receipt->receiptAttachment()->where('currency', 'other')->first())
-                                    @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'other')->first())
-                                        <div id="print-other" class="btn btn-sm py-1 border btn-light"
-                                            data-bs-toggle="tooltip" data-bs-title="Download">
-                                            <a href="" class="text-info">
-                                                <i class="bi bi-download"></i>
-                                            </a>
-                                        </div>
-                                        <div id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
-                                            class="btn btn-sm py-1 border btn-light">
-                                            <a href="javascript:void(0)" class="text-info" data-bs-toggle="tooltip" 
+                                    {{-- @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'other')->first()) --}}
+                                    <div id="print-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Download">
+                                        <a href="" class="text-info">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                    </div>
+                                    <div id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
+                                        class="btn btn-sm py-1 border btn-light">
+                                        <a href="javascript:void(0)" class="text-info" data-bs-toggle="tooltip"
                                             data-bs-title="Upload">
-                                                <i class="bi bi-upload"></i>
-                                            </a>
-                                        </div>
-                                    @endif
+                                            <i class="bi bi-upload"></i>
+                                        </a>
+                                    </div>
+                                    {{-- @endif --}}
                                 @elseif ($receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
                                     <div id="request-acc-other" class="btn btn-sm py-1 border btn-light"
                                         data-bs-toggle="tooltip" data-bs-title="Request Sign" id="request-acc-other">
@@ -140,9 +145,15 @@
                                             <i class="bi bi-printer"></i>
                                         </a>
                                     </div>
-                                    <div id="send-rec-client-other" class="btn btn-sm py-1 border btn-light"
+                                    {{-- <div id="send-rec-client-other" class="btn btn-sm py-1 border btn-light"
                                         data-bs-toggle="tooltip" data-bs-title="Send to Client"
                                         onclick="confirmSendToClient('{{ url('/') }}/receipt/client-program/{{ $receipt->id }}/send', 'other', 'receipt')">
+                                        <a href="#" class="text-info">
+                                            <i class="bi bi-send"></i>
+                                        </a>
+                                    </div> --}}
+                                    <div class="btn btn-sm py-1 border btn-light" id="openModalSendToClientOther"
+                                        data-curr="other" data-bs-toggle="modal" data-bs-target="#sendToClientModal">
                                         <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
@@ -165,61 +176,118 @@
                     {{-- IDR  --}}
                     @php
                         $receiptHasBeenDownloaded = $receipt->download_idr;
-                        $receiptHasBeenStamped = $receipt->receiptAttachment()->where('currency', 'idr')->count() > 0 ? true : false; # with e-materai / uploaded
-                        $receiptHasBeenRequested = $receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->where('request_status', 'requested')->first();
-                        $receiptHasBeenSigned = $receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
-                        $receiptHasBeenSentToClient = $receipt->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
+                        $receiptHasBeenStamped =
+                            $receipt
+                                ->receiptAttachment()
+                                ->where('currency', 'idr')
+                                ->count() > 0
+                                ? true
+                                : false; # with e-materai / uploaded
+                        $receiptHasBeenRequested = $receipt
+                            ->receiptAttachment()
+                            ->where('currency', 'idr')
+                            ->where('sign_status', 'not yet')
+                            ->where('request_status', 'requested')
+                            ->first();
+                        $receiptHasBeenSigned = $receipt
+                            ->receiptAttachment()
+                            ->where('currency', 'idr')
+                            ->where('sign_status', 'signed')
+                            ->first();
+                        $receiptHasBeenSentToClient = $receipt
+                            ->receiptAttachment()
+                            ->where('currency', 'idr')
+                            ->where('send_to_client', 'sent')
+                            ->first();
                     @endphp
                     <div class="text-center">
                         <h6>IDR</h6>
                         <section class="step-indicator">
                             <div @class([
                                 'step-one',
-                                'step', 'step1', 'active' => $receiptHasBeenDownloaded || $receiptHasBeenStamped || $receiptHasBeenRequested || $receiptHasBeenSigned || $receiptHasBeenSentToClient
+                                'step',
+                                'step1',
+                                'active' =>
+                                    $receiptHasBeenDownloaded ||
+                                    $receiptHasBeenStamped ||
+                                    $receiptHasBeenRequested ||
+                                    $receiptHasBeenSigned ||
+                                    $receiptHasBeenSentToClient,
                             ])>
                                 <div class="step-icon">1</div>
                                 <p>Download</p>
                             </div>
                             <div @class([
                                 'step-one',
-                                'indicator-line', 'active' => $receiptHasBeenDownloaded || $receiptHasBeenStamped || $receiptHasBeenRequested || $receiptHasBeenSigned || $receiptHasBeenSentToClient
+                                'indicator-line',
+                                'active' =>
+                                    $receiptHasBeenDownloaded ||
+                                    $receiptHasBeenStamped ||
+                                    $receiptHasBeenRequested ||
+                                    $receiptHasBeenSigned ||
+                                    $receiptHasBeenSentToClient,
                             ])></div>
                             <div @class([
                                 'step-two',
-                                'step', 'step2', 'active' => $receiptHasBeenStamped || $receiptHasBeenRequested || $receiptHasBeenSigned || $receiptHasBeenSentToClient
+                                'step',
+                                'step2',
+                                'active' =>
+                                    $receiptHasBeenStamped ||
+                                    $receiptHasBeenRequested ||
+                                    $receiptHasBeenSigned ||
+                                    $receiptHasBeenSentToClient,
                             ])>
                                 <div class="step-icon">2</div>
                                 <p>Upload</p>
                             </div>
                             <div @class([
                                 'step-two',
-                                'indicator-line', 'active' => $receiptHasBeenStamped || $receiptHasBeenRequested || $receiptHasBeenSigned || $receiptHasBeenSentToClient
+                                'indicator-line',
+                                'active' =>
+                                    $receiptHasBeenStamped ||
+                                    $receiptHasBeenRequested ||
+                                    $receiptHasBeenSigned ||
+                                    $receiptHasBeenSentToClient,
                             ])></div>
                             <div @class([
                                 'step-three',
-                                'step', 'step3', 'active' => $receiptHasBeenRequested || $receiptHasBeenSigned || $receiptHasBeenSentToClient
+                                'step',
+                                'step3',
+                                'active' =>
+                                    $receiptHasBeenRequested ||
+                                    $receiptHasBeenSigned ||
+                                    $receiptHasBeenSentToClient,
                             ])>
                                 <div class="step-icon">3</div>
                                 <p>Request Sign</p>
                             </div>
                             <div @class([
                                 'step-three',
-                                'indicator-line', 'active' => $receiptHasBeenRequested || $receiptHasBeenSigned || $receiptHasBeenSentToClient
+                                'indicator-line',
+                                'active' =>
+                                    $receiptHasBeenRequested ||
+                                    $receiptHasBeenSigned ||
+                                    $receiptHasBeenSentToClient,
                             ])></div>
                             <div @class([
                                 'step-four',
-                                'step', 'step4', 'active' => $receiptHasBeenSigned || $receiptHasBeenSentToClient
+                                'step',
+                                'step4',
+                                'active' => $receiptHasBeenSigned || $receiptHasBeenSentToClient,
                             ])>
                                 <div class="step-icon">4</div>
                                 <p>Signed</p>
                             </div>
                             <div @class([
                                 'step-four',
-                                'indicator-line', 'active' => $receiptHasBeenSigned || $receiptHasBeenSentToClient
+                                'indicator-line',
+                                'active' => $receiptHasBeenSigned || $receiptHasBeenSentToClient,
                             ])></div>
                             <div @class([
                                 'step-five',
-                                'step', 'step5', 'active' => $receiptHasBeenSentToClient
+                                'step',
+                                'step5',
+                                'active' => $receiptHasBeenSentToClient,
                             ])>
                                 <div class="step-icon">5</div>
                                 <p>Print or Send to Client</p>
@@ -230,69 +298,128 @@
                     {{-- Other  --}}
                     @php
                         $receiptHasBeenDownloaded_other = $receipt->download_other;
-                        $receiptHasBeenStamped_other = $receipt->receiptAttachment()->where('currency', 'other')->count() > 0 ? true : false; # with e-materai / uploaded
-                        $receiptHasBeenRequested_other = $receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->where('request_status', 1)->first();
-                        $receiptHasBeenSigned_other = $receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
-                        $receiptHasBeenSentToClient_other = $receipt->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
+                        $receiptHasBeenStamped_other =
+                            $receipt
+                                ->receiptAttachment()
+                                ->where('currency', 'other')
+                                ->count() > 0
+                                ? true
+                                : false; # with e-materai / uploaded
+                        $receiptHasBeenRequested_other = $receipt
+                            ->receiptAttachment()
+                            ->where('currency', 'other')
+                            ->where('sign_status', 'not yet')
+                            ->where('request_status', 1)
+                            ->first();
+                        $receiptHasBeenSigned_other = $receipt
+                            ->receiptAttachment()
+                            ->where('currency', 'other')
+                            ->where('sign_status', 'signed')
+                            ->first();
+                        $receiptHasBeenSentToClient_other = $receipt
+                            ->receiptAttachment()
+                            ->where('currency', 'other')
+                            ->where('send_to_client', 'sent')
+                            ->first();
                     @endphp
-                    @if ($receipt->invoiceProgram->currency != 'idr' && $receipt->invoiceProgram->invoiceAttachment->where('currency', 'other')->first())
-                    <div class="text-center mt-5">
-                        <hr>
-                        <h6>Other Currency</h6>
-                        <section class="step-indicator">
-                            <div @class([
-                                'step-one-other',
-                                'step', 'step1', 'active' => $receiptHasBeenDownloaded_other || $receiptHasBeenStamped_other || $receiptHasBeenRequested_other || $receiptHasBeenSigned_other || $receiptHasBeenSentToClient_other
-                            ])>
-                                <div class="step-icon">1</div>
-                                <p>Download</p>
-                            </div>
-                            <div @class([
-                                'step-one-other',
-                                'indicator-line', 'active' => $receiptHasBeenDownloaded_other || $receiptHasBeenStamped_other || $receiptHasBeenRequested_other || $receiptHasBeenSigned_other || $receiptHasBeenSentToClient_other
-                            ])></div>
-                            <div @class([
-                                'step-two-other',
-                                'step', 'step2', 'active' => $receiptHasBeenStamped_other || $receiptHasBeenRequested_other || $receiptHasBeenSigned_other || $receiptHasBeenSentToClient_other
-                            ])>
-                                <div class="step-icon">2</div>
-                                <p>Upload</p>
-                            </div>
-                            <div @class([
-                                'step-two-other',
-                                'indicator-line', 'active' => $receiptHasBeenStamped_other || $receiptHasBeenRequested_other || $receiptHasBeenSigned_other || $receiptHasBeenSentToClient_other
-                            ])></div>
-                            <div @class([
-                                'step-three-other',
-                                'step', 'step3', 'active' => $receiptHasBeenRequested_other || $receiptHasBeenSigned_other || $receiptHasBeenSentToClient_other
-                            ])>
-                                <div class="step-icon">3</div>
-                                <p>Request Sign</p>
-                            </div>
-                            <div @class([
-                                'step-three-other',
-                                'indicator-line', 'active' => $receiptHasBeenRequested_other || $receiptHasBeenSigned_other || $receiptHasBeenSentToClient_other
-                            ])></div>
-                            <div @class([
-                                'step-four-other',
-                                'step', 'step4', 'active' => $receiptHasBeenSigned_other || $receiptHasBeenSentToClient_other
-                            ])>
-                                <div class="step-icon">4</div>
-                                <p>Signed</p>
-                            </div>
-                            <div @class([
-                                'step-four-other',
-                                'indicator-line', 'active' => $receiptHasBeenSigned_other || $receiptHasBeenSentToClient_other
-                            ])></div>
-                            <div @class([
-                                'step-five-other',
-                                'step', 'step5', 'active' => $receiptHasBeenSentToClient_other
-                            ])>
-                                <div class="step-icon">5</div>
-                                <p>Print or Send to Client</p>
-                            </div>
-                        </section>
-                    </div>
+                    @if ($receipt->invoiceProgram->currency != 'idr')
+                        <div class="text-center mt-5">
+                            <hr>
+                            <h6>Other Currency</h6>
+                            <section class="step-indicator">
+                                <div @class([
+                                    'step-one-other',
+                                    'step',
+                                    'step1',
+                                    'active' =>
+                                        $receiptHasBeenDownloaded_other ||
+                                        $receiptHasBeenStamped_other ||
+                                        $receiptHasBeenRequested_other ||
+                                        $receiptHasBeenSigned_other ||
+                                        $receiptHasBeenSentToClient_other,
+                                ])>
+                                    <div class="step-icon">1</div>
+                                    <p>Download</p>
+                                </div>
+                                <div @class([
+                                    'step-one-other',
+                                    'indicator-line',
+                                    'active' =>
+                                        $receiptHasBeenDownloaded_other ||
+                                        $receiptHasBeenStamped_other ||
+                                        $receiptHasBeenRequested_other ||
+                                        $receiptHasBeenSigned_other ||
+                                        $receiptHasBeenSentToClient_other,
+                                ])></div>
+                                <div @class([
+                                    'step-two-other',
+                                    'step',
+                                    'step2',
+                                    'active' =>
+                                        $receiptHasBeenStamped_other ||
+                                        $receiptHasBeenRequested_other ||
+                                        $receiptHasBeenSigned_other ||
+                                        $receiptHasBeenSentToClient_other,
+                                ])>
+                                    <div class="step-icon">2</div>
+                                    <p>Upload</p>
+                                </div>
+                                <div @class([
+                                    'step-two-other',
+                                    'indicator-line',
+                                    'active' =>
+                                        $receiptHasBeenStamped_other ||
+                                        $receiptHasBeenRequested_other ||
+                                        $receiptHasBeenSigned_other ||
+                                        $receiptHasBeenSentToClient_other,
+                                ])></div>
+                                <div @class([
+                                    'step-three-other',
+                                    'step',
+                                    'step3',
+                                    'active' =>
+                                        $receiptHasBeenRequested_other ||
+                                        $receiptHasBeenSigned_other ||
+                                        $receiptHasBeenSentToClient_other,
+                                ])>
+                                    <div class="step-icon">3</div>
+                                    <p>Request Sign</p>
+                                </div>
+                                <div @class([
+                                    'step-three-other',
+                                    'indicator-line',
+                                    'active' =>
+                                        $receiptHasBeenRequested_other ||
+                                        $receiptHasBeenSigned_other ||
+                                        $receiptHasBeenSentToClient_other,
+                                ])></div>
+                                <div @class([
+                                    'step-four-other',
+                                    'step',
+                                    'step4',
+                                    'active' =>
+                                        $receiptHasBeenSigned_other || $receiptHasBeenSentToClient_other,
+                                ])>
+                                    <div class="step-icon">4</div>
+                                    <p>Signed</p>
+                                </div>
+                                <div @class([
+                                    'step-four-other',
+                                    'indicator-line',
+                                    'active' =>
+                                        $receiptHasBeenSigned_other || $receiptHasBeenSentToClient_other,
+                                ])></div>
+                                <div @class([
+                                    'step-five-other',
+                                    'step',
+                                    'step5',
+                                    'active' => $receiptHasBeenSentToClient_other,
+                                ])>
+                                    <div class="step-icon">5</div>
+                                    <p>Print or Send to Client</p>
+                                </div>
+                            </section>
+                        </div>
                     @endif
                 </div>
             </div>
@@ -315,7 +442,8 @@
                         </tr>
                         <tr>
                             <td>Receipt Date :</td>
-                            <td>{{ date('d M Y H:i:s', strtotime($receipt->created_at)) }}</td>
+                            <td>{{ isset($receipt->receipt_date) ? date('d M Y', strtotime($receipt->receipt_date)) : date('d M Y H:i:s', strtotime($receipt->created_at)) }}
+                            </td>
                         </tr>
                         @if (isset($receipt->invoiceInstallment))
                             <tr>
@@ -330,7 +458,7 @@
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                @if ($receipt->receipt_amount != null)
+                                @if ($receipt->receipt_amount != null && $receipt->receipt_amount != "$ 0")
                                     {{ $receipt->receipt_amount }}
                                     ( {{ $receipt->receipt_amount_idr }} )
                                 @else
@@ -345,7 +473,7 @@
 
             @include('pages.receipt.client-program.form-detail.invoice')
 
-            
+
         </div>
     </div>
 
@@ -396,6 +524,49 @@
         </div>
     </div>
 
+    <div class="modal fade" id="sendToClientModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>
+                        Send To Client
+                    </span>
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div class="modal-body w-100 text-start">
+                    {{-- <form action="" method="POST" id="reminderForm"> --}}
+                    @csrf
+                    {{-- @method('put') --}}
+                    <div class="form-group">
+
+                        <input type="hidden" name="receipt_id" id="receipt_id" value="{{ $receipt->id }}"
+                            class="form-control w-100">
+                        <input type="hidden" name="clientprog_id" id="clientprog_id"
+                            value="{{ $client_prog->clientprog_id }}" class="form-control w-100">
+                        <input type="hidden" name="parent_id" id="parent_id"
+                            value="{{ $client_prog->client->parents[0]->id }}" class="form-control w-100">
+                        <label for="">Email Parent</label>
+                        <input type="mail" name="parent_mail" id="parent_mail"
+                            value="{{ $client_prog->client->parents[0]->mail }}" class="form-control w-100">
+                    </div>
+                    {{-- <hr> --}}
+                    <div class="d-flex justify-content-between">
+                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                            data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+
+                        <button type="button" id="ConfirmSendToClient" class="btn btn-primary btn-sm">
+                            <i class="bi bi-save2 me-1"></i>
+                            Send</button>
+                    </div>
+                    {{-- </form> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if ($errors->has('attachment'))
         <script>
             $(document).ready(function() {
@@ -405,25 +576,56 @@
     @endif
 
     <script>
-        function sendToClient(link)
-        {    
-            showLoading()
+        $(document).on("click", "#openModalSendToClientIdr", function() {
+            var curr = $(this).data('curr');
+            curr = "'" + curr + "'";
+            $('#ConfirmSendToClient').attr("onclick",
+                "confirmSendToClient('{{ url('/') }}/receipt/client-program/{{ $receipt->id }}/send', " +
+                curr + ", 'receipt')");
 
-            axios
-                .get(link)
-                .then(response => {
-                    swal.close()
-                    notification('success', 'Receipt has been send to client')
-                    $(".step-five").addClass('active');
-                    $("#sendToClient--modal").modal('hide');
+        });
+
+        $(document).on("click", "#openModalSendToClientOther", function() {
+            var curr = $(this).data('curr');
+            curr = "'" + curr + "'";
+            $('#ConfirmSendToClient').attr("onclick",
+                "confirmSendToClient('{{ url('/') }}/receipt/client-program/{{ $receipt->id }}/send', " +
+                curr + ", 'receipt')");
+        });
+
+        function sendToClient(link) {
+            $("#sendToClient--modal").modal('hide');
+            $('#sendToClientModal').modal('hide');
+            showLoading()
+            var linkUpdateMail = '{{ url('/') }}/receipt/client-program/' + $('#receipt_id').val() +
+                '/update/parent/mail';
+
+            axios.post(linkUpdateMail, {
+                    parent_id: $('#parent_id').val(),
+                    parent_mail: $('#parent_mail').val(),
                 })
-                .catch(error => {
-                    notification('error',
-                        'Something went wrong when sending receipt to client. Please try again');
-                    swal.close()
+                .then(function(response1) {
+                    
+                    axios
+                        .get(link)
+                        .then(response => {
+                            swal.close()
+                            notification('success', 'Receipt has been send to client')
+                            $(".step-five").addClass('active');
+                        })
+                        .catch(error => {
+                            notification('error',
+                                'Something went wrong when sending receipt to client. Please try again');
+                            swal.close()
+                        })
                 })
+                .catch(function(error) {
+                    swal.close();
+                    notification('error', error)
+                })
+
         }
-        
+
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
@@ -522,6 +724,10 @@
                     })
                     .then(response => {
 
+                        @php
+                            $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . 'idr' . '.pdf';
+                        @endphp
+
                         let blob = new Blob([response.data], {
                                 type: 'application/pdf'
                             }),
@@ -532,7 +738,7 @@
                         fileLink.href = url;
 
                         // it forces the name of the downloaded file
-                        fileLink.download = '{{ $receipt->receipt_id }}' + '_idr';;
+                        fileLink.download = '{{ $file_name }}';
 
                         // triggers the click event
                         fileLink.click();
@@ -563,6 +769,10 @@
                     })
                     .then(response => {
 
+                        @php
+                            $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . 'other' . '.pdf';
+                        @endphp
+
                         let blob = new Blob([response.data], {
                                 type: 'application/pdf'
                             }),
@@ -573,7 +783,7 @@
                         fileLink.href = url;
 
                         // it forces the name of the downloaded file
-                        fileLink.download = '{{ $receipt->receipt_id }}' + '_other';
+                        fileLink.download = '{{ $file_name }}';
 
                         // triggers the click event
                         fileLink.click();

@@ -34,9 +34,6 @@ class StoreVolunteerRequest extends FormRequest
             'volunt_mail' => 'required|email',
             'volunt_address' => 'nullable',
             'volunt_phone' => 'required|min:10|max:15',
-            'volunt_graduatedfr' => 'nullable',
-            'volunt_major' => 'nullable',
-            'volunt_position' => 'nullable',
             'volunt_cv' => 'required|mimes:jpeg,bmp,png,gif,svg,pdf',
             'volunt_bank_accname' => 'required',
             'volunt_bank_accnumber' => 'required',
@@ -44,8 +41,11 @@ class StoreVolunteerRequest extends FormRequest
             'volunt_idcard' => 'required|mimes:jpeg,bmp,png,gif,svg,pdf',
             'volunt_npwp_number' => 'nullable',
             'volunt_npwp' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
-            'volunt_bpjs_kesehatan' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
-            'volunt_bpjs_ketenagakerjaan' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
+            'health_insurance' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
+            'empl_insurance' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
+            'volunt_graduatedfr' => 'nullable|exists:tbl_univ,univ_id',
+            'volunt_major' => 'nullable|exists:tbl_major,id',
+            'volunt_position' => 'nullable|exists:tbl_position,id'
         ];
     }
 
@@ -67,8 +67,11 @@ class StoreVolunteerRequest extends FormRequest
             'volunt_idcard' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
             'volunt_npwp_number' => 'nullable',
             'volunt_npwp' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
-            'volunt_bpjs_kesehatan' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
-            'volunt_bpjs_ketenagakerjaan' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
+            'health_insurance' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
+            'empl_insurance' => 'nullable|mimes:jpeg,bmp,png,gif,svg,pdf',
+            'volunt_graduatedfr' => 'nullable|exists:tbl_univ,univ_id',
+            'volunt_major' => 'nullable|exists:tbl_major,id',
+            'volunt_position' => 'nullable|exists:tbl_position,id'
         ];
     }
 }

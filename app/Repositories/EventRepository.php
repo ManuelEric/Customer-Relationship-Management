@@ -9,7 +9,7 @@ use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class EventRepository implements EventRepositoryInterface 
+class EventRepository implements EventRepositoryInterface
 {
 
     public function getAllEventDataTables()
@@ -23,8 +23,13 @@ class EventRepository implements EventRepositoryInterface
     }
 
     public function getEventById($eventId)
-    {   
+    {
         return Event::whereEventId($eventId);
+    }
+
+    public function getEventByName($eventName)
+    {
+        return Event::where('event_title', $eventName)->first();
     }
 
     public function deleteEvent($eventId)
@@ -75,7 +80,7 @@ class EventRepository implements EventRepositoryInterface
             }, function ($sq) use ($cp_filter) {
                 $sq->whereYear('tbl_client_event.created_at', date('Y'));
             });
-        })->when($userId, function($query) use ($userId) {
+        })->when($userId, function ($query) use ($userId) {
             $query->whereHas('eventPic', function ($query) use ($userId) {
                 $query->where('users.id', $userId);
             });

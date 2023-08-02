@@ -67,6 +67,7 @@
                             },
                             {
                                 data: 'created_at',
+                                name: 'created_at',
                                 render: function(data, type, row) {
                                     return moment(data).format('MMMM Do YYYY')
                                 }

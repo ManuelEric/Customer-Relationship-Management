@@ -13,6 +13,10 @@
         </a>
     </div>
 
+    @if($errors->any())
+        {{ implode('', $errors->all('<div>:message</div>')) }}
+    @endif
+
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
@@ -84,12 +88,17 @@
                                         <i class="bi bi-printer"></i>
                                     </a>
                                 </div>
-                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Send to Client" id="send-inv-client-idr" 
                                     onclick="confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', 'idr', 'invoice')">
                                     <a href="#" class="text-info">
                                         <i class="bi bi-send"></i>
                                     </a>
+                                </div> --}}
+                                <div class="btn btn-sm py-1 border btn-light" id="openModalSendToClientIdr" data-curr="idr" data-bs-toggle="modal" data-bs-target="#sendToClientModal">
+                                        <a href="#" class="text-info">
+                                            <i class="bi bi-send"></i>
+                                        </a>
                                 </div>
                             @endif
                         </div>
@@ -121,9 +130,14 @@
                                             <i class="bi bi-printer"></i>
                                         </a>
                                     </div>
-                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Send to Client" id="send-inv-client-other"
                                         onclick="confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', 'other', 'invoice')">
+                                        <a href="#" class="text-info">
+                                            <i class="bi bi-send"></i>
+                                        </a>
+                                    </div> --}}
+                                    <div class="btn btn-sm py-1 border btn-light" id="openModalSendToClientOther" data-curr="other" data-bs-toggle="modal" data-bs-target="#sendToClientModal">
                                         <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
@@ -439,7 +453,7 @@
                                     <div class="col-md-6 mb-3 invoice d-none">
                                         <label for="">Created Date <sup class="text-danger">*</sup></label>
                                         <input type="date" name="invoice_date" id=""
-                                            value="{{ date('Y-m-d') }}" readonly {{ $disabled }}
+                                            value="{{ date('Y-m-d') }}" {{ $disabled }}
                                             class='form-control form-control-sm rounded'>
                                         {{-- @error('invoice_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -633,6 +647,47 @@
         </div>
     </div>
 
+    @if ($clientProg->client->parents->count() > 0) 
+    <div class="modal fade" id="sendToClientModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>
+                        Send To Client
+                    </span>
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div class="modal-body w-100 text-start">
+                    {{-- <form action="" method="POST" id="reminderForm"> --}}
+                        @csrf
+                        {{-- @method('put') --}}
+                        <div class="form-group">
+
+                            <input type="hidden" name="clientprog_id" id="clientprog_id" value="{{$clientProg->clientprog_id}}" class="form-control w-100">
+                            <input type="hidden" name="parent_id" id="parent_id" value="{{$clientProg->client->parents[0]->id}}" class="form-control w-100">
+                            <label for="">Email Parent</label>
+                            <input type="mail" name="parent_mail" id="parent_mail" value="{{$clientProg->client->parents[0]->mail}}" class="form-control w-100">
+                        </div>
+                        {{-- <hr> --}}
+                        <div class="d-flex justify-content-between">
+                            <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                            data-bs-dismiss="modal">
+                                <i class="bi bi-x-square me-1"></i>
+                                Cancel</button>
+                             
+                            <button type="submit" id="ConfirmSendToClient" class="btn btn-primary btn-sm">
+                                <i class="bi bi-save2 me-1"></i>
+                                Send</button>
+                        </div>
+                    {{-- </form> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+
     <script>
         $(document).ready(function() {
             @if ($errors->first('receipt_amount') || $errors->first('receipt_amount_idr') || $errors->first('receipt_date') || $errors->first('receipt_words') || $errors->first('receipt_words_idr') || $errors->first('receipt_method') || $errors->first('receipt_cheque'))
@@ -652,9 +707,28 @@
         }
 
         function setDefault(other_amount, idr_amount) {
-            $("#receipt_amount").val(idr_amount).keyup()
-            if (other_amount > 0)
-                $("#receipt_amount_other").val(other_amount).keyup()
+            var currency = $("#receipt input[name=rec_currency]").val()
+            switch (currency) {
+                case 'usd':
+                    currency = ' Dollars';
+                    break;
+                case 'sgd':
+                    currency = ' Singapore Dollars';
+                    break;
+                case 'gbp':
+                    currency = ' British Pounds';
+                    break;
+                default:
+                    currency = '';
+                    break;
+            }
+            $("#receipt_amount").val(idr_amount)
+            $("#receipt_word").val(wordConverter(idr_amount) + " Rupiah")
+            
+            if (other_amount > 0) {
+                $("#receipt_amount_other").val(other_amount)
+                $("#receipt_word_other").val(wordConverter(other_amount) + currency)
+            }
         }
 
         $(document).ready(function() {
@@ -908,23 +982,50 @@
             }
         }
 
+        $(document).on("click", "#openModalSendToClientIdr", function () {
+            var curr = $(this).data('curr');
+            curr = "'" + curr + "'";
+            $('#ConfirmSendToClient').attr("onclick", "confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', "+curr+", 'invoice')");
+        });
+
+        $(document).on("click", "#openModalSendToClientOther", function () {
+            var curr = $(this).data('curr');
+            curr = "'" + curr + "'";
+            $('#ConfirmSendToClient').attr("onclick", "confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', "+curr+", 'invoice')");
+        });
+
         function sendToClient(link)
         {
+            $("#sendToClient--modal").modal('hide');
+            $('#sendToClientModal').modal('hide');
             showLoading()
-
-            axios
+            var linkUpdateMail = '{{ url("/") }}/invoice/client-program/'+$('#clientprog_id').val()+'/update/parent/mail';
+            axios.post(linkUpdateMail, {
+                parent_id : $('#parent_id').val(),
+                parent_mail : $('#parent_mail').val(),
+            })
+            .then(function(response1) {
+                
+                axios
                 .get(link)
                 .then(response => {
                     swal.close()
                     notification('success', 'Invoice has been send to client')
                     $('.step-three').addClass('active');
-                    $("#sendToClient--modal").modal('hide');
                 })
                 .catch(error => {
                     notification('error',
-                        'Something went wrong when sending invoice to client. Please try again');
+                    'Something went wrong when sending invoice to client. Please try again');
                     swal.close()
                 })
+            })
+                .catch(function(error) {
+                swal.close();
+                notification('error', error)
+            })
+
+
+           
         }
 
         $(document).ready(function() {

@@ -5,6 +5,8 @@ namespace App\Interfaces;
 interface ClientRepositoryInterface
 {
     public function getAllClients();
+    public function getAllClientsFromViewTable();
+
     public function getAllClientDataTables();
     public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = null);
     public function getAllClientByRole($roleName, $month = NULL); # mentee, parent, teacher
@@ -15,6 +17,7 @@ interface ClientRepositoryInterface
     public function getPotentialClients($asDatatables = false, $month = NULL); # month nullable
     public function getExistingMentees($asDatatables = false, $month = NULL); # month nullable
     public function getExistingNonMentees($asDatatables = false, $month = NULL); # month nullable
+    public function getAllClientStudent();
     public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getParents($asDatatables = false, $month = null);
@@ -23,6 +26,7 @@ interface ClientRepositoryInterface
     /* API External use */
     public function getExistingMenteesAPI();
     public function getExistingMentorsAPI();
+    public function getExistingAlumnisAPI();
     /* ~ API External End */
 
     public function getAlumnisDataTables();
@@ -40,6 +44,7 @@ interface ClientRepositoryInterface
     public function getParentsByStudentId($studentId);
     public function getParentByParentName($parentName);
     public function createClientRelation($parentId, $studentId);
+    public function removeClientRelation($parentId, $studentId);
     public function createManyClientRelation($parentId, array $studentId);
     public function createDestinationCountry($studentId, $destinationCountryDetails);
     public function getInterestedProgram($studentId);

@@ -224,6 +224,10 @@ class RefundRepository implements RefundRepositoryInterface
         return Refund::find($refundId);
     }
 
+    public function getRefundByInvId($invoiceId)
+    {
+        return Refund::where('inv_id', $invoiceId)->first();
+    }
 
     public function createRefund(array $refundDetails)
     {

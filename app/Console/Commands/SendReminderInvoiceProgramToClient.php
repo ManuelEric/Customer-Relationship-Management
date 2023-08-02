@@ -48,6 +48,7 @@ class SendReminderInvoiceProgramToClient extends Command
     {
         $parents_have_no_email = [];
         $invoice_master = $this->invoiceProgramRepository->getAllDueDateInvoiceProgram(7);
+
         $progressBar = $this->output->createProgressBar($invoice_master->count());
         $progressBar->start();
         foreach ($invoice_master as $data) {
@@ -58,12 +59,11 @@ class SendReminderInvoiceProgramToClient extends Command
             $pic_email = $data->pic_mail;
 
             $program_name = ucwords(strtolower($data->program_name));
-            
+
             $parent_fullname = $data->parent_fullname;
             $parent_mail = $data->parent_mail;
             $parent_phone = $data->parent_phone;
-            if ($parent_mail === null)
-            {
+            if ($parent_mail === null) {
                 # collect data parents that have no email
                 $parents_have_no_email[] = [
                     'fullname' => $parent_fullname,
@@ -73,7 +73,7 @@ class SendReminderInvoiceProgramToClient extends Command
                 continue;
             }
 
-            $subject = '7 Days Left until the Payment Deadline for '.$program_name;
+            $subject = '7 Days Left until the Payment Deadline for ' . $program_name;
 
             $params = [
                 'parent_fullname' => $parent_fullname,
@@ -96,22 +96,20 @@ class SendReminderInvoiceProgramToClient extends Command
                 });
             } catch (Exception $e) {
 
-                Log::error('Failed to send invoice reminder to '.$parent_mail . ' caused by : '. $e->getMessage().' | Line '.$e->getLine());
-                return $this->error($e->getMessage(). ' | Line '.$e->getLine());
-
+                Log::error('Failed to send invoice reminder to ' . $parent_mail . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+                return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
             }
 
-            $this->info('Invoice reminder has been sent to '.$parent_mail);
+            $this->info('Invoice reminder has been sent to ' . $parent_mail);
             # update reminded count to 1
             $updated_invoice = $this->invoiceProgramRepository->getInvoiceByClientProgId($clientprogId);
-            $updated_invoice->reminded = 1;
+            $updated_invoice->reminded = $updated_invoice->reminded + 1;
             $updated_invoice->save();
 
             $progressBar->advance();
         }
 
-        if (count($parents_have_no_email) > 0)
-        {
+        if (count($parents_have_no_email) > 0) {
             $params = [
                 'finance_name' => env('FINANCE_NAME'),
                 'parents_have_no_email' => $parents_have_no_email,
@@ -125,12 +123,11 @@ class SendReminderInvoiceProgramToClient extends Command
                         ->subject('There are Some Client that can\'t be reminded');
                 });
             } catch (Exception $e) {
-                Log::error('Failed to send info to finance team cause by : '. $e->getMessage().' | Line '.$e->getLine());
-                return $this->error($e->getMessage(). ' | Line '.$e->getLine());
+                Log::error('Failed to send info to finance team cause by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
+                return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
             }
-
         }
-        
+
         $progressBar->finish();
     }
 }
