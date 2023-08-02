@@ -89,7 +89,7 @@ return new class extends Migration
                     WHERE sqdm.client_id = c.id GROUP BY sqdm.client_id) as dream_major,
             (SELECT name FROM tbl_client_lead_tracking clt
                     LEFT JOIN tbl_initial_program_lead ipl ON clt.initialprogram_id = ipl.id
-                    WHERE clt.client_id = c.id AND clt.type = "Program" AND clt.total_result > 0.5 
+                    WHERE clt.client_id = c.id AND clt.type = "Program" AND clt.total_result >= 0.5 AND clt.status = 1
                     ORDER BY clt.total_result DESC LIMIT 1) as program_suggest,
             (SELECT (CASE 
                         WHEN total_result >= 0.65 THEN "Hot"
@@ -98,7 +98,7 @@ return new class extends Migration
                     END)
                         FROM tbl_client_lead_tracking clt2
                     LEFT JOIN tbl_initial_program_lead ipl2 ON clt2.initialprogram_id = ipl2.id
-                    WHERE clt2.client_id = c.id AND clt2.type = "Lead" AND ipl2.name = program_suggest 
+                    WHERE clt2.client_id = c.id AND clt2.type = "Lead" AND ipl2.name = program_suggest AND clt2.status = 1
                     ORDER BY clt2.total_result DESC LIMIT 1) as status_lead
             
         

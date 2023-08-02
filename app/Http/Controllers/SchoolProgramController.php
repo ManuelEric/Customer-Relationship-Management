@@ -127,6 +127,7 @@ class SchoolProgramController extends Controller
         if ($request->input('status') == '2') {
             if ($request->input('reason_id') == 'other') {
                 $reason['reason_name'] = $request->input('other_reason');
+                $reason['type'] = 'Program';
             }
 
             unset($schoolPrograms['other_reason_refund']);
@@ -134,9 +135,10 @@ class SchoolProgramController extends Controller
         }
 
         if ($request->input('status') == '3') {
-            if ($request->input('reason_refund_id') == 'other')
+            if ($request->input('reason_refund_id') == 'other'){
                 $reason['reason_name'] = $request->input('other_reason_refund');
-            else {
+                $reason['type'] = 'Program';
+            } else {
                 $schoolPrograms['reason_id'] = $request->input('reason_refund_id');
             }
             unset($schoolPrograms['other_reason']);
@@ -182,7 +184,7 @@ class SchoolProgramController extends Controller
         $programs = $programsB2B->merge($programsB2BB2C);
 
         # retrieve reason data
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
 
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
@@ -219,7 +221,7 @@ class SchoolProgramController extends Controller
         $programs = $programsB2B->merge($programsB2BB2C);
 
         # retrieve reason data
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
 
         # retrieve School Program data by schoolId
         $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
@@ -306,7 +308,7 @@ class SchoolProgramController extends Controller
 
 
         # retrieve reason data
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
 
         # retrieve School Program data by id
         $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
@@ -341,6 +343,7 @@ class SchoolProgramController extends Controller
         if ($request->input('status') == '2') {
             if ($request->input('reason_id') == 'other') {
                 $reason['reason_name'] = $request->input('other_reason');
+                $reason['type'] = 'Program';
             }
 
             unset($schoolPrograms['other_reason_refund']);
@@ -350,9 +353,10 @@ class SchoolProgramController extends Controller
         }
 
         if ($request->input('status') == '3') {
-            if ($request->input('reason_refund_id') == 'other_reason_refund')
+            if ($request->input('reason_refund_id') == 'other_reason_refund'){
                 $reason['reason_name'] = $request->input('other_reason_refund');
-            else {
+                $reason['type'] = 'Program';
+            } else {
                 $schoolPrograms['reason_id'] = $request->input('reason_refund_id');
             }
             unset($schoolPrograms['other_reason_refund']);

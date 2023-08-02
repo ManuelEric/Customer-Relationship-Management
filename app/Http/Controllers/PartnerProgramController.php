@@ -131,6 +131,7 @@ class PartnerProgramController extends Controller
         if ($request->input('status') == '2') {
             if ($request->input('reason_id') == 'other') {
                 $reason['reason_name'] = $request->input('other_reason');
+                $reason['type'] = 'Program';
             }
 
             unset($partnerPrograms['other_reason_refund']);
@@ -138,9 +139,10 @@ class PartnerProgramController extends Controller
         }
 
         if ($request->input('status') == '3') {
-            if ($request->input('reason_refund_id') == 'other')
+            if ($request->input('reason_refund_id') == 'other'){
                 $reason['reason_name'] = $request->input('other_reason_refund');
-            else {
+                $reason['type'] = 'Program';
+            } else {
                 $partnerPrograms['reason_id'] = $request->input('reason_refund_id');
             }
             unset($partnerPrograms['other_reason']);
@@ -187,7 +189,7 @@ class PartnerProgramController extends Controller
         $partners = $this->corporateRepository->getAllCorporate();
 
         # retrieve reason data
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
 
         # retrieve employee data
         # because for now 29/03/2023 there aren't partnership team, so we use client management
@@ -227,7 +229,7 @@ class PartnerProgramController extends Controller
         $programs = $programsB2B->merge($programsB2BB2C);
 
         # retrieve reason data
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
 
         # retrieve partner data
         $partner = $this->corporateRepository->getCorporateById($corpId);
@@ -311,7 +313,7 @@ class PartnerProgramController extends Controller
 
 
         # retrieve reason data
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
 
         # retrieve Partner Program data by id
         // $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
@@ -347,6 +349,7 @@ class PartnerProgramController extends Controller
         if ($request->input('status') == '2') {
             if ($request->input('reason_id') == 'other') {
                 $reason['reason_name'] = $request->input('other_reason');
+                $reason['type'] = 'Program';
             }
 
             unset($partnerPrograms['other_reason_refund']);
@@ -357,8 +360,10 @@ class PartnerProgramController extends Controller
 
         if ($request->input('status') == '3') {
             if ($request->input('reason_refund_id') == 'other_reason_refund')
+            {
                 $reason['reason_name'] = $request->input('other_reason_refund');
-            else {
+                $reason['type'] = 'Program';
+            }else {
                 $partnerPrograms['reason_id'] = $request->input('reason_refund_id');
             }
             unset($partnerPrograms['other_reason_refund']);

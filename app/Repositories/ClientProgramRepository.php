@@ -190,6 +190,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $reason = Reason::create(
                     [
                         'reason_name' => $clientProgramDetails['other_reason'],
+                        'type' => 'Program'
                     ]
                 );
                 $reasonId = $reason->reason_id;
@@ -373,6 +374,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $reason = Reason::create(
                         [
                             'reason_name' => $clientProgramDetails['other_reason'],
+                            'type' => 'Program'
                         ]
                     );
                 }
