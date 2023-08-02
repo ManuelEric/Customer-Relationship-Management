@@ -109,4 +109,9 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     })->
                     get();
     }
+
+    public function getAchievedContributionSalesByMonth($now)
+    {
+        
+    }
 }

@@ -46,6 +46,7 @@ class UpdateTargetTracking extends Command
             $achievedLead = $this->leadTargetRepository->getAchievedLeadSalesByMonth($now);
             $achievedHotLead = $this->leadTargetRepository->getAchievedHotLeadSalesByMonth($now);
             $achievedInitConsult = $this->leadTargetRepository->getAchievedInitConsultSalesByMonth($now);
+            $achievedContribution = $this->
 
             $contribution_target = $activeTarget_forSales->contribution_target;
             
@@ -53,7 +54,7 @@ class UpdateTargetTracking extends Command
             $details = [
                 'achieved_lead' => $achievedLead,
                 'achieved_hotleads' => $achievedHotLead,
-                'achieved_initconsult' => 0,
+                'achieved_initconsult' => $achievedInitConsult,
                 'contribution_achieved' => 0,
                 'status' => 0,
                 'updated_at' => Carbon::now(),
