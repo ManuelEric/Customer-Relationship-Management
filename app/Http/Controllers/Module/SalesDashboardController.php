@@ -40,10 +40,11 @@ class SalesDashboardController extends Controller
         $referralTarget = 10;
 
         $today = date('Y-m-d');
+        $currMonth = date('m');
 
         $allTarget = $this->targetSignalRepository->getAllTargetSignal();
-        $dataSalesTarget = $this->targetSignalRepository->getTargetSignalByDivisi('Sales')->first();
-        $dataReferralTarget = $this->targetSignalRepository->getTargetSignalByDivisi('Referral')->first();
+        $dataSalesTarget = $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($today, 'Sales');
+        $dataReferralTarget = $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($today, 'Referral');
         
         $leadSalesTarget = [
             'ic' => 0,
@@ -57,10 +58,10 @@ class SalesDashboardController extends Controller
         ];
         if($dataSalesTarget->count() > 0){
             $leadSalesTarget = [
-                'ic' => $dataSalesTarget->initial_consult_target,
-                'hot_lead' => $dataSalesTarget->hot_leads_target,
-                'lead_needed' => $dataSalesTarget->lead_needed,
-                'contribution' => $dataSalesTarget->contribution_to_target,
+                'ic' => $dataSalesTarget->target_initconsult,
+                'hot_lead' => $dataSalesTarget->target_hotleads,
+                'lead_needed' => $dataSalesTarget->target_lead,
+                'contribution' => $dataSalesTarget->contribution_target,
             ];
         }
 
@@ -77,10 +78,10 @@ class SalesDashboardController extends Controller
         ];
         if($dataReferralTarget->count() > 0){
             $leadReferralTarget = [
-                'ic' => $dataReferralTarget->initial_consult_target,
-                'hot_lead' => $dataReferralTarget->hot_leads_target,
-                'lead_needed' => $dataReferralTarget->lead_needed,
-                'contribution' => $dataReferralTarget->contribution_to_target,
+                'ic' => $dataReferralTarget->target_initconsult,
+                'hot_lead' => $dataReferralTarget->target_hotleads,
+                'lead_needed' => $dataReferralTarget->target_lead,
+                'contribution' => $dataReferralTarget->contribution_target,
             ];
         }
             
@@ -88,51 +89,19 @@ class SalesDashboardController extends Controller
         // $revenueTarget = $dataSalesTarget->total_target;
         $revenueTarget = 0;
 
-        $clientLead = $this->targetTrackingRepository->getTargetTrackingByMonthYear($today)->where('divisi', 'Sales');
-
-        # Total Leads
-        $totalLeads = $clientLead->count() > 0 ? $clientLead->achieved : 0;
-        
-        // Admission hot lead dari ic
-        $totalHotLead = $clientLead->count() > 0 ? $clientLead->achieved : 0;
-
-        # Gagal 3x berturut-turut
-        $failLeads = $this->clientLeadTrackingRepository->getInitialConsult($today, 'fail');
-        $countFail = 0;
-        if(isset($failLeads) > 0){
-            foreach ($failLeads as $failLead) {
-                $failLead->status == 2 ? $countFail++ : $countFail--;
-            }
-        }
-        $isFailed = $countFail == 3 ? true : false;
+        $clientLeadSales = $dataSalesTarget;
+        $clientLeadReferral = $dataReferralTarget;
 
         # LS005 is Referral
         $totalReferralLead = 0;
 
-        # Day 1-14 (awal bulan)
-        $salesAlarm['mid']['lead_needed'] = $totalLeads < $leedNeeded ? true : false;
-        $salesAlarm['mid']['hot_lead'] = $totalHotLead < $leadSalesTarget['hot_lead'] ? true : false;
-        $salesAlarm['mid']['referral'] = $totalReferralLead < $referralTarget ? true : false;
-
-        $triggerEvent = $salesAlarm['mid']['hot_lead'] || $salesAlarm['mid']['referral'] ? true : false;
-
-        // $revenue = $this->clientLeadTrackingRepository->getRevenue($today);
         $revenue = null;
         $totalRevenue = $revenue != null ? $revenue->sum('total') : 0;
-        // $totalRevenue = 125000000;
-
-        # Day 15-30 (akhir bulan)
-        if (date('Y-m-d') > date('Y-m') . '-' . $midOfMonth) {
-            unset($salesAlarm['mid']['lead_needed']);
-            $salesAlarm['end']['revenue'] = $totalRevenue < $revenueTarget*50/100 ? true : false;
-            $salesAlarm['end']['IC'] = $totalHotLead < $leadSalesTarget['IC'] ? true : false;
-            $salesAlarm['end']['lead_needed'] = $totalLeads < 2*$leedNeeded ? true : false;
-        }
 
         $actualLeadsSales = [
-            'lead_needed' => $totalLeads,
-            'hot_lead' => $totalHotLead,
-            'IC' => $totalHotLead,
+            'lead_needed' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_lead : 0,
+            'hot_lead' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_hotleads : 0,
+            'IC' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_initconsult : 0,
             'referral' => $totalReferralLead,
             'revenue' => $totalRevenue,
             'contribution' => 0,
@@ -140,13 +109,29 @@ class SalesDashboardController extends Controller
 
         # referral
         $actualLeadsReferral = [
-            'lead_needed' => 0,
-            'hot_lead' => 0,
-            'IC' => 0,
+            'lead_needed' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_lead : 0,
+            'hot_lead' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_hotleads : 0,
+            'IC' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_initconsult : 0,
             'referral' => 0,
             'revenue' => 0,
             'contribution' => 0,
         ];
+
+        # Day 1-14 (awal bulan)
+        $salesAlarm['mid']['lead_needed'] = $actualLeadsSales['lead_needed'] < $leadSalesTarget['lead_needed'] ? true : false;
+        $salesAlarm['mid']['hot_lead'] = $actualLeadsSales['hot_lead'] < $leadSalesTarget['hot_lead'] ? true : false;
+        $salesAlarm['mid']['referral'] = $actualLeadsSales['referral'] < $referralTarget ? true : false;
+
+        $triggerEvent = $salesAlarm['mid']['hot_lead'] || $salesAlarm['mid']['referral'] ? true : false;
+
+
+        # Day 15-30 (akhir bulan)
+        if (date('Y-m-d') > date('Y-m') . '-' . $midOfMonth) {
+            unset($salesAlarm['mid']['lead_needed']);
+            $salesAlarm['end']['revenue'] = $actualLeadsSales['revenue'] < $revenueTarget*50/100 ? true : false;
+            $salesAlarm['end']['IC'] = $actualLeadsSales['IC'] < $leadSalesTarget['IC'] ? true : false;
+            $salesAlarm['end']['lead_needed'] = $actualLeadsSales['lead_needed'] < 2*$leedNeeded ? true : false;
+        }
 
         $dataLeads = [
             'number_of_leads' => $allTarget->sum('lead_needed'), 
@@ -165,7 +150,16 @@ class SalesDashboardController extends Controller
         $leadReferralTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsReferral['IC'], $leadReferralTarget['ic']);
         $leadReferralTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsReferral['contribution'], $leadReferralTarget['contribution']);
         
-        // return $dataSalesTarget;
+        $targetTrackingPeriod = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(3)->toDateString(), $today);
+        
+        # Chart lead
+        $last3month = $currMonth-2;
+        for($i=0; $i<3; $i++){
+            $dataLeadChart['target'][] = $targetTrackingPeriod->where('month', $last3month)->count() > 0 ? (int)$targetTrackingPeriod->where('month', $last3month)->first()->target : 0;
+            $dataLeadChart['actual'][] = $targetTrackingPeriod->where('month', $last3month)->count() > 0 ? (int)$targetTrackingPeriod->where('month', $last3month)->first()->actual : 0;
+            $last3month++;
+        }
+        // return json_encode($dataLeadChart['target']);
         // exit;
         # === end Alarm ===
 
@@ -333,6 +327,7 @@ class SalesDashboardController extends Controller
             'actualLeadsSales' => $actualLeadsSales,
             'actualLeadsReferral' => $actualLeadsReferral,
             'dataLeads' => $dataLeads,
+            'dataLeadChart' => $dataLeadChart
         ];
     }
 

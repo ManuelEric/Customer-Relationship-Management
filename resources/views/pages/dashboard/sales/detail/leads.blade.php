@@ -239,12 +239,12 @@
             labels: ['June', 'May', 'April'],
             datasets: [{
                 label: 'Actual Sales',
-                data: [12, 19, 7],
+                data: {{json_encode($dataLeadChart["actual"])}},
                 borderWidth: 1
             },
             {
                 label: 'Target',
-                data: [30, 10, 8],
+                data: {{json_encode($dataLeadChart["target"])}},
                 borderWidth: 1
             },
         ]
