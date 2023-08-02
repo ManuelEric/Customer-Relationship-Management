@@ -14,6 +14,11 @@ class FollowupRepository implements FollowupRepositoryInterface
         return FollowUp::where('clientprog_id', $clientProgramId)->get();
     }
 
+    public function getAllFollowupScheduleByDate($requested_date)
+    {   
+        return FollowUp::where('followup_date', $requested_date)->where('reminder', 0)->get();
+    }
+
     public function createFollowup(array $followupDetails)
     {   
         return FollowUp::create($followupDetails);

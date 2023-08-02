@@ -40,7 +40,7 @@
             <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal"
                 data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span class="ms-1">Import</span></a>
             <a href="{{ url('client/student/create') }}" class="btn btn-sm btn-primary"><i
-                    class="bi bi-plus-square me-1"></i> Add Student</a>
+                class="bi bi-plus-square me-1"></i> Add Student</a>
         </div>
     </div>
 
@@ -63,6 +63,10 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Request::get('st') == 'non-mentee' ? 'active' : '' }}"
                         href="{{ url('client/student?st=non-mentee') }}">Non-Mentee</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::get('st') == null ? 'active' : '' }}"
+                        href="{{ url('client/student') }}">All</a>
                 </li>
             </ul>
 

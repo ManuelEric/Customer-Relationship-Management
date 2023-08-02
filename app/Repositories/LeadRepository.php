@@ -34,6 +34,11 @@ class LeadRepository implements LeadRepositoryInterface
         return Lead::where('main_lead', 'KOL')->orderBy('sub_lead', 'asc')->get();
     }
 
+    public function getActiveLead()
+    {
+        return Lead::where('status', 1)->get();
+    }
+
     public function getLeadById($leadId)
     {
         return Lead::whereLeadId($leadId);
@@ -78,6 +83,6 @@ class LeadRepository implements LeadRepositoryInterface
     public function getLeadForFormEmbedEvent()
     {
         // Get all lead without All-in Partners and All-in Event
-        return Lead::where('lead_id', '!=', 'LS003')->where('lead_id', '!=', 'LS010')->get();
+        return Lead::where('lead_id', '!=', 'LS003')->where('lead_id', '!=', 'LS010')->where('status', 1)->get();
     }
 }

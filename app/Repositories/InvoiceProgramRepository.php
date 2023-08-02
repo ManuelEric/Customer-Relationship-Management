@@ -136,60 +136,80 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
 
     public function getAllDueDateInvoiceProgram(int $days)
     {
-        return ViewClientProgram::leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->select([
-            'tbl_inv.clientprog_id',
-            'clientprogram.fullname',
-            'clientprogram.parent_fullname',
-            'clientprogram.parent_phone',
-            'clientprogram.parent_mail',
-            'program_name',
-            'tbl_inv.inv_id',
-            DB::raw('
+        return ViewClientProgram::
+            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
+            leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->
+            leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->
+            leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->
+            leftJoin('tbl_receipt as r', 'r.inv_id', '=', 'tbl_inv.inv_id')->
+            leftJoin('tbl_receipt as dr', 'dr.invdtl_id', '=', 'tbl_invdtl.invdtl_id')->
+            select([
+                'tbl_inv.clientprog_id',
+                'clientprogram.fullname',
+                'clientprogram.parent_fullname',
+                'clientprogram.parent_phone',
+                'clientprogram.parent_mail',
+                'program_name',
+                'tbl_inv.inv_id',
+                DB::raw('
+                    (CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_installment
+                    END) as inv_paymentmethod
+                '),
+                // 'tbl_inv.inv_paymentmethod',
+                'clientprogram.installment_notes',
+                DB::raw('
+                    (CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.created_at
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.created_at
+                    END) as show_created_at
+                '),
+                // 'tbl_inv.created_at',
+                DB::raw('
+                    (CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_duedate
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_duedate
+                    END) as inv_duedate
+                '),
+                // 'tbl_inv.inv_duedate',
+                DB::raw('
+                    (CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice_idr
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amountidr
+                    END) as inv_totalprice_idr
+                '),
+                // 'tbl_inv.inv_totalprice_idr',
+                'pic_mail',
+                DB::raw('
+                    (CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                    END) as date_difference
+                '),
+                // DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
+            ])->
+            // ->whereNull('tbl_receipt.inv_id')
+            whereRaw('
                 (CASE
-                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
-                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_installment
-                END) as inv_paymentmethod
-            '),
-            // 'tbl_inv.inv_paymentmethod',
-            'clientprogram.installment_notes',
-            DB::raw('
-                (CASE
-                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.created_at
-                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.created_at
-                END) as show_created_at
-            '),
-            // 'tbl_inv.created_at',
-            DB::raw('
-                (CASE
-                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_duedate
-                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_duedate
-                END) as inv_duedate
-            '),
-            // 'tbl_inv.inv_duedate',
-            DB::raw('
-                (CASE
-                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice_idr
-                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amountidr
-                END) as inv_totalprice_idr
-            '),
-            // 'tbl_inv.inv_totalprice_idr',
-            'pic_mail',
-            DB::raw('
-                (CASE
-                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
-                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
-                END) as date_difference
-            '),
-            // DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
-        ])
-            ->where('tbl_inv.reminded', '=', 0)
+                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.reminded = 0
+                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_inv.reminded < (SELECT COUNT(*) AS total_installment FROM tbl_invdtl invd WHERE invd.inv_id = tbl_inv.inv_id) 
+                END)
+            ')
             // ->where(DB::raw('DATEDIFF(inv_duedate, now())'), '=', $days)
             ->where(DB::raw('
                 (CASE
                     WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
                     WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
                 END)
-            '), '=', $days)
+            '), '=', $days)->
+            whereNull(DB::raw('
+                (CASE
+                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN r.inv_id
+                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN dr.invdtl_id
+                END)
+            '))
             ->orderBy('date_difference', 'asc')->get();
     }
 

@@ -296,7 +296,7 @@
                             </div>
                             <ul class="list-group">
                                 @foreach ($leadSource as $detail)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <li class="list-group-item d-flex justify-content-between align-items-center lead-source-item cursor-pointer btn btn-sm" data-leadname="{{ $detail->lead_source }}" data-lead="{{ $detail->lead_id }}" data-sdate="{{ $dateDetails['startDate'] }}" data-edate="{{ $dateDetails['endDate'] }}">
                                     <div class="">
                                         {{ $detail->lead_source }}
                                     </div>
@@ -311,7 +311,7 @@
                             </div>
                             <ul class="list-group">
                                 @foreach ($conversionLead as $detail)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <li class="list-group-item d-flex justify-content-between align-items-center conversion-lead-item cursor-pointer btn btn-sm" data-leadname="{{ $detail->conversion_lead }}" data-lead="{{ $detail->lead_id }}" data-sdate="{{ $dateDetails['startDate'] }}" data-edate="{{ $dateDetails['endDate'] }}">
                                     <div class="">
                                         {{ $detail->conversion_lead }}
                                     </div>
@@ -352,6 +352,25 @@
             </div>
         </div>
     </div>
+    <div class="modal modal-lg fade" tabindex="-1" id="leadModalDetail">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-sm btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         @php            
             $privilage = $menus['Report']->where('submenu_name', 'Sales Tracking')->first();
@@ -365,5 +384,61 @@
                 });
             @endif
         });
+
+        $(document).on('click', '.lead-source-item', function() {
+            var _this = $(this);
+            const requestParam = getParam(_this);
+            var url = '{{ url("/api/v1/get/detail/lead-source") }}';
+            requestParam['url'] = url;
+
+            showDetailLead(requestParam)
+        })
+
+        $(document).on('click', '.conversion-lead-item', function() {
+            var _this = $(this);
+            const requestParam = getParam(_this);
+            var url = '{{ url("/api/v1/get/detail/conversion-lead") }}';
+            requestParam['url'] = url;
+
+            showDetailLead(requestParam)
+        })
+
+        function showDetailLead(param)
+        {
+            showLoading();
+
+            axios.get(param['url'], {params: param})
+                .then(function(response) {
+
+                    const obj = response.data.data;
+
+                    swal.close();
+                    $("#leadModalDetail").modal('show');
+                    $("#leadModalDetail .modal-title").html(obj.title)
+
+                    $("#leadModalDetail table").html(obj.context);
+                    
+                })
+                .catch(function(error) {
+                    // handle error
+                    Swal.close()
+                    notification(error.response.data.success, error.response.data.message)
+                })
+        }
+
+        function getParam(_this)
+        {
+            var leadId = _this.data('lead');
+            var leadName = _this.data('leadname');
+            var startDate = _this.data('sdate');
+            var endDate = _this.data('edate');
+            return {
+                leadId: leadId,
+                leadName: leadName,
+                startDate: startDate,
+                endDate: endDate
+            }
+
+        }
     </script>
 @endsection

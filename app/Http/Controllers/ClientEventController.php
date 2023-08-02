@@ -459,7 +459,9 @@ class ClientEventController extends Controller
         $childDetails = [];
         $schoolId = null;
 
-        $event = $this->eventRepository->getEventByName(urldecode($request->event_name));
+        $requested_event_name = str_replace('&quot;', '"', $request->event_name);
+
+        $event = $this->eventRepository->getEventByName(urldecode($requested_event_name));
 
         // Check existing client by phone number and email
         if ($request->role == 'parent') {

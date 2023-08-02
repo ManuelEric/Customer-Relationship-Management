@@ -103,7 +103,7 @@ class SendReminderInvoiceProgramToClient extends Command
             $this->info('Invoice reminder has been sent to ' . $parent_mail);
             # update reminded count to 1
             $updated_invoice = $this->invoiceProgramRepository->getInvoiceByClientProgId($clientprogId);
-            $updated_invoice->reminded = 1;
+            $updated_invoice->reminded = $updated_invoice->reminded + 1;
             $updated_invoice->save();
 
             $progressBar->advance();

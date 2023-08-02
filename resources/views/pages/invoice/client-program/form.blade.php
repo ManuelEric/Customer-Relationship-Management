@@ -13,6 +13,10 @@
         </a>
     </div>
 
+    @if($errors->any())
+        {{ implode('', $errors->all('<div>:message</div>')) }}
+    @endif
+
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
@@ -449,7 +453,7 @@
                                     <div class="col-md-6 mb-3 invoice d-none">
                                         <label for="">Created Date <sup class="text-danger">*</sup></label>
                                         <input type="date" name="invoice_date" id=""
-                                            value="{{ date('Y-m-d') }}" readonly {{ $disabled }}
+                                            value="{{ date('Y-m-d') }}" {{ $disabled }}
                                             class='form-control form-control-sm rounded'>
                                         {{-- @error('invoice_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -643,6 +647,7 @@
         </div>
     </div>
 
+    @if ($clientProg->client->parents->count() > 0) 
     <div class="modal fade" id="sendToClientModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -680,6 +685,7 @@
             </div>
         </div>
     </div>
+    @endif
 
 
     <script>

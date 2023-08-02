@@ -67,8 +67,6 @@ class AutomationEndedClientProgram extends Command
 
         }
 
-
-
         return Command::SUCCESS;
     }
 }

@@ -73,12 +73,12 @@ class StoreInvoiceProgramRequest extends FormRequest
                 //         $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
                 // }
             ],
-            'is_session' => [
-                function ($attribute, $value, $fail) use ($clientProgram) {
-                    if ($clientProgram->program->prog_payment == "session" && $value == "no")
-                        $fail('Is session has to be "yes" based on master program session');
-                }
-            ],
+            // 'is_session' => [
+            //     function ($attribute, $value, $fail) use ($clientProgram) {
+            //         if ($clientProgram->program->prog_payment == "session" && $value == "no")
+            //             $fail('Is session has to be "yes" based on master program session');
+            //     }
+            // ],
             'session__si' => Rule::requiredIf(in_array('idr', $currency)),
             'duration__si' => Rule::requiredIf(in_array('idr', $currency)),
             'inv_price_idr__si' => Rule::requiredIf(in_array('idr', $currency)),
@@ -129,12 +129,12 @@ class StoreInvoiceProgramRequest extends FormRequest
                 //         $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
                 // }
             ],
-            'is_session' => [
-                function ($attribute, $value, $fail) use ($clientProgram) {
-                    if ($clientProgram->program->prog_payment == "session" && $value == "no")
-                        $fail('Is session has to be "yes" based on master program session');
-                }
-            ],
+            // 'is_session' => [
+            //     function ($attribute, $value, $fail) use ($clientProgram) {
+            //         if ($clientProgram->program->prog_payment == "session" && $value == "no")
+            //             $fail('Is session has to be "yes" based on master program session');
+            //     }
+            // ],
             'curs_rate' => 'required',
             'inv_price__so' => Rule::requiredIf(in_array('other', $currency)),
             'session__so' => Rule::requiredIf(in_array('other', $currency)),
@@ -195,12 +195,12 @@ class StoreInvoiceProgramRequest extends FormRequest
                 //         $fail('Based on payment program from master program, it should be '.strtoupper($clientProgram->program->prog_payment));
                 // }
             ],
-            'is_session' => [
-                function ($attribute, $value, $fail) use ($clientProgram) {
-                    if ($clientProgram->program->prog_payment == "session" && $value == "no")
-                        $fail('Is session has to be "yes" based on master program session');
-                }
-            ],
+            // 'is_session' => [
+            //     function ($attribute, $value, $fail) use ($clientProgram) {
+            //         if ($clientProgram->program->prog_payment == "session" && $value == "no")
+            //             $fail('Is session has to be "yes" based on master program session');
+            //     }
+            // ],
             'curs_rate' => 'required',
             'inv_price__nso' => Rule::requiredIf(in_array('other', $currency)),
             // 'inv_earlybird__nso' => Rule::requiredIf(in_array('other', $currency)),
@@ -255,12 +255,12 @@ class StoreInvoiceProgramRequest extends FormRequest
         return [
             'clientprog_id' => 'required|exists:tbl_client_prog,clientprog_id'.$addQuery,
             'currency' => 'required',
-            'is_session' => [
-                function ($attribute, $value, $fail) use ($clientProgram) {
-                    if ($clientProgram->program->prog_payment == "session" && $value == "no")
-                        $fail('Is session has to be "yes" based on master program session');
-                }
-            ],
+            // 'is_session' => [
+            //     function ($attribute, $value, $fail) use ($clientProgram) {
+            //         if ($clientProgram->program->prog_payment == "session" && $value == "no")
+            //             $fail('Is session has to be "yes" based on master program session');
+            //     }
+            // ],
             'inv_price_idr' => Rule::requiredIf(in_array('idr', $currency)),
             // 'inv_earlybird_idr' => Rule::requiredIf(in_array('idr', $currency)),
             // 'inv_discount_idr' => Rule::requiredIf(in_array('idr', $currency)),

@@ -64,7 +64,7 @@ class FinanceDashboardController extends Controller
 
         return [
             'invoiceNeededToday' => count($totalInvoiceNeeded->where('success_date', date('Y-m-d'))),
-            'outstandingToday' => count($unpaidPayments->where('invoice_duedate', date('Y-m-d'))),
+            'outstandingToday' => count($unpaidPayments->where('invoice_duedate', date('Y-m-d', strtotime("-3 days")))),
             'refundRequestToday' => count($totalRefundRequest->where('refund_date', date('Y-m-d'))),
             'totalInvoiceNeeded' => count($totalInvoiceNeeded),
             'totalInvoice' => $totalInvoice,
