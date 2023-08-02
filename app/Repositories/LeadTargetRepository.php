@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Models\LeadTargetTracking;
+use App\Models\ViewClientProgram;
 use App\Models\ViewTargetSignal;
 
 class LeadTargetRepository implements LeadTargetRepositoryInterface
@@ -27,5 +28,10 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $last_year = date('Y', strtotime('-1 month', strtotime($now)));
         
         return LeadTargetTracking::whereMonth('month_year', $last_month)->whereYear('month_year', $last_year)->where('divisi', $divisi)->first();
+    }
+
+    public function getAchievedLeadSales($current_month)
+    {
+        
     }
 }
