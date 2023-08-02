@@ -145,12 +145,14 @@ class ClientStudentController extends ClientController
     {
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
+        $viewStudent = $this->clientRepository->getViewClientById($studentId);
         if (!$student)
             abort(404);
 
         return view('pages.client.student.view')->with(
             [
-                'student' => $student
+                'student' => $student,
+                'viewStudent' => $viewStudent
             ]
         );
     }
