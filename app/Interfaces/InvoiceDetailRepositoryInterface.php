@@ -4,6 +4,7 @@ namespace App\Interfaces;
 
 interface InvoiceDetailRepositoryInterface
 {
+    public function getInvoiceDetailById($identifier);
     public function getInvoiceDetailIdByInvB2b($invb2b_id, $invdtl_installment);
     public function getInvoiceDetailByInvB2bId($invb2b_id);
     public function getInvoiceDetailByInvB2bIdnName($invb2b_id, $name);

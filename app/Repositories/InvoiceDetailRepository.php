@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\DB;
 class InvoiceDetailRepository implements InvoiceDetailRepositoryInterface
 {
 
+    public function getInvoiceDetailById($identifier)
+    {
+        return InvDetail::find($identifier);
+    }
+
     public function getInvoiceDetailIdByInvB2b($invb2b_id, $invdtl_installment)
     {
         return InvDetail::where('invb2b_id', $invb2b_id)->where('invdtl_installment', $invdtl_installment)->pluck('invdtl_id');
