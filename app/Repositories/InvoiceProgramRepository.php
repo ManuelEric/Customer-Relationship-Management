@@ -189,9 +189,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     END) as date_difference
                 '),
                 // DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
-            ])
+            ])->
             // ->whereNull('tbl_receipt.inv_id')
-            ->where('tbl_inv.reminded', '=', 0)
+            whereRaw('
+                (CASE
+                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.reminded = 0
+                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_inv.reminded < (SELECT COUNT(*) AS total_installment FROM tbl_invdtl invd WHERE invd.inv_id = tbl_inv.inv_id) 
+                END)
+            ')
             // ->where(DB::raw('DATEDIFF(inv_duedate, now())'), '=', $days)
             ->where(DB::raw('
                 (CASE

@@ -49,6 +49,8 @@ class SendReminderInvoiceProgramToClient extends Command
         $parents_have_no_email = [];
         $invoice_master = $this->invoiceProgramRepository->getAllDueDateInvoiceProgram(7);
 
+        $this->info(json_encode($invoice_master));exit;
+
         $progressBar = $this->output->createProgressBar($invoice_master->count());
         $progressBar->start();
         foreach ($invoice_master as $data) {
@@ -103,7 +105,7 @@ class SendReminderInvoiceProgramToClient extends Command
             $this->info('Invoice reminder has been sent to ' . $parent_mail);
             # update reminded count to 1
             $updated_invoice = $this->invoiceProgramRepository->getInvoiceByClientProgId($clientprogId);
-            $updated_invoice->reminded = 1;
+            $updated_invoice->reminded = $updated_invoice->reminded + 1;
             $updated_invoice->save();
 
             $progressBar->advance();

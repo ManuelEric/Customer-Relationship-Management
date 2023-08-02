@@ -65,7 +65,7 @@ return new class extends Migration
                 DECLARE initial_consult_target INTEGER;
                 DECLARE gap_from_lastmonth INTEGER;
 
-                SET gap_from_lastmonth = IFNULL(0, GetDiffFromLastMonth(requested_division));
+                SET gap_from_lastmonth = IFNULL(GetDiffFromLastMonth(requested_division), 0);
 
                 SET initial_consult_target = (contribution_to_target + gap_from_lastmonth) * 1.5;
 
