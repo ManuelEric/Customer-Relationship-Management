@@ -112,6 +112,23 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
 
     public function getAchievedContributionSalesByMonth($now)
     {
-        
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        return UserClient::
+                    whereHas('lead', function ($query) {
+                        $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
+                    })->
+                    whereHas('clientProgram', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('updated_at', $month)->
+                            whereYear('updated_at', $year)->
+                            where('status', 1)-> # status programnya success
+                            whereHas('invoice', function ($subQuery) {
+                                $subQuery->
+                                    where('inv_status', '!=', 2); # status invoicenya tidak refund
+                            });
+                    })->
+                    get();
     }
 }
