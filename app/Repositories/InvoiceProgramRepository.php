@@ -151,7 +151,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 'clientprogram.parent_phone',
                 'clientprogram.parent_mail',
                 'program_name',
+                'tbl_inv.inv_paymentmethod as master_paymentmethod',
                 'tbl_inv.inv_id',
+                DB::raw('
+                    (CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.id
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_id
+                    END) as identifier
+                '),
                 DB::raw('
                     (CASE
                         WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
@@ -194,7 +201,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             whereRaw('
                 (CASE
                     WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.reminded = 0
-                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_inv.reminded < (SELECT COUNT(*) AS total_installment FROM tbl_invdtl invd WHERE invd.inv_id = tbl_inv.inv_id) 
+                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.reminded = 0 
                 END)
             ')
             // ->where(DB::raw('DATEDIFF(inv_duedate, now())'), '=', $days)
