@@ -36,7 +36,9 @@ class UpdateTargetTracking extends Command
      */
     public function handle()
     {
+        $current_month = date('m');
         
+        $this->leadTargetRepository->getAchievedLeadSalesByMonth($current_month);
 
         return Command::SUCCESS;
     }

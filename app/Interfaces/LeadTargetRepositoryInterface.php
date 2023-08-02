@@ -8,5 +8,5 @@ interface LeadTargetRepositoryInterface
     public function findThisMonthTarget($current_month);
     public function getIncompleteTargetFromLastMonthByDivision($current_month, $divisi);
 
-    public function getAchievedLeadSales($current_month);
+    public function getAchievedLeadSalesByMonth($current_month);
 }
