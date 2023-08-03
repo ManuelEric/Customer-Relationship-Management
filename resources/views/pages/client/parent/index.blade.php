@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Parent - Bigdata Platform')
+@section('title', 'Parent ')
 @section('style')
     <style>
         .btn-download span,
@@ -149,12 +149,15 @@
                     },
                     {
                         data: 'mail',
+                        defaultContent: '-'
                     },
                     {
                         data: 'phone',
+                        defaultContent: '-'
                     },
                     {
                         data: 'dob',
+                        defaultContent: '-'
                     },
                     {
                         data: 'children_name',

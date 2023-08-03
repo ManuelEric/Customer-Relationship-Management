@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Client Event - Bigdata Platform')
+@section('title', 'Client Event ')
 @section('style')
     <style>
         .btn-download span,

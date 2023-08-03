@@ -2,17 +2,12 @@
 <style>
     .lcs_wrap { scale: 0.7; margin-top: -4px; margin-left: -10px; }
 </style>
-@section('title', 'Teacher - Bigdata Platform')
-
+@section('title', 'Teacher ')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Teacher/Counselor</a></li>
+    <li class="breadcrumb-item active text-white" aria-current="page">View Detail</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ route('teacher-counselor.index') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Teacher/Counselor
-        </a>
-    </div>
-
-
     <div class="row align-items-center">
         <div class="col-md-8 order-md-1 order-2">
             <div class="card rounded mb-2">

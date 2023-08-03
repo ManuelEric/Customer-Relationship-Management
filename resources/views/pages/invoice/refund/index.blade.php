@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Refund - Bigdata Platform')
+@section('title', 'Refund List')
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
@@ -8,28 +8,27 @@
 @endsection
 
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Refund
-        </a>
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-md-6">
+                <h5 class="text-white m-0">
+                    <i class="bi bi-tag me-1"></i>
+                    Refund List
+                </h5>
+            </div>
+        </div>
     </div>
 
     <div class="card rounded">
         <div class="card-body">
             <ul class="nav nav-tabs flex-nowrap mb-3">
                 <li class="nav-item">
-                    <a @class([
-                        'nav-link',
-                        'active' => Request::route('status') == "needed"
-                    ]) aria-current="page" href="{{ url('invoice/refund/status/needed') }}">Refund
+                    <a @class(['nav-link', 'active' => Request::route('status') == 'needed']) aria-current="page"
+                        href="{{ url('invoice/refund/status/needed') }}">Refund
                         Needed</a>
                 </li>
                 <li class="nav-item">
-                    <a @class([
-                        'nav-link',
-                        'active' => Request::route('status') == "list"
-                    ]) href="{{ url('invoice/refund/status/list') }}">Refund List</a>
+                    <a @class(['nav-link', 'active' => Request::route('status') == 'list']) href="{{ url('invoice/refund/status/list') }}">Refund List</a>
                 </li>
             </ul>
             @if ($status == 'needed')

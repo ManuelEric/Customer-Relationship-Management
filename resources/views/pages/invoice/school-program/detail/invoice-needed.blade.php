@@ -62,6 +62,7 @@
                     },
                     {
                         data: 'success_date',
+                        className: 'text-center',
                         render: function(data, type, row) {
                             let success_date = data ? moment(data).format("MMMM Do YYYY") : '-'
                             return success_date
@@ -69,6 +70,7 @@
                     },
                     {
                         data: 'pic_name',
+                        className: 'text-center',
                     },
                     {
                         data: '',

@@ -1,16 +1,11 @@
 @extends('layout.main')
 
-@section('title', 'Parent - Bigdata Platform')
-
+@section('title', 'Parent ')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Parents</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Form Parent</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ route('parent.index') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Parent
-        </a>
-    </div>
-
-
     <div class="card">
         <div class="card-header">
             <h5 class="my-1 p-0">

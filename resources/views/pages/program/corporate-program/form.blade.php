@@ -1,16 +1,11 @@
 @extends('layout.main')
 
-@section('title', 'Partner Program - Bigdata Platform')
-
+@section('title', 'Partner Program ')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Partner Program</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Form Partner Program</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('program/corporate') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Partner Program
-        </a>
-    </div>
-
-
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">

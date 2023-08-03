@@ -524,8 +524,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         $no = 0;
         $data = [];
         foreach ($clientPrograms as $mainProg) {
-
-            $data[$mainProg->program->main_prog->prog_name][$mainProg->program->prog_program][] = $no++;
+            $data[$mainProg->program->main_prog->prog_name][$mainProg->program->prog_program][$mainProg->program->prog_id][] = $no++;
         }
 
         return $data;

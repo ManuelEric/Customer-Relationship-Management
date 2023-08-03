@@ -59,15 +59,21 @@
                             },
                             {
                                 data: 'inv_id',
+                                className:'text-center',
                                 name: 'tbl_inv.inv_id'
                             },
                             {
                                 data: 'inv_paymentmethod',
-                                name: 'tbl_inv.inv_paymentmethod'
+                                className:'text-center',
+                                name: 'tbl_inv.inv_paymentmethod',
+                                render: function(data, type, row) {
+                                    return data=="Full Payment" ? '<i class="bi bi-wallet me-2 text-info"></i>' + data : '<i class="bi bi-card-checklist me-2 text-warning"></i>' + data
+                                }
                             },
                             {
                                 data: 'created_at',
                                 name: 'created_at',
+                                className:'text-center',
                                 render: function(data, type, row) {
                                     return moment(data).format('MMMM Do YYYY')
                                 }
@@ -75,6 +81,7 @@
                             {
                                 data: 'inv_duedate',
                                 name: 'tbl_inv.inv_duedate',
+                                className:'text-center',
                                 render: function(data, type, row) {
                                     return moment(data).format('MMMM Do YYYY')
                                 }
@@ -82,6 +89,7 @@
                             {
                                 data: 'inv_totalprice_idr',
                                 name: 'tbl_inv.inv_totalprice_idr',
+                                className:'text-center',
                                 render: function(data, type, row) {
                                     return new Intl.NumberFormat("id-ID", {
                                         style: "currency",

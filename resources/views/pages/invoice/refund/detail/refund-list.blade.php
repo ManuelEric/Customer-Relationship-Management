@@ -104,26 +104,51 @@
                 },
                 {
                     data: 'invoiceId',
+                    className: 'text-center',
                 },
                 {
                     data: 'total_price',
+                    className: 'text-center',
                     orderable: false,
                     searchable: false,
+                    render: function(data, type, row, meta) {
+                        var currency = 'Rp. ';
+                        var totprice = new Intl.NumberFormat().format(data);
+                        return currency + ' ' + totprice;
+                    }
                 },
                 {
                     data: 'refund_amount',
+                    className: 'text-center',
                     orderable: false,
                     searchable: false,
+                    render: function(data, type, row, meta) {
+                        var currency = 'Rp. ';
+                        var totprice = new Intl.NumberFormat().format(data);
+                        return currency + ' ' + totprice;
+                    }
                 },
                 {
                     data: 'tax_amount',
+                    className: 'text-center',
                     orderable: false,
                     searchable: false,
+                    render: function(data, type, row, meta) {
+                        var currency = 'Rp. ';
+                        var totprice = new Intl.NumberFormat().format(data);
+                        return currency + ' ' + totprice;
+                    }
                 },
                 {
                     data: 'total_refunded',
+                    className: 'text-center',
                     orderable: false,
                     searchable: false,
+                    render: function(data, type, row, meta) {
+                        var currency = 'Rp. ';
+                        var totprice = new Intl.NumberFormat().format(data);
+                        return currency + ' ' + totprice;
+                    }
                 },
                 {
                     data: 'id',
@@ -132,23 +157,24 @@
                         switch (row.receipt_cat) {
 
                             case 'student':
-                                var link = '{{ url("receipt/client-program/") }}/' + data
-                            break;
-                            
+                                var link = '{{ url('receipt/client-program/') }}/' + data
+                                break;
+
                             case 'school':
-                                var link = '{{ url("receipt/school-program/") }}/' + data
-                            break;
+                                var link = '{{ url('receipt/school-program/') }}/' + data
+                                break;
 
                             case 'partner':
-                                var link = '{{ url("receipt/corporate-program/") }}/' + data
-                            break;
+                                var link = '{{ url('receipt/corporate-program/') }}/' + data
+                                break;
 
                             case 'referral':
-                                var link = '{{ url("receipt/referral/") }}/' + data
-                            break;
+                                var link = '{{ url('receipt/referral/') }}/' + data
+                                break;
 
                         }
-                        return '<a href="' + link + '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
+                        return '<a href="' + link +
+                            '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
                     }
                 }
             ]

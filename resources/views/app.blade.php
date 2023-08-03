@@ -7,6 +7,7 @@
     <title>
         @yield('title')
     </title>
+    <link rel="shortcut icon" href="{{asset('img/favicon.png')}}" type="image/x-icon">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 

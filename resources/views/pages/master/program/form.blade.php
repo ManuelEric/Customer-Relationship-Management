@@ -1,9 +1,13 @@
 @extends('layout.main')
 
-@section('title', 'Program - Bigdata Platform')
+@section('title', 'Programs')
+
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Program</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
+@endsection
 
 @section('content')
-
     <?php
     $prog['main'] = ['Admissions Mentoring', 'Career Exploration', 'Eduverse', 'Academic & Test Preparation', 'Others'];
     
@@ -13,12 +17,6 @@
     $prog['academic'] = ['Academic Tutoring', 'ACT', 'SAT', 'Subject Tutoring'];
     $prog['other'] = ['Event','Info Session', 'Other'];
     ?>
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('master/program') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Program
-        </a>
-    </div>
 
     <div class="card rounded">
         <div class="card-body">

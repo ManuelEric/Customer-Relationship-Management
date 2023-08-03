@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Alumni - Bigdata Platform')
+@section('title', 'Alumni ')
 
 @section('content')
     <div class="card bg-secondary mb-1 p-2">
@@ -182,6 +182,7 @@
 
                     {
                         data: 'graduation_year',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     /*

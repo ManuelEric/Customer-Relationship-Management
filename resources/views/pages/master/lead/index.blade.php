@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Lead - Bigdata Platform')
+@section('title', 'Lead')
 
 @section('content')
     <div class="card bg-secondary mb-1 p-2">
@@ -180,6 +180,7 @@
                     {
                         data: 'dept_name',
                         name: 'dept_name',
+                        className: 'text-center',
                     },
                     {
                         data: '',

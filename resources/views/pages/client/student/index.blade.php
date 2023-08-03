@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Student - Bigdata Platform')
+@section('title', 'Student')
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
@@ -172,6 +172,7 @@
                         <th>Country of Study Abroad</th>
                         <th>University Destination</th>
                         <th>Interest Major</th>
+                        <th>Joined Date</th>
                         <th>Last Update</th>
                         <th>Status</th>
                         {{-- <th class="bg-info text-white">Score</th> --}}
@@ -270,9 +271,11 @@
                     },
                     {
                         data: 'mail',
+                        defaultContent: '-'
                     },
                     {
                         data: 'phone',
+                        defaultContent: '-'
                     },
                     {
                         data: 'parent_name',
@@ -289,6 +292,7 @@
                     {
                         data: 'parent_phone',
                         name: 'parent_phone',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
@@ -298,17 +302,20 @@
                     },
                     {
                         data: 'graduation_year',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'grade_now',
                         defaultContent: '-',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             return data > 12 ? 'Not high school' : data;
                         }
                     },
                     {
                         data: 'insta',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
@@ -317,37 +324,56 @@
                     },
                     {
                         data: 'lead_source',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'st_levelinterest',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'interest_prog',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'st_abryear',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'abr_country',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'dream_uni',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'dream_major',
+                        className: 'text-center',  
                         defaultContent: '-'
                     },
                     {
+                        data: 'created_at',
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return moment(data).format('MMMM Do YYYY')
+                        }
+                    },
+                    {
                         data: 'updated_at',
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return moment(data).format('MMMM Do YYYY')
+                        }
                     },
                     {
                         data: 'st_statusact',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             return data == 1 ? "Active" : "Non-active";
                         }

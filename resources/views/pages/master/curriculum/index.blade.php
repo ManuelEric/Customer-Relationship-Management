@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Curriculum - Bigdata Platform')
+@section('title', 'Curriculum')
 
 @section('content')
     <div class="card bg-secondary mb-1 p-2">

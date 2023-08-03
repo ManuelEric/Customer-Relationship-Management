@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Partner - Bigdata Platform')
+@section('title', 'Partner ')
 
 @section('content')
 

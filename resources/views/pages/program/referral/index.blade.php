@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Referral - Bigdata Platform')
+@section('title', 'Referral ')
 
 @section('content')
 

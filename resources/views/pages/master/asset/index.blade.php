@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Asset - Bigdata Platform')
+@section('title', 'Asset')
 
 @section('content')
 
@@ -83,6 +83,7 @@
                     },
                     {
                         data: 'asset_dateachieved',
+                        className: 'text-center',
                         render: function(data, type, row) {
                             let achieve_date = row.asset_dateachieved ? moment(row
                                 .asset_dateachieved).format("MMMM Do YYYY") : '-'
@@ -91,12 +92,15 @@
                     },
                     {
                         data: 'asset_amount',
+                        className: 'text-center',
                     },
                     {
                         data: 'asset_unit',
+                        className: 'text-center',
                     },
                     {
                         data: 'asset_condition',
+                        className: 'text-center',
                     },
                     {
                         data: 'asset_notes',
@@ -107,6 +111,7 @@
                     },
                     {
                         data: 'updated_at',
+                        className: 'text-center',
                         render: function(data, type, row) {
                             let lastupdate = row.asset_lastupdatedate !=
                                 '0000-00-00' ? moment(row

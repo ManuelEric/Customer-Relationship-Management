@@ -1,33 +1,33 @@
 @extends('layout.main')
 
-@section('title', 'Receipt Bigdata Platform')
-
+@section('title', 'Receipt of Referral')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Receipt</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('receipt/referral') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Receipt
-        </a>
-    </div>
-
-
     <div class="row">
         <div class="col-md-4 mb-3">
-            
+
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4> {{ $invoiceRef->referral->partner->corp_name }} </h4>
-                    <a
-                        href="{{ route('referral.show', ['referral' =>  $invoiceRef->referral->id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">                    
-                        <h6 class="d-flex flex-column">
-                            @if (isset($invoiceRef->referral->prog_id))
-                                {{ $invoiceRef->referral->program->program_name }}
-                            @else
-                                {{ $invoiceRef->referral->additional_prog_name }}
-                            @endif
-                        </h6>
-                    </a> 
+                    <a href="{{ route('referral.show', ['referral' => $invoiceRef->referral->id]) }}"
+                        class="text-primary text-decoration-none cursor-pointer" target="_blank">
+                        <div class="card p-2">
+                            <label class="text-muted mb-1">
+                                Program Name:
+                            </label>
+                            <h6 class="text-primary">
+                                @if (isset($invoiceRef->referral->prog_id))
+                                    {{ $invoiceRef->referral->program->program_name }}
+                                @else
+                                    {{ $invoiceRef->referral->additional_prog_name }}
+                                @endif
+                            </h6>
+                        </div>
+                    </a>
                 </div>
             </div>
 
@@ -43,7 +43,7 @@
                     <div class="border p-1 text-center">
                         <div class="d-flex gap-1 justify-content-center">
                             <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Delete"
-                                onclick="confirmDelete('{{'receipt/referral'}}', {{$receiptRef->id}})">
+                                onclick="confirmDelete('{{ 'receipt/referral' }}', {{ $receiptRef->id }})">
                                 <a href="#" class="text-danger">
                                     <i class="bi bi-trash2"></i>
                                 </a>
@@ -56,11 +56,30 @@
                     {{-- IDR  --}}
 
                     @php
-                        $receiptAttachment = $receiptRef->receiptAttachment()->where('currency', 'idr')->first();
-                        $receiptAttachmentRequested = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('request_status', 'requested')->first();
-                        $receiptAttachmentSigned = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
-                        $receiptAttachmentNotYet = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first();
-                        $receiptAttachmentSent = $receiptRef->receiptAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
+                        $receiptAttachment = $receiptRef
+                            ->receiptAttachment()
+                            ->where('currency', 'idr')
+                            ->first();
+                        $receiptAttachmentRequested = $receiptRef
+                            ->receiptAttachment()
+                            ->where('currency', 'idr')
+                            ->where('request_status', 'requested')
+                            ->first();
+                        $receiptAttachmentSigned = $receiptRef
+                            ->receiptAttachment()
+                            ->where('currency', 'idr')
+                            ->where('sign_status', 'signed')
+                            ->first();
+                        $receiptAttachmentNotYet = $receiptRef
+                            ->receiptAttachment()
+                            ->where('currency', 'idr')
+                            ->where('sign_status', 'not yet')
+                            ->first();
+                        $receiptAttachmentSent = $receiptRef
+                            ->receiptAttachment()
+                            ->where('currency', 'idr')
+                            ->where('send_to_client', 'sent')
+                            ->first();
                     @endphp
 
                     {{-- @if (!$invoiceRef->invoiceAttachment()->where('currency', 'idr')->first()) --}}
@@ -70,11 +89,12 @@
                             <div class="d-flex gap-1 justify-content-center">
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Preview Invoice">
-                                        <a href="{{ route('receipt.referral.preview_pdf', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}" class="text-info" target="blank">
-                                            <i class="bi bi-eye-fill"></i>
-                                        </a>
+                                    <a href="{{ route('receipt.referral.preview_pdf', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}"
+                                        class="text-info" target="blank">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
                                 </div>
-                                @if(!$receiptAttachment)
+                                @if (!$receiptAttachment)
                                     <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Download">
                                         <a href="#" class="text-info" id="export_idr">
@@ -82,7 +102,8 @@
                                         </a>
                                     </div>
                                     <div id="upload-idr" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
-                                        class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Upload">
+                                        class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        data-bs-title="Upload">
                                         <a href="#" class="text-info" id="upload_idr">
                                             <i class="bi bi-upload"></i>
                                         </a>
@@ -97,12 +118,13 @@
                                 @else
                                     <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Print Invoice">
-                                        <a href="{{ route('receipt.referral.print', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}" class="text-info" target="blank">
+                                        <a href="{{ route('receipt.referral.print', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}"
+                                            class="text-info" target="blank">
                                             <i class="bi bi-printer"></i>
                                         </a>
                                     </div>
-                                    <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                        data-bs-title="Send to Client"
+                                    <div id="send-rec-client-idr" class="btn btn-sm py-1 border btn-light"
+                                        data-bs-toggle="tooltip" data-bs-title="Send to Client"
                                         onclick="confirmSendToClient('{{ url('/') }}/receipt/referral/{{ $receiptRef->id }}/send', 'idr', 'receipt')">
                                         <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
@@ -117,39 +139,60 @@
                     {{-- Other  --}}
 
                     @php
-                        $receiptAttachmentOther = $receiptRef->receiptAttachment()->where('currency', 'other')->first();
-                        $receiptAttachmentRequestedOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('request_status', 'requested')->first();
-                        $receiptAttachmentSignedOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
-                        $receiptAttachmentNotYetOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
-                        $receiptAttachmentSentOther = $receiptRef->receiptAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
+                        $receiptAttachmentOther = $receiptRef
+                            ->receiptAttachment()
+                            ->where('currency', 'other')
+                            ->first();
+                        $receiptAttachmentRequestedOther = $receiptRef
+                            ->receiptAttachment()
+                            ->where('currency', 'other')
+                            ->where('request_status', 'requested')
+                            ->first();
+                        $receiptAttachmentSignedOther = $receiptRef
+                            ->receiptAttachment()
+                            ->where('currency', 'other')
+                            ->where('sign_status', 'signed')
+                            ->first();
+                        $receiptAttachmentNotYetOther = $receiptRef
+                            ->receiptAttachment()
+                            ->where('currency', 'other')
+                            ->where('sign_status', 'not yet')
+                            ->first();
+                        $receiptAttachmentSentOther = $receiptRef
+                            ->receiptAttachment()
+                            ->where('currency', 'other')
+                            ->where('send_to_client', 'sent')
+                            ->first();
                     @endphp
-                    @if($invoiceRef->currency != 'idr')
+                    @if ($invoiceRef->currency != 'idr')
                         <div class="d-flex align-items-stretch">
                             <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                             <div class="border p-1 text-center">
                                 <div class="d-flex gap-1 justify-content-center">
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Preview Invoice">
-                                            <a href="{{ route('receipt.referral.preview_pdf', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}" class="text-info" target="blank">
-                                                <i class="bi bi-eye-fill"></i>
-                                            </a>
+                                        <a href="{{ route('receipt.referral.preview_pdf', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}"
+                                            class="text-info" target="blank">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
                                     </div>
-                                    @if(!$receiptAttachmentOther)
-                                        <div id="print-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                            data-bs-title="Download">
+                                    @if (!$receiptAttachmentOther)
+                                        <div id="print-other" class="btn btn-sm py-1 border btn-light"
+                                            data-bs-toggle="tooltip" data-bs-title="Download">
                                             <a href="#" class="text-info" id="export_other">
                                                 <i class="bi bi-download"></i>
                                             </a>
                                         </div>
                                         <div id="upload-other" data-bs-target="#uploadReceipt" data-bs-toggle="modal"
-                                            class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Upload">
+                                            class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                            data-bs-title="Upload">
                                             <a href="#" class="text-info" id="upload_other">
                                                 <i class="bi bi-upload"></i>
                                             </a>
                                         </div>
                                     @elseif(isset($receiptAttachmentNotYetOther))
-                                        <div id="request-acc-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                            data-bs-title="Request Sign" id="request-acc-other">
+                                        <div id="request-acc-other" class="btn btn-sm py-1 border btn-light"
+                                            data-bs-toggle="tooltip" data-bs-title="Request Sign" id="request-acc-other">
                                             <a href="#" class="text-info">
                                                 <i class="bi bi-pen-fill"></i>
                                             </a>
@@ -157,7 +200,8 @@
                                     @else
                                         <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                             data-bs-title="Print Invoice">
-                                            <a href="{{ route('receipt.referral.print', ['receipt' => $receiptRef->id, 'currency' => 'other']) }}" class="text-info" target="blank">
+                                            <a href="{{ route('receipt.referral.print', ['receipt' => $receiptRef->id, 'currency' => 'other']) }}"
+                                                class="text-info" target="blank">
                                                 <i class="bi bi-printer"></i>
                                             </a>
                                         </div>
@@ -199,13 +243,13 @@
                             <td>Payment Method :</td>
                             <td>{{ $receiptRef->receipt_method }}</td>
                         </tr>
-                        @if($receiptRef->receipt_method == 'Cheque')
+                        @if ($receiptRef->receipt_method == 'Cheque')
                             <tr>
                                 <td>Cheque No : </td>
                                 <td>{{ $receiptRef->receipt_cheque }}</td>
                             </tr>
                         @endif
-                        @if ($invoiceRef->currency != "idr")
+                        @if ($invoiceRef->currency != 'idr')
                             <tr>
                                 <td>Curs Rate :</td>
                                 <td>{{ $invoiceRef->rate }}</td>
@@ -214,9 +258,9 @@
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                @if ($receiptRef->receipt_amount != null && $invoiceRef->currency != "idr")
+                                @if ($receiptRef->receipt_amount != null && $invoiceRef->currency != 'idr')
                                     {{ $receiptRef->receipt_amount }}
-                                     ( {{ $receiptRef->receipt_amount_idr }} )
+                                    ( {{ $receiptRef->receipt_amount_idr }} )
                                 @else
                                     {{ $receiptRef->receipt_amount_idr }}
                                 @endif
@@ -241,27 +285,36 @@
                         <div class="text-center">
                             <h6>IDR</h6>
                             <section class="step-indicator">
-                                <div class="step step1 {{$receiptRef->download_idr == 1 || $receiptAttachmentSigned || isset($receiptAttachmentNotYet) ? 'active' : ''}}">
+                                <div
+                                    class="step step1 {{ $receiptRef->download_idr == 1 || $receiptAttachmentSigned || isset($receiptAttachmentNotYet) ? 'active' : '' }}">
                                     <div class="step-icon">1</div>
                                     <p>Download</p>
                                 </div>
-                                <div class="indicator-line {{$receiptRef->download_idr == 1 || $receiptAttachmentSigned || isset($receiptAttachmentNotYet) ? 'active' : ''}}"></div>
-                                <div class="step step2 {{isset($receiptAttachmentNotYet) || $receiptAttachmentSigned ? 'active' : ''}}">
+                                <div
+                                    class="indicator-line {{ $receiptRef->download_idr == 1 || $receiptAttachmentSigned || isset($receiptAttachmentNotYet) ? 'active' : '' }}">
+                                </div>
+                                <div
+                                    class="step step2 {{ isset($receiptAttachmentNotYet) || $receiptAttachmentSigned ? 'active' : '' }}">
                                     <div class="step-icon">2</div>
                                     <p>Upload</p>
                                 </div>
-                                <div class="indicator-line {{isset($receiptAttachmentNotYet) || $receiptAttachmentSigned ? 'active' : ''}}"></div>
-                                <div class="step step3 {{$receiptAttachmentRequested || $receiptAttachmentSigned ? 'active' : ''}}">
+                                <div
+                                    class="indicator-line {{ isset($receiptAttachmentNotYet) || $receiptAttachmentSigned ? 'active' : '' }}">
+                                </div>
+                                <div
+                                    class="step step3 {{ $receiptAttachmentRequested || $receiptAttachmentSigned ? 'active' : '' }}">
                                     <div class="step-icon">3</div>
                                     <p>Request Sign</p>
                                 </div>
-                                <div class="indicator-line {{$receiptAttachmentRequested || $receiptAttachmentSigned ? 'active' : ''}}"></div>
-                                <div class="step step4 {{$receiptAttachmentSigned ? 'active' : ''}}">
+                                <div
+                                    class="indicator-line {{ $receiptAttachmentRequested || $receiptAttachmentSigned ? 'active' : '' }}">
+                                </div>
+                                <div class="step step4 {{ $receiptAttachmentSigned ? 'active' : '' }}">
                                     <div class="step-icon">4</div>
                                     <p>Signed</p>
                                 </div>
-                                <div class="indicator-line {{$receiptAttachmentSigned ? 'active' : ''}}"></div>
-                                <div class="step step5 {{$receiptAttachmentSent ? 'active' : ''}}">
+                                <div class="indicator-line {{ $receiptAttachmentSigned ? 'active' : '' }}"></div>
+                                <div class="step step5 {{ $receiptAttachmentSent ? 'active' : '' }}">
                                     <div class="step-icon">5</div>
                                     <p>Print or Send to Client</p>
                                 </div>
@@ -269,32 +322,37 @@
                         </div>
 
                         {{-- Other  --}}
-                        @if($invoiceRef->currency != 'idr')
+                        @if ($invoiceRef->currency != 'idr')
                             <div class="text-center mt-5">
                                 <hr>
                                 <h6>Other Currency</h6>
                                 <section class="step-indicator">
-                                    <div class="step step1 {{$receiptRef->download_other == 1 ? 'active' : ''}}">
+                                    <div class="step step1 {{ $receiptRef->download_other == 1 ? 'active' : '' }}">
                                         <div class="step-icon">1</div>
                                         <p>Download</p>
                                     </div>
-                                    <div class="indicator-line {{$receiptRef->download_other == 1 ? 'active' : ''}}"></div>
-                                    <div class="step step2 {{isset($receiptAttachmentNotYetOther) || $receiptAttachmentSignedOther ? 'active' : ''}}">
+                                    <div class="indicator-line {{ $receiptRef->download_other == 1 ? 'active' : '' }}">
+                                    </div>
+                                    <div
+                                        class="step step2 {{ isset($receiptAttachmentNotYetOther) || $receiptAttachmentSignedOther ? 'active' : '' }}">
                                         <div class="step-icon">2</div>
                                         <p>Upload</p>
                                     </div>
-                                    <div class="indicator-line {{isset($receiptAttachmentNotYetOther) || $receiptAttachmentSignedOther ? 'active' : ''}}"></div>
-                                    <div class="step step3 {{$receiptAttachmentRequestedOther ? 'active' : ''}}">
+                                    <div
+                                        class="indicator-line {{ isset($receiptAttachmentNotYetOther) || $receiptAttachmentSignedOther ? 'active' : '' }}">
+                                    </div>
+                                    <div class="step step3 {{ $receiptAttachmentRequestedOther ? 'active' : '' }}">
                                         <div class="step-icon">3</div>
                                         <p>Request Sign</p>
                                     </div>
-                                    <div class="indicator-line {{$receiptAttachmentRequestedOther ? 'active' : ''}}"></div>
-                                    <div class="step step4 {{$receiptAttachmentSignedOther ? 'active' : ''}}">
+                                    <div class="indicator-line {{ $receiptAttachmentRequestedOther ? 'active' : '' }}">
+                                    </div>
+                                    <div class="step step4 {{ $receiptAttachmentSignedOther ? 'active' : '' }}">
                                         <div class="step-icon">4</div>
                                         <p>Signed</p>
                                     </div>
-                                    <div class="indicator-line {{$receiptAttachmentSignedOther ? 'active' : ''}}"></div>
-                                    <div class="step step5 {{$receiptAttachmentSentOther ? 'active' : ''}}">
+                                    <div class="indicator-line {{ $receiptAttachmentSignedOther ? 'active' : '' }}"></div>
+                                    <div class="step step5 {{ $receiptAttachmentSentOther ? 'active' : '' }}">
                                         <div class="step-icon">5</div>
                                         <p>Print or Send to Client</p>
                                     </div>
@@ -319,7 +377,8 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="{{ route('receipt.referral.upload', ['receipt' => $receiptRef->id]) }}" method="POST" id="receipt" enctype="multipart/form-data">
+                    <form action="{{ route('receipt.referral.upload', ['receipt' => $receiptRef->id]) }}" method="POST"
+                        id="receipt" enctype="multipart/form-data">
                         @csrf
                         <div class="put"></div>
                         <div class="row g-2">
@@ -333,9 +392,9 @@
                                         <input type="file" name="attachment" id="attachment" class="form-control"
                                             required value="">
                                     </div>
-                                        @error('attachment')
-                                            <small class="text-danger fw-light">{{ $message }}</small>
-                                        @enderror
+                                    @error('attachment')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -354,7 +413,7 @@
     </div>
     <script>
         function sendToClient(link) {
-            
+
             showLoading()
 
             axios
@@ -370,7 +429,7 @@
                     swal.close()
                 })
         }
-        
+
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
@@ -381,11 +440,12 @@
             $("#export_other").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()                
+                Swal.showLoading()
                 axios
-                    .get('{{ route('receipt.referral.export', ['receipt' => $receiptRef->id, 'currency' => 'other']) }}', {
-                        responseType: 'arraybuffer'
-                    })
+                    .get(
+                        '{{ route('receipt.referral.export', ['receipt' => $receiptRef->id, 'currency' => 'other']) }}', {
+                            responseType: 'arraybuffer'
+                        })
                     .then(response => {
                         // console.log(response)
 
@@ -393,19 +453,22 @@
                             $file_name = str_replace('/', '-', $receiptRef->receipt_id) . '-' . 'other' . '.pdf';
                         @endphp
 
-                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                        let blob = new Blob([response.data], {
+                                type: 'application/pdf'
+                            }),
                             url = window.URL.createObjectURL(blob)
-                             // create <a> tag dinamically
-                            var fileLink = document.createElement('a');
-                            fileLink.href = url;
+                        // create <a> tag dinamically
+                        var fileLink = document.createElement('a');
+                        fileLink.href = url;
 
-                            // it forces the name of the downloaded file
-                            fileLink.download = '{{ $file_name }}';
+                        // it forces the name of the downloaded file
+                        fileLink.download = '{{ $file_name }}';
 
-                            // triggers the click event
-                            fileLink.click();
+                        // triggers the click event
+                        fileLink.click();
 
-                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        window.open(
+                            url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
                         swal.close()
                         notification('success', 'Invoice has been exported')
                         setTimeout(location.reload.bind(location), 3000);
@@ -414,16 +477,17 @@
                         notification('error', 'Something went wrong while exporting the invoice')
                         swal.close()
                     })
-                })
+            })
 
             $("#export_idr").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()                
+                Swal.showLoading()
                 axios
-                    .get('{{ route('receipt.referral.export', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}', {
-                        responseType: 'arraybuffer'
-                    })
+                    .get(
+                        '{{ route('receipt.referral.export', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}', {
+                            responseType: 'arraybuffer'
+                        })
                     .then(response => {
                         // console.log(response)
 
@@ -431,19 +495,22 @@
                             $file_name = str_replace('/', '-', $receiptRef->receipt_id) . '-' . 'idr' . '.pdf';
                         @endphp
 
-                        let blob = new Blob([response.data], { type: 'application/pdf' }),
+                        let blob = new Blob([response.data], {
+                                type: 'application/pdf'
+                            }),
                             url = window.URL.createObjectURL(blob)
-                             // create <a> tag dinamically
-                            var fileLink = document.createElement('a');
-                            fileLink.href = url;
+                        // create <a> tag dinamically
+                        var fileLink = document.createElement('a');
+                        fileLink.href = url;
 
-                            // it forces the name of the downloaded file
-                            fileLink.download = '{{ $file_name }}';
+                        // it forces the name of the downloaded file
+                        fileLink.download = '{{ $file_name }}';
 
-                            // triggers the click event
-                            fileLink.click();
+                        // triggers the click event
+                        fileLink.click();
 
-                        window.open(url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                        window.open(
+                            url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
                         swal.close()
                         notification('success', 'Invoice has been exported')
                         setTimeout(location.reload.bind(location), 3000);
@@ -452,7 +519,7 @@
                         notification('error', 'Something went wrong while exporting the invoice')
                         swal.close()
                     })
-                })
+            })
         });
 
         $("#upload-idr").on('click', function(e) {
@@ -470,46 +537,48 @@
         $("#request-acc").on('click', function(e) {
             e.preventDefault();
 
-            Swal.showLoading()                
-                axios
-                    .get('{{ route('receipt.referral.request_sign', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}', {
+            Swal.showLoading()
+            axios
+                .get(
+                    '{{ route('receipt.referral.request_sign', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}', {
                         responseType: 'arraybuffer',
                         params: {
                             type: 'idr'
                         }
                     })
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Sign has been requested')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong while send email')
-                        swal.close()
-                    })
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Sign has been requested')
+                    setTimeout(location.reload.bind(location), 3000);
                 })
+                .catch(error => {
+                    notification('error', 'Something went wrong while send email')
+                    swal.close()
+                })
+        })
 
         $("#request-acc-other").on('click', function(e) {
             e.preventDefault();
 
-            Swal.showLoading()                
-                axios
-                    .get('{{  route('receipt.referral.request_sign', ['receipt' => $receiptRef->id, 'currency' => 'other']) }}', {
+            Swal.showLoading()
+            axios
+                .get(
+                    '{{ route('receipt.referral.request_sign', ['receipt' => $receiptRef->id, 'currency' => 'other']) }}', {
                         responseType: 'arraybuffer',
                         params: {
                             type: 'other'
                         }
                     })
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Sign has been requested')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong while send email')
-                        swal.close()
-                    })
-        })  
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Sign has been requested')
+                    setTimeout(location.reload.bind(location), 3000);
+                })
+                .catch(error => {
+                    notification('error', 'Something went wrong while send email')
+                    swal.close()
+                })
+        })
 
         function checkCurrency() {
             let cur = $('#currency').val()

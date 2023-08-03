@@ -1,23 +1,18 @@
 @extends('layout.main')
 
-@section('title', 'School Program - Bigdata Platform')
-
+@section('title', 'School Program ')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">School Program</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Form School Program</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('program/school')}}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> School Program
-        </a>
-    </div>
-
-
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h4>{{ $school->sch_name }}</h4>
                     @if(isset($schoolProgram))
-                        <h6>{{  $schoolProgram->program->program_name }}</h6>
+                        <h6 class="text-primary" >{{  $schoolProgram->program->program_name }}</h6>
                     @endif
                     @if (isset($schoolProgram))
                         <div class="mt-3 d-flex justify-content-center">

@@ -104,7 +104,7 @@
                                     {{ Auth::user()->last_name }}</p>
                                 <p class="fw-light text-muted mb-0">{{ Auth::user()->email }}</p>
                             </div>
-                            <a class="dropdown-item" href="{{ route('logout') }}">
+                            <a class="dropdown-item text-center" href="{{ route('logout') }}">
                                 <i class="bi bi-box-arrow-down-left text-primary me-2"></i>
                                 Sign Out
                             </a>
@@ -144,7 +144,7 @@
                                 {{ Auth::user()->last_name }}</p>
                             <p class="fw-light text-muted mb-0">{{ Auth::user()->email }}</p>
                         </div>
-                        <a class="dropdown-item" href="{{ route('logout') }}">
+                        <a class="dropdown-item text-center" href="{{ route('logout') }}">
                             <i class="bi bi-box-arrow-down-left text-primary me-2"></i>
                             Sign Out
                         </a>
@@ -230,6 +230,11 @@
                 <div class="content-wrapper">
                     <div class="row">
                         <div class="col-sm-12">
+                            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                                <ol class="breadcrumb bg-light border-0 rounded px-2 mb-1 justify-content-end">
+                                    @yield('breadcrumb')
+                                </ol>
+                            </nav>
                             @yield('content')
                         </div>
                     </div>

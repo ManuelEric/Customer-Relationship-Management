@@ -1,36 +1,34 @@
 @extends('layout.main')
 
 @section('title', 'Invoice Bigdata Platform')
-
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Invoice</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
+@endsection
 @section('content')
 
-@php
-    $invoiceSchHasRequested = null;
-    $invoiceSchAttachment = null;
-    $invoiceSchAttachmentSent = null;
-    $invoiceSchHasRequestedOther = null;
-    $invoiceSchAttachmentOther = null;
-    $invoiceSchAttachmentOtherSent = null;
-@endphp
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('invoice/school-program/status/needed') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Invoice
-        </a>
-    </div>
-
-
+    @php
+        $invoiceSchHasRequested = null;
+        $invoiceSchAttachment = null;
+        $invoiceSchAttachmentSent = null;
+        $invoiceSchHasRequestedOther = null;
+        $invoiceSchAttachmentOther = null;
+        $invoiceSchAttachmentOtherSent = null;
+    @endphp
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $school->sch_name }}</h4>
-                    <a
-                        href="{{ route('school.detail.show', ['school' => $school->sch_id, 'detail' => $schoolProgram->id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">
-                        <h6 class="d-flex flex-column">
-                            {{ $schoolProgram->program->program_name }}
-                        </h6>
+                    <a href="{{ route('school.detail.show', ['school' => $school->sch_id, 'detail' => $schoolProgram->id]) }}"
+                        class="text-primary text-decoration-none cursor-pointer" target="_blank">
+                        <div class="card p-2">
+                            <label class="text-muted mb-1">Program Name:</label>
+                            <h6 class="mb-1">
+                                {{ $schoolProgram->program->program_name }}
+                            </h6>
+                        </div>
                     </a>
                 </div>
             </div>
@@ -39,25 +37,25 @@
             @if (isset($invoiceSch) && !isset($invoiceSch->refund))
                 <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
                     {{-- @if (isset($invoiceSch) && !isset($invoiceSch->receipt)) --}}
-                        <div class="border p-1 text-center flex-fill">
-                            <div class="d-flex gap-1 justify-content-center">
-                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                    data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
-                                    <a href="{{ $status == 'edit' ? url('invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num) : url('invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num . '/edit') }}"
-                                        class="text-warning">
-                                        <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}"></i>
-                                    </a>
-                                </div>
-                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Cancel"
-                                    onclick="confirmDelete('{{ 'invoice/school-program/' . $schoolProgram->id . '/detail' }}', {{ $invoiceSch->invb2b_num }})">
-                                    <a href="#" class="text-danger">
-                                        <i class="bi bi-trash2"></i>
-                                    </a>
-                                </div>
+                    <div class="border p-1 text-center flex-fill">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
+                                <a href="{{ $status == 'edit' ? url('invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num) : url('invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num . '/edit') }}"
+                                    class="text-warning">
+                                    <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}"></i>
+                                </a>
                             </div>
-                            <hr class="my-1">
-                            <small>General</small>
+                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Cancel"
+                                onclick="confirmDelete('{{ 'invoice/school-program/' . $schoolProgram->id . '/detail' }}', {{ $invoiceSch->invb2b_num }})">
+                                <a href="#" class="text-danger">
+                                    <i class="bi bi-trash2"></i>
+                                </a>
+                            </div>
                         </div>
+                        <hr class="my-1">
+                        <small>General</small>
+                    </div>
                     {{-- @endif --}}
 
                     @if (!isset($invoiceSch->refund))
@@ -66,14 +64,26 @@
                             <div class="d-flex gap-1 justify-content-center">
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Preview Invoice">
-                                        <a href="{{ route('invoice-sch.preview_pdf', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}" class="text-info" target="blank">
-                                            <i class="bi bi-eye-fill"></i>
-                                        </a>
+                                    <a href="{{ route('invoice-sch.preview_pdf', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}"
+                                        class="text-info" target="blank">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
                                 </div>
                                 @php
-                                    $invoiceSchHasRequested = $invoiceSch->invoiceAttachment()->where('currency', 'idr')->first();
-                                    $invoiceSchAttachment = $invoiceSch->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
-                                    $invoiceSchAttachmentSent = $invoiceSch->invoiceAttachment()->where('currency', 'idr')->where('send_to_client', 'sent')->first();
+                                    $invoiceSchHasRequested = $invoiceSch
+                                        ->invoiceAttachment()
+                                        ->where('currency', 'idr')
+                                        ->first();
+                                    $invoiceSchAttachment = $invoiceSch
+                                        ->invoiceAttachment()
+                                        ->where('currency', 'idr')
+                                        ->where('sign_status', 'signed')
+                                        ->first();
+                                    $invoiceSchAttachmentSent = $invoiceSch
+                                        ->invoiceAttachment()
+                                        ->where('currency', 'idr')
+                                        ->where('send_to_client', 'sent')
+                                        ->first();
                                 @endphp
                                 @if (!$invoiceSchAttachment)
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
@@ -85,7 +95,8 @@
                                 @else
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Print Invoice">
-                                        <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}" target="blank" class="text-info">
+                                        <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'idr']) }}"
+                                            target="blank" class="text-info">
                                             <i class="bi bi-printer"></i>
                                         </a>
                                     </div>
@@ -103,19 +114,31 @@
                         </div>
 
                         {{-- Other  --}}
-                        @if($invoiceSch->currency != 'idr')
+                        @if ($invoiceSch->currency != 'idr')
                             <div class="border p-1 text-center flex-fill">
                                 <div class="d-flex gap-1 justify-content-center">
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Preview Invoice">
-                                            <a href="{{ route('invoice-sch.preview_pdf', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" class="text-info" target="blank">
-                                                <i class="bi bi-eye-fill"></i>
-                                            </a>
+                                        <a href="{{ route('invoice-sch.preview_pdf', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}"
+                                            class="text-info" target="blank">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
                                     </div>
                                     @php
-                                        $invoiceSchHasRequestedOther = $invoiceSch->invoiceAttachment()->where('currency', 'other')->first();
-                                        $invoiceSchAttachmentOther = $invoiceSch->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
-                                        $invoiceSchAttachmentOtherSent = $invoiceSch->invoiceAttachment()->where('currency', 'other')->where('send_to_client', 'sent')->first();
+                                        $invoiceSchHasRequestedOther = $invoiceSch
+                                            ->invoiceAttachment()
+                                            ->where('currency', 'other')
+                                            ->first();
+                                        $invoiceSchAttachmentOther = $invoiceSch
+                                            ->invoiceAttachment()
+                                            ->where('currency', 'other')
+                                            ->where('sign_status', 'signed')
+                                            ->first();
+                                        $invoiceSchAttachmentOtherSent = $invoiceSch
+                                            ->invoiceAttachment()
+                                            ->where('currency', 'other')
+                                            ->where('send_to_client', 'sent')
+                                            ->first();
                                     @endphp
                                     @if (!$invoiceSchAttachmentOther)
                                         <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
@@ -127,7 +150,8 @@
                                     @else
                                         <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                             data-bs-title="Print Invoice">
-                                            <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}" target="blank" class="text-info">
+                                            <a href="{{ route('invoice-sch.export', ['invoice' => $invoiceSch->invb2b_num, 'currency' => 'other']) }}"
+                                                target="blank" class="text-info">
                                                 <i class="bi bi-printer"></i>
                                             </a>
                                         </div>
@@ -158,40 +182,40 @@
                         <div class="text-center">
                             <h6>IDR</h6>
                             <section class="step-indicator">
-                                <div class="step step1 {{$invoiceSchHasRequested ? 'active' : ''}}">
+                                <div class="step step1 {{ $invoiceSchHasRequested ? 'active' : '' }}">
                                     <div class="step-icon">1</div>
                                     <p>Request Sign</p>
                                 </div>
-                                <div class="indicator-line {{$invoiceSchHasRequested ? 'active' : ''}}"></div>
-                                <div class="step step2 {{$invoiceSchAttachment ? 'active' : ''}}">
+                                <div class="indicator-line {{ $invoiceSchHasRequested ? 'active' : '' }}"></div>
+                                <div class="step step2 {{ $invoiceSchAttachment ? 'active' : '' }}">
                                     <div class="step-icon">2</div>
                                     <p>Signed</p>
                                 </div>
-                                <div class="indicator-line {{$invoiceSchAttachment ? 'active' : ''}}"></div>
-                                <div class="step step3 {{$invoiceSchAttachmentSent ? 'active' : ''}}">
+                                <div class="indicator-line {{ $invoiceSchAttachment ? 'active' : '' }}"></div>
+                                <div class="step step3 {{ $invoiceSchAttachmentSent ? 'active' : '' }}">
                                     <div class="step-icon">3</div>
                                     <p>Print or Send to Client</p>
                                 </div>
                             </section>
                         </div>
-    
+
                         {{-- Other  --}}
-                        @if($invoiceSch->currency != 'idr')
+                        @if ($invoiceSch->currency != 'idr')
                             <div class="text-center mt-5">
                                 <hr>
                                 <h6>Other Currency</h6>
                                 <section class="step-indicator">
-                                    <div class="step step1 {{$invoiceSchHasRequestedOther ? 'active' : ''}}">
+                                    <div class="step step1 {{ $invoiceSchHasRequestedOther ? 'active' : '' }}">
                                         <div class="step-icon">1</div>
                                         <p>Request Sign</p>
                                     </div>
-                                    <div class="indicator-line {{$invoiceSchHasRequestedOther ? 'active' : ''}}"></div>
-                                    <div class="step step2 {{$invoiceSchAttachmentOther ? 'active' : ''}}">
+                                    <div class="indicator-line {{ $invoiceSchHasRequestedOther ? 'active' : '' }}"></div>
+                                    <div class="step step2 {{ $invoiceSchAttachmentOther ? 'active' : '' }}">
                                         <div class="step-icon">2</div>
                                         <p>Signed</p>
                                     </div>
-                                    <div class="indicator-line {{$invoiceSchAttachmentOther ? 'active' : ''}}"></div>
-                                    <div class="step step3 {{$invoiceSchAttachmentOtherSent ? 'active' : ''}}">
+                                    <div class="indicator-line {{ $invoiceSchAttachmentOther ? 'active' : '' }}"></div>
+                                    <div class="step step3 {{ $invoiceSchAttachmentOtherSent ? 'active' : '' }}">
                                         <div class="step-icon">3</div>
                                         <p>Print or Send to Client</p>
                                     </div>
@@ -220,13 +244,13 @@
                     <div class="">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-person me-2"></i>
-                            {{ isset($invoiceSch) ?  'Invoice : '. $invoiceSch->invb2b_id : ''}}
+                            {{ isset($invoiceSch) ? 'Invoice : ' . $invoiceSch->invb2b_id : '' }}
                         </h6>
                     </div>
                     <div class="">
                         @if (isset($invoiceSch) && !isset($invoiceSch->receipt) && $invoiceSch->invb2b_pm == 'Full Payment' && $status != 'edit')
                             <button class="btn btn-sm btn-outline-primary py-1"
-                                onclick="checkReceipt('{{isset($invoiceSch->invb2b_totprice) ? $invoiceSch->invb2b_totprice : $invoiceSch->invb2b_totpriceidr}}', '{{$invoiceSch->currency != 'idr' ? 'other' : 'idr'}}', '{{isset($invoiceSch->invb2b_totpriceidr) ? $invoiceSch->invb2b_totpriceidr : null}}');setIdentifier('{{ $invoiceSch->invb2b_num }}')">
+                                onclick="checkReceipt('{{ isset($invoiceSch->invb2b_totprice) ? $invoiceSch->invb2b_totprice : $invoiceSch->invb2b_totpriceidr }}', '{{ $invoiceSch->currency != 'idr' ? 'other' : 'idr' }}', '{{ isset($invoiceSch->invb2b_totpriceidr) ? $invoiceSch->invb2b_totpriceidr : null }}');setIdentifier('{{ $invoiceSch->invb2b_num }}')">
                                 <i class="bi bi-plus"></i> Receipt
                             </button>
                         @endif
@@ -303,7 +327,7 @@
                                 <input type="number" name="curs_rate" id="current_rate"
                                     class="form-control form-control-sm rounded"
                                     value="{{ isset($invoiceSch) ? $invoiceSch->curs_rate : old('curs_rate') }}"
-                                     {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
+                                    {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                                 @error('curs_rate')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
@@ -349,13 +373,11 @@
                                         <label for="">Invoice Date<sup class="text-danger">*</sup></label>
                                         <input type="date" name="invb2b_date" id=""
                                             class='form-control form-control-sm rounded'
-                                            @if(isset($invoiceSch))
-                                                value="{{$invoiceSch->invb2b_date}}"
+                                            @if (isset($invoiceSch)) value="{{ $invoiceSch->invb2b_date }}"
                                             @elseif (!empty(old('invb2b_date')))
-                                                value="{{old('invb2b_date')}}"
+                                                value="{{ old('invb2b_date') }}"
                                             @else
-                                                value="{{date('Y-m-d')}}"
-                                            @endif
+                                                value="{{ date('Y-m-d') }}" @endif
                                             {{ empty($invoiceSch) || $status == 'edit' ? '' : 'disabled' }}>
                                         @error('invb2b_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -550,7 +572,6 @@
     </div>
 
     <script>
-       
         function setIdentifier(id) {
             $("#identifier").val(id);
         }
@@ -562,28 +583,28 @@
                 var current_rate = $("#current_rate").val()
 
                 checkCurrencyDetail()
-                
 
-                    showLoading()
-                    var base_currency = $(this).val();
-                    var to_currency = 'IDR';
-    
-                    var link = "{{ url('/') }}/api/current/rate/"+base_currency+"/"+to_currency
-    
-                    axios.get(link)
-                        .then(function (response) {
-    
-                            var rate = response.data.rate;
-                            $("#current_rate").val(rate)
-                            swal.close()
-    
-                        }).catch(function (error) {
-    
-                            swal.close()
-                            notification('error', 'Something went wrong. Please try again');
-    
-                        })
-                
+
+                showLoading()
+                var base_currency = $(this).val();
+                var to_currency = 'IDR';
+
+                var link = "{{ url('/') }}/api/current/rate/" + base_currency + "/" + to_currency
+
+                axios.get(link)
+                    .then(function(response) {
+
+                        var rate = response.data.rate;
+                        $("#current_rate").val(rate)
+                        swal.close()
+
+                    }).catch(function(error) {
+
+                        swal.close()
+                        notification('error', 'Something went wrong. Please try again');
+
+                    })
+
 
             })
             $('.modal-select').select2({
@@ -636,13 +657,13 @@
             }
         }
 
-        function checkFullAmount(){
+        function checkFullAmount() {
             let cur = $('#currency').val()
 
-            if(cur == 'other'){
+            if (cur == 'other') {
                 checkInvoiceOther()
-            }else{
-                checkInvoiceIDR() 
+            } else {
+                checkInvoiceIDR()
             }
         }
 
@@ -672,11 +693,11 @@
         function checkReceipt(amount, type, amount_idr) {
             let cur = $('#currency').val()
             let detail = $('#currency_detail').val()
-            
-            if(type == 'other'){
+
+            if (type == 'other') {
                 $('#receipt_amount_other').val(amount)
 
-                var val =  $('#receipt_amount_other').val()
+                var val = $('#receipt_amount_other').val()
                 var currency = detail
                 switch (currency) {
                     case 'usd':
@@ -696,7 +717,7 @@
                 $("#receipt_word_other").val(wordConverter(val) + currency)
                 $("#receipt_amount").val(amount_idr)
                 $("#receipt_word").val(wordConverter(amount_idr) + " Rupiah")
-            }else{
+            } else {
                 $('#receipt_amount').val(amount)
                 var val = $('#receipt_amount').val()
                 $("#receipt_word").val(wordConverter(val) + " Rupiah")
@@ -728,7 +749,7 @@
         <script>
             $(document).ready(function() {
                 $('#currency').val('other').trigger('change')
-                $('#currency_detail').val('{{$invoiceSch->currency}}').trigger('change')
+                $('#currency_detail').val('{{ $invoiceSch->currency }}').trigger('change')
             })
         </script>
     @else
@@ -816,7 +837,7 @@
 
     <script>
         function sendToClient(link) {
-            
+
             showLoading()
             axios
                 .get(link)
@@ -824,7 +845,7 @@
                     swal.close()
                     notification('success', 'Invoice has been send to client')
                     setTimeout(location.reload.bind(location), 3000);
-                    
+
                     $("#sendToClient--modal").modal('hide');
                 })
                 .catch(error => {
@@ -832,7 +853,7 @@
                     swal.close()
                 })
         }
-        
+
         @if (isset($invoiceSch))
             $("#request-acc").on('click', function(e) {
                 e.preventDefault();
@@ -855,7 +876,7 @@
                         notification('error', 'Something went wrong while send email')
                         swal.close()
                     })
-                })
+            })
 
             $("#request-acc-other").on('click', function(e) {
                 e.preventDefault();

@@ -1,17 +1,17 @@
 @extends('layout.main')
 
-@section('title', 'Invoice Bigdata Platform')
+@section('title', 'Invoice')
+
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Invoice</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
+@endsection
 
 @section('content')
 
     @php
         $disabled = isset($status) && $status == 'view' ? 'disabled' : null;
     @endphp
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('invoice/client-program?s=needed') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Invoice
-        </a>
-    </div>
 
     <div class="row">
         <div class="col-md-4">
@@ -20,18 +20,21 @@
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $clientProg->client->full_name }}</h4>
 
-                    <a
-                        href="{{ route('student.program.show', ['student' => $clientProg->client->id, 'program' => $clientProg->clientprog_id]) }}" class="text-primary text-decoration-none cursor-pointer" target="_blank">
-                        <h6 class="d-flex flex-column">
-                            {{$clientProg->program->program_name}}
+                    <a href="{{ route('student.program.show', ['student' => $clientProg->client->id, 'program' => $clientProg->clientprog_id]) }}"
+                        class="text-primary text-decoration-none cursor-pointer" target="_blank">
+                        <div class="card p-2 cursor-pointer">
+                            <label for="" class="text-muted m-0 mb-2">Program Name:</label>
+                            <h6 class="mb-1">
+                                {{ $clientProg->program->program_name }}
 
-                            {{-- @php
-                                $programName = explode('-', $clientProg->program_name);
-                            @endphp
-                            @for ($i = 0; $i < count($programName); $i++)
-                                {{ $programName[$i] }}  <br>
-                            @endfor --}}
-                        </h6>
+                                {{-- @php
+                                    $programName = explode('-', $clientProg->program_name);
+                                @endphp
+                                @for ($i = 0; $i < count($programName); $i++)
+                                    {{ $programName[$i] }}  <br>
+                                @endfor --}}
+                            </h6>
+                        </div>
                     </a>
                 </div>
             </div>
@@ -41,35 +44,38 @@
                 <div class="bg-white rounded p-2 mb-3 d-flex align-items-stretch gap-2 shadow-sm justify-content-center">
 
                     @if (isset($invoice) && !isset($invoice->receipt))
-                    <div class="border p-1 text-center flex-fill">
-                        <div class="d-flex gap-1 justify-content-center">
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
-                                data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
-                                <a href="{{ $status == 'edit' ? url('invoice/client-program/' . $clientProg->clientprog_id) : url('invoice/client-program/' . $clientProg->clientprog_id . '/edit') }}"
-                                    class="text-warning">
-                                    <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}"></i>
-                                </a>
+                        <div class="border p-1 text-center flex-fill">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="{{ $status == 'edit' ? 'Back' : 'Edit' }}">
+                                    <a href="{{ $status == 'edit' ? url('invoice/client-program/' . $clientProg->clientprog_id) : url('invoice/client-program/' . $clientProg->clientprog_id . '/edit') }}"
+                                        class="text-warning">
+                                        <i class="bi {{ $status == 'edit' ? 'bi-arrow-left' : 'bi-pencil' }}"></i>
+                                    </a>
+                                </div>
+                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    data-bs-title="Cancel"
+                                    onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
+                                    <a href="#" class="text-danger">
+                                        <i class="bi bi-trash2"></i>
+                                    </a>
+                                </div>
                             </div>
-                            <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip" data-bs-title="Cancel"
-                                onclick="confirmDelete('invoice/client-program', {{ $clientProg->clientprog_id }})">
-                                <a href="#" class="text-danger">
-                                    <i class="bi bi-trash2"></i>
-                                </a>
-                            </div>
+                            <hr class="my-1">
+                            <small>General</small>
                         </div>
-                        <hr class="my-1">
-                        <small>General</small>
-                    </div>
                     @endif
                     <div class="border p-1 text-center flex-fill">
                         <div class="d-flex gap-1 justify-content-center">
                             <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                 data-bs-title="Preview Invoice">
-                                <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}?key=dashboard" class="text-info" target="blank">
+                                <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}?key=dashboard"
+                                    class="text-info" target="blank">
                                     <i class="bi bi-eye-fill"></i>
                                 </a>
                             </div>
-                            @if (isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
+                            @if (isset($invoice) &&
+                                    !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Request Sign" id="request-acc">
                                     <a href="" class="text-info">
@@ -91,10 +97,11 @@
                                         <i class="bi bi-send"></i>
                                     </a>
                                 </div> --}}
-                                <div class="btn btn-sm py-1 border btn-light" id="openModalSendToClientIdr" data-curr="idr" data-bs-toggle="modal" data-bs-target="#sendToClientModal">
-                                        <a href="#" class="text-info">
-                                            <i class="bi bi-send"></i>
-                                        </a>
+                                <div class="btn btn-sm py-1 border btn-light" id="openModalSendToClientIdr" data-curr="idr"
+                                    data-bs-toggle="modal" data-bs-target="#sendToClientModal">
+                                    <a href="#" class="text-info">
+                                        <i class="bi bi-send"></i>
+                                    </a>
                                 </div>
                             @endif
                         </div>
@@ -107,11 +114,15 @@
                             <div class="d-flex gap-1 justify-content-center">
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Preview Invoice">
-                                    <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}?key=dashboard" class="text-info" target="blank">
+                                    <a href="{{ route('invoice.program.preview', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}?key=dashboard"
+                                        class="text-info" target="blank">
                                         <i class="bi bi-eye-fill"></i>
                                     </a>
                                 </div>
-                                @if (!isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
+                                @if (
+                                    !isset($invoice->refund) &&
+                                        isset($invoice) &&
+                                        !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Request Sign" id="request-acc-other">
                                         <a href="" class="text-info">
@@ -133,7 +144,8 @@
                                             <i class="bi bi-send"></i>
                                         </a>
                                     </div> --}}
-                                    <div class="btn btn-sm py-1 border btn-light" id="openModalSendToClientOther" data-curr="other" data-bs-toggle="modal" data-bs-target="#sendToClientModal">
+                                    <div class="btn btn-sm py-1 border btn-light" id="openModalSendToClientOther"
+                                        data-curr="other" data-bs-toggle="modal" data-bs-target="#sendToClientModal">
                                         <a href="#" class="text-info">
                                             <i class="bi bi-send"></i>
                                         </a>
@@ -158,9 +170,22 @@
                     <div class="card-body position-relative h-auto pb-5">
                         {{-- IDR  --}}
                         @php
-                            $invoiceHasBeenRequested = $invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first();
-                            $invoiceHasBeenSigned = $invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first();
-                            $invoiceHasSentToClient = $invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->where('send_to_client', 'sent')->first();
+                            $invoiceHasBeenRequested = $invoice
+                                ->invoiceAttachment()
+                                ->where('currency', 'idr')
+                                ->where('sign_status', 'not yet')
+                                ->first();
+                            $invoiceHasBeenSigned = $invoice
+                                ->invoiceAttachment()
+                                ->where('currency', 'idr')
+                                ->where('sign_status', 'signed')
+                                ->first();
+                            $invoiceHasSentToClient = $invoice
+                                ->invoiceAttachment()
+                                ->where('currency', 'idr')
+                                ->where('sign_status', 'signed')
+                                ->where('send_to_client', 'sent')
+                                ->first();
                         @endphp
                         <div class="text-center">
                             <h6>IDR</h6>
@@ -169,45 +194,54 @@
                                     'step-one',
                                     'step',
                                     'step1',
-                                    'active' => $invoiceHasBeenRequested || $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                    'active' =>
+                                        $invoiceHasBeenRequested ||
+                                        $invoiceHasBeenSigned ||
+                                        $invoiceHasSentToClient,
                                 ])>
                                     <div @class([
                                         'step-one',
                                         'step-icon',
-                                        'active' => $invoiceHasBeenRequested || $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                        'active' =>
+                                            $invoiceHasBeenRequested ||
+                                            $invoiceHasBeenSigned ||
+                                            $invoiceHasSentToClient,
                                     ])>1</div>
                                     <p>Request Sign</p>
                                 </div>
                                 <div @class([
                                     'step-one',
                                     'indicator-line',
-                                    'active' => $invoiceHasBeenRequested || $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                    'active' =>
+                                        $invoiceHasBeenRequested ||
+                                        $invoiceHasBeenSigned ||
+                                        $invoiceHasSentToClient,
                                 ])></div>
                                 <div @class([
                                     'step',
                                     'step2',
-                                    'active' => $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                    'active' => $invoiceHasBeenSigned || $invoiceHasSentToClient,
                                 ])>
                                     <div @class([
                                         'step-icon',
-                                        'active' => $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                        'active' => $invoiceHasBeenSigned || $invoiceHasSentToClient,
                                     ])>2</div>
                                     <p>Signed</p>
                                 </div>
                                 <div @class([
                                     'indicator-line',
-                                    'active' => $invoiceHasBeenSigned || $invoiceHasSentToClient
+                                    'active' => $invoiceHasBeenSigned || $invoiceHasSentToClient,
                                 ])></div>
                                 <div @class([
                                     'step-three',
                                     'step',
                                     'step3',
-                                    'active' => $invoiceHasSentToClient
+                                    'active' => $invoiceHasSentToClient,
                                 ])>
                                     <div @class([
                                         'step-three',
                                         'step-icon',
-                                        'active' => $invoiceHasSentToClient
+                                        'active' => $invoiceHasSentToClient,
                                     ])>3</div>
                                     <p>Print or Send to Client</p>
                                 </div>
@@ -216,63 +250,85 @@
 
                         {{-- Other  --}}
                         @if ($invoice->currency != 'idr')
-                        @php
-                            $invoiceHasBeenRequested_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first();
-                            $invoiceHasBeenSigned_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first();
-                            $invoiceHasSentToClient_other = $invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->where('send_to_client', 'sent')->first();
-                        @endphp
-                        <div class="text-center mt-5">
-                            <hr>
-                            <h6>Other Currency</h6>
-                            <section class="step-indicator">
-                                <div @class([
-                                    'step-one-other',
-                                    'step',
-                                    'step1',
-                                    'active' => $invoiceHasBeenRequested_other || $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
-                                ])>
+                            @php
+                                $invoiceHasBeenRequested_other = $invoice
+                                    ->invoiceAttachment()
+                                    ->where('currency', 'other')
+                                    ->where('sign_status', 'not yet')
+                                    ->first();
+                                $invoiceHasBeenSigned_other = $invoice
+                                    ->invoiceAttachment()
+                                    ->where('currency', 'other')
+                                    ->where('sign_status', 'signed')
+                                    ->first();
+                                $invoiceHasSentToClient_other = $invoice
+                                    ->invoiceAttachment()
+                                    ->where('currency', 'other')
+                                    ->where('sign_status', 'signed')
+                                    ->where('send_to_client', 'sent')
+                                    ->first();
+                            @endphp
+                            <div class="text-center mt-5">
+                                <hr>
+                                <h6>Other Currency</h6>
+                                <section class="step-indicator">
                                     <div @class([
                                         'step-one-other',
-                                        'step-icon',
-                                        'active' => $invoiceHasBeenRequested_other || $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
-                                    ])>1</div>
-                                    <p>Request Sign</p>
-                                </div>
-                                <div @class([
-                                    'step-one-other',
-                                    'indicator-line',
-                                    'active' => $invoiceHasBeenRequested_other || $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
-                                ])></div>
-                                <div @class([
-                                    'step',
-                                    'step2',
-                                    'active' => $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
-                                ])>
+                                        'step',
+                                        'step1',
+                                        'active' =>
+                                            $invoiceHasBeenRequested_other ||
+                                            $invoiceHasBeenSigned_other ||
+                                            $invoiceHasSentToClient_other,
+                                    ])>
+                                        <div @class([
+                                            'step-one-other',
+                                            'step-icon',
+                                            'active' =>
+                                                $invoiceHasBeenRequested_other ||
+                                                $invoiceHasBeenSigned_other ||
+                                                $invoiceHasSentToClient_other,
+                                        ])>1</div>
+                                        <p>Request Sign</p>
+                                    </div>
                                     <div @class([
-                                        'step-icon',
-                                        'active' => $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
-                                    ])>2</div>
-                                    <p>Signed</p>
-                                </div>
-                                <div  @class([
-                                    'indicator-line',
-                                    'active' => $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other
-                                ])></div>
-                                <div @class([
-                                    'step-three-other',
-                                    'step',
-                                    'step3',
-                                    'active' => $invoiceHasSentToClient_other
-                                ])>
+                                        'step-one-other',
+                                        'indicator-line',
+                                        'active' =>
+                                            $invoiceHasBeenRequested_other ||
+                                            $invoiceHasBeenSigned_other ||
+                                            $invoiceHasSentToClient_other,
+                                    ])></div>
+                                    <div @class([
+                                        'step',
+                                        'step2',
+                                        'active' => $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other,
+                                    ])>
+                                        <div @class([
+                                            'step-icon',
+                                            'active' => $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other,
+                                        ])>2</div>
+                                        <p>Signed</p>
+                                    </div>
+                                    <div @class([
+                                        'indicator-line',
+                                        'active' => $invoiceHasBeenSigned_other || $invoiceHasSentToClient_other,
+                                    ])></div>
                                     <div @class([
                                         'step-three-other',
-                                        'step-icon',
-                                        'active' => $invoiceHasSentToClient_other
-                                    ])>3</div>
-                                    <p>Print or Send to Client</p>
-                                </div>
-                            </section>
-                        </div>
+                                        'step',
+                                        'step3',
+                                        'active' => $invoiceHasSentToClient_other,
+                                    ])>
+                                        <div @class([
+                                            'step-three-other',
+                                            'step-icon',
+                                            'active' => $invoiceHasSentToClient_other,
+                                        ])>3</div>
+                                        <p>Print or Send to Client</p>
+                                    </div>
+                                </section>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -352,17 +408,11 @@
                                 <select class="select w-100" name="currency_detail" id="currency_detail"
                                     {{ $disabled !== null ? $disabled : 'onchange=checkCurrencyDetail()' }}>
                                     <option data-placeholder="true"></option>
-                                    <option value="usd"
-                                        @if (old('currency') !== null && in_array('usd', (array) old('currency_detail')))
-                                            {{ 'selected' }} @endif>
+                                    <option value="usd" @if (old('currency') !== null && in_array('usd', (array) old('currency_detail'))) {{ 'selected' }} @endif>
                                         USD</option>
-                                    <option value="sgd"
-                                        @if (old('currency') !== null && in_array('sgd', (array) old('currency_detail')))
-                                            {{ 'selected' }} @endif>
+                                    <option value="sgd" @if (old('currency') !== null && in_array('sgd', (array) old('currency_detail'))) {{ 'selected' }} @endif>
                                         SGD</option>
-                                    <option value="gbp"
-                                        @if (old('currency') !== null && in_array('gbp', (array) old('currency_detail')))
-                                            {{ 'selected' }} @endif>
+                                    <option value="gbp" @if (old('currency') !== null && in_array('gbp', (array) old('currency_detail'))) {{ 'selected' }} @endif>
                                         GBP</option>
                                 </select>
                             </div>
@@ -526,7 +576,8 @@
                         <input type="hidden" name="clientprog_id" value="{{ $clientProg->clientprog_id }}">
                         <input type="hidden" name="identifier" id="identifier">
                         <input type="hidden" name="paymethod" id="paymethod">
-                        <input type="hidden" name="rec_currency" value="{{ isset($invoice->currency) ? $invoice->currency : null }}">
+                        <input type="hidden" name="rec_currency"
+                            value="{{ isset($invoice->currency) ? $invoice->currency : null }}">
                         <div class="put"></div>
                         <div class="row g-2">
                             <div class="col-md-3 receipt-other d-none">
@@ -655,26 +706,29 @@
                 </div>
                 <div class="modal-body w-100 text-start">
                     {{-- <form action="" method="POST" id="reminderForm"> --}}
-                        @csrf
-                        {{-- @method('put') --}}
-                        <div class="form-group">
+                    @csrf
+                    {{-- @method('put') --}}
+                    <div class="form-group">
 
-                            <input type="hidden" name="clientprog_id" id="clientprog_id" value="{{$clientProg->clientprog_id}}" class="form-control w-100">
-                            <input type="hidden" name="parent_id" id="parent_id" value="{{$clientProg->client->parents[0]->id}}" class="form-control w-100">
-                            <label for="">Email Parent</label>
-                            <input type="mail" name="parent_mail" id="parent_mail" value="{{$clientProg->client->parents[0]->mail}}" class="form-control w-100">
-                        </div>
-                        {{-- <hr> --}}
-                        <div class="d-flex justify-content-between">
-                            <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                        <input type="hidden" name="clientprog_id" id="clientprog_id"
+                            value="{{ $clientProg->clientprog_id }}" class="form-control w-100">
+                        <input type="hidden" name="parent_id" id="parent_id"
+                            value="{{ $clientProg->client->parents[0]->id }}" class="form-control w-100">
+                        <label for="">Email Parent</label>
+                        <input type="mail" name="parent_mail" id="parent_mail"
+                            value="{{ $clientProg->client->parents[0]->mail }}" class="form-control w-100">
+                    </div>
+                    {{-- <hr> --}}
+                    <div class="d-flex justify-content-between">
+                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
                             data-bs-dismiss="modal">
-                                <i class="bi bi-x-square me-1"></i>
-                                Cancel</button>
-                             
-                            <button type="submit" id="ConfirmSendToClient" class="btn btn-primary btn-sm">
-                                <i class="bi bi-save2 me-1"></i>
-                                Send</button>
-                        </div>
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+
+                        <button type="submit" id="ConfirmSendToClient" class="btn btn-primary btn-sm">
+                            <i class="bi bi-save2 me-1"></i>
+                            Send</button>
+                    </div>
                     {{-- </form> --}}
                 </div>
             </div>
@@ -684,17 +738,30 @@
 
     <script>
         $(document).ready(function() {
-            @if ($errors->first('receipt_amount') || $errors->first('receipt_amount_idr') || $errors->first('receipt_date') || $errors->first('receipt_words') || $errors->first('receipt_words_idr') || $errors->first('receipt_method') || $errors->first('receipt_cheque'))
+            @if (
+                $errors->first('receipt_amount') ||
+                    $errors->first('receipt_amount_idr') ||
+                    $errors->first('receipt_date') ||
+                    $errors->first('receipt_words') ||
+                    $errors->first('receipt_words_idr') ||
+                    $errors->first('receipt_method') ||
+                    $errors->first('receipt_cheque'))
                 $("button[data-idn='{{ old('identifier') }}']").click()
             @endif
 
-            @if ($errors->has('total_payment') || $errors->has('total_paid') || $errors->has('percentage_refund') || $errors->has('refund_amount') || $errors->has('tax_percentage') || $errors->has('tax_amount') || $errors->has('total_refunded'))
+            @if (
+                $errors->has('total_payment') ||
+                    $errors->has('total_paid') ||
+                    $errors->has('percentage_refund') ||
+                    $errors->has('refund_amount') ||
+                    $errors->has('tax_percentage') ||
+                    $errors->has('tax_amount') ||
+                    $errors->has('total_refunded'))
                 $("#refund").modal('show')
             @endif
         })
     </script>
     <script>
-
         function setIdentifier(paymethod, id) {
             $("#identifier").val(id);
             $("#paymethod").val(paymethod);
@@ -718,7 +785,7 @@
             }
             $("#receipt_amount").val(idr_amount)
             $("#receipt_word").val(wordConverter(idr_amount) + " Rupiah")
-            
+
             if (other_amount > 0) {
                 $("#receipt_amount_other").val(other_amount)
                 $("#receipt_word_other").val(wordConverter(other_amount) + currency)
@@ -728,32 +795,33 @@
         $(document).ready(function() {
 
             @if (!$disabled)
-            $("#currency_detail").on('change', function() {
-                
-                var current_rate = $("#current_rate").val()
-                checkCurrencyDetail();
-                
-                showLoading()
-                var base_currency = $(this).val();
-                var to_currency = 'IDR';
+                $("#currency_detail").on('change', function() {
 
-                var link = "{{ url('/') }}/api/current/rate/" + base_currency + "/" + to_currency
+                    var current_rate = $("#current_rate").val()
+                    checkCurrencyDetail();
 
-                axios.get(link)
-                    .then(function (response) {
+                    showLoading()
+                    var base_currency = $(this).val();
+                    var to_currency = 'IDR';
 
-                        var rate = response.data.rate;
-                        $("#current_rate").val(rate)
-                        swal.close()
+                    var link = "{{ url('/') }}/api/current/rate/" + base_currency + "/" + to_currency
 
-                    }).catch(function (error) {
+                    axios.get(link)
+                        .then(function(response) {
 
-                        swal.close()
-                        notification('error', 'Something went wrong while trying to get the currency rate');
+                            var rate = response.data.rate;
+                            $("#current_rate").val(rate)
+                            swal.close()
 
-                    })
+                        }).catch(function(error) {
 
-            })
+                            swal.close()
+                            notification('error',
+                                'Something went wrong while trying to get the currency rate');
+
+                        })
+
+                })
             @endif
 
             $("#receipt_amount_other").on('keyup', function() {
@@ -792,35 +860,34 @@
             });
 
             @if (isset($invoice))
-                
+
                 // change the currency-icon 
                 var detail = "{{ $invoice->currency }}"
                 $('.currency-icon').html(currencySymbol(detail))
-            
+
                 @switch ($invoice->inv_category)
-                    @case("idr")
-                        $("#currency").val('idr').trigger('change')
+                    @case('idr')
+                    $("#currency").val('idr').trigger('change')
                     @break
 
-                    @case("session")
-                        @if ($invoice->currency == "idr")
-                            $("#currency").val('idr').trigger('change')
-                        @else
-                            $("#currency").val('other').trigger('change')
-                            $("#currency_detail").val('{{ $invoice->currency }}').trigger('change')
-                        @endif
-                        $("#session").val('yes').trigger('change')
+                    @case('session')
+                    @if ($invoice->currency == 'idr')
+                        $("#currency").val('idr').trigger('change')
+                    @else
+                        $("#currency").val('other').trigger('change')
+                        $("#currency_detail").val('{{ $invoice->currency }}').trigger('change')
+                    @endif
+                    $("#session").val('yes').trigger('change')
                     @break
 
                     @default
-                        $("#currency").val('other').trigger('change')
-                        $("#currency_detail").val('{{ $invoice->currency }}').trigger('change')
-
+                    $("#currency").val('other').trigger('change')
+                    $("#currency_detail").val('{{ $invoice->currency }}').trigger('change')
                 @endswitch
             @else
                 @switch (strtolower($clientProg->program->prog_payment))
                     @case('usd')
-                        console.log("usd")
+                    console.log("usd")
                     $("#currency_detail").val("usd").trigger('change')
                     @break
 
@@ -840,7 +907,7 @@
                 @endif
             @endif
 
-            
+
             // @if (isset($invoice) && $invoice->currency)
             //     $("#currency_detail").val('{{ $invoice->currency }}').trigger('change');
             //     let detail = $('#currency_detail').val()
@@ -876,7 +943,7 @@
 
 
             @if (old('is_session'))
-                @if (old('is_session') == "yes")
+                @if (old('is_session') == 'yes')
                     $("#session").val('yes').trigger('change')
                 @else
                     $("#session").val('no').trigger('change')
@@ -976,50 +1043,54 @@
             }
         }
 
-        $(document).on("click", "#openModalSendToClientIdr", function () {
+        $(document).on("click", "#openModalSendToClientIdr", function() {
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
-            $('#ConfirmSendToClient').attr("onclick", "confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', "+curr+", 'invoice')");
+            $('#ConfirmSendToClient').attr("onclick",
+                "confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', " +
+                curr + ", 'invoice')");
         });
 
-        $(document).on("click", "#openModalSendToClientOther", function () {
+        $(document).on("click", "#openModalSendToClientOther", function() {
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
-            $('#ConfirmSendToClient').attr("onclick", "confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', "+curr+", 'invoice')");
+            $('#ConfirmSendToClient').attr("onclick",
+                "confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', " +
+                curr + ", 'invoice')");
         });
 
-        function sendToClient(link)
-        {
+        function sendToClient(link) {
             $("#sendToClient--modal").modal('hide');
             $('#sendToClientModal').modal('hide');
             showLoading()
-            var linkUpdateMail = '{{ url("/") }}/invoice/client-program/'+$('#clientprog_id').val()+'/update/parent/mail';
+            var linkUpdateMail = '{{ url('/') }}/invoice/client-program/' + $('#clientprog_id').val() +
+                '/update/parent/mail';
             axios.post(linkUpdateMail, {
-                parent_id : $('#parent_id').val(),
-                parent_mail : $('#parent_mail').val(),
-            })
-            .then(function(response1) {
-                
-                axios
-                .get(link)
-                .then(response => {
-                    swal.close()
-                    notification('success', 'Invoice has been send to client')
-                    $('.step-three').addClass('active');
+                    parent_id: $('#parent_id').val(),
+                    parent_mail: $('#parent_mail').val(),
                 })
-                .catch(error => {
-                    notification('error',
-                    'Something went wrong when sending invoice to client. Please try again');
-                    swal.close()
+                .then(function(response1) {
+
+                    axios
+                        .get(link)
+                        .then(response => {
+                            swal.close()
+                            notification('success', 'Invoice has been send to client')
+                            $('.step-three').addClass('active');
+                        })
+                        .catch(error => {
+                            notification('error',
+                                'Something went wrong when sending invoice to client. Please try again');
+                            swal.close()
+                        })
                 })
-            })
                 .catch(function(error) {
-                swal.close();
-                notification('error', error)
-            })
+                    swal.close();
+                    notification('error', error)
+                })
 
 
-           
+
         }
 
         $(document).ready(function() {
@@ -1064,7 +1135,7 @@
                             }
                         })
                     .then(response => {
-                        
+
                         swal.close()
                         notification('success', 'Sign has been requested')
                         $(".step-one-other").addClass('active')
@@ -1187,38 +1258,37 @@
             if (currency == "other")
                 currency = $("#currency_detail").val();
             var payment_method = $("#payment_method").val();
-            if (payment_method == "installment")
-            {
+            if (payment_method == "installment") {
 
                 if (currency == "idr") {
-    
+
                     var tot_percent = 0;
                     $('.percentage').each(function() {
                         tot_percent += parseInt($(this).val())
                     })
-    
+
                     if (tot_percent < 100) {
                         notification('error',
                             'Installment amount is not right. Please double check before create invoice')
                         return;
                     }
-    
+
                 } else if (currency == "other") {
-    
+
                     var tot_percent = 0;
                     $('.percentage-other').each(function() {
                         tot_percent += parseInt($(this).val())
                     })
-    
+
                     if (tot_percent < 100) {
                         notification('error',
                             'Installment amount is not right. Please double check before create invoice')
                         return;
                     }
-    
+
                 }
-    
-    
+
+
             }
             $("#invoice-form").submit()
 

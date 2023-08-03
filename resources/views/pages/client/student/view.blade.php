@@ -1,19 +1,18 @@
 @extends('layout.main')
 <style>
-    .lcs_wrap { scale: 0.7; margin-top: -4px; margin-left: -10px; }
+    .lcs_wrap {
+        scale: 0.7;
+        margin-top: -4px;
+        margin-left: -10px;
+    }
 </style>
 
-@section('title', 'Student - Bigdata Platform')
-
+@section('title', 'Student')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Students</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('client/student?st=potential') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Student
-        </a>
-    </div>
-
-
     <div class="row">
         <div class="col-md-7">
             <div class="card rounded mb-2">
@@ -22,12 +21,15 @@
                         <div class="col">
                             <h3 class="m-0 mb-2 p-0">{{ $student->fullname }}</h3>
                             <small class="text-muted">
-                                <i class="bi bi-calendar-day me-1"></i> Join Date: {{ date('d M Y', strtotime($student->created_at)) }} |
-                                <i class="bi bi-calendar-date mx-1"></i> Last Update: {{ date('d M Y', strtotime($student->updated_at)) }}
+                                <i class="bi bi-calendar-day me-1"></i> Join Date:
+                                {{ date('d M Y', strtotime($student->created_at)) }} |
+                                <i class="bi bi-calendar-date mx-1"></i> Last Update:
+                                {{ date('d M Y', strtotime($student->updated_at)) }}
                             </small>
                         </div>
                         <div class="col-2 text-end">
-                            <a href="{{ url('client/student/'.$student->id.'/edit') }}" class="btn btn-warning btn-sm rounded p-2"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ url('client/student/' . $student->id . '/edit') }}"
+                                class="btn btn-warning btn-sm rounded p-2"><i class="bi bi-pencil"></i></a>
                         </div>
                     </div>
                     <hr>
@@ -61,23 +63,23 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            {!! $student->address !!} 
-                            {!! $student->postal_code ? $student->postal_code."<br>" : null !!} 
+                            {!! $student->address !!}
+                            {!! $student->postal_code ? $student->postal_code . '<br>' : null !!}
                             {{ $student->city }} {{ $student->state }}
                         </div>
                     </div>
-                    @if ($student->school != NULL)
-                    <div class="row mb-2 g-1">
-                        <div class="col d-flex justify-content-between">
-                            <label>
-                                School Name
-                            </label>
-                            <label>:</label>
+                    @if ($student->school != null)
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    School Name
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-9 col-8">
+                                {{ $student->school->sch_name }}
+                            </div>
                         </div>
-                        <div class="col-md-9 col-8">
-                            {{ $student->school->sch_name }}
-                        </div>
-                    </div>
                     @endif
                     <div class="row mb-2 g-1">
                         <div class="col d-flex justify-content-between">
@@ -123,16 +125,14 @@
                             @switch($student->is_funding)
                                 @case('1')
                                     Yes
-                                    @break
-                            
+                                @break
+
                                 @case('0')
                                     No
-                                    @break
-                                
-                                @case(null)
-                                
                                 @break
-                                                                
+
+                                @case(null)
+                                @break
                             @endswitch
                         </div>
                     </div>
@@ -147,16 +147,14 @@
                             @switch($student->register_as)
                                 @case('student')
                                     Student
-                                    @break
-                            
+                                @break
+
                                 @case('parent')
                                     Parent
-                                    @break
-                                
-                                @case(null)
-                                
                                 @break
-                                                                
+
+                                @case(null)
+                                @break
                             @endswitch
                         </div>
                     </div>
@@ -168,7 +166,8 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            <input type="checkbox" name="st_status" id="status" value="" @checked($student->st_statusact == 1)>
+                            <input type="checkbox" name="st_status" id="status" value=""
+                                @checked($student->st_statusact == 1)>
                             {{-- <select name="st_status" id="status">
                                 <option value="1" {{ $student->st_statusact == 1 ? "selected" : null }}>Active</option>
                                 <option value="0" {{ $student->st_statusact == 0 ? "selected" : null }}>Inactive</option>
@@ -186,12 +185,12 @@
                 </div>
                 <div class="card-body">
                     @forelse ($student->interestPrograms as $program)
-                        <a href="{{ url('client/student/'.$student->id.'/program/create?p='.$program->prog_id) }}"
-                        class="btn btn-sm btn-outline-info
+                        <a href="{{ url('client/student/' . $student->id . '/program/create?p=' . $program->prog_id) }}"
+                            class="btn btn-sm btn-outline-info
                         me-1 rounded-4 mb-2">
-                        {{ $program->program_name }}</a>
-                        @empty
-                            There's no interest program yet
+                            {{ $program->program_name }}</a>
+                    @empty
+                        There's no interest program yet
                     @endforelse
                 </div>
             </div>
@@ -208,9 +207,8 @@
                 <div class="card-body">
                     @forelse ($student->destinationCountries as $country)
                         <div class="badge badge-success me-1 mb-2">{{ $country->name }}</div>
-                        @empty
-                            There's no interest countries yet
-
+                    @empty
+                        There's no interest countries yet
                     @endforelse
                 </div>
             </div>
@@ -223,8 +221,8 @@
                 <div class="card-body">
                     @forelse ($student->interestUniversities as $university)
                         <div class="badge badge-danger me-1 mb-2">{{ $university->univ_name }}</div>
-                        @empty
-                            There's no dream university
+                    @empty
+                        There's no dream university
                     @endforelse
                 </div>
             </div>
@@ -237,8 +235,8 @@
                 <div class="card-body">
                     @forelse ($student->interestMajor as $major)
                         <div class="badge badge-primary me-1 mb-2">{{ $major->name }}</div>
-                        @empty
-                            There's no interest major yet
+                    @empty
+                        There's no interest major yet
                     @endforelse
                 </div>
             </div>
@@ -284,8 +282,8 @@
                             </div>
                         </div>
 
-                        @empty
-                            There's no parent information yet
+                    @empty
+                        There's no parent information yet
                     @endforelse
                 </div>
             </div>
@@ -297,7 +295,8 @@
                         <h5 class="m-0 p-0">Programs</h5>
                     </div>
                     <div class="">
-                        <a href="{{ route('student.program.create', ['student' => $student->id]) }}" class="btn btn-sm btn-primary">Add Program</a>
+                        <a href="{{ route('student.program.create', ['student' => $student->id]) }}"
+                            class="btn btn-sm btn-primary">Add Program</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -353,25 +352,25 @@
 
     <script src="{{ asset('js/lc_switch.min.js') }}"></script>
     <script>
-    lc_switch('input[type=checkbox]', {
-    
-        // ON text
-        on_txt: 'ON',
-    
-        // OFF text
-        off_txt: 'OFF',
-    
-        // Custom ON color. Supports gradients
-        on_color: '#0083B8',
-    
-        // enable compact mode
-        compact_mode: false
-    
-    });
+        lc_switch('input[type=checkbox]', {
+
+            // ON text
+            on_txt: 'ON',
+
+            // OFF text
+            off_txt: 'OFF',
+
+            // Custom ON color. Supports gradients
+            on_color: '#0083B8',
+
+            // enable compact mode
+            compact_mode: false
+
+        });
     </script>
     {{-- Need Changing --}}
     <script>
-        var url = "{{ url('client/student').'/'.$student->id.'/program' }}"
+        var url = "{{ url('client/student') . '/' . $student->id . '/program' }}"
         $(document).ready(function() {
             var table = $('#programTable').DataTable({
                 dom: 'Bfrtip',
@@ -392,7 +391,7 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '{{ url('api/client/'.$student->id.'/programs') }}',
+                ajax: '{{ url('api/client/' . $student->id . '/programs') }}',
                 columns: [{
                         data: 'prog_id',
                         className: 'text-center',
@@ -405,40 +404,49 @@
                     },
                     {
                         data: 'conversion_lead',
+                        className: 'text-center',
                     },
                     {
                         data: 'first_discuss_date',
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return data ? moment(data).format("MMMM Do YYYY") : '-'
+                        }
                     },
                     {
                         data: 'pic_name',
+                        className: 'text-center',
                     },
                     {
                         data: 'program_status',
+                        className: 'text-center',
                     },
                     {
                         data: 'prog_running_status',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
-                            switch(parseInt(data)) {
+                            switch (parseInt(data)) {
                                 case 0:
-                                    return "not yet"
+                                    return "Not yet"
                                     break;
 
                                 case 1:
-                                    return "ongoing"
+                                    return "Ongoing"
                                     break;
 
                                 case 2:
-                                    return "done"
+                                    return "Done"
                                     break;
                             }
                         }
-                        
+
                     },
                     {
                         data: 'clientprog_id',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return '<a href="' + url + '/' + data +'" class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>'
+                            return '<a href="' + url + '/' + data +
+                                '" class="btn btn-sm btn-warning"><i class="bi bi-info-circle me-2"></i>More</a>'
                         }
                     }
                 ]
@@ -473,7 +481,7 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '{{ url('api/client/'.$student->id.'/events') }}',
+                ajax: '{{ url('api/client/' . $student->id . '/events') }}',
                 columns: [{
                         data: 'clientevent_id',
                         className: 'text-center',
@@ -488,12 +496,14 @@
                     {
                         data: 'event_startdate',
                         name: 'tbl_events.event_startdate',
+                        className: 'text-center',
                         render: function(data, type, row) {
                             return moment(data).format('DD MMMM YYYY HH:mm:ss')
                         }
                     },
                     {
                         data: 'joined_date',
+                        className: 'text-center',
                         render: function(data, type, row) {
                             return moment(data).format('DD MMMM YYYY')
                         }
@@ -507,8 +517,8 @@
 
     <script type="text/javascript">
         // $("#status").on('change', async function() {
-            $('.lcs_switch').on('click', async function() {
-            
+        $('.lcs_switch').on('click', async function() {
+
             // Swal.fire({
             //     width: 100,
             //     backdrop: '#4e4e4e7d',
@@ -520,14 +530,14 @@
             var class_names = $(this).attr('class');
             var getLcsStatus = class_names.split(' ');
             var current_value = getLcsStatus[2];
-            
+
             var val = current_value == "lcs_off" ? 0 : 1;
 
             var link = "{{ url('/') }}/client/student/{{ $student->id }}/status/" + val
 
             await axios.get(link)
                 .then(function(response) {
-                    
+
                     Swal.close()
                     notification("success", response.data.message)
                 })

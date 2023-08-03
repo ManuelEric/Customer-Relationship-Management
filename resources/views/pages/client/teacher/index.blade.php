@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Teacher - Bigdata Platform')
+@section('title', 'Teacher ')
 
 @section('style')
     <style>
@@ -148,17 +148,22 @@
                     },
                     {
                         data: 'mail',
+                        defaultContent: '-'
                     },
                     {
                         data: 'phone',
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         data: 'school_name',
                         name: 'school_name',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'st_statusact',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             return data == 1 ?
                                 "<div class='badge badge-outline-success'>Active</div>" :

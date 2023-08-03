@@ -25,7 +25,7 @@
                             <tbody>
                                 @forelse ($events as $event)
                                     <tr>
-                                        <td>{{ $event->event_title }}</td>
+                                        <td wrap>{{ $event->event_title }}</td>
                                         <td class="text-end">
                                             {{ $event->participants != 0 && $event->event_target != 0 ? ($event->participants / $event->event_target) * 100 : 0 }}%
                                         </td>
@@ -52,10 +52,10 @@
                     <div class="card-header d-flex justify-content-between">
                         <div class="" id="event_title">{{ count($events) > 0 ? $events[0]->event_title : null }}
                         </div>
-                        <div class="">Conversion Lead</div>
+                        <div class="text-end">Conversion Lead</div>
                     </div>
                     <div class="card-body client-event-lead">
-                        <canvas id="client_event_lead"></canvas>
+                        <canvas id="client_event_lead" class="w-100"></canvas>
                     </div>
                 </div>
             </div>

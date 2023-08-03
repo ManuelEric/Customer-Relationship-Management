@@ -1,13 +1,17 @@
 @extends('layout.main')
 
-@section('title', 'Receipt - Referral - Bigdata Platform')
+@section('title', 'Receipt of Referral')
 
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Receipt
-        </a>
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-md-6">
+                <h5 class="text-white m-0">
+                    <i class="bi bi-tag me-1"></i>
+                    Receipt of Referral
+                </h5>
+            </div>
+        </div>
     </div>
 
 
@@ -90,7 +94,7 @@
                     },
                     {
                         data: 'corp_name',
-                        name: 'tbl_corp.corp_name' 
+                        name: 'tbl_corp.corp_name'
 
                     },
                     {
@@ -100,55 +104,61 @@
                     {
                         data: 'receipt_id',
                         name: 'tbl_receipt.receipt_id',
+                        className: 'text-center',
                     },
                     {
                         data: 'invb2b_id',
+                        className: 'text-center',
                     },
                     {
                         data: 'receipt_method',
                         name: 'tbl_receipt.receipt_method',
+                        className: 'text-center',
                     },
                     {
                         data: 'created_at',
+                        className: 'text-center',
                         render: function(data, type, row) {
                             let receipt_date = row.created_at ? moment(row
-                                .created_at).format("MMMM Do YYYY HH:mm:ss") : '-'
+                                .created_at).format("MMMM Do YYYY") : '-'
                             return receipt_date
                         }
                     },
                     {
                         data: 'total_price_other',
                         name: 'tbl_receipt.receipt_amount',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             var currency;
                             var totprice = new Intl.NumberFormat().format(row.total_price_other);
-                                switch (row.currency) {
-                                    case 'usd':
-                                        currency = '$. ';
+                            switch (row.currency) {
+                                case 'usd':
+                                    currency = '$. ';
                                     break;
-                                    case 'sgd':
-                                        currency = 'S$. ';
+                                case 'sgd':
+                                    currency = 'S$. ';
                                     break;
-                                    case 'gbp':
-                                        currency = '£. ';
+                                case 'gbp':
+                                    currency = '£. ';
                                     break;
-                                    default:
-                                        currency = '';
-                                        totprice = '-'
-                                        break;
-                                    }
-                                    return currency + totprice;   
+                                default:
+                                    currency = '';
+                                    totprice = '-'
+                                    break;
+                            }
+                            return currency + totprice;
                         }
-                        
+
                     },
-                     {
+                    {
                         data: 'total_price_idr',
                         name: 'tbl_receipt.receipt_amount_idr',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             var totprice = new Intl.NumberFormat().format(row.total_price_idr);
-                                    return 'Rp. ' + totprice;   
+                            return 'Rp. ' + totprice;
                         }
-                        
+
                     },
                     {
                         data: '',
@@ -158,13 +168,13 @@
                 ]
             });
 
-            @php            
+            @php
                 $privilage = $menus['Receipt']->where('submenu_name', 'Referral Program')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });

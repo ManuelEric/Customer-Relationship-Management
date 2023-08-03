@@ -63,18 +63,29 @@
                             },
                             {
                                 data: 'invb2b_id',
+                                className:'text-center',
                             },
                             {
                                 data: 'invb2b_pm',
+                                className:'text-center',
+                                render: function(data, type, row) {
+                                    return data=="Full Payment" ? '<i class="bi bi-wallet me-2 text-info"></i>' + data : '<i class="bi bi-card-checklist me-2 text-warning"></i>' + data
+                                }
                             },
                             {
                                 data: 'created_at',
+                                className:'text-center',
+                                render: function(data, type, row) {
+                                    return data ? moment(data).format("MMMM Do YYYY") : '-'
+                                },
                             },
                             {
                                 data: 'invb2b_duedate',
+                                className:'text-center',
                             },
                             {
                                 data: 'invb2b_totprice',
+                                className:'text-center',
                                 render: function(data, type, row, meta) {
                                     var currency;
                                     var totprice = new Intl.NumberFormat().format(row.invb2b_totprice);
@@ -98,6 +109,7 @@
                             },
                             {
                                 data: 'invb2b_totpriceidr',
+                                className:'text-center',
                                 render: function(data, type, row, meta) {
                                     var currency = 'Rp. ';
                                     var totprice = new Intl.NumberFormat().format(row.invb2b_totpriceidr);

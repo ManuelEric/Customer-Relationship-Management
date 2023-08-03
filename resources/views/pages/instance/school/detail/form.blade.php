@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'School - Bigdata Platform')
+@section('title', 'School ')
 
 @section('content')
     <div class="d-flex align-items-center justify-content-between mb-3">

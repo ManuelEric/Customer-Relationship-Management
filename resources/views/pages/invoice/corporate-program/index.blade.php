@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Invoice - Partner Program - Bigdata Platform')
+@section('title', 'Invoice of Partner Program')
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
@@ -8,11 +8,16 @@
 @endsection
 
 @section('content')
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Invoice
-        </a>
+<div class="card bg-secondary mb-1 p-2">
+    <div class="row align-items-center justify-content-between">
+        <div class="col-md-6">
+            <h5 class="text-white m-0">
+                <i class="bi bi-tag me-1"></i>
+                Invoice of Partner Program
+            </h5>
+        </div>
     </div>
+</div>
 
     <div class="card rounded">
         <div class="card-body">
