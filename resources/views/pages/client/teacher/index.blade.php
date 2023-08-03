@@ -1,44 +1,60 @@
 @extends('layout.main')
 
-@section('title', 'Teacher - Bigdata Platform')
+@section('title', 'Teacher ')
+
+@section('style')
+    <style>
+        .btn-download span,
+        .btn-import span {
+            display: none;
+        }
+
+        .btn-download:hover>span,
+        .btn-import:hover>span {
+            display: inline-block;
+        }
+    </style>
+@endsection
 
 @section('content')
-<style>
-    .btn-download span, .btn-import span {
-        display: none;
-    }
-    .btn-download:hover > span, .btn-import:hover > span {
-        display: inline-block;
-    }
-</style>
-
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-    <div class="d-flex align-items-center justify-content-between mb-3 mt-1">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Teacher
-        </a>
-        <div>
-            <a href="{{ url('api/download/excel-template/teacher') }}" class="btn btn-sm btn-outline-info btn-download"><i class="bi bi-download"></i> <span class="ms-1">Download Template</span></a>
-            <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal" data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span class="ms-1">Import</span></a>
-            <a href="{{ url('client/teacher-counselor/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i> Add
-                Teacher</a>
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5 class="text-white m-0">
+                    <i class="bi bi-tag me-1"></i>
+                    Teachers
+                </h5>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url('api/download/excel-template/teacher') }}"
+                        class="btn btn-sm btn-light text-info btn-download"><i class="bi bi-download"></i> <span
+                            class="ms-1">Download Template</span></a>
+                    <a href="javascript:void(0)" class="btn btn-sm btn-light text-info btn-import" data-bs-toggle="modal"
+                        data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
+                            class="ms-1">Import</span></a>
+                    <a href="{{ url('client/teacher-counselor/create') }}" class="btn btn-sm btn-info"><i
+                            class="bi bi-plus-square me-1"></i> Add
+                        Teacher</a>
+                </div>
+            </div>
         </div>
     </div>
 
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr class="text-center" role="row">
                         <th class="bg-info text-white">No</th>
                         <th class="bg-info text-white">Teacher Name</th>
@@ -60,7 +76,7 @@
 
     <div class="modal fade" id="importData" tabindex="-1" aria-labelledby="importDataLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <form action="{{route('teacher-counselor.import')}}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('teacher-counselor.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
@@ -75,7 +91,8 @@
                             </div>
                             <small class="text-warning mt-3">
                                 * Please clean the file first, before importing the csv file. <br>
-                                You can download the csv template <a href="{{ url('api/download/excel-template/parent') }}">here</a>
+                                You can download the csv template <a
+                                    href="{{ url('api/download/excel-template/parent') }}">here</a>
                             </small>
                         </div>
                     </div>
@@ -131,19 +148,26 @@
                     },
                     {
                         data: 'mail',
+                        defaultContent: '-'
                     },
                     {
                         data: 'phone',
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         data: 'school_name',
                         name: 'school_name',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'st_statusact',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return data == 1 ? "<div class='badge badge-outline-success'>Active</div>" : "<div class='badge badge-outline-danger'>NonActive</div>";
+                            return data == 1 ?
+                                "<div class='badge badge-outline-success'>Active</div>" :
+                                "<div class='badge badge-outline-danger'>NonActive</div>";
                         }
                     },
                     {
@@ -154,13 +178,13 @@
                 ],
             });
 
-            @php            
+            @php
                 $privilage = $menus['Client']->where('submenu_name', 'Teacher/Counselor')->first();
             @endphp
 
-            @if($privilage['copy'] == 0)
-                document.oncontextmenu = new Function("return false"); 
-                
+            @if ($privilage['copy'] == 0)
+                document.oncontextmenu = new Function("return false");
+
                 $('body').bind('cut copy paste', function(event) {
                     event.preventDefault();
                 });

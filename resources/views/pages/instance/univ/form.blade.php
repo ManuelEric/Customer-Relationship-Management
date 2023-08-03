@@ -1,19 +1,21 @@
 @extends('layout.main')
 
-@section('title', 'University - Bigdata Platform')
-
+@section('title', 'University ')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Universities</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Form University</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('instance/university') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> University
-        </a>
-    </div>
-
     @php
         $error_pic = false;
     @endphp
-    @if ($errors->has('name') || $errors->has('email') || $errors->has('phone') || $errors->has('title') || $errors->has('other_title') || $errors->has('is_pic'))
+    @if (
+        $errors->has('name') ||
+            $errors->has('email') ||
+            $errors->has('phone') ||
+            $errors->has('title') ||
+            $errors->has('other_title') ||
+            $errors->has('is_pic'))
         @php
             $error_pic = true;
         @endphp
@@ -65,14 +67,15 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="">
                                             <strong>{{ $event->event_title }}</strong> <br>
-                                            {{ date('M d, Y', strtotime($event->event_startdate)) }} 
+                                            {{ date('M d, Y', strtotime($event->event_startdate)) }}
                                             ({{ date('H:i', strtotime($event->event_startdate)) }})
-                                            - 
-                                            {{ date('M d, Y', strtotime($event->event_enddate)) }} 
+                                            -
+                                            {{ date('M d, Y', strtotime($event->event_enddate)) }}
                                             ({{ date('H:i', strtotime($event->event_enddate)) }})
                                         </div>
                                         <div class="">
-                                            <a href="{{ route('event.show', ['event' => $event->event_id]) }}" class="btn btn-sm btn-outline-success">
+                                            <a href="{{ route('event.show', ['event' => $event->event_id]) }}"
+                                                class="btn btn-sm btn-outline-success">
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                         </div>
@@ -125,7 +128,8 @@
                                         Email
                                     </label>
                                     <input type="text" name="univ_email" class="form-control form-control-sm rounded"
-                                        value="{{ isset($university) ? $university->univ_email : old('univ_email') }}" {{ empty($university) || isset($edit) ? '' : 'disabled' }}>
+                                        value="{{ isset($university) ? $university->univ_email : old('univ_email') }}"
+                                        {{ empty($university) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -134,7 +138,8 @@
                                         Phone Number
                                     </label>
                                     <input type="text" name="univ_phone" class="form-control form-control-sm rounded"
-                                        value="{{ isset($university) ? $university->univ_phone : old('univ_phone') }}" {{ empty($university) || isset($edit) ? '' : 'disabled' }}>
+                                        value="{{ isset($university) ? $university->univ_phone : old('univ_phone') }}"
+                                        {{ empty($university) || isset($edit) ? '' : 'disabled' }}>
                                 </div>
                             </div>
                             <div class="col-md-7">
@@ -167,12 +172,10 @@
                                         <option data-placeholder="true"></option>
                                         @forelse ($tags as $tag)
                                             <option value="{{ $tag->id }}"
-                                                @if (isset($university))
-                                                    {{ $university->tag == $tag->id ? 'selected' : null }}
+                                                @if (isset($university)) {{ $university->tag == $tag->id ? 'selected' : null }}
                                                 @elseif (old('tag'))
-                                                    {{ old('tag') == $tag->id ? 'selected' : null }}
-                                                @endif
-                                                >{{ $tag->name }}</option>
+                                                    {{ old('tag') == $tag->id ? 'selected' : null }} @endif>
+                                                {{ $tag->name }}</option>
                                         @empty
                                             <option>No Tag</option>
                                         @endforelse
@@ -356,11 +359,14 @@
                                             <label for="">Is he/she is a PIC?</label>
                                             <input type="hidden" value="false" id="is_pic" name="is_pic">
                                             <div class="form-check ms-4">
-                                                <input class="form-check-input" type="radio" name="pic_status" value="1" @checked(old('pic_status') == 1)>
+                                                <input class="form-check-input" type="radio" name="pic_status"
+                                                    value="1" @checked(old('pic_status') == 1)>
                                                 <label class="form-check-label">Yes</label>
                                             </div>
                                             <div class="form-check ms-4">
-                                                <input class="form-check-input" type="radio" name="pic_status" value="0" @checked(old('pic_status') == 0) @checked(old('pic_status') !== null)>
+                                                <input class="form-check-input" type="radio" name="pic_status"
+                                                    value="0" @checked(old('pic_status') == 0)
+                                                    @checked(old('pic_status') !== null)>
                                                 <label class="form-check-label">No</label>
                                             </div>
                                             @error('is_pic')
@@ -430,19 +436,18 @@
                 $("#is_pic").val(val);
             })
         });
-
     </script>
     <script>
         @if (isset($university))
-        function resetForm() {
-            $("#picAction").trigger('reset');
-            $("#selectPosition").val('').trigger('change')
-            $('.put').html('');
-            
-            $('#picAction').attr('action',
-                "{{ isset($university) ? url('instance/university/' . $university->univ_id . '/detail') : url('instance/university/') }}"
-            )
-        }
+            function resetForm() {
+                $("#picAction").trigger('reset');
+                $("#selectPosition").val('').trigger('change')
+                $('.put').html('');
+
+                $('#picAction').attr('action',
+                    "{{ isset($university) ? url('instance/university/' . $university->univ_id . '/detail') : url('instance/university/') }}"
+                )
+            }
         @endif
 
         function getPIC(link) {

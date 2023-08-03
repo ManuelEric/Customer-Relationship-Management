@@ -1,7 +1,10 @@
 @extends('layout.main')
 
-@section('title', 'Corporate - Bigdata Platform')
-
+@section('title', 'Corporate ')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Partners</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Form Partner</li>
+@endsection
 @section('content')
     @php
         $type = ['Corporate', 'Individual Professional', 'Tutoring Center', 'Course Center', 'Agent', 'Community', 'NGO'];
@@ -10,11 +13,6 @@
         $partnership_type = ['Market Sharing', 'Program Collaborator', 'Internship', 'External Mentor'];
         sort($partnership_type);
     @endphp
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('instance/corporate/') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Corporate
-        </a>
-    </div>
 
     <div class="row">
         <div class="col-md-4 mb-2">
@@ -159,7 +157,8 @@
 
                             <div class="col-md-4 mb-2">
                                 <label for="">Country Type <sup class="text-danger">*</sup></label>
-                                <select name="country_type" class="select w-100"  {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                <select name="country_type" class="select w-100"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     <option value="Indonesia"
                                         {{ (isset($corporate->country_type) && $corporate->country_type == 'Indonesia') || old('country_type') == 'Indonesia' ? 'selected' : null }}>
@@ -175,7 +174,8 @@
 
                             <div class="col-md-4 mb-2">
                                 <label for="">Type <sup class="text-danger">*</sup></label>
-                                <select name="type" class="select w-100"  {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                <select name="type" class="select w-100"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     @for ($i = 0; $i < count($type); $i++)
                                         <option value="{{ $type[$i] }}"
@@ -190,7 +190,8 @@
 
                             <div class="col-md-4 mb-2">
                                 <label for="">Partnership Type </label>
-                                <select name="partnership_type" class="select w-100"  {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
+                                <select name="partnership_type" class="select w-100"
+                                    {{ empty($corporate) || isset($edit) ? '' : 'disabled' }}>
                                     <option data-placeholder="true"></option>
                                     @for ($i = 0; $i < count($partnership_type); $i++)
                                         <option value="{{ $partnership_type[$i] }}"

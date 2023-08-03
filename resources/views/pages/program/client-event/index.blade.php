@@ -1,8 +1,7 @@
 @extends('layout.main')
 
-@section('title', 'Client Event - Bigdata Platform')
-
-@section('content')
+@section('title', 'Client Event ')
+@section('style')
     <style>
         .btn-download span,
         .btn-import span {
@@ -14,6 +13,35 @@
             display: inline-block;
         }
     </style>
+@endsection
+
+@section('content')
+
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-md-6">
+                <h5 class="text-white m-0">
+                    <i class="bi bi-tag me-1"></i>
+                    Client Event
+                </h5>
+            </div>
+            <div class="col-md-6 d-flex align-items-center gap-2">
+                <select class="select w-100" name="event_name">
+                    <option data-placeholder="true"></option>
+                </select>
+
+                <a href="{{ url('api/download/excel-template/client-event') }}"
+                    class="btn btn-sm btn-light text-info btn-download text-nowrap"><i class="bi bi-download me-1"></i>
+                    <span>Download
+                        Templates</span></a>
+                <a href="#" class="btn btn-sm btn-light text-info btn-import text-nowrap" data-bs-toggle="modal"
+                    data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i> <span>Import</span></a>
+                <a href="{{ url('program/event/create') }}" class="btn btn-sm btn-info text-nowrap"><i
+                        class="bi bi-plus-square me-1"></i>
+                    Add Client Event </a>
+            </div>
+        </div>
+    </div>
 
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -25,28 +53,10 @@
         </div>
     @endif
 
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Client Event
-        </a>
-        <div class="">
-
-            <a href="{{ url('api/download/excel-template/client-event') }}"
-                class="btn btn-sm btn-outline-info btn-download"><i class="bi bi-download me-1"></i> <span>Download
-                    Templates</span></a>
-            <a href="#" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal"
-                data-bs-target="#importData"><i class="bi bi-cloud-upload me-1"></i> <span>Import</span></a>
-            <a href="{{ url('program/event/create') }}" class="btn btn-sm btn-primary"><i
-                    class="bi bi-plus-square me-1"></i>
-                Add Client Event </a>
-        </div>
-    </div>
-
-
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="eventTable">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
@@ -54,7 +64,7 @@
                         {{-- <th>Lead</th> --}}
                         <th>Conversion Lead</th>
                         <th>Joined Date</th>
-                        <th>Status</th>
+                        <th>Attendance</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -156,10 +166,12 @@
                     },
                     {
                         data: 'conversion_lead',
+                        className: 'text-center'
                         // name: 'tbl_lead.main_lead'
                     },
                     {
                         data: 'joined_date',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             return moment(data).format('dddd, DD MMM YYYY');
 
@@ -167,14 +179,15 @@
                     },
                     {
                         data: 'status',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             switch (parseInt(row.status)) {
                                 case 0:
-                                    return "Join"
+                                    return '<input class="form-check-input attendance" value="1" type="checkbox">'
                                     break;
 
                                 case 1:
-                                    return "Attend"
+                                    return '<input class="form-check-input attendance" value="0" type="checkbox" checked>'
                                     break;
 
                             }
@@ -213,6 +226,29 @@
             $('#eventTable tbody').on('click', '.detailEvent ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('program/event') }}/" + data.clientevent_id;
+            });
+
+            $('#eventTable tbody').on('change', '.attendance ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                var clientEventId = data.clientevent_id
+                var status = this.value;
+
+                var url = "{{ url('api/event/attendance/') }}" + '/' + clientEventId + '/' + status
+                axios.get(url)
+                    .then(function(response) {
+                        const attend = response.data
+                        if (attend.status == 1) {
+                            notification('success', attend.name + ' attended this event.')
+                        } else {
+                            notification('success', attend.name + ' canceled attending this event.')
+                        }
+                    }).catch(function(error) {
+                        notification('error', 'Ooops! Something went wrong. Please try again.')
+                    })
+
+                // merubah value status 
+                this.value = status == 1 ? 0 : 1
+
             });
         });
     </script>

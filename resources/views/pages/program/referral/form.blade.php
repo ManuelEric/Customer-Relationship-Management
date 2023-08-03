@@ -1,19 +1,15 @@
 @extends('layout.main')
 
-@section('title', 'Referral - Bigdata Platform')
-
+@section('title', 'Referral ')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Referral</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Form Referral</li>
+@endsection
 @section('content')
 
     @php
         $disabled = isset($referral) && isset($edit) ? null : (isset($edit) ? null : 'disabled');
     @endphp
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('program/referral') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Referral
-        </a>
-    </div>
-
 
     <div class="row">
         <div class="col-md-4 text-center">

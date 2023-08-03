@@ -1,14 +1,11 @@
 @extends('layout.main')
 
-@section('title', 'Parent - Bigdata Platform')
-
+@section('title', 'Parent ')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Parents</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('client/parent') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Parent
-        </a>
-    </div>
 
 
     <div class="row">
@@ -141,7 +138,7 @@
                 </div>
                 <div class="card-body">
                     <table class="table table-bordered table-hover nowrap align-middle w-100" id="eventTable">
-                        <thead class="bg-dark text-white">
+                        <thead class="bg-secondary text-white">
                             <tr class="text-center" role="row">
                                 <th class="text-dark">No</th>
                                 <th class="bg-info text-white">Event Name</th>

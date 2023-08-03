@@ -1,15 +1,11 @@
 @extends('layout.main')
 
-@section('title', 'Client Event - Bigdata Platform')
-
+@section('title', 'Client Event ')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Client Event</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Form Client Event</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('program/event') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Client Event 
-        </a>
-    </div>
-
     <div class="row">
         <div class="col-md-4 text-center">
             <div class="card rounded mb-3">

@@ -83,7 +83,7 @@
             </div>
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body overflow-auto" style="height: 450px">
                         <div class="table-responsive">
                             <table class="table table-striped table-hover" id="comparison-table">
                                 <thead class="text-center">

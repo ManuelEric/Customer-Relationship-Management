@@ -49,6 +49,7 @@ class SetGraduationYearIfNull extends Command
 
             foreach ($students as $student) {
                 $progressBar->advance();
+                
                 if ($student->graduation_year == NULL && $student->st_grade !== NULL) {
 
                     $graduation_year = $student->graduation_year_real;

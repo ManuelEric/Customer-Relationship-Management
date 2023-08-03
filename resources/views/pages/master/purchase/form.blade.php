@@ -1,7 +1,10 @@
 @extends('layout.main')
 
-@section('title', 'Purchase Request - Bigdata Platform')
-
+@section('title', 'Purchase Request')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Purchase Request</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
+@endsection
 @section('content')
 
 @php
