@@ -197,11 +197,11 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 '),
                 // DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
             ])->
-            // ->whereNull('tbl_receipt.inv_id')
+            // whereNull('tbl_receipt.inv_id')
             whereRaw('
                 (CASE
-                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.reminded = 0
-                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.reminded = 0 
+                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.reminded = 0 OR tbl_inv.reminded IS NULL
+                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.reminded = 0 OR tbl_invdtl.reminded IS NULL
                 END)
             ')
             // ->where(DB::raw('DATEDIFF(inv_duedate, now())'), '=', $days)
@@ -216,8 +216,10 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN r.inv_id
                     WHEN tbl_inv.inv_paymentmethod = "Installment" THEN dr.invdtl_id
                 END)
-            '))
-            ->orderBy('date_difference', 'asc')->get();
+            '))->
+            orderBy('date_difference', 'asc')->
+            groupBy('tbl_inv.inv_id')->
+            get();
     }
 
     public function getAllInvoiceProgram()
