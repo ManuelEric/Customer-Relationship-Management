@@ -64,7 +64,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                     $query->whereIn('lead_id', $searchQuery['leadId']);
                 })
                 # search by status
-                ->when($searchQuery['status'] !== null, function ($query) use ($searchQuery) {
+                ->when(isset($searchQuery['status']), function ($query) use ($searchQuery) {
                     $query->whereIn('status', $searchQuery['status']);
                 })
                 # search by date

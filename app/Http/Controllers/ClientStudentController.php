@@ -146,6 +146,7 @@ class ClientStudentController extends ClientController
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
         $viewStudent = $this->clientRepository->getViewClientById($studentId);
+
         if (!$student)
             abort(404);
 
