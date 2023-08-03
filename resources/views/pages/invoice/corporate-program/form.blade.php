@@ -439,7 +439,27 @@
                         <input type="hidden" name="identifier" id="identifier">
                         <input type="hidden" name="rec_currency"
                             value="{{ isset($invoicePartner->currency) ? $invoicePartner->currency : null }}">
+                        <input type="hidden" id="amount_other_inv">
+                        <input type="hidden" id="amount_idr_inv">
+    
                         <div class="row g-2">
+                            <div class="col-md-12">
+                                <div class="mb-1">
+                                    <label for="">
+                                        PPH 23
+                                    </label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" name="pph23" id="pph23"
+                                        oninput="calcPPH23()" class="form-control" value="">
+                                        <span class="input-group-text" id="basic-addon1">
+                                            %
+                                        </span>
+                                        @error('pph23')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-3 receipt-other d-none">
                                 <div class="mb-1">
                                     <label for="">
@@ -450,7 +470,7 @@
                                             $
                                         </span>
                                         <input type="number" name="receipt_amount" id="receipt_amount_other"
-                                            class="form-control" value="">
+                                            oninput="calcPPH23()" class="form-control" value="">
                                         @error('receipt_amount')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
@@ -467,7 +487,7 @@
                                             Rp
                                         </span>
                                         <input type="number" name="receipt_amount_idr" id="receipt_amount"
-                                            class="form-control" required value="">
+                                            oninput="calcPPH23()" class="form-control" required value="">
                                         @error('receipt_amount_idr')
                                             <small class="text-danger fw-light">{{ $message }}</small>
                                         @enderror
@@ -646,6 +666,7 @@
 
             if(type == 'other'){
                 $('#receipt_amount_other').val(amount)
+                $('#amount_other_inv').val(amount)
 
                 var val =  $('#receipt_amount_other').val()
                 var currency = detail
@@ -664,12 +685,15 @@
                         totprice = '-'
                         break;
                 }
+                
                 $("#receipt_word_other").val(wordConverter(val) + currency)
                 $("#receipt_amount").val(amount_idr)
+                $("#amount_idr_inv").val(amount_idr)
                 $("#receipt_word").val(wordConverter(amount_idr) + " Rupiah")
             }else{
                 $('#receipt_amount').val(amount)
                 var val = $('#receipt_amount').val()
+                $('#amount_idr_inv').val(amount)
                 $("#receipt_word").val(wordConverter(val) + " Rupiah")
             }
 
@@ -679,6 +703,70 @@
                 $('.currency-icon').html(currencySymbol(detail))
             } else {
                 $('.receipt-other').addClass('d-none')
+            }
+
+        }
+
+        function calcPPH23(){
+            let pph23 = $('#pph23').val()
+            let receipt_amount_other = $("#amount_other_inv").val()
+            let receipt_amount_idr = $("#amount_idr_inv").val()
+            let totalIdr
+            let cur = $('#currency').val()
+            let total_other
+
+            if(cur == 'other'){
+
+                var currency = $("#receipt input[name=currency]").val()
+                var curs_rate = $("#current_rate").val();
+                switch (currency) {
+                    case 'usd':
+                        currency = ' Dollars';
+                        break;
+                    case 'sgd':
+                        currency = ' Singapore Dollars';
+                        break;
+                    case 'gbp':
+                        currency = ' British Pounds';
+                        break;
+                    default:
+                        currency = '';
+                        totprice = '-'
+                        break;
+                }
+
+                if((pph23.length > 0 && pph23 == 0) || pph23.length < 1){
+                    persenPPh = 0
+                    persenPPhIdr = 0
+                    $("#receipt_amount_other").val(receipt_amount_other)
+                    $("#receipt_amount").val(receipt_amount_idr)
+                    $("#receipt_word_other").val(wordConverter(receipt_amount_other) + currency)
+                    $("#receipt_word").val(wordConverter(receipt_amount_idr) + " Rupiah")
+
+                }else{
+                    persenPPh = pph23/100 * (receipt_amount_other) 
+                    persenPPhIdr = pph23/100 * (receipt_amount_idr) 
+                }
+                    totalOther = receipt_amount_other - persenPPh
+                    totalIdr = (receipt_amount_other * curs_rate) - persenPPhIdr
+
+                $("#receipt_amount_other").val(Math.round(totalOther))
+                $("#receipt_word_other").val(wordConverter(Math.round(totalOther)) + currency)
+                $("#receipt_amount").val(Math.round(totalIdr))
+                $("#receipt_word").val(wordConverter(Math.round(totalIdr)) + " Rupiah")
+           
+            }else{
+                if((pph23.length > 0 && pph23 == 0) || pph23.length < 1){
+                    persenPPhIdr = 0
+                }else{
+                    persenPPhIdr = pph23/100 * (receipt_amount_idr) 
+                }
+                    receipt_amount_idr = receipt_amount_idr - persenPPhIdr
+                
+                $("#receipt_amount").val(Math.round(receipt_amount_idr))
+
+
+                $("#receipt_word").val(wordConverter(Math.round(receipt_amount_idr)) + " Rupiah")
             }
 
         }
@@ -940,12 +1028,14 @@
     </script>
 
     @if (
-        $errors->has('receipt_amount') |
-            $errors->has('receipt_amount_idr') |
-            $errors->has('receipt_words') |
-            $errors->has('receipt_words_idr') |
-            $errors->has('receipt_method') |
-            $errors->has('receipt_cheque'))
+        $errors->has('receipt_amount') ||
+            $errors->has('receipt_amount_idr') ||
+            $errors->has('receipt_words') ||
+            $errors->has('receipt_words_idr') ||
+            $errors->has('receipt_method') ||
+            $errors->has('receipt_cheque') || 
+            $errors->has('pph23')
+            )
         <script>
             $(document).ready(function() {
                 $('#addReceipt').modal('show');

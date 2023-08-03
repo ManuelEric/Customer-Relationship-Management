@@ -169,6 +169,12 @@
                                 </p>
                             </div>
                         @endif
+                        
+                        @if ($receiptSch->pph23 > 0)
+                            <p>
+                                PPH 23 {{$receiptSch->pph23}}%
+                            </p>
+                        @endif
                     </td>
 
                     {{-- Price --}}
@@ -213,12 +219,20 @@
                                 </strong>
                             </p>
                         </div>
+                        
                         @if($invoiceSch->invb2b_discidr != 0 && $invoiceSch->invb2b_discidr != null)
-                            <div style="margin-top:5px;">
+                            {{-- <div style="margin-top:5px;"> --}}
                                 <p>
                                     <strong> - {{ $currency == 'other' ? $invoiceSch->invoiceDiscount : $invoiceSch->invoiceDiscountIdr }}</strong>
                                 </p>
-                            </div>
+                            {{-- </div> --}}
+                        @endif
+                        @if($receiptSch->pph23 > 0)
+                            <p>
+                                <strong>
+                                    ({{ $currency == 'other' ? $receiptSch->str_pph23 :  $receiptSch->str_pph23_idr }})
+                                </strong>
+                            </p>
                         @endif
                     </td>
                 </tr>

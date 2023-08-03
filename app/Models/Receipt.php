@@ -11,6 +11,7 @@ class Receipt extends Model
     use HasFactory;
 
     protected $table = 'tbl_receipt';
+    protected $appends = ['raw_receipt_amount', 'raw_receipt_amount_idr', 'raw_pph23', 'raw_pph23_idr', 'str_pph23', 'str_pph23_idr'];
 
     protected $fillable = [
         'receipt_id',
@@ -79,6 +80,66 @@ class Receipt extends Model
     {
         return Attribute::make(
             get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
+        );
+    }
+
+    protected function rawReceiptAmount(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => (int)str_replace($this->getCurrencyUnit(). ' ', '', $this->receipt_amount),
+        );
+    }
+
+    protected function rawReceiptAmountIdr(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => (int)filter_var($this->receipt_amount_idr, FILTER_SANITIZE_NUMBER_INT),
+        );
+    }
+    
+    protected function rawPph23(): Attribute
+    {
+        if ($this->inv_id)
+            $invTotPrice = $this->invoiceProgram->inv_totalprice;
+        elseif ($this->invb2b_id && !$this->invdtl_id)
+            $invTotPrice = $this->invoiceB2b->invb2b_totprice;
+        elseif ($this->invdtl_id)
+            $invTotPrice = $this->invoiceInstallment->invdtl_amount;
+
+        $calcPPH23 = ($this->pph23/100) * ($invTotPrice);
+    
+        return Attribute::make(
+            get: fn ($value) => $calcPPH23,
+        );
+    }
+
+    protected function rawPph23Idr(): Attribute
+    {
+        if ($this->inv_id)
+            $invTotPrice = $this->invoiceProgram->inv_totalprice_idr;
+        elseif ($this->invb2b_id && !$this->invdtl_id)
+            $invTotPrice = $this->invoiceB2b->invb2b_totpriceidr;
+        elseif ($this->invdtl_id)
+            $invTotPrice = $this->invoiceInstallment->invdtl_amountidr;
+
+        $calcPPH23 = ($this->pph23/100) * ($invTotPrice);
+    
+        return Attribute::make(
+            get: fn ($value) => $calcPPH23,
+        );
+    }
+
+    protected function strPph23(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getCurrencyUnit() . " " . $this->rawPph23,
+        );
+    }
+
+    protected function strPph23Idr(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => "Rp. " .number_format($this->rawPph23Idr),
         );
     }
 

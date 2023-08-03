@@ -241,7 +241,6 @@
 
                 <div class="card-body">
 
-
                     <form
                         action="{{ url($status == 'edit' ? 'invoice/school-program/' . $schoolProgram->id . '/detail/' . $invoiceSch->invb2b_num : 'invoice/school-program/' . $schoolProgram->id . '/detail') }}"
                         method="POST" id="invoice-form">
@@ -442,7 +441,7 @@
                             <div class="col-md-12">
                                 <div class="mb-1">
                                     <label for="">
-                                        PPH 23 <sup class="text-danger">*</sup>
+                                        PPH 23
                                     </label>
                                     <div class="input-group input-group-sm">
                                         <input type="number" name="pph23" id="pph23"
@@ -743,7 +742,6 @@
             let totalIdr
             let cur = $('#currency').val()
             let total_other
-            console.log(receipt_amount_idr)
 
             if(cur == 'other'){
 
@@ -780,10 +778,10 @@
                     totalOther = receipt_amount_other - persenPPh
                     totalIdr = (receipt_amount_other * curs_rate) - persenPPhIdr
 
-                $("#receipt_amount_other").val(totalOther)
-                $("#receipt_word_other").val(wordConverter(totalOther) + currency)
-                $("#receipt_amount").val(totalIdr)
-                $("#receipt_word").val(wordConverter(totalIdr) + " Rupiah")
+                $("#receipt_amount_other").val(Math.round(totalOther))
+                $("#receipt_word_other").val(wordConverter(Math.round(totalOther)) + currency)
+                $("#receipt_amount").val(Math.round(totalIdr))
+                $("#receipt_word").val(wordConverter(Math.round(totalIdr)) + " Rupiah")
            
             }else{
                 if((pph23.length > 0 && pph23 == 0) || pph23.length < 1){
@@ -793,10 +791,10 @@
                 }
                     receipt_amount_idr = receipt_amount_idr - persenPPhIdr
                 
-                $("#receipt_amount").val(receipt_amount_idr)
+                $("#receipt_amount").val(Math.round(receipt_amount_idr))
 
 
-                $("#receipt_word").val(wordConverter(receipt_amount_idr) + " Rupiah")
+                $("#receipt_word").val(wordConverter(Math.round(receipt_amount_idr)) + " Rupiah")
             }
 
         }
@@ -853,12 +851,14 @@
     {{-- receipt --}}
 
     @if (
-        $errors->has('receipt_amount') |
-            $errors->has('receipt_amount_idr') |
-            $errors->has('receipt_words') |
-            $errors->has('receipt_words_idr') |
-            $errors->has('receipt_method') |
-            $errors->has('receipt_cheque'))
+        $errors->has('receipt_amount') ||
+            $errors->has('receipt_amount_idr') ||
+            $errors->has('receipt_words') ||
+            $errors->has('receipt_words_idr') ||
+            $errors->has('receipt_method') ||
+            $errors->has('receipt_cheque') ||
+            $errors->has('pph23')
+            )
         <script>
             $(document).ready(function() {
                 $('#addReceipt').modal('show');

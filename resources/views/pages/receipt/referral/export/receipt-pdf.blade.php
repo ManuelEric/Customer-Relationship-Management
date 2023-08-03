@@ -141,7 +141,12 @@
                                 <strong> {{ $receiptRef->invoiceB2b->referral->additional_prog_name }} </strong>
                             </p>
                         </div>
-                        
+                                                
+                        @if ($receiptRef->pph23 > 0)
+                            <p>
+                                PPH 23 {{$receiptRef->pph23}}%
+                            </p>
+                        @endif
                     </td>
                     <td valign="top" align="center">
                         <div style="height:80px;">
@@ -168,6 +173,13 @@
                                 </strong>
                             </p>
                         </div>
+                        @if($receiptRef->pph23 > 0)
+                            <p>
+                                <strong>
+                                    ({{ $currency == 'other' ? $receiptRef->str_pph23 :  $receiptRef->str_pph23_idr }})
+                                </strong>
+                            </p>
+                        @endif
                     </td>
                 </tr>
                 <tr>
