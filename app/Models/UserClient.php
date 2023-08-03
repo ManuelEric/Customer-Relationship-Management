@@ -117,6 +117,11 @@ class UserClient extends Authenticatable
         }
     }
 
+    public function getGraduationYearFromView($id)
+    {
+        return DB::table('client')->find($id)->graduation_year_real;
+    }
+
 
     # relation
     public function additionalInfo()
