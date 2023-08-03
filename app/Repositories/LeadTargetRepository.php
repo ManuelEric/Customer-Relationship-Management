@@ -63,7 +63,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     whereHas('leadStatus', function ($query) use ($month, $year) {
                         $query->
                             whereMonth('tbl_client_lead_tracking.updated_at', $month)->
-                            whereYear('tbl_client_lead_trq.updated_at', $year);
+                            whereYear('tbl_client_lead_tracking.updated_at', $year);
                     })->
                     get();
     }
@@ -80,7 +80,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     whereHas('leadStatus', function ($query) use ($month, $year) {
                         $query->
                             whereMonth('tbl_client_lead_tracking.updated_at', $month)->
-                            whereYear('tbl_client_lead_trq.updated_at', $year)->
+                            whereYear('tbl_client_lead_tracking.updated_at', $year)->
                             where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
                             where('tbl_client_lead_tracking.type', 'Lead')->
                             where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
@@ -100,7 +100,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     // whereHas('leadStatus', function ($query) use ($month, $year) {
                     //     $query->
                     //         whereMonth('tbl_client_lead_tracking.updated_at', $month)->
-                    //         whereYear('tbl_client_lead_trq.updated_at', $year);
+                    //         whereYear('tbl_client_lead_tracking.updated_at', $year);
                     // })->
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->

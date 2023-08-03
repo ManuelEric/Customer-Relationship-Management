@@ -62,6 +62,8 @@ class UpdateTargetTracking extends Command
                 'updated_at' => Carbon::now(),
             ];
 
+            $this->info(json_encode($details));
+
             $this->leadTargetRepository->updateActualLead($details, $now, 'Sales');
         }
 
