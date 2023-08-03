@@ -51,13 +51,8 @@ class SetGraduationYearIfNull extends Command
                 $progressBar->advance();
                 if ($student->graduation_year == NULL && $student->st_grade !== NULL) {
 
-                    // $student->graduation_year = $this->getGraduationYearByGrade($student->grade_now, date('Y-m-d'));
-                    $graduation_year = $this->getGraduationYearByGrade($student->grade_now, date('Y-m-d'));
-
-                    // $this->info(json_encode($student));
-                    $this->info($student->grade_now . ' : ' . $graduation_year);
+                    $graduation_year = $student->graduation_year_real;
                     $this->clientRepository->updateClient($student->id, ['graduation_year' => $graduation_year]);
-                    // $student->save();
                 }
             }
             DB::commit();
@@ -69,14 +64,5 @@ class SetGraduationYearIfNull extends Command
         }
 
         return Command::SUCCESS;
-    }
-
-    public function getGraduationYearByGrade($grade, $register_date)
-    {
-        $max_grade = 12;
-
-        # calculate
-        $diff = $max_grade - $grade;
-        return date('Y', strtotime('+' . $diff . ' years', strtotime($register_date)));
     }
 }
