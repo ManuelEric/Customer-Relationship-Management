@@ -17,6 +17,7 @@ interface ClientRepositoryInterface
     public function getPotentialClients($asDatatables = false, $month = NULL); # month nullable
     public function getExistingMentees($asDatatables = false, $month = NULL); # month nullable
     public function getExistingNonMentees($asDatatables = false, $month = NULL); # month nullable
+    public function getAllClientStudent();
     public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getParents($asDatatables = false, $month = null);
@@ -34,6 +35,7 @@ interface ClientRepositoryInterface
     public function getAllClientByRoleAndStatus($roleName, $statusClient);
     public function getAllChildrenWithNoParents($parentId);
     public function getClientById($clientId);
+    public function getViewClientById($clientId);
     public function checkIfClientIsMentee($clientId);
     public function deleteClient($clientId);
     public function createClient($role, array $clientDetails);

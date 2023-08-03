@@ -140,6 +140,10 @@
                     <a class="nav-link {{ Request::get('st') == 'non-mentee' ? 'active' : '' }}"
                         href="{{ url('client/student?st=non-mentee') }}">Non-Mentee</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::get('st') == null ? 'active' : '' }}"
+                        href="{{ url('client/student') }}">All</a>
+                </li>
             </ul>
 
 

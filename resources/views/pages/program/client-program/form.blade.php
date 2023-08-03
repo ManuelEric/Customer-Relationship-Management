@@ -9,7 +9,7 @@
 
     @php
         $disabled = !isset($edit) ? 'disabled' : null;
-        $open_information_for_tutor = isset($clientProgram->invoice) && $clientProgram->session_tutor === NULL ? true : false;
+        $open_information_for_tutor = isset($clientProgram->invoice) && $clientProgram->program->main_prog->prog_name == "Academic & Test Preparation" && $clientProgram->session_tutor === NULL ? true : false;
     @endphp
     
     @if ($open_information_for_tutor)

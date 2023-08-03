@@ -69,7 +69,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-12 mb-2">
-                                <label>Description <sup class="text-warning">*</sup></label>
+                                <label>Description</label>
                                 <textarea name="event_description" {{ $disabled }}>{{ isset($event->event_description) ? $event->event_description : old('event_description') }}</textarea>
                                 @error('event_description')
                                     <small class="text-danger fw-light">{{ $message }}</small>

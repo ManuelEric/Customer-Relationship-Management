@@ -32,7 +32,7 @@ class StoreEventRequest extends FormRequest
     {
         return [
             'event_title' => 'required|unique:tbl_events,event_title',
-            'event_description' => 'required',
+            'event_description' => 'nullable',
             'event_location' => 'required|max:250',
             'event_startdate' => 'required|before_or_equal:event_enddate',
             'event_enddate' => 'required|after_or_equal:event_startdate',

@@ -68,7 +68,7 @@
     @endif
     <div class="min-h-screen flex items-center bg-transparent">
         <div class="max-w-screen-lg w-full mx-auto p-4 relative overflow-hidden">
-            <form action="{{ url('form/event') }}" method="POST">
+            <form action="{{ url('form/events') }}" method="POST">
                 @csrf
                 <section id="role" class="page step-active">
                     <div

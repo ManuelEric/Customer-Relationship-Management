@@ -132,7 +132,10 @@ class EventController extends Controller
 
     public function create()
     {
-        $employees = $this->userRepository->getAllUsersByRole('Client');
+        $partnership = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $sales = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $digital = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Digital');
+        $employees = $partnership->merge($sales)->merge($digital);
 
         return view('pages.master.event.form')->with(
             [
@@ -182,7 +185,12 @@ class EventController extends Controller
         $eventId = $request->route('event');
         $event = $this->eventRepository->getEventById($eventId);
         $eventPic = $event->eventPic->pluck('id')->toArray();
-        $employees = $this->userRepository->getAllUsersByRole('employee');
+        
+        $partnership = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
+        $sales = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Client Management');
+        $digital = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Digital');
+        $employees = $partnership->merge($sales)->merge($digital);
+        
         # universities
         $universities = $this->universityRepository->getAllUniversities();
         $universityEvent = $this->universityEventRepository->getUniversityByEventId($eventId);

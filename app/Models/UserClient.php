@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\pivot\ClientLeadTracking;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -116,6 +117,11 @@ class UserClient extends Authenticatable
         }
     }
 
+    public function getGraduationYearFromView($id)
+    {
+        return DB::table('client')->find($id)->graduation_year_real;
+    }
+
 
     # relation
     public function additionalInfo()
@@ -186,5 +192,10 @@ class UserClient extends Authenticatable
     public function clientMentor()
     {
         return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'users.id', 'id', 'clientprog_id');
+    }
+
+    public function leadStatus()
+    {
+        return $this->belongsToMany(ClientLeadTracking::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->use(ClientLeadTracking::class)->withTimestamps();
     }
 }

@@ -13,26 +13,7 @@
             <th class="bg-info text-white">Action</th>
         </tr>
     </thead>
-    <tbody>
-        @for ($i = 0; $i < 5; $i++)
-            <tr>
-                <td>#</td>
-                <td>Student/Partner/School Name</td>
-                <td>Program Name</td>
-                <td>Refund Date</td>
-                <td>Total Price</td>
-                <td>Total Paid</td>
-                <td>Refund Reason</td>
-                <td>Refund Notes</td>
-                <td>PIC</td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-outline-info" onclick="refund({{ $i }})">
-                        <i class="bi bi-plus"></i> Refund
-                    </button>
-                </td>
-            </tr>
-        @endfor
-    </tbody>
+    <tbody></tbody>
     <tfoot class="bg-light text-white">
         <tr>
             <td colspan="7"></td>
