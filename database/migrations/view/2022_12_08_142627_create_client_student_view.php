@@ -74,6 +74,8 @@ return new class extends Migration
                 month(c.created_at),
                 c.st_grade
             ) AS grade_now,
+            (SELECT ((SELECT grade_now) - 12)) AS year_gap,
+            (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR) AS graduation_year_real,
 
             (SELECT GROUP_CONCAT(squ.univ_name) FROM tbl_dreams_uni sqdu
                     LEFT JOIN tbl_univ squ ON squ.univ_id = sqdu.univ_id
