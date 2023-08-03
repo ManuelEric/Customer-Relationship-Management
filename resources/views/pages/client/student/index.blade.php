@@ -179,6 +179,8 @@
                         <th>Joined Date</th>
                         <th>Last Update</th>
                         <th>Status</th>
+                        <th>Program Suggest</th>
+                        <th>Status Lead</th>
                         {{-- <th class="bg-info text-white">Score</th> --}}
                         <th class="bg-info text-white"># Action</th>
                     </tr>
@@ -228,14 +230,106 @@
         </div>
     </div>
 
+    <div class="modal fade" id="hotLeadModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>
+                        Reason
+                    </span>
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div class="modal-body w-100 text-start">
+                    {{-- <form action="" method="POST" id="hotLeadForm"> --}}
+                    @csrf
+                    {{-- @method('put') --}}
+                    <div class="form-group">
+                        <div id="reason">
+                            <div class="classReason">
+                                <input type="hidden" name="clientId" id="clientId">
+                                <input type="hidden" name="initProg" id="initProg">
+                                <input type="hidden" name="leadStatus" id="leadStatus">
+                                <select name="reason_id" class="w-100" id="selectReason"
+                                    onchange="otherOption($(this).val())">
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($reasons as $reason)
+                                        <option value="{{ $reason->reason_id }}" {{(old('reason_id') == $reason->reason_id) ? 'selected' : ''}} >
+                                            {{ $reason->reason_name }}
+                                        </option>
+                                    @endforeach
+                                    <option value="other">
+                                        Other option
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="d-flex align-items-center d-none" id="inputReason">
+                                <input type="text" name="other_reason"
+                                    class="form-control form-control-sm rounded" id="other_reason">
+                                <div class="float-end cursor-pointer" onclick="resetOption()">
+                                    <b>
+                                        <i class="bi bi-x text-danger"></i>
+                                    </b>
+                                </div>
+                            </div>
+                            {{-- <input type="text" name="" class="form-control form-control-sm"> --}}
+
+                        </div>
+                    </div>
+                    {{-- <hr> --}}
+                    <div class="d-flex justify-content-between">
+                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                            data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="button" onclick="updateHotLead()" class="btn btn-primary btn-sm">
+                            <i class="bi bi-save2 me-1"></i>
+                            Update</button>
+                    </div>
+                    {{-- </form> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Need Changing --}}
     <script>
         $('#cancel').click(function() {
             $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
         });
 
+        $(document).ready(function() {
+            $('#selectReason').select2({
+                dropdownParent: $('#hotLeadModal'),
+                placeholder: "Select value",
+                allowClear: true
+            });
+        });
+
+        function otherOption(value) {
+            if (value == 'other') {
+                $('.classReason').addClass('d-none')
+                $('#inputReason').removeClass('d-none')
+                $('#inputReason input').focus()
+            } else {
+                $('#inputReason').addClass('d-none')
+                $('.classReason').removeClass('d-none')
+            }
+        }
+
+        function resetOption() {
+            $('.classReason').removeClass('d-none')
+            $('#selectReason').val(null).trigger('change')
+            $('#inputReason').addClass('d-none')
+            $('#inputReason input').val(null)
+        }
+    </script>
+
+    <script>
         var widthView = $(window).width();
         $(document).ready(function() {
+            
             var table = $('#clientTable').DataTable({
                 order: [
                     // [20, 'desc'],
@@ -382,6 +476,38 @@
                             return data == 1 ? "Active" : "Non-active";
                         }
                     },
+                    {
+                        data: 'program_suggest',
+
+                    },
+                    {
+                        data: 'status_lead',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            var warm = '';
+                            var hot = '';
+                            var cold = '';
+                            switch (data) {
+                                case 'Hot':
+                                    hot = 'selected';
+                                    break;
+
+                                case 'Warm':
+                                    warm = 'selected';
+                                    break;
+
+                                case 'Cold':
+                                    cold = 'selected';
+                                    break;
+                            }
+                            return data != null ?
+                                '<select name="status_lead" style="color:#212b3d" class="select w-100" id="status_lead"><option></option><option value="hot" ' +
+                                hot + '>Hot</option><option value="warm" ' + warm +
+                                '>Warm</option><option value="cold" ' + cold +
+                                '>Cold</option></select>' : '-';
+                        }
+
+                    },
                     // {
                     //     data: 'total_score',
                     //     className: 'text-primary text-center',
@@ -439,10 +565,49 @@
                 window.location.href = "{{ url('client/student') }}/" + data.id;
             });
 
+            $('#clientTable tbody').on('change', '#status_lead ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                var lead_status = $(this).val();
+
+                $('#clientId').val(data.id);
+                $('#initProg').val(data.program_suggest);
+                $('#leadStatus').val(lead_status);
+                $('#hotLeadForm').attr('action', '{{ url("client/student") }}/' + data.id + '/lead_status/');
+                $('#hotLeadModal').modal('show');
+
+                // confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status/" + $(
+                //     this).val(), data.id, data.program_suggest, lead_status)
+            });
+
             // $('#clientTable tbody').on('click', '.deleteClient ', function() {
             //     var data = table.row($(this).parents('tr')).data();
             //     confirmDelete('asset', data.asset_id)
             // });
         });
+
+        function updateHotLead()
+        {
+            var link = '{{ url("client/student") }}/' + $('#clientId').val() + '/lead_status';
+            console.log(link);
+            $('#hotLeadModal').modal('hide');
+            Swal.showLoading()
+                axios.post(link, {
+                    clientId : $('#clientId').val(),
+                    initProg : $('#initProg').val(),
+                    leadStatus : $('#leadStatus').val(),
+                    reason_id : $('#selectReason').val(),
+                    other_reason : $('#other_reason').val(),
+                })
+                .then(function(response) {
+                    swal.close();
+                                
+                    let obj = response.data;
+                    $('#clientTable').DataTable().ajax.reload(null, false);
+                })
+                    .catch(function(error) {
+                    swal.close();
+                    notification('error', error)
+                })
+        }
     </script>
 @endsection

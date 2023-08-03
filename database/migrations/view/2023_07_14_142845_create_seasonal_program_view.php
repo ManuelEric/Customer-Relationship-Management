@@ -2,28 +2,27 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-        /**
-         * Run the migrations.
-         *
-         * @return void
-         */
-        public function up()
-        {
-                DB::statement("
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('seasonal_program_view', function (Blueprint $table) {
+            DB::statement("
         CREATE OR REPLACE VIEW client_lead AS
         SELECT 
             cl.id,
             CONCAT(cl.first_name, ' ', COALESCE(cl.last_name, '')) as name,
             cl.st_grade -12 as grade,
             sc.sch_id as school,
-            sc.sch_type as type_school,
             cl.is_funding,
-            (SELECT GROUP_CONCAT(sqt.name ORDER BY FIELD(name, 'US','UK','Canada','Australia','Other','Asia')) FROM tbl_client_abrcountry sqac
+            (SELECT GROUP_CONCAT(sqt.name) FROM tbl_client_abrcountry sqac
                     JOIN tbl_tag sqt ON sqt.id = sqac.tag_id
                     WHERE sqac.client_id = cl.id GROUP BY sqac.client_id) as interested_country,
             (SELECT GROUP_CONCAT(sqm.name) FROM tbl_dreams_major sqdm
@@ -43,8 +42,7 @@ return new class extends Migration
                     JOIN tbl_roles role ON role.id = clrole.role_id
                     WHERE clrole.client_id = cl.id) as roles,
 
-            GetClientType(cl.id) as type,
-            cl.register_as as register_as
+            GetClientType(cl.id) as type
 
         FROM tbl_client cl
         LEFT JOIN tbl_sch sc 
@@ -52,18 +50,19 @@ return new class extends Migration
 
             WHERE (SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
             JOIN tbl_roles role ON role.id = clrole.role_id
-            WHERE clrole.client_id = cl.id) NOT IN ('Parent') AND cl.st_statusact = 1
+            WHERE clrole.client_id = cl.id) NOT IN ('Parent')
 
         ");
-        }
+        });
+    }
 
-        /**
-         * Reverse the migrations.
-         *
-         * @return void
-         */
-        public function down()
-        {
-                Schema::dropIfExists('client_lead_view');
-        }
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('seasonal_program_view');
+    }
 };
