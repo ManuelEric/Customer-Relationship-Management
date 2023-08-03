@@ -141,6 +141,7 @@ class ClientProgramController extends Controller
         $clientProgramId = $request->route('program');
 
         $student = $this->clientRepository->getClientById($studentId);
+        $viewStudent = $this->clientRepository->getViewClientById($studentId);
         $clientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
 
         # programs
@@ -164,6 +165,7 @@ class ClientProgramController extends Controller
         return view('pages.program.client-program.form')->with(
             [
                 'student' => $student,
+                'viewStudent' => $viewStudent,
                 'clientProgram' => $clientProgram,
                 'programs' => $programs,
                 'leads' => $leads,
@@ -186,6 +188,7 @@ class ClientProgramController extends Controller
 
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
+        $viewStudent = $this->clientRepository->getViewClientById($studentId);
 
         # programs
         $b2cprograms = $this->programRepository->getAllProgramByType("B2C");
@@ -210,6 +213,7 @@ class ClientProgramController extends Controller
                 'p' => $p,
                 'edit' => true,
                 'student' => $student,
+                'viewStudent' => $viewStudent,
                 'programs' => $programs,
                 'leads' => $leads,
                 'clientEvents' => $clientEvents,
@@ -429,6 +433,7 @@ class ClientProgramController extends Controller
         $clientProgramId = $request->route('program');
 
         $student = $this->clientRepository->getClientById($studentId);
+        $viewStudent = $this->clientRepository->getViewClientById($studentId);
         $clientProgram = $this->clientProgramRepository->getClientProgramById($clientProgramId);
 
         # programs
@@ -453,6 +458,7 @@ class ClientProgramController extends Controller
             [
                 'edit' => true,
                 'student' => $student,
+                'viewStudent' => $viewStudent,
                 'clientProgram' => $clientProgram,
                 'programs' => $programs,
                 'leads' => $leads,
