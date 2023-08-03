@@ -612,6 +612,11 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::find($clientId);
     }
 
+    public function getViewClientById($clientId)
+    {
+        return Client::find($clientId);
+    }
+
     public function checkIfClientIsMentee($clientId)
     {
         return UserClient::whereHas('roles', function ($query) {

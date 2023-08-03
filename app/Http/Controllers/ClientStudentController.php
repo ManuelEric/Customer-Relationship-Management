@@ -159,6 +159,7 @@ class ClientStudentController extends ClientController
 
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
+        $viewStudent = $this->clientRepository->getViewClientById($studentId);
 
         if (!$student)
             abort(404);
@@ -167,7 +168,8 @@ class ClientStudentController extends ClientController
             [
                 'student' => $student,
                 'initialPrograms' => $initialPrograms,
-                'historyLeads' => $historyLeads
+                'historyLeads' => $historyLeads,
+                'viewStudent' => $viewStudent
             ]
         );
     }

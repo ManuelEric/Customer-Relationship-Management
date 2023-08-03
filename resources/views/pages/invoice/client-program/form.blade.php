@@ -13,9 +13,9 @@
         </a>
     </div>
 
-    @if($errors->any())
+    {{-- @if($errors->any())
         {{ implode('', $errors->all('<div>:message</div>')) }}
-    @endif
+    @endif --}}
 
     <div class="row">
         <div class="col-md-4">
