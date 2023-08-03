@@ -24,20 +24,20 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
     {
         # finding fieldKey that being searched
         # depends on status
-        $fieldKey = ["created_at"];
+        $fieldKey = [];
         if (isset($searchQuery['status'])) {
-            foreach ($searchQuery['status'] as $status) {
+            foreach ($searchQuery['status'] as $key => $status) {
 
-                switch ($status) {
-                    case $status == 1: # success
+                switch ((int)$status) {
+                    case 1: # success
                         $fieldKey[] = "success_date";
                         break;
 
-                    case $status == 2: # failed
+                    case 2: # failed
                         $fieldKey[] = "failed_date";
                         break;
 
-                    case $status == 3: # refund
+                    case 3: # refund
                         $fieldKey[] = "refund_date";
                         break;
 
@@ -48,9 +48,10 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
         }
 
         return Datatables::eloquent(
-            ViewClientProgram::when($searchQuery['clientId'], function ($query) use ($searchQuery) {
-                $query->where('client_id', $searchQuery['clientId']);
-            })
+            ViewClientProgram::
+                when($searchQuery['clientId'], function ($query) use ($searchQuery) {
+                    $query->where('client_id', $searchQuery['clientId']);
+                })
                 # search by program name 
                 ->when(isset($searchQuery['programName']), function ($query) use ($searchQuery) {
                     $query->whereIn('prog_id', $searchQuery['programName']);
@@ -92,6 +93,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $no++;
                     }
                 })
+                # when start date null && end date filled
                 ->when(isset($searchQuery['endDate']) && !isset($searchQuery['startDate']), function ($query) use ($searchQuery, $fieldKey) {
                     $no = 0;
                     foreach ($fieldKey as $key => $val) {
@@ -103,8 +105,6 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                         $no++;
                     }
                 })
-
-
                 # search by mentor / tutor id
                 ->when(isset($searchQuery['userId']), function ($query) use ($searchQuery) {
                     $query->whereHas('clientMentor', function ($query2) use ($searchQuery) {
@@ -584,7 +584,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
             })
             ->when(!empty($dateDetails), function ($q) use ($dateDetails) {
-                $q->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']]);
+                // $q->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']]);
+                $q->whereBetween(DB::raw('
+                    (CASE
+                        WHEN tbl_client_prog.status = 0 THEN tbl_client_prog.created_at
+                        WHEN tbl_client_prog.status = 1 THEN tbl_client_prog.success_date
+                        WHEN tbl_client_prog.status = 2 THEN tbl_client_prog.failed_date
+                        WHEN tbl_client_prog.status = 3 THEN tbl_client_prog.refund_date
+                    END)
+                '), [$dateDetails['startDate'], $dateDetails['endDate']]);
             })
             ->groupBy('lead_source')
             ->get();
@@ -612,7 +620,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ])
             ->where('tbl_client_prog.status', 1)
             ->when($filter, function ($q) use ($filter) {
-                $q->whereBetween('tbl_client_prog.created_at', [$filter['startDate'], $filter['endDate']]);
+                $q->whereBetween(DB::raw('
+                    (CASE
+                        WHEN tbl_client_prog.status = 0 THEN tbl_client_prog.created_at
+                        WHEN tbl_client_prog.status = 1 THEN tbl_client_prog.success_date
+                        WHEN tbl_client_prog.status = 2 THEN tbl_client_prog.failed_date
+                        WHEN tbl_client_prog.status = 3 THEN tbl_client_prog.refund_date
+                    END)
+                '), [$filter['startDate'], $filter['endDate']]);
             })
             ->where('tbl_lead.lead_id', $filter['leadId'])
             ->get();
@@ -662,7 +677,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 $q->whereMonth('success_date', date('m', strtotime($cp_filter['qdate'])))->whereYear('success_date', date('Y', strtotime($cp_filter['qdate'])));
             })
             ->when(!empty($dateDetails), function ($q) use ($dateDetails) {
-                $q->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']]);
+                $q->whereBetween(DB::raw('
+                    (CASE
+                        WHEN tbl_client_prog.status = 0 THEN tbl_client_prog.created_at
+                        WHEN tbl_client_prog.status = 1 THEN tbl_client_prog.success_date
+                        WHEN tbl_client_prog.status = 2 THEN tbl_client_prog.failed_date
+                        WHEN tbl_client_prog.status = 3 THEN tbl_client_prog.refund_date
+                    END)
+                '), [$dateDetails['startDate'], $dateDetails['endDate']]);
             })
             ->groupBy('conversion_lead')
             ->get();
@@ -695,7 +717,14 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             ])
             ->where('tbl_client_prog.status', 1)
             ->when($filter, function ($q) use ($filter) {
-                $q->whereBetween('tbl_client_prog.created_at', [$filter['startDate'], $filter['endDate']]);
+                $q->whereBetween(DB::raw('
+                    (CASE
+                        WHEN tbl_client_prog.status = 0 THEN tbl_client_prog.created_at
+                        WHEN tbl_client_prog.status = 1 THEN tbl_client_prog.success_date
+                        WHEN tbl_client_prog.status = 2 THEN tbl_client_prog.failed_date
+                        WHEN tbl_client_prog.status = 3 THEN tbl_client_prog.refund_date
+                    END)
+                '), [$filter['startDate'], $filter['endDate']]);
             })
             ->where('l.lead_id', $filter['leadId'])
             ->get();
@@ -717,7 +746,7 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
                 });
             })
             ->where('status', 1)
-            ->whereBetween('tbl_client_prog.created_at', [$dateDetails['startDate'], $dateDetails['endDate']])
+            ->whereBetween('tbl_client_prog.success_date', [$dateDetails['startDate'], $dateDetails['endDate']])
             ->groupBy('program_name_st')
             ->get();
     }
