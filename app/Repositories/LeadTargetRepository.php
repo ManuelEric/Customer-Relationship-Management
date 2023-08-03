@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Interfaces\LeadTargetRepositoryInterface;
+use App\Models\ClientProgram;
 use App\Models\LeadTargetTracking;
 use App\Models\UserClient;
 use App\Models\ViewClientProgram;
@@ -130,5 +131,34 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                             });
                     })->
                     get();
+    }
+
+    public function getAchievedLeadReferralByMonth($now)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        # clients where source lead is referral
+        $clients = UserClient::
+                    whereHas('lead', function ($query) {
+                        $query->where('main_lead', 'Referral');    
+                    })->
+                    whereHas('leadStatus', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('tbl_client_lead_tracking.updated_at', $month)->
+                            whereYear('tbl_client_lead_tracking.updated_at', $year);
+                    })->
+                    get();
+
+        $client_program = ClientProgram::
+                    whereHas('lead', function ($query) {
+                        $query->where('main_lead', 'Referral');
+                    })->
+                    where('status', 0)->
+                    whereMonth('created_at', $month)->
+                    whereYear('created_at', $year)->
+                    get();
+
+        $achieved_lead = $clients->merge($client_program);
     }
 }
