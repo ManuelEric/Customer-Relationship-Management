@@ -139,10 +139,7 @@ class DashboardController extends SalesDashboardController
         //         'last_name' => $item['last_name'],
         //     ];
         // })->pluck('id')->toArray(); 
-
-        // $data = (new AlarmController($this))->get($request);
-        // return $data;
-        // exit;
+        
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, (new AlarmController($this))->get($request));
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));

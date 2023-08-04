@@ -54,10 +54,6 @@ class AlarmController extends Controller
         // $revenueTarget = $dataSalesTarget->total_target;
         $revenueTarget = 0;
 
-        $clientLeadSales = $dataSalesTarget;
-        $clientLeadReferral = $dataReferralTarget;
-        $clientLeadDigital = $dataDigitalTarget;
-
         # Gagal 3x berturut-turut
         $allAlarm['always_on'] = $this->clientLeadTrackingRepository->getFailedLead($today);
 
@@ -97,21 +93,6 @@ class AlarmController extends Controller
             'number_of_contribution' => $allTarget->sum('contribution_to_target'), 
         ];
 
-        // $leadSalesTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsSales['lead_needed'], $leadSalesTarget['lead_needed']);
-        // $leadSalesTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsSales['hot_lead'], $leadSalesTarget['hot_lead']);
-        // $leadSalesTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsSales['IC'], $leadSalesTarget['ic']);
-        // $leadSalesTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsSales['contribution'], $leadSalesTarget['contribution']);
-        
-        // $leadReferralTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsReferral['lead_needed'], $leadReferralTarget['lead_needed']);
-        // $leadReferralTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsReferral['hot_lead'], $leadReferralTarget['hot_lead']);
-        // $leadReferralTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsReferral['IC'], $leadReferralTarget['ic']);
-        // $leadReferralTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsReferral['contribution'], $leadReferralTarget['contribution']);
-        
-        // $leadDigitalTarget['percentage_lead_needed'] = $actualLeadsDigital['lead_needed']/$leadDigitalTarget['lead_needed']*100;
-        // $leadDigitalTarget['percentage_hot_lead'] = $actualLeadsDigital['hot_lead']/$leadDigitalTarget['hot_lead']*100;
-        // $leadDigitalTarget['percentage_ic'] = $actualLeadsDigital['IC']/$leadDigitalTarget['ic']*100;
-        // $leadDigitalTarget['percentage_contribution'] = $actualLeadsDigital['contribution']/$leadDigitalTarget['contribution']*100;
-
         $targetTrackingPeriod = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today);
         
         # Chart lead
@@ -124,7 +105,6 @@ class AlarmController extends Controller
         }
       
         $response = [
-
             # alarm
             'salesAlarm' => $salesAlarm,
             'digitalAlarm' => $digitalAlarm,
@@ -146,6 +126,14 @@ class AlarmController extends Controller
     private function getDataTarget($date, $divisi)
     {
         return $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($date, $divisi);
+    }
+
+    private function calculatePercentageLead($actual, $target)
+    {
+        if ($target == 0)
+            return 0;
+
+        return $actual/$target*100;
     }
 
     private function setDataActual($dataActual)
@@ -179,22 +167,15 @@ class AlarmController extends Controller
                 'hot_lead' => $dataTarget->target_hotleads,
                 'lead_needed' => $dataTarget->target_lead,
                 'contribution' => $dataTarget->contribution_target,
-                'percentage_lead_needed' => $this->calculatePercentageLead($dataActual['lead_needed'], $dataTarget['lead_needed']),
-                'percentage_hot_lead' => $this->calculatePercentageLead($dataActual['hot_lead'], $dataTarget['hot_lead']),
-                'percentage_ic' => $this->calculatePercentageLead($dataActual['IC'], $dataTarget['ic']),
-                'percentage_contribution' => $this->calculatePercentageLead($dataActual['contribution'], $dataTarget['contribution'])
+                'percentage_lead_needed' => $this->calculatePercentageLead($dataActual['lead_needed'], $dataTarget->target_lead),
+                'percentage_hot_lead' => $this->calculatePercentageLead($dataActual['hot_lead'], $dataTarget->target_hotleads),
+                'percentage_ic' => $this->calculatePercentageLead($dataActual['IC'], $dataTarget->target_initconsult),
+                'percentage_contribution' => $this->calculatePercentageLead($dataActual['contribution'], $dataTarget->contribution_target)
                 
             ];
         }
 
         return $data;
     }
-
-    private function calculatePercentageLead($actual, $target)
-    {
-        if ($target == 0)
-            return 0;
-
-        return $actual/$target*100;
-    }
+ 
 }
