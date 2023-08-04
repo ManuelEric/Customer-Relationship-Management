@@ -319,6 +319,7 @@ class ClientStudentController extends ClientController
         }
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
+        $viewStudent = $this->clientRepository->getViewClientById($studentId);
 
         $schools = $this->schoolRepository->getAllSchools();
         $curriculums = $this->curriculumRepository->getAllCurriculums();
@@ -336,6 +337,7 @@ class ClientStudentController extends ClientController
         return view('pages.client.student.form')->with(
             [
                 'student' => $student,
+                'viewStudent' => $viewStudent,
                 'schools' => $schools,
                 'curriculums' => $curriculums,
                 'parents' => $parents,
