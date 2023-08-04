@@ -80,6 +80,7 @@ class ReceiptPartnerController extends Controller
             'receipt_words_idr',
             'receipt_method',
             'receipt_cheque',
+            'pph23'
         ]);
         unset($receipts['rec_currency']);
         $receipts['currency'] = $request->rec_currency;
@@ -135,7 +136,7 @@ class ReceiptPartnerController extends Controller
             $total_receipt = $request->receipt_amount_idr;
         }
 
-        if ($total_receipt < $total_invoice)
+        if ($receipts['pph23'] == 0 && $total_receipt < $total_invoice)
             return Redirect::back()->withError('Do double check the amount. Make sure the amount on invoice and the amount on receipt is equal');
 
 

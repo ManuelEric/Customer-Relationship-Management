@@ -317,6 +317,16 @@ class ReceiptRepository implements ReceiptRepositoryInterface
             ->get();
     }
 
+    # signature
+    public function getReceiptsNeedToBeSigned($dataTables = false)
+    {
+        $response = Receipt::whereHas('receiptAttachment', function ($query) {
+                $query->where('sign_status', 'not yet');
+            });
+
+        return $response == true ? $response : $response->get();
+    }
+
     # CRM
     public function getAllReceiptFromCRM()
     {
