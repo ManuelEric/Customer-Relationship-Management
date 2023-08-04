@@ -40,41 +40,41 @@ class UpdateTargetTracking extends Command
         $now = date('Y-m-d');
         
         # for sales
-        if ($activeTarget_forSales = $this->leadTargetRepository->findThisMonthTargetByDivision($now, 'Sales')) {
+        // if ($activeTarget_forSales = $this->leadTargetRepository->findThisMonthTargetByDivision($now, 'Sales')) {
             
-            $achievedLead = $this->leadTargetRepository->getAchievedLeadSalesByMonth($now)->count();
-            $achievedHotLead = $this->leadTargetRepository->getAchievedHotLeadSalesByMonth($now)->count();
-            $achievedInitConsult = $this->leadTargetRepository->getAchievedInitConsultSalesByMonth($now)->count();
-            $achievedContribution = $this->leadTargetRepository->getAchievedContributionSalesByMonth($now)->count();
+        //     $achievedLead = $this->leadTargetRepository->getAchievedLeadSalesByMonth($now)->count();
+        //     $achievedHotLead = $this->leadTargetRepository->getAchievedHotLeadSalesByMonth($now)->count();
+        //     $achievedInitConsult = $this->leadTargetRepository->getAchievedInitConsultSalesByMonth($now)->count();
+        //     $achievedContribution = $this->leadTargetRepository->getAchievedContributionSalesByMonth($now)->count();
 
-            $contribution_target = $activeTarget_forSales->contribution_target;
+        //     $contribution_target = $activeTarget_forSales->contribution_target;
             
-            # if the contribution target has achieved then put status into 1 which is complete
-            $status = $contribution_target <= $achievedContribution ? 1 : 0;
+        //     # if the contribution target has achieved then put status into 1 which is complete
+        //     $status = $contribution_target <= $achievedContribution ? 1 : 0;
 
-            $details = [
-                'achieved_lead' => $achievedLead,
-                'achieved_hotleads' => $achievedHotLead,
-                'achieved_initconsult' => $achievedInitConsult,
-                'contribution_achieved' => $achievedContribution,
-                'status' => $status,
-                'updated_at' => Carbon::now(),
-            ];
+        //     $details = [
+        //         'achieved_lead' => $achievedLead,
+        //         'achieved_hotleads' => $achievedHotLead,
+        //         'achieved_initconsult' => $achievedInitConsult,
+        //         'contribution_achieved' => $achievedContribution,
+        //         'status' => $status,
+        //         'updated_at' => Carbon::now(),
+        //     ];
 
-            $this->info(json_encode($details));
+        //     $this->info(json_encode($details));
 
-            $this->leadTargetRepository->updateActualLead($details, $now, 'Sales');
-        }
+        //     $this->leadTargetRepository->updateActualLead($details, $now, 'Sales');
+        // }
 
         # for referral
         if ($activeTarget_forReferral = $this->leadTargetRepository->findThisMonthTargetByDivision($now, 'Referral')) {
 
-            $achievedLead = $this->leadTargetRepository->getAchievedLeadSalesByMonth($now)->count();
-            $achievedHotLead = $this->leadTargetRepository->getAchievedHotLeadSalesByMonth($now)->count();
+            $achievedLead = $this->leadTargetRepository->getAchievedLeadReferralByMonth($now)->count();
+            $achievedHotLead = $this->leadTargetRepository->getAchievedHotLeadReferralByMonth($now)->count();
             $achievedInitConsult = $this->leadTargetRepository->getAchievedInitConsultSalesByMonth($now)->count();
             $achievedContribution = $this->leadTargetRepository->getAchievedContributionSalesByMonth($now)->count();
 
-            $contribution_target = $activeTarget_forSales->contribution_target;
+            $contribution_target = $activeTarget_forReferral->contribution_target;
             
             # if the contribution target has achieved then put status into 1 which is complete
             $status = $contribution_target <= $achievedContribution ? 1 : 0;

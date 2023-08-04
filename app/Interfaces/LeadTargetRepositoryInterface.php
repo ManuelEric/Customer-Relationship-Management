@@ -14,7 +14,8 @@ interface LeadTargetRepositoryInterface
     public function getAchievedHotLeadSalesByMonth($now);
     public function getAchievedInitConsultSalesByMonth($now);
     public function getAchievedContributionSalesByMonth($now);
-
+    
     public function getAchievedLeadReferralByMonth($now);
+    public function getAchievedHotLeadReferralByMonth($now);
     
 }

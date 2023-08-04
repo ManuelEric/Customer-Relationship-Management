@@ -151,14 +151,37 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     get();
 
         $client_program = ClientProgram::
+                    leftJoin('tbl_client as c', 'c.id', '=', 'tbl_client_prog.client_id')->
                     whereHas('lead', function ($query) {
                         $query->where('main_lead', 'Referral');
                     })->
                     where('status', 0)->
-                    whereMonth('created_at', $month)->
-                    whereYear('created_at', $year)->
-                    get();
+                    whereMonth('tbl_client_prog.created_at', $month)->
+                    whereYear('tbl_client_prog.created_at', $year)->
+                    get('c.*');
 
         $achieved_lead = $clients->merge($client_program);
+
+        return $achieved_lead;
+    }
+
+    public function getAchievedHotLeadReferralByMonth($now)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        return UserClient::
+                    whereHas('lead', function ($query) {
+                        $query->where('main_lead', 'Referral');    
+                    })->
+                    whereHas('leadStatus', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('tbl_client_lead_tracking.updated_at', $month)->
+                            whereYear('tbl_client_lead_tracking.updated_at', $year)->
+                            where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
+                            where('tbl_client_lead_tracking.type', 'Lead')->
+                            where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT & we need to get only the hot leads
+                    })->
+                    get();
     }
 }
