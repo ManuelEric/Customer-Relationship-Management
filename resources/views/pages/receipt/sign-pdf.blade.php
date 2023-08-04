@@ -71,19 +71,19 @@
 @section('script')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        @if (isset($attachment) && gettype($attachment) != 'string')
-            var file = "{{ asset('attachment/' . $attachment->attachment) }}"
+
+        @if (isset($attachment) && gettype($attachment) != "string")
+            var file = "{{ asset('storage/uploaded_file/receipt/client/'.$attachment->attachment) }}"
         @else
             var file = "{{ asset($attachment) }}"
         @endif
-
+    
         var pdf = new PDFAnnotate("pdf-container", file, {
             onPageUpdated(page, oldData, newData) {
                 // console.log(page, oldData, newData);
             },
             ready() {
                 console.log("Plugin initialized successfully");
-                $(".upper-canvas").css("user-select", "auto").css("touch-action", "auto");
             },
             scale: 1.8,
             pageImageCompression: "SLOW", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
