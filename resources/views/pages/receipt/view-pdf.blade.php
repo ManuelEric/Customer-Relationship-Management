@@ -26,7 +26,7 @@
 {{-- var pdf = new PDFAnnotate("pdf-container", "{{ asset($receiptAttachment->attachment) }}", { --}}
 <script>
     @if (isset($attachment))
-        var file = "{{ asset('attachment/'.$attachment->attachment) }}"
+        var file = "{{ asset('storage/uploaded_file/receipt/client/'.$attachment->attachment) }}"
     @else
         var file = "{{ asset($receiptAttachment->attachment) }}"
     @endif
