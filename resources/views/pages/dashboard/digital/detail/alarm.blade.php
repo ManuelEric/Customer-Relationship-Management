@@ -34,15 +34,4 @@
         @endforeach
     @endif
 
-     {{-- Always On --}}
-    @if ($digitalAlarm['always_on'])
-        <div class="col">
-            <div class="alert bg-danger text-white d-flex align-items-center py-2 border-alert" role="alert">
-                <i class="bi bi-exclamation-circle"></i>
-                <div class="">
-                    is there any event?
-                </div>
-            </div>
-        </div>
-    @endif
 </div>

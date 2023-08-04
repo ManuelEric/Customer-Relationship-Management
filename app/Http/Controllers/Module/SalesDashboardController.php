@@ -31,134 +31,134 @@ class SalesDashboardController extends Controller
     {
 
         # Alarm
-        $salesAlarm = false;
-        $triggerEvent = false;
-        $fullDay = Carbon::now()->daysInMonth;
-        $midOfMonth = floor($fullDay / 2);
+        // $salesAlarm = false;
+        // $triggerEvent = false;
+        // $fullDay = Carbon::now()->daysInMonth;
+        // $midOfMonth = floor($fullDay / 2);
 
-        $leedNeeded = 36;
-        $referralTarget = 10;
+        // $leedNeeded = 36;
+        // $referralTarget = 10;
 
-        $today = date('Y-m-d');
-        $currMonth = date('m');
+        // $today = date('Y-m-d');
+        // $currMonth = date('m');
 
-        $allTarget = $this->targetSignalRepository->getAllTargetSignal();
-        $dataSalesTarget = $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($today, 'Sales');
-        $dataReferralTarget = $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($today, 'Referral');
+        // $allTarget = $this->targetSignalRepository->getAllTargetSignal();
+        // $dataSalesTarget = $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($today, 'Sales');
+        // $dataReferralTarget = $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($today, 'Referral');
         
-        $leadSalesTarget = [
-            'ic' => 0,
-            'hot_lead' => 0,
-            'lead_needed' => 0,
-            'contribution' => 0,
-            'percentage_lead_needed' => 0,
-            'percentage_hot_lead' => 0,
-            'percentage_ic' => 0,
-            'percentage_contribution' => 0,
-        ];
-        if($dataSalesTarget->count() > 0){
-            $leadSalesTarget = [
-                'ic' => $dataSalesTarget->target_initconsult,
-                'hot_lead' => $dataSalesTarget->target_hotleads,
-                'lead_needed' => $dataSalesTarget->target_lead,
-                'contribution' => $dataSalesTarget->contribution_target,
-            ];
-        }
+        // $leadSalesTarget = [
+        //     'ic' => 0,
+        //     'hot_lead' => 0,
+        //     'lead_needed' => 0,
+        //     'contribution' => 0,
+        //     'percentage_lead_needed' => 0,
+        //     'percentage_hot_lead' => 0,
+        //     'percentage_ic' => 0,
+        //     'percentage_contribution' => 0,
+        // ];
+        // if($dataSalesTarget->count() > 0){
+        //     $leadSalesTarget = [
+        //         'ic' => $dataSalesTarget->target_initconsult,
+        //         'hot_lead' => $dataSalesTarget->target_hotleads,
+        //         'lead_needed' => $dataSalesTarget->target_lead,
+        //         'contribution' => $dataSalesTarget->contribution_target,
+        //     ];
+        // }
 
-        # referral
-        $leadReferralTarget = [
-            'ic' => 0,
-            'hot_lead' => 0,
-            'lead_needed' => 0,
-            'contribution' => 0,
-            'percentage_lead_needed' => 0,
-            'percentage_hot_lead' => 0,
-            'percentage_ic' => 0,
-            'percentage_contribution' => 0,
-        ];
-        if($dataReferralTarget->count() > 0){
-            $leadReferralTarget = [
-                'ic' => $dataReferralTarget->target_initconsult,
-                'hot_lead' => $dataReferralTarget->target_hotleads,
-                'lead_needed' => $dataReferralTarget->target_lead,
-                'contribution' => $dataReferralTarget->contribution_target,
-            ];
-        }
+        // # referral
+        // $leadReferralTarget = [
+        //     'ic' => 0,
+        //     'hot_lead' => 0,
+        //     'lead_needed' => 0,
+        //     'contribution' => 0,
+        //     'percentage_lead_needed' => 0,
+        //     'percentage_hot_lead' => 0,
+        //     'percentage_ic' => 0,
+        //     'percentage_contribution' => 0,
+        // ];
+        // if($dataReferralTarget->count() > 0){
+        //     $leadReferralTarget = [
+        //         'ic' => $dataReferralTarget->target_initconsult,
+        //         'hot_lead' => $dataReferralTarget->target_hotleads,
+        //         'lead_needed' => $dataReferralTarget->target_lead,
+        //         'contribution' => $dataReferralTarget->contribution_target,
+        //     ];
+        // }
             
 
-        // $revenueTarget = $dataSalesTarget->total_target;
-        $revenueTarget = 0;
+        // // $revenueTarget = $dataSalesTarget->total_target;
+        // $revenueTarget = 0;
 
-        $clientLeadSales = $dataSalesTarget;
-        $clientLeadReferral = $dataReferralTarget;
+        // $clientLeadSales = $dataSalesTarget;
+        // $clientLeadReferral = $dataReferralTarget;
 
-        # LS005 is Referral
-        $totalReferralLead = 0;
+        // # LS005 is Referral
+        // $totalReferralLead = 0;
 
-        $revenue = null;
-        $totalRevenue = $revenue != null ? $revenue->sum('total') : 0;
+        // $revenue = null;
+        // $totalRevenue = $revenue != null ? $revenue->sum('total') : 0;
 
-        $actualLeadsSales = [
-            'lead_needed' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_lead : 0,
-            'hot_lead' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_hotleads : 0,
-            'IC' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_initconsult : 0,
-            'referral' => $totalReferralLead,
-            'revenue' => $totalRevenue,
-            'contribution' => 0,
-        ];
+        // $actualLeadsSales = [
+        //     'lead_needed' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_lead : 0,
+        //     'hot_lead' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_hotleads : 0,
+        //     'IC' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_initconsult : 0,
+        //     'referral' => $totalReferralLead,
+        //     'revenue' => $totalRevenue,
+        //     'contribution' => 0,
+        // ];
 
-        # referral
-        $actualLeadsReferral = [
-            'lead_needed' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_lead : 0,
-            'hot_lead' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_hotleads : 0,
-            'IC' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_initconsult : 0,
-            'referral' => 0,
-            'revenue' => 0,
-            'contribution' => 0,
-        ];
+        // # referral
+        // $actualLeadsReferral = [
+        //     'lead_needed' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_lead : 0,
+        //     'hot_lead' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_hotleads : 0,
+        //     'IC' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_initconsult : 0,
+        //     'referral' => 0,
+        //     'revenue' => 0,
+        //     'contribution' => 0,
+        // ];
 
-        # Day 1-14 (awal bulan)
-        $salesAlarm['mid']['lead_needed'] = $actualLeadsSales['lead_needed'] < $leadSalesTarget['lead_needed'] ? true : false;
-        $salesAlarm['mid']['hot_lead'] = $actualLeadsSales['hot_lead'] < $leadSalesTarget['hot_lead'] ? true : false;
-        $salesAlarm['mid']['referral'] = $actualLeadsSales['referral'] < $referralTarget ? true : false;
+        // # Day 1-14 (awal bulan)
+        // $salesAlarm['mid']['lead_needed'] = $actualLeadsSales['lead_needed'] < $leadSalesTarget['lead_needed'] ? true : false;
+        // $salesAlarm['mid']['hot_lead'] = $actualLeadsSales['hot_lead'] < $leadSalesTarget['hot_lead'] ? true : false;
+        // $salesAlarm['mid']['referral'] = $actualLeadsSales['referral'] < $referralTarget ? true : false;
 
-        $triggerEvent = $salesAlarm['mid']['hot_lead'] || $salesAlarm['mid']['referral'] ? true : false;
+        // $triggerEvent = $salesAlarm['mid']['hot_lead'] || $salesAlarm['mid']['referral'] ? true : false;
 
 
-        # Day 15-30 (akhir bulan)
-        if (date('Y-m-d') > date('Y-m') . '-' . $midOfMonth) {
-            unset($salesAlarm['mid']['lead_needed']);
-            $salesAlarm['end']['revenue'] = $actualLeadsSales['revenue'] < $revenueTarget*50/100 ? true : false;
-            $salesAlarm['end']['IC'] = $actualLeadsSales['IC'] < $leadSalesTarget['IC'] ? true : false;
-            $salesAlarm['end']['lead_needed'] = $actualLeadsSales['lead_needed'] < 2*$leedNeeded ? true : false;
-        }
+        // # Day 15-30 (akhir bulan)
+        // if (date('Y-m-d') > date('Y-m') . '-' . $midOfMonth) {
+        //     unset($salesAlarm['mid']['lead_needed']);
+        //     $salesAlarm['end']['revenue'] = $actualLeadsSales['revenue'] < $revenueTarget*50/100 ? true : false;
+        //     $salesAlarm['end']['IC'] = $actualLeadsSales['IC'] < $leadSalesTarget['IC'] ? true : false;
+        //     $salesAlarm['end']['lead_needed'] = $actualLeadsSales['lead_needed'] < 2*$leedNeeded ? true : false;
+        // }
 
-        $dataLeads = [
-            'number_of_leads' => $allTarget->sum('lead_needed'), 
-            'number_of_hot_leads' => $allTarget->sum('hot_leads_target'), 
-            'number_of_ic' => $allTarget->sum('initial_consult_target'), 
-            'number_of_contribution' => $allTarget->sum('contribution_to_target'), 
-        ];
+        // $dataLeads = [
+        //     'number_of_leads' => $allTarget->sum('lead_needed'), 
+        //     'number_of_hot_leads' => $allTarget->sum('hot_leads_target'), 
+        //     'number_of_ic' => $allTarget->sum('initial_consult_target'), 
+        //     'number_of_contribution' => $allTarget->sum('contribution_to_target'), 
+        // ];
 
-        $leadSalesTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsSales['lead_needed'], $leadSalesTarget['lead_needed']);
-        $leadSalesTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsSales['hot_lead'], $leadSalesTarget['hot_lead']);
-        $leadSalesTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsSales['IC'], $leadSalesTarget['ic']);
-        $leadSalesTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsSales['contribution'], $leadSalesTarget['contribution']);
+        // $leadSalesTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsSales['lead_needed'], $leadSalesTarget['lead_needed']);
+        // $leadSalesTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsSales['hot_lead'], $leadSalesTarget['hot_lead']);
+        // $leadSalesTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsSales['IC'], $leadSalesTarget['ic']);
+        // $leadSalesTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsSales['contribution'], $leadSalesTarget['contribution']);
         
-        $leadReferralTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsReferral['lead_needed'], $leadReferralTarget['lead_needed']);
-        $leadReferralTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsReferral['hot_lead'], $leadReferralTarget['hot_lead']);
-        $leadReferralTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsReferral['IC'], $leadReferralTarget['ic']);
-        $leadReferralTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsReferral['contribution'], $leadReferralTarget['contribution']);
+        // $leadReferralTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsReferral['lead_needed'], $leadReferralTarget['lead_needed']);
+        // $leadReferralTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsReferral['hot_lead'], $leadReferralTarget['hot_lead']);
+        // $leadReferralTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsReferral['IC'], $leadReferralTarget['ic']);
+        // $leadReferralTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsReferral['contribution'], $leadReferralTarget['contribution']);
         
-        $targetTrackingPeriod = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(3)->toDateString(), $today);
+        // $targetTrackingPeriod = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(3)->toDateString(), $today);
         
-        # Chart lead
-        $last3month = $currMonth-2;
-        for($i=0; $i<3; $i++){
-            $dataLeadChart['target'][] = $targetTrackingPeriod->where('month', $last3month)->count() > 0 ? (int)$targetTrackingPeriod->where('month', $last3month)->first()->target : 0;
-            $dataLeadChart['actual'][] = $targetTrackingPeriod->where('month', $last3month)->count() > 0 ? (int)$targetTrackingPeriod->where('month', $last3month)->first()->actual : 0;
-            $last3month++;
-        }
+        // # Chart lead
+        // $last3month = $currMonth-2;
+        // for($i=0; $i<3; $i++){
+        //     $dataLeadChart['target'][] = $targetTrackingPeriod->where('month', $last3month)->count() > 0 ? (int)$targetTrackingPeriod->where('month', $last3month)->first()->target : 0;
+        //     $dataLeadChart['actual'][] = $targetTrackingPeriod->where('month', $last3month)->count() > 0 ? (int)$targetTrackingPeriod->where('month', $last3month)->first()->actual : 0;
+        //     $last3month++;
+        // }
         // return json_encode($dataLeadChart['target']);
         // exit;
         # === end Alarm ===
@@ -320,14 +320,14 @@ class SalesDashboardController extends Controller
             'conversion_lead_of_event' => $conversion_lead_of_event,
 
             # alarm
-            'salesAlarm' => $salesAlarm,
-            'leadSalesTarget' => $leadSalesTarget,
-            'leadReferralTarget' => $leadReferralTarget,
-            'triggerEvent' => $triggerEvent,
-            'actualLeadsSales' => $actualLeadsSales,
-            'actualLeadsReferral' => $actualLeadsReferral,
-            'dataLeads' => $dataLeads,
-            'dataLeadChart' => $dataLeadChart
+            // 'salesAlarm' => $salesAlarm,
+            // 'leadSalesTarget' => $leadSalesTarget,
+            // 'leadReferralTarget' => $leadReferralTarget,
+            // 'triggerEvent' => $triggerEvent,
+            // 'actualLeadsSales' => $actualLeadsSales,
+            // 'actualLeadsReferral' => $actualLeadsReferral,
+            // 'dataLeads' => $dataLeads,
+            // 'dataLeadChart' => $dataLeadChart
         ];
     }
 

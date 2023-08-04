@@ -4,7 +4,7 @@
             <div class="col-md-5">
                 <div class="row row-cols-md-2 row-cols-1 g-2">
                     <div class="col">
-                        <div class="card border border-danger border-2 shadow">
+                        <div class="card border {{ $dataLeads['total_achieved_lead_needed'] >= $dataLeads['number_of_leads'] ? 'border-info' : 'border-danger' }} border-2 shadow">
                             <div class="card-body">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-6">
@@ -12,7 +12,7 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">{{ $actualLeadsSales['lead_needed'] + $actualLeadsReferral['lead_needed'] + $actualLeadsDigital['lead_needed'] }}</div>
+                                            <div class="fs-3">{{ $dataLeads['total_achieved_lead_needed'] }}</div>
                                             <div class="fs-6">/ {{ $dataLeads['number_of_leads'] }}</div>
                                         </div>
                                     </div>
@@ -52,7 +52,7 @@
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card border border-danger border-2 shadow">
+                        <div class="card border {{ $dataLeads['total_achieved_hot_lead'] >= $dataLeads['number_of_leads'] ? 'border-info' : 'border-danger' }} border-2 shadow">
                             <div class="card-body">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-6">
@@ -60,7 +60,7 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">{{ $actualLeadsSales['hot_lead'] + $actualLeadsReferral['hot_lead'] + $actualLeadsDigital['hot_lead'] }}</div>
+                                            <div class="fs-3">{{ $dataLeads['total_achieved_hot_lead'] }}</div>
                                             <div class="fs-6">/ {{ $dataLeads['number_of_hot_leads'] }}</div>
                                         </div>
                                     </div>
@@ -100,7 +100,7 @@
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card border border-danger border-2 shadow">
+                        <div class="card border {{ $dataLeads['total_achieved_ic'] >= $dataLeads['number_of_leads'] ? 'border-info' : 'border-danger' }} border-2 shadow">
                             <div class="card-body">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-6">
@@ -109,7 +109,7 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">{{ $actualLeadsSales['IC'] + $actualLeadsReferral['IC'] + $actualLeadsDigital['IC'] }}</div>
+                                            <div class="fs-3">{{ $dataLeads['total_achieved_ic'] }}</div>
                                             <div class="fs-6">/ {{ $dataLeads['number_of_ic'] }}</div>
                                         </div>
                                     </div>
@@ -149,7 +149,7 @@
                         </div>
                     </div>
                     <div class="col">
-                        <div class="card border border-danger border-2 shadow">
+                        <div class="card border {{ $dataLeads['total_achieved_contribution'] >= $dataLeads['number_of_leads'] ? 'border-info' : 'border-danger' }} border-2 shadow">
                             <div class="card-body">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-6">
@@ -157,7 +157,7 @@
                                     </div>
                                     <div class="col-md-6 d-flex justify-content-end fw-semibold">
                                         <div class="d-flex align-items-end">
-                                            <div class="fs-3">{{ $actualLeadsSales['contribution'] + $actualLeadsReferral['contribution'] + $actualLeadsDigital['contribution'] }}</div>
+                                            <div class="fs-3">{{ $dataLeads['total_achieved_contribution'] }}</div>
                                             <div class="fs-6">/ {{ $dataLeads['number_of_contribution'] }}</div>
                                         </div>
                                     </div>
@@ -229,6 +229,7 @@
 </div>
 
 <script>
+    console.log('{{json_encode($dataLeadChart["label"])}}')
     const leadsTarget = document.getElementById('leadsTarget');
 
     const options = 
@@ -236,7 +237,7 @@
     new Chart(leadsTarget, {
         type: 'line',
         data: {
-            labels: ['June', 'May', 'April'],
+            labels: {{json_encode($dataLeadChart["label"])}},
             datasets: [{
                 label: 'Actual Sales',
                 data: {{json_encode($dataLeadChart["actual"])}},

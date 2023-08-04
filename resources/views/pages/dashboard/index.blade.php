@@ -17,6 +17,21 @@
         @include('pages.dashboard.digital.detail.alarm')
     @endif
 
+    {{-- Alarm general --}}
+    {{-- Always On --}}
+    @if ($allAlarm['always_on'])
+    <div class="row row-cols-md-4 row-cols-1 g-2 mt-4">
+        <div class="col">
+            <div class="alert bg-danger text-white d-flex align-items-center py-2 border-alert" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <div class="">
+                    gagal 3x berturut2
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Sales --}}
     @if ($isSales || $isAdmin)
         <h3 class="my-3">

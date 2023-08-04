@@ -89,6 +89,22 @@ class ClientLeadTrackingRepository implements ClientLeadTrackingRepositoryInterf
         return $clientId != null ? $clientProg->get() : null;
     }
 
+    public function getFailedLead($monthyear){
+
+        $failLeads = $this->getInitialConsult($monthyear, 'all');
+        $countFail = 0;
+
+        if(isset($failLeads) > 0){
+            foreach ($failLeads as $failLead) {
+                $failLead->status == 2 ? $countFail++ : $countFail--;
+            }
+        }
+
+        $isFailed = $countFail == 3 ? true : false;
+        return $isFailed;
+
+    }
+
     public function getRevenue($monthyear)
     {
         $clientprogs = $this->getInitialConsult($monthyear, 'success');
