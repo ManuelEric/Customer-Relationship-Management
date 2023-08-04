@@ -577,6 +577,16 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->get();
     }
 
+    # signature
+    public function getInvoicesNeedToBeSigned($dataTables = false)
+    {
+        $response = InvoiceProgram::whereHas('invoiceAttachment', function ($query) {
+                $query->where('sign_status', 'not yet');    
+            });
+
+        return $dataTables == true ? $response : $response->get();
+    }
+
     public function getInvoiceDifferences()
     {
         $invoice_v2 = InvoiceProgram::pluck('inv_id')->toArray();
