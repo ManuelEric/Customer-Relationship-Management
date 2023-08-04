@@ -31,7 +31,8 @@ class StoreReceiptRequest extends FormRequest
             'receipt_words' => 'required_unless:rec_currency,idr',
             'receipt_words_idr' => 'required_if:rec_currency,idr',
             'receipt_method' => 'required|in:Wire Transfer,Cash,Cheque',
-            'receipt_cheque' => 'required_if:receipt_method,Cheque'
+            'receipt_cheque' => 'required_if:receipt_method,Cheque',
+            'pph23' => 'nullable'
         ];
     }
 }
