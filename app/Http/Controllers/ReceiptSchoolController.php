@@ -82,6 +82,7 @@ class ReceiptSchoolController extends Controller
             'receipt_words_idr',
             'receipt_method',
             'receipt_cheque',
+            'pph23'
         ]);
 
 
@@ -129,7 +130,7 @@ class ReceiptSchoolController extends Controller
             $total_receipt = $request->receipt_amount_idr;
         }
 
-        if ($total_receipt < $total_invoice)
+        if ($receipts['pph23'] == 0 && $total_receipt < $total_invoice)
             return Redirect::back()->withError('Do double check the amount. Make sure the amount on invoice and the amount on receipt is equal');
 
 
