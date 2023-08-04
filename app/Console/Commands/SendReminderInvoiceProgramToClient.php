@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Interfaces\InvoiceDetailRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use Exception;
 use Illuminate\Console\Command;
@@ -12,11 +13,13 @@ class SendReminderInvoiceProgramToClient extends Command
 {
 
     private InvoiceProgramRepositoryInterface $invoiceProgramRepository;
+    private InvoiceDetailRepositoryInterface $invoiceDetailRepository;
 
-    public function __construct(InvoiceProgramRepositoryInterface $invoiceProgramRepository)
+    public function __construct(InvoiceProgramRepositoryInterface $invoiceProgramRepository, InvoiceDetailRepositoryInterface $invoiceDetailRepository)
     {
         parent::__construct();
         $this->invoiceProgramRepository = $invoiceProgramRepository;
+        $this->invoiceDetailRepository = $invoiceDetailRepository;
     }
     /**
      * The name and signature of the console command.
@@ -55,6 +58,9 @@ class SendReminderInvoiceProgramToClient extends Command
 
             $invoiceId = $data->inv_id;
             $clientprogId = $data->clientprog_id;
+            
+            $identifier = $data->identifier;
+            $payment_method = $data->master_paymentmethod;
 
             $pic_email = $data->pic_mail;
 
@@ -101,10 +107,25 @@ class SendReminderInvoiceProgramToClient extends Command
             }
 
             $this->info('Invoice reminder has been sent to ' . $parent_mail);
-            # update reminded count to 1
-            $updated_invoice = $this->invoiceProgramRepository->getInvoiceByClientProgId($clientprogId);
-            $updated_invoice->reminded = 1;
-            $updated_invoice->save();
+
+            switch ($payment_method) {
+
+                case "Full Payment":
+                    # update reminded count to 1
+                    $updated_invoice = $this->invoiceProgramRepository->getInvoiceByClientProgId($clientprogId);
+                    $updated_invoice->reminded = 1;
+                    $updated_invoice->save();
+                    break;
+
+                case "Installment":
+                    # update reminded count to 1
+                    $updated_invoice_installment = $this->invoiceDetailRepository->getInvoiceDetailById($identifier);
+                    $updated_invoice_installment->reminded = 1;
+                    $updated_invoice_installment->save();
+                    break;
+
+            }
+            
 
             $progressBar->advance();
         }

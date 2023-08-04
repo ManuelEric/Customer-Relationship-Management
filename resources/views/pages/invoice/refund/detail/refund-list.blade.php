@@ -12,26 +12,7 @@
             <th class="bg-info text-white">Action</th>
         </tr>
     </thead>
-    <tbody>
-        @for ($i = 0; $i < 5; $i++)
-            <tr>
-                <td>#</td>
-                <td>Partner Name</td>
-                <td>Program Name</td>
-                <td>Invoice ID</td>
-                <td>Total Price</td>
-                <td>Refund Amount</td>
-                <td>Tax Amount</td>
-                <td>Total Refund</td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-outline-danger"
-                        onclick="cancel_refund({{ $i }})">
-                        <i class="bi bi-x"></i> Cancel
-                    </button>
-                </td>
-            </tr>
-        @endfor
-    </tbody>
+    <tbody></tbody>
     <tfoot class="bg-light text-white">
         <tr>
             <td colspan="7"></td>
@@ -109,21 +90,53 @@
                     data: 'total_price',
                     orderable: false,
                     searchable: false,
+                    render: function(data, type, row) {
+                        return new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR",
+                            minimumFractionDigits: 0
+                        }).format(data);
+
+                    }
                 },
                 {
                     data: 'refund_amount',
                     orderable: false,
                     searchable: false,
+                    render: function(data, type, row) {
+                        return new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR",
+                            minimumFractionDigits: 0
+                        }).format(data);
+
+                    }
                 },
                 {
                     data: 'tax_amount',
                     orderable: false,
                     searchable: false,
+                    render: function(data, type, row) {
+                        return new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR",
+                            minimumFractionDigits: 0
+                        }).format(data);
+
+                    }
                 },
                 {
                     data: 'total_refunded',
                     orderable: false,
                     searchable: false,
+                    render: function(data, type, row) {
+                        return new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR",
+                            minimumFractionDigits: 0
+                        }).format(data);
+
+                    }
                 },
                 {
                     data: 'id',

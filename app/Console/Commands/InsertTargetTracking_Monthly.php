@@ -72,7 +72,9 @@ class InsertTargetTracking_Monthly extends Command
                     'contribution_target' => $target->contribution_to_target,
                     'contribution_achieved' => 0,
                     'status' => 0,
-                    'month_year' => date('Y-m').'-01'
+                    'month_year' => date('Y-m').'-01',
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
                 ];
     
             }

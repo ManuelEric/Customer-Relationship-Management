@@ -64,6 +64,17 @@
                         <div class="row mb-2 g-1">
                             <div class="col d-flex justify-content-between">
                                 <label>
+                                    Grade
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-8 col-8">
+                                    {{$viewStudent->grade_now != null ? $viewStudent->grade_now : ''}}
+                            </div>
+                        </div>
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
                                     Graduation Year
                                 </label>
                                 <label>:</label>

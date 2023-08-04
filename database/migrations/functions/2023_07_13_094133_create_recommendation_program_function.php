@@ -25,7 +25,7 @@ return new class extends Migration
             roles VARCHAR(7),
             major_categorization INTEGER,
         )
-        RETURN DOUBLE(2,2)
+        RETURNS DOUBLE(2,2)
 
         BEGIN
             DECLARE initial_program = 1;

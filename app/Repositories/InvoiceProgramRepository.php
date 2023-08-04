@@ -151,7 +151,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 'clientprogram.parent_phone',
                 'clientprogram.parent_mail',
                 'program_name',
+                'tbl_inv.inv_paymentmethod as master_paymentmethod',
                 'tbl_inv.inv_id',
+                DB::raw('
+                    (CASE
+                        WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.id
+                        WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_id
+                    END) as identifier
+                '),
                 DB::raw('
                     (CASE
                         WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
@@ -189,9 +196,14 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     END) as date_difference
                 '),
                 // DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
-            ])
+            ])->
             // ->whereNull('tbl_receipt.inv_id')
-            ->where('tbl_inv.reminded', '=', 0)
+            whereRaw('
+                (CASE
+                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.reminded = 0 OR tbl_inv.reminded IS NULL
+                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.reminded = 0 OR tbl_invdtl.reminded IS NULL
+                END)
+            ')
             // ->where(DB::raw('DATEDIFF(inv_duedate, now())'), '=', $days)
             ->where(DB::raw('
                 (CASE
@@ -204,8 +216,10 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN r.inv_id
                     WHEN tbl_inv.inv_paymentmethod = "Installment" THEN dr.invdtl_id
                 END)
-            '))
-            ->orderBy('date_difference', 'asc')->get();
+            '))->
+            orderBy('date_difference', 'asc')->
+            groupBy('tbl_inv.inv_id')->
+            get();
     }
 
     public function getAllInvoiceProgram()
