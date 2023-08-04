@@ -19,6 +19,9 @@ interface InvoiceProgramRepositoryInterface
     public function getTotalRefundRequest($monthYear);
     public function getInvoiceOutstandingPayment($monthYear, $type, $start_date = null, $end_date = null);
     public function getRevenueByYear($year);
+    
+    # signature
+    public function getInvoicesNeedToBeSigned();
 
     public function getInvoiceDifferences();
 }
