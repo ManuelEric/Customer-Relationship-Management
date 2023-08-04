@@ -79,6 +79,11 @@ class RouteServiceProvider extends ServiceProvider
                     ->prefix('report')
                     ->namespace($this->namespace)
                     ->group(base_path('routes/report.php'));
+
+                Route::middleware('web')
+                    ->prefix('request-sign')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/request-sign.php'));
     
                 Route::middleware('web')
                     ->prefix('menus')
