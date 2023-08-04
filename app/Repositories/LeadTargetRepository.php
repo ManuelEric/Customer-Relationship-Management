@@ -184,4 +184,134 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     })->
                     get();
     }
+
+    public function getAchievedInitConsultReferralByMonth($now)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        # get all client from referral and client program from referral
+        return UserClient::
+                    where(function ($query) {
+                        $query->whereHas('lead', function ($subQuery) {
+                            $subQuery->where('main_lead', 'Referral');
+                        })->
+                        orWhereHas('clientProgram', function ($subQuery) {
+                            $subQuery->whereHas('lead', function ($subQuery_2) {
+                                $subQuery_2->where('main_lead', 'Referral');
+                            });
+                        });
+                    })->
+                    whereHas('clientProgram', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('assessmentsent_date', $month)->
+                            whereYear('assessmentsent_date', $year);
+                    })->
+                    get();
+    }
+
+    public function getAchievedContributionReferralByMonth($now)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        return UserClient::
+                    where(function ($query) {
+                        $query->whereHas('lead', function ($subQuery) {
+                            $subQuery->where('main_lead', 'Referral');
+                        })->
+                        orWhereHas('clientProgram', function ($subQuery) {
+                            $subQuery->whereHas('lead', function ($subQuery_2) {
+                                $subQuery_2->where('main_lead', 'Referral');
+                            });
+                        });
+                    })->
+                    whereHas('clientProgram', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('updated_at', $month)->
+                            whereYear('updated_at', $year)->
+                            where('status', 1)-> # status programnya success
+                            whereHas('invoice', function ($subQuery) {
+                                $subQuery->
+                                    where('inv_status', '!=', 2); # status invoicenya tidak refund
+                            });
+                    })->
+                    get();
+    }
+
+    public function getAchievedLeadDigitalByMonth($now)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        return UserClient::
+                    whereHas('lead', function ($query) {
+                        $query->where('note', 'Digital');    
+                    })->
+                    whereHas('leadStatus', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('tbl_client_lead_tracking.updated_at', $month)->
+                            whereYear('tbl_client_lead_tracking.updated_at', $year);
+                    })->
+                    get();
+    }
+
+    public function getAchievedHotLeadDigitalByMonth($now)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        return UserClient::
+                    whereHas('lead', function ($query) {
+                        $query->where('note', 'Digital');    
+                    })->
+                    whereHas('leadStatus', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('tbl_client_lead_tracking.updated_at', $month)->
+                            whereYear('tbl_client_lead_tracking.updated_at', $year)->
+                            where('tbl_initial_program_lead.name', 'Admissions Mentoring')->
+                            where('tbl_client_lead_tracking.type', 'Lead')->
+                            where('tbl_client_lead_tracking.total_result', '>=', 0.65); # >= 0.65 means HOT
+                    })->
+                    get();
+    }
+
+    public function getAchievedInitConsultDigitalByMonth($now)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        return UserClient::
+                    whereHas('lead', function ($query) {
+                        $query->where('note', 'Digital');    
+                    })->
+                    whereHas('clientProgram', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('assessmentsent_date', $month)->
+                            whereYear('assessmentsent_date', $year);
+                    })->
+                    get();
+    }
+
+    public function getAchievedContributionDigitalByMonth($now)
+    {
+        $month = date('m', strtotime($now));
+        $year = date('Y', strtotime($now));
+
+        return UserClient::
+                    whereHas('lead', function ($query) {
+                        $query->where('note', 'Digital');    
+                    })->
+                    whereHas('clientProgram', function ($query) use ($month, $year) {
+                        $query->
+                            whereMonth('updated_at', $month)->
+                            whereYear('updated_at', $year)->
+                            where('status', 1)-> # status programnya success
+                            whereHas('invoice', function ($subQuery) {
+                                $subQuery->
+                                    where('inv_status', '!=', 2); # status invoicenya tidak refund
+                            });
+                    })->
+                    get();
+    }
 }
