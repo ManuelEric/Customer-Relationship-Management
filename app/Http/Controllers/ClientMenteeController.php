@@ -42,7 +42,7 @@ class ClientMenteeController extends Controller
     {
         $menteeId = $request->route('mentee');
         $student = $this->clientRepository->getClientById($menteeId);
-        $viewStudent = $this->clientRepository->getViewClientById($studentId);
+        $viewStudent = $this->clientRepository->getViewClientById($menteeId);
 
         return view('pages.client.student.view')->with(
             [
