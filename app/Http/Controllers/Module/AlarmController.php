@@ -35,70 +35,21 @@ class AlarmController extends Controller
         $currMonth = date('m');
 
         $allTarget = $this->targetSignalRepository->getAllTargetSignal();
-        $dataSalesTarget = $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($today, 'Sales');
-        $dataReferralTarget = $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($today, 'Referral');
-        $dataDigitalTarget = $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($today, 'Digital');
+        $dataSalesTarget = $this->getDataTarget($today, 'Sales');
+        $dataReferralTarget = $this->getDataTarget($today, 'Referral');
+        $dataDigitalTarget = $this->getDataTarget($today, 'Digital');
         
         # sales
-        $leadSalesTarget = [
-            'ic' => 0,
-            'hot_lead' => 0,
-            'lead_needed' => 0,
-            'contribution' => 0,
-            'percentage_lead_needed' => 0,
-            'percentage_hot_lead' => 0,
-            'percentage_ic' => 0,
-            'percentage_contribution' => 0,
-        ];
-        if($dataSalesTarget->count() > 0){
-            $leadSalesTarget = [
-                'ic' => $dataSalesTarget->target_initconsult,
-                'hot_lead' => $dataSalesTarget->target_hotleads,
-                'lead_needed' => $dataSalesTarget->target_lead,
-                'contribution' => $dataSalesTarget->contribution_target,
-            ];
-        }
+        $actualLeadsSales = $this->setDataActual($dataSalesTarget);
+        $leadSalesTarget = $this->setDataTarget($dataSalesTarget, $actualLeadsSales); 
 
         # referral
-        $leadReferralTarget = [
-            'ic' => 0,
-            'hot_lead' => 0,
-            'lead_needed' => 0,
-            'contribution' => 0,
-            'percentage_lead_needed' => 0,
-            'percentage_hot_lead' => 0,
-            'percentage_ic' => 0,
-            'percentage_contribution' => 0,
-        ];
-        if($dataReferralTarget->count() > 0){
-            $leadReferralTarget = [
-                'ic' => $dataReferralTarget->target_initconsult,
-                'hot_lead' => $dataReferralTarget->target_hotleads,
-                'lead_needed' => $dataReferralTarget->target_lead,
-                'contribution' => $dataReferralTarget->contribution_target,
-            ];
-        }
-
+        $actualLeadsReferral = $this->setDataActual($dataReferralTarget);
+        $leadReferralTarget = $this->setDataTarget($dataReferralTarget, $actualLeadsReferral); 
+        
         # digital
-        $leadDigitalTarget = [
-            'ic' => 0,
-            'hot_lead' => 0,
-            'lead_needed' => 0,
-            'contribution' => 0,
-            'percentage_lead_needed' => 0,
-            'percentage_hot_lead' => 0,
-            'percentage_ic' => 0,
-            'percentage_contribution' => 0,
-        ];
-
-        if($dataDigitalTarget->count() > 0){
-            $leadDigitalTarget = [
-                'ic' => $dataDigitalTarget->target_initconsult,
-                'hot_lead' => $dataDigitalTarget->target_hotleads,
-                'lead_needed' => $dataDigitalTarget->target_lead,
-                'contribution' => $dataDigitalTarget->contribution_target,
-            ];
-        }
+        $actualLeadsDigital = $this->setDataActual($dataDigitalTarget);
+        $leadDigitalTarget = $this->setDataTarget($dataDigitalTarget, $actualLeadsDigital); 
 
         // $revenueTarget = $dataSalesTarget->total_target;
         $revenueTarget = 0;
@@ -112,33 +63,6 @@ class AlarmController extends Controller
 
         $revenue = null;
         $totalRevenue = $revenue != null ? $revenue->sum('total') : 0;
-
-        # sales
-        $actualLeadsSales = [
-            'lead_needed' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_lead : 0,
-            'hot_lead' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_hotleads : 0,
-            'IC' => $clientLeadSales->count() > 0 ? $clientLeadSales->achieved_initconsult : 0,
-            'revenue' => $totalRevenue,
-            'contribution' => $clientLeadSales->count() > 0 ? $clientLeadSales->contribution_achieved : 0,
-        ];
-
-        # referral
-        $actualLeadsReferral = [
-            'lead_needed' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_lead : 0,
-            'hot_lead' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_hotleads : 0,
-            'IC' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->achieved_initconsult : 0,
-            'revenue' => 0,
-            'contribution' => $clientLeadReferral->count() > 0 ? $clientLeadReferral->contribution_achieved : 0,
-        ];
-
-        # digital
-        $actualLeadsDigital = [
-            'lead_needed' => $clientLeadDigital->count() > 0 ? $clientLeadDigital->achieved_lead : 0,
-            'hot_lead' => $clientLeadDigital->count() > 0 ? $clientLeadDigital->achieved_hotleads : 0,
-            'IC' => $clientLeadDigital->count() > 0 ? $clientLeadDigital->achieved_initconsult : 0,
-            'revenue' => $totalRevenue,
-            'contribution' => $clientLeadDigital->count() > 0 ? $clientLeadDigital->contribution_achieved : 0,
-        ];
 
         # Day 1-14 (awal bulan)
         $salesAlarm['mid']['lead_needed'] = $actualLeadsSales['lead_needed'] < $leadSalesTarget['lead_needed'] ? true : false;
@@ -173,30 +97,29 @@ class AlarmController extends Controller
             'number_of_contribution' => $allTarget->sum('contribution_to_target'), 
         ];
 
-        $leadSalesTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsSales['lead_needed'], $leadSalesTarget['lead_needed']);
-        $leadSalesTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsSales['hot_lead'], $leadSalesTarget['hot_lead']);
-        $leadSalesTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsSales['IC'], $leadSalesTarget['ic']);
-        $leadSalesTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsSales['contribution'], $leadSalesTarget['contribution']);
+        // $leadSalesTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsSales['lead_needed'], $leadSalesTarget['lead_needed']);
+        // $leadSalesTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsSales['hot_lead'], $leadSalesTarget['hot_lead']);
+        // $leadSalesTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsSales['IC'], $leadSalesTarget['ic']);
+        // $leadSalesTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsSales['contribution'], $leadSalesTarget['contribution']);
         
-        $leadReferralTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsReferral['lead_needed'], $leadReferralTarget['lead_needed']);
-        $leadReferralTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsReferral['hot_lead'], $leadReferralTarget['hot_lead']);
-        $leadReferralTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsReferral['IC'], $leadReferralTarget['ic']);
-        $leadReferralTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsReferral['contribution'], $leadReferralTarget['contribution']);
+        // $leadReferralTarget['percentage_lead_needed'] = $this->calculatePercentageLead($actualLeadsReferral['lead_needed'], $leadReferralTarget['lead_needed']);
+        // $leadReferralTarget['percentage_hot_lead'] = $this->calculatePercentageLead($actualLeadsReferral['hot_lead'], $leadReferralTarget['hot_lead']);
+        // $leadReferralTarget['percentage_ic'] = $this->calculatePercentageLead($actualLeadsReferral['IC'], $leadReferralTarget['ic']);
+        // $leadReferralTarget['percentage_contribution'] = $this->calculatePercentageLead($actualLeadsReferral['contribution'], $leadReferralTarget['contribution']);
         
-        $leadDigitalTarget['percentage_lead_needed'] = $actualLeadsDigital['lead_needed']/$leadDigitalTarget['lead_needed']*100;
-        $leadDigitalTarget['percentage_hot_lead'] = $actualLeadsDigital['hot_lead']/$leadDigitalTarget['hot_lead']*100;
-        $leadDigitalTarget['percentage_ic'] = $actualLeadsDigital['IC']/$leadDigitalTarget['ic']*100;
-        $leadDigitalTarget['percentage_contribution'] = $actualLeadsDigital['contribution']/$leadDigitalTarget['contribution']*100;
-
+        // $leadDigitalTarget['percentage_lead_needed'] = $actualLeadsDigital['lead_needed']/$leadDigitalTarget['lead_needed']*100;
+        // $leadDigitalTarget['percentage_hot_lead'] = $actualLeadsDigital['hot_lead']/$leadDigitalTarget['hot_lead']*100;
+        // $leadDigitalTarget['percentage_ic'] = $actualLeadsDigital['IC']/$leadDigitalTarget['ic']*100;
+        // $leadDigitalTarget['percentage_contribution'] = $actualLeadsDigital['contribution']/$leadDigitalTarget['contribution']*100;
 
         $targetTrackingPeriod = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today);
         
         # Chart lead
         $last3month = $currMonth-2;
-        for($i=0; $i<3; $i++){
+        for($i=2; $i>=0; $i--){
             $dataLeadChart['target'][] = $targetTrackingPeriod->where('month', $last3month)->count() > 0 ? (int)$targetTrackingPeriod->where('month', $last3month)->first()->target : 0;
             $dataLeadChart['actual'][] = $targetTrackingPeriod->where('month', $last3month)->count() > 0 ? (int)$targetTrackingPeriod->where('month', $last3month)->first()->actual : 0;
-            $dataLeadChart['label'][] = Carbon::now()->startOfMonth()->subMonth($last3month)->format('F');
+            $dataLeadChart['label'][] = Carbon::now()->startOfMonth()->subMonth($i)->format('F');
             $last3month++;
         }
       
@@ -220,6 +143,53 @@ class AlarmController extends Controller
         return $response;
     }
 
+    private function getDataTarget($date, $divisi)
+    {
+        return $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($date, $divisi);
+    }
+
+    private function setDataActual($dataActual)
+    {
+        $data = [
+            'lead_needed' => $dataActual->count() > 0 ? $dataActual->achieved_lead : 0,
+            'hot_lead' => $dataActual->count() > 0 ? $dataActual->achieved_hotleads : 0,
+            'IC' => $dataActual->count() > 0 ? $dataActual->achieved_initconsult : 0,
+            'revenue' => 0,
+            'contribution' => $dataActual->count() > 0 ? $dataActual->contribution_achieved : 0,
+        ];
+
+        return $data;
+    }
+
+    private function setDataTarget($dataTarget, $dataActual)
+    {
+        $data = [
+            'ic' => 0,
+            'hot_lead' => 0,
+            'lead_needed' => 0,
+            'contribution' => 0,
+            'percentage_lead_needed' => 0,
+            'percentage_hot_lead' => 0,
+            'percentage_ic' => 0,
+            'percentage_contribution' => 0,
+        ];
+        if($dataTarget->count() > 0){
+            $data = [
+                'ic' => $dataTarget->target_initconsult,
+                'hot_lead' => $dataTarget->target_hotleads,
+                'lead_needed' => $dataTarget->target_lead,
+                'contribution' => $dataTarget->contribution_target,
+                'percentage_lead_needed' => $this->calculatePercentageLead($dataActual['lead_needed'], $dataTarget['lead_needed']),
+                'percentage_hot_lead' => $this->calculatePercentageLead($dataActual['hot_lead'], $dataTarget['hot_lead']),
+                'percentage_ic' => $this->calculatePercentageLead($dataActual['IC'], $dataTarget['ic']),
+                'percentage_contribution' => $this->calculatePercentageLead($dataActual['contribution'], $dataTarget['contribution'])
+                
+            ];
+        }
+
+        return $data;
+    }
+
     private function calculatePercentageLead($actual, $target)
     {
         if ($target == 0)
@@ -227,5 +197,4 @@ class AlarmController extends Controller
 
         return $actual/$target*100;
     }
-
 }

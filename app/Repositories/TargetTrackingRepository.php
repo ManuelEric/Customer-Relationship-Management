@@ -18,7 +18,7 @@ class TargetTrackingRepository implements TargetTrackingRepositoryInterface
 
     public function getTargetTrackingPeriod($startDate, $endDate)
     {
-        return TargetTracking::select(DB::raw('SUM(target_lead + target_hotleads + target_initconsult + contribution_target) as target'), DB::raw('SUM(achieved_lead + achieved_hotleads + achieved_initconsult + contribution_achieved) as actual'), DB::raw('Month(month_year) as month'))
+        return TargetTracking::select(DB::raw('SUM(contribution_target) as target'), DB::raw('SUM(contribution_achieved) as actual'), DB::raw('Month(month_year) as month'))
                             ->whereBetween('month_year', [$startDate, $endDate])->groupBy(DB::raw('Month(month_year)'))->get();
     }
 

@@ -229,7 +229,6 @@
 </div>
 
 <script>
-    console.log('{{json_encode($dataLeadChart["label"])}}')
     const leadsTarget = document.getElementById('leadsTarget');
 
     const options = 
@@ -237,7 +236,7 @@
     new Chart(leadsTarget, {
         type: 'line',
         data: {
-            labels: {{json_encode($dataLeadChart["label"])}},
+            labels: {!! json_encode($dataLeadChart["label"]) !!},
             datasets: [{
                 label: 'Actual Sales',
                 data: {{json_encode($dataLeadChart["actual"])}},
