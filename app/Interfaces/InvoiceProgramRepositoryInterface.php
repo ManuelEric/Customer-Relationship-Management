@@ -21,7 +21,7 @@ interface InvoiceProgramRepositoryInterface
     public function getRevenueByYear($year);
     
     # signature
-    public function getInvoicesNeedToBeSigned();
+    public function getInvoicesNeedToBeSigned($dataTables);
 
     public function getInvoiceDifferences();
 }
