@@ -21,24 +21,28 @@ class AlarmController extends Controller
         $this->clientLeadTrackingRepository = $repositories->clientLeadTrackingRepository;
         $this->targetTrackingRepository = $repositories->targetTrackingRepository;
         $this->targetSignalRepository = $repositories->targetSignalRepository;
+        $this->eventRepository = $repositories->eventRepository;
     }
 
     public function get($request)
     {
 
         $salesAlarm = false;
-        $triggerEvent = false;
+        $allAlarm = false;
         $fullDay = Carbon::now()->daysInMonth;
         $midOfMonth = floor($fullDay / 2);
 
         $today = date('Y-m-d');
         $currMonth = date('m');
 
-        $allTarget = $this->targetSignalRepository->getAllTargetSignal();
+        $allTarget = $this->targetTrackingRepository->getAllTargetTrackingMonthly($today);
         $dataSalesTarget = $this->getDataTarget($today, 'Sales');
         $dataReferralTarget = $this->getDataTarget($today, 'Referral');
         $dataDigitalTarget = $this->getDataTarget($today, 'Digital');
         
+        # Event
+        $events = $this->eventRepository->getEventByMonthyear($today);
+
         # sales
         $actualLeadsSales = $this->setDataActual($dataSalesTarget);
         $leadSalesTarget = $this->setDataTarget($dataSalesTarget, $actualLeadsSales); 
@@ -64,9 +68,11 @@ class AlarmController extends Controller
         $salesAlarm['mid']['lead_needed'] = $actualLeadsSales['lead_needed'] < $leadSalesTarget['lead_needed'] ? true : false;
         $salesAlarm['mid']['hot_lead'] = $actualLeadsSales['hot_lead'] < $leadSalesTarget['hot_lead'] ? true : false;
         $salesAlarm['mid']['referral'] = $actualLeadsReferral['lead_needed'] < 10 ? true : false;
-        $triggerEvent = $salesAlarm['mid']['hot_lead'] || $salesAlarm['mid']['referral'] ? true : false;
         $digitalAlarm['mid']['hot_lead'] = $actualLeadsDigital['hot_lead'] < (4*$leadDigitalTarget['hot_lead']) ? true : false;
+        $allAlarm['event'] = $salesAlarm['mid']['hot_lead'] || $salesAlarm['mid']['referral'] && $events->count() < 1 ? true : false;
 
+        // return $allAlarm;
+        // exit;
         # Day 15-30 (akhir bulan)
         if (date('Y-m-d') > date('Y-m') . '-' . $midOfMonth) {
             # sales
@@ -85,12 +91,12 @@ class AlarmController extends Controller
         $dataLeads = [
             'total_achieved_lead_needed' => $actualLeadsSales['lead_needed'] + $actualLeadsReferral['lead_needed'] + $actualLeadsDigital['lead_needed'],
             'total_achieved_hot_lead' => $actualLeadsSales['hot_lead'] + $actualLeadsReferral['hot_lead'] + $actualLeadsDigital['hot_lead'],
-            'total_achieved_ic' => $actualLeadsSales['IC'] + $actualLeadsReferral['IC'] + $actualLeadsDigital['IC'],
+            'total_achieved_ic' => $actualLeadsSales['ic'] + $actualLeadsReferral['ic'] + $actualLeadsDigital['ic'],
             'total_achieved_contribution' => $actualLeadsSales['contribution'] + $actualLeadsReferral['contribution'] + $actualLeadsDigital['contribution'],
-            'number_of_leads' => $allTarget->sum('lead_needed'), 
-            'number_of_hot_leads' => $allTarget->sum('hot_leads_target'), 
-            'number_of_ic' => $allTarget->sum('initial_consult_target'), 
-            'number_of_contribution' => $allTarget->sum('contribution_to_target'), 
+            'number_of_leads' => isset($allTarget) ? $allTarget->sum('target_lead') : 0, 
+            'number_of_hot_leads' => isset($allTarget) ? $allTarget->sum('target_hotleads') : 0, 
+            'number_of_ic' => isset($allTarget) ? $allTarget->sum('target_initconsult') : 0, 
+            'number_of_contribution' => isset($allTarget) ? $allTarget->sum('contribution_target') : 0, 
         ];
 
         $targetTrackingPeriod = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today);
@@ -115,7 +121,6 @@ class AlarmController extends Controller
             'actualLeadsDigital' => $actualLeadsDigital,
             'actualLeadsSales' => $actualLeadsSales,
             'actualLeadsReferral' => $actualLeadsReferral,
-            'triggerEvent' => $triggerEvent,
             'dataLeads' => $dataLeads,
             'dataLeadChart' => $dataLeadChart
         ];
@@ -139,11 +144,11 @@ class AlarmController extends Controller
     private function setDataActual($dataActual)
     {
         $data = [
-            'lead_needed' => $dataActual->count() > 0 ? $dataActual->achieved_lead : 0,
-            'hot_lead' => $dataActual->count() > 0 ? $dataActual->achieved_hotleads : 0,
-            'IC' => $dataActual->count() > 0 ? $dataActual->achieved_initconsult : 0,
+            'lead_needed' => isset($dataActual) ? $dataActual->achieved_lead : 0,
+            'hot_lead' => isset($dataActual) ? $dataActual->achieved_hotleads : 0,
+            'ic' => isset($dataActual) ? $dataActual->achieved_initconsult : 0,
             'revenue' => 0,
-            'contribution' => $dataActual->count() > 0 ? $dataActual->contribution_achieved : 0,
+            'contribution' => isset($dataActual) ? $dataActual->contribution_achieved : 0,
         ];
 
         return $data;
@@ -161,7 +166,7 @@ class AlarmController extends Controller
             'percentage_ic' => 0,
             'percentage_contribution' => 0,
         ];
-        if($dataTarget->count() > 0){
+        if(isset($dataTarget)){
             $data = [
                 'ic' => $dataTarget->target_initconsult,
                 'hot_lead' => $dataTarget->target_hotleads,
@@ -169,7 +174,7 @@ class AlarmController extends Controller
                 'contribution' => $dataTarget->contribution_target,
                 'percentage_lead_needed' => $this->calculatePercentageLead($dataActual['lead_needed'], $dataTarget->target_lead),
                 'percentage_hot_lead' => $this->calculatePercentageLead($dataActual['hot_lead'], $dataTarget->target_hotleads),
-                'percentage_ic' => $this->calculatePercentageLead($dataActual['IC'], $dataTarget->target_initconsult),
+                'percentage_ic' => $this->calculatePercentageLead($dataActual['ic'], $dataTarget->target_initconsult),
                 'percentage_contribution' => $this->calculatePercentageLead($dataActual['contribution'], $dataTarget->contribution_target)
                 
             ];

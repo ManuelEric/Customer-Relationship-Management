@@ -51,7 +51,7 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
-                    {{-- <li class="nav-item dropdown d-none d-lg-block user-dropdown me-lg-3 me-0">
+                    <li class="nav-item dropdown d-none d-lg-block user-dropdown me-lg-3 me-0">
                         <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-bell"></i>
                             <span
@@ -73,7 +73,7 @@
                                 </li>
                             @endfor
                         </ul>
-                    </li> --}}
+                    </li>
                     <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                         <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown"
                             aria-expanded="false">

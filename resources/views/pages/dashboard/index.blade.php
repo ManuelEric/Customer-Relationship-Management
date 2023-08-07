@@ -18,17 +18,20 @@
     @endif
 
     {{-- Alarm general --}}
-    {{-- Always On --}}
-    @if ($allAlarm['always_on'])
+    @if ($allAlarm['always_on'] || $allAlarm['event'])
     <div class="row row-cols-md-4 row-cols-1 g-2 mt-4">
-        <div class="col">
-            <div class="alert bg-danger text-white d-flex align-items-center py-2 border-alert" role="alert">
-                <i class="bi bi-exclamation-circle"></i>
-                <div class="">
-                    gagal 3x berturut2
+        @foreach ($allAlarm as $key => $alarm)
+            @if ($alarm)
+                <div class="col">
+                    <div class="alert bg-danger text-white d-flex align-items-center py-2 border-alert" role="alert">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <div class="">
+                            {{$key}}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            @endif
+        @endforeach
     </div>
     @endif
 

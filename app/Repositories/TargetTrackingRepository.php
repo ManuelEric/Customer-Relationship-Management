@@ -8,6 +8,12 @@ use Illuminate\Support\Facades\DB;
 
 class TargetTrackingRepository implements TargetTrackingRepositoryInterface 
 {
+    public function getAllTargetTrackingMonthly($monthYear)
+    {
+        return TargetTracking::whereMonth('month_year', date('m', strtotime($monthYear)))
+                                ->whereYear('month_year', date('Y', strtotime($monthYear)))
+                                ->first();
+    }
     public function getTargetTrackingMonthlyByDivisi($monthYear, $divisi)
     {
         return TargetTracking::whereMonth('month_year', date('m', strtotime($monthYear)))
