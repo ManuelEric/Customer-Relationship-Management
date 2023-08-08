@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Models\InitialProgram;
+use App\Models\SeasonalProgram;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
@@ -61,13 +62,12 @@ class AutomatedDeterminedHotLeads extends Command
                 $newClient = $leadTracking->count() > 0 ? false : true;
     
                 // 01 April & 01 Oktober
-                if (date('d-m') == '01-04' || date('d-m') == '01-08') {
+                // if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00') {
                     $recalculate = true;
-                }
+                // }    
     
-    
-                $this->info($clientData->name);
-                $this->info($clientData->id);
+                // $this->info($clientData->name);
+                // $this->info($clientData->id);
                 $isFunding = $clientData->is_funding;
                 $schoolCategorization = $clientData->school_categorization;
                 $gradeCategorization = $clientData->grade_categorization;
@@ -198,12 +198,16 @@ class AutomatedDeterminedHotLeads extends Command
                                 # yg dimana 1 ini akan dikalikan dengan weight nya (contoh : 10%)
                                 # masukkan 10% ini ke dalam variable sub_result
                                 # find value from library
-    
-    
-                                $checkSeasonal = DB::table('tbl_seasonal_lead')->where('initialprogram_id', $initProgramId)->whereBetween(
-                                    'start',
-                                    [Carbon::now(), Carbon::now()->addMonths(6)->toDateString()]
-                                )->first();
+
+                                $checkSeasonal = SeasonalProgram::withAndWhereHas('program.sub_prog.spesificConcern', function ($query) {
+                                            $query->where('tbl_initial_program_lead.id', 1);
+                                        })->
+                                        where(function ($query) {
+                                            $query->
+                                                whereBetween('start', [Carbon::now()->toDateString(), Carbon::now()->addMonths(6)->toDateString()])->
+                                                orWhereBetween('end', [Carbon::now()->toDateString(), Carbon::now()->addMonths(6)->toDateString()]);
+                                        })->        
+                                        first();
     
                                 $sub_result = ($weight / 100) * 0;
                                 $value_from_library = 0;
@@ -403,7 +407,7 @@ class AutomatedDeterminedHotLeads extends Command
                     ];
     
                     # end check Lead
-    
+                    $this->info('');
                     $this->info($programLeadTracking);
                     if ($recalculate == true) {
                         if ($this->comparison($statusLeadTracking->total_result, $leadScore) || $this->comparison($programLeadTracking->total_result, $programScore)) {
