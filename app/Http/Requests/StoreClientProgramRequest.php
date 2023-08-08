@@ -490,7 +490,7 @@ class StoreClientProgramRequest extends FormRequest
             ],
             'success_date' => 'required',
             'trial_date' => 'required|date',
-            'first_class' => 'required|date',
+            // 'first_class' => 'required|date',
             'prog_start_date' => 'required|date',
             'prog_end_date' => 'required|date|after_or_equal:prog_start_date',
             'timesheet_link' => 'required|url',
