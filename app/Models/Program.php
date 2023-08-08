@@ -105,4 +105,9 @@ class Program extends Model
     {
         return $this->hasMany(ClientProgram::class, 'prog_id', 'prog_id');
     }
+
+    public function seasonalProgram()
+    {
+        return $this->hasMany(SeasonalProgram::class, 'prog_id', 'prog_id');
+    }
 }
