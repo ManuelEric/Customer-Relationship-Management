@@ -25,5 +25,5 @@ interface LeadTargetRepositoryInterface
     public function getAchievedInitConsultDigitalByMonth($now);
     public function getAchievedContributionDigitalByMonth($now);
 
-    public function getAchievedRevenueByDivision($monthyear, $divisi);
+    public function getAchievedRevenue($monthyear);
 }

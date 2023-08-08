@@ -33,6 +33,7 @@ use App\Interfaces\RefundRepositoryInterface;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\TargetSignalRepositoryInterface;
 use App\Interfaces\TargetTrackingRepositoryInterface;
+use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Models\Client;
 use App\Models\UserClient;
 use App\Repositories\ClientRepository;
@@ -70,8 +71,9 @@ class DashboardController extends SalesDashboardController
     public ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
     public TargetTrackingRepositoryInterface $targetTrackingRepository;
     public TargetSignalRepositoryInterface $targetSignalRepository;
+    public LeadTargetRepositoryInterface $leadTargetRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository, RefundRepositoryInterface $refundRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, TargetTrackingRepositoryInterface $targetTrackingRepository, TargetSignalRepositoryInterface $targetSignalRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository, RefundRepositoryInterface $refundRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, TargetTrackingRepositoryInterface $targetTrackingRepository, TargetSignalRepositoryInterface $targetSignalRepository, LeadTargetRepositoryInterface $leadTargetRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->followupRepository = $followupRepository;
@@ -97,6 +99,7 @@ class DashboardController extends SalesDashboardController
         $this->receiptRepository = $receiptRepository;
         $this->refundRepository = $refundRepository;
         $this->targetSignalRepository = $targetSignalRepository;
+        $this->leadTargetRepository = $leadTargetRepository;
     }
 
     public function index(Request $request)
@@ -140,6 +143,9 @@ class DashboardController extends SalesDashboardController
         //     ];
         // })->pluck('id')->toArray(); 
         
+        // $data = (new AlarmController($this))->get($request);
+        // return $data;
+        // exit;
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, (new AlarmController($this))->get($request));
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));

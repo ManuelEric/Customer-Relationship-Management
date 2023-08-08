@@ -88,6 +88,7 @@ Route::get('finance/outstanding/period/{start_date}/{end_date}', [FinanceDashboa
 
 # dashboard digital
 Route::get('digital/leads/{month}', [DigitalDashboardController::class, 'getDataLead']);
+Route::get('digital/detail/{month}/type-lead/{type_lead}/division/{division}', [DigitalDashboardController::class, 'getDetailDataLead']);
 
 
 Route::post('/upload', [InvoiceProgramController::class, 'upload']);

@@ -14,6 +14,7 @@ class TargetTrackingRepository implements TargetTrackingRepositoryInterface
                                 ->whereYear('month_year', date('Y', strtotime($monthYear)))
                                 ->first();
     }
+
     public function getTargetTrackingMonthlyByDivisi($monthYear, $divisi)
     {
         return TargetTracking::whereMonth('month_year', date('m', strtotime($monthYear)))
@@ -22,10 +23,20 @@ class TargetTrackingRepository implements TargetTrackingRepositoryInterface
                                 ->first();
     }
 
-    public function getTargetTrackingPeriod($startDate, $endDate)
+    public function getTargetTrackingPeriod($startDate, $endDate, $type)
     {
-        return TargetTracking::select(DB::raw('SUM(contribution_target) as target'), DB::raw('SUM(contribution_achieved) as actual'), DB::raw('Month(month_year) as month'))
+        switch ($type) {
+            case 'lead':
+                $query = TargetTracking::select(DB::raw('SUM(contribution_target) as target'), DB::raw('SUM(contribution_achieved) as actual'), DB::raw('Month(month_year) as month'))
                             ->whereBetween('month_year', [$startDate, $endDate])->groupBy(DB::raw('Month(month_year)'))->get();
+                break;
+            case 'revenue':
+                $query = TargetTracking::select('revenue_target as target', 'revenue_achieved as actual', DB::raw('Month(month_year) as month'))
+                            ->whereBetween('month_year', [$startDate, $endDate])->groupBy(DB::raw('Month(month_year)'))->get();
+                break;
+        }
+        
+        
+        return $query;
     }
-
 }

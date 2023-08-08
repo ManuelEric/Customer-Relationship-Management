@@ -52,7 +52,8 @@ class UpdateTargetTracking extends Command
         try {
 
             # all of the update target tracking should be running after command "insert:target_tracking_monthly"
-
+            
+            $achievedRevenue = $this->leadTargetRepository->getAchievedRevenue($now);
             for ($i = 0; $i < count($division); $i++) {
     
                 # checking active target from target tracking
@@ -68,8 +69,6 @@ class UpdateTargetTracking extends Command
                     $achievedHotLead = $this->leadTargetRepository->{$achievedHotLeadMethodName}($now)->count();
                     $achievedInitConsult = $this->leadTargetRepository->{$achievedInitConsultMethodName}($now)->count();
                     $achievedContribution = $this->leadTargetRepository->{$achievedContributionMethodName}($now)->count();
-                    $achievedRevenue = $this->leadTargetRepository->getAchievedRevenueByDivision($now, $division[$i]);
-                    $this->info(json_encode($achievedRevenue));
     
                     $contribution_target = $activeTarget->contribution_target;
                     
@@ -81,7 +80,7 @@ class UpdateTargetTracking extends Command
                         'achieved_hotleads' => $achievedHotLead,
                         'achieved_initconsult' => $achievedInitConsult,
                         'contribution_achieved' => $achievedContribution,
-                        'revenue_achieved' => 0,
+                        'revenue_achieved' => $achievedRevenue,
                         'status' => $status,
                         'updated_at' => Carbon::now(),
                     ];
@@ -91,6 +90,7 @@ class UpdateTargetTracking extends Command
     
                 $progressBar->advance();
             }
+
             DB::commit();
             $progressBar->finish();
 

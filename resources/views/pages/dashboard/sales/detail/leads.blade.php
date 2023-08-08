@@ -2,6 +2,7 @@
     <div class="card-body">
         <div class="row justify-content-end g-1 mb-3">
             <div class="col-md-2 text-end">
+                <button onclick="checkDetail('Lead', 'Sales')">Cek detail</button>
                 <input type="month" name="" id="digital_lead_month" class="form-control form-control-sm"
                     onchange="checkDataLead()" value="{{ date('Y-m') }}">
             </div>
@@ -282,18 +283,26 @@
 
     const idrTarget = document.getElementById('idrTarget');
 
-    new Chart(idrTarget, {
+    let dataset_revenueTarget = new Array();
+    let dataset_revenueActual = new Array();
+    let lbl_dataRevenue = new Array();
+    
+    dataset_revenueTarget = {{json_encode($dataRevenueChart["target"])}}
+    dataset_revenueActual = {{json_encode($dataRevenueChart["actual"])}}
+    lbl_dataRevenue = {!! json_encode($dataRevenueChart["label"]) !!}
+
+    var chart_datarevenue = new Chart(idrTarget, {
         type: 'line',
         data: {
-            labels: ['June', 'May', 'April'],
+            labels: lbl_dataRevenue,
             datasets: [{
                 label: 'Actual Sales',
-                data: [12, 19, 7],
+                data: dataset_revenueActual,
                 borderWidth: 1
             },
             {
                 label: 'Target',
-                data: [30, 10, 8],
+                data: dataset_revenueTarget,
                 borderWidth: 1
             },
         ]
@@ -371,6 +380,18 @@
                 chart_dataleads.data.labels = [];
                 chart_dataleads.data.labels = result.dataLeadChart.label;
                 
+                // Actual
+                chart_datarevenue.data.datasets[0].data = [];
+                chart_datarevenue.data.datasets[0].data = result.dataRevenueChart.actual;
+               
+                // Target
+                chart_datarevenue.data.datasets[1].data = [];
+                chart_datarevenue.data.datasets[1].data = result.dataRevenueChart.target;
+                
+                // Label
+                chart_datarevenue.data.labels = [];
+                chart_datarevenue.data.labels = result.dataRevenueChart.label;
+                
                 // Lead Needed
                 
                 typeLead.forEach(function (itemType, indexType){
@@ -405,6 +426,7 @@
                 })
 
                 chart_dataleads.update()
+                chart_datarevenue.update()
                
                 swal.close()
             }, (error) => {
@@ -412,5 +434,22 @@
                 swal.close()
             })
             
+    }
+
+    function checkDetail(type_lead, division){
+        let month = $('#digital_lead_month').val()
+
+        Swal.showLoading()
+          axios.get('{{ url("api/digital/detail/") }}/' + month + '/type-lead/' + type_lead + '/division/' + division)
+            .then((response) => {
+                var result = response.data.data
+                
+                console.log(result);
+
+                swal.close()
+            }, (error) => {
+                console.log(error)
+                swal.close()
+            })
     }
 </script>

@@ -12,6 +12,7 @@ use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\TargetSignalRepositoryInterface;
 use App\Interfaces\TargetTrackingRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
+use App\Interfaces\LeadTargetRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -28,9 +29,10 @@ class DigitalDashboardController extends Controller
     protected TargetTrackingRepositoryInterface $targetTrackingRepository;
     protected TargetSignalRepositoryInterface $targetSignalRepository;
     protected EventRepositoryInterface $eventRepository;
+    protected LeadTargetRepositoryInterface $leadTargetRepository;
 
 
-    public function __construct(ClientRepositoryInterface $clientRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, SalesTargetRepositoryInterface $salesTargetRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, TargetTrackingRepositoryInterface $targetTrackingRepository, TargetSignalRepositoryInterface $targetSignalRepository, EventRepositoryInterface $eventRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, SalesTargetRepositoryInterface $salesTargetRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, TargetTrackingRepositoryInterface $targetTrackingRepository, TargetSignalRepositoryInterface $targetSignalRepository, EventRepositoryInterface $eventRepository, LeadTargetRepositoryInterface $leadTargetRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->userRepository = $userRepository;
@@ -40,6 +42,7 @@ class DigitalDashboardController extends Controller
         $this->targetTrackingRepository = $targetTrackingRepository;
         $this->targetSignalRepository = $targetSignalRepository;
         $this->eventRepository = $eventRepository;
+        $this->leadTargetRepository = $leadTargetRepository;
     }
 
     public function getDataLead(Request $request)
@@ -86,14 +89,19 @@ class DigitalDashboardController extends Controller
                 'number_of_contribution' => isset($allTarget) ? $allTarget->sum('contribution_target') : 0, 
             ];
 
-            $targetTrackingPeriod = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $month);
-            
+            $targetTrackingLead = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $month, 'lead');
+            $targetTrackingRevenue = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $month, 'revenue');
+        
             # Chart lead
             $last3month = $curr_month-2;
             for($i=2; $i>=0; $i--){
-                $dataLeadChart['target'][] = $targetTrackingPeriod->where('month', $last3month)->count() > 0 ? (int)$targetTrackingPeriod->where('month', $last3month)->first()->target : 0;
-                $dataLeadChart['actual'][] = $targetTrackingPeriod->where('month', $last3month)->count() > 0 ? (int)$targetTrackingPeriod->where('month', $last3month)->first()->actual : 0;
+                $dataLeadChart['target'][] = $targetTrackingLead->where('month', $last3month)->count() > 0 ? (int)$targetTrackingLead->where('month', $last3month)->first()->target : 0;
+                $dataLeadChart['actual'][] = $targetTrackingLead->where('month', $last3month)->count() > 0 ? (int)$targetTrackingLead->where('month', $last3month)->first()->actual : 0;
                 $dataLeadChart['label'][] =  Carbon::parse($month)->subMonth($i)->format('F');
+                
+                $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month', $last3month)->count() > 0 ? (int)$targetTrackingRevenue->where('month', $last3month)->first()->target : 0;
+                $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month', $last3month)->count() > 0 ? (int)$targetTrackingRevenue->where('month', $last3month)->first()->actual : 0;
+                $dataRevenueChart['label'][] =  Carbon::parse($month)->subMonth($i)->format('F');
                 $last3month++;
             }
         
@@ -105,7 +113,8 @@ class DigitalDashboardController extends Controller
                 'actualLeadsSales' => $actualLeadsSales,
                 'actualLeadsReferral' => $actualLeadsReferral,
                 'dataLeads' => $dataLeads,
-                'dataLeadChart' => $dataLeadChart
+                'dataLeadChart' => $dataLeadChart,
+                'dataRevenueChart' => $dataRevenueChart
             ];
 
         } catch (Exception $e) {
@@ -125,7 +134,25 @@ class DigitalDashboardController extends Controller
     public function getDetailDataLead(Request $request)
     {
         $month = $request->route('month') ?? date('Y-m');
-        $curr_month = date('m', strtotime($month));
+        $division = $request->route('division');
+        $typeLead = $request->route('type_lead');
+        $methodName = 'getAchieved' . $typeLead . $division . 'ByMonth';
+        $html = '';
+
+        $dataAchieved = $this->leadTargetRepository->{$methodName}($month);
+            
+        foreach ($dataAchieved as $achieved) {
+            $html .= '<tr><td>'. $achieved->first_name .'</td> <td>' . $achieved->leadSource. '</td></tr>';
+        }
+
+        return response()->json(
+            [
+                'success' => true,
+                'data' => $html
+            ]
+        );
+
+        
 
     }
 
