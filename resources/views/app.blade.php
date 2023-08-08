@@ -7,6 +7,7 @@
     <title>
         @yield('title')
     </title>
+    <link rel="shortcut icon" href="{{asset('img/favicon.png')}}" type="image/x-icon">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -62,6 +63,14 @@
             font-family: 'Poppins', sans-serif !important;
             font-size: .75rem;
             color: #494949;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 29px !important;
+        }
+
+        div.dataTables_processing {
+            z-index: 9999 !important;
         }
 
         #overlay {

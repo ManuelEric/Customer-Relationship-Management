@@ -1,5 +1,5 @@
 <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
-    <thead class="bg-dark text-white">
+    <thead class="bg-secondary text-white">
         <tr>
             <th class="bg-info text-white">#</th>
             <th class="bg-info text-white">Student/Partner/School Name</th>
@@ -126,12 +126,14 @@
                 },
                 {
                     data: 'refund_date',
-                    render: function(data, type, row) {    
+                    className: 'text-center',
+                    render: function(data, type, row) {
                         return moment(data).format('DD MMMM YYYY')
                     }
                 },
                 {
                     data: 'total_price',
+                    className: 'text-center',
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
@@ -145,6 +147,7 @@
                 },
                 {
                     data: 'total_paid',
+                    className: 'text-center',
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
@@ -168,6 +171,7 @@
                 },
                 {
                     data: 'pic_name',
+                    className: 'text-center',
                 },
                 {
                     data: 'id',
@@ -176,19 +180,22 @@
                         switch (row.receipt_cat) {
 
                             case "student":
-                                return '<a href="{{ url('invoice/client-program/') }}/' + row.b2prog_id +
+                                return '<a href="{{ url('invoice/client-program/') }}/' + row
+                                    .b2prog_id +
                                     '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
-                            break;
+                                break;
 
                             case "school":
-                                return '<a href="{{ url('invoice/school-program/') }}/' + row.b2prog_id + '/detail/' + row.invoiceNum + 
+                                return '<a href="{{ url('invoice/school-program/') }}/' + row
+                                    .b2prog_id + '/detail/' + row.invoiceNum +
                                     '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
-                            break;
+                                break;
 
                             case "partner":
-                                return '<a href="{{ url('invoice/corporate-program/') }}/' + row.b2prog_id + '/detail/' + row.invoiceNum + 
+                                return '<a href="{{ url('invoice/corporate-program/') }}/' + row
+                                    .b2prog_id + '/detail/' + row.invoiceNum +
                                     '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
-                            break;
+                                break;
 
                         }
                     }

@@ -1,15 +1,11 @@
 @extends('layout.main')
 
-@section('title', 'Student - Bigdata Platform')
-
+@section('title', 'Student')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Students</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Form Student</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ route('student.index') }}?st=potential" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Student
-        </a>
-    </div>
-
     <div class="card rounded">
         <div class="card-header">
             <h5 class="my-1 p-0">
@@ -18,7 +14,9 @@
             </h5>
         </div>
         <div class="card-body">
-            <form action="{{ isset($student) ? route('student.update', ['student' => $student->id]) : route('student.store') }}" method="post">
+            <form
+                action="{{ isset($student) ? route('student.update', ['student' => $student->id]) : route('student.store') }}"
+                method="post">
                 @csrf
                 @if (isset($student))
                     @method('PUT')
@@ -34,7 +32,8 @@
                                     <label>First Name <i class="text-danger font-weight-bold">*</i>
                                     </label>
                                     <input name="first_name" type="text" class="form-control form-control-sm"
-                                        placeholder="First name" value="{{ isset($student->first_name) ? $student->first_name : old('first_name') }}">
+                                        placeholder="First name"
+                                        value="{{ isset($student->first_name) ? $student->first_name : old('first_name') }}">
                                     @error('first_name')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -44,7 +43,8 @@
                                 <div class="mb-2">
                                     <label>Last Name</label>
                                     <input name="last_name" type="text" class="form-control form-control-sm"
-                                        placeholder="Last name" value="{{ isset($student->last_name) ? $student->last_name : old('last_name') }}">
+                                        placeholder="Last name"
+                                        value="{{ isset($student->last_name) ? $student->last_name : old('last_name') }}">
                                     @error('last_name')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -54,7 +54,8 @@
                                 <div class="mb-2">
                                     <label>E-mail <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="mail" type="text" class="form-control form-control-sm"
-                                        placeholder="E-mail" value="{{ isset($student->mail) ? $student->mail : old('mail') }}">
+                                        placeholder="E-mail"
+                                        value="{{ isset($student->mail) ? $student->mail : old('mail') }}">
                                     @error('mail')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -64,7 +65,8 @@
                                 <div class="mb-2">
                                     <label>Phone Number <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="phone" type="text" class="form-control form-control-sm"
-                                        placeholder="Phone Number" value="{{ isset($student->phone) ? $student->phone : old('phone') }}">
+                                        placeholder="Phone Number"
+                                        value="{{ isset($student->phone) ? $student->phone : old('phone') }}">
                                     @error('phone')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -73,7 +75,8 @@
                             <div class="col-md-6">
                                 <div class="mb-2">
                                     <label>Date of Birth </label>
-                                    <input name="dob" type="date" class="form-control form-control-sm" value="{{ isset($student->dob) ? $student->dob : old('dob') }}">
+                                    <input name="dob" type="date" class="form-control form-control-sm"
+                                        value="{{ isset($student->dob) ? $student->dob : old('dob') }}">
                                     @error('dob')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -83,7 +86,8 @@
                                 <div class="mb-2">
                                     <label>Instagram</label>
                                     <input name="insta" type="text" class="form-control form-control-sm"
-                                        placeholder="Instagram" value="{{ isset($student->insta) ? $student->insta : old('insta') }}">
+                                        placeholder="Instagram"
+                                        value="{{ isset($student->insta) ? $student->insta : old('insta') }}">
                                     @error('insta')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -104,8 +108,12 @@
                                     <label>Is Funding</label>
                                     <select class="select w-100" name="is_funding">
                                         <option data-placeholder="true"></option>
-                                            <option value="1" {{ old('is_funding') == "1" || (isset($student->is_funding) && $student->is_funding == 1) ? "selected" : null }}>Yes</option>
-                                            <option value="0" {{ old('is_funding') == "0" || (isset($student->is_funding) && $student->is_funding == 0) ? "selected" : null }}>No</option>
+                                        <option value="1"
+                                            {{ old('is_funding') == '1' || (isset($student->is_funding) && $student->is_funding == 1) ? 'selected' : null }}>
+                                            Yes</option>
+                                        <option value="0"
+                                            {{ old('is_funding') == '0' || (isset($student->is_funding) && $student->is_funding == 0) ? 'selected' : null }}>
+                                            No</option>
                                     </select>
                                     @error('is_funding')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -117,8 +125,12 @@
                                     <label>Register As</label>
                                     <select class="select w-100" name="register_as">
                                         <option data-placeholder="true"></option>
-                                            <option value="student" {{ old('register_as') == "student" || (isset($student->register_as) && $student->register_as == 'student') ? "selected" : null }}>Student</option>
-                                            <option value="parent" {{ old('register_as') == "parent" || (isset($student->register_as) && $student->register_as == 'parent') ? "selected" : null }}>Parent</option>
+                                        <option value="student"
+                                            {{ old('register_as') == 'student' || (isset($student->register_as) && $student->register_as == 'student') ? 'selected' : null }}>
+                                            Student</option>
+                                        <option value="parent"
+                                            {{ old('register_as') == 'parent' || (isset($student->register_as) && $student->register_as == 'parent') ? 'selected' : null }}>
+                                            Parent</option>
                                     </select>
                                     @error('is_funding')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -129,7 +141,8 @@
                                 <div class="mb-2">
                                     <label>State / Region <i class="text-danger font-weight-bold">*</i></label>
                                     <input name="state" type="text" class="form-control form-control-sm"
-                                        placeholder="State / Region" id="state" value="{{ isset($student->state) ? $student->state : old('state') }}">
+                                        placeholder="State / Region" id="state"
+                                        value="{{ isset($student->state) ? $student->state : old('state') }}">
                                     @error('state')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -139,7 +152,8 @@
                                 <div class="mb-2">
                                     <label>City <i class='text-danger font-weight-bold'>*</i></label>
                                     <input name="city" type="text" class="form-control form-control-sm"
-                                        placeholder="City" id="city" value="{{ isset($student->city) ? $student->city : old('city') }}">
+                                        placeholder="City" id="city"
+                                        value="{{ isset($student->city) ? $student->city : old('city') }}">
                                     @error('city')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -149,13 +163,14 @@
                                 <div class="mb-2">
                                     <label>Postal Code</label>
                                     <input name="postal_code" type="text" class="form-control form-control-sm"
-                                        placeholder="Postal Code" value="{{ isset($student->postal_code) ? $student->postal_code : old('postal_code') }}">
+                                        placeholder="Postal Code"
+                                        value="{{ isset($student->postal_code) ? $student->postal_code : old('postal_code') }}">
                                     @error('postal_code')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
                             </div>
-                             
+
 
                         </div>
                     </div>
@@ -185,22 +200,23 @@
                                     <div class="col-md-8">
                                         <div class="mb-2">
                                             <label>Parent's Name</label>
-                                            <input type="hidden" name="pr_id_old" value="{{ isset($student->parents) && $student->parents()->first() ? $student->parents()->first()->id : null }}">
+                                            <input type="hidden" name="pr_id_old"
+                                                value="{{ isset($student->parents) && $student->parents()->first() ? $student->parents()->first()->id : null }}">
                                             <select class="select w-100" name="pr_id" id="prName"
                                                 onchange="addParent()">
                                                 <option data-placeholder="true"></option>
                                                 @if (isset($parents))
                                                     @foreach ($parents as $parent)
                                                         <option value="{{ $parent->id }}"
-                                                            @if (isset($student->parents) && count($student->parents) > 0)
-                                                                {{ $student->parents()->first()->id == $parent->id ? "selected" : null }}
+                                                            @if (isset($student->parents) && count($student->parents) > 0) {{ $student->parents()->first()->id == $parent->id ? 'selected' : null }}
                                                             @else
-                                                                {{ old('pr_id') == $parent->id ? "selected" : null }}
-                                                            @endif
-                                                            >{{ $parent->first_name.' '.$parent->last_name }}</option>
+                                                                {{ old('pr_id') == $parent->id ? 'selected' : null }} @endif>
+                                                            {{ $parent->first_name . ' ' . $parent->last_name }}</option>
                                                     @endforeach
                                                 @endif
-                                                <option value="add-new" {{ old('pr_id') == "add-new" ? "selected" : null }}>Add New Parent</option>
+                                                <option value="add-new"
+                                                    {{ old('pr_id') == 'add-new' ? 'selected' : null }}>Add New Parent
+                                                </option>
                                             </select>
                                             @error('pr_id')
                                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -212,7 +228,8 @@
                                             <div class="col-md-6 mb-2">
                                                 <small>First Name <i class="text-danger font-weight-bold">*</i></small>
                                                 <input id="pFName" name="pr_firstname" type="text"
-                                                    placeholder="First Name" class="form-control form-control-sm" value="{{ old('pr_firstname') }}">
+                                                    placeholder="First Name" class="form-control form-control-sm"
+                                                    value="{{ old('pr_firstname') }}">
                                                 @error('pr_firstname')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
@@ -220,7 +237,8 @@
                                             <div class="col-md-6 mb-2">
                                                 <small>Last Name</small>
                                                 <input name="pr_lastname" type="text" placeholder="Last Name"
-                                                    class="form-control form-control-sm" value="{{ old('pr_lastname') }}">
+                                                    class="form-control form-control-sm"
+                                                    value="{{ old('pr_lastname') }}">
                                                 @error('pr_lastname')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
@@ -262,15 +280,14 @@
                                 @if (isset($schools) && count($schools) > 0)
                                     @foreach ($schools as $school)
                                         <option value="{{ $school->sch_id }}"
-                                            @if (isset($student->school))
-                                                {{ $student->sch_id == $school->sch_id ? "selected" : null }}
+                                            @if (isset($student->school)) {{ $student->sch_id == $school->sch_id ? 'selected' : null }}
                                             @else
-                                                {{ old('sch_id') == $school->sch_id ? "selected" : null }}
-                                            @endif
-                                            >{{ $school->sch_name }}</option>
+                                                {{ old('sch_id') == $school->sch_id ? 'selected' : null }} @endif>
+                                            {{ $school->sch_name }}</option>
                                     @endforeach
                                 @endif
-                                <option value="add-new" {{ old('sch_id') == "add-new" ? "selected" : null }}>Add New School</option>
+                                <option value="add-new" {{ old('sch_id') == 'add-new' ? 'selected' : null }}>Add New
+                                    School</option>
                             </select>
                             @error('sch_id')
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -300,8 +317,11 @@
                                     <label>School Type <i class="text-danger font-weight-bold">*</i></label>
                                     <select class="select w-100" name="sch_type">
                                         <option data-placeholder="true"></option>
-                                        <option value="International" {{ old('sch_type') == "International" ? "selected" : null }}>International</option>
-                                        <option value="National" {{ old('sch_type') == "National" ? "selected" : null }}>National</option>
+                                        <option value="International"
+                                            {{ old('sch_type') == 'International' ? 'selected' : null }}>International
+                                        </option>
+                                        <option value="National" {{ old('sch_type') == 'National' ? 'selected' : null }}>
+                                            National</option>
                                     </select>
                                     @error('sch_type')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -314,9 +334,9 @@
                                     <select class="select w-100" name="sch_curriculum[]" multiple id="schCurriculum">
                                         <option data-placeholder="true"></option>
                                         @foreach ($curriculums as $curriculum)
-                                            <option value="{{ $curriculum->id }}" 
-                                                    {{ old('sch_curriculum') == $curriculum->name ? "selected" : null }}
-                                                >{{ $curriculum->name }}</option>
+                                            <option value="{{ $curriculum->id }}"
+                                                {{ old('sch_curriculum') == $curriculum->name ? 'selected' : null }}>
+                                                {{ $curriculum->name }}</option>
                                         @endforeach
                                     </select>
                                     @error('sch_curriculum')
@@ -328,12 +348,12 @@
                     </div>
                     <div class="col-md-4 school d-none">
                         <div class="mb-2">
-                            <label>School Market <i class="text-danger font-weight-bold">*</i>                             </label>
+                            <label>School Market <i class="text-danger font-weight-bold">*</i> </label>
                             <select class="select w-100" name="sch_score">
                                 <option data-placeholder="true"></option>
-                                <option value="2" {{ old('sch_score') == 2 ? "selected" : null }}>Low Market</option>
-                                <option value="4" {{ old('sch_score') == 4 ? "selected" : null }}>Mid Market</option>
-                                <option value="5" {{ old('sch_score') == 5 ? "selected" : null }}>Up Market</option>
+                                <option value="2" {{ old('sch_score') == 2 ? 'selected' : null }}>Low Market</option>
+                                <option value="4" {{ old('sch_score') == 4 ? 'selected' : null }}>Mid Market</option>
+                                <option value="5" {{ old('sch_score') == 5 ? 'selected' : null }}>Up Market</option>
                             </select>
                             @error('sch_score')
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -344,25 +364,24 @@
                     <div class="col-md-4" id="studentYear">
                         <div class="mb-2">
                             <label>Student Grade <i class="text-danger font-weight-bold">*</i></label>
+                            @if(isset($student))
+                            <small class="text-info ms-2">Input First Time ({{ date('M, dS Y', strtotime($student->created_at)) }})</small>
+                            @endif
                             <select class="select w-100" id="grade" name="st_grade">
                                 <option data-placeholder="true"></option>
-                                @for ($grade = 1 ; $grade <= 12 ; $grade++)
+                                @for ($grade = 1; $grade <= 12; $grade++)
                                     <option value="{{ $grade }}"
-                                        @if (isset($student->st_grade))
-                                            {{ $student->st_grade == $grade ? "selected" : null }}
+                                        @if (isset($student->st_grade)) {{ $student->st_grade == $grade ? 'selected' : null }}
                                         @else
-                                            {{ old('st_grade') == $grade ? "selected" : null }}
-                                        @endif
-                                    >{{ $grade }}</option>
+                                            {{ old('st_grade') == $grade ? 'selected' : null }} @endif>
+                                        {{ $grade }}</option>
                                 @endfor
-                                <option value="13" 
-                                    @if (isset($student->st_grade))
-                                        {{ $student->st_grade == 13 ? "selected" : null }}
+                                <option value="13"
+                                    @if (isset($student->st_grade)) {{ $student->st_grade == 13 ? 'selected' : null }}
                                     @else
-                                        {{ old('st_grade') == 13 ? "selected" : null }}
-                                    @endif
-                                        >Not High School</option>
-                                    
+                                        {{ old('st_grade') == 13 ? 'selected' : null }} @endif>
+                                    Not High School</option>
+
                             </select>
                             @error('st_grade')
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -373,18 +392,7 @@
                     <div class="col-md-4" id="studentYear">
                         <div class="mb-2">
                             <label>Graduation Year</label>
-                            <select class="select w-100" id="graduation_year" name="graduation_year">
-                                <option data-placeholder="true"></option>
-                                @for ($year = date('Y')+1 ; $year >= 1998 ; $year--)
-                                    <option value="{{ $year }}"
-                                        @if (isset($student->graduation_year))
-                                            {{ $student->graduation_year == $year ? "selected" : null }}
-                                        @else
-                                            {{ old('graduation_year') == $year ? "selected" : null }}
-                                        @endif
-                                    >{{ $year }}</option>
-                                @endfor
-                            </select>
+                            <input type="text" class="form-control form-control-sm" id="auto_grad_year" name="graduation_year" readonly value="{{isset($student) ? $student->graduation_year : old('graduation_year') }}">
                             @error('graduation_year')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
@@ -400,15 +408,13 @@
                             <select class="select w-100" id="leadSource" name="lead_id">
                                 <option data-placeholder="true"></option>
                                 @if (isset($leads) && count($leads) > 0)
-                                @foreach ($leads as $lead)
-                                    <option data-lead="{{ $lead->main_lead }}" value="{{ $lead->lead_id }}"
-                                            @selected(old('lead_id') == $lead->lead_id)
-                                        >{{ $lead->main_lead }}</option>
-                                @endforeach
-                                {{-- <option value="program">ALL-in Event</option>
+                                    @foreach ($leads as $lead)
+                                        <option data-lead="{{ $lead->main_lead }}" value="{{ $lead->lead_id }}"
+                                            @selected(old('lead_id') == $lead->lead_id)>{{ $lead->main_lead }}</option>
+                                    @endforeach
+                                    {{-- <option value="program">ALL-in Event</option>
                                 <option value="edufair">Edufair External</option> --}}
-                                <option data-lead="KOL" value="kol" 
-                                    @selected(old('lead_id') == "kol")>KOL</option>
+                                    <option data-lead="KOL" value="kol" @selected(old('lead_id') == 'kol')>KOL</option>
                                 @endif
                             </select>
                             @error('lead_id')
@@ -426,12 +432,10 @@
                                 @if (isset($events) && count($events) > 0)
                                     @foreach ($events as $event)
                                         <option value="{{ $event->event_id }}"
-                                            @if (isset($student->event->event_id))
-                                                {{ $student->event->event_id == $event->event_id ? "selected" : null }}
+                                            @if (isset($student->event->event_id)) {{ $student->event->event_id == $event->event_id ? 'selected' : null }}
                                             @else
-                                                {{ old('event_id') == $event->event_id ? "selected" : null }}
-                                            @endif
-                                            >{{ $event->event_title }}</option>
+                                                {{ old('event_id') == $event->event_id ? 'selected' : null }} @endif>
+                                            {{ $event->event_title }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -450,12 +454,11 @@
                                 @if (isset($ext_edufair) && count($ext_edufair) > 0)
                                     @foreach ($ext_edufair as $edufair)
                                         <option value="{{ $edufair->id }}"
-                                            @if (isset($teacher_counselor->external_edufair->id))
-                                                {{ $teacher_counselor->external_edufair->id == $edufair->id ? "selected" : null }}
+                                            @if (isset($teacher_counselor->external_edufair->id)) {{ $teacher_counselor->external_edufair->id == $edufair->id ? 'selected' : null }}
                                             @else
-                                                {{ old('eduf_id') == $edufair->id ? "selected" : null }}
-                                            @endif
-                                            >{{ $edufair->organizer_name.' - '.date('d M Y', strtotime($edufair->event_start)) }}</option>
+                                                {{ old('eduf_id') == $edufair->id ? 'selected' : null }} @endif>
+                                            {{ $edufair->organizer_name . ' - ' . date('d M Y', strtotime($edufair->event_start)) }}
+                                        </option>
                                     @endforeach
                                 @endif
                             </select>
@@ -474,12 +477,10 @@
                                 @if (isset($kols) && count($kols) > 0)
                                     @foreach ($kols as $kol)
                                         <option value="{{ $kol->lead_id }}"
-                                            @if (isset($student->lead_id) && $student->lead->main_lead == "KOL")
-                                                {{ $student->lead_id == $kol->lead_id ? "selected" : null }}
+                                            @if (isset($student->lead_id) && $student->lead->main_lead == 'KOL') {{ $student->lead_id == $kol->lead_id ? 'selected' : null }}
                                             @else
-                                                {{ old('kol_lead_id') == $kol->lead_id ? "selected" : null }}
-                                            @endif
-                                            >{{ $kol->sub_lead }}</option>
+                                                {{ old('kol_lead_id') == $kol->lead_id ? 'selected' : null }} @endif>
+                                            {{ $kol->sub_lead }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -494,27 +495,21 @@
                             <label>Level of Interest <i class="text-danger font-weight-bold">*</i></label>
                             <select class="select w-100" id="levelInterest" name="st_levelinterest">
                                 <option data-placeholder="true"></option>
-                                <option value="High" 
-                                    @if (isset($student->st_levelinterest))
-                                        {{ $student->st_levelinterest == "High" ? "selected" : null }}
+                                <option value="High"
+                                    @if (isset($student->st_levelinterest)) {{ $student->st_levelinterest == 'High' ? 'selected' : null }}
                                     @else
-                                        {{ old('st_levelinterest') == "High" ? "selected" : null }}
-                                    @endif
-                                    >High</option>
-                                <option value="Medium" 
-                                    @if (isset($student->st_levelinterest))
-                                        {{ $student->st_levelinterest == "Medium" ? "selected" : null }}
+                                        {{ old('st_levelinterest') == 'High' ? 'selected' : null }} @endif>
+                                    High</option>
+                                <option value="Medium"
+                                    @if (isset($student->st_levelinterest)) {{ $student->st_levelinterest == 'Medium' ? 'selected' : null }}
                                     @else
-                                        {{ old('st_levelinterest') == "Medium" ? "selected" : null }}
-                                    @endif
-                                    >Medium</option>
-                                <option value="Low" 
-                                    @if (isset($student->st_levelinterest))
-                                        {{ $student->st_levelinterest == "Low" ? "selected" : null }}
+                                        {{ old('st_levelinterest') == 'Medium' ? 'selected' : null }} @endif>
+                                    Medium</option>
+                                <option value="Low"
+                                    @if (isset($student->st_levelinterest)) {{ $student->st_levelinterest == 'Low' ? 'selected' : null }}
                                     @else
-                                    {{ old('st_levelinterest') == "Low" ? "selected" : null }}
-                                    @endif
-                                    >Low</option>
+                                    {{ old('st_levelinterest') == 'Low' ? 'selected' : null }} @endif>
+                                    Low</option>
                             </select>
                             @error('st_levelinterest')
                                 <small class="text-danger fw-light">{{ $message }}</small>
@@ -529,8 +524,8 @@
                                 @if (isset($programs))
                                     @foreach ($programs as $program)
                                         <option value="{{ $program->prog_id }}"
-                                                {{ old('prog_id') == $program->prog_id ? "selected" : null }}
-                                            >{{ $program->program_name }}</option>
+                                            {{ old('prog_id') == $program->prog_id ? 'selected' : null }}>
+                                            {{ $program->program_name }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -539,8 +534,8 @@
                             @enderror
                         </div>
                     </div>
-                   
-                    
+
+
                 </div>
 
                 <div class="line" style="margin-top:15px; margin-bottom:0px;"></div>
@@ -552,10 +547,10 @@
                             <label>Year of Going Study Abroad</label>
                             <select class="select w-100" id="year" name="st_abryear">
                                 <option data-placeholder="true"></option>
-                                @for ($year = date('Y') ; $year <= date('Y')+5 ; $year++)
+                                @for ($year = date('Y'); $year <= date('Y') + 5; $year++)
                                     <option value="{{ $year }}"
-                                        {{ old('st_abryear') == $year ? "selected" : null }}
-                                    >{{ $year }}</option>
+                                        {{ old('st_abryear') == $year ? 'selected' : null }}>{{ $year }}
+                                    </option>
                                 @endfor
                             </select>
                             @error('st_abryear')
@@ -598,10 +593,17 @@
                                 <option data-placeholder="true"></option>
                                 @if (isset($majors))
                                     @foreach ($majors as $major)
-                                        <option value="{{ $major->id }}"
-                                            @selected(isset($student->interestMajor) && in_array($major->id, $student->interestMajor()->pluck('tbl_major.id')->toArray()))
-                                            @selected(old('st_abrmajor') == $major->id)
-                                            >{{ $major->name }}</option>
+                                        <option value="{{ $major->id }}" @selected(
+    isset($student->interestMajor) &&
+        in_array(
+            $major->id,
+            $student
+                ->interestMajor()
+                ->pluck('tbl_major.id')
+                ->toArray(),
+        )
+)
+                                            @selected(old('st_abrmajor') == $major->id)>{{ $major->name }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -669,7 +671,7 @@
                 $(".edufair").removeClass("d-none")
                 $(".kol").addClass("d-none")
 
-            } else  if (lead.includes('KOL')) {
+            } else if (lead.includes('KOL')) {
 
                 $(".program").addClass("d-none")
                 $(".edufair").addClass("d-none")
@@ -686,35 +688,13 @@
         })
 
         $("#grade").on('change', async function() {
-
             var grade = $(this).val()
-            var html = ''
-            $("#graduation_year").html('')
-            var current_year = new Date().getFullYear()
-
-            if (grade == 13) {
-                
-                for (var i = current_year ; i > 2009 ; i--) {
-                    
-                    html += "<option value='"+i+"'>"+i+"</option>"
-                }
-
-            } else {
-                
-                var max = 13
-                var min = 1
-                for (var i = current_year ; i <= current_year+(max-grade) ; i++) {
-    
-                    html += "<option value='"+i+"'>"+i+"</option>"
-                }
-    
-            }
-            
-            $("#graduation_year").append(html)
-
+            var year = '{{isset($student) ? date("Y", strtotime($student->created_at)) : date("Y") }}'
+            var graduation_year = (12 - parseInt(grade)) + parseInt(year) + 1
+            $('#auto_grad_year').val(graduation_year);
         })
 
-        
+
         const anotherDocument = () => {
             @if (isset($student->interestUniversities))
                 var st_abruniv = new Array();
@@ -731,7 +711,6 @@
                 @endforeach
 
                 $("#univDestination").select2().val(st_abruniv).trigger('change')
-                
             @endif
         }
 
@@ -763,9 +742,10 @@
                     // handle success
                     let data = response.data
                     data.forEach(function(currentValue, index, arr) {
-                        html += "<option value='"+arr[index].univ_id+"'>"+arr[index].univ_name+" - "+arr[index].univ_country+"</option>"
+                        html += "<option value='" + arr[index].univ_id + "'>" + arr[index]
+                            .univ_name + " - " + arr[index].univ_country + "</option>"
                     })
-                    
+
                     $("#univDestination").append(html)
                     initSelect2("#univDestination")
                     Swal.close()
@@ -775,22 +755,22 @@
                     Swal.close()
                     notification(error.response.data.success, error.response.data.message)
                 })
-            
+
             anotherDocument()
-            
+
         })
 
         $(document).ready(function() {
 
             const documentReady = () => {
 
-                @if (old('pr_id') !== NULL && old('pr_id') == "add-new")
+                @if (old('pr_id') !== null && old('pr_id') == 'add-new')
                     $("#prName").select2().val("{{ old('pr_id') }}").trigger('change')
-                @elseif (old('pr_id') !== NULL )
+                @elseif (old('pr_id') !== null)
                     $("#prName").select2().val("{{ old('pr_id') }}").trigger('change')
                 @endif
-    
-                @if (old('sch_id') !== NULL && old('sch_id') == "add-new")
+
+                @if (old('sch_id') !== null && old('sch_id') == 'add-new')
                     $("#schoolName").select2().val("{{ old('sch_id') }}").trigger('change')
 
                     @if (!empty(old('sch_curriculum')) && count(old('sch_curriculum')) > 0)
@@ -802,29 +782,27 @@
                         $("#schCurriculum").val(sch_curriculum).trigger('change')
                     @endif
                 @endif
-    
+
                 @if (isset($student->st_abryear))
                     $("#year").select2().val("{{ $student->st_abryear }}").trigger('change')
-                @elseif (old('st_abryear') !== NULL)
+                @elseif (old('st_abryear') !== null)
                     $("#year").select2().val("{{ old('st_abryear') }}").trigger('change')
                 @endif
-                
+
                 @if (isset($student->destinationCountries))
                     var st_abrcountry = new Array();
                     @foreach ($student->destinationCountries as $country)
                         st_abrcountry.push("{{ $country->id }}")
                     @endforeach
-    
+
                     $("#countryStudy").val(st_abrcountry).trigger('change')
-    
                 @elseif (!empty(old('st_abrcountry')) && count(old('st_abrcountry')) > 0)
                     var st_abrcountry = new Array();
                     @foreach (old('st_abrcountry') as $key => $val)
                         st_abrcountry.push("{{ $val }}")
                     @endforeach
-    
+
                     $("#countryStudy").val(st_abrcountry).trigger('change')
-    
                 @endif
 
                 @if (old('st_abrmajor'))
@@ -835,39 +813,37 @@
 
                     $("#major").val(st_abrmajor).trigger('change')
                 @endif
-    
+
                 @if (isset($student->interestPrograms))
                     var prog_id = new Array();
                     @foreach ($student->interestPrograms as $program)
                         prog_id.push("{{ $program->prog_id }}")
                     @endforeach
-                    
+
                     $("#interestedProgram").val(prog_id).trigger('change')
-    
-                @elseif (old('prog_id') !== NULL && count(old('prog_id')) > 0)
+                @elseif (old('prog_id') !== null && count(old('prog_id')) > 0)
                     var prog_id = new Array();
                     @foreach (old('prog_id') as $key => $val)
                         prog_id.push("{{ $val }}")
                     @endforeach
-    
+
                     $("#interestedProgram").val(prog_id).trigger('change')
                     anotherDocument()
                 @endif
-    
+
                 @if (isset($student->lead_id))
-                    @if ($student->lead->main_lead == "KOL")
+                    @if ($student->lead->main_lead == 'KOL')
                         $("#leadSource").select2().val("kol").trigger('change')
                     @else
                         $("#leadSource").select2().val("{{ $student->lead_id }}").trigger('change')
                     @endif
-                @elseif (old('lead_id') !== NULL)
+                @elseif (old('lead_id') !== null)
                     $("#leadSource").select2().val("{{ old('lead_id') }}").trigger('change')
                 @endif
             }
 
             documentReady()
         })
-
     </script>
 
 @endsection

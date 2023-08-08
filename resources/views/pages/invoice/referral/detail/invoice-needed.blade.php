@@ -1,5 +1,5 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="invoiceRef">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Partner Name</th>
@@ -83,11 +83,13 @@
                     },
                     {
                         data: 'number_of_student',
+                        className: 'text-center',
                         name: 'tbl_referral.number_of_student',
                     },
                     {
                         data: 'ref_date',
                         name: 'tbl_referral.ref_date',
+                        className: 'text-center',
                         render: function(data, type, row) {
                             let ref_date = data ? moment(data).format("MMMM Do YYYY") : '-'
                             return ref_date
@@ -95,6 +97,7 @@
                     },
                     {
                         data: 'pic_name',
+                        className: 'text-center',
                     },
                     {
                         data: '',

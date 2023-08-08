@@ -1,15 +1,12 @@
 @extends('layout.main')
 
-@section('title', 'Asset - Bigdata Platform')
+@section('title', 'Assets')
 
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Asset</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('master/asset') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Asset
-        </a>
-    </div>
-
     <div class="row">
         <div class="col-md-4 text-center">
             <div class="card">

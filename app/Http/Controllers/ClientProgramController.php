@@ -81,17 +81,21 @@ class ClientProgramController extends Controller
         $data['programName'] = $request->get('program_name') ?? null;
         $data['schoolName'] = $request->get('school_name') ?? null;
         $data['leadId'] = $request->get('conversion_lead') ?? null;
-
-        if ($request->get('program_status')) {
-            for ($i = 0; $i < count($request->get('program_status')); $i++) {
-                $status[] = Crypt::decrypt($request->get('program_status')[$i]);
+        
+        if ($raw_program_status = $request->get('program_status')) {
+            
+            for ($i = 0; $i < count($raw_program_status); $i++) {
+                $raw_status = Crypt::decrypt($raw_program_status[$i]);
+                $status[] = $raw_status;
             }
+            
         }
         $data['status'] = $status;
 
         if ($request->get('mentor_tutor')) {
             for ($i = 0; $i < count($request->get('mentor_tutor')); $i++) {
-                $userId[] = Crypt::decrypt($request->get('mentor_tutor')[$i]);
+                $raw_userId = Crypt::decrypt($request->get('mentor_tutor')[$i]);
+                $userId[] = $raw_userId;
             }
         }
         $data['userId'] = $userId;
@@ -313,16 +317,18 @@ class ClientProgramController extends Controller
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['trial_date'] = $request->trial_date;
+                    // $clientProgramDetails['first_class'] = $request->first_class;
                     $clientProgramDetails['prog_start_date'] = $request->prog_start_date;
                     $clientProgramDetails['prog_end_date'] = $request->prog_end_date;
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
                     // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
                 } elseif (in_array($progId, $this->satact_prog_list)) {
-
+                    
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['test_date'] = $request->test_date;
+                    $clientProgramDetails['first_class'] = $request->first_class;
                     $clientProgramDetails['last_class'] = $request->last_class;
                     $clientProgramDetails['diag_score'] = $request->diag_score;
                     $clientProgramDetails['test_score'] = $request->test_score;

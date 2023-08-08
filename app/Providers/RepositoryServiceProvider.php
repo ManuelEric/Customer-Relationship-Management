@@ -59,6 +59,7 @@ use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramAttachRepositoryInterface;
 use App\Interfaces\SchoolProgramCollaboratorsRepositoryInterface;
 use App\Interfaces\SchoolVisitRepositoryInterface;
+use App\Interfaces\SeasonalProgramRepositoryInterface;
 use App\Interfaces\SubProgRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityEventRepositoryInterface;
@@ -127,6 +128,7 @@ use App\Repositories\SchoolProgramRepository;
 use App\Repositories\SchoolProgramAttachRepository;
 use App\Repositories\SchoolProgramCollaboratorsRepository;
 use App\Repositories\SchoolVisitRepository;
+use App\Repositories\SeasonalProgramRepository;
 use App\Repositories\SubProgRepository;
 use App\Repositories\TagRepository;
 use App\Repositories\UniversityEventRepository;
@@ -210,6 +212,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(SchoolProgramCollaboratorsRepositoryInterface::class, SchoolProgramCollaboratorsRepository::class);
         $this->app->bind(AcadTutorRepositoryInterface::class, AcadTutorRepository::class);
         $this->app->bind(LeadTargetRepositoryInterface::class, LeadTargetRepository::class);
+        $this->app->bind(SeasonalProgramRepositoryInterface::class, SeasonalProgramRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);

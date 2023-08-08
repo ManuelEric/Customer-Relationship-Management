@@ -1,15 +1,13 @@
 @extends('layout.main')
 
-@section('title', 'Vendor - Bigdata Platform')
+@section('title', 'Vendors')
+
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Vendor</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
+@endsection
 
 @section('content')
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('master/vendor') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Vendor
-        </a>
-    </div>
-
-
     <div class="row">
         <div class="col-md-4 text-center">
             <div class="card rounded">

@@ -1,13 +1,14 @@
 @extends('layout.main')
 
-@section('title', 'Student - Bigdata Platform')
+@section('title', 'Student')
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/client.css') }}">
 @endsection
 
-@section('content')
+
+@section('style')
     <style>
         .btn-download span,
         .btn-import span {
@@ -19,6 +20,96 @@
             display: inline-block;
         }
     </style>
+@endsection
+@section('content')
+
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-md-6">
+                <h5 class="text-white m-0">
+                    <i class="bi bi-tag me-1"></i>
+                    Students
+                </h5>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url('api/download/excel-template/student') }}"
+                        class="btn btn-sm btn-light text-info btn-download"><i class="bi bi-download"></i> <span
+                            class="ms-1">Download Template</span></a>
+                    <a href="javascript:void(0)" class="btn btn-sm btn-light text-info btn-import" data-bs-toggle="modal"
+                        data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span
+                            class="ms-1">Import</span></a>
+
+                    <div class="dropdown">
+                        <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle"
+                            data-bs-toggle="dropdown" data-bs-auto-close="false" id="filter">
+                            <i class="bi bi-funnel me-2"></i> Filter
+                        </button>
+                        <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 400px;"
+                            id="advanced-filter">
+                            <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
+                                Advanced Filter
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <div class="row p-3">
+                                <div class="col-md-12 mb-2">
+                                    <label for="">School Name</label>
+                                    <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
+                                        id="school-name">
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-12 mb-2">
+                                    <label for="">Graduation Year</label>
+                                    <select name="graduation_year[]" class="select form-select form-select-sm w-100"
+                                        multiple id="graduation-year">
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-12 mb-2">
+                                    <label for="">Lead Source</label>
+                                    <select name="lead_source[]" class="select form-select form-select-sm w-100" multiple
+                                        id="lead-sources">
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-12 mb-2">
+                                    <label for="">Program Suggestion</label>
+                                    <select name="program_name[]" class="select form-select form-select-sm w-100" multiple
+                                        id="program-name">
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-12 mb-2">
+                                    <label for="">Lead Status</label>
+                                    <select name="lead_status[]" class="select form-select form-select-sm w-100" multiple
+                                        id="lead-source">
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-12 mt-3">
+                                    <div class="d-flex justify-content-between">
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            id="cancel">Cancel</button>
+                                        <button type="button" id="submit"
+                                            class="btn btn-sm btn-outline-success">Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <a href="{{ url('client/student/create') }}" class="btn btn-sm btn-info"><i
+                            class="bi bi-plus-square me-1"></i> Add Student</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -29,21 +120,6 @@
             </ul>
         </div>
     @endif
-
-    <div class="d-flex align-items-center justify-content-between mb-3 mt-md-0 mt-1">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Student
-        </a>
-        <div>
-            <a href="{{ url('api/download/excel-template/student') }}" class="btn btn-sm btn-outline-info btn-download"><i
-                    class="bi bi-download"></i> <span class="ms-1">Download Template</span></a>
-            <a href="javascript:void(0)" class="btn btn-sm btn-outline-info btn-import" data-bs-toggle="modal"
-                data-bs-target="#importData"><i class="bi bi-cloud-upload"></i> <span class="ms-1">Import</span></a>
-            <a href="{{ url('client/student/create') }}" class="btn btn-sm btn-primary"><i
-                class="bi bi-plus-square me-1"></i> Add Student</a>
-        </div>
-    </div>
-
 
     <div class="card rounded">
         <div class="card-body">
@@ -77,7 +153,7 @@
                 }
             </style>
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="clientTable">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr class="text-center" role="row">
                         <th class="bg-info text-white">No</th>
                         <th class="bg-info text-white">Name</th>
@@ -100,6 +176,7 @@
                         <th>Country of Study Abroad</th>
                         <th>University Destination</th>
                         <th>Interest Major</th>
+                        <th>Joined Date</th>
                         <th>Last Update</th>
                         <th>Status</th>
                         <th>Program Suggest</th>
@@ -130,7 +207,8 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <label for="">CSV File</label>
-                                <input type="file" name="file" id="" class="form-control form-control-sm">
+                                <input type="file" name="file" id=""
+                                    class="form-control form-control-sm">
                             </div>
                             <small class="text-warning mt-3">
                                 * Please clean the file first, before importing the csv file. <br>
@@ -245,6 +323,10 @@
     </script>
 
     <script>
+        $('#cancel').click(function() {
+            $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
+        });
+
         var widthView = $(window).width();
         $(document).ready(function() {
             
@@ -254,10 +336,6 @@
                     [1, 'asc']
                 ],
                 dom: 'Bfrtip',
-                lengthMenu: [
-                    [10, 25, 50, 100, -1],
-                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-                ],
                 buttons: [
                     'pageLength', {
                         extend: 'excel',
@@ -287,9 +365,11 @@
                     },
                     {
                         data: 'mail',
+                        defaultContent: '-'
                     },
                     {
                         data: 'phone',
+                        defaultContent: '-'
                     },
                     {
                         data: 'parent_name',
@@ -306,6 +386,7 @@
                     {
                         data: 'parent_phone',
                         name: 'parent_phone',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
@@ -315,17 +396,20 @@
                     },
                     {
                         data: 'graduation_year',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'grade_now',
                         defaultContent: '-',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             return data > 12 ? 'Not high school' : data;
                         }
                     },
                     {
                         data: 'insta',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
@@ -334,37 +418,56 @@
                     },
                     {
                         data: 'lead_source',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'st_levelinterest',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'interest_prog',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'st_abryear',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'abr_country',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'dream_uni',
+                        className: 'text-center',
                         defaultContent: '-'
                     },
                     {
                         data: 'dream_major',
+                        className: 'text-center',  
                         defaultContent: '-'
                     },
                     {
+                        data: 'created_at',
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return moment(data).format('MMMM Do YYYY')
+                        }
+                    },
+                    {
                         data: 'updated_at',
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return moment(data).format('MMMM Do YYYY')
+                        }
                     },
                     {
                         data: 'st_statusact',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             return data == 1 ? "Active" : "Non-active";
                         }

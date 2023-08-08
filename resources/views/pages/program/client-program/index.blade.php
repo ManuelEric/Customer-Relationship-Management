@@ -1,114 +1,119 @@
 @extends('layout.main')
 
-@section('title', 'Client Program - Bigdata Platform')
-
+@section('title', 'Client Program ')
 @section('content')
 
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Client Program
-        </a>
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="d-flex align-items-center justify-content-between">
+            <h5 class="text-white m-0">
+                <i class="bi bi-tag me-1"></i>
+                Client Program
+            </h5>
 
-        <div class="dropdown">
-            <button href="#" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown"
-                data-bs-auto-close="false" id="filter">
-                <i class="bi bi-funnel me-2"></i> Filter
-            </button>
-            <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 300px;"
-                id="advanced-filter">
-                <h6 class="dropdown-header bg-secondary text-white rounded-top">Advanced Filter</h6>
-                <div class="row p-3">
-                    <div class="col-md-12 mb-2">
-                        <label for="">Program Name</label>
-                        <select name="program_name[]" class="select form-select form-select-sm w-100" multiple
-                            id="program-name">
-                            @foreach ($programs as $program)
-                                <option value="{{ $program->prog_id }}"
-                                    @if ($request->get('program_name') !== null && in_array($program->program_name, $request->get('program_name'))) {{ 'selected' }} @endif>
-                                    {{ $program->program_name }}</option>
-                            @endforeach
-                        </select>
+            <div class="dropdown">
+                <button href="#" class="btn btn-sm btn-light text-dark dropdown-toggle" data-bs-toggle="dropdown"
+                    data-bs-auto-close="false" id="filter">
+                    <i class="bi bi-funnel me-2"></i> Filter
+                </button>
+                <form action="" class="dropdown-menu dropdown-menu-end pt-0 shadow" style="width: 400px;"
+                    id="advanced-filter">
+                    <div class="dropdown-header bg-info text-dark py-2 d-flex justify-content-between">
+                        Advanced Filter
+                        <i class="bi bi-search"></i>
                     </div>
-                    <div class="col-md-12 mb-2">
-                        <label for="">School Name</label>
-                        <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
-                            id="school-name">
-                            @foreach ($schools as $school)
-                                <option value="{{ $school->sch_id }}"
-                                    @if ($request->get('school_name') !== null && in_array($school->sch_name, $request->get('school_name'))) {{ 'selected' }} @endif>
-                                    {{ $school->sch_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-12 mb-2">
-                        <label for="">Conversion Lead</label>
-                        <select name="conversion_lead[]" class="select form-select form-select-sm w-100" multiple
-                            id="conversion-lead">
-                            @foreach ($conversion_leads as $lead)
-                                <option value="{{ $lead->lead_id }}"
-                                    @if ($request->get('conversion_lead') !== null && in_array($lead->lead_id, $request->get('conversion_lead'))) {{ 'selected' }} @endif>
-                                    {{ $lead->conversion_lead }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-12 mb-2">
-                        <div class="row g-2">
-                            <div class="col-md-6 mb-2">
-                                <label>Start Date</label>
-                                <input type="date" name="start_date"
-                                    value="{{ $request->get('start_date') !== null ? $request->get('start_date') : null }}"
-                                    class="form-control form-control-sm rounded">
+                    <div class="row p-3">
+                        <div class="col-md-12 mb-2">
+                            <label for="">Program Name</label>
+                            <select name="program_name[]" class="select form-select form-select-sm w-100" multiple
+                                id="program-name">
+                                @foreach ($programs as $program)
+                                    <option value="{{ $program->prog_id }}"
+                                        @if ($request->get('program_name') !== null && in_array($program->program_name, $request->get('program_name'))) {{ 'selected' }} @endif>
+                                        {{ $program->program_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label for="">School Name</label>
+                            <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
+                                id="school-name">
+                                @foreach ($schools as $school)
+                                    <option value="{{ $school->sch_id }}"
+                                        @if ($request->get('school_name') !== null && in_array($school->sch_name, $request->get('school_name'))) {{ 'selected' }} @endif>
+                                        {{ $school->sch_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label for="">Conversion Lead</label>
+                            <select name="conversion_lead[]" class="select form-select form-select-sm w-100" multiple
+                                id="conversion-lead">
+                                @foreach ($conversion_leads as $lead)
+                                    <option value="{{ $lead->lead_id }}"
+                                        @if ($request->get('conversion_lead') !== null && in_array($lead->lead_id, $request->get('conversion_lead'))) {{ 'selected' }} @endif>
+                                        {{ $lead->conversion_lead }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <div class="row g-2">
+                                <div class="col-md-6 mb-2">
+                                    <label>Start Date</label>
+                                    <input type="date" name="start_date"
+                                        value="{{ $request->get('start_date') !== null ? $request->get('start_date') : null }}"
+                                        class="form-control form-control-sm rounded">
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>End Date</label>
+                                    <input type="date" name="end_date"
+                                        value="{{ $request->get('end_date') !== null ? $request->get('end_date') : null }}"
+                                        class="form-control form-control-sm rounded">
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-2">
-                                <label>End Date</label>
-                                <input type="date" name="end_date"
-                                    value="{{ $request->get('end_date') !== null ? $request->get('end_date') : null }}"
-                                    class="form-control form-control-sm rounded">
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label for="">Program Status</label>
+                            @php
+                                $program_status = ['Pending', 'Success', 'Failed', 'Refund'];
+                            @endphp
+                            <select name="program_status[]" class="select form-select form-select-sm w-100" multiple
+                                id="program-status">
+                                @foreach ($program_status as $key => $value)
+                                    <option value="{{ Crypt::encrypt($loop->iteration - 1) }}"
+                                        @if ($status_decrypted !== null && in_array($loop->iteration - 1, $status_decrypted)) {{ 'selected' }} @endif>{{ $value }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label for="">Mentor / Tutor Name</label>
+                            <select name="mentor_tutor[]" class="select form-select form-select-sm w-100" multiple>
+                                @foreach ($mentor_tutors as $user)
+                                    <option value="{{ Crypt::encrypt($user->id) }}"
+                                        @if ($mentor_tutor_decrypted !== null && in_array($user->id, $mentor_tutor_decrypted)) {{ 'selected' }} @endif>{{ $user->fullname }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label for="">PIC</label>
+                            <select name="pic[]" id="" class="select form-select form-select-sm w-100" multiple>
+                                @foreach ($pics as $pic)
+                                    <option value="{{ Crypt::encrypt($pic->empl_id) }}"
+                                        @if ($pic_decrypted !== null && in_array($pic->empl_id, $pic_decrypted)) {{ 'selected' }} @endif>{{ $pic->pic_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-12 mt-3">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-sm btn-outline-danger" id="cancel">Cancel</button>
+                                <button type="button" id="submit" class="btn btn-sm btn-outline-success">Submit</button>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12 mb-2">
-                        <label for="">Program Status</label>
-                        @php
-                            $program_status = ['Pending', 'Success', 'Failed', 'Refund'];
-                        @endphp
-                        <select name="program_status[]" class="select form-select form-select-sm w-100" multiple
-                            id="program-status">
-                            @foreach ($program_status as $key => $value)
-                                <option value="{{ Crypt::encrypt($loop->iteration - 1) }}"
-                                    @if ($status_decrypted !== null && in_array($loop->iteration - 1, $status_decrypted)) {{ 'selected' }} @endif>{{ $value }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-12 mb-2">
-                        <label for="">Mentor / Tutor Name</label>
-                        <select name="mentor_tutor[]" class="select form-select form-select-sm w-100" multiple>
-                            @foreach ($mentor_tutors as $user)
-                                <option value="{{ Crypt::encrypt($user->id) }}"
-                                    @if ($mentor_tutor_decrypted !== null && in_array($user->id, $mentor_tutor_decrypted)) {{ 'selected' }} @endif>{{ $user->fullname }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-12 mb-2">
-                        <label for="">PIC</label>
-                        <select name="pic[]" id="" class="select form-select form-select-sm w-100" multiple>
-                            @foreach ($pics as $pic)
-                                <option value="{{ Crypt::encrypt($pic->empl_id) }}"
-                                    @if ($pic_decrypted !== null && in_array($pic->empl_id, $pic_decrypted)) {{ 'selected' }} @endif>{{ $pic->pic_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-12 mt-3">
-                        <div class="d-flex justify-content-between">
-                            <button type="button" class="btn btn-sm btn-outline-danger" id="cancel">Cancel</button>
-                            <button type="button" id="submit" class="btn btn-sm btn-outline-success">Submit</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -116,7 +121,7 @@
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
@@ -195,7 +200,7 @@
             @endforeach
             $("#program-name").val(program_name).trigger('change')
         @endif
-        
+
         @if ($request->get('school_name') !== null)
             var school_name = new Array();
             @foreach ($request->get('school_name') as $key => $val)
@@ -255,6 +260,7 @@
                     },
                     {
                         data: 'st_grade',
+                        className: 'text-center'
                     },
                     {
                         data: 'program_name',
@@ -274,49 +280,61 @@
                     },
                     {
                         data: 'prog_end_date',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            if(data) {
+                                return moment(data).format("MMM Do YY"); 
+                            } else {
+                                return "-";
+                            }
+                        }
                     },
                     {
                         data: 'lead_source',
+                        className: 'text-center'
                     },
                     {
                         data: 'conversion_lead',
+                        className: 'text-center'
                     },
                     {
                         data: 'status',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             switch (parseInt(data)) {
                                 case 0:
-                                    return 'pending'
+                                    return '<i class="bi bi-hourglass-split me-2 text-warning"></i>Pending'
                                     break;
 
                                 case 1:
-                                    return 'success'
+                                    return '<i class="bi bi-check me-2 text-success"></i>Success'
                                     break;
 
                                 case 2:
-                                    return 'failed'
+                                    return '<i class="bi bi-x me-2 text-danger"></i>Failed'
                                     break;
 
                                 case 3:
-                                    return 'refund'
+                                    return '<i class="bi bi-arrow-counterclockwise me-2 text-info"></i>Refund'
                                     break;
                             }
                         }
                     },
                     {
                         data: 'prog_running_status',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             switch (parseInt(data)) {
                                 case 0:
-                                    return 'not yet'
+                                    return 'Not yet'
                                     break;
 
                                 case 1:
-                                    return 'ongoing'
+                                    return 'Ongoing'
                                     break;
 
                                 case 2:
-                                    return 'done'
+                                    return 'Done'
                                     break;
                             }
                         }
@@ -329,12 +347,36 @@
                     },
                     {
                         data: 'initconsult_date',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            if(data) {
+                                return moment(data).format("MMM Do YY"); 
+                            } else {
+                                return "-";
+                            }
+                        }
                     },
                     {
                         data: 'assessmentsent_date',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            if(data) {
+                                return moment(data).format("MMM Do YY"); 
+                            } else {
+                                return "-";
+                            }
+                        }
                     },
                     {
                         data: 'success_date',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            if(data) {
+                                return moment(data).format("MMM Do YY"); 
+                            } else {
+                                return "-";
+                            }
+                        }
                     },
                     {
                         data: '',

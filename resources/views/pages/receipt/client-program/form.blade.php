@@ -1,16 +1,11 @@
 @extends('layout.main')
 
-@section('title', 'Receipt Bigdata Platform')
-
+@section('title', 'Receipt of Client Program')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Receipt</a></li>
+    <li class="breadcrumb-item active" aria-current="page">View Detail</li>
+@endsection
 @section('content')
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('receipt/client-program?s=list') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Receipt
-        </a>
-    </div>
-
-
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
@@ -19,15 +14,20 @@
                     <h4>{{ $client_prog->client->full_name }}</h4>
                     <a href="{{ route('student.program.show', ['student' => $client_prog->client->id, 'program' => $client_prog->clientprog_id]) }}"
                         class="text-primary text-decoration-none cursor-pointer" target="_blank">
-                        <h6 class="d-flex flex-column">
-                            {{ $client_prog->program->program_name }}
-                            {{-- @php
+                        <div class="card p-2">
+                            <label class="text-muted mb-1">
+                                Program Name:
+                            </label>
+                            <h6 class="text-primary">
+                                {{ $client_prog->program->program_name }}
+                                {{-- @php
                                 $programName = explode('-', $client_prog->program_name);
                             @endphp
                             @for ($i = 0; $i < count($programName); $i++)
                                 {{ $programName[$i] }} <br>
                             @endfor --}}
-                        </h6>
+                            </h6>
+                        </div>
                     </a>
                 </div>
             </div>
@@ -458,7 +458,7 @@
                         <tr>
                             <td>Amount :</td>
                             <td>
-                                @if ($receipt->receipt_amount != null && $receipt->receipt_amount != "$ 0")
+                                @if ($receipt->receipt_amount != null && $receipt->receipt_amount != "$ 0" && $receipt->invoiceProgram->currency != 'idr')
                                     {{ $receipt->receipt_amount }}
                                     ( {{ $receipt->receipt_amount_idr }} )
                                 @else
@@ -607,7 +607,7 @@
                     parent_mail: $('#parent_mail').val(),
                 })
                 .then(function(response1) {
-                    
+
                     axios
                         .get(link)
                         .then(response => {

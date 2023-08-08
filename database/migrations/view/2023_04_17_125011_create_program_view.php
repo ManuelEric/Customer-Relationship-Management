@@ -37,13 +37,13 @@ return new class extends Migration
                 END)
             ELSE
                 CONCAT(mp.prog_name COLLATE utf8mb4_unicode_ci, ' : ', pr.prog_program COLLATE utf8mb4_unicode_ci)
-            END) as program_name 
+            END) as program_name,
+
         FROM tbl_prog pr
         LEFT JOIN tbl_main_prog mp 
             ON mp.id = pr.main_prog_id
-        LEFT JOIN tbl_sub_prog sp 
-            ON sp.id = pr.sub_prog_id
-
+            LEFT JOIN tbl_sub_prog sp 
+                ON sp.id = pr.sub_prog_id 
         ");
     }
 
