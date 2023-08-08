@@ -162,7 +162,7 @@
             <nav class="sidebar sidebar-offcanvas position-md-fixed h-75 overflow-auto pt-3 pe-1" id="sidebar">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a @class(['nav-link', 'text-primary' => Request::is('dashboard')]) href="{{ url('dashboard') }}">
+                        <a @class(['nav-link', 'bg-secondary text-white' => Request::is('dashboard')]) href="{{ url('dashboard') }}">
                             <i class="bi bi-speedometer2 mx-2"></i>
                             <span class="menu-title">Dashboard</span>
                         </a>
@@ -213,13 +213,19 @@
                     @endforeach
 
                     @if ($isAdmin)
+                        <li class="nav-item">
+                            <a href="{{ url('request-sign?type=invoice') }}"
+                                class="nav-link {{ Request::is('request-sign') ? 'bg-secondary text-white' : '' }}">
+                                <i class="bi bi-pencil mx-2"></i>
+                                <span class="menu-title">Request Sign</span>
+                            </a>
+                        </li>
                         <li class="nav-item nav-category">Settings</li>
                         <li class="nav-item">
                             <a href="{{ url('menus') }}"
-                                class="nav-link {{ Request::is('menus') ? 'text-primary' : '' }}">
+                                class="nav-link {{ Request::is('menus') ? 'bg-secondary text-white' : '' }}">
                                 <i class="bi bi-list mx-2"></i>
                                 <span class="menu-title">Menus</span>
-                                <i class="menu-arrow bi bi-arrow-right"></i>
                             </a>
                         </li>
                     @endif

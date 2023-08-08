@@ -19,9 +19,10 @@ interface ReceiptRepositoryInterface
     public function deleteReceipt($receiptId);
     public function getReportReceipt($start_date, $end_date);
     public function getTotalReceipt($monthYear);
+    public function getDatatables($model);
 
     # signature
-    public function getReceiptsNeedToBeSigned();
+    public function getReceiptsNeedToBeSigned(bool $asDatatables);
 
     # CRM
     public function getAllReceiptFromCRM();
