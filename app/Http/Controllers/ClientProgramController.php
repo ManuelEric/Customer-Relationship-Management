@@ -317,7 +317,7 @@ class ClientProgramController extends Controller
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['trial_date'] = $request->trial_date;
-                    $clientProgramDetails['first_class'] = $request->first_class;
+                    // $clientProgramDetails['first_class'] = $request->first_class;
                     $clientProgramDetails['prog_start_date'] = $request->prog_start_date;
                     $clientProgramDetails['prog_end_date'] = $request->prog_end_date;
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
