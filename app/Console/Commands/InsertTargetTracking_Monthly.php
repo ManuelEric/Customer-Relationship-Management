@@ -71,6 +71,8 @@ class InsertTargetTracking_Monthly extends Command
                     'achieved_initconsult' => 0,
                     'contribution_target' => $target->contribution_to_target,
                     'contribution_achieved' => 0,
+                    'revenue_target' => 0,
+                    'revenue_achieved' => 0,
                     'status' => 0,
                     'month_year' => date('Y-m').'-01',
                     'created_at' => Carbon::now(),

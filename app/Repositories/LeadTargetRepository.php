@@ -4,10 +4,13 @@ namespace App\Repositories;
 
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Models\ClientProgram;
+use App\Models\InvoiceProgram;
 use App\Models\LeadTargetTracking;
+use App\Models\Receipt;
 use App\Models\UserClient;
 use App\Models\ViewClientProgram;
 use App\Models\ViewTargetSignal;
+use Illuminate\Support\Facades\DB;
 
 class LeadTargetRepository implements LeadTargetRepositoryInterface
 {
@@ -313,5 +316,31 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                             });
                     })->
                     get();
+    }
+
+    
+    public function getAchievedRevenue($monthyear)
+    {
+        
+        $year = date('Y', strtotime($monthyear));
+        $month = date('m', strtotime($monthyear));
+
+        $invb2c = InvoiceProgram::leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')
+                                    ->whereYear('tbl_inv.created_at', '=', $year)
+                                    ->whereMonth('tbl_inv.created_at', '=', $month)
+                                    ->get();
+
+
+        // $receipt = Receipt::leftJoin('tbl_invdtl', 'tbl_invdtl.invdtl_id', '=', 'tbl_receipt.invdtl_id')
+        //     ->leftJoin('tbl_inv', 'tbl_inv.inv_id', '=', DB::raw('(CASE WHEN tbl_receipt.invdtl_id is not null THEN tbl_invdtl.inv_id ELSE tbl_receipt.inv_id END)'))
+        //     ->leftJoin('tbl_client_prog', 'tbl_client_prog.clientprog_id', '=', 'tbl_inv.clientprog_id')
+        //     ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_prog.client_id')
+        //     ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client.lead_id')
+        //     ->select(DB::raw('CAST(SUM(receipt_amount_idr) as integer) as total'))
+        //     ->whereYear('tbl_receipt.created_at', '=', $year)
+        //     ->whereMonth('tbl_receipt.created_at', '=', $month);
+
+            
+        return $invb2c->first();
     }
 }

@@ -68,6 +68,8 @@ class UpdateTargetTracking extends Command
                     $achievedHotLead = $this->leadTargetRepository->{$achievedHotLeadMethodName}($now)->count();
                     $achievedInitConsult = $this->leadTargetRepository->{$achievedInitConsultMethodName}($now)->count();
                     $achievedContribution = $this->leadTargetRepository->{$achievedContributionMethodName}($now)->count();
+                    $achievedRevenue = $this->leadTargetRepository->getAchievedRevenueByDivision($now, $division[$i]);
+                    $this->info(json_encode($achievedRevenue));
     
                     $contribution_target = $activeTarget->contribution_target;
                     
@@ -79,6 +81,7 @@ class UpdateTargetTracking extends Command
                         'achieved_hotleads' => $achievedHotLead,
                         'achieved_initconsult' => $achievedInitConsult,
                         'contribution_achieved' => $achievedContribution,
+                        'revenue_achieved' => 0,
                         'status' => $status,
                         'updated_at' => Carbon::now(),
                     ];
