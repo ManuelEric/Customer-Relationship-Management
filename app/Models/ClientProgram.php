@@ -38,6 +38,7 @@ class ClientProgram extends Model
         'negotiation_date',
         'reason_id',
         'test_date',
+        'first_class',
         'last_class',
         'diag_score',
         'test_score',

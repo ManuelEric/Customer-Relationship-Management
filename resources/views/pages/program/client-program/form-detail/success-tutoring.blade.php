@@ -11,11 +11,19 @@
             </div>
             <div class="card-body">
                 <div class="row mb-2">
-                    <div class="col-md-12 mb-2">
+                    <div class="col-md-6 mb-2">
                         <small>Trial Date <sup class="text-danger">*</sup></small>
                         <input type="date" name="trial_date" {{ $disabled }} value="{{ isset($clientProgram->trial_date) ? $clientProgram->trial_date : old('trial_date') }}"
                             class="form-control form-control-sm rounded">
                         @error('trial_date')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <small>First Class Date <sup class="text-danger">*</sup></small>
+                        <input type="date" name="first_class" {{ $disabled }} value="{{ isset($clientProgram->first_class) ? $clientProgram->first_class : old('first_class') }}"
+                            class="form-control form-control-sm rounded">
+                        @error('first_class')
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
