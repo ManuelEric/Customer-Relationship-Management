@@ -31,7 +31,7 @@
                 <h1><i class="bi bi-person me-2 opacity-50"></i></h1>
             </div>
         </div>
-        @include('pages.dashboard.sales.index')
+        {{-- @include('pages.dashboard.sales.index') --}}
     @endif
     {{-- Partnership --}}
     @if ($isPartnership || $isAdmin)
@@ -41,7 +41,7 @@
                 <h1><i class="bi bi-building me-2 opacity-50"></i></h1>
             </div>
         </div>
-        @include('pages.dashboard.partnership.index')
+        {{-- @include('pages.dashboard.partnership.index') --}}
     @endif
     {{-- Digital  --}}
     @if ($isAdmin)
@@ -61,7 +61,7 @@
                 <h1><i class="bi bi-currency-dollar me-2 opacity-50"></i></h1>
             </div>
         </div>
-        @include('pages.dashboard.finance.index')
+        {{-- @include('pages.dashboard.finance.index') --}}
     @endif
 
 
@@ -71,7 +71,7 @@
             $(".btn-compare").on('click', function() {
 
                 showLoading()
-                get_program_comparison()
+                // get_program_comparison()
 
             })
         })
