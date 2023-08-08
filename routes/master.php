@@ -21,6 +21,7 @@ use App\Http\Controllers\EdufLeadSpeakerController;
 use App\Http\Controllers\EdufReviewController;
 use App\Http\Controllers\EventSpeakerController;
 use App\Http\Controllers\SalesTargetController;
+use App\Http\Controllers\SeasonalProgramController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -89,10 +90,4 @@ Route::resource('curriculum', CurriculumController::class);
 
 Route::resource('university-tags', TagController::class);
 
-// Route::get('university-tags', function () {
-//     return view('pages.master.university-tag.index');
-// });
-
-// Route::get('sales-target', function () {
-//     return view('pages.master.sales-target.index');
-// });
+Route::resource('seasonal-program', SeasonalProgramController::class);
