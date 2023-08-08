@@ -10,7 +10,7 @@
             <div class="col-md-5">
                 <div class="row row-cols-md-2 row-cols-1 g-2">
                     <div class="col">
-                        <div id="status_achieved_lead_needed" class="card border {{ $dataLeads['total_achieved_lead_needed'] >= $dataLeads['number_of_leads'] ? 'border-info' : 'border-danger' }} border-2 shadow">
+                        <div id="status_achieved_lead_needed" class="card border {{ $dataLeads['total_achieved_lead_needed'] >= $dataLeads['number_of_leads'] && $dataLeads['total_achieved_lead_needed'] != 0 ? 'border-info' : 'border-danger' }} border-2 shadow">
                             <div class="card-body">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-6">
@@ -58,7 +58,7 @@
                         </div>
                     </div>
                     <div class="col">
-                        <div id="status_achieved_hot_lead" class="card border {{ $dataLeads['total_achieved_hot_lead'] >= $dataLeads['number_of_hot_leads'] ? 'border-info' : 'border-danger' }} border-2 shadow">
+                        <div id="status_achieved_hot_lead" class="card border {{ $dataLeads['total_achieved_hot_lead'] >= $dataLeads['number_of_hot_leads'] && $dataLeads['total_achieved_hot_lead'] != 0 ? 'border-info' : 'border-danger' }} border-2 shadow">
                             <div class="card-body">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-6">
@@ -106,7 +106,7 @@
                         </div>
                     </div>
                     <div class="col">
-                        <div id="status_achieved_ic" class="card border {{ $dataLeads['total_achieved_ic'] >= $dataLeads['number_of_ic'] ? 'border-info' : 'border-danger' }} border-2 shadow">
+                        <div id="status_achieved_ic" class="card border {{ $dataLeads['total_achieved_ic'] >= $dataLeads['number_of_ic'] && $dataLeads['total_achieved_ic'] != 0 ? 'border-info' : 'border-danger' }} border-2 shadow">
                             <div class="card-body">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-6">
@@ -155,7 +155,7 @@
                         </div>
                     </div>
                     <div class="col">
-                        <div id="status_achieved_contribution" class="card border {{ $dataLeads['total_achieved_contribution'] >= $dataLeads['number_of_contribution'] ? 'border-info' : 'border-danger' }} border-2 shadow">
+                        <div id="status_achieved_contribution" class="card border {{ $dataLeads['total_achieved_contribution'] >= $dataLeads['number_of_contribution'] && $dataLeads['total_achieved_contribution'] != 0 ? 'border-info' : 'border-danger' }} border-2 shadow">
                             <div class="card-body">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-6">
@@ -393,7 +393,7 @@
                     // Total Lead
                     $('#status_achieved_' + itemType).removeClass('border-info')
                     $('#status_achieved_' + itemType).removeClass('border-danger')
-                    $('#status_achieved_' + itemType).addClass(result.dataLeads['total_achieved_' + itemType] >= result.dataLeads[dataKey] ? 'border-info' : 'border-danger')
+                    $('#status_achieved_' + itemType).addClass(result.dataLeads['total_achieved_' + itemType] >= result.dataLeads[dataKey] && result.dataLeads['total_achieved_' + itemType] != 0 ? 'border-info' : 'border-danger')
                     $('#tot_achieved_' + itemType).html(result.dataLeads['total_achieved_' + itemType])
                     $('#tot_target_' + itemType).html('/ ' + result.dataLeads[dataKey])
                     divisi.forEach(function (itemDivisi, indexDivisi) {
