@@ -1,5 +1,5 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
@@ -174,14 +174,20 @@
                             {
                                 data: 'inv_id',
                                 name: 'tbl_inv.inv_id',
+                                className:'text-center',
                             },
                             {
                                 data: 'payment_method',
                                 name: 'payment_method',
+                                className:'text-center',
+                                render: function(data, type, row) {
+                                    return data=="Full Payment" ? '<i class="bi bi-wallet me-2 text-info"></i>' + data : '<i class="bi bi-card-checklist me-2 text-warning"></i>' + data
+                                }
                             },
                             {
                                 data: 'show_created_at',
                                 name: 'show_created_at',
+                                className:'text-center',
                                 render: function(data, type, row, meta) {
                                     return moment(data).format('MMMM Do YYYY');
                                 }
@@ -189,6 +195,7 @@
                             {
                                 data: 'due_date',
                                 name: 'due_date',
+                                className:'text-center',
                                 render: function(data, type, row, meta) {
                                     return moment(data).format('MMMM Do YYYY');
                                 }
@@ -196,6 +203,7 @@
                             {
                                 data: 'total_price_idr',
                                 name: 'total_price_idr',
+                                className:'text-center',
                                 render: function(data, type, row) {
                                     return new Intl.NumberFormat("id-ID", {
                                         style: "currency",

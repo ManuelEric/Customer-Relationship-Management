@@ -32,17 +32,15 @@
             </div> --}}
             <div class="tool">
                 <button class="btn btn-light btn-sm"
-                    @if(isset($receipt->invoiceB2b))
-                        @if($receipt->invoiceB2b->schprog_id)
-                            onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt-sch/'.$receipt->id.'/upload/'.$currency) : '' }}')">
+                    @if (isset($receipt->invoiceB2b)) @if ($receipt->invoiceB2b->schprog_id)
+                            onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt-sch/' . $receipt->id . '/upload/' . $currency) : '' }}')">
                         @elseif($receipt->invoiceB2b->ref_id)
-                            onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt-ref/'.$receipt->id.'/upload/'.$currency) : '' }}')">
+                            onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt-ref/' . $receipt->id . '/upload/' . $currency) : '' }}')">
                         @elseif($receipt->invoiceB2b->partnerprog_id)
-                            onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt-corp/'.$receipt->id.'/upload/'.$currency) : '' }}')">
-                        @endif
-                    @else
-                        onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('receipt.client-program.upload-signed', ['receipt' => Request::route('receipt'), 'currency' => Request::route('currency')]) }}')"
-                    @endif 
+                            onclick="savePDF('save','{{ $attachment }}','{{ isset($receipt) ? url('api/receipt-corp/' . $receipt->id . '/upload/' . $currency) : '' }}')"> @endif
+                @else
+                    onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('receipt.client-program.upload-signed', ['receipt' => Request::route('receipt'), 'currency' => Request::route('currency')]) }}')"
+                    @endif
                     <i class="fa fa-save me-2"></i>
                     Save</button>
                 {{-- <button class="btn btn-light btn-sm" onclick="savePDF('save','{{ $attachment->attachment }}','{{ isset($receipt) ? url('api/receipt/'.$receipt->id.'/upload/'.$currency) : '' }}')"><i
@@ -53,7 +51,7 @@
     </div>
     <div id="pdf-container"></div>
 
-{{-- <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
+    {{-- <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -71,7 +69,7 @@
 </div> --}}
 @endsection
 @section('script')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
 
         @if (isset($attachment) && gettype($attachment) != "string")

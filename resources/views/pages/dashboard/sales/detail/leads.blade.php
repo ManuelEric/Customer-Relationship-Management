@@ -17,7 +17,7 @@
                                     <div class="col-md-6">
                                         <p class="text-lg mb-0 fw-bolder text-muted lh-1">Number of Leads</p>
                                     </div>
-                                    <div class="col-md-6 d-flex justify-content-end fw-semibold">
+                                    <div class="col-md-6 d-flex justify-content-end fw-semibold lead-detail">
                                         <div class="d-flex align-items-end">
                                             <div class="fs-3" id="tot_achieved_lead_needed">{{ $dataLeads['total_achieved_lead_needed'] }}</div>
                                             <div class="fs-6" id="tot_target_lead_needed">/ {{ $dataLeads['number_of_leads'] }}</div>
@@ -30,7 +30,7 @@
                                         <label>Sales</label>
                                         <label id="lead_needed_sales">{{$actualLeadsSales['lead_needed']}}/{{ $leadSalesTarget['lead_needed'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="lead_needed_percentage_sales" style="width: {{ $leadSalesTarget['percentage_lead_needed'] }}%"></div>
                                     </div>
@@ -40,7 +40,7 @@
                                         <label>Referral</label>
                                         <label id="lead_needed_referral">{{$actualLeadsReferral['lead_needed']}}/{{ $leadReferralTarget['lead_needed'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="lead_needed_percentage_referral" style="width: {{ $leadReferralTarget['percentage_lead_needed'] }}%"></div>
                                     </div>
@@ -50,7 +50,7 @@
                                         <label>Digital</label>
                                         <label id="lead_needed_digital">{{$actualLeadsDigital['lead_needed']}}/{{ $leadDigitalTarget['lead_needed'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="lead_needed_percentage_digital" style="width: {{ $leadDigitalTarget['percentage_lead_needed'] }}%"></div>
                                     </div>
@@ -78,7 +78,7 @@
                                         <label>Sales</label>
                                         <label id="hot_lead_sales">{{$actualLeadsSales['hot_lead']}}/{{ $leadSalesTarget['hot_lead'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="hot_lead_percentage_sales" style="width: {{ $leadSalesTarget['percentage_hot_lead'] }}%"></div>
                                     </div>
@@ -88,7 +88,7 @@
                                         <label>Referral</label>
                                         <label id="hot_lead_referral">{{$actualLeadsReferral['hot_lead']}}/{{ $leadReferralTarget['hot_lead'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="hot_lead_percentage_referral" style="width: {{ $leadReferralTarget['percentage_hot_lead'] }}%"></div>
                                     </div>
@@ -98,7 +98,7 @@
                                         <label>Digital</label>
                                         <label id="hot_lead_digital">{{$actualLeadsDigital['hot_lead']}}/{{ $leadDigitalTarget['hot_lead'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="hot_lead_percentage_digital" style="width: {{ $leadDigitalTarget['percentage_hot_lead'] }}%"></div>
                                     </div>
@@ -127,7 +127,7 @@
                                         <label>Sales</label>
                                         <label id="ic_sales">{{$actualLeadsSales['ic']}}/{{ $leadSalesTarget['ic'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="ic_percentage_sales" style="width: {{ $leadSalesTarget['percentage_ic'] }}%"></div>
                                     </div>
@@ -137,7 +137,7 @@
                                         <label>Referral</label>
                                         <label id="ic_referral">{{$actualLeadsReferral['ic']}}/{{ $leadReferralTarget['ic'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="ic_percentage_referral" style="width: {{ $leadReferralTarget['percentage_ic'] }}%"></div>
                                     </div>
@@ -147,7 +147,7 @@
                                         <label>Digital</label>
                                         <label id="ic_digital">{{$actualLeadsDigital['ic']}}/{{ $leadDigitalTarget['ic'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="ic_percentage_digital" style="width: {{ $leadDigitalTarget['percentage_ic'] }}%"></div>
                                     </div>
@@ -175,7 +175,7 @@
                                         <label>Sales</label>
                                         <label id="contribution_sales">{{$actualLeadsSales['contribution']}}/{{ $leadSalesTarget['contribution'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="contribution_percentage_sales" style="width: {{ $leadSalesTarget['percentage_contribution'] }}%"></div>
                                     </div>
@@ -185,7 +185,7 @@
                                         <label>Referral</label>
                                         <label id="contribution_referral">{{$actualLeadsReferral['contribution']}}/{{ $leadReferralTarget['contribution'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="contribution_percentage_referral" style="width: {{ $leadReferralTarget['percentage_contribution'] }}%"></div>
                                     </div>
@@ -195,7 +195,7 @@
                                         <label>Digital</label>
                                         <label id="contribution_digital">{{$actualLeadsDigital['contribution']}}/{{ $leadDigitalTarget['contribution'] }}</label>
                                     </div>
-                                    <div class="progress" role="progressbar" aria-label="Basic example"
+                                    <div class="progress cursor-pointer " role="progressbar" onclick="checkLeadDetail('sales', 'leads')"
                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                                         <div class="progress-bar" id="contribution_percentage_digital" style="width: {{ $leadDigitalTarget['percentage_contribution'] }}%"></div>
                                     </div>
@@ -230,6 +230,46 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal modal-lg fade" id="leadsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="leadTitleModal">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body overflow-auto" style="max-height: 300px" id="leadContentModal">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Full Name</th>
+                            <th>Parents Name</th>
+                            <th>School Name</th>
+                            <th>Graduation Year</th>
+                            <th>Lead Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for ($i = 0; $i < 20; $i++)
+                            <tr>
+                                <td>No</td>
+                                <td>Full Name</td>
+                                <td>Parents Name</td>
+                                <td>School Name</td>
+                                <td>Graduation Year</td>
+                                <td>Lead Source</td>
+                            </tr>
+                        @endfor
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
             </div>
         </div>
     </div>
@@ -277,9 +317,18 @@
                         boxWidth: 10,
                     }
                 },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 10,
+                        }
+                    },
+                }
             }
-        }
-    });
+        }});
+
 
     const idrTarget = document.getElementById('idrTarget');
 
@@ -451,5 +500,10 @@
                 console.log(error)
                 swal.close()
             })
+    }
+</script>
+<script>
+    function checkLeadDetail() {
+        $('#checkLeadDetail').modal('show')
     }
 </script>

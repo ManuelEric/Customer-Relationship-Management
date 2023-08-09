@@ -37,36 +37,43 @@
 
     {{-- Sales --}}
     @if ($isSales || $isAdmin)
-        <h3 class="my-3">
-            <i class="bi bi-person me-2"></i>
-            Sales Dashboard
-        </h3>
-        @include('pages.dashboard.sales.index')
+        <div class="card bg-secondary mb-1">
+            <div class="d-flex justify-content-between align-items-center px-3 text-white">
+                <h3 class="mb-0">Sales Dashboard</h3>
+                <h1><i class="bi bi-person me-2 opacity-50"></i></h1>
+            </div>
+        </div>
+        {{-- @include('pages.dashboard.sales.index') --}}
     @endif
     {{-- Partnership --}}
     @if ($isPartnership || $isAdmin)
-        <h3 class="my-3 pt-3">
-            <i class="bi bi-building me-2"></i>
-            Partnership Dashboard
-        </h3>
-        @include('pages.dashboard.partnership.index')
+        <div class="card bg-secondary mb-1">
+            <div class="d-flex justify-content-between align-items-center px-3 text-white">
+                <h3 class="mb-0"> Partnership Dashboard</h3>
+                <h1><i class="bi bi-building me-2 opacity-50"></i></h1>
+            </div>
+        </div>
+        {{-- @include('pages.dashboard.partnership.index') --}}
     @endif
     {{-- Digital  --}}
     @if ($isAdmin)
-
-        <h3 class="my-3 pt-3">
-            <i class="bi bi-bar-chart-line me-2"></i>
-            Digital Dashboard
-        </h3>
+        <div class="card bg-secondary mb-1">
+            <div class="d-flex justify-content-between align-items-center px-3 text-white">
+                <h3 class="mb-0">Digital Dashboard</h3>
+                <h1><i class="bi bi-bar-chart-line me-2 opacity-50"></i></h1>
+            </div>
+        </div>
         @include('pages.dashboard.digital.index')
     @endif
     {{-- Finance  --}}
     @if ($isFinance || $isAdmin)
-        <h3 class="my-3 pt-3">
-            <i class="bi bi-currency-dollar me-2"></i>
-            Finance Dashboard
-        </h3>
-        @include('pages.dashboard.finance.index')
+        <div class="card bg-secondary mb-1">
+            <div class="d-flex justify-content-between align-items-center px-3 text-white">
+                <h3 class="mb-0">Finance Dashboard</h3>
+                <h1><i class="bi bi-currency-dollar me-2 opacity-50"></i></h1>
+            </div>
+        </div>
+        {{-- @include('pages.dashboard.finance.index') --}}
     @endif
 
 
@@ -76,7 +83,7 @@
             $(".btn-compare").on('click', function() {
 
                 showLoading()
-                get_program_comparison()
+                // get_program_comparison()
 
             })
         })

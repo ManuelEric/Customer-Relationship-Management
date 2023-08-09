@@ -20,7 +20,7 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
-
+use App\Models\Client;
 use App\Models\School;
 use App\Models\UserClientAdditionalInfo;
 use Carbon\Carbon;
@@ -601,5 +601,25 @@ class ClientEventController extends Controller
 
 
         return Redirect::to('form/thanks');
+    }
+
+    public function updateAttendance($id, $status) {
+        $clientEvent = $this->clientEventRepository->getClientEventById($id);
+
+        DB::beginTransaction();
+        try {
+            $clientEvent['status'] = $status;
+            $clientEvent->save();
+            $data = [
+                'name' => $clientEvent->client->full_name,
+                'status' => $clientEvent->status
+            ];
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Update attendance client event failed : ' . $e->getMessage());
+        }
+        return response()->json($data);
+
     }
 }

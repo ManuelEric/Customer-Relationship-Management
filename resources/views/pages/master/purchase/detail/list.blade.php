@@ -9,7 +9,7 @@
     </div>
     <div class="col-12 mt-4">
         <table class="table table-bordered table-hover nowrap align-middle w-100">
-            <thead class="bg-dark text-white">
+            <thead class="bg-secondary text-white">
                 <tr>
                     <th>#</th>
                     <th>Item Name</th>

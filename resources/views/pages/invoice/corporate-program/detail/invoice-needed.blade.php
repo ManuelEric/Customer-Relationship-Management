@@ -1,5 +1,5 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="PartnerProgramTable">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Partner Name</th>
@@ -63,6 +63,7 @@
                     },
                     {
                         data: 'success_date',
+                        className:'text-center',
                         render: function(data, type, row) {
                             let success_date = data ? moment(data).format("MMMM Do YYYY") : '-'
                             return success_date

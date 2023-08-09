@@ -1,23 +1,26 @@
 @extends('layout.main')
 
-@section('title', 'Referral - Bigdata Platform')
+@section('title', 'Referral ')
 
 @section('content')
 
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('dashboard') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Referral
-        </a>
-        <a href="{{ url('program/referral/create') }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-square me-1"></i>
-            Add
-            Referral</a>
+    <div class="card bg-secondary mb-1 p-2">
+        <div class="d-flex align-items-center justify-content-between">
+            <h5 class="text-white m-0">
+                <i class="bi bi-tag me-1"></i>
+                Referral
+            </h5>
+            <a href="{{ url('program/referral/create') }}" class="btn btn-sm btn-info"><i class="bi bi-plus-square me-1"></i>
+                Add
+                Referral</a>
+        </div>
     </div>
 
 
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="refTable">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Partner Name</th>
@@ -75,6 +78,10 @@
                     },
                     {
                         data: 'referral_type',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return data=="Out" ? data + '<i class="bi bi-box-arrow-right text-danger ms-2"></i>' : data + '<i class="bi bi-box-arrow-in-right text-success ms-2"></i>'
+                        }
                     },
                     {
                         data: 'program_name',
@@ -86,18 +93,21 @@
                     },
                     {
                         data: 'number_of_student',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return '<i class="bi bi-person text-success me-2"></i>' + data 
+                        }
                     },
                     {
                         data: 'revenue',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
-
                             return formatRupiah(row.revenue)
-
-
                         }
                     },
                     {
                         data: 'revenue_other',
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             switch (row.currency) {
                                 case "USD":

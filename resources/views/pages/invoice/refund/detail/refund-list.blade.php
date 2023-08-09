@@ -1,5 +1,5 @@
 <table class="table table-bordered table-hover nowrap align-middle w-100" id="programTable">
-    <thead class="bg-dark text-white">
+    <thead class="bg-secondary text-white">
         <tr>
             <th class="bg-info text-white">#</th>
             <th class="bg-info text-white">Student/Partner/School Name</th>
@@ -85,9 +85,11 @@
                 },
                 {
                     data: 'invoiceId',
+                    className: 'text-center',
                 },
                 {
                     data: 'total_price',
+                    className: 'text-center',
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
@@ -101,6 +103,7 @@
                 },
                 {
                     data: 'refund_amount',
+                    className: 'text-center',
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
@@ -114,6 +117,7 @@
                 },
                 {
                     data: 'tax_amount',
+                    className: 'text-center',
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
@@ -127,6 +131,7 @@
                 },
                 {
                     data: 'total_refunded',
+                    className: 'text-center',
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
@@ -145,23 +150,24 @@
                         switch (row.receipt_cat) {
 
                             case 'student':
-                                var link = '{{ url("receipt/client-program/") }}/' + data
-                            break;
-                            
+                                var link = '{{ url('receipt/client-program/') }}/' + data
+                                break;
+
                             case 'school':
-                                var link = '{{ url("receipt/school-program/") }}/' + data
-                            break;
+                                var link = '{{ url('receipt/school-program/') }}/' + data
+                                break;
 
                             case 'partner':
-                                var link = '{{ url("receipt/corporate-program/") }}/' + data
-                            break;
+                                var link = '{{ url('receipt/corporate-program/') }}/' + data
+                                break;
 
                             case 'referral':
-                                var link = '{{ url("receipt/referral/") }}/' + data
-                            break;
+                                var link = '{{ url('receipt/referral/') }}/' + data
+                                break;
 
                         }
-                        return '<a href="' + link + '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
+                        return '<a href="' + link +
+                            '" class="btn btn-sm btn-outline-warning"><i class="bi bi-eye"></i></a>'
                     }
                 }
             ]

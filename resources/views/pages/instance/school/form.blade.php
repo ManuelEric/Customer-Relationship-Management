@@ -1,28 +1,29 @@
 @extends('layout.main')
 
-@section('title', 'School - Bigdata Platform')
-
+@section('title', 'School ')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Schools</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Form School</li>
+@endsection
 @section('content')
 
-@php
-    $error_pic = $error_visit = false;
-@endphp
-@if ($errors->has('schdetail_name.*') || $errors->has('schdetail_mail.*') || $errors->has('schdetail_phone.*') || $errors->has('schdetail_position.*') || $errors->has('schdetail_grade.*'))
     @php
-        $error_pic = true;
+        $error_pic = $error_visit = false;
     @endphp
-
-@elseif ($errors->first('internal_pic') || $errors->first('school_pic') || $errors->first('visit_date'))
-    @php
-        $error_visit = true;
-    @endphp
-@endif
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ url('instance/school') }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> School
-        </a>
-    </div>
+    @if (
+        $errors->has('schdetail_name.*') ||
+            $errors->has('schdetail_mail.*') ||
+            $errors->has('schdetail_phone.*') ||
+            $errors->has('schdetail_position.*') ||
+            $errors->has('schdetail_grade.*'))
+        @php
+            $error_pic = true;
+        @endphp
+    @elseif ($errors->first('internal_pic') || $errors->first('school_pic') || $errors->first('visit_date'))
+        @php
+            $error_visit = true;
+        @endphp
+    @endif
 
     <div class="row">
         <div class="col-md-4">
@@ -110,12 +111,12 @@
                         </ul>
                     </div>
                 </div>
-                
+
                 @include('pages.instance.school.detail.school-visit')
-                
+
             @endif
 
-            
+
         </div>
         <div class="col-md-8">
             <div class="card mb-3">
@@ -153,25 +154,19 @@
                                     <select name="sch_type" class="select w-100"
                                         {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
                                         <option data-placeholder="true"></option>
-                                        <option value="International"
-                                            @selected(isset($school->sch_type) && $school->sch_type == 'International')
+                                        <option value="International" @selected(isset($school->sch_type) && $school->sch_type == 'International')
                                             @selected(old('sch_type') == 'International')>
                                             International</option>
-                                        <option value="National"
-                                            @selected(isset($school->sch_type) && $school->sch_type == 'National')
-                                            @selected(old('sch_type') == 'National')>
+                                        <option value="National" @selected(isset($school->sch_type) && $school->sch_type == 'National') @selected(old('sch_type') == 'National')>
                                             National
                                         </option>
-                                        <option value="National_plus"
-                                            @selected(isset($school->sch_type) && $school->sch_type == 'National_plus')
+                                        <option value="National_plus" @selected(isset($school->sch_type) && $school->sch_type == 'National_plus')
                                             @selected(old('sch_type') == 'National_plus')>
                                             National+</option>
-                                        <option value="National_private"
-                                            @selected(isset($school->sch_type) && $school->sch_type == 'National_private')
+                                        <option value="National_private" @selected(isset($school->sch_type) && $school->sch_type == 'National_private')
                                             @selected(old('sch_type') == 'National_private')>
                                             National Private</option>
-                                        <option value="Home_schooling"
-                                            @selected(isset($school->sch_type) && $school->sch_type == 'Home_schooling')
+                                        <option value="Home_schooling" @selected(isset($school->sch_type) && $school->sch_type == 'Home_schooling')
                                             @selected(old('sch_type') == 'Home_schooling')>
                                             Home Schooling</option>
                                     </select>
@@ -307,55 +302,56 @@
                     </div>
                     <div class="card-body">
                         @if ($details->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Fullname</th>
-                                        <th>Email</th>
-                                        <th>Grade</th>
-                                        <th>Position</th>
-                                        <th>Phone</th>
-                                        <th class="text-end">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @php
-                                        $no = 1;
-                                    @endphp
-                                    @foreach ($details as $detail)
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
                                         <tr>
-                                            <td>{{ $no++ }}</td>
-                                            <td>{{ $detail->schdetail_fullname }}</td>
-                                            <td>{{ $detail->schdetail_email }}</td>
-                                            <td>{{ $detail->schdetail_grade }}</td>
-                                            <td>{{ $detail->schdetail_position }}</td>
-                                            <td>{{ $detail->schdetail_phone }}</td>
-                                            <td class="d-flex text-center justify-content-end">
-                                                @if ($detail->is_pic == true)
-                                                    <i class="bi bi-star-fill me-2 my-2 text-warning" title="PIC"></i>
-                                                @endif
-                                                <button type="button" class="btn btn-sm btn-outline-warning mx-1"
-                                                    data-bs-toggle="modal" data-bs-target="#picForm"
-                                                    onclick="getPIC('{{ url('instance/school/' . $detail->sch_id . '/detail/' . $detail->schdetail_id . '/edit') }}')"><i
-                                                        class="bi bi-pencil"></i>
-                                                </button>
-                                                <button type="button"
-                                                    onclick="confirmDelete('instance/school/{{ $detail->sch_id }}/detail', '{{ $detail->schdetail_id }}')"
-                                                    class="btn btn-sm btn-outline-danger">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
+                                            <th>#</th>
+                                            <th>Fullname</th>
+                                            <th>Email</th>
+                                            <th>Grade</th>
+                                            <th>Position</th>
+                                            <th>Phone</th>
+                                            <th class="text-end">Action</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        @php
+                                            $no = 1;
+                                        @endphp
+                                        @foreach ($details as $detail)
+                                            <tr>
+                                                <td>{{ $no++ }}</td>
+                                                <td>{{ $detail->schdetail_fullname }}</td>
+                                                <td>{{ $detail->schdetail_email }}</td>
+                                                <td>{{ $detail->schdetail_grade }}</td>
+                                                <td>{{ $detail->schdetail_position }}</td>
+                                                <td>{{ $detail->schdetail_phone }}</td>
+                                                <td class="d-flex text-center justify-content-end">
+                                                    @if ($detail->is_pic == true)
+                                                        <i class="bi bi-star-fill me-2 my-2 text-warning"
+                                                            title="PIC"></i>
+                                                    @endif
+                                                    <button type="button" class="btn btn-sm btn-outline-warning mx-1"
+                                                        data-bs-toggle="modal" data-bs-target="#picForm"
+                                                        onclick="getPIC('{{ url('instance/school/' . $detail->sch_id . '/detail/' . $detail->schdetail_id . '/edit') }}')"><i
+                                                            class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button type="button"
+                                                        onclick="confirmDelete('instance/school/{{ $detail->sch_id }}/detail', '{{ $detail->schdetail_id }}')"
+                                                        class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         @else
-                        <div>
-                            There's no contact person
-                        </div>
+                            <div>
+                                There's no contact person
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -377,17 +373,16 @@
                     </div>
                     <div class="modal-body">
                         <form
-                            @if ($error_pic === true)
-                                action="{{ url('instance/school/' . $school->sch_id . '/detail/' . old('schdetail_id')) }}"
+                            @if ($error_pic === true) action="{{ url('instance/school/' . $school->sch_id . '/detail/' . old('schdetail_id')) }}"
                             @else
-                                action="{{ url('instance/school/' . $school->sch_id . '/detail') }}"
-                            @endif method="POST"
-                            id="picAction">
+                                action="{{ url('instance/school/' . $school->sch_id . '/detail') }}" @endif
+                            method="POST" id="picAction">
                             @csrf
                             <div class="put">
                                 @if ($error_pic === true)
                                     @method('put')
-                                    <input type="hidden" readonly name="schdetail_id" value="{{ old('schdetail_id') }}">
+                                    <input type="hidden" readonly name="schdetail_id"
+                                        value="{{ old('schdetail_id') }}">
                                 @endif
                             </div>
                             <input type="hidden" readonly name="sch_id" value="{{ $school->sch_id }}">
@@ -395,7 +390,8 @@
                                 <div class="col-md-12 mb-2">
                                     <label>Fullname <sup class="text-danger">*</sup></label>
                                     <input type="text" name="schdetail_name[]"
-                                        class="form-control form-control-sm rounded" id="cp_fullname" value="{{ old('schdetail_name') ? old('schdetail_name')[0] : null }}">
+                                        class="form-control form-control-sm rounded" id="cp_fullname"
+                                        value="{{ old('schdetail_name') ? old('schdetail_name')[0] : null }}">
                                     @error('schdetail_name.0')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -403,7 +399,8 @@
                                 <div class="col-md-12 mb-2">
                                     <label>E-mail <sup class="text-danger">*</sup></label>
                                     <input type="email" name="schdetail_mail[]"
-                                        class="form-control form-control-sm rounded" id="cp_mail" value="{{ old('schdetail_mail') ? old('schdetail_mail')[0] : null }}">
+                                        class="form-control form-control-sm rounded" id="cp_mail"
+                                        value="{{ old('schdetail_mail') ? old('schdetail_mail')[0] : null }}">
                                     @error('schdetail_mail.0')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -411,7 +408,8 @@
                                 <div class="col-md-12 mb-2">
                                     <label>Phone Number <sup class="text-danger">*</sup></label>
                                     <input type="text" name="schdetail_phone[]"
-                                        class="form-control form-control-sm rounded" id="cp_phone" value="{{ old('schdetail_phone') ? old('schdetail_phone')[0] : null }}">
+                                        class="form-control form-control-sm rounded" id="cp_phone"
+                                        value="{{ old('schdetail_phone') ? old('schdetail_phone')[0] : null }}">
                                     @error('schdetail_phone.0')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
@@ -454,11 +452,13 @@
                                     <label for="">Is he/she is a PIC?</label>
                                     <input type="hidden" value="false" id="is_pic" name="is_pic">
                                     <div class="form-check ms-4">
-                                        <input class="form-check-input" type="radio" name="pic_status" value="1" @checked(old('pic_status') == 1)>
+                                        <input class="form-check-input" type="radio" name="pic_status" value="1"
+                                            @checked(old('pic_status') == 1)>
                                         <label class="form-check-label">Yes</label>
                                     </div>
                                     <div class="form-check ms-4">
-                                        <input class="form-check-input" type="radio" name="pic_status" value="0" @checked(old('pic_status') == 0) @checked(old('pic_status') !== null)>
+                                        <input class="form-check-input" type="radio" name="pic_status" value="0"
+                                            @checked(old('pic_status') == 0) @checked(old('pic_status') !== null)>
                                         <label class="form-check-label">No</label>
                                     </div>
                                     @error('is_pic')

@@ -1,5 +1,5 @@
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="invoiceList">
-                <thead class="bg-dark text-white">
+                <thead class="bg-secondary text-white">
                     <tr>
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Partner Name</th>
@@ -55,7 +55,7 @@
                             },
                             {
                                 data: 'corp_name',
-                                name: 'tbl_corp.corp_name' 
+                                name: 'tbl_corp.corp_name'
                             },
                             {
                                 data: 'program_name',
@@ -63,18 +63,29 @@
                             },
                             {
                                 data: 'invb2b_id',
+                                className:'text-center',
                             },
                             {
                                 data: 'invb2b_pm',
+                                className:'text-center',
+                                render: function(data, type, row) {
+                                    return data=="Full Payment" ? '<i class="bi bi-wallet me-2 text-info"></i>' + data : '<i class="bi bi-card-checklist me-2 text-warning"></i>' + data
+                                }
                             },
                             {
                                 data: 'created_at',
+                                className: 'text-center',
+                                render: function(data, type, row) {
+                                    return data ? moment(data).format("MMMM Do YYYY") : '-'
+                                },
                             },
                             {
                                 data: 'invb2b_duedate',
+                                className: 'text-center',
                             },
                             {
                                 data: 'invb2b_totprice',
+                                className:'text-center',
                                 render: function(data, type, row, meta) {
                                     var currency;
                                     var totprice = new Intl.NumberFormat().format(row.invb2b_totprice);
@@ -93,15 +104,16 @@
                                             totprice = '-'
                                             break;
                                     }
-                                    return currency + totprice;   
+                                    return currency + totprice;
                                 }
                             },
                             {
                                 data: 'invb2b_totpriceidr',
+                                className:'text-center',
                                 render: function(data, type, row, meta) {
                                     var currency = 'Rp. ';
                                     var totprice = new Intl.NumberFormat().format(row.invb2b_totpriceidr);
-                                    return currency + ' ' + totprice;   
+                                    return currency + ' ' + totprice;
                                 }
                             },
                             {
@@ -116,7 +128,8 @@
 
                     $('#invoiceList tbody').on('click', '.showInvoice ', function() {
                         var data = table.row($(this).parents('tr')).data();
-                        window.location.href = "{{ url('invoice/corporate-program') }}/" + data.partnerprog_id + "/detail/" + data.invb2b_num;
+                        window.location.href = "{{ url('invoice/corporate-program') }}/" + data.partnerprog_id +
+                            "/detail/" + data.invb2b_num;
                     });
                 });
             </script>

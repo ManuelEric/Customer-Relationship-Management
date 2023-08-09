@@ -1,19 +1,16 @@
 @extends('layout.main')
 
-@section('title', 'Client Program - Bigdata Platform')
-
+@section('title', 'Client Program ')
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ url()->previous() }}">Client Program</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Form Client Program</li>
+@endsection
 @section('content')
 
     @php
         $disabled = !isset($edit) ? 'disabled' : null;
         $open_information_for_tutor = isset($clientProgram->invoice) && $clientProgram->program->main_prog->prog_name == "Academic & Test Preparation" && $clientProgram->session_tutor === NULL ? true : false;
     @endphp
-
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <a href="{{ route('student.show', ['student' => $student->id]) }}" class="text-decoration-none text-muted">
-            <i class="bi bi-arrow-left me-2"></i> Client Program
-        </a>
-    </div>
     
     @if ($open_information_for_tutor)
     <div class="alert alert-danger">
