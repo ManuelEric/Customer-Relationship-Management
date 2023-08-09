@@ -74,6 +74,13 @@ class UserClient extends Authenticatable
         );
     }
 
+    protected function graduationYearReal(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getGraduationYearFromView($this->id)
+        );
+    }
+
     public function scopeWhereRoleName(Builder $query, $role)
     {
         $query->whereHas('roles', function ($q) use ($role) {

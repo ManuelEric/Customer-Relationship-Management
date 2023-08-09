@@ -256,6 +256,12 @@
                             </tr>
                         @endif
                         <tr>
+                            <td>PPH23 :</td>
+                            <td>
+                                {{ $receiptRef->pph23 != null ? $receiptRef->pph23.'%' : '-' }}
+                            </td>
+                        </tr>
+                        <tr>
                             <td>Amount :</td>
                             <td>
                                 @if ($receiptRef->receipt_amount != null && $invoiceRef->currency != 'idr')

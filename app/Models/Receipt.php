@@ -122,7 +122,7 @@ class Receipt extends Model
         elseif ($this->invdtl_id)
             $invTotPrice = $this->invoiceInstallment->invdtl_amountidr;
 
-        $calcPPH23 = ($this->pph23/100) * ($invTotPrice);
+        $calcPPH23 = $this->pph23/100 * $invTotPrice;
     
         return Attribute::make(
             get: fn ($value) => $calcPPH23,
