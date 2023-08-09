@@ -74,12 +74,21 @@ class ClientEventController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax()) 
+        {
+            $event_name = $request->get('event_name');
+            $filter['event_name'] = $event_name;
 
-            return $this->clientEventRepository->getAllClientEventDataTables();
+            return $this->clientEventRepository->getAllClientEventDataTables($filter);
         }
 
-        return view('pages.program.client-event.index');
+        $events = $this->eventRepository->getAllEvents();
+
+        return view('pages.program.client-event.index')->with(
+            [
+                'events' => $events
+            ]
+        );
     }
 
     public function create()
