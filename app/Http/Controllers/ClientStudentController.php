@@ -95,29 +95,41 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
-        // $new_leads = $this->clientRepository->getNewLeads(false);
-        // return $this->clientRepository->getAllClientStudent()->count();
+
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
             $asDatatables = true;
+
+            # advanced filter purpose
+            $school_name = $request->get('school_name');
+            $graduation_year = $request->get('graduation_year');
+            $leads = $request->get('lead_source');
+
+            # array for advanced filter request
+            $advanced_filter = [
+                'school_name' => $school_name,
+                'graduation_year' => $graduation_year,
+                'leads' => $leads,
+            ];
+
             switch ($statusClient) {
 
                     // client/student
                 case "new-leads":
-                    $model = $this->clientRepository->getNewLeads($asDatatables);
+                    $model = $this->clientRepository->getNewLeads($asDatatables, null, $advanced_filter);
                     break;
 
                 case "potential":
-                    $model = $this->clientRepository->getPotentialClients($asDatatables);
+                    $model = $this->clientRepository->getPotentialClients($asDatatables, null, $advanced_filter);
                     break;
 
                 case "mentee":
-                    $model = $this->clientRepository->getExistingMentees($asDatatables);
+                    $model = $this->clientRepository->getExistingMentees($asDatatables, null, $advanced_filter);
                     break;
 
                 case "non-mentee":
-                    $model = $this->clientRepository->getExistingNonMentees($asDatatables);
+                    $model = $this->clientRepository->getExistingNonMentees($asDatatables, null, $advanced_filter);
                     break;
 
                 default:
@@ -129,14 +141,32 @@ class ClientStudentController extends ClientController
         
         $schools = $this->schoolRepository->getAllSchools();
         $parents = $this->clientRepository->getAllClientByRole('Parent');
-        $leads = $this->leadRepository->getAllMainLead();
+        $main_leads = $this->leadRepository->getAllMainLead();
+        $main_leads = $main_leads->map(function ($item) {
+            return [
+                'main_lead' => $item->main_lead
+            ];
+        });
+        $sub_leads = $this->leadRepository->getAllKOLlead();
+        $sub_leads = $sub_leads->map(function ($item) {
+            return [
+                'main_lead' => $item->sub_lead
+            ];
+        });
 
+        $leads = $main_leads->merge($sub_leads);
+
+        # for advance filter purpose
+        $max_graduation_year = $this->clientRepository->getMaxGraduationYearFromClient();
 
         return view('pages.client.student.index')->with(
             [
-                'schools' => $schools,
-                'parents' => $parents,
-                'leads' => $leads,
+                'advanced_filter' => [
+                    'schools' => $schools,
+                    'parents' => $parents,
+                    'leads' => $leads,
+                    'max_graduation_year' => $max_graduation_year
+                ]
             ]
         );
     }

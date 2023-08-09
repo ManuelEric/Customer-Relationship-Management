@@ -56,7 +56,9 @@
                                     <label for="">School Name</label>
                                     <select name="school_name[]" class="select form-select form-select-sm w-100" multiple
                                         id="school-name">
-
+                                        @foreach ($advanced_filter['schools'] as $school)
+                                            <option value="{{ $school->sch_name }}">{{ $school->sch_name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
@@ -64,7 +66,9 @@
                                     <label for="">Graduation Year</label>
                                     <select name="graduation_year[]" class="select form-select form-select-sm w-100"
                                         multiple id="graduation-year">
-
+                                        @for ($i = $advanced_filter['max_graduation_year']; $i >= 2016; $i--)
+                                            <option value="{{ $i }}">{{ $i }}</option>
+                                        @endfor
                                     </select>
                                 </div>
 
@@ -72,7 +76,9 @@
                                     <label for="">Lead Source</label>
                                     <select name="lead_source[]" class="select form-select form-select-sm w-100" multiple
                                         id="lead-sources">
-
+                                        @foreach ($advanced_filter['leads'] as $lead)
+                                            <option value="{{ $lead['main_lead'] }}">{{ $lead['main_lead'] }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
@@ -255,7 +261,14 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '',
+                ajax: {
+                    url: '',
+                    data: function (params) {
+                        params.school_name = $("#school-name").val()
+                        params.graduation_year = $("#graduation-year").val()
+                        params.lead_source = $("#lead-sources").val()
+                    }
+                },
                 columns: [{
                         data: 'id',
                         className: 'text-center',
@@ -439,6 +452,25 @@
             //     var data = table.row($(this).parents('tr')).data();
             //     confirmDelete('asset', data.asset_id)
             // });
+
+            /* for advanced filter */
+            $("#school-name").on('change', function (e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#graduation-year").on('change', function (e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#lead-sources").on('change', function (e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
         });
+
+        
+        
     </script>
 @endsection

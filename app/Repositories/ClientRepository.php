@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Models\User;
+use Illuminate\Support\Str; 
 
 class ClientRepository implements ClientRepositoryInterface
 {
@@ -45,6 +46,11 @@ class ClientRepository implements ClientRepositoryInterface
     public function getAllClientDataTables()
     {
         return Datatables::eloquent(UserClient::query())->make(true);
+    }
+
+    public function getMaxGraduationYearFromClient()
+    {
+        return Client::max('graduation_year');
     }
 
     public function getAllClientByRoleAndStatusDataTables($roleName, $statusClient = NULL)
@@ -171,99 +177,123 @@ class ClientRepository implements ClientRepositoryInterface
     /* NEW */
     public function getDataTables($model)
     {
-        return DataTables::eloquent($model)
-            ->addColumn('parent_name', function ($data) {
+        return DataTables::eloquent($model)->
+            addColumn('parent_name', function ($data) {
                 return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
-            })
-            ->addColumn('parent_mail', function ($data) {
+            })->
+            addColumn('parent_mail', function ($data) {
                 return $data->parents()->count() > 0 ? $data->parents()->first()->mail : null;
-            })
-            ->addColumn('parent_phone', function ($data) {
+            })->
+            addColumn('parent_phone', function ($data) {
                 return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
-            })
-            ->addColumn('children_name', function ($data) {
+            })->
+            addColumn('children_name', function ($data) {
                 return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
-            })
-            ->addColumn('parent_name', function ($data) {
+            })->
+            addColumn('parent_name', function ($data) {
                 return $data->parents()->count() > 0 ? $data->parents()->first()->first_name . ' ' . $data->parents()->first()->last_name : null;
-            })
-            ->addColumn('parent_phone', function ($data) {
+            })->
+            addColumn('parent_phone', function ($data) {
                 return $data->parents()->count() > 0 ? $data->parents()->first()->phone : null;
-            })
-            ->addColumn('children_name', function ($data) {
+            })->
+            addColumn('children_name', function ($data) {
                 return $data->childrens()->count() > 0 ? $data->childrens()->first()->first_name . ' ' . $data->childrens()->first()->last_name : null;
-            })
-            ->rawColumns(['address'])
-            ->make(true);
+            })->
+            rawColumns(['address'])->
+            make(true);
     }
 
-    public function getNewLeads($asDatatables = false, $month = null)
+    public function getNewLeads($asDatatables = false, $month = null, $advanced_filter = [])
     {
         # new client that havent offering our program
         $query = Client::doesntHave('clientProgram')->when($month, function ($subQuery) use ($month) {
-            $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-        })->whereHas('roles', function ($subQuery) {
-            $subQuery->where('role_name', 'student');
-        });
+                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+            })->
+            whereHas('roles', function ($subQuery) {
+                $subQuery->where('role_name', 'student');
+            })->
+            when(!empty($advanced_filter['school_name']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('school_name', $advanced_filter['school_name']);
+            })->
+            when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+            })->
+            when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('lead_source', $advanced_filter['leads']);
+            });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
-    public function getPotentialClients($asDatatables = false, $month = null)
+    public function getPotentialClients($asDatatables = false, $month = null, $advanced_filter = [])
     {
         # new client that have been offered our program but hasnt deal yet
         $query = Client::whereHas('clientProgram', function ($subQuery) {
-            $subQuery->whereIn('status', [0, 2, 3]); # because refund and cancel still marked as potential client
-        })->whereDoesntHave('clientProgram', function ($subQuery) {
-            $subQuery->where('status', 1);
-        })-> # tidak punya client program dengan status 1 : success
+                $subQuery->whereIn('status', [0, 2, 3]); # because refund and cancel still marked as potential client
+            })->whereDoesntHave('clientProgram', function ($subQuery) {
+                $subQuery->where('status', 1);
+            })-> # tidak punya client program dengan status 1 : success
             when($month, function ($subQuery) use ($month) {
                 $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
             })->whereHas('roles', function ($subQuery) {
                 $subQuery->where('role_name', 'student');
+            })->
+            when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
+                $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
-    public function getExistingMentees($asDatatables = false, $month = null)
+    public function getExistingMentees($asDatatables = false, $month = null, $advanced_filter = [])
     {
         # join program admission mentoring & prog running status hasnt done
         $query = Client::whereHas('clientProgram', function ($subQuery) {
-            $subQuery->whereHas('program', function ($subQuery_2) {
-                $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
-                    $subQuery_3->where('prog_name', 'Admissions Mentoring');
-                });
-            })->where('status', 1)->where('prog_running_status', '!=', 2); # 1 success, 2 done
-        })->when($month, function ($subQuery) use ($month) {
-            $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-        })->whereHas('roles', function ($subQuery) {
-            $subQuery->where('role_name', 'student');
-        });
+                $subQuery->whereHas('program', function ($subQuery_2) {
+                    $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
+                        $subQuery_3->where('prog_name', 'Admissions Mentoring');
+                    });
+                })->where('status', 1)->where('prog_running_status', '!=', 2); # 1 success, 2 done
+            })->
+            when($month, function ($subQuery) use ($month) {
+                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+            })->
+            whereHas('roles', function ($subQuery) {
+                $subQuery->where('role_name', 'student');
+            })->
+            when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
+                $subQuery->whereIn('school_name', $advanced_filter['school_name']);
+            });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
-    public function getExistingNonMentees($asDatatables = false, $month = null)
+    public function getExistingNonMentees($asDatatables = false, $month = null, $advanced_filter = [])
     {
         # has join our program but its not admissions mentoring
         $query = Client::whereDoesntHave('clientProgram', function ($subQuery) {
-            $subQuery->whereHas('program', function ($subQuery_2) {
-                $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
-                    $subQuery_3->where('prog_name', 'Admissions Mentoring');
+                $subQuery->whereHas('program', function ($subQuery_2) {
+                    $subQuery_2->whereHas('main_prog', function ($subQuery_3) {
+                        $subQuery_3->where('prog_name', 'Admissions Mentoring');
+                    });
+                })->where('status', 1); # meaning 1 is he/she has been offered admissions mentoring before 
+            })->
+            whereHas('clientProgram', function ($subQuery) {
+                $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                    $subQuery_2->where('prog_name', '!=', 'Admissions Mentoring');
+                })->where(function ($subQuery_2) {
+                    $subQuery_2->where('status', 1)->where('prog_running_status', '!=', 2);
                 });
-            })->where('status', 1); # meaning 1 is he/she has been offered admissions mentoring before 
-        })->whereHas('clientProgram', function ($subQuery) {
-            $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
-                $subQuery_2->where('prog_name', '!=', 'Admissions Mentoring');
-            })->where(function ($subQuery_2) {
-                $subQuery_2->where('status', 1)->where('prog_running_status', '!=', 2);
+            })->
+            when($month, function ($subQuery) use ($month) {
+                $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
+            })->
+            whereHas('roles', function ($subQuery) {
+                $subQuery->where('role_name', 'student');
+            })->
+            when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
+                $subQuery->whereIn('school_name', $advanced_filter['school_name']);
             });
-        })->when($month, function ($subQuery) use ($month) {
-            $subQuery->whereMonth('created_at', date('m', strtotime($month)))->whereYear('created_at', date('Y', strtotime($month)));
-        })->whereHas('roles', function ($subQuery) {
-            $subQuery->where('role_name', 'student');
-        });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
