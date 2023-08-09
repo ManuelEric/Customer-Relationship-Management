@@ -503,7 +503,7 @@
     }
 </script>
 <script>
-    function checkLeadDetail() {
-        $('#checkLeadDetail').modal('show')
+    function checkLeadDetail(depart, type) {
+        $('#leadsModal').modal('show')
     }
 </script>
