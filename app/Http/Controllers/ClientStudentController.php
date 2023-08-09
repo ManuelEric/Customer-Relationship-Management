@@ -114,12 +114,16 @@ class ClientStudentController extends ClientController
             $school_name = $request->get('school_name');
             $graduation_year = $request->get('graduation_year');
             $leads = $request->get('lead_source');
+            $initial_programs = $request->get('program_suggest');
+            $status_lead = $request->get('status_lead');
 
             # array for advanced filter request
             $advanced_filter = [
                 'school_name' => $school_name,
                 'graduation_year' => $graduation_year,
                 'leads' => $leads,
+                'initial_programs' => $initial_programs,
+                'status_lead' => $status_lead
             ];
 
             switch ($statusClient) {
@@ -167,7 +171,7 @@ class ClientStudentController extends ClientController
             ];
         });
         $leads = $main_leads->merge($sub_leads);
-        
+        $initial_programs = $this->initialProgramRepository->getAllInitProg();        
 
         return view('pages.client.student.index')->with(
             [
@@ -176,7 +180,8 @@ class ClientStudentController extends ClientController
                     'schools' => $schools,
                     'parents' => $parents,
                     'leads' => $leads,
-                    'max_graduation_year' => $max_graduation_year
+                    'max_graduation_year' => $max_graduation_year,
+                    'initial_programs' => $initial_programs
                 ]
             ]
         );

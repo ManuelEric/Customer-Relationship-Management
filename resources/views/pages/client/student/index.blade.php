@@ -82,11 +82,13 @@
                                     </select>
                                 </div>
 
-                                {{-- <div class="col-md-12 mb-2">
+                                <div class="col-md-12 mb-2">
                                     <label for="">Program Suggestion</label>
                                     <select name="program_name[]" class="select form-select form-select-sm w-100" multiple
                                         id="program-name">
-
+                                        @foreach ($advanced_filter['initial_programs'] as $init_program)
+                                            <option value="{{ $init_program->name }}">{{ $init_program->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
@@ -94,9 +96,11 @@
                                     <label for="">Lead Status</label>
                                     <select name="lead_status[]" class="select form-select form-select-sm w-100" multiple
                                         id="lead-source">
-
+                                        <option value="Hot">Hot</option>
+                                        <option value="Warm">Warm</option>
+                                        <option value="Cold">Cold</option>
                                     </select>
-                                </div> --}}
+                                </div>
 
                                 <div class="col-md-12 mt-3">
                                     <div class="d-flex justify-content-between">
@@ -361,6 +365,8 @@
                         params.school_name = $("#school-name").val()
                         params.graduation_year = $("#graduation-year").val()
                         params.lead_source = $("#lead-sources").val()
+                        params.program_suggest = $("#program-name").val()
+                        params.status_lead = $("#lead-source").val()
                     }
                 },
                 columns: [{
@@ -487,10 +493,12 @@
                     },
                     {
                         data: 'program_suggest',
-
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         data: 'status_lead',
+                        className: 'text-center',
                         defaultContent: '-',
                         render: function(data, type, row, meta) {
                             var warm = '';
@@ -605,6 +613,16 @@
             })
 
             $("#lead-sources").on('change', function (e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+            
+            $("#program-name").on('change', function (e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#lead-source").on('change', function (e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
