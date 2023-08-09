@@ -140,15 +140,25 @@ class DigitalDashboardController extends Controller
         $html = '';
 
         $dataAchieved = $this->leadTargetRepository->{$methodName}($month);
-            
+        if ($dataAchieved->count() == 0)
+            return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="6">No data</td></tr>']);
+
+        $index = 1;
         foreach ($dataAchieved as $achieved) {
-            $html .= '<tr><td>'. $achieved->first_name .'</td> <td>' . $achieved->leadSource. '</td></tr>';
+            $html .= '<tr>
+                        <td>' . $index++ . '</td>
+                        <td>' . $achieved->full_name . '</td>
+                        <td>' . ($achieved->parents->count() > 0 ? $achieved->parents->first()->full_name : '-'). '</td>
+                        <td>' . ($achieved->school != null ? $achieved->school->sch_name : '-') . '</td>
+                        <td>' . $achieved->graduation_year_real . '</td>
+                        <td>' . $achieved->leadSource . '</td>
+                    </tr>';
         }
 
         return response()->json(
             [
                 'success' => true,
-                'data' => $html
+                'html_ctx' => $html
             ]
         );
 
