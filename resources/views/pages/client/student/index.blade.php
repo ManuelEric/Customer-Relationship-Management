@@ -497,7 +497,7 @@
                                     break;
                             }
                             return data != null ?
-                                '<select name="status_lead" style="color:#212b3d" id="status_lead"><option></option><option value="hot" ' +
+                                '<select name="status_lead" style="color:#212b3d" class="select w-100" id="status_lead"><option></option><option value="hot" ' +
                                 hot + '>Hot</option><option value="warm" ' + warm +
                                 '>Warm</option><option value="cold" ' + cold +
                                 '>Cold</option></select>' : '-';

@@ -89,7 +89,7 @@
                             <label>:</label>
                         </div>
                         <div class="col-md-9 col-8">
-                            {{ $viewStudent->grade_now <= 12 ? $viewStudent->grade_now : "Not High School" }}
+                            {{ $viewStudent->grade_now <= 12 ? $viewStudent->grade_now : 'Not High School' }}
                         </div>
                     </div>
                     <div class="row mb-2 g-1">
@@ -299,7 +299,7 @@
                 </div>
             </div>
 
-            @if($historyLeads->count() > 0 && $historyLeads->where('status', 1)->count() > 0)          
+            {{-- @if($historyLeads->count() > 0 && $historyLeads->where('status', 1)->count() > 0)          
                 <div class="card rounded mb-2">
                     <div class="card-header">
                         <div class="">
@@ -341,8 +341,113 @@
                         @endforelse
                     </div>
                 </div>
-            @endif
+            @endif --}}
 
+            <div class="card rounded mb-2">
+                <div class="card-header">
+                    <div class="">
+                        <h5 class="m-0 p-0">Lead Status Tracking</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @for ($i = 0; $i < 4; $i++)
+                        <div class="row align-items-center border-b-2">
+                            <div class="col-5">
+                                Admissions Mentoring
+                            </div>
+                            <div class="col-3 text-center d-flex align-items-center">
+                                @if ($i <= 1)
+                                    <i class="bi bi-check text-success fs-3"></i>
+                                    <small class="text-muted">(0.95/1)</small>
+                                @else
+                                    <i class="bi bi-x text-danger fs-3"></i>
+                                    <small class="text-muted">(0.45/1)</small>
+                                @endif
+                            </div>
+                            <div class="col-3 text-center d-flex align-items-center">
+                                @if ($i == 0)
+                                    <i class="bi bi-fire text-danger fs-5 me-2"></i> Hot
+                                    <small class="text-muted">(0.95/1)</small>
+                                @elseif($i == 1)
+                                    <i class="bi bi-fire text-warning fs-5 me-2"></i> Warm
+                                    <small class="text-muted">(0.75/1)</small>
+                                @elseif($i == 2)
+                                    <i class="bi bi-snow3 text-info fs-5 me-2"></i> Cold
+                                    <small class="text-muted">(0.4/1)</small>
+                                @else
+                                    <i class="bi bi-snow3 text-info fs-5 me-2"></i> Cold
+                                    <small class="text-muted">(0.4/1)</small>
+                                @endif
+                            </div>
+                            <div class="col-1 text-end">
+                                <div class="dropdown">
+                                    <i class="bi bi-info-circle cursor-pointer" title="History"
+                                        data-bs-toggle="dropdown"></i>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-header">
+                                            History of Lead Status Tracking
+                                        </div>
+                                        <div class="px-3 overflow-auto" style="max-height: 150px">
+                                            <table class="table table-hover table-striped" style="font-size: 10px">
+                                                <tr>
+                                                    <th>No</th>
+                                                    <th>Main Program</th>
+                                                    <th>Status</th>
+                                                    <th>Last Date</th>
+                                                    <th>Reason</th>
+                                                </tr>
+                                                @for ($j = 0; $j < 4; $j++)
+                                                    <tr>
+                                                        <td>No</td>
+                                                        <td>Main Program</td>
+                                                        <td>Status</td>
+                                                        <td>Last Date</td>
+                                                        <td>Reason</td>
+                                                    </tr>
+                                                @endfor
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+                {{-- <div class="card-body">
+                    @forelse ($initialPrograms as $initProg)
+                        <div class="row mb-2 g-1">
+                            <div class="col d-flex justify-content-between">
+                                <label>
+                                    {{$initProg->name}}
+                                </label>
+                                <label>:</label>
+                            </div>
+                            <div class="col-md-9 col-8">
+                                @php
+                                    $currenctLead = $historyLeads->where('initialprogram_id', $initProg->id)->where('status', 1);
+                                    $historyLead = $historyLeads->where('initialprogram_id', $initProg->id  )->where('status', 0);
+                                    // dd($historyLead);
+                                @endphp
+                                Current Lead ({{$currenctLead->where('type', 'Program')->first()->program_status}} | {{$currenctLead->where('type', 'Lead')->first()->lead_status}})
+                                <br>
+                                Histoy: 
+                                @foreach ($historyLead->where('type', 'Program') as $historyProgram)
+                                    {{$historyProgram->program_status}}
+                                    |
+                                @endforeach
+                                @foreach ($historyLead->where('type', 'Lead') as $historyLead)
+                                    {{$historyLead->lead_status}}
+                                    <br>
+                                @endforeach
+                            </div>
+                        </div>
+                        
+
+                        @empty
+                            There's no parent information yet
+                    @endforelse
+                </div> --}}
+            </div>
         </div>
         <div class="col-md-12">
             <div class="card rounded">
