@@ -72,25 +72,32 @@
                     <li class="nav-item dropdown d-none d-lg-block user-dropdown me-lg-3 me-0">
                         <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-bell"></i>
-                            <span
-                                class="position-absolute ms-1 top-1 start-100 translate-middle badge rounded-pill bg-danger"
-                                style="font-size: 11px">
-                                <small>
-                                    5
-                                </small>
-                            </span>
+                            @if (isset($countAlarm))
+                                <span
+                                    class="position-absolute ms-1 top-1 start-100 translate-middle badge rounded-pill bg-danger"
+                                    style="font-size: 11px">
+                                    <small>
+                                        {{ $countAlarm }}
+                                    </small>
+                                </span>
+                            @endif
                         </a>
 
-                        <ul class="dropdown-menu dropdown-menu-right navbar-dropdown py-2 px-4" style="width: 400px;">
-                            @for ($i = 0; $i < 3; $i++)
-                                <li class="d-flex align-items-center border-bottom py-2">
-                                    <i class="bi bi-exclamation-circle me-2"></i>
-                                    <span class="lh-sm">
-                                        an the target
-                                    </span>
-                                </li>
-                            @endfor
-                        </ul>
+                        @if (isset($notification))
+                            <ul class="dropdown-menu dropdown-menu-right navbar-dropdown py-2 px-4" style="width: 400px;">
+                                @foreach ($notification as $notif)
+                                                    
+                                    <li class="d-flex align-items-center border-bottom py-2">
+                                        
+                                        <i class="bi bi-exclamation-circle me-2"></i>
+                                        <span class="lh-sm">
+                                            {!! $notif !!}
+                                        </span>
+                                    </li>
+                                @endforeach
+
+                            </ul>
+                        @endif
                     </li>
                     <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                         <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown"
@@ -162,7 +169,10 @@
             <nav class="sidebar sidebar-offcanvas position-md-fixed h-75 overflow-auto pt-3 pe-1" id="sidebar">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a @class(['nav-link', 'bg-secondary text-white' => Request::is('dashboard')]) href="{{ url('dashboard') }}">
+                        <a @class([
+                            'nav-link',
+                            'bg-secondary text-white' => Request::is('dashboard'),
+                        ]) href="{{ url('dashboard') }}">
                             <i class="bi bi-speedometer2 mx-2"></i>
                             <span class="menu-title">Dashboard</span>
                         </a>
