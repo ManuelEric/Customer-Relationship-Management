@@ -240,6 +240,12 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
+            })->
+            when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+            })->
+            when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
@@ -263,6 +269,12 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
+            })->
+            when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+            })->
+            when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
@@ -293,6 +305,12 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['school_name']), function ($subQuery) use ($advanced_filter) {
                 $subQuery->whereIn('school_name', $advanced_filter['school_name']);
+            })->
+            when(!empty($advanced_filter['graduation_year']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('graduation_year', $advanced_filter['graduation_year']);
+            })->
+            when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
