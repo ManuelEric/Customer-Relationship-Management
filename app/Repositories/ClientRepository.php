@@ -298,12 +298,12 @@ class ClientRepository implements ClientRepositoryInterface
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
     }
 
-    public function getAllClientStudent()
+    public function getAllClientStudent($advanced_filter = [])
     {
-        $new_leads = $this->getNewLeads()->pluck('id')->toArray();
-        $potential = $this->getPotentialClients()->pluck('id')->toArray();
-        $existing = $this->getExistingMentees()->pluck('id')->toArray();
-        $existingNon = $this->getExistingNonMentees()->pluck('id')->toArray();
+        $new_leads = $this->getNewLeads(false, null, $advanced_filter)->pluck('id')->toArray();
+        $potential = $this->getPotentialClients(false, null, $advanced_filter)->pluck('id')->toArray();
+        $existing = $this->getExistingMentees(false, null, $advanced_filter)->pluck('id')->toArray();
+        $existingNon = $this->getExistingNonMentees(false, null, $advanced_filter)->pluck('id')->toArray();
         
         $clientStudent = $new_leads;
         $clientStudent = array_merge($clientStudent, $potential);

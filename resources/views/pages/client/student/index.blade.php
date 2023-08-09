@@ -82,7 +82,7 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-12 mb-2">
+                                {{-- <div class="col-md-12 mb-2">
                                     <label for="">Program Suggestion</label>
                                     <select name="program_name[]" class="select form-select form-select-sm w-100" multiple
                                         id="program-name">
@@ -96,7 +96,7 @@
                                         id="lead-source">
 
                                     </select>
-                                </div>
+                                </div> --}}
 
                                 <div class="col-md-12 mt-3">
                                     <div class="d-flex justify-content-between">
