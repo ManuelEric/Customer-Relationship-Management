@@ -19,7 +19,7 @@ interface ClientRepositoryInterface
     public function getPotentialClients($asDatatables = false, $month = NULL,  array $advanced_filter); # month nullable
     public function getExistingMentees($asDatatables = false, $month = NULL,  array $advanced_filter); # month nullable
     public function getExistingNonMentees($asDatatables = false, $month = NULL,  array $advanced_filter); # month nullable
-    public function getAllClientStudent();
+    public function getAllClientStudent(array $advanced_filter);
     public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getParents($asDatatables = false, $month = null);
