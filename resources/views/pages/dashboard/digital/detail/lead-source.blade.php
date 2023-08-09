@@ -3,12 +3,12 @@
         <div class="card">
             <div class="card-header">
             </div>
-            <div class="card-body overflow-auto" style="height: 300px">
+            <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 text-center">
                         <b class="text-center border-1">Lead Source</b>
                         <hr>
-                        <ul class="list-group list-group-flush">
+                        <ul class="list-group list-group-flush overflow-auto pe-3" style="height: 300px">
                             @for ($i = 0; $i < 20; $i++)
                                 <li
                                     class="d-flex align-items-center justify-content-between pb-1 mb-1 border-bottom border-secondary">
@@ -26,7 +26,7 @@
                     <div class="col-md-6 text-center">
                       <b class="text-center border-1">Conversion Lead</b>
                       <hr>
-                      <ul class="list-group list-group-flush">
+                      <ul class="list-group list-group-flush overflow-auto pe-3" style="height: 300px">
                           @for ($i = 0; $i < 20; $i++)
                               <li
                                   class="d-flex align-items-center justify-content-between pb-1 mb-1 border-bottom border-secondary">
@@ -49,19 +49,29 @@
     <div class="col-md-5">
         <div class="card">
             <div class="card-header"></div>
-            <div class="card-body overflow-auto" style="height: 300px">
+            <div class="card-body overflow-auto" style="height: 340px">
                 <table class="table table-hover table-striped">
                     <thead>
                         <tr>
-                            <th>Program Name</th>
-                            <th>Lead Source</th>
-                            <th>Conversion Lead</th>
-                            <th>Conversion Time</th>
+                            <th style="font-size: 13px">Full Name</th>
+                            <th style="font-size: 13px">Lead Source</th>
+                            <th style="font-size: 13px">Conversion Lead</th>
+                            <th style="font-size: 13px">Program Name</th>
+                            <th style="font-size: 13px">Conversion Time</th>
                         </tr>
                     </thead>
                 </table>
             </div>
-            <div class="card-footer"></div>
+            <div class="card-footer d-flex justify-between align-items-center w-100">
+                <div class="w-50">
+                    <small>Average of Follow Up</small>
+                    <h5><i class="bi bi-calendar me-1"></i> 4 Days</h5>
+                </div>
+                <div class="w-50 text-end">
+                    <small>Average of Conversion</small>
+                    <h5><i class="bi bi-calendar me-1"></i> 5 Days</h5>
+                </div>
+            </div>
         </div>
         {{-- <div class="card">
             <div class="card-body">
