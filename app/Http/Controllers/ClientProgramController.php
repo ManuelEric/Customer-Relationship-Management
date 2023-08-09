@@ -317,16 +317,18 @@ class ClientProgramController extends Controller
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['trial_date'] = $request->trial_date;
+                    // $clientProgramDetails['first_class'] = $request->first_class;
                     $clientProgramDetails['prog_start_date'] = $request->prog_start_date;
                     $clientProgramDetails['prog_end_date'] = $request->prog_end_date;
                     $clientProgramDetails['timesheet_link'] = $request->timesheet_link;
                     // $clientProgramDetails['tutor_id'] = $request->tutor_id;
                     $clientProgramDetails['prog_running_status'] = (int) $request->prog_running_status;
                 } elseif (in_array($progId, $this->satact_prog_list)) {
-
+                    
                     # add additional values
                     $clientProgramDetails['success_date'] = $request->success_date;
                     $clientProgramDetails['test_date'] = $request->test_date;
+                    $clientProgramDetails['first_class'] = $request->first_class;
                     $clientProgramDetails['last_class'] = $request->last_class;
                     $clientProgramDetails['diag_score'] = $request->diag_score;
                     $clientProgramDetails['test_score'] = $request->test_score;

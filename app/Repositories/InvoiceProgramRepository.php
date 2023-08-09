@@ -577,14 +577,89 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
             ->get();
     }
 
-    # signature
-    public function getInvoicesNeedToBeSigned($dataTables = false)
+    public function getDatatables($model)
     {
-        $response = InvoiceProgram::whereHas('invoiceAttachment', function ($query) {
-                $query->where('sign_status', 'not yet');    
-            });
+        return Datatables::eloquent($model)->make(true);
+    }
 
-        return $dataTables == true ? $response : $response->get();
+    # signature
+    public function getInvoicesNeedToBeSigned($asDatatables = false)
+    {
+
+        $response = ViewClientProgram::
+            leftJoin('tbl_inv', 'tbl_inv.clientprog_id', '=', 'clientprogram.clientprog_id')->
+            leftJoin('tbl_invdtl', 'tbl_invdtl.inv_id', '=', 'tbl_inv.inv_id')->
+            leftJoin('tbl_inv_attachment', 'tbl_inv_attachment.inv_id', '=', 'tbl_inv.inv_id')->
+            leftJoin('tbl_client as child', 'child.id', '=', 'clientprogram.client_id')->
+            leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'child.id')->
+            leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')->
+            leftJoin('tbl_receipt as receipt', 'receipt.inv_id', '=', 'tbl_inv.inv_id')->
+            select([
+                'tbl_inv.clientprog_id',
+                'clientprogram.fullname',
+                'clientprogram.parent_fullname',
+                'clientprogram.parent_phone',
+                'parent.id as parent_id',
+                'child.id as client_id',
+                'child.phone as child_phone',
+                'program_name',
+                'tbl_inv.inv_id',
+                'tbl_inv.inv_category as currency_category',
+                'tbl_inv.currency',
+                DB::raw('
+                        (CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_paymentmethod
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_installment
+                        END) as payment_method
+                    '),
+                DB::raw('
+                        (CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.created_at
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.created_at
+                        END) as show_created_at
+                    '),
+                DB::raw('
+                        (CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_duedate
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_duedate
+                        END) as due_date
+                    '),
+                DB::raw('
+                        (CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amount
+                        END) as total_price
+                    '),
+                DB::raw('
+                        (CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.inv_totalprice_idr
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN tbl_invdtl.invdtl_amountidr
+                        END) as total_price_idr
+                    '),
+                DB::raw('
+                        (CASE
+                            WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
+                            WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                        END) as date_difference
+                    '),
+            ])->
+            whereNotNull('tbl_inv.inv_id')->
+            whereNotNull('tbl_inv_attachment.inv_id')->
+            where('tbl_inv_attachment.sign_status', 'not yet')->
+            where(DB::raw('
+                (CASE
+                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
+                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                END)
+            '), '<=', 7)->
+            orderBy(DB::raw('
+                (CASE
+                    WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN DATEDIFF(tbl_inv.inv_duedate, now())
+                    WHEN tbl_inv.inv_paymentmethod = "Installment" THEN DATEDIFF(tbl_invdtl.invdtl_duedate, now())
+                END)
+            '), 'desc');
+
+        return $asDatatables === true ? $response : $response->get();
     }
 
     public function getInvoiceDifferences()

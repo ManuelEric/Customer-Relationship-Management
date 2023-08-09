@@ -15,6 +15,10 @@
         </div>
     </div>
 
+    @if($errors->any())
+        {{ implode('', $errors->all('<div>:message</div>')) }}
+    @endif
+
     <div class="card rounded">
         <div class="card-body">
             <table class="table table-bordered table-hover nowrap align-middle w-100" id="seasonalProgramTable">
@@ -28,9 +32,10 @@
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
+                <tbody></tbody>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="7"></td>
+                        <td colspan="6"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -48,7 +53,7 @@
                     <i class="bi bi-pencil-square"></i>
                 </div>
                 <div class="modal-body w-100">
-                    <form action="{{ url('master/sales-target') }}" method="POST" id="formSalesTarget">
+                    <form action="{{ url('master/seasonal-program') }}" method="POST" id="formSeasonalProgram">
                         @csrf
                         <div class="put"></div>
                         <div class="row g-2">
@@ -59,11 +64,11 @@
                                     </label>
                                     <select name="prog_id" id="prog_id" class="modal-select w-100">
                                         <option data-placeholder="true"></option>
-                                        {{-- @foreach ($programs as $program)
+                                        @foreach ($programs as $program)
                                             <option value="{{ $program->prog_id }}"
                                                 {{ $program->prog_id == old('prog_id') ? 'selected' : '' }}>
                                                 {{ $program->program_name }}</option>
-                                        @endforeach --}}
+                                        @endforeach
                                     </select>
                                     @error('prog_id')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -75,10 +80,10 @@
                                     <label for="">
                                         Start Program Date <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="date" name="start_program_date" id="start_program_date"
+                                    <input type="date" name="start" id="start_program_date"
                                         class="form-control form-control-sm rounded" required
                                         value="{{ old('start_program_date') }}">
-                                    @error('start_program_date')
+                                    @error('start')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -88,10 +93,10 @@
                                     <label for="">
                                         End Program Date <sup class="text-danger">*</sup>
                                     </label>
-                                    <input type="date" name="end_program_date" id="end_program_date"
+                                    <input type="date" name="end" id="end_program_date"
                                         class="form-control form-control-sm rounded" required
                                         value="{{ old('end_program_date') }}">
-                                    @error('end_program_date')
+                                    @error('end')
                                         <small class="text-danger fw-light">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -135,71 +140,57 @@
         });
 
         $(document).ready(function() {
-            // var table = $('#seasonalProgramTable').DataTable({
-            //     dom: 'Bfrtip',
-            //     lengthMenu: [
-            //         [10, 25, 50, 100, -1],
-            //         ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
-            //     ],
-            //     buttons: [
-            //         'pageLength', {
-            //             extend: 'excel',
-            //             text: 'Export to Excel',
-            //         }
-            //     ],
-            //     scrollX: true,
-            //     fixedColumns: {
-            //         left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
-            //         right: 1
-            //     },
-            //     processing: true,
-            //     serverSide: true,
-            //     ajax: '',
-            //     pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
-            //     columns: [{
-            //             data: 'id',
-            //             className: 'text-center',
-            //             render: function(data, type, row, meta) {
-            //                 return meta.row + meta.settings._iDisplayStart + 1;
-            //             }
-            //         },
-            //         {
-            //             data: 'program_name',
-            //             // name: 'program_name',
-            //             name: 'program.program_name'
-
-            //         },
-            //         {
-            //             data: 'total_participant',
-            //             className: 'text-center',
-            //         },
-            //         {
-            //             data: 'total_target',
-            //             className: 'text-center',
-            //             render: function(data, type) {
-            //                 var number = $.fn.dataTable.render
-            //                     .number(',', '.', 2, 'Rp. ')
-            //                     .display(data);
-
-            //                 return number;
-            //             },
-            //         },
-            //         {
-            //             data: 'month',
-            //             className: 'text-center',
-            //         },
-            //         {
-            //             data: 'year',
-            //             className: 'text-center',
-            //         },
-            //         {
-            //             data: '',
-            //             className: 'text-center',
-            //             defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#seasonalProgram" class="btn btn-sm btn-outline-warning editSeasonalProgram"><i class="bi bi-pencil"></i></button>' +
-            //                 '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteSeasonalProgram"><i class="bi bi-trash2"></i></button>'
-            //         }
-            //     ]
-            // });
+            var table = $('#seasonalProgramTable').DataTable({
+                dom: 'Bfrtip',
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    ['10 rows', '25 rows', '50 rows', '100 rows', 'Show all']
+                ],
+                buttons: [
+                    'pageLength', {
+                        extend: 'excel',
+                        text: 'Export to Excel',
+                    }
+                ],
+                scrollX: true,
+                fixedColumns: {
+                    left: window.matchMedia('(max-width: 767px)').matches ? 0 : 2,
+                    right: 1
+                },
+                processing: true,
+                serverSide: true,
+                ajax: '',
+                pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
+                columns: [{
+                        data: 'id',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'program_name',
+                    },
+                    {
+                        data: 'start_program_date',
+                        name: 'start',
+                    },
+                    {
+                        data: 'end_program_date',
+                        name: 'end'
+                    },
+                    {
+                        data: 'sales_date',
+                        name: 'sales_date'
+                    },
+                    {
+                        data: '',
+                        className: 'text-center',
+                        defaultContent: '<button type="button" data-bs-toggle="modal" data-bs-target="#seasonalProgram" class="btn btn-sm btn-outline-warning editSeasonalProgram"><i class="bi bi-pencil"></i></button>' +
+                            '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteSeasonalProgram"><i class="bi bi-trash2"></i></button>'
+                    }
+                ]
+            });
 
             @php
                 $privilage = $menus['Master']->where('submenu_name', 'Seasonal Program')->first();
@@ -224,28 +215,29 @@
 
             $('#seasonalProgramTable tbody').on('click', '.deleteSeasonalProgram ', function() {
                 var data = table.row($(this).parents('tr')).data();
-                confirmDelete('master/sales-target', data.id)
+                confirmDelete('master/seasonal-program', data.id)
             });
         });
 
         function resetForm() {
-            $('#total_participant').val(null)
-            $('#total_target').val(null)
-            $('#month_year').val(null)
+            
             $('#prog_id').val(null).trigger('change')
+            $("#start_program_date").val(null);
+            $("#end_program_date").val(null);
+            $("#sales_date").val(null);
             $('.modal-select').select2({
                 dropdownParent: $('#seasonalProgram .modal-content'),
                 placeholder: "Select value",
                 allowClear: true
             });
             $('.put').html('')
-            $('#formSalesTarget').attr('action', '{{ url('master/sales-target') }}')
+            $('#formSeasonalProgram').attr('action', '{{ url('master/seasonal-program') }}')
         }
 
 
         function editById(id) {
-            let link = "{{ url('master/sales-target') }}/" + id + "/edit"
-            // console.log(link)
+            let link = "{{ url('master/seasonal-program') }}/" + id + "/edit"
+            console.log(link)
 
             axios.get(link)
                 .then(function(response) {
@@ -254,17 +246,17 @@
                     let data = response.data
                     // console.log(data.prog_id)
 
-                    $('#total_participant').val(data.total_participant)
-                    $('#total_target').val(data.total_target)
-                    $('#month_year').val(data.month_year)
                     $('#prog_id').val(data.prog_id).trigger('change')
+                    $("#start_program_date").val(data.start);
+                    $("#end_program_date").val(data.end);
+                    $("#sales_date").val(data.sales_date);
                     let html =
                         '@method('put')' +
                         '<input type="hidden" name="id" value="' + data.id + '">'
 
                     $('.put').html(html)
 
-                    $('#formSalesTarget').attr('action', '{{ url('master/sales-target') }}/' + data.id + '')
+                    $('#formSeasonalProgram').attr('action', '{{ url('master/seasonal-program') }}/' + data.id)
                 })
                 .catch(function(error) {
                     // handle error

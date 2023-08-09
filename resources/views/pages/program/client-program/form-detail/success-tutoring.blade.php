@@ -19,6 +19,14 @@
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
+                    {{-- <div class="col-md-6 mb-2">
+                        <small>First Class Date <sup class="text-danger">*</sup></small>
+                        <input type="date" name="first_class" {{ $disabled }} value="{{ isset($clientProgram->first_class) ? $clientProgram->first_class : old('first_class') }}"
+                            class="form-control form-control-sm rounded">
+                        @error('first_class')
+                            <small class="text-danger fw-light">{{ $message }}</small>
+                        @enderror
+                    </div> --}}
                     <div class="col-md-6 mb-2">
                         <small>Start Date <sup class="text-danger">*</sup></small>
                         <input type="date" name="prog_start_date" {{ $disabled }} value="{{ isset($clientProgram->prog_start_date) ? $clientProgram->prog_start_date : old('prog_start_date') }}"

@@ -12,4 +12,14 @@ class ViewProgram extends Model
 
     protected $table = 'program';
     // protected $primaryKey = 'prog_id';
+
+    public function sub_prog()
+    {
+        return $this->belongsTo(SubProg::class, 'sub_prog_id', 'id');
+    }
+    
+    public function seasonalProgram()
+    {
+        return $this->hasMany(SeasonalProgram::class, 'prog_id', 'prog_id');
+    }
 }

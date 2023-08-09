@@ -214,7 +214,7 @@
 
                     @if ($isAdmin)
                         <li class="nav-item">
-                            <a href="{{ url('request-sign') }}"
+                            <a href="{{ url('request-sign?type=invoice') }}"
                                 class="nav-link {{ Request::is('request-sign') ? 'bg-secondary text-white' : '' }}">
                                 <i class="bi bi-pencil mx-2"></i>
                                 <span class="menu-title">Request Sign</span>
