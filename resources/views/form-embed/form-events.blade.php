@@ -97,8 +97,8 @@
                 @csrf
                 <input type="hidden" name="status" id=""
                     value="{{ request()->get('attend_status') == 'attend' ? 'attend' : 'join' }}">
-                <input type="hidden" name="status" id=""
-                    value="{{ request()->get('event_type') == 'attend' ? 'attend' : 'join' }}">
+                <input type="hidden" name="event_type" id=""
+                    value="{{ request()->get('event_type') == 'offline' ? 'offline' : '' }}">
                 <section id="role" class="page step-active">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
