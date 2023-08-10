@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ ucfirst(request()->get('event_name')) }} Form</title>
+    <link rel="shortcut icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.6/flowbite.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
@@ -53,23 +55,50 @@
             opacity: 0;
             transition: all 0.4s ease-in-out;
         }
+
+        .bg-form {
+            background-image: url('{{ asset('img/form-embed/bg-form.jpg') }}');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat
+        }
     </style>
 </head>
 
 <body>
-    @if ($errors->any())
-        <div class="fixed bottom-5 right-5 w-[350px] z-[999]" id="notif">
-            <ul class="grid grid-cols-1 gap-2">
-                @foreach ($errors->all() as $error)
-                    <li class="p-2 border-2 border-red-800 rounded-lg text-red-800 bg-white">{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-    <div class="min-h-screen flex items-center bg-transparent">
+    <div
+        class="min-h-screen flex items-center {{ request()->get('form_type') == 'cta' ? 'bg-form' : 'bg-transparent' }}">
         <div class="max-w-screen-lg w-full mx-auto p-4 relative overflow-hidden">
+            @if (request()->get('form_type') == 'cta')
+                <div class="w-full flex justify-center my-4">
+                    <img src="{{ asset('img/logo.png') }}" alt="Form ALL-in Event" class="w-[150px]">
+                </div>
+
+                <div class="h-[200px] overflow-hidden mb-2 rounded-lg shadow">
+                    <img src="https://picsum.photos/900/200" alt=""
+                        class="w-full object-cover hover:scale-[1.05] ease-in-out duration-500">
+                </div>
+            @endif
+
+
+            @if ($errors->any())
+                <div class="fixed bottom-5 right-5 w-[350px] z-[999]" id="notif">
+                    <ul class="grid grid-cols-1 gap-2">
+                        @foreach ($errors->all() as $error)
+                            <li class="p-2 border-2 border-red-800 rounded-lg text-red-800 bg-white">{{ $error }}
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form action="{{ url('form/events') }}" method="POST">
                 @csrf
+                <input type="hidden" name="status" id=""
+                    value="{{ request()->get('attend_status') == 'attend' ? 'attend' : 'join' }}">
+                <input type="hidden" name="status" id=""
+                    value="{{ request()->get('event_type') == 'attend' ? 'attend' : 'join' }}">
                 <section id="role" class="page step-active">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -82,21 +111,41 @@
                             You are a
                         </p>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
                             <div class="flex">
                                 <input checked id="role-1" type="radio" value="parent" name="role"
                                     class="hidden peer" onchange="checkRole(this)">
                                 <label for="role-1"
-                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#233872] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#233872] peer-checked:text-white">
-                                    Parent
+                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc]">
+                                    <div class="text-center">
+                                        <img src="{{ asset('img/form-embed/parent.png') }}" alt="Student"
+                                            style="width: 70px;">
+                                        Parent
+                                    </div>
                                 </label>
                             </div>
                             <div class="flex">
                                 <input id="role-2" type="radio" value="student" name="role" class="hidden peer"
                                     onchange="checkRole(this)">
                                 <label for="role-2"
-                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#233872] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#233872] peer-checked:text-white">
-                                    Student
+                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc]">
+                                    <div class="text-center">
+                                        <img src="{{ asset('img/form-embed/student.png') }}" alt="Student"
+                                            style="width: 70px;">
+                                        Student
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="flex">
+                                <input id="role-3" type="radio" value="teacher/counsellor" name="role"
+                                    class="hidden peer" onchange="checkRole(this)">
+                                <label for="role-3"
+                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc]">
+                                    <div class="flex flex-col items-center">
+                                        <img src="{{ asset('img/form-embed/teacher.png') }}" alt="Student"
+                                            style="width: 70px;" class="flex justify-center">
+                                        Teacher/Counsellor
+                                    </div>
                                 </label>
                             </div>
                         </div>
@@ -206,7 +255,7 @@
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
-                        <div class="mb-4">
+                        <div class="mb-4" id="graduation_input">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Expected Graduation Year
                             </label>
@@ -260,6 +309,13 @@
                     </div>
                 </section>
             </form>
+
+            {{-- Footer  --}}
+            @if (request()->get('form_type') == 'cta')
+                <div class="w-full flex justify-center my-4 text-sm text-gray-400">
+                    Copyright © 2023. ALL-in Eduspace. All rights reserved
+                </div>
+            @endif
         </div>
     </div>
 </body>
@@ -297,14 +353,19 @@
     function checkRole(element) {
         const child_name = document.querySelector('#child_name')
         const input_child_name = document.querySelector('#input_child_name')
+        const graduation_input = document.querySelector('#graduation_input')
 
         if (element.value == "student") {
             child_name.classList.add('hidden')
             input_child_name.type = "hidden"
             input_child_name.value = ""
-        } else {
+        } else if (element.value == "parent") {
             child_name.classList.remove('hidden')
             input_child_name.type = "text"
+        } else {
+            child_name.classList.add('hidden')
+            graduation_input.classList.add('hidden')
+            input_child_name.type = "hidden"
         }
     }
 
