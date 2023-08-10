@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Interfaces\ClientLeadRepositoryInterface;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Models\InitialProgram;
 use App\Models\SeasonalProgram;
@@ -14,11 +15,16 @@ use Illuminate\Support\Facades\Log;
 class AutomatedDeterminedHotLeads extends Command
 {
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+    private ClientLeadRepositoryInterface $clientLeadRepository;
 
-    public function __construct(ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository)
+    public function __construct(
+        ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository,
+        ClientLeadRepositoryInterface $clientLeadRepository
+        )
     {
         parent::__construct();
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
+        $this->clientLeadRepository = $clientLeadRepository;
     }
     /**
      * The name and signature of the console command.
@@ -44,47 +50,62 @@ class AutomatedDeterminedHotLeads extends Command
         Log::info('Cron automated determine hot leads works fine.');
 
         # get raw data by the oldest client
-        $rawData = DB::table('client_lead')->orderBy('id', 'asc')->get();
+        $rawData = $this->clientLeadRepository->getAllClientLeads();
         $progressBar = $this->output->createProgressBar($rawData->count());
         $progressBar->start();
 
         DB::beginTransaction();
         try {
 
-            $recalculate = false;
+            # initialize global variables
+            $recalculate = false; # it is boolean (true if we assumed the system has already run once, false otherwise)
             $triggerUpdate = false;
-            $newClient = false;
-            foreach ($rawData as $clientData) {
-    
-                $spesificConcerns = DB::table('tbl_interest_prog')->leftjoin('tbl_prog', 'tbl_interest_prog.prog_id', '=', 'tbl_prog.prog_id')->leftjoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->where('client_id', $clientData->id)->get();
-                $leadTracking = $this->clientLeadTrackingRepository->getAllClientLeadTrackingByClientId($clientData->id);
+            $newClient = false; # become true when the client don't have lead tracking
+
+            foreach ($rawData as $client) {
+
+                # initialize client variables
+                $isFunding = $client->is_funding;
+                $schoolCategorization = $client->school_categorization;
+                $gradeCategorization = $client->grade_categorization;
+                $countryCategorization = $client->country_categorization;
+                $majorCategorization = $client->major_categorization;
+                $type = $client->type; # existing client (new, existing mentee, existing non mentee)
+                $weight_attribute_name = "weight_" . $type;
+
+                # get client interest programs as specific concerns
+                # meaning that the initial program that exist on interest programs
+                # will get 1 point (assuming they are valid to join the initial program ex: admission mentoring)
+                $specificConcerns = $client->interestPrograms;
+
+                //? $spesificConcerns = DB::table('tbl_interest_prog')->leftjoin('tbl_prog', 'tbl_interest_prog.prog_id', '=', 'tbl_prog.prog_id')->leftjoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->where('client_id', $clientData->id)->get();
+
+                $leadTracking = $client->leadStatus;
+
+                //? $leadTracking = $this->clientLeadTrackingRepository->getAllClientLeadTrackingByClientId($clientData->id);
                 
                 $newClient = $leadTracking->count() > 0 ? false : true;
     
-                // 01 April & 01 Oktober
-                // if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00') {
+                # this condition is to make system run every 1 April & 1 Oktober
+                # 01 April & 01 Oktober
+                if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
                     $recalculate = true;
-                // }    
     
-                // $this->info($clientData->name);
-                // $this->info($clientData->id);
-                $isFunding = $clientData->is_funding;
-                $schoolCategorization = $clientData->school_categorization;
-                $gradeCategorization = $clientData->grade_categorization;
-                $countryCategorization = $clientData->country_categorization;
-                $majorCategorization = $clientData->major_categorization;
-                $type = $clientData->type; # existing client (new, existing mentee, existing non mentee)
-                $weight_attribute_name = "weight_" . $type;
-    
-    
+                # currently we have 4 initial programs
+                # and every client must have point on every initial programs
+                # so we have to loop the initial programs
                 $initialPrograms = InitialProgram::orderBy('id', 'asc')->get();
+
                 foreach ($initialPrograms as $initialProgram) {
     
                     $initProgramId = $initialProgram->id;
-                    $triggerUpdate = $leadTracking->where('initialprogram_id', $initProgramId)->where('status', 1)->count() < 1 ? true : false;
-                    
                     $initProgramName = $initialProgram->name;
-    
+
+                    # check if the data on tbl_client_lead_tracking doesnt have status active (1)
+                    # meaning if there is no active status
+                    # then it means, set trigger update  as true so the system should be running for these clients
+                    $triggerUpdate = $leadTracking->where('pivot.initialprogram_id', $initProgramId)->where('pivot.status', 1)->count() < 1 ? true : false;
+                    
                     $programLeadTracking = $leadTracking->where('initialprogram_id', $initProgramId)->where('type', 'Program')->sortByDesc('updated_at')->first();
                     $statusLeadTracking = $leadTracking->where('initialprogram_id', $initProgramId)->where('type', 'Lead')->sortByDesc('updated_at')->first();
     
