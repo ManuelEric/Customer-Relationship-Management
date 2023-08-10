@@ -222,7 +222,7 @@ class ClientRepository implements ClientRepositoryInterface
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
             });
 
-        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
+        return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query;
     }
 
     public function getPotentialClients($asDatatables = false, $month = null, $advanced_filter = [])

@@ -494,9 +494,9 @@
                                             {{ 'selected' }} @endif>
                                         Installment</option>
                                 </select>
-                                {{-- @error('inv_paymentmethod')
+                                @error('inv_paymentmethod')
                                     <small class="text-danger fw-light">{{ $message }}</small>
-                                @enderror --}}
+                                @enderror
                             </div>
                             <div class="col-md-7">
                                 <div class="row">
@@ -505,18 +505,18 @@
                                         <input type="date" name="invoice_date" id=""
                                             value="{{ date('Y-m-d') }}" {{ $disabled }}
                                             class='form-control form-control-sm rounded'>
-                                        {{-- @error('invoice_date')
+                                        @error('invoice_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
-                                        @enderror --}}
+                                        @enderror
                                     </div>
                                     <div class="col-md-6 mb-3 invoice d-none">
                                         <label for="">Due Date <sup class="text-danger">*</sup></label>
                                         <input type="date" name="inv_duedate" id=""
                                             value="{{ isset($invoice->inv_duedate) ? $invoice->inv_duedate : old('inv_duedate') }}"
                                             {{ $disabled }} class='form-control form-control-sm rounded'>
-                                        {{-- @error('inv_duedate')
+                                        @error('inv_duedate')
                                             <small class="text-danger fw-light">{{ $message }}</small>
-                                        @enderror --}}
+                                        @enderror
                                     </div>
                                 </div>
                             </div>

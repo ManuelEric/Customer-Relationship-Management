@@ -503,10 +503,13 @@ class InvoiceProgramController extends Controller
 
                 $this->invoiceDetailRepository->updateInvoiceDetailByInvId($inv_id, $installmentDetails);
 
-                # if update invoice success
-                # then delete the invoice attachment
-                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceId($inv_id);
             }
+
+            # if update invoice success
+            # then delete the invoice attachment
+            if ($invoice->invoiceAttachment->count() > 0)
+                $this->invoiceAttachmentRepository->deleteInvoiceAttachmentByInvoiceId($inv_id);
+
             DB::commit();
         } catch (Exception $e) {
 
