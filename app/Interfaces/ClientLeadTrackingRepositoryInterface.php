@@ -10,7 +10,7 @@ interface ClientLeadTrackingRepositoryInterface
     public function getMonthlyClientLeadTracking($monthyear); 
     public function getInitialConsult($monthyear, $type);
     public function getFailedLead($monthyear);
-    public function getLatestClientLeadTrackingByType($client_id, $initprogId, $type);
+    public function getLatestClientLeadTrackingByType($type, $group_id);
     public function getCurrentClientLead($client_id);
     public function updateClientLeadTrackingByType($clientId, $initProgId, $type, array $leadTrackingDetails);
     public function updateClientLeadTrackingById($id, array $leadTrackingDetails);

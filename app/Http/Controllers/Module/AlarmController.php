@@ -56,8 +56,7 @@ class AlarmController extends Controller
         $actualLeadsDigital = $this->setDataActual($dataDigitalTarget);
         $leadDigitalTarget = $this->setDataTarget($dataDigitalTarget, $actualLeadsDigital);
 
-        // $revenueTarget = $dataSalesTarget->total_target;
-        $revenueTarget = 0;
+        $actualLeadsSales['referral'] = $actualLeadsReferral['lead_needed'];
 
         # Gagal 3x berturut-turut
         $alarmLeads['general']['always_on']['failed'] = $this->clientLeadTrackingRepository->getFailedLead($today);
@@ -89,7 +88,7 @@ class AlarmController extends Controller
         if (date('Y-m-d') > date('Y-m') . '-' . $midOfMonth) {
             # sales
             unset($alarmLeads['sales']['mid']['lead_needed']);
-            $alarmLeads['sales']['end']['revenue'] = $actualLeadsSales['revenue'] < $revenueTarget * 50 / 100 ? true : false;
+            $alarmLeads['sales']['end']['revenue'] = $actualLeadsSales['revenue'] < $dataRevenueChart['target'][2] * 50 / 100 ? true : false;
             $alarmLeads['sales']['end']['IC'] = $actualLeadsSales['IC'] < $leadSalesTarget['IC'] ? true : false;
             $alarmLeads['sales']['end']['hot_lead'] = $actualLeadsSales['hot_lead'] < 2 * $leadSalesTarget['hot_lead'] ? true : false;
             $alarmLeads['sales']['end']['revenue'] = $dataRevenueChart['actual'][2] < $this->calculatePercentageLead($dataRevenueChart['target'][2], 50) ? true : false;
@@ -206,7 +205,7 @@ class AlarmController extends Controller
             foreach ($alarmDivisi as $alarmTime) {
                 foreach ($alarmTime as $key => $alarm) {
                     if($alarm){
-                        $message[] = $key == 'event' ? 'Event required' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
+                        $message[] = $key == 'event' ? 'Event' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
                     }
                 }
             }

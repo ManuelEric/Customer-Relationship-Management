@@ -23,6 +23,7 @@ class ClientLeadTracking extends Model
      * @var array
      */
     protected $fillable = [
+        'group_id',
         'client_id',
         'initialprogram_id',
         'type',
@@ -78,8 +79,25 @@ class ClientLeadTracking extends Model
         }
     }
 
+    public function updatedAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
+        );
+    }
+
     public function client()
     {
         return $this->belongsTo(UserClient::class, 'client_id', 'id');
+    }
+
+    public function initProg()
+    {
+        return $this->belongsTo(InitialProgram::class, 'initialprogram_id', 'id');
+    }
+
+    public function reason()
+    {
+        return $this->belongsTo(Reason::class, 'reason_id', 'reason_id');
     }
 }

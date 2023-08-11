@@ -35,14 +35,33 @@ class ClientLeadTrackingRepository implements ClientLeadTrackingRepositoryInterf
 
     }
 
-    public function getLatestClientLeadTrackingByType($client_id, $initprogId, $type) 
+    public function getLatestClientLeadTrackingByType($type, $group_id) 
     {
-        return ClientLeadTracking::where('client_id', $client_id)->where('initialprogram_id', $initprogId)->where('type', $type)->orderBy('updated_at', 'desc')->first();
+        return ClientLeadTracking::where('type', $type)->where('group_id', $group_id)->first();
     }
     
     public function getHistoryClientLead($client_id) 
     {
-        return ClientLeadTracking::where('client_id', $client_id)->orderBy('created_at', 'desc')->orderBy('updated_at', 'desc')->get();
+        $clientLeadTracking = ClientLeadTracking::where('client_id', $client_id)->get();
+        $leads = $clientLeadTracking->where('type', 'Lead');
+        $merge = $clientLeadTracking->where('type', 'Program')->mapToGroups(function ($item, $key) use($leads) {
+            $lead = $leads->where('group_id', $item['group_id'])->first();
+            return [
+                $item->initProg->name => [
+                    'status' => $item['status'],
+                    'initprog' => $item->initProg->name,
+                    'created_at' => $item['created_at'],
+                    'updated_at' => $item['updated_at'],
+                    'total_result_program' => $item['total_result'],
+                    'total_result_lead' => $lead['total_result'],
+                    'program_status' => $item['program_status'],
+                    'lead_status' => $lead['lead_status'],
+                    'reason' => isset($lead->reason) ? $lead->reason->reason_name : null,
+                ],
+            ];
+        });
+
+        return $merge;
     }
 
     public function getMonthlyClientLeadTracking($monthyear) 

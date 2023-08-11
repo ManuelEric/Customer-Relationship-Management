@@ -250,6 +250,7 @@
                                 <input type="hidden" name="clientId" id="clientId">
                                 <input type="hidden" name="initProg" id="initProg">
                                 <input type="hidden" name="leadStatus" id="leadStatus">
+                                <input type="hidden" name="groupId" id="groupId">
                                 <select name="reason_id" class="w-100" id="selectReason"
                                     onchange="otherOption($(this).val())">
                                     <option data-placeholder="true"></option>
@@ -262,6 +263,9 @@
                                         Other option
                                     </option>
                                 </select>
+                                <div id="error-message">
+
+                                </div>
                             </div>
 
                             <div class="d-flex align-items-center d-none" id="inputReason">
@@ -497,7 +501,7 @@
                                     break;
                             }
                             return data != null ?
-                                '<select name="status_lead" style="color:#212b3d" class="select w-100" id="status_lead"><option></option><option value="hot" ' +
+                                '<select name="status_lead" style="color:#212b3d" class="select w-100" id="status_lead"><option value="hot" ' +
                                 hot + '>Hot</option><option value="warm" ' + warm +
                                 '>Warm</option><option value="cold" ' + cold +
                                 '>Cold</option></select>' : '-';
@@ -565,6 +569,7 @@
                 var data = table.row($(this).parents('tr')).data();
                 var lead_status = $(this).val();
 
+                $('#groupId').val(data.group_id);
                 $('#clientId').val(data.id);
                 $('#initProg').val(data.program_suggest);
                 $('#leadStatus').val(lead_status);
@@ -584,10 +589,10 @@
         function updateHotLead()
         {
             var link = '{{ url("client/student") }}/' + $('#clientId').val() + '/lead_status';
-            console.log(link);
             $('#hotLeadModal').modal('hide');
             Swal.showLoading()
                 axios.post(link, {
+                    groupId : $('#groupId').val(),
                     clientId : $('#clientId').val(),
                     initProg : $('#initProg').val(),
                     leadStatus : $('#leadStatus').val(),
@@ -598,7 +603,28 @@
                     swal.close();
                                 
                     let obj = response.data;
+                    
                     $('#clientTable').DataTable().ajax.reload(null, false);
+                   
+                    switch (obj.code) {
+                        case 200:
+                            notification('success', obj.message)
+
+                            break;
+                        case 400:
+                            $('#hotLeadModal').modal('show');
+                            if(obj.message['reason_id'] != undefined)
+                            {
+                                $('#error-message').html('<small class="text-danger fw-light">'+ obj.message['reason_id'] +'</small>')
+                            }else if(obj.message['leadStatus'] != undefined){
+                                $('#error-message').html('<small class="text-danger fw-light">'+ obj.message['leadStatus'] +'</small>')
+                            }
+                            break;
+                        
+                        case 500:
+                            notification('error', 'Something went wrong while update lead status')
+                            break;
+                    }
                 })
                     .catch(function(error) {
                     swal.close();

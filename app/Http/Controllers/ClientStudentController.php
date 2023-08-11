@@ -29,6 +29,7 @@ use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\ReasonRepositoryInterface;
 use App\Imports\MasterStudentImport;
 use App\Imports\StudentImport;
+use App\Models\ClientLeadTracking;
 use App\Models\Lead;
 use App\Models\School;
 use App\Models\UserClient;
@@ -165,6 +166,10 @@ class ClientStudentController extends ClientController
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
         
+        // dd($historyLeads);
+        // return $historyLeads;
+        // exit;
+
         if (!$student)
             abort(404);
 
@@ -559,8 +564,25 @@ class ClientStudentController extends ClientController
         $studentId = $request->clientId;
         $initprogName = $request->initProg;
         $leadStatus = $request->leadStatus;
+        $groupId = $request->groupId;
         $reason = $request->reason_id;
         $programScore = $leadScore = 0;
+
+        $rules = [
+            'reason_id' => 'required',
+            'leadStatus' => 'required|in:hot,warm,cold',
+        ];
+
+        $validator = Validator::make($request->toArray(), $rules);
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'code' => 400,
+                    'message' => $validator->messages()
+                ]
+            );         
+        }
 
         if($reason == 'other'){
             $otherReason = $this->reasonRepository->createReason(['reason_name' => $request->other_reason, 'type' => 'Hot Lead']);
@@ -569,8 +591,8 @@ class ClientStudentController extends ClientController
 
         $initProg = $this->initialProgramRepository->getInitProgByName($initprogName);
        
-        $programTracking = $this->clientLeadTrackingRepository->getLatestClientLeadTrackingByType($studentId, $initProg->id, 'Program');
-        $leadTracking = $this->clientLeadTrackingRepository->getLatestClientLeadTrackingByType($studentId, $initProg->id, 'Lead');
+        $programTracking = $this->clientLeadTrackingRepository->getLatestClientLeadTrackingByType('Program', $groupId);
+        $leadTracking = $this->clientLeadTrackingRepository->getLatestClientLeadTrackingByType('Lead', $groupId);
 
         switch ($leadStatus) {
             case 'hot':
@@ -589,7 +611,13 @@ class ClientStudentController extends ClientController
                 break;
         }
 
+        $last_id = ClientLeadTracking::max('group_id');
+        $group_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 5) : '00000';
+        $group_id_with_label = 'CLT-' . $this->add_digit($group_id_without_label + 1, 5);
+            
+
         $programDetails = [
+            'group_id' => $group_id_with_label,
             'client_id' => $studentId,
             'initialprogram_id' => $initProg->id,
             'type' => 'Program',
@@ -598,6 +626,7 @@ class ClientStudentController extends ClientController
         ];
 
         $leadStatusDetails = [
+            'group_id' => $group_id_with_label,
             'client_id' => $studentId,
             'initialprogram_id' => $initProg->id,
             'type' => 'Lead',
@@ -621,6 +650,7 @@ class ClientStudentController extends ClientController
             return response()->json(
                 [
                     'success' => false,
+                    'code' => 500,
                     'message' => $e->getMessage()
                 ]
             );            
@@ -629,7 +659,8 @@ class ClientStudentController extends ClientController
         return response()->json(
             [
                 'success' => true,
-                'message' => "Lead status has been updated",
+                'code' => 200,
+                'message' => 'Lead status has been updated',
             ]
         );
         
