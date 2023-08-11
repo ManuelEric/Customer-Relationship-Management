@@ -139,7 +139,7 @@
                                         @endif
                                     </div>
                                     @else
-                                    <input type="file" class="form-control form-control-sm rounded" name="event_banner">
+                                    <input type="file" class="form-control form-control-sm rounded" name="event_banner" {{ $disabled }}>
                                     @endif
                                 </div>
                                 <input type="hidden" name="old_event_banner" value="{{ isset($event->event_banner) ? $event->event_banner : null }}">
