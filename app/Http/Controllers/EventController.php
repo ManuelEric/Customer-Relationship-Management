@@ -100,7 +100,7 @@ class EventController extends Controller
             'event_location',
             'event_startdate',
             'event_enddate',
-            'event_target'
+            'event_target',
         ]);
 
         $employee_id = $request->user_id;
@@ -109,9 +109,18 @@ class EventController extends Controller
         $event_id_without_label = $this->remove_primarykey_label($last_id, 4);
         $event_id_with_label = 'EVT-' . $this->add_digit((int)$event_id_without_label + 1, 4);
         $eventDetails['event_id'] = $event_id_with_label;
+        $fileName = null;
 
         DB::beginTransaction();
         try {
+
+            # upload banner 
+            if ($request->file('event_banner')) {
+                $fileName = time() . '-' . $event_id_with_label .'.'. $request->event_banner->extension();
+                $request->event_banner->storeAs(null, $fileName, 'uploaded_file_event');
+            }
+
+            $eventDetails['event_banner'] = $fileName;
 
             $this->eventRepository->createEvent($eventDetails);
 

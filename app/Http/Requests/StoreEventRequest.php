@@ -47,12 +47,15 @@ class StoreEventRequest extends FormRequest
                 },
             ],
             'event_target' => 'required|min:1',
+            'event_banner' => 'required|mimes:jpg|max:5000|file',
         ];
     }
 
     protected function update()
     {
         $eventId = $this->route('event');
+        $newUploadedBanner = $this->input('event_banner');
+        $uploadedBanner = $this->input('old_event_banner');
 
         return [
             'event_title' => 'required|unique:tbl_events,event_title,' . $eventId . ',event_id',
@@ -69,6 +72,16 @@ class StoreEventRequest extends FormRequest
                         $fail('The submitted pic was not employee is invalid');
                     }
                 },
+            ],
+            'event_target' => 'required|min:1',
+            'event_banner' => [
+                function ($attribute, $value, $fail) use ($uploadedBanner, $newUploadedBanner) {
+                    
+                    if ($uploadedBanner == null && $newUploadedBanner == null) {
+                        $fail('The banner is required');
+                    }
+
+                }
             ]
         ];
     }
