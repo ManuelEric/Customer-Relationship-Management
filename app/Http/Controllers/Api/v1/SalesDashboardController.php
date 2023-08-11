@@ -11,6 +11,8 @@ use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\FollowupRepositoryInterface;
 use App\Interfaces\ProgramRepositoryInterface;
 use App\Interfaces\SalesTargetRepositoryInterface;
+use App\Interfaces\ClientLeadTrackingRepositoryInterface;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +28,7 @@ class SalesDashboardController extends Controller
     protected SalesTargetRepositoryInterface $salesTargetRepository;
     protected EventRepositoryInterface $eventRepository;
     protected ProgramRepositoryInterface $programRepository;
+    protected ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
 
     public function __construct(
         ClientRepositoryInterface $clientRepository,
@@ -34,7 +37,8 @@ class SalesDashboardController extends Controller
         FollowupRepositoryInterface $followupRepository,
         SalesTargetRepositoryInterface $salesTargetRepository,
         EventRepositoryInterface $eventRepository,
-        ProgramRepositoryInterface $programRepository
+        ProgramRepositoryInterface $programRepository,
+        ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository
     ) {
         $this->clientRepository = $clientRepository;
         $this->clientProgramRepository = $clientProgramRepository;
@@ -43,6 +47,7 @@ class SalesDashboardController extends Controller
         $this->salesTargetRepository = $salesTargetRepository;
         $this->eventRepository = $eventRepository;
         $this->programRepository = $programRepository;
+        $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
     }
 
     public function getClientByMonthAndType(Request $request)
@@ -1142,4 +1147,5 @@ class SalesDashboardController extends Controller
     {
         return Excel::download(new DataClient(), 'data-client.xlsx');
     }
+
 }

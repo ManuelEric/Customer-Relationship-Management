@@ -1,5 +1,5 @@
 @include('pages.dashboard.sales.detail.client-status')
-{{-- @include('pages.dashboard.sales.detail.leads') --}}
+@include('pages.dashboard.sales.detail.leads')
 <div class="d-flex flex-md-row flex-column-reverse justify-content-between align-items-center">
     <ul class="nav nav-tabs flex-nowrap mt-md-0 mt-1">
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','client-program')">

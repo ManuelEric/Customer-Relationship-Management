@@ -8,42 +8,36 @@
 @endsection
 
 @section('content')
-
+    
     {{-- Alert  --}}
-    <div class="row {{ $isAdmin ? 'row-cols-md-2' : 'row-cols-md-1' }} row-cols-1 g-2">
-        <fieldset class="border p-2 rounded shadow">
-            <legend class="float-none w-auto fs-6 mx-3">
-                <small class="text-danger">
-                    <i class="bi bi-alarm me-1"></i> Sales Team Alarm
-                </small>
-            </legend>
-            <div class="row row-cols-md-2 row-cols-1 g-2">
-                @for ($i = 0; $i < 4; $i++)
-                    <div class="col">
-                        <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2 border-alert" role="alert">
-                            <i class="bi bi-exclamation-circle"></i>
-                            <small class="">
-                                The number of <b class="bg-white px-2 rounded text-primary">hot leads</b> is less than the
-                                target
-                            </small>
-                        </div>
-                    </div>
-                @endfor
-            </div>
-        </fieldset>
-    </div>
-    {{-- <div class="row row-cols-md-4 row-cols-1 g-2">
-        @for ($i = 0; $i < 4; $i++)
-            <div class="col">
-                <div class="alert bg-danger text-white d-flex align-items-center py-2 border-alert" role="alert">
+
+    {{-- General --}}
+    @if ($alarmLeads['general']['mid']['event'])
+        <div class="row  g-3 mb-1">
+            <div class="col-12">
+                <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2" role="alert">
                     <i class="bi bi-exclamation-circle"></i>
-                    <div class="">
-                        The number of <b class="bg-white px-2 rounded text-primary">hot leads</b> is less than the target
-                    </div>
+                    <small class="">
+                        There are no events this month.
+                    </small>
                 </div>
             </div>
-        @endfor
-    </div> --}}
+        </div>
+    @endif
+
+    <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-1'}} row-cols-1 g-3 mb-3">
+        {{-- Sales --}}
+        @if ($isAdmin || $isSales)
+            @include('pages.dashboard.sales.detail.alarm')
+        @endif
+
+        {{-- Digital --}}
+        @if ($isAdmin)
+            @include('pages.dashboard.digital.detail.alarm')
+        @endif
+    </div>
+
+    {{-- End Alert --}}
 
     {{-- Sales --}}
     @if ($isSales || $isAdmin)
@@ -53,7 +47,7 @@
                 <h1><i class="bi bi-person me-2 opacity-50"></i></h1>
             </div>
         </div>
-        {{-- @include('pages.dashboard.sales.index') --}}
+        @include('pages.dashboard.sales.index')
     @endif
     {{-- Partnership --}}
     @if ($isPartnership || $isAdmin)
@@ -63,7 +57,7 @@
                 <h1><i class="bi bi-building me-2 opacity-50"></i></h1>
             </div>
         </div>
-        {{-- @include('pages.dashboard.partnership.index') --}}
+        @include('pages.dashboard.partnership.index')
     @endif
     {{-- Digital  --}}
     @if ($isAdmin)
@@ -83,7 +77,7 @@
                 <h1><i class="bi bi-currency-dollar me-2 opacity-50"></i></h1>
             </div>
         </div>
-        {{-- @include('pages.dashboard.finance.index') --}}
+        @include('pages.dashboard.finance.index')
     @endif
 
 
@@ -93,7 +87,7 @@
             $(".btn-compare").on('click', function() {
 
                 showLoading()
-                // get_program_comparison()
+                get_program_comparison()
 
             })
         })

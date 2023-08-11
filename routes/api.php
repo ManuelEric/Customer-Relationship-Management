@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\v1\DigitalDashboardController;
 use App\Http\Controllers\Api\v1\ExtClientController;
 use App\Http\Controllers\Api\v1\ExtSalesTrackingController;
 use App\Http\Controllers\Api\v1\SalesDashboardController;
@@ -84,6 +85,10 @@ Route::get('finance/outstanding/{month}', [FinanceDashboardController::class, 'g
 Route::get('finance/revenue/{year}', [FinanceDashboardController::class, 'getRevenueByYear']);
 Route::get('finance/revenue/detail/{year}/{month}', [FinanceDashboardController::class, 'getRevenueDetailByMonth']);
 Route::get('finance/outstanding/period/{start_date}/{end_date}', [FinanceDashboardController::class, 'getOutstandingPaymentByPeriod']);
+
+# dashboard digital
+Route::get('digital/leads/{month}', [DigitalDashboardController::class, 'getDataLead']);
+Route::get('digital/detail/{month}/type-lead/{type_lead}/division/{division}', [DigitalDashboardController::class, 'getDetailDataLead']);
 
 
 Route::post('/upload', [InvoiceProgramController::class, 'upload']);

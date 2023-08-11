@@ -34,6 +34,6 @@ class InitialProgram extends Model
 
     public function client()
     {
-        return $this->belongsToMany(UserClient::class, 'tbl_client_lead_tracking', 'initialprogram_id', 'client_id')->use(ClientLeadTracking::class)->withTimestamps();
+        return $this->belongsToMany(UserClient::class, 'tbl_client_lead_tracking', 'initialprogram_id', 'client_id')->using(ClientLeadTracking::class)->withTimestamps();
     }
 }

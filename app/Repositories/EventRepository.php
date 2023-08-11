@@ -32,6 +32,13 @@ class EventRepository implements EventRepositoryInterface
         return Event::where('event_title', $eventName)->first();
     }
 
+    public function getEventByMonthyear($monthyear)
+    {
+        return Event::whereMonth('event_startdate', date('m', strtotime($monthyear)))
+                        ->whereYear('event_startdate', date('Y', strtotime($monthyear)))
+                        ->get();
+    }
+
     public function deleteEvent($eventId)
     {
         return Event::whereEventId($eventId)->delete();

@@ -27,8 +27,9 @@ return new class extends Migration
 
                 SELECT SUM(total_participant) INTO total 
                     FROM tbl_sales_target
-                    WHERE MONTH(month_year) = requested_month AND YEAR(month_year) = requested_year;
-
+                    LEFT JOIN tbl_prog ON tbl_prog.prog_id = tbl_sales_target.prog_id
+                    LEFT JOIN tbl_main_prog ON tbl_main_prog.id = tbl_prog.main_prog_id
+                    WHERE MONTH(tbl_sales_target.month_year) = requested_month AND YEAR(tbl_sales_target.month_year) = requested_year AND tbl_main_prog.id = 1;
             RETURN total;
         END; //
 
@@ -151,7 +152,29 @@ return new class extends Migration
         END; //
 
         DELIMITER ;
-        "); 
+        ");
+
+        # function to get revenue target by requested month & year
+        DB::statement("
+        DELIMITER //
+
+        CREATE OR REPLACE FUNCTION GetRevenueTarget ( requested_month INTEGER, requested_year INTEGER )
+        RETURNS INTEGER
+        DETERMINISTIC
+
+            BEGIN
+                DECLARE total INTEGER;
+
+                SELECT SUM(total_target) INTO total 
+                    FROM tbl_sales_target
+                    LEFT JOIN tbl_prog ON tbl_prog.prog_id = tbl_sales_target.prog_id
+                    LEFT JOIN tbl_main_prog ON tbl_main_prog.id = tbl_prog.main_prog_id
+                    WHERE MONTH(tbl_sales_target.month_year) = requested_month AND YEAR(tbl_sales_target.month_year) = requested_year AND tbl_main_prog.id = 1;
+            RETURN total;
+        END; //
+
+        DELIMITER ;
+        ");
 
         //! find a way to simplify the function per column
         DB::statement('
@@ -164,7 +187,8 @@ return new class extends Migration
                 SetContributionToTarget(contribution_in_percent, (SELECT monthly_target)) as contribution_to_target,
                 SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target)), divisi) as initial_consult_target,
                 SetHotLeadsByDivision(SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target)), divisi), divisi) as hot_leads_target,
-                SetLeadsNeededByDivision(SetHotLeadsByDivision(SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target)), divisi), divisi), divisi) as lead_needed
+                SetLeadsNeededByDivision(SetHotLeadsByDivision(SetInitialConsult(SetContributionToTarget(contribution_in_percent, (SELECT monthly_target)), divisi), divisi), divisi) as lead_needed,
+                GetRevenueTarget(MONTH(now()), YEAR(now())) as revenue_target
                 
             FROM contribution_calculation_tmp 
         ');
