@@ -87,7 +87,7 @@ class SendReminderInvoiceProgramToClient extends Command
                 'program_name' => $program_name,
                 'due_date' => date('d/m/Y', strtotime($data->inv_duedate)),
                 'child_fullname' => $data->fullname,
-                'installment_notes' => $data->installment_notes,
+                'inv_paymentmethod' => $data->inv_paymentmethod,
                 'total_payment' => $data->invoice_totalprice_idr,
                 'pic_email' => $pic_email
             ];

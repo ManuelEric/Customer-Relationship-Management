@@ -129,16 +129,19 @@
                             </div>
                             <div class="col-md-3 mb-2">
                                 <label>Banner <sup class="text-warning">*</sup></label>
-                                @if (isset($event->event_banner))
-                                <div class="form-control form-control-sm d-flex">
-                                    <a href="#preview-banner-of-{{ $event->event_title }}" data-bs-toggle="modal" data-bs-target="#imagemodal" class="text-decoration-none" alt="{{ $event->event_title }}">Preview</a>
-                                    <div class="align-right">
-                                        <button class="btn btn-sm btn-danger">X</button>
+                                <div class="banner-control">
+                                    @if (isset($event->event_banner))
+                                    <div class="form-control form-control-sm d-flex banner-control">
+                                        <a href="#preview-banner-of-{{ $event->event_title }}" data-bs-toggle="modal" data-bs-target="#imagemodal" class="text-decoration-none" alt="{{ $event->event_title }}">Preview</a>
+                                        @if ($disabled == null)
+                                        &nbsp;/&nbsp;
+                                        <a href="#change-banner" id="change-banner" class="text-decoration-none text-danger">Change</a>
+                                        @endif
                                     </div>
+                                    @else
+                                    <input type="file" class="form-control form-control-sm rounded" name="event_banner">
+                                    @endif
                                 </div>
-                                @else
-                                <input type="file" class="form-control form-control-sm rounded" name="event_banner">
-                                @endif
                                 <input type="hidden" name="old_event_banner" value="{{ isset($event->event_banner) ? $event->event_banner : null }}">
                                 @error('event_banner')
                                     <small class="text-danger fw-light">{{ $message }}</small>
@@ -215,6 +218,11 @@
                 $eventId = $(this).data('event');
                 $schoolId = $(this).data('school');
 
+            })
+
+            $("#change-banner").on('click', function() {
+                
+                $(".banner-control").html('<input type="file" class="form-control form-control-sm rounded" name="event_banner">');
             })
         });
     </script>
