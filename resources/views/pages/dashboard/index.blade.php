@@ -10,7 +10,7 @@
 @section('content')
 
     {{-- Alert  --}}
-    <div class="row  g-3 mb-3">
+    <div class="row  g-3 mb-1">
         <div class="col-12">
             <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2" role="alert">
                 <i class="bi bi-exclamation-circle"></i>
@@ -19,16 +19,18 @@
                 </small>
             </div>
         </div>
+    </div>
 
+    <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-1'}} row-cols-1 g-3 mb-3">
         @if ($isAdmin || $isSales)
-            <div class="col-md-6">
+            <div class="col">
                 <fieldset class="border p-2 rounded shadow">
                     <legend class="float-none w-auto fs-6 mx-3">
                         <small class="text-danger">
                             <i class="bi bi-alarm me-1"></i> Sales Team Alarm
                         </small>
                     </legend>
-                    <div class="row row-cols-md-2 row-cols-1 g-2">
+                    <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-4'}} row-cols-1 g-2">
                         @for ($i = 0; $i < 4; $i++)
                             <div class="col">
                                 <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2 border-alert"
@@ -48,14 +50,14 @@
         @endif
 
         @if ($isAdmin || $isSales)
-            <div class="col-md-6">
+            <div class="col">
                 <fieldset class="border p-2 rounded shadow">
                     <legend class="float-none w-auto fs-6 mx-3">
                         <small class="text-danger">
                             <i class="bi bi-alarm me-1"></i> Digital Team Alarm
                         </small>
                     </legend>
-                    <div class="row row-cols-md-2 row-cols-1 g-2">
+                    <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-4'}} row-cols-1 g-2">
                         @for ($i = 0; $i < 4; $i++)
                             <div class="col">
                                 <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2 border-alert"
