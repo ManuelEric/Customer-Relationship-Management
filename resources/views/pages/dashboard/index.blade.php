@@ -10,6 +10,28 @@
 @section('content')
 
     {{-- Alert  --}}
+    <div class="row {{ $isAdmin ? 'row-cols-md-2' : 'row-cols-md-1' }} row-cols-1 g-2">
+        <fieldset class="border p-2 rounded shadow">
+            <legend class="float-none w-auto fs-6 mx-3">
+                <small class="text-danger">
+                    <i class="bi bi-alarm me-1"></i> Sales Team Alarm
+                </small>
+            </legend>
+            <div class="row row-cols-md-2 row-cols-1 g-2">
+                @for ($i = 0; $i < 4; $i++)
+                    <div class="col">
+                        <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2 border-alert" role="alert">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <small class="">
+                                The number of <b class="bg-white px-2 rounded text-primary">hot leads</b> is less than the
+                                target
+                            </small>
+                        </div>
+                    </div>
+                @endfor
+            </div>
+        </fieldset>
+    </div>
     {{-- <div class="row row-cols-md-4 row-cols-1 g-2">
         @for ($i = 0; $i < 4; $i++)
             <div class="col">
