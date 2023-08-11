@@ -20,6 +20,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
@@ -170,6 +171,21 @@ class EventController extends Controller
 
         DB::beginTransaction();
         try {
+
+            # get existing banner as a file
+            if ($existingBannerName = $request->old_event_banner) {
+                $existingImagePath = storage_path('app/public/uploaded_file/events').'/'.$existingBannerName;
+                if (File::exists($existingImagePath))
+                    File::delete($existingImagePath);
+            }
+
+            # upload banner 
+            if ($request->file('event_banner')) {
+                $fileName = time() . '-' . $eventId .'.'. $request->event_banner->extension();
+                $request->event_banner->storeAs(null, $fileName, 'uploaded_file_event');
+            }
+
+            $newDetails['event_banner'] = $fileName;
 
             $this->eventRepository->updateEvent($eventId, $newDetails);
 
