@@ -10,9 +10,18 @@
 @section('content')
 
     {{-- Alert  --}}
-    <div class="row {{ $isAdmin ? 'row-cols-md-2' : 'row-cols-md-1' }} row-cols-1 g-3 mb-3">
+    <div class="row  g-3 mb-3">
+        <div class="col-12">
+            <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <small class="">
+                    There are no events this month.
+                </small>
+            </div>
+        </div>
+
         @if ($isAdmin || $isSales)
-            <div class="p-1">
+            <div class="col-md-6">
                 <fieldset class="border p-2 rounded shadow">
                     <legend class="float-none w-auto fs-6 mx-3">
                         <small class="text-danger">
@@ -39,7 +48,7 @@
         @endif
 
         @if ($isAdmin || $isSales)
-            <div class="p-1">
+            <div class="col-md-6">
                 <fieldset class="border p-2 rounded shadow">
                     <legend class="float-none w-auto fs-6 mx-3">
                         <small class="text-danger">
