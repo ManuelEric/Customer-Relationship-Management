@@ -164,7 +164,7 @@ class ClientProgramController extends Controller
         $tutors = $this->userRepository->getAllUsersByRole('Tutor');
         $mentors = $this->userRepository->getAllUsersByRole('Mentor');
 
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
 
         return view('pages.program.client-program.form')->with(
             [
@@ -210,7 +210,7 @@ class ClientProgramController extends Controller
         $tutors = $this->userRepository->getAllUsersByRole('Tutor');
         $mentors = $this->userRepository->getAllUsersByRole('Mentor');
 
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
 
         return view('pages.program.client-program.form')->with(
             [
@@ -458,7 +458,7 @@ class ClientProgramController extends Controller
         $tutors = $this->userRepository->getAllUsersByRole('Tutor');
         $mentors = $this->userRepository->getAllUsersByRole('Mentor');
 
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
 
         return view('pages.program.client-program.form')->with(
             [

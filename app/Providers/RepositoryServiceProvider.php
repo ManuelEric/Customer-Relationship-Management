@@ -11,6 +11,7 @@ use App\Interfaces\AxisRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
+use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\CorporatePartnerEventRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
@@ -27,6 +28,7 @@ use App\Interfaces\InvoiceAttachmentRepositoryInterface;
 use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\InvoiceB2bRepositoryInterface;
 use App\Interfaces\InvoiceDetailRepositoryInterface;
+use App\Interfaces\InitialProgramRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\LeadTargetRepositoryInterface;
 use App\Interfaces\MainProgRepositoryInterface;
@@ -68,6 +70,7 @@ use App\Interfaces\UserTypeRepositoryInterface;
 use App\Interfaces\VendorRepositoryInterface;
 use App\Interfaces\VendorTypeRepositoryInterface;
 use App\Interfaces\VolunteerRepositoryInterface;
+use App\Models\ClientLeadTracking;
 use App\Repositories\AcadTutorRepository;
 use App\Repositories\AgendaSpeakerRepository;
 use App\Repositories\AssetRepository;
@@ -77,6 +80,7 @@ use App\Repositories\AxisRepository;
 use App\Repositories\ClientEventRepository;
 use App\Repositories\ClientProgramRepository;
 use App\Repositories\ClientRepository;
+use App\Repositories\ClientLeadTrackingRepository;
 use App\Repositories\CorporatePartnerEventRepository;
 use App\Repositories\CorporatePicRepository;
 use App\Repositories\CorporateRepository;
@@ -93,6 +97,7 @@ use App\Repositories\InvoiceAttachmentRepository;
 use App\Repositories\InvoiceProgramRepository;
 use App\Repositories\InvoiceDetailRepository;
 use App\Repositories\InvoiceB2bRepository;
+use App\Repositories\InitialProgramRepository;
 use App\Repositories\LeadRepository;
 use App\Repositories\LeadTargetRepository;
 use App\Repositories\MainProgRepository;
@@ -212,6 +217,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
         $this->app->bind(MenuRepositoryInterface::class, MenuRepository::class);
+        $this->app->bind(InitialProgramRepositoryInterface::class, InitialProgramRepository::class);
+        $this->app->bind(ClientLeadTrackingRepositoryInterface::class, ClientLeadTrackingRepository::class);
     }
 
     /**

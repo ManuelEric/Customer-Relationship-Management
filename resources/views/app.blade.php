@@ -251,6 +251,32 @@
             </div>
         </div>
     </div>
+
+    {{-- Update Lead Status  --}}
+    <div class="modal modal-sm fade" tabindex="-1" id="updateLeadStatus" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                {{-- <form action="" method="post" id="formAction"> --}}
+                    {{-- @csrf --}}
+                    {{-- @method('delete') --}}
+                    <div class="modal-body text-center">
+                        <h2>
+                            <i class="bi bi-info-circle text-info"></i>
+                        </h2>
+                        <h4>Are you sure?</h4>
+                        <h6>You want to update this data?</h6>
+                        <hr>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="button" id="btn-update-lead" class="btn btn-primary btn-sm">
+                            <i class="bi bi-box-arrow-in-down me-1"></i>
+                            Yes, Update</button>
+                    </div>
+                {{-- </form> --}}
+            </div>
+        </div>
+    </div>
     <script>
         window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     </script>
@@ -329,6 +355,36 @@
                 sendToClient(link)
             })
         }
+
+        function confirmUpdateLeadStatus(link, clientId, initProg, leadStatus) {
+            // show modal 
+            var myModal = new bootstrap.Modal(document.getElementById('updateLeadStatus'))
+            myModal.show()
+            
+            $('#btn-update-lead').on('click', function() {
+                showLoading()
+                var link = "{{ url('client/student') }}/" + clientId + "/lead_status/" + $(this).val();
+                axios.post(link, {
+                    clientId : clientId,
+                    initProg : initProg,
+                    leadStatus : leadStatus,
+                })
+                .then(function(response) {
+                    myModal.hide()
+                    swal.close();
+                    
+                    notification('success', response.data.message)
+                    
+                })
+                .catch(function(error) {
+                    myModal.hide()
+                    swal.close();
+                    notification('error', error)
+                })
+            });
+
+        }
+
     </script>
 
     {{-- Notification by Session  --}}

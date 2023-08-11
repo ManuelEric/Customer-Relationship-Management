@@ -21,6 +21,7 @@ class Reason extends Model
     protected $fillable = [
         'reason_id',
         'reason_name',
+        'type',
         'created_at',
         'updated_at',
     ];

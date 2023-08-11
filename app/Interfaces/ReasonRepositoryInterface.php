@@ -7,6 +7,7 @@ interface ReasonRepositoryInterface
 
     // public function getReasonBySchoolProgramId($schoolProgramId);
     public function getAllReasons();
+    public function getReasonByType($type);
     public function getReasonById($reasonId);
     public function getReasonByReasonName($reasonName); # same with getReasonByName -> next todos diserasiin di setiap controller
     public function getReasonByName($reasonName);

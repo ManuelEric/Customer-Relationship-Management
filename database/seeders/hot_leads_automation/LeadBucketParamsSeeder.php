@@ -37,7 +37,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'param_id' => 2,
                 'weight_new' => 25,
                 'weight_existing_mentee' => null,
-                'weight_exisiting_non_mentee' => 25,
+                'weight_existing_non_mentee' => 25,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -49,7 +49,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'param_id' => 3,
                 'weight_new' => 10,
                 'weight_existing_mentee' => null,
-                'weight_exisiting_non_mentee' => 10,
+                'weight_existing_non_mentee' => 10,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -61,7 +61,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'param_id' => 4,
                 'weight_new' => 25,
                 'weight_existing_mentee' => null,
-                'weight_exisiting_non_mentee' => 25,
+                'weight_existing_non_mentee' => 25,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -73,7 +73,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'param_id' => 1,
                 'weight_new' => 40,
                 'weight_existing_mentee' => null,
-                'weight_exisiting_non_mentee' => 40,
+                'weight_existing_non_mentee' => 40,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -85,7 +85,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'param_id' => 2,
                 'weight_new' => 30,
                 'weight_existing_mentee' => 50,
-                'weight_exisiting_non_mentee' => 30,
+                'weight_existing_non_mentee' => 30,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -97,7 +97,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'param_id' => 4,
                 'weight_new' => 25,
                 'weight_existing_mentee' => null,
-                'weight_exisiting_non_mentee' => 30,
+                'weight_existing_non_mentee' => 30,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -109,7 +109,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'param_id' => 5,
                 'weight_new' => null,
                 'weight_existing_mentee' => 50,
-                'weight_exisiting_non_mentee' => null,
+                'weight_existing_non_mentee' => null,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -121,7 +121,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'param_id' => 1,
                 'weight_new' => 60,
                 'weight_existing_mentee' => 35,
-                'weight_exisiting_non_mentee' => 40,
+                'weight_existing_non_mentee' => 40,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -133,7 +133,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'param_id' => 2,
                 'weight_new' => 40,
                 'weight_existing_mentee' => 65,
-                'weight_exisiting_non_mentee' => 60,
+                'weight_existing_non_mentee' => 60,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -145,7 +145,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'param_id' => 1,
                 'weight_new' => 70,
                 'weight_existing_mentee' => 30,
-                'weight_exisiting_non_mentee' => 50,
+                'weight_existing_non_mentee' => 50,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -157,7 +157,7 @@ class LeadBucketParamsSeeder extends Seeder
                 'param_id' => 2,
                 'weight_new' => 30,
                 'weight_existing_mentee' => 70,
-                'weight_exisiting_non_mentee' => 50,
+                'weight_existing_non_mentee' => 50,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
