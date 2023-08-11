@@ -166,7 +166,8 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                     END) as inv_paymentmethod
                 '),
                 // 'tbl_inv.inv_paymentmethod',
-                'clientprogram.installment_notes',
+                // 'clientprogram.installment_notes',
+                'tbl_inv.inv_notes as installment_notes',
                 DB::raw('
                     (CASE
                         WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.created_at
