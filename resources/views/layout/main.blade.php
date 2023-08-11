@@ -73,18 +73,34 @@
                         <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-bell"></i>
                             @if (isset($countAlarm))
-                                <span
-                                    class="position-absolute ms-1 top-1 start-100 translate-middle badge rounded-pill bg-danger"
-                                    style="font-size: 11px">
-                                    <small>
-                                        {{ $countAlarm }}
-                                    </small>
-                                </span>
+                                @php
+                                    if($isSales){
+                                        $count = $countAlarm['sales'];
+                                    }elseif($isAdmin){
+                                        $count = $countAlarm['general'];
+                                    }
+                                @endphp
+                                @if($count > 0)
+                                    <span
+                                        class="position-absolute ms-1 top-1 start-100 translate-middle badge rounded-pill bg-danger"
+                                        style="font-size: 11px">
+                                        <small>
+                                            {{ $count }}
+                                        </small>
+                                    </span>
+                                @endif
                             @endif
                         </a>
 
                         @if (isset($notification))
                             <ul class="dropdown-menu dropdown-menu-right navbar-dropdown py-2 px-4" style="width: 400px;">
+                                @php
+                                    if($isSales){
+                                        $notification = $notification['sales'];
+                                    }elseif($isAdmin){
+                                        $notification = $notification['general'];
+                                    }
+                                @endphp
                                 @foreach ($notification as $notif)
                                                     
                                     <li class="d-flex align-items-center border-bottom py-2">

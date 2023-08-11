@@ -59,7 +59,7 @@ class AlarmController extends Controller
         $actualLeadsSales['referral'] = $actualLeadsReferral['lead_needed'];
 
         # Gagal 3x berturut-turut
-        $alarmLeads['general']['always_on']['failed'] = $this->clientLeadTrackingRepository->getFailedLead($today);
+        $alarmLeads['sales']['always_on']['failed'] = $this->clientLeadTrackingRepository->getFailedLead($today);
 
         $targetTrackingLead = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today, 'lead');
         $targetTrackingRevenue = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today, 'revenue');
@@ -187,11 +187,29 @@ class AlarmController extends Controller
 
     private function countAlarm($alarmLeads)
     {
-        $count = 0;
-        foreach ($alarmLeads as $alarmDivisi) {
+        $count = [
+            'sales' => 0,
+            'digital' => 0,
+            'general' => 0,
+        ];
+        foreach ($alarmLeads as $divisi => $alarmDivisi) {
             foreach ($alarmDivisi as $alarmTime) {
                 foreach ($alarmTime as $key => $alarm) {
-                    $alarm == true ? $count++ : null;
+                    switch ($divisi) {
+                        case 'sales':
+                            $alarm == true ? $count['sales']++ : null;
+                            break;
+                        case 'digital':
+                            $alarm == true ? $count['digital']++ : null;
+                            break;
+                        case 'general':
+                            $alarm == true ? $count['sales']++ : null;
+                            $alarm == true ? $count['digital']++ : null;
+                            break;
+                    }
+                    
+                    $alarm == true ? $count['general']++ : null;
+                   
                 }
             }
         }
@@ -201,11 +219,24 @@ class AlarmController extends Controller
 
     private function notification($alarmLeads)
     {
+        $message = null;
         foreach ($alarmLeads as $divisi => $alarmDivisi) {
             foreach ($alarmDivisi as $alarmTime) {
                 foreach ($alarmTime as $key => $alarm) {
                     if($alarm){
-                        $message[] = $key == 'event' ? 'Event' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
+                        switch ($divisi) {
+                            case 'sales':
+                                $message['sales'][] = str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
+                                break;
+                            case 'digital':
+                                $message['digital'][] = str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
+                                break;
+                            case 'general':
+                                $message['sales'][] = $key == 'event' ? 'There are no events this month.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
+                                $message['digital'][] = $key == 'event' ? 'There are no events this month.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
+                                break;
+                        }
+                        $message['general'][] = $key == 'event' ? 'There are no events this month.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
                     }
                 }
             }

@@ -8,108 +8,36 @@
 @endsection
 
 @section('content')
-
-    {{-- Alarm --}}
-    @if($isSales || $isAdmin)
-        @include('pages.dashboard.sales.detail.alarm')
-    @endif
-    @if($isAdmin)
-        @include('pages.dashboard.digital.detail.alarm')
-    @endif
-
-    {{-- Alarm general --}}
-    @if ($alarmLeads['general']['always_on']['failed'] || $alarmLeads['general']['mid']['event'])
-    <div class="row row-cols-md-4 row-cols-1 g-2 mt-4">
-        @foreach ($alarmLeads['general'] as $alarmTime)
-            @foreach ($alarmTime as $key => $alarm)
-                @if ($alarm)
-                    <div class="col">
-                        <div class="alert bg-danger text-white d-flex align-items-center py-2 border-alert" role="alert">
-                            <i class="bi bi-exclamation-circle"></i>
-                            <div class="">
-                                {{$key}}
-                            </div>
-                        </div>
+    
     {{-- Alert  --}}
-    <div class="row  g-3 mb-1">
-        <div class="col-12">
-            <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2" role="alert">
-                <i class="bi bi-exclamation-circle"></i>
-                <small class="">
-                    There are no events this month.
-                </small>
+
+    {{-- General --}}
+    @if ($alarmLeads['general']['mid']['event'])
+        <div class="row  g-3 mb-1">
+            <div class="col-12">
+                <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <small class="">
+                        There are no events this month.
+                    </small>
+                </div>
             </div>
         </div>
-    </div>
+    @endif
 
     <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-1'}} row-cols-1 g-3 mb-3">
+        {{-- Sales --}}
         @if ($isAdmin || $isSales)
-            <div class="col">
-                <fieldset class="border p-2 rounded shadow">
-                    <legend class="float-none w-auto fs-6 mx-3">
-                        <small class="text-danger">
-                            <i class="bi bi-alarm me-1"></i> Sales Team Alarm
-                        </small>
-                    </legend>
-                    <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-4'}} row-cols-1 g-2">
-                        @for ($i = 0; $i < 4; $i++)
-                            <div class="col">
-                                <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2 border-alert"
-                                    role="alert">
-                                    <i class="bi bi-exclamation-circle"></i>
-                                    <small class="">
-                                        The number of <b class="bg-white px-2 rounded text-primary">hot leads</b> is less
-                                        than the
-                                        target
-                                    </small>
-                                </div>
-                            </div>
-                        @endfor
-                    </div>
-                </fieldset>
-            </div>
+            @include('pages.dashboard.sales.detail.alarm')
         @endif
 
-        @if ($isAdmin || $isSales)
-            <div class="col">
-                <fieldset class="border p-2 rounded shadow">
-                    <legend class="float-none w-auto fs-6 mx-3">
-                        <small class="text-danger">
-                            <i class="bi bi-alarm me-1"></i> Digital Team Alarm
-                        </small>
-                    </legend>
-                    <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-4'}} row-cols-1 g-2">
-                        @for ($i = 0; $i < 4; $i++)
-                            <div class="col">
-                                <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2 border-alert"
-                                    role="alert">
-                                    <i class="bi bi-exclamation-circle"></i>
-                                    <small class="">
-                                        The number of <b class="bg-white px-2 rounded text-primary">hot leads</b> is less
-                                        than the
-                                        target
-                                    </small>
-                                </div>
-                            </div>
-                        @endfor
-                    </div>
-                </fieldset>
-            </div>
+        {{-- Digital --}}
+        @if ($isAdmin)
+            @include('pages.dashboard.digital.detail.alarm')
         @endif
     </div>
-    {{-- <div class="row row-cols-md-4 row-cols-1 g-2">
-        @for ($i = 0; $i < 4; $i++)
-            <div class="col">
-                <div class="alert bg-danger text-white d-flex align-items-center py-2 border-alert" role="alert">
-                    <i class="bi bi-exclamation-circle"></i>
-                    <div class="">
-                        The number of <b class="bg-white px-2 rounded text-primary">hot leads</b> is less than the target
-                    </div>
-                @endif
-            @endforeach
-        @endforeach
-    </div>
-    @endif
+
+    {{-- End Alert --}}
 
     {{-- Sales --}}
     @if ($isSales || $isAdmin)
