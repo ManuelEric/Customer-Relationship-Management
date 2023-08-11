@@ -197,7 +197,7 @@ class EventController extends Controller
 
             DB::rollBack();
             Log::error('Update event failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $eventId . '')->withError('Failed to update new event');
+            return Redirect::to('master/event/' . $eventId)->withError('Failed to update new event');
 
         }
 

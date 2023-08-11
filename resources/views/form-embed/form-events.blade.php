@@ -64,9 +64,11 @@
             background-repeat: no-repeat
         }
     </style>
-</head>
-
 <body>
+</head>
+@php
+    $image = asset('storage/uploaded_file/events/'.$event->event_banner) ?? 'https://picsum.photos/900/200';
+@endphp
     <div
         class="min-h-screen flex items-center {{ request()->get('form_type') == 'cta' ? 'bg-form' : 'bg-transparent' }}">
         <div class="max-w-screen-lg w-full mx-auto p-4 relative overflow-hidden">
@@ -76,7 +78,7 @@
                 </div>
 
                 <div class="h-[200px] overflow-hidden mb-2 rounded-lg shadow">
-                    <img src="https://picsum.photos/900/200" alt=""
+                    <img src="{{ $image }}" alt=""
                         class="w-full object-cover hover:scale-[1.05] ease-in-out duration-500">
                 </div>
             @endif
@@ -112,11 +114,11 @@
                         </p>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
-                            <div class="flex">
+                            <div class="flex select-box">
                                 <input checked id="role-1" type="radio" value="parent" name="role"
                                     class="hidden peer" onchange="checkRole(this)">
                                 <label for="role-1"
-                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc]">
+                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
                                         <img src="{{ asset('img/form-embed/parent.png') }}" alt="Student"
                                             style="width: 70px;">
@@ -124,11 +126,11 @@
                                     </div>
                                 </label>
                             </div>
-                            <div class="flex">
+                            <div class="flex select-box">
                                 <input id="role-2" type="radio" value="student" name="role" class="hidden peer"
                                     onchange="checkRole(this)">
                                 <label for="role-2"
-                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc]">
+                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
                                         <img src="{{ asset('img/form-embed/student.png') }}" alt="Student"
                                             style="width: 70px;">
@@ -136,11 +138,11 @@
                                     </div>
                                 </label>
                             </div>
-                            <div class="flex">
+                            <div class="flex select-box">
                                 <input id="role-3" type="radio" value="teacher/counsellor" name="role"
                                     class="hidden peer" onchange="checkRole(this)">
                                 <label for="role-3"
-                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc]">
+                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="flex flex-col items-center">
                                         <img src="{{ asset('img/form-embed/teacher.png') }}" alt="Student"
                                             style="width: 70px;" class="flex justify-center">
