@@ -26,4 +26,6 @@ interface LeadTargetRepositoryInterface
     public function getAchievedContributionDigitalByMonth($now);
 
     public function getAchievedRevenue($monthyear);
+    public function getLeadSourceDigital($monthYear);
+    public function getConversionLeadDigital($monthYear);
 }

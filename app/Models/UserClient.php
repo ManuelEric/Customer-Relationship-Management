@@ -17,6 +17,7 @@ class UserClient extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'tbl_client';
+    protected $appends = ['lead_source'];
 
     /**
      * The attributes that should be visible in arrays.
@@ -71,6 +72,13 @@ class UserClient extends Authenticatable
     {
         return Attribute::make(
             get: fn ($value) => $this->lead != NULL ? $this->getLeadSource($this->lead->main_lead) : NULL
+        );
+    }
+
+    protected function clientProgs(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->clientProgram != NULL ? $this->clientProgram : NULL
         );
     }
 
@@ -194,6 +202,11 @@ class UserClient extends Authenticatable
     public function clientProgram()
     {
         return $this->hasMany(ClientProgram::class, 'client_id', 'id');
+    }
+
+    public function viewClientProgram()
+    {
+        return $this->hasMany(ViewClientProgram::class, 'client_id', 'id');
     }
 
     public function clientMentor()

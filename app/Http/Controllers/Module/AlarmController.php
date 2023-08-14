@@ -24,6 +24,7 @@ class AlarmController extends Controller
         $this->targetSignalRepository = $repositories->targetSignalRepository;
         $this->eventRepository = $repositories->eventRepository;
         $this->leadTargetRepository = $repositories->leadTargetRepository;
+        $this->leadRepository = $repositories->leadRepository;
     }
 
     public function get($request)
@@ -35,7 +36,7 @@ class AlarmController extends Controller
 
         $today = date('Y-m-d');
         $currMonth = date('m');
-
+        
         $allTarget = $this->targetTrackingRepository->getAllTargetTrackingMonthly($today);
         $dataSalesTarget = $this->getDataTarget($today, 'Sales');
         $dataReferralTarget = $this->getDataTarget($today, 'Referral');

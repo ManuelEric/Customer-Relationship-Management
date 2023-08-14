@@ -12,6 +12,7 @@ use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Interfaces\TargetSignalRepositoryInterface;
 use App\Interfaces\TargetTrackingRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
+use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\LeadTargetRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -30,9 +31,10 @@ class DigitalDashboardController extends Controller
     protected TargetSignalRepositoryInterface $targetSignalRepository;
     protected EventRepositoryInterface $eventRepository;
     protected LeadTargetRepositoryInterface $leadTargetRepository;
+    protected LeadRepositoryInterface $leadRepository;
 
 
-    public function __construct(ClientRepositoryInterface $clientRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, SalesTargetRepositoryInterface $salesTargetRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, TargetTrackingRepositoryInterface $targetTrackingRepository, TargetSignalRepositoryInterface $targetSignalRepository, EventRepositoryInterface $eventRepository, LeadTargetRepositoryInterface $leadTargetRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, SalesTargetRepositoryInterface $salesTargetRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, TargetTrackingRepositoryInterface $targetTrackingRepository, TargetSignalRepositoryInterface $targetSignalRepository, EventRepositoryInterface $eventRepository, LeadTargetRepositoryInterface $leadTargetRepository, LeadRepositoryInterface $leadRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->userRepository = $userRepository;
@@ -43,6 +45,7 @@ class DigitalDashboardController extends Controller
         $this->targetSignalRepository = $targetSignalRepository;
         $this->eventRepository = $eventRepository;
         $this->leadTargetRepository = $leadTargetRepository;
+        $this->leadRepository = $leadRepository;
     }
 
     public function getDataLead(Request $request)
@@ -104,6 +107,11 @@ class DigitalDashboardController extends Controller
                 $dataRevenueChart['label'][] =  Carbon::parse($month)->subMonth($i)->format('F');
                 $last3month++;
             }
+
+            # List Lead Source
+            
+            $leads = $this->leadRepository->getActiveLead()->where('department_id', 7);
+            $dataLeadSource = $this->leadTargetRepository->getAchievedLeadDigitalByMonth($month);
         
             $data = [
                 'leadSalesTarget' => $leadSalesTarget,
@@ -114,7 +122,9 @@ class DigitalDashboardController extends Controller
                 'actualLeadsReferral' => $actualLeadsReferral,
                 'dataLeads' => $dataLeads,
                 'dataLeadChart' => $dataLeadChart,
-                'dataRevenueChart' => $dataRevenueChart
+                'dataRevenueChart' => $dataRevenueChart,
+                'leads' => $leads,
+                'dataLeadSource' => $dataLeadSource,
             ];
 
         } catch (Exception $e) {
@@ -163,6 +173,77 @@ class DigitalDashboardController extends Controller
         );
 
         
+
+    }
+
+    public function getDetailLeadSource(Request $request)
+    {
+        $month = date('Y-m');
+        $lead_id = $request->lead;
+
+        $dataLeadSource = $this->leadTargetRepository->getLeadSourceDigital($month)->where('lead_id', $lead_id);
+
+        $html = '';
+
+        if ($dataLeadSource->count() == 0)
+            return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="6">No data</td></tr>']);
+
+        $index = 1;
+        foreach ($dataLeadSource as $data) {
+            $html .= '<tr>
+                        <td>' . $index++ . '</td>
+                        <td>' . $data->full_name . '</td>
+                        <td>' . ($data->parents->count() > 0 ? $data->parents->first()->full_name : '-'). '</td>
+                        <td>' . ($data->school != null ? $data->school->sch_name : '-') . '</td>
+                        <td>' . $data->graduation_year_real . '</td>
+                        <td>' . $data->lead_source . '</td>
+                    </tr>';
+        }
+
+        return response()->json(
+            [
+                'success' => true,
+                'html_ctx' => $html
+            ]
+        );
+
+    }
+
+    public function getDetailConversionLead(Request $request)
+    {
+        $month = date('Y-m');
+        $lead_id = $request->lead;
+
+        // $html = $lead_id;
+        
+
+        $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($month)->where('lead_id', $lead_id);
+
+        $html = '';
+
+        if ($dataConversionLead->count() == 0)
+            return response()->json(['success' => true, 'html_ctx' => '<tr align="center"><td colspan="8">No data</td></tr>']);
+
+        $index = 1;
+        foreach ($dataConversionLead as $data) {
+            $html .= '<tr>
+                        <td>' . $index++ . '</td>
+                        <td>' . $data->fullname . '</td>
+                        <td>' . $data->parent_fullname . '</td>
+                        <td>' . $data->school_name . '</td>
+                        <td>' . $data->client->graduation_year_real . '</td>
+                        <td>' . $data->lead_source . '</td>
+                        <td>' . $data->conversion_lead . '</td>
+                        <td>' . $data->program_name . '</td>
+                    </tr>';
+        }
+
+        return response()->json(
+            [
+                'success' => true,
+                'html_ctx' => $html
+            ]
+        );
 
     }
 

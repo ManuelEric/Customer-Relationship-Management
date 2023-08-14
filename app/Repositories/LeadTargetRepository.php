@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Interfaces\LeadTargetRepositoryInterface;
+use App\Models\Client;
 use App\Models\ClientProgram;
 use App\Models\Invb2b;
 use App\Models\InvoiceProgram;
@@ -336,5 +337,22 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                                     ->get();
 
         return $invb2c->sum('total');
+    }
+
+    public function getLeadSourceDigital($monthYear)
+    {
+        $clients = $this->getAchievedLeadDigitalByMonth($monthYear);
+        return Client::whereIn('id', $clients->pluck('id'))->get();
+    }
+
+    public function getConversionLeadDigital($monthYear)
+    {
+        $month = date('m', strtotime($monthYear));
+        $year = date('Y', strtotime($monthYear));
+
+        $clients = $this->getAchievedInitConsultDigitalByMonth($monthYear);
+        return ViewClientProgram::whereIn('client_id', $clients->pluck('id'))->whereMonth('assessmentsent_date', $month)->whereYear('assessmentsent_date', $year)->get();
+;
+
     }
 }
