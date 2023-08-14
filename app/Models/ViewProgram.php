@@ -13,6 +13,12 @@ class ViewProgram extends Model
     protected $table = 'program';
     // protected $primaryKey = 'prog_id';
 
+    public function scopeWithAndWhereHas($query, $relation, $constraint)
+    {
+        return $query->whereHas($relation, $constraint)
+            ->with([$relation => $constraint]);
+    }
+
     public function sub_prog()
     {
         return $this->belongsTo(SubProg::class, 'sub_prog_id', 'id');

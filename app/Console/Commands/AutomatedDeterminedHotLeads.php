@@ -2,10 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Interfaces\ClientLeadRepositoryInterface;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Models\ClientLeadTracking;
 use App\Models\InitialProgram;
+use App\Models\SeasonalProgram;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
@@ -15,12 +17,17 @@ use Illuminate\Support\Facades\Log;
 class AutomatedDeterminedHotLeads extends Command
 {
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+    private ClientLeadRepositoryInterface $clientLeadRepository;
     use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository)
+    public function __construct(
+        ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository,
+        ClientLeadRepositoryInterface $clientLeadRepository
+        )
     {
         parent::__construct();
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
+        $this->clientLeadRepository = $clientLeadRepository;
     }
     /**
      * The name and signature of the console command.
@@ -46,40 +53,52 @@ class AutomatedDeterminedHotLeads extends Command
         Log::info('Cron automated determine hot leads works fine.');
 
         # get raw data by the oldest client
-        $rawData = DB::table('client_lead')->orderBy('id', 'asc')->get();
+        $rawData = $this->clientLeadRepository->getAllClientLeads();
         $progressBar = $this->output->createProgressBar($rawData->count());
         $progressBar->start();
 
         DB::beginTransaction();
         try {
 
-            $recalculate = false;
+            # initialize global variables
+            $recalculate = false; # it is boolean (true if we assumed the system has already run once, false otherwise)
             $triggerUpdate = false;
-            $newClient = false;
-            foreach ($rawData as $clientData) {
-    
-                $spesificConcerns = DB::table('tbl_interest_prog')->leftjoin('tbl_prog', 'tbl_interest_prog.prog_id', '=', 'tbl_prog.prog_id')->leftjoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->where('client_id', $clientData->id)->get();
-                $leadTracking = $this->clientLeadTrackingRepository->getAllClientLeadTrackingByClientId($clientData->id);
+            $newClient = false; # become true when the client don't have lead tracking
+
+            foreach ($rawData as $client) {
+
+                # initialize client variables
+                $isFunding = $client->is_funding;
+                $schoolCategorization = $client->school_categorization;
+                $gradeCategorization = $client->grade_categorization;
+                $countryCategorization = $client->country_categorization;
+                $majorCategorization = $client->major_categorization;
+                $type = $client->type; # existing client (new, existing mentee, existing non mentee)
+                $weight_attribute_name = "weight_" . $type;
+
+                # get client interest programs as specific concerns
+                # meaning that the initial program that exist on interest programs
+                # will get 1 point (assuming they are valid to join the initial program ex: admission mentoring)
+                $specificConcerns = $client->interestPrograms;
+
+                //? $spesificConcerns = DB::table('tbl_interest_prog')->leftjoin('tbl_prog', 'tbl_interest_prog.prog_id', '=', 'tbl_prog.prog_id')->leftjoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->where('client_id', $clientData->id)->get();
+
+                $leadTracking = $client->leadStatus;
+
+                //? $leadTracking = $this->clientLeadTrackingRepository->getAllClientLeadTrackingByClientId($clientData->id);
                 
                 $newClient = $leadTracking->count() > 0 ? false : true;
     
-                // 01 April & 01 Oktober
-                if (date('d-m') == '01-04' || date('d-m') == '01-08') {
-                    $recalculate = true;
-                }    
+                # this condition is to make system run every 1 April & 1 Oktober
+                # 01 April & 01 Oktober
+                if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
+                    $recalculate = true;    
     
-                $this->info($clientData->name);
-                $this->info($clientData->id);
-                $isFunding = $clientData->is_funding;
-                $schoolCategorization = $clientData->school_categorization;
-                $gradeCategorization = $clientData->grade_categorization;
-                $countryCategorization = $clientData->country_categorization;
-                $majorCategorization = $clientData->major_categorization;
-                $type = $clientData->type; # existing client (new, existing mentee, existing non mentee)
-                $weight_attribute_name = "weight_" . $type;
-    
-    
+                # currently we have 4 initial programs
+                # and every client must have point on every initial programs
+                # so we have to loop the initial programs
                 $initialPrograms = InitialProgram::orderBy('id', 'asc')->get();
+
                 foreach ($initialPrograms as $initialProgram) {
 
                     $last_id = ClientLeadTracking::max('group_id');
@@ -87,23 +106,31 @@ class AutomatedDeterminedHotLeads extends Command
                     $group_id_with_label = 'CLT-' . $this->add_digit($group_id_without_label + 1, 5);
                         
                     $initProgramId = $initialProgram->id;
-                    $triggerUpdate = $leadTracking->where('initialprogram_id', $initProgramId)->where('status', 1)->count() < 1 ? true : false;
-                    
                     $initProgramName = $initialProgram->name;
     
-                    $lastGroupId = $leadTracking->where('initialprogram_id', $initProgramId)->max('group_id');
+                    $lastGroupId = $leadTracking->where('pivot.initialprogram_id', $initProgramId)->max('pivot.group_id');
+                    $this->info($lastGroupId);
+                    $this->info('');continue;
 
                     $programLeadTracking = $leadTracking->where('type', 'Program')->where('group_id', $lastGroupId)->first();
                     $statusLeadTracking = $leadTracking->where('type', 'Lead')->where('group_id', $lastGroupId)->first();
 
+                    # check if the data on tbl_client_lead_tracking doesnt have status active (1)
+                    # meaning if there is no active status
+                    # then it means, set trigger update  as true so the system should be running for these clients
+                    $triggerUpdate = $leadTracking->where('pivot.initialprogram_id', $initProgramId)->where('pivot.status', 1)->count() < 1 ? true : false;
+                    
+                    $programLeadTracking = $leadTracking->where('initialprogram_id', $initProgramId)->where('type', 'Program')->sortByDesc('updated_at')->first();
+                    $statusLeadTracking = $leadTracking->where('initialprogram_id', $initProgramId)->where('type', 'Lead')->sortByDesc('updated_at')->first();
+    
                     # Check Program
                     $programBuckets = DB::table('tbl_program_buckets_params')->leftJoin('tbl_param_lead', 'tbl_param_lead.id', '=', 'tbl_program_buckets_params.param_id')->where('tbl_program_buckets_params.initialprogram_id', $initProgramId)->where('tbl_param_lead.value', 1)->orderBy('tbl_program_buckets_params.id', 'asc')->get();
     
                     $total_result = 0;
     
-                    if ($recalculate == false && $triggerUpdate == false && $newClient == false){
+                    if ($recalculate == false && $triggerUpdate == false && $newClient == false)
                         continue;
-                    }
+                    
     
     
                     foreach ($programBuckets as $programBucket) {
@@ -199,41 +226,45 @@ class AutomatedDeterminedHotLeads extends Command
                                 }
                                 break;
     
-                            // case "Seasonal":
-                            //     # pertama buat view table seasonal
-                            //     # yg isinya adalah event / program apa saja yang akan diadakan dalam 4/6 bulan ke depan
-                            //     # lalu apabila ada seasonal program maka scorenya 1 
-                            //     # yg dimana 1 ini akan dikalikan dengan weight nya (contoh : 10%)
-                            //     # masukkan 10% ini ke dalam variable sub_result
-                            //     # find value from library
+                            case "Seasonal":
+                                # pertama buat view table seasonal
+                                # yg isinya adalah event / program apa saja yang akan diadakan dalam 4/6 bulan ke depan
+                                # lalu apabila ada seasonal program maka scorenya 1 
+                                # yg dimana 1 ini akan dikalikan dengan weight nya (contoh : 10%)
+                                # masukkan 10% ini ke dalam variable sub_result
+                                # find value from library
+
+                                $checkSeasonal = SeasonalProgram::withAndWhereHas('program.sub_prog.spesificConcern', function ($query) {
+                                            $query->where('tbl_initial_program_lead.id', 1);
+                                        })->
+                                        where(function ($query) {
+                                            $query->
+                                                whereBetween('start', [Carbon::now()->toDateString(), Carbon::now()->addMonths(6)->toDateString()])->
+                                                orWhereBetween('end', [Carbon::now()->toDateString(), Carbon::now()->addMonths(6)->toDateString()]);
+                                        })->        
+                                        first();
     
+                                $sub_result = ($weight / 100) * 0;
+                                $value_from_library = 0;
     
-                            //     $checkSeasonal = DB::table('tbl_seasonal_lead')->where('initialprogram_id', $initProgramId)->whereBetween(
-                            //         'start',
-                            //         [Carbon::now(), Carbon::now()->addMonths(6)->toDateString()]
-                            //     )->first();
+                                if (isset($checkSeasonal)) {
+                                    $sub_result = ($weight / 100) * 1;
+                                    $value_from_library = 1;
+                                } else {
+                                    switch ($initProgramName) {
+                                        case "Admission Mentoring":
+                                            $sub_result = ($weight / 100) * 1;
+                                            $value_from_library = 1;
+                                            break;
     
-                            //     $sub_result = ($weight / 100) * 0;
-                            //     $value_from_library = 0;
-    
-                            //     if (isset($checkSeasonal)) {
-                            //         $sub_result = ($weight / 100) * 1;
-                            //         $value_from_library = 1;
-                            //     } else {
-                            //         switch ($initProgramName) {
-                            //             case "Admission Mentoring":
-                            //                 $sub_result = ($weight / 100) * 1;
-                            //                 $value_from_library = 1;
-                            //                 break;
-    
-                            //             case "Academic Performance (Academic Tutoring)":
-                            //                 $sub_result = ($weight / 100) * 1;
-                            //                 $value_from_library = 1;
-                            //                 break;
-                            //         }
-                            //         break;
-                            //     }
-                            //     break;
+                                        case "Academic Performance (Academic Tutoring)":
+                                            $sub_result = ($weight / 100) * 1;
+                                            $value_from_library = 1;
+                                            break;
+                                    }
+                                    break;
+                                }
+                                break;
     
                             case "Already_joined":
                                 # buat function 
@@ -413,7 +444,7 @@ class AutomatedDeterminedHotLeads extends Command
                     ];
     
                     # end check Lead
-    
+                    $this->info('');
                     $this->info($programLeadTracking);
                     if ($recalculate == true) {
                         if ($this->comparison($statusLeadTracking->total_result, $leadScore) || $this->comparison($programLeadTracking->total_result, $programScore)) {

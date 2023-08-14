@@ -30,9 +30,15 @@ class InitialProgram extends Model
     public function sub_prog()
     {
         return $this->belongsTo(SubProg::class, 'sub_id', 'id');
+        // return $this->belongsToMany(SubProg::class, 'tbl_initial_prog_sub_lead', 'initialprogram_id', 'subprogram_id');
     }
 
     public function client()
+    {
+        return $this->belongsToMany(UserClient::class, 'tbl_client_lead_tracking', 'initialprogram_id', 'client_id')->using(ClientLeadTracking::class)->withTimestamps();
+    }
+
+    public function clientLead()
     {
         return $this->belongsToMany(UserClient::class, 'tbl_client_lead_tracking', 'initialprogram_id', 'client_id')->using(ClientLeadTracking::class)->withTimestamps();
     }

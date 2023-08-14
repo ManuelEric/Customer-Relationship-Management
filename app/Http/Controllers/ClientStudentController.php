@@ -105,7 +105,7 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
-
+        
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
@@ -115,12 +115,16 @@ class ClientStudentController extends ClientController
             $school_name = $request->get('school_name');
             $graduation_year = $request->get('graduation_year');
             $leads = $request->get('lead_source');
+            $initial_programs = $request->get('program_suggest');
+            $status_lead = $request->get('status_lead');
 
             # array for advanced filter request
             $advanced_filter = [
                 'school_name' => $school_name,
                 'graduation_year' => $graduation_year,
                 'leads' => $leads,
+                'initial_programs' => $initial_programs,
+                'status_lead' => $status_lead
             ];
 
             switch ($statusClient) {
@@ -150,8 +154,11 @@ class ClientStudentController extends ClientController
         }
 
         $reasons = $this->reasonRepository->getReasonByType('Hot Lead');
+
+        # for advance filter purpose
         $schools = $this->schoolRepository->getAllSchools();
         $parents = $this->clientRepository->getAllClientByRole('Parent');
+        $max_graduation_year = $this->clientRepository->getMaxGraduationYearFromClient();
         $main_leads = $this->leadRepository->getAllMainLead();
         $main_leads = $main_leads->map(function ($item) {
             return [
@@ -164,21 +171,19 @@ class ClientStudentController extends ClientController
                 'main_lead' => $item->sub_lead
             ];
         });
-
         $leads = $main_leads->merge($sub_leads);
-
-        # for advance filter purpose
-        $max_graduation_year = $this->clientRepository->getMaxGraduationYearFromClient();
+        $initial_programs = $this->initialProgramRepository->getAllInitProg();        
 
         return view('pages.client.student.index')->with(
             [
+                'reasons' => $reasons,
                 'advanced_filter' => [
                     'schools' => $schools,
                     'parents' => $parents,
                     'leads' => $leads,
-                    'max_graduation_year' => $max_graduation_year
-                ],
-                'reasons' => $reasons
+                    'max_graduation_year' => $max_graduation_year,
+                    'initial_programs' => $initial_programs
+                ]
             ]
         );
     }
