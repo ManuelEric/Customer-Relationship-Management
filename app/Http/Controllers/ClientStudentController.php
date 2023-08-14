@@ -192,13 +192,8 @@ class ClientStudentController extends ClientController
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
         $viewStudent = $this->clientRepository->getViewClientById($studentId);
 
-
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
-        
-        // dd($historyLeads);
-        // return $historyLeads;
-        // exit;
 
         if (!$student)
             abort(404);
