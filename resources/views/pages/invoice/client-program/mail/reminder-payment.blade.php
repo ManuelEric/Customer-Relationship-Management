@@ -33,7 +33,7 @@
         </tr>
         <tr>
             <td>Note</td>
-            <td>{{ $installment_notes }}</td>
+            <td>{{ $inv_paymentmethod }}</td>
         </tr>
         <tr>
             <td>Total Payment</td>

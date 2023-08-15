@@ -11,10 +11,9 @@ use Illuminate\Support\Facades\DB;
 class ClientEventRepository implements ClientEventRepositoryInterface
 {
 
-    public function getAllClientEventDataTables()
+    public function getAllClientEventDataTables($filter = [])
     {
-        return datatables::eloquent(
-            ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+        $query = ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
                 ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
                 ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_event.lead_id')
                 ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
@@ -38,8 +37,13 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     ELSE tbl_lead.main_lead
                 END) AS conversion_lead'),
                     DB::raw('CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) as client_name')
-                )->orderBy('tbl_client_event.created_at', 'DESC')
-        )->filterColumn(
+                )->
+                when(!empty($filter['event_name']), function ($searchQuery) use ($filter) {
+                    $searchQuery->where('event_title', $filter['event_name']);
+                })->
+                orderBy('tbl_client_event.created_at', 'DESC');
+
+        return DataTables::eloquent($query)->filterColumn(
             'client_name',
             function ($query, $keyword) {
                 $sql = 'CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) like ?';

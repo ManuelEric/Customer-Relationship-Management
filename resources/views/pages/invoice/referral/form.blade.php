@@ -734,7 +734,7 @@
                     persenPPhIdr = pph23/100 * (receipt_amount_idr) 
                 }
                     totalOther = receipt_amount_other - persenPPh
-                    totalIdr = (receipt_amount_other * curs_rate) - persenPPhIdr
+                    totalIdr = receipt_amount_idr - persenPPhIdr
 
                 $("#receipt_amount_other").val(Math.round(totalOther))
                 $("#receipt_word_other").val(wordConverter(Math.round(totalOther)) + currency)

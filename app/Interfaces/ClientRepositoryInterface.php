@@ -12,12 +12,14 @@ interface ClientRepositoryInterface
     public function getAllClientByRole($roleName, $month = NULL); # mentee, parent, teacher
     public function getDataTables($model);
 
+    public function getMaxGraduationYearFromClient();
+
     /* new */
-    public function getNewLeads($asDatatables = false, $month = NULL); # month nullable
-    public function getPotentialClients($asDatatables = false, $month = NULL); # month nullable
-    public function getExistingMentees($asDatatables = false, $month = NULL); # month nullable
-    public function getExistingNonMentees($asDatatables = false, $month = NULL); # month nullable
-    public function getAllClientStudent();
+    public function getNewLeads($asDatatables = false, $month = NULL, array $advanced_filter); # month nullable
+    public function getPotentialClients($asDatatables = false, $month = NULL,  array $advanced_filter); # month nullable
+    public function getExistingMentees($asDatatables = false, $month = NULL,  array $advanced_filter); # month nullable
+    public function getExistingNonMentees($asDatatables = false, $month = NULL,  array $advanced_filter); # month nullable
+    public function getAllClientStudent(array $advanced_filter);
     public function getAlumniMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null); # month nullable
     public function getParents($asDatatables = false, $month = null);

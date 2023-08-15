@@ -21,6 +21,12 @@ class SubProg extends Model
         'sub_prog_status',
     ];
 
+    public function scopeWithAndWhereHas($query, $relation, $constraint)
+    {
+        return $query->whereHas($relation, $constraint)
+            ->with([$relation => $constraint]);
+    }
+
     # relation
 
     public function mainProgram()
@@ -35,6 +41,6 @@ class SubProg extends Model
 
     public function spesificConcern()
     {
-        return $this->belongsToMany(InitialProgram::class, 'tbl_initial_prog_sub_lead', 'subprogram_id', 'id');
+        return $this->belongsToMany(InitialProgram::class, 'tbl_initial_prog_sub_lead', 'subprogram_id', 'initialprogram_id');
     }
 }

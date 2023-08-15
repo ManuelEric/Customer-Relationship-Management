@@ -2,10 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Interfaces\ClientLeadRepositoryInterface;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Models\ClientLeadTracking;
+use App\Models\ClientProgram;
 use App\Models\InitialProgram;
+use App\Models\ProgramLeadLibrary;
+use App\Models\SeasonalProgram;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
@@ -15,12 +19,17 @@ use Illuminate\Support\Facades\Log;
 class AutomatedDeterminedHotLeads extends Command
 {
     private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+    private ClientLeadRepositoryInterface $clientLeadRepository;
     use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository)
+    public function __construct(
+        ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository,
+        ClientLeadRepositoryInterface $clientLeadRepository
+        )
     {
         parent::__construct();
         $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
+        $this->clientLeadRepository = $clientLeadRepository;
     }
     /**
      * The name and signature of the console command.
@@ -46,40 +55,42 @@ class AutomatedDeterminedHotLeads extends Command
         Log::info('Cron automated determine hot leads works fine.');
 
         # get raw data by the oldest client
-        $rawData = DB::table('client_lead')->orderBy('id', 'asc')->get();
+        $rawData = $this->clientLeadRepository->getAllClientLeads();
         $progressBar = $this->output->createProgressBar($rawData->count());
         $progressBar->start();
 
         DB::beginTransaction();
         try {
 
-            $recalculate = false;
+            # initialize global variables
+            $recalculate = false; # it is boolean (true if we assumed the system has already run once, false otherwise)
             $triggerUpdate = false;
-            $newClient = false;
-            foreach ($rawData as $clientData) {
-    
-                $spesificConcerns = DB::table('tbl_interest_prog')->leftjoin('tbl_prog', 'tbl_interest_prog.prog_id', '=', 'tbl_prog.prog_id')->leftjoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->where('client_id', $clientData->id)->get();
-                $leadTracking = $this->clientLeadTrackingRepository->getAllClientLeadTrackingByClientId($clientData->id);
+            $newClient = false; # become true when the client don't have lead tracking
+
+            foreach ($rawData as $client) {
+
+                # initialize client variables
+                $type = $client->type; # existing client (new, existing mentee, existing non mentee)
+                $weight_attribute_name = "weight_" . $type;
+
+                //? $spesificConcerns = DB::table('tbl_interest_prog')->leftjoin('tbl_prog', 'tbl_interest_prog.prog_id', '=', 'tbl_prog.prog_id')->leftjoin('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_prog.sub_prog_id')->where('client_id', $clientData->id)->get();
+
+                $leadTracking = $client->leadStatus;
+
+                //? $leadTracking = $this->clientLeadTrackingRepository->getAllClientLeadTrackingByClientId($client->id);
                 
                 $newClient = $leadTracking->count() > 0 ? false : true;
     
-                // 01 April & 01 Oktober
-                if (date('d-m') == '01-04' || date('d-m') == '01-08') {
-                    $recalculate = true;
-                }    
+                # this condition is to make system run every 1 April & 1 Oktober
+                # 01 April & 01 Oktober
+                // if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
+                    $recalculate = true;    
     
-                $this->info($clientData->name);
-                $this->info($clientData->id);
-                $isFunding = $clientData->is_funding;
-                $schoolCategorization = $clientData->school_categorization;
-                $gradeCategorization = $clientData->grade_categorization;
-                $countryCategorization = $clientData->country_categorization;
-                $majorCategorization = $clientData->major_categorization;
-                $type = $clientData->type; # existing client (new, existing mentee, existing non mentee)
-                $weight_attribute_name = "weight_" . $type;
-    
-    
+                # currently we have 4 initial programs
+                # and every client must have point on every initial programs
+                # so we have to loop the initial programs
                 $initialPrograms = InitialProgram::orderBy('id', 'asc')->get();
+
                 foreach ($initialPrograms as $initialProgram) {
 
                     $last_id = ClientLeadTracking::max('group_id');
@@ -87,350 +98,61 @@ class AutomatedDeterminedHotLeads extends Command
                     $group_id_with_label = 'CLT-' . $this->add_digit($group_id_without_label + 1, 5);
                         
                     $initProgramId = $initialProgram->id;
-                    $triggerUpdate = $leadTracking->where('initialprogram_id', $initProgramId)->where('status', 1)->count() < 1 ? true : false;
-                    
                     $initProgramName = $initialProgram->name;
-    
-                    $lastGroupId = $leadTracking->where('initialprogram_id', $initProgramId)->max('group_id');
+                    
+                    $lastGroupId = $leadTracking->where('pivot.initialprogram_id', $initProgramId)->max('pivot.group_id');
+                    if (!isset($lastGroupId))
+                        $lastGroupId = $group_id_with_label;
+                    
+                        
+                    $programLeadTracking = $leadTracking->where('pivot.type', 'Program')->where('pivot.group_id', $lastGroupId)->first();
 
-                    $programLeadTracking = $leadTracking->where('type', 'Program')->where('group_id', $lastGroupId)->first();
-                    $statusLeadTracking = $leadTracking->where('type', 'Lead')->where('group_id', $lastGroupId)->first();
+                    $statusLeadTracking = $leadTracking->where('pivot.type', 'Lead')->where('pivot.group_id', $lastGroupId)->first();
 
-                    # Check Program
-                    $programBuckets = DB::table('tbl_program_buckets_params')->leftJoin('tbl_param_lead', 'tbl_param_lead.id', '=', 'tbl_program_buckets_params.param_id')->where('tbl_program_buckets_params.initialprogram_id', $initProgramId)->where('tbl_param_lead.value', 1)->orderBy('tbl_program_buckets_params.id', 'asc')->get();
-    
-                    $total_result = 0;
-    
-                    if ($recalculate == false && $triggerUpdate == false && $newClient == false){
+                    # check if the data on tbl_client_lead_tracking doesnt have status active (1)
+                    # meaning if there is no active status
+                    # then it means, set trigger update  as true so the system should be running for these clients
+                    $triggerUpdate = $leadTracking->where('pivot.initialprogram_id', $initProgramId)->where('pivot.status', 1)->count() < 1 ? true : false;
+                    
+                    if ($recalculate == false && $triggerUpdate == false && $newClient == false)
                         continue;
-                    }
-    
-    
-                    foreach ($programBuckets as $programBucket) {
-                        $programBucketId = $programBucket->bucket_id;
-                        $paramName = $programBucket->name;
-                        $weight = $programBucket->{$weight_attribute_name};
-    
-                        switch ($paramName) {
-                            case "School":
-                                $field = "school_categorization";
-                                $value_of_field = $clientData->{$field};
-    
-                                if ($clientData->is_funding != null && $clientData->is_funding == 1) {
-                                    switch ($clientData->type_school) {
-                                        case 'Home Schooling':
-                                            $value_of_field = 4;
-                                            break;
-                                        case 'National Private':
-                                            $value_of_field = 6;
-                                            break;
-                                        case 'National':
-                                            $value_of_field = 8;
-                                            break;
-                                    }
-                                }
-    
-                                # find value from library
-                                $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $programBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
-    
-                                $sub_result = ($weight / 100) * $value_from_library;
-                                break;
-    
-                            case "Grade":
-                                $field = "grade_categorization";
-                                $value_of_field = $clientData->{$field};
-    
-                                # find value from library
-                                $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $programBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
-    
-                                $sub_result = ($weight / 100) * $value_from_library;
-                                break;
-    
-                            case "Destination_country":
-                                $field = "country_categorization";
-                                $value_of_field = $clientData->{$field};
-    
-                                if ($clientData->is_funding != null && $clientData->is_funding == 1 && $value_of_field == 8) {
-                                    $value_of_field = 9;
-                                }
-    
-                                # find value from library
-                                $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $programBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
-    
-                                $sub_result = ($weight / 100) * $value_from_library;
-                                break;
-    
-                            case "Status":
-                                # ini berlaku utk menentukan hot warm and cold
-                                # bisa dikonfirmasi kembali ke ka Hafidz
-                                break;
-    
-                            case "Major":
-                                $field = "major_categorization";
-                                $value_of_field = $clientData->{$field};
-    
-                                # find value from library
-                                $value_from_library = DB::table('tbl_program_lead_library')->where('programbucket_id', $programBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
-    
-                                $sub_result = ($weight / 100) * $value_from_library;
-                                break;
-    
-                            case "Priority":
-                                switch ($initProgramName) {
-                                    case "Admission Mentoring":
-                                        $value_from_library = 1;
-                                        $sub_result = ($weight / 100) * 1;
-                                        break;
-    
-                                    case "Experiential Learning":
-                                        $value_from_library = 0.75;
-                                        $sub_result = ($weight / 100) * 0.75;
-                                        break;
-    
-                                    case "Academic Performance (SAT)":
-                                        $value_from_library = 0.50;
-                                        $sub_result = ($weight / 100) * 0.50;
-                                        break;
-    
-                                    case "Academic Performance (Academic Tutoring)":
-                                        $value_from_library = 0.25;
-                                        $sub_result = ($weight / 100) * 0.25;
-                                        break;
-                                }
-                                break;
-    
-                            // case "Seasonal":
-                            //     # pertama buat view table seasonal
-                            //     # yg isinya adalah event / program apa saja yang akan diadakan dalam 4/6 bulan ke depan
-                            //     # lalu apabila ada seasonal program maka scorenya 1 
-                            //     # yg dimana 1 ini akan dikalikan dengan weight nya (contoh : 10%)
-                            //     # masukkan 10% ini ke dalam variable sub_result
-                            //     # find value from library
-    
-    
-                            //     $checkSeasonal = DB::table('tbl_seasonal_lead')->where('initialprogram_id', $initProgramId)->whereBetween(
-                            //         'start',
-                            //         [Carbon::now(), Carbon::now()->addMonths(6)->toDateString()]
-                            //     )->first();
-    
-                            //     $sub_result = ($weight / 100) * 0;
-                            //     $value_from_library = 0;
-    
-                            //     if (isset($checkSeasonal)) {
-                            //         $sub_result = ($weight / 100) * 1;
-                            //         $value_from_library = 1;
-                            //     } else {
-                            //         switch ($initProgramName) {
-                            //             case "Admission Mentoring":
-                            //                 $sub_result = ($weight / 100) * 1;
-                            //                 $value_from_library = 1;
-                            //                 break;
-    
-                            //             case "Academic Performance (Academic Tutoring)":
-                            //                 $sub_result = ($weight / 100) * 1;
-                            //                 $value_from_library = 1;
-                            //                 break;
-                            //         }
-                            //         break;
-                            //     }
-                            //     break;
-    
-                            case "Already_joined":
-                                # buat function 
-                                # utk melakukan pengecekan berdasarkan initial program dan initial sub program
-                                # (contoh : sedang melakukan pengecekan di program Experiential Learning
-                                # maka, gunakan id initial program dan cari melalui init sub program utk mendapatkan
-                                # client program yg memiliki sub program tsb dari tbl_init_prog_sub.
-                                # jika count > 0 maka asumsikan sudah pernah join maka beri nilai 0 > bisa dikonfirmasi ke ka Hafidz lagi 
-                                # apakah yg sudah pernah join diberi nilai 0 apa 1
-    
-                                $subprog_id = DB::table('tbl_initial_program_lead')->select('tbl_sub_prog.id as sub_id')
-                                    ->join('tbl_initial_prog_sub_lead', 'tbl_initial_prog_sub_lead.initialprogram_id', '=', 'tbl_initial_program_lead.id')
-                                    ->join('tbl_sub_prog', 'tbl_sub_prog.id', '=', 'tbl_initial_prog_sub_lead.subprogram_id')
-                                    ->where('tbl_initial_program_lead.id', $initProgramId)->get()->pluck('sub_id');
-    
-                                $joined = DB::table('tbl_client_prog')->select(DB::raw('COUNT(*) as count'))
-                                    ->join('tbl_prog', 'tbl_prog.prog_id', '=', 'tbl_client_prog.prog_id')
-                                    ->join('tbl_sub_prog', 'tbl_prog.sub_prog_id', '=', 'tbl_sub_prog.id')
-                                    ->where('tbl_client_prog.client_id', $clientData->id)
-                                    ->where('tbl_client_prog.status', 1)
-                                    ->whereIn('tbl_sub_prog.id', $subprog_id)->get()->pluck('count');
-    
-                                $sub_result = ($weight / 100) * 1;
-                                $value_from_library = 1;
-    
-                                if ($joined->first() > 0) {
-                                    $sub_result = ($weight / 100) * 0;
-                                    $value_from_library = 0;
-                                }
-    
-                                break;
-                        }
-    
-    
-                        $total_result += $sub_result;
-    
-                        switch ($initProgramName) {
-                            case "Admission Mentoring":
-                                $spesificConcerns->where('main_prog_id', 1)->first() != null ? $total_result = 1 : null;
-                                break;
-    
-                            case "Experiential Learning":
-                                $spesificConcerns->where('main_prog_id', 2)->first() != null ? $total_result = 0.95 : null;
-                                break;
-    
-                            case "Academic Performance (SAT)":
-                                // join tbl sub prog -> where sub prog name like SAT%
-                                $spesificConcerns->where('tbl_sub_prog.sub_prog_name', 'like', 'SAT%')->count() > 0 ? $total_result = 0.9 : null;
-                                break;
-    
-                            case "Academic Performance (Academic Tutoring)":
-                                // join tbl sub prog -> where sub prog name = Academic Tutoring
-                                $spesificConcerns->where('tbl_sub_prog.sub_prog_name', 'Academic Tutoring')->first() != null ? $total_result = 0.85 : null;
-                                break;
-                        }
-    
-                        $programScore = $total_result;
-    
-                        // $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
-                    }
-                    // $this->info('Total dari program : ' . $initProgramName . ' menghasilkan score : ' . $total_result);
-                    // $this->info('');
-    
-                    // $this->info('============= Lead ==========');
-    
-                    $programBucketDetails = [
-                        'group_id' => $group_id_with_label,
-                        'client_id' => $clientData->id,
-                        'initialprogram_id' => $initProgramId,
-                        'type' => 'Program',
-                        'total_result' => $total_result,
-                        'status' => 1,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
-                    ];
-    
-                    # end check program
-    
-                    # Check Lead
-                    $leadBuckets = DB::table('tbl_lead_bucket_params')->leftJoin('tbl_param_lead', 'tbl_param_lead.id', '=', 'tbl_lead_bucket_params.param_id')->where('tbl_lead_bucket_params.initialprogram_id', $initProgramId)->where('tbl_param_lead.value', 1)->orderBy('tbl_lead_bucket_params.id', 'asc')->get();
-    
-                    $total_result = 0;
-                    foreach ($leadBuckets as $leadBucket) {
-                        $leadBucketId = $leadBucket->bucket_id;
-                        $paramName = $leadBucket->name;
-                        $weight = $leadBucket->{$weight_attribute_name};
-    
-                        switch ($paramName) {
-                            case "School":
-                                $field = "school_categorization";
-                                $value_of_field = $clientData->{$field};
-    
-                                # find value from library
-                                $value_from_library = DB::table('tbl_program_lead_library')->where('leadbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
-    
-                                $sub_result = ($weight / 100) * $value_from_library;
-                                break;
-    
-                            case "Grade":
-                                $field = "grade_categorization";
-                                $value_of_field = $clientData->{$field};
-    
-                                # find value from library
-                                $value_from_library = DB::table('tbl_program_lead_library')->where('leadbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
-    
-                                $sub_result = ($weight / 100) * $value_from_library;
-                                break;
-    
-                            case "Destination_country":
-                                $field = "country_categorization";
-                                $value_of_field = $clientData->{$field};
-    
-                                # find value from library
-                                $value_from_library = DB::table('tbl_program_lead_library')->where('leadbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
-    
-                                $sub_result = ($weight / 100) * $value_from_library;
-                                break;
-    
-                            case "Status":
-                                # ini berlaku utk menentukan hot warm and cold
-                                # bisa dikonfirmasi kembali ke ka Hafidz
-                                $field = "tbl_status_categorization_lead";
-    
-                                $value_of_field = 2;
-                                if (isset($clientData->register_as)) {
-    
-                                    switch ($clientData->register_as) {
-                                        case 'student':
-                                            $value_of_field = 2; # Student
-                                            break;
-                                        case 'parent':
-                                            $value_of_field = 1; # Parent
-                                            break;
-                                    }
-                                }
-    
-    
-                                # find value from library
-                                $value_from_library = DB::table('tbl_program_lead_library')->where('leadbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
-    
-                                $sub_result = ($weight / 100) * $value_from_library;
-                                break;
-    
-                            case "Major":
-                                $field = "major_categorization";
-                                $value_of_field = $clientData->{$field};
-    
-                                # find value from library
-                                $value_from_library = DB::table('tbl_program_lead_library')->where('leadbucket_id', $leadBucketId)->where('value_category', $value_of_field)->pluck($type)->first();
-    
-                                $sub_result = ($weight / 100) * $value_from_library;
-                                break;
-                        }
-    
-                        $total_result += $sub_result / 2;
-    
-                        if ($programScore <= 0.34) {
-                            $total_result = 0;
-                        } else if ($programScore >= 0.35 && $clientData->lead_source == 'Referral') {
-                            $total_result = 1;
-                        }
-    
-                        $leadScore = $total_result;
-    
-                        // $this->info($initProgramName . ' dengan param : ' . $paramName . ' menghasilkan : ' . $value_from_library . ' in percent : ' . $sub_result . '%');
-                    }
-    
-                    $leadBucketDetails = [
-                        'group_id' => $group_id_with_label,
-                        'client_id' => $clientData->id,
-                        'initialprogram_id' => $initProgramId,
-                        'type' => 'Lead',
-                        'total_result' => $total_result,
-                        'status' => 1,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
-                    ];
-    
-                    # end check Lead
-    
-                    $this->info($programLeadTracking);
+
+                    # start calculate program
+                    # in order to get score for each initial program which is (adm mentoring, exp learning, sat, acad)
+                    $getProgramBucketDetails = $this->getProgramBucket($initialProgram, $weight_attribute_name, $client, $type, $initProgramId, $initProgramName, $group_id_with_label);
+                    $programBucketDetails = $getProgramBucketDetails['details'];
+                    $programScore = $getProgramBucketDetails['program_score'];
+
+    
+                    # start calculate leads
+                    $getLeadBucketDetails = $this->getLeadBucket($initialProgram, $weight_attribute_name, $client, $type, $programScore, $initProgramId, $group_id_with_label);
+                    $leadBucketDetails = $getLeadBucketDetails['details'];
+                    $leadScore = $getLeadBucketDetails['lead_score'];
+                    
+    
+                    # store / update the data program & lead scores information
                     if ($recalculate == true) {
+
                         if ($this->comparison($statusLeadTracking->total_result, $leadScore) || $this->comparison($programLeadTracking->total_result, $programScore)) {
-    
+
+
                             # Program
-                            $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programLeadTracking->id, ['status' => 0, 'reason_id' => 122]);
+                            $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programLeadTracking->pivot->id, ['status' => 0, 'reason_id' => 122]);
                             $this->clientLeadTrackingRepository->createClientLeadTracking($programBucketDetails);
     
                             #lead
-                            $this->clientLeadTrackingRepository->updateClientLeadTrackingById($statusLeadTracking->id, ['status' => 0, 'reason_id' => 122]);
+                            $this->clientLeadTrackingRepository->updateClientLeadTrackingById($statusLeadTracking->pivot->id, ['status' => 0, 'reason_id' => 122]);
                             $this->clientLeadTrackingRepository->createClientLeadTracking($leadBucketDetails);
-                        }
-                    } else {
-                        if($triggerUpdate == true && $newClient == false){
+
                             
-                            if($this->comparison($statusLeadTracking->total_result, $leadScore) || $this->comparison($programLeadTracking->total_result, $programScore)){
-                                
+                        }
+
+                    } else {
+
+                        if ($triggerUpdate == true && $newClient == false){
+
+                            if ($this->comparison($statusLeadTracking->total_result, $leadScore) || $this->comparison($programLeadTracking->total_result, $programScore)){
+
                                 # Program
                                 $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programLeadTracking->id, ['status' => 0, 'reason_id' => 123]);
                                 $this->clientLeadTrackingRepository->createClientLeadTracking($programBucketDetails);
@@ -443,6 +165,7 @@ class AutomatedDeterminedHotLeads extends Command
                                 $this->clientLeadTrackingRepository->updateClientLeadTrackingById($statusLeadTracking->id, ['status' => 1, 'updated_at' => Carbon::now()]);
                             }
                         }else{
+
                             $this->clientLeadTrackingRepository->createClientLeadTracking($programBucketDetails);
                             $this->clientLeadTrackingRepository->createClientLeadTracking($leadBucketDetails);
                         }
@@ -468,18 +191,397 @@ class AutomatedDeterminedHotLeads extends Command
         return Command::SUCCESS;
     }
 
+    public function getProgramBucket(
+                $initialProgram,
+                $weight_attribute_name,
+                $client,
+                $type,
+                $initProgramId,
+                $initProgramName,
+                $group_id_with_label
+            )
+    {
+        
+        $total_result = 0;
+        $isFunding = $client->is_funding;
+
+        # get client interest programs as specific concerns
+        # meaning that the initial program that exist on interest programs
+        # will get 1 point (assuming they are valid to join the initial program ex: admission mentoring)
+        $specificConcerns = $client->interestPrograms;
+
+        # get all params of initial program
+        $programBuckets = $initialProgram->programBucketParams()->where('value', 1)->orderBy('tbl_program_buckets_params.id', 'asc')->get();
+    
+        foreach ($programBuckets as $programBucket) {
+                        
+            $programBucketId = $programBucket->bucket_id;
+            $paramName = $programBucket->name;
+            $weight = $programBucket->{$weight_attribute_name};
+
+            switch ($paramName) {
+                case "School":
+                    $field = "school_categorization";
+                    $value_of_field = $client->{$field};
+
+                    if ($isFunding != null && $isFunding == 1) {
+                        switch ($client->type_school) {
+                            case 'Home Schooling':
+                                $value_of_field = 4;
+                                break;
+                            case 'National Private':
+                                $value_of_field = 6;
+                                break;
+                            case 'National':
+                                $value_of_field = 8;
+                                break;
+                        }
+                    }
+
+                    # find value from library
+                    $value_from_library = ProgramLeadLibrary::
+                                                where('programbucket_id', $programBucketId)->
+                                                where('value_category', $value_of_field)->
+                                                pluck($type)->first();
+
+                    $sub_result = ($weight / 100) * $value_from_library;
+                    break;
+
+                case "Grade":
+                    $field = "grade_categorization";
+                    $value_of_field = $client->{$field};
+
+                    # find value from library
+                    $value_from_library = ProgramLeadLibrary::
+                                                where('programbucket_id', $programBucketId)->
+                                                where('value_category', $value_of_field)->
+                                                pluck($type)->first();
+                                                
+                    $sub_result = ($weight / 100) * $value_from_library;
+                    break;
+
+                case "Destination_country":
+                    $field = "country_categorization";
+                    $value_of_field = $client->{$field};
+
+                    # if the client has funding but haven't decide the country destination
+                    # then make value of field to be 9
+                    if ($isFunding != null && $isFunding == 1 && $value_of_field == 8) 
+                        $value_of_field = 9; # undecided $
+                    
+
+                    # find value from library
+                    $value_from_library = ProgramLeadLibrary::
+                                                where('programbucket_id', $programBucketId)->
+                                                where('value_category', $value_of_field)->
+                                                pluck($type)->first();
+
+                    $sub_result = ($weight / 100) * $value_from_library;
+                    break;
+
+                case "Status":
+                    # ini berlaku utk menentukan hot warm and cold
+                    # bisa dikonfirmasi kembali ke ka Hafidz
+                    break;
+
+                case "Major":
+                    $field = "major_categorization";
+                    $value_of_field = $client->{$field};
+
+                    # find value from library
+                    $value_from_library = ProgramLeadLibrary::
+                                                where('programbucket_id', $programBucketId)->
+                                                where('value_category', $value_of_field)->
+                                                pluck($type)->first();
+
+                    $sub_result = ($weight / 100) * $value_from_library;
+                    break;
+
+                case "Priority":
+                    switch ($initProgramName) {
+                        case "Admission Mentoring":
+                            $value_from_library = 1;
+                            $sub_result = ($weight / 100) * 1;
+                            break;
+
+                        case "Experiential Learning":
+                            $value_from_library = 0.75;
+                            $sub_result = ($weight / 100) * 0.75;
+                            break;
+
+                        case "Academic Performance (SAT)":
+                            $value_from_library = 0.50;
+                            $sub_result = ($weight / 100) * 0.50;
+                            break;
+
+                        case "Academic Performance (Academic Tutoring)":
+                            $value_from_library = 0.25;
+                            $sub_result = ($weight / 100) * 0.25;
+                            break;
+                    }
+                    break;
+
+                case "Seasonal":
+                    # pertama buat view table seasonal
+                    # yg isinya adalah event / program apa saja yang akan diadakan dalam 4/6 bulan ke depan
+                    # lalu apabila ada seasonal program maka scorenya 1 
+                    # yg dimana 1 ini akan dikalikan dengan weight nya (contoh : 10%)
+                    # masukkan 10% ini ke dalam variable sub_result
+                    # find value from library
+
+                    $checkSeasonal = SeasonalProgram::withAndWhereHas('program.sub_prog.spesificConcern', function ($query) {
+                                $query->where('tbl_initial_program_lead.id', 1);
+                            })->
+                            where(function ($query) {
+                                $query->
+                                    whereBetween('start', [Carbon::now()->toDateString(), Carbon::now()->addMonths(6)->toDateString()])->
+                                    orWhereBetween('end', [Carbon::now()->toDateString(), Carbon::now()->addMonths(6)->toDateString()]);
+                            })->
+                            first();
+
+                    # if there are any seasonal program ahead
+                    # set score to 1
+                    if (!is_null($checkSeasonal)) {
+                        $sub_result = ($weight / 100) * 1;
+                        $value_from_library = 1;
+                        break;
+                    } 
+
+                    # else
+                    # if there are no seasonal program ahead
+                    # set score dependeing what the initial program is used
+                    switch ($initProgramName) {
+                        case "Admission Mentoring":
+                            $sub_result = ($weight / 100) * 1;
+                            $value_from_library = 1;
+                            break;
+
+                        case "Academic Performance (Academic Tutoring)":
+                            $sub_result = ($weight / 100) * 1;
+                            $value_from_library = 1;
+                            break;
+
+                        default:
+                            $sub_result = ($weight / 100) * 0;
+                            $value_from_library = 0;  
+                    }
+                    
+                    break;
+
+                case "Already_joined":
+                    # buat function 
+                    # utk melakukan pengecekan berdasarkan initial program dan initial sub program
+                    # (contoh : sedang melakukan pengecekan di program Experiential Learning
+                    # maka, gunakan id initial program dan cari melalui init sub program utk mendapatkan
+                    # client program yg memiliki sub program tsb dari tbl_init_prog_sub.
+                    # jika count > 0 maka asumsikan sudah pernah join maka beri nilai 0 > bisa dikonfirmasi ke ka Hafidz lagi 
+                    # apakah yg sudah pernah join diberi nilai 0 apa 1
+
+                    $subprog_id = $initialProgram->sub_prog()->pluck('tbl_sub_prog.id')->toArray();
+
+                    $joined = ClientProgram::whereHas('program.sub_prog', function ($query) use ($subprog_id) {
+                                $query->whereIn('tbl_sub_prog.id', $subprog_id);
+                            })->
+                            select(DB::raw('COUNT(*) as count'))->
+                            pluck('count');
+
+                    $sub_result = ($weight / 100) * 1;
+                    $value_from_library = 1;
+
+                    if ($joined->first() > 0) {
+                        $sub_result = ($weight / 100) * 0;
+                        $value_from_library = 0;
+                    }
+
+                    break;
+            }
+
+
+            $total_result += $sub_result;
+
+            switch ($initProgramName) {
+                case "Admission Mentoring":
+                    $specificConcerns->where('main_prog_id', 1)->first() != null ? $total_result = 1 : null;
+                    break;
+
+                case "Experiential Learning":
+                    $specificConcerns->where('main_prog_id', 2)->first() != null ? $total_result = 0.95 : null;
+                    break;
+
+                case "Academic Performance (SAT)":
+                    // join tbl sub prog -> where sub prog name like SAT%
+                    $specificConcerns->where('tbl_sub_prog.sub_prog_name', 'like', 'SAT%')->count() > 0 ? $total_result = 0.9 : null;
+                    break;
+
+                case "Academic Performance (Academic Tutoring)":
+                    // join tbl sub prog -> where sub prog name = Academic Tutoring
+                    $specificConcerns->where('tbl_sub_prog.sub_prog_name', 'Academic Tutoring')->first() != null ? $total_result = 0.85 : null;
+                    break;
+            }
+
+            $programScore = $total_result;
+
+        }
+
+        return [
+            'details' => [
+                'group_id' => $group_id_with_label,
+                'client_id' => $client->id,
+                'initialprogram_id' => $initProgramId,
+                'type' => 'Program',
+                'total_result' => $total_result,
+                'status' => 1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            'program_score' => $programScore
+        ];
+    }
+
+    public function getLeadBucket(
+                $initialProgram,
+                $weight_attribute_name,
+                $client,
+                $type,
+                $programScore,
+                $initProgramId,
+                $group_id_with_label
+            )
+    {
+        # Check Lead
+        $leadBuckets = $initialProgram->leadBucketParams()->where('value', 1)->orderBy('tbl_lead_bucket_params.id', 'asc')->get();
+
+        $total_result = 0;
+        foreach ($leadBuckets as $leadBucket) {
+            $leadBucketId = $leadBucket->bucket_id;
+            $paramName = $leadBucket->name;
+            $weight = $leadBucket->{$weight_attribute_name};
+
+            switch ($paramName) {
+                case "School":
+                    $field = "school_categorization";
+                    $value_of_field = $client->{$field};
+
+                    # find value from library
+                    $value_from_library = ProgramLeadLibrary::
+                                                where('leadbucket_id', $leadBucketId)->
+                                                where('value_category', $value_of_field)->
+                                                pluck($type)->first();
+                            
+                    $sub_result = ($weight / 100) * $value_from_library;
+                    break;
+
+                case "Grade":
+                    $field = "grade_categorization";
+                    $value_of_field = $client->{$field};
+
+                    # find value from library
+                    $value_from_library = ProgramLeadLibrary::
+                                                where('leadbucket_id', $leadBucketId)->
+                                                where('value_category', $value_of_field)->
+                                                pluck($type)->first();
+
+                    $sub_result = ($weight / 100) * $value_from_library;
+                    break;
+
+                case "Destination_country":
+                    $field = "country_categorization";
+                    $value_of_field = $client->{$field};
+
+                    # find value from library
+                    $value_from_library = ProgramLeadLibrary::
+                                                where('leadbucket_id', $leadBucketId)->
+                                                where('value_category', $value_of_field)->
+                                                pluck($type)->first();
+
+                    $sub_result = ($weight / 100) * $value_from_library;
+                    break;
+
+                case "Status":
+                    # ini berlaku utk menentukan hot warm and cold
+                    # bisa dikonfirmasi kembali ke ka Hafidz
+                    $field = "tbl_status_categorization_lead";
+
+                    $value_of_field = 2;
+                    if (isset($client->register_as)) {
+
+                        switch ($client->register_as) {
+                            case 'student':
+                                $value_of_field = 2; # Student
+                                break;
+                            case 'parent':
+                                $value_of_field = 1; # Parent
+                                break;
+                        }
+                    }
+
+
+                    # find value from library
+                    $value_from_library = ProgramLeadLibrary::
+                                                where('leadbucket_id', $leadBucketId)->
+                                                where('value_category', $value_of_field)->
+                                                pluck($type)->first();
+
+                    $sub_result = ($weight / 100) * $value_from_library;
+                    break;
+
+                case "Major":
+                    $field = "major_categorization";
+                    $value_of_field = $client->{$field};
+
+                    # find value from library
+                    $value_from_library = ProgramLeadLibrary::
+                                                where('leadbucket_id', $leadBucketId)->
+                                                where('value_category', $value_of_field)->
+                                                pluck($type)->first();
+
+                    $sub_result = ($weight / 100) * $value_from_library;
+                    break;
+            }
+
+            $total_result += $sub_result / 2;
+
+            if ($programScore <= 0.34) {
+                $total_result = 0;
+            } else if ($programScore >= 0.35 && $client->lead_source == 'Referral') {
+                $total_result = 1;
+            }
+
+            $leadScore = $total_result;
+
+            return [
+                'details' => [
+                    'group_id' => $group_id_with_label,
+                    'client_id' => $client->id,
+                    'initialprogram_id' => $initProgramId,
+                    'type' => 'Lead',
+                    'total_result' => $total_result,
+                    'status' => 1,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ],
+                'lead_score' => $leadScore
+            ];
+
+        }
+    }
+
     public function comparison($a, $b)
     {
         if ($a == 0 || $b == 0) {
+
             if (abs(($a - $b)) == 0) {
                 return false;
-            } else {
-                return true;
             }
+                
+            return true;
+            
         }
+
         if (abs(($a - $b) / $b) < 0.00001) {
             return false;
         }
+
         return true;
     }
 }

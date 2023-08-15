@@ -20,6 +20,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 
@@ -100,7 +101,7 @@ class EventController extends Controller
             'event_location',
             'event_startdate',
             'event_enddate',
-            'event_target'
+            'event_target',
         ]);
 
         $employee_id = $request->user_id;
@@ -109,9 +110,18 @@ class EventController extends Controller
         $event_id_without_label = $this->remove_primarykey_label($last_id, 4);
         $event_id_with_label = 'EVT-' . $this->add_digit((int)$event_id_without_label + 1, 4);
         $eventDetails['event_id'] = $event_id_with_label;
+        $fileName = null;
 
         DB::beginTransaction();
         try {
+
+            # upload banner 
+            if ($request->file('event_banner')) {
+                $fileName = time() . '-' . $event_id_with_label .'.'. $request->event_banner->extension();
+                $request->event_banner->storeAs(null, $fileName, 'uploaded_file_event');
+            }
+
+            $eventDetails['event_banner'] = $fileName;
 
             $this->eventRepository->createEvent($eventDetails);
 
@@ -162,6 +172,21 @@ class EventController extends Controller
         DB::beginTransaction();
         try {
 
+            # get existing banner as a file
+            if ($existingBannerName = $request->old_event_banner) {
+                $existingImagePath = storage_path('app/public/uploaded_file/events').'/'.$existingBannerName;
+                if (File::exists($existingImagePath))
+                    File::delete($existingImagePath);
+            }
+
+            # upload banner 
+            if ($request->file('event_banner')) {
+                $fileName = time() . '-' . $eventId .'.'. $request->event_banner->extension();
+                $request->event_banner->storeAs(null, $fileName, 'uploaded_file_event');
+            }
+
+            $newDetails['event_banner'] = $fileName;
+
             $this->eventRepository->updateEvent($eventId, $newDetails);
 
             $this->eventRepository->updateEventPic($eventId, $newPic);
@@ -172,7 +197,7 @@ class EventController extends Controller
 
             DB::rollBack();
             Log::error('Update event failed : ' . $e->getMessage());
-            return Redirect::to('master/event/' . $eventId . '')->withError('Failed to update new event');
+            return Redirect::to('master/event/' . $eventId)->withError('Failed to update new event');
 
         }
 

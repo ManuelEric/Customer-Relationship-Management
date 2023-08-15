@@ -28,6 +28,13 @@ class StoreEventRequest extends FormRequest
         return $this->isMethod('POST') ? $this->store() : $this->update();
     }
 
+    public function attributes()
+    {
+        return [
+            'event_banner' => 'Banner',
+        ];
+    }
+
     protected function store()
     {
         return [
@@ -47,14 +54,17 @@ class StoreEventRequest extends FormRequest
                 },
             ],
             'event_target' => 'required|min:1',
+            'event_banner' => 'required|mimes:jpg|max:5000|image',
         ];
     }
 
     protected function update()
     {
         $eventId = $this->route('event');
+        $newUploadedBanner = $this->input('event_banner');
+        $uploadedBanner = $this->input('old_event_banner');
 
-        return [
+        $rules = [
             'event_title' => 'required|unique:tbl_events,event_title,' . $eventId . ',event_id',
             'event_description' => 'required',
             'event_location' => 'required|max:250',
@@ -69,7 +79,14 @@ class StoreEventRequest extends FormRequest
                         $fail('The submitted pic was not employee is invalid');
                     }
                 },
-            ]
+            ],
+            'event_target' => 'required|min:1',
         ];
+
+        if (!$uploadedBanner && !$newUploadedBanner) {
+            $rules['event_banner'] = 'required';
+        }
+
+        return $rules;
     }
 }

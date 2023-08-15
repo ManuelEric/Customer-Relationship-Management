@@ -56,6 +56,7 @@
                         text: 'Export to Excel',
                     }
                 ],
+                order: [[6, 'desc']],
                 scrollX: true,
                 fixedColumns: {
                     left: (widthView < 768) ? 1 : 2,

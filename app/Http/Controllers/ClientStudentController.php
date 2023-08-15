@@ -105,50 +105,85 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
-        // $new_leads = $this->clientRepository->getNewLeads(false);
-        // return $this->clientRepository->getAllClientStudent()->count();
+        
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
             $asDatatables = true;
+
+            # advanced filter purpose
+            $school_name = $request->get('school_name');
+            $graduation_year = $request->get('graduation_year');
+            $leads = $request->get('lead_source');
+            $initial_programs = $request->get('program_suggest');
+            $status_lead = $request->get('status_lead');
+
+            # array for advanced filter request
+            $advanced_filter = [
+                'school_name' => $school_name,
+                'graduation_year' => $graduation_year,
+                'leads' => $leads,
+                'initial_programs' => $initial_programs,
+                'status_lead' => $status_lead
+            ];
+
             switch ($statusClient) {
 
                     // client/student
                 case "new-leads":
-                    $model = $this->clientRepository->getNewLeads($asDatatables);
+                    $model = $this->clientRepository->getNewLeads($asDatatables, null, $advanced_filter);
                     break;
 
                 case "potential":
-                    $model = $this->clientRepository->getPotentialClients($asDatatables);
+                    $model = $this->clientRepository->getPotentialClients($asDatatables, null, $advanced_filter);
                     break;
 
                 case "mentee":
-                    $model = $this->clientRepository->getExistingMentees($asDatatables);
+                    $model = $this->clientRepository->getExistingMentees($asDatatables, null, $advanced_filter);
                     break;
 
                 case "non-mentee":
-                    $model = $this->clientRepository->getExistingNonMentees($asDatatables);
+                    $model = $this->clientRepository->getExistingNonMentees($asDatatables, null, $advanced_filter);
                     break;
 
                 default:
-                    $model = $this->clientRepository->getAllClientStudent();
+                    $model = $this->clientRepository->getAllClientStudent($advanced_filter);
             }
             
             return $this->clientRepository->getDataTables($model);
         }
 
         $reasons = $this->reasonRepository->getReasonByType('Hot Lead');
+
+        # for advance filter purpose
         $schools = $this->schoolRepository->getAllSchools();
         $parents = $this->clientRepository->getAllClientByRole('Parent');
-        $leads = $this->leadRepository->getAllMainLead();
+        $max_graduation_year = $this->clientRepository->getMaxGraduationYearFromClient();
+        $main_leads = $this->leadRepository->getAllMainLead();
+        $main_leads = $main_leads->map(function ($item) {
+            return [
+                'main_lead' => $item->main_lead
+            ];
+        });
+        $sub_leads = $this->leadRepository->getAllKOLlead();
+        $sub_leads = $sub_leads->map(function ($item) {
+            return [
+                'main_lead' => $item->sub_lead
+            ];
+        });
+        $leads = $main_leads->merge($sub_leads);
+        $initial_programs = $this->initialProgramRepository->getAllInitProg();        
 
         return view('pages.client.student.index')->with(
             [
                 'reasons' => $reasons,
-                'schools' => $schools,
-                'parents' => $parents,
-                'leads' => $leads,
-                'reasons' => $reasons
+                'advanced_filter' => [
+                    'schools' => $schools,
+                    'parents' => $parents,
+                    'leads' => $leads,
+                    'max_graduation_year' => $max_graduation_year,
+                    'initial_programs' => $initial_programs
+                ]
             ]
         );
     }
@@ -162,13 +197,8 @@ class ClientStudentController extends ClientController
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
         $viewStudent = $this->clientRepository->getViewClientById($studentId);
 
-
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
         $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
-        
-        // dd($historyLeads);
-        // return $historyLeads;
-        // exit;
 
         if (!$student)
             abort(404);

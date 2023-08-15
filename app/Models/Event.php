@@ -31,6 +31,7 @@ class Event extends Model
         'event_enddate',
         'status',
         'event_target',
+        'event_banner',
     ];
 
     protected function eventTarget(): Attribute

@@ -14,6 +14,26 @@
         </a>
     </div>
 
+    @if (isset($event))
+    <div class="modal modal-lg fade" id="imagemodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Banner Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="{{ asset('storage/uploaded_file/events/'.$event->event_banner) }}" alt="" class="w-100">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="row">
         <div class="col-md-4 text-center">
             <div class="card rounded mb-3">
@@ -53,7 +73,7 @@
                 <div class="card-body">
                     <form
                         action="{{ isset($event) ? route('event.update', ['event' => $event->event_id]) : route('event.store') }}"
-                        method="POST">
+                        method="POST" enctype="multipart/form-data">
                         @csrf
                         @if (isset($event))
                             @method('PUT')
@@ -82,7 +102,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-4 mb-2">
+                            <div class="col-md-3 mb-2">
                                 <label>Start Date <sup class="text-warning">*</sup></label>
                                 <input type="datetime-local" name="event_startdate"
                                     value="{{ isset($event->event_startdate) ? $event->event_startdate : old('event_startdate') }}"
@@ -91,7 +111,7 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-4 mb-2">
+                            <div class="col-md-3 mb-2">
                                 <label>End Date <sup class="text-warning">*</sup></label>
                                 <input type="datetime-local" name="event_enddate"
                                     value="{{ isset($event->event_enddate) ? $event->event_enddate : old('event_enddate') }}"
@@ -100,12 +120,32 @@
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
-                            <div class="col-md-4 mb-2">
+                            <div class="col-md-3 mb-2">
                                 <label>Target <sup class="text-warning">*</sup></label>
                                 <input type="number" name="event_target"
                                     value="{{ isset($event->event_target) ? $event->event_target : old('event_target') }}"
                                     class="form-control form-control-sm rounded" {{ $disabled }}>
                                 @error('event_target')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label>Banner <sup class="text-warning">*</sup></label>
+                                <div class="banner-control">
+                                    @if (isset($event->event_banner))
+                                    <div class="form-control form-control-sm d-flex banner-control">
+                                        <a href="#preview-banner-of-{{ $event->event_title }}" data-bs-toggle="modal" data-bs-target="#imagemodal" class="text-decoration-none" alt="{{ $event->event_title }}">Preview</a>
+                                        @if ($disabled == null)
+                                        &nbsp;/&nbsp;
+                                        <a href="#change-banner" id="change-banner" class="text-decoration-none text-danger">Change</a>
+                                        @endif
+                                    </div>
+                                    @else
+                                    <input type="file" class="form-control form-control-sm rounded" name="event_banner" {{ $disabled }}>
+                                    @endif
+                                </div>
+                                <input type="hidden" name="old_event_banner" value="{{ isset($event->event_banner) ? $event->event_banner : null }}">
+                                @error('event_banner')
                                     <small class="text-danger fw-light">{{ $message }}</small>
                                 @enderror
                             </div>
@@ -180,6 +220,11 @@
                 $eventId = $(this).data('event');
                 $schoolId = $(this).data('school');
 
+            })
+
+            $("#change-banner").on('click', function() {
+                
+                $(".banner-control").html('<input type="file" class="form-control form-control-sm rounded" name="event_banner">');
             })
         });
     </script>

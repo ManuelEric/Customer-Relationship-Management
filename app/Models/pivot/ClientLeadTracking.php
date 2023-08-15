@@ -17,6 +17,7 @@ class ClientLeadTracking extends Pivot
      */
     protected $fillable = [
         'client_id',
+        'group_id',
         'initialprogram_id',
         'type',
         'total_result',

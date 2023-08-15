@@ -10,6 +10,7 @@ use App\Interfaces\AssetReturnedRepositoryInterface;
 use App\Interfaces\AssetUsedRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
+use App\Interfaces\ClientLeadRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
@@ -82,6 +83,7 @@ use App\Repositories\AssetReturnedRepository;
 use App\Repositories\AssetUsedRepository;
 use App\Repositories\AxisRepository;
 use App\Repositories\ClientEventRepository;
+use App\Repositories\ClientLeadRepository;
 use App\Repositories\ClientProgramRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientLeadTrackingRepository;
@@ -219,6 +221,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AcadTutorRepositoryInterface::class, AcadTutorRepository::class);
         $this->app->bind(LeadTargetRepositoryInterface::class, LeadTargetRepository::class);
         $this->app->bind(SeasonalProgramRepositoryInterface::class, SeasonalProgramRepository::class);
+        $this->app->bind(ClientLeadRepositoryInterface::class, ClientLeadRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);

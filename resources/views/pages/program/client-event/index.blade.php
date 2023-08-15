@@ -26,8 +26,11 @@
                 </h5>
             </div>
             <div class="col-md-6 d-flex align-items-center gap-2">
-                <select class="select w-100" name="event_name">
+                <select class="select w-100" name="event_name" id="event-name">
                     <option data-placeholder="true"></option>
+                    @foreach ($events as $event)
+                        <option value="{{ $event->event_title }}">{{ $event->event_title }}</option>
+                    @endforeach
                 </select>
 
                 <a href="{{ url('api/download/excel-template/client-event') }}"
@@ -43,7 +46,7 @@
         </div>
     </div>
 
-    @if ($errors->any())
+    {{-- @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
                 @foreach ($errors->all() as $error)
@@ -51,7 +54,7 @@
                 @endforeach
             </ul>
         </div>
-    @endif
+    @endif --}}
 
     <div class="card rounded">
         <div class="card-body">
@@ -133,7 +136,12 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '',
+                ajax: {
+                    url: '',
+                    data: function (params) {
+                        params.event_name = $("#event-name").val()
+                    }
+                },
                 pagingType: window.matchMedia('(max-width: 767px)').matches ? 'full' : 'simple_numbers',
                 columns: [{
                         data: 'clientevent_id',
@@ -250,6 +258,11 @@
                 this.value = status == 1 ? 0 : 1
 
             });
+
+            $("#event-name").on('change', function (e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
         });
     </script>
 
