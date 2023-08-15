@@ -14,12 +14,18 @@ return new class extends Migration
          */
         public function up()
         {
-                DB::statement("
+        DB::statement("
         CREATE OR REPLACE VIEW client_lead AS
         SELECT 
             cl.id,
             CONCAT(cl.first_name, ' ', COALESCE(cl.last_name, '')) as name,
-            cl.st_grade -12 as grade,
+            UpdateGradeStudent (
+                year(CURDATE()),
+                year(cl.created_at),
+                month(CURDATE()),
+                month(cl.created_at),
+                cl.st_grade
+            ) -12 AS grade,
             sc.sch_id as school,
             sc.sch_type as type_school,
             (CASE 

@@ -69,6 +69,13 @@ class AutomatedDeterminedHotLeads extends Command
 
             foreach ($rawData as $client) {
 
+                if ($client->id != 420)
+                    continue;
+
+                # if the client has already graduated
+                # then no need to calculate hot leads
+                $bypass = $client->grade > 0 ? true : false;
+
                 # initialize client variables
                 $type = $client->type; # existing client (new, existing mentee, existing non mentee)
                 $weight_attribute_name = "weight_" . $type;
@@ -83,7 +90,7 @@ class AutomatedDeterminedHotLeads extends Command
     
                 # this condition is to make system run every 1 April & 1 Oktober
                 # 01 April & 01 Oktober
-                if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
+                // if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
                     $recalculate = true;    
     
                 # currently we have 4 initial programs
@@ -92,6 +99,8 @@ class AutomatedDeterminedHotLeads extends Command
                 $initialPrograms = InitialProgram::orderBy('id', 'asc')->get();
 
                 foreach ($initialPrograms as $initialProgram) {
+
+                    $this->info('Program : '. $initialProgram->name);
 
                     $last_id = ClientLeadTracking::max('group_id');
                     $group_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 5) : '00000';
@@ -119,33 +128,41 @@ class AutomatedDeterminedHotLeads extends Command
 
                     # start calculate program
                     # in order to get score for each initial program which is (adm mentoring, exp learning, sat, acad)
-                    $getProgramBucketDetails = $this->getProgramBucket($initialProgram, $weight_attribute_name, $client, $type, $initProgramId, $initProgramName, $group_id_with_label);
+                    $getProgramBucketDetails = $this->getProgramBucket($initialProgram, $weight_attribute_name, $client, $type, $initProgramId, $initProgramName, $group_id_with_label, $bypass);
                     $programBucketDetails = $getProgramBucketDetails['details'];
                     $programScore = $getProgramBucketDetails['program_score'];
                     
                     $this->info('--------------------------------');
 
                     # start calculate leads
-                    $getLeadBucketDetails = $this->getLeadBucket($initialProgram, $weight_attribute_name, $client, $type, $programScore, $initProgramId, $group_id_with_label);
+                    $getLeadBucketDetails = $this->getLeadBucket($initialProgram, $weight_attribute_name, $client, $type, $programScore, $initProgramId, $group_id_with_label, $bypass);
                     $leadBucketDetails = $getLeadBucketDetails['details'];
                     $leadScore = $getLeadBucketDetails['lead_score'];
+                    
                     
                     # store / update the data program & lead scores information
                     if ($recalculate == true) {
 
-                        if ($this->comparison($statusLeadTracking->pivot->total_result, $leadScore) || $this->comparison($programLeadTracking->pivot->total_result, $programScore)) {
-
-
-                            # Program
-                            $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programLeadTracking->pivot->id, ['status' => 0, 'reason_id' => 122]);
+                        if (!isset($statusLeadTracking) && !isset($programLeadTracking)) {
                             $this->clientLeadTrackingRepository->createClientLeadTracking($programBucketDetails);
-    
-                            #lead
-                            $this->clientLeadTrackingRepository->updateClientLeadTrackingById($statusLeadTracking->pivot->id, ['status' => 0, 'reason_id' => 122]);
                             $this->clientLeadTrackingRepository->createClientLeadTracking($leadBucketDetails);
+                        } else {
 
-                            
+                            if ($this->comparison($statusLeadTracking->pivot->total_result, $leadScore) || $this->comparison($programLeadTracking->pivot->total_result, $programScore)) {
+    
+    
+                                # Program
+                                $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programLeadTracking->pivot->id, ['status' => 0, 'reason_id' => 122]);
+                                $this->clientLeadTrackingRepository->createClientLeadTracking($programBucketDetails);
+        
+                                #lead
+                                $this->clientLeadTrackingRepository->updateClientLeadTrackingById($statusLeadTracking->pivot->id, ['status' => 0, 'reason_id' => 122]);
+                                $this->clientLeadTrackingRepository->createClientLeadTracking($leadBucketDetails);
+    
+                                
+                            }
                         }
+
 
                     } else {
 
@@ -198,7 +215,8 @@ class AutomatedDeterminedHotLeads extends Command
                 $type,
                 $initProgramId,
                 $initProgramName,
-                $group_id_with_label
+                $group_id_with_label,
+                $bypass
             )
     {
         
@@ -237,6 +255,9 @@ class AutomatedDeterminedHotLeads extends Command
                                 break;
                         }
                     }
+
+                    $this->info($programBucketId);
+                    $this->info($value_of_field);
 
                     # find value from library
                     $value_from_library = ProgramLeadLibrary::
@@ -356,7 +377,7 @@ class AutomatedDeterminedHotLeads extends Command
                     # if there are no seasonal program ahead
                     # set score dependeing what the initial program is used
                     switch ($initProgramName) {
-                        case "Admission Mentoring":
+                        case "Admissions Mentoring":
                             $sub_result = ($weight / 100) * 1;
                             $value_from_library = 1;
                             break;
@@ -370,6 +391,7 @@ class AutomatedDeterminedHotLeads extends Command
                             $sub_result = ($weight / 100) * 0;
                             $value_from_library = 0;  
                     }
+                    $this->info('seasonal : '.$sub_result);
                     
                     break;
 
@@ -398,6 +420,7 @@ class AutomatedDeterminedHotLeads extends Command
                         $value_from_library = 0;
                     }
 
+                    $this->info('already_joined : '.$sub_result);
                     break;
             }
 
@@ -423,6 +446,8 @@ class AutomatedDeterminedHotLeads extends Command
                     $specificConcerns->where('tbl_sub_prog.sub_prog_name', 'Academic Tutoring')->first() != null ? $total_result = 0.85 : null;
                     break;
             }
+
+            $total_result = $bypass === true ? 0 : $total_result;
 
             $programScore = $total_result;
 
@@ -450,7 +475,8 @@ class AutomatedDeterminedHotLeads extends Command
                 $type,
                 $programScore,
                 $initProgramId,
-                $group_id_with_label
+                $group_id_with_label,
+                $bypass
             )
     {
         # Check Lead
@@ -521,6 +547,8 @@ class AutomatedDeterminedHotLeads extends Command
                         
                     }
 
+                    $this->info($leadBucketId);
+
                     # find value from library
                     $value_from_library = ProgramLeadLibrary::
                                                 where('leadbucket_id', $leadBucketId)->
@@ -554,6 +582,7 @@ class AutomatedDeterminedHotLeads extends Command
                 $total_result = 1;
             }
 
+            $total_result = $bypass === true ? 0 : $total_result;
             $leadScore = $total_result;
 
         }
