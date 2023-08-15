@@ -59,6 +59,7 @@
                 <table class="table table-hover table-striped">
                     <thead>
                         <tr>
+                            <th style="font-size: 13px">No</th>
                             <th style="font-size: 13px">Full Name</th>
                             <th style="font-size: 13px">Lead Source</th>
                             <th style="font-size: 13px">Conversion Lead</th>
@@ -70,6 +71,7 @@
                     <tbody>
                         @foreach ($dataLead as $data)
                             <tr>
+                                <td>{{$loop->iteration}}</td>
                                 <td>{{$data->fullname}}</td>
                                 <td>{{$data->lead_source}}</td>
                                 <td>{{$data->conversion_lead}}</td>
