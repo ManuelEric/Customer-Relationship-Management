@@ -83,7 +83,7 @@ class AutomatedDeterminedHotLeads extends Command
     
                 # this condition is to make system run every 1 April & 1 Oktober
                 # 01 April & 01 Oktober
-                // if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
+                if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
                     $recalculate = true;    
     
                 # currently we have 4 initial programs
@@ -122,18 +122,18 @@ class AutomatedDeterminedHotLeads extends Command
                     $getProgramBucketDetails = $this->getProgramBucket($initialProgram, $weight_attribute_name, $client, $type, $initProgramId, $initProgramName, $group_id_with_label);
                     $programBucketDetails = $getProgramBucketDetails['details'];
                     $programScore = $getProgramBucketDetails['program_score'];
+                    
+                    $this->info('--------------------------------');
 
-    
                     # start calculate leads
                     $getLeadBucketDetails = $this->getLeadBucket($initialProgram, $weight_attribute_name, $client, $type, $programScore, $initProgramId, $group_id_with_label);
                     $leadBucketDetails = $getLeadBucketDetails['details'];
                     $leadScore = $getLeadBucketDetails['lead_score'];
                     
-    
                     # store / update the data program & lead scores information
                     if ($recalculate == true) {
 
-                        if ($this->comparison($statusLeadTracking->total_result, $leadScore) || $this->comparison($programLeadTracking->total_result, $programScore)) {
+                        if ($this->comparison($statusLeadTracking->pivot->total_result, $leadScore) || $this->comparison($programLeadTracking->pivot->total_result, $programScore)) {
 
 
                             # Program
@@ -151,18 +151,18 @@ class AutomatedDeterminedHotLeads extends Command
 
                         if ($triggerUpdate == true && $newClient == false){
 
-                            if ($this->comparison($statusLeadTracking->total_result, $leadScore) || $this->comparison($programLeadTracking->total_result, $programScore)){
+                            if ($this->comparison($statusLeadTracking->pivot->total_result, $leadScore) || $this->comparison($programLeadTracking->pivot->total_result, $programScore)){
 
                                 # Program
-                                $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programLeadTracking->id, ['status' => 0, 'reason_id' => 123]);
+                                $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programLeadTracking->pivot->id, ['status' => 0, 'reason_id' => 123]);
                                 $this->clientLeadTrackingRepository->createClientLeadTracking($programBucketDetails);
     
                                 #lead
-                                $this->clientLeadTrackingRepository->updateClientLeadTrackingById($statusLeadTracking->id, ['status' => 0, 'reason_id' => 123]);
+                                $this->clientLeadTrackingRepository->updateClientLeadTrackingById($statusLeadTracking->pivot->id, ['status' => 0, 'reason_id' => 123]);
                                 $this->clientLeadTrackingRepository->createClientLeadTracking($leadBucketDetails);                            
                             }else{
-                                $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programLeadTracking->id, ['status' => 1, 'updated_at' => Carbon::now()]);
-                                $this->clientLeadTrackingRepository->updateClientLeadTrackingById($statusLeadTracking->id, ['status' => 1, 'updated_at' => Carbon::now()]);
+                                $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programLeadTracking->pivot->id, ['status' => 1, 'updated_at' => Carbon::now()]);
+                                $this->clientLeadTrackingRepository->updateClientLeadTrackingById($statusLeadTracking->pivot->id, ['status' => 1, 'updated_at' => Carbon::now()]);
                             }
                         }else{
 
@@ -214,11 +214,11 @@ class AutomatedDeterminedHotLeads extends Command
         $programBuckets = $initialProgram->programBucketParams()->where('value', 1)->orderBy('tbl_program_buckets_params.id', 'asc')->get();
     
         foreach ($programBuckets as $programBucket) {
-                        
-            $programBucketId = $programBucket->bucket_id;
-            $paramName = $programBucket->name;
-            $weight = $programBucket->{$weight_attribute_name};
 
+            $programBucketId = $programBucket->pivot->bucket_id;
+            $paramName = $programBucket->name;
+            $weight = $programBucket->pivot->{$weight_attribute_name};
+            
             switch ($paramName) {
                 case "School":
                     $field = "school_categorization";
@@ -245,6 +245,7 @@ class AutomatedDeterminedHotLeads extends Command
                                                 pluck($type)->first();
 
                     $sub_result = ($weight / 100) * $value_from_library;
+                    $this->info("school : ".$sub_result);
                     break;
 
                 case "Grade":
@@ -258,6 +259,7 @@ class AutomatedDeterminedHotLeads extends Command
                                                 pluck($type)->first();
                                                 
                     $sub_result = ($weight / 100) * $value_from_library;
+                    $this->info("grade : ".$sub_result);
                     break;
 
                 case "Destination_country":
@@ -277,6 +279,7 @@ class AutomatedDeterminedHotLeads extends Command
                                                 pluck($type)->first();
 
                     $sub_result = ($weight / 100) * $value_from_library;
+                    $this->info("country : ".$sub_result);
                     break;
 
                 case "Status":
@@ -295,11 +298,12 @@ class AutomatedDeterminedHotLeads extends Command
                                                 pluck($type)->first();
 
                     $sub_result = ($weight / 100) * $value_from_library;
+                    $this->info("major : ".$sub_result);
                     break;
 
                 case "Priority":
                     switch ($initProgramName) {
-                        case "Admission Mentoring":
+                        case "Admissions Mentoring":
                             $value_from_library = 1;
                             $sub_result = ($weight / 100) * 1;
                             break;
@@ -319,6 +323,7 @@ class AutomatedDeterminedHotLeads extends Command
                             $sub_result = ($weight / 100) * 0.25;
                             break;
                     }
+                    $this->info("priority : ".$sub_result);
                     break;
 
                 case "Seasonal":
@@ -450,12 +455,12 @@ class AutomatedDeterminedHotLeads extends Command
     {
         # Check Lead
         $leadBuckets = $initialProgram->leadBucketParams()->where('value', 1)->orderBy('tbl_lead_bucket_params.id', 'asc')->get();
-
+        
         $total_result = 0;
         foreach ($leadBuckets as $leadBucket) {
-            $leadBucketId = $leadBucket->bucket_id;
+            $leadBucketId = $leadBucket->pivot->bucket_id;
             $paramName = $leadBucket->name;
-            $weight = $leadBucket->{$weight_attribute_name};
+            $weight = $leadBucket->pivot->{$weight_attribute_name};
 
             switch ($paramName) {
                 case "School":
@@ -469,6 +474,7 @@ class AutomatedDeterminedHotLeads extends Command
                                                 pluck($type)->first();
                             
                     $sub_result = ($weight / 100) * $value_from_library;
+                    $this->info("school : ".$sub_result);
                     break;
 
                 case "Grade":
@@ -482,6 +488,7 @@ class AutomatedDeterminedHotLeads extends Command
                                                 pluck($type)->first();
 
                     $sub_result = ($weight / 100) * $value_from_library;
+                    $this->info("grade : ".$sub_result);
                     break;
 
                 case "Destination_country":
@@ -495,6 +502,7 @@ class AutomatedDeterminedHotLeads extends Command
                                                 pluck($type)->first();
 
                     $sub_result = ($weight / 100) * $value_from_library;
+                    $this->info("country : ".$sub_result);
                     break;
 
                 case "Status":
@@ -502,19 +510,16 @@ class AutomatedDeterminedHotLeads extends Command
                     # bisa dikonfirmasi kembali ke ka Hafidz
                     $field = "tbl_status_categorization_lead";
 
-                    $value_of_field = 2;
-                    if (isset($client->register_as)) {
-
-                        switch ($client->register_as) {
-                            case 'student':
-                                $value_of_field = 2; # Student
-                                break;
-                            case 'parent':
-                                $value_of_field = 1; # Parent
-                                break;
-                        }
+                    switch ($client->register_as) {
+                        default:
+                        case 'student':
+                            $value_of_field = 1; # Student
+                            break;
+                        case 'parent':
+                            $value_of_field = 2; # Parent
+                            break;
+                        
                     }
-
 
                     # find value from library
                     $value_from_library = ProgramLeadLibrary::
@@ -523,6 +528,7 @@ class AutomatedDeterminedHotLeads extends Command
                                                 pluck($type)->first();
 
                     $sub_result = ($weight / 100) * $value_from_library;
+                    $this->info("status : ".$sub_result);
                     break;
 
                 case "Major":
@@ -536,6 +542,7 @@ class AutomatedDeterminedHotLeads extends Command
                                                 pluck($type)->first();
 
                     $sub_result = ($weight / 100) * $value_from_library;
+                    $this->info("major : ".$sub_result);
                     break;
             }
 
@@ -549,21 +556,21 @@ class AutomatedDeterminedHotLeads extends Command
 
             $leadScore = $total_result;
 
-            return [
-                'details' => [
-                    'group_id' => $group_id_with_label,
-                    'client_id' => $client->id,
-                    'initialprogram_id' => $initProgramId,
-                    'type' => 'Lead',
-                    'total_result' => $total_result,
-                    'status' => 1,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ],
-                'lead_score' => $leadScore
-            ];
-
         }
+
+        return [
+            'details' => [
+                'group_id' => $group_id_with_label,
+                'client_id' => $client->id,
+                'initialprogram_id' => $initProgramId,
+                'type' => 'Lead',
+                'total_result' => $total_result,
+                'status' => 1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            'lead_score' => $leadScore
+        ];
     }
 
     public function comparison($a, $b)

@@ -38,8 +38,15 @@ return new class extends Migration
                     WHERE schctg.value COLLATE utf8mb4_unicode_ci = sc.sch_type COLLATE utf8mb4_unicode_ci) as school_categorization,
             (SELECT id FROM tbl_grade_categorization_lead grdctg
                     WHERE grdctg.value = grade) as grade_categorization,
-            (SELECT id FROM tbl_country_categorization_lead ctyctg
-                    WHERE substring_index(substring_index(interested_country, ',', 1), ',', -1) = ctyctg.value) as country_categorization,
+                (CASE
+                        WHEN (SELECT interested_country) IS NULL AND cl.is_funding != 1 THEN 8
+                        WHEN (SELECT interested_country) IS NULL AND cl.is_funding = 1 THEN 9
+                        ELSE 
+                        (SELECT id FROM tbl_country_categorization_lead ctyctg
+                        WHERE substring_index(substring_index(interested_country, ',', 1), ',', -1) = ctyctg.value)
+
+                END) AS country_categorization,
+            
             (SELECT id FROM tbl_major_categorization_lead mjrctg
                     WHERE mjrctg.value = (CASE major WHEN major is null THEN 'Decided' ELSE 'Undecided' END)) as major_categorization,
             
@@ -55,10 +62,6 @@ return new class extends Migration
             ON sc.sch_id = cl.sch_id
         LEFT JOIN tbl_lead l
             ON l.lead_id = cl.lead_id
-
-            WHERE (SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
-            JOIN tbl_roles role ON role.id = clrole.role_id
-            WHERE clrole.client_id = cl.id) NOT IN ('Parent') AND cl.st_statusact = 1
 
             WHERE (SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
             JOIN tbl_roles role ON role.id = clrole.role_id
