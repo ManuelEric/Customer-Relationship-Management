@@ -14,6 +14,7 @@
         </a>
     </div>
 
+    @if (isset($event))
     <div class="modal modal-lg fade" id="imagemodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -31,6 +32,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <div class="row">
         <div class="col-md-4 text-center">

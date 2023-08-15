@@ -18,6 +18,6 @@ class ViewClientLead extends Model
 
     public function leadStatus()
     {
-        return $this->belongsToMany(InitialProgram::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->withPivot('client_id', 'initialprogram_id', 'type', 'total_result', 'status', 'reason_id')->withTimestamps();
+        return $this->belongsToMany(InitialProgram::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->withPivot(['id', 'group_id', 'client_id', 'initialprogram_id', 'type', 'total_result', 'status', 'reason_id'])->withTimestamps();
     }
 }

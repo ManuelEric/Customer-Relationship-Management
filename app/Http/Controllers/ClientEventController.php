@@ -471,9 +471,20 @@ class ClientEventController extends Controller
         $childDetails = [];
         $schoolId = null;
 
-        $requested_event_name = str_replace('&quot;', '"', $request->event_name);
+        $requested_event_name = urldecode(str_replace('&quot;', '"', $request->event_name));
 
-        $event = $this->eventRepository->getEventByName(urldecode($requested_event_name));
+        $event = $this->eventRepository->getEventByName($requested_event_name);
+
+        # attend status
+        # 1 is attending
+        # 0 is join the event 
+        $attend_status = $request->status == "attend" ? 1 : 0;
+
+        # type of event
+        # if the event helds offline then the value will be "offline"
+        # otherwise it will be null
+        # the difference is if event type is "offline" then system will send barcode via mails
+        $event_type = $request->event_type;
 
         // Check existing client by phone number and email
         $choosen_role = $request->role;
@@ -656,11 +667,32 @@ class ClientEventController extends Controller
                 'client_id' => $clientId,
                 'event_id' => $event->event_id,
                 'lead_id' => $request->leadsource,
-                'status' => 0,
+                'status' => $attend_status,
                 'joined_date' => Carbon::now(),
             ];
 
-            $this->clientEventRepository->createClientEvent($clientEventDetails);
+            if ($this->clientEventRepository->createClientEvent($clientEventDetails)) {
+
+                # when client event has successfully stored
+                # continue to send an email
+                # but if the event type is "offline"
+
+                if (isset($event_type) && $event_type == "offline") {
+
+                    $subject = 'Welcome to the '.$requested_event_name.'!';
+                    $mail_resources = 'mail-template.event-registration-success';
+
+                    Mail::send($mail_resources, ['list_contracts' => $list_contracts_expired_soon, 'title' => 'Editor'], function ($message) use ($subject) {
+                        $message->to(env('HR_MAIL'))
+                            ->cc(env('HR_CC'))
+                            ->subject($subject);
+                    });
+                    $progressBar->finish();
+
+                }
+
+
+            }
 
             DB::commit();
         } catch (Exception $e) {
