@@ -64,16 +64,18 @@
                             <th style="font-size: 13px">Conversion Lead</th>
                             <th style="font-size: 13px">Program Name</th>
                             <th style="font-size: 13px">Conversion Time</th>
+                            <th style="font-size: 13px">Follow Up Time</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($dataConversionLead as $data)
+                        @foreach ($dataLead as $data)
                             <tr>
                                 <td>{{$data->fullname}}</td>
                                 <td>{{$data->lead_source}}</td>
                                 <td>{{$data->conversion_lead}}</td>
                                 <td>{{$data->program_name}}</td>
-                                <td>-</td>
+                                <td>{{$data->conversion_time}} Days</td>
+                                <td>{{$data->followup_time}} Days</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -82,11 +84,11 @@
             <div class="card-footer d-flex justify-between align-items-center w-100">
                 <div class="w-50">
                     <small>Average of Follow Up</small>
-                    <h5><i class="bi bi-calendar me-1"></i> 4 Days</h5>
+                    <h5><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? $dataLead->avg('followup_time') : '-' }} Days</h5>
                 </div>
                 <div class="w-50 text-end">
                     <small>Average of Conversion</small>
-                    <h5><i class="bi bi-calendar me-1"></i> 5 Days</h5>
+                    <h5><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? $dataLead->avg('conversion_time') : '-' }} Days</h5>
                 </div>
             </div>
         </div>

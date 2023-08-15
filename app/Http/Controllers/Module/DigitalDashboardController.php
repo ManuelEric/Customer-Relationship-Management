@@ -39,25 +39,28 @@ class DigitalDashboardController extends Controller
         
         # List Lead Source 
         $leads = $this->leadRepository->getActiveLead();
-        $dataLeadSource = $this->leadTargetRepository->getLeadSourceDigital($today);
-        $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
+        $dataLead = $this->leadTargetRepository->getLeadDigital($today, null);
+        // $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
 
 
         $response = [
-            'leadsDigital' => $this->mappingDataLead($leads->where('department_id', 7), $dataLeadSource),
-            'leadsAllDepart' => $this->mappingDataLead($leads, $dataConversionLead),
-            'dataLeadSource' => $dataLeadSource,
-            'dataConversionLead' => $dataConversionLead,
+            'leadsDigital' => $this->mappingDataLead($leads->where('department_id', 7), $dataLead, 'Lead Source'),
+            'leadsAllDepart' => $this->mappingDataLead($leads, $dataLead, 'Conversion Lead'),
+            'dataLead' => $dataLead,
         ];
 
         return $response;
     }
 
-    private function mappingDataLead($leads, $dataLead)
+    private function mappingDataLead($leads, $dataLead, $type)
     {
         $data = new Collection();
         foreach ($leads as $lead) {
-            $count = $dataLead->where('lead_id', $lead->lead_id)->count();
+            if($type == 'Lead Source'){
+                $count = $dataLead->where('lead_source_id', $lead->lead_id)->count();
+            }else if($type == 'Conversion Lead'){
+                $count = $dataLead->where('lead_id', $lead->lead_id)->count();
+            }
 
             $data->push([
                 'lead_id' => $lead->lead_id,

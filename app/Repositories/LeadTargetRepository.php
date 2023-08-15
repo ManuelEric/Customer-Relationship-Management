@@ -339,20 +339,32 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         return $invb2c->sum('total');
     }
 
-    public function getLeadSourceDigital($monthYear)
-    {
-        $clients = $this->getAchievedLeadDigitalByMonth($monthYear);
-        return Client::whereIn('id', $clients->pluck('id'))->get();
-    }
-
-    public function getConversionLeadDigital($monthYear)
+    public function getLeadDigital($monthYear, $prog_id = null)
     {
         $month = date('m', strtotime($monthYear));
         $year = date('Y', strtotime($monthYear));
 
-        $clients = $this->getAchievedInitConsultDigitalByMonth($monthYear);
-        return ViewClientProgram::whereIn('client_id', $clients->pluck('id'))->whereMonth('assessmentsent_date', $month)->whereYear('assessmentsent_date', $year)->get();
-;
-
+        $query = ViewClientProgram::whereMonth('success_date', $month)->whereYear('success_date', $year)->where('lead_from', 'Digital');
+        if ($prog_id != null){
+            $query->where('prog_id', $prog_id);
+        }
+        return $query->get();
     }
+
+//     public function getLeadSourceDigital($monthYear)
+//     {
+//         $clients = $this->getAchievedLeadDigitalByMonth($monthYear);
+//         return Client::whereIn('id', $clients->pluck('id'))->get();
+//     }
+
+//     public function getConversionLeadDigital($monthYear)
+//     {
+//         $month = date('m', strtotime($monthYear));
+//         $year = date('Y', strtotime($monthYear));
+
+//         $clients = $this->getAchievedInitConsultDigitalByMonth($monthYear);
+//         return ViewClientProgram::whereIn('client_id', $clients->pluck('id'))->whereMonth('assessmentsent_date', $month)->whereYear('assessmentsent_date', $year)->get();
+// ;
+
+//     }
 }

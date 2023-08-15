@@ -181,7 +181,7 @@ class DigitalDashboardController extends Controller
         $month = date('Y-m');
         $lead_id = $request->lead;
 
-        $dataLeadSource = $this->leadTargetRepository->getLeadSourceDigital($month)->where('lead_id', $lead_id);
+        $dataLeadSource = $this->leadTargetRepository->getLeadDigital($month, null)->where('lead_source_id', $lead_id);
 
         $html = '';
 
@@ -192,10 +192,10 @@ class DigitalDashboardController extends Controller
         foreach ($dataLeadSource as $data) {
             $html .= '<tr>
                         <td>' . $index++ . '</td>
-                        <td>' . $data->full_name . '</td>
-                        <td>' . ($data->parents->count() > 0 ? $data->parents->first()->full_name : '-'). '</td>
-                        <td>' . ($data->school != null ? $data->school->sch_name : '-') . '</td>
-                        <td>' . $data->graduation_year_real . '</td>
+                        <td>' . $data->fullname . '</td>
+                        <td>' . $data->parent_fullname . '</td>
+                        <td>' . $data->school_name . '</td>
+                        <td>' . $data->client->graduation_year_real . '</td>
                         <td>' . $data->lead_source . '</td>
                     </tr>';
         }
@@ -217,7 +217,7 @@ class DigitalDashboardController extends Controller
         // $html = $lead_id;
         
 
-        $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($month)->where('lead_id', $lead_id);
+        $dataConversionLead = $this->leadTargetRepository->getLeadDigital($month, null)->where('lead_id', $lead_id);
 
         $html = '';
 

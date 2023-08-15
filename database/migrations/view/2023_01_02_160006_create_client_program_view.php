@@ -34,6 +34,12 @@ return new class extends Migration
             CONCAT(u.first_name, " ", u.last_name) AS pic_name,
             u.email as pic_mail,
             (CASE 
+                WHEN cl.department_id = 1 THEN "Sales"
+                WHEN cl.department_id = 2 THEN "Partnership"
+                WHEN cl.department_id = 7 THEN "Digital"
+            END) AS lead_from,            
+            cl.lead_id as lead_source_id,
+            (CASE 
                 WHEN cl.main_lead = "KOL" THEN CONCAT("KOL - ", cl.sub_lead)
                 WHEN cl.main_lead = "External Edufair" THEN CONCAT("External Edufair - ", cedl.title)
                 WHEN cl.main_lead = "All-In Event" THEN CONCAT("All-In Event - ", cec.event_title)
@@ -46,6 +52,8 @@ return new class extends Migration
                 WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
                 ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
             END) AS conversion_lead,
+            DATEDIFF(cp.first_discuss_date, cl.created_at) AS followup_time,
+            DATEDIFF(cp.success_date, cp.first_discuss_date) AS conversion_time,
             (SELECT GROUP_CONCAT(CONCAT(squ.first_name, " ", squ.last_name)) FROM tbl_client_mentor sqcm
                     LEFT JOIN users squ ON squ.id = sqcm.user_id
                     WHERE sqcm.clientprog_id = cp.clientprog_id GROUP BY sqcm.clientprog_id) as mentor_tutor_name        
