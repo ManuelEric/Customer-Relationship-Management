@@ -47,12 +47,22 @@ class InitialProgram extends Model
 
     public function programBucketParams()
     {
-        return $this->belongsToMany(ParamLeads::class, 'tbl_program_buckets_params', 'initialprogram_id', 'param_id')->using(ProgramBucket::class)->withTimestamps();
+        return $this->belongsToMany(ParamLeads::class, 'tbl_program_buckets_params', 'initialprogram_id', 'param_id')->withPivot(['bucket_id',
+        'initialprogram_id',
+        'param_id',
+        'weight_existing_non_mentee',
+        'weight_existing_mentee',
+        'weight_new'])->using(ProgramBucket::class)->withTimestamps();
     }
 
     public function leadBucketParams()
     {
-        return $this->belongsToMany(ParamLeads::class, 'tbl_lead_bucket_params', 'initialprogram_id', 'param_id')->using(LeadBucket::class)->withTimestamps();
+        return $this->belongsToMany(ParamLeads::class, 'tbl_lead_bucket_params', 'initialprogram_id', 'param_id')->withPivot(['bucket_id',
+        'initialprogram_id',
+        'param_id',
+        'weight_existing_non_mentee',
+        'weight_existing_mentee',
+        'weight_new'])->using(LeadBucket::class)->withTimestamps();
     }
 
 }
