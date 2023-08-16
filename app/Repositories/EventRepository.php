@@ -8,6 +8,7 @@ use App\Models\User;
 use DataTables;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class EventRepository implements EventRepositoryInterface
 {
@@ -41,7 +42,21 @@ class EventRepository implements EventRepositoryInterface
 
     public function deleteEvent($eventId)
     {
-        return Event::whereEventId($eventId)->delete();
+        $event = Event::whereEventId($eventId);
+        $eventBanner = $event->event_banner;
+
+        if (!$event->delete()) 
+            return false;
+
+            # if there is event banner
+            # also delete the event banner
+            if ($eventBanner !== NULL) {
+                $existingImagePath = storage_path('app/public/uploaded_file/events').'/'.$eventBanner;
+                if (File::exists($existingImagePath))
+                    File::delete($existingImagePath);
+            }
+
+        return true;
     }
 
     public function createEvent(array $eventDetails)
