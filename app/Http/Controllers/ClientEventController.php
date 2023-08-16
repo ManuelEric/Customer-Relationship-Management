@@ -449,15 +449,17 @@ class ClientEventController extends Controller
     }
 
     public function createFormEmbed(Request $request)
-    {
+    {        
         if ($request->get('event_name') == null) {
-            abort('404');
+            abort(404);
         }
         $leads = $this->leadRepository->getLeadForFormEmbedEvent();
         $schools = $this->schoolRepository->getAllSchools();
 
         $requested_event_name = str_replace('&quot;', '"', $request->event_name);
-        $event = $this->eventRepository->getEventByName(urldecode($requested_event_name));
+        if (!$event = $this->eventRepository->getEventByName(urldecode($requested_event_name)))
+            abort(404);
+        
 
         return view('form-embed.form-events')->with(
             [
@@ -504,10 +506,10 @@ class ClientEventController extends Controller
                 ];
     
                 $phoneParent = $request->fullnumber[0];
-                // $phoneStudent = $childDetails['phone'];
+                $phoneStudent = $childDetails['phone'];
     
                 $existClientParent = $this->checkExistingClient($phoneParent, $request->email[0]);
-                // $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
+                $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
                 break;
 
             case "student":
@@ -587,6 +589,37 @@ class ClientEventController extends Controller
                         $clientMail = $existClientParent['isExist'] ? $existClientParent['mail'] : $newClientParent->mail;
                     }
 
+                    if (!$existClientStudent['isExist']) {
+                        $fullname = explode(' ', $childDetails['name']);
+                        $limit = count($fullname);
+        
+                        $firstname = $lastname = null;
+                        if ($limit > 1) {
+                            $lastname = $fullname[$limit - 1];
+                            unset($fullname[$limit - 1]);
+                            $firstname = implode(" ", $fullname);
+                        } else {
+                            $firstname = implode(" ", $fullname);
+                        }
+        
+                        $st_grade = 12 - ($request->graduation_year - date('Y'));
+        
+        
+                        $clientDetails = [
+                            'first_name' => $firstname,
+                            'last_name' => $lastname,
+                            'mail' => $childDetails['email'],
+                            'phone' => $childDetails['phone'],
+                            'register_as' => $childDetails['register_as'],
+                            'st_grade' => $st_grade,
+                            'graduation_year' => $request->graduation_year,
+                            'lead' => $request->leadsource,
+                            'sch_id' => $schoolId != null ? $schoolId : $request->school,
+                        ];
+        
+                        $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);
+                    }
+
                     break;
 
                 # submit student data
@@ -621,7 +654,7 @@ class ClientEventController extends Controller
         
                         $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);
                         $clientId = $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id;
-                        $clientName = $request->childDetails['name'];
+                        $clientName = $childDetails['name'];
                         $clientMail = $existClientStudent['isExist'] ? $existClientStudent['mail'] : $newClientStudent->mail;
                     }
                     break;
@@ -653,7 +686,7 @@ class ClientEventController extends Controller
     
                         $newClientTeacher = $this->clientRepository->createClient('Teacher/Counselor', $clientDetails);
                         $clientId = $existClientTeacher['isExist'] ? $existClientTeacher['id'] : $newClientTeacher->id;
-                        $clientName = $request->teacherDetails['name'];
+                        $clientName = $teacherDetails['name'];
                         $clientMail = $existClientTeacher['isExist'] ? $existClientTeacher['mail'] : $newClientTeacher->mail;
                     }
                     break;
@@ -684,7 +717,7 @@ class ClientEventController extends Controller
 
             if ($clientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails)) {
 
-                $storedClientEventId = $clientEvent->id;
+                $storedClientEventId = $clientEvent->clientevent_id;
 
                 # when client event has successfully stored
                 # continue to send an email
@@ -718,10 +751,13 @@ class ClientEventController extends Controller
 
         $recipientDetails = $client['clientDetails'];
         
-        $url = url('/').'/handler/event/absence/'.$clientEventId;
+        $url = route('link-event-attend', [
+                        'event_slug' => urlencode($eventName),
+                        'clientevent' => $clientEventId
+                    ]);
 
         try {
-            Mail::send($mail_resources, ['url' => $url, 'client' => $client], function ($message) use ($subject, $recipientDetails) {
+            Mail::send($mail_resources, ['url' => $url, 'client' => $client['clientDetails']], function ($message) use ($subject, $recipientDetails) {
                 $message->to($recipientDetails['mail'], $recipientDetails['name'])
                     ->subject($subject);
             });
@@ -740,8 +776,33 @@ class ClientEventController extends Controller
         ];
 
         return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+    }
 
+    public function handlerScanQrCodeForAttend(Request $request)
+    {
+        # get request
+        $event = $request->event;
+        $clientEventId = $request->clientevent;
 
+        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+        $clientFullname = $clientEvent->client->full_name;
+        $eventName = $clientEvent->event->event_title;
+
+        DB::beginTransaction();
+        try {
+
+            $this->clientEventRepository->updateClientEvent($clientEventId, ['status' => 1]);
+            DB::commit();
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Failed to process the attending request from '.$clientFullname.' ( '.$eventName.' )');
+            return view('form-embed.response.error');
+
+        }
+
+        return view('form-embed.response.success');
     }
 
     public function updateAttendance($id, $status) {

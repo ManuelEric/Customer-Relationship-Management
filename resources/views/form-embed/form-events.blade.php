@@ -67,7 +67,7 @@
 <body>
 </head>
 @php
-    $image = asset('storage/uploaded_file/events/'.$event->event_banner) ?? 'https://picsum.photos/900/200';
+    $image = isset($event->event_banner) ? asset('storage/uploaded_file/events/'.$event->event_banner) : 'https://picsum.photos/900/200';
 @endphp
     <div
         class="min-h-screen flex items-center {{ request()->get('form_type') == 'cta' ? 'bg-form' : 'bg-transparent' }}">
