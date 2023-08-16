@@ -224,7 +224,7 @@
 
             $("#change-banner").on('click', function() {
                 
-                $(".banner-control").html('<input type="file" class="form-control form-control-sm rounded" name="event_banner">');
+                $(".banner-control").html('<input type="hidden" name="change_banner" value="yes"><input type="file" class="form-control form-control-sm rounded" name="event_banner">');
             })
         });
     </script>
