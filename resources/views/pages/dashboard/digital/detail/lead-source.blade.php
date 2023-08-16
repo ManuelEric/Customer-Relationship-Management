@@ -1,7 +1,10 @@
-<div class="row align-items-stretch">
-    <div class="col-md-7">
-        <div class="card">
-            <div class="card-header">
+<div class="card">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="text-success">
+                  <i class="bi bi-check me-1"></i>  Successful Program
+                </h5>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -49,7 +52,6 @@
                   </div>
                 </div>
             </div>
-            <div class="card-footer"></div>
         </div>
     </div>
     <div class="col-md-5">
@@ -94,11 +96,6 @@
                 </div>
             </div>
         </div>
-        {{-- <div class="card">
-            <div class="card-body">
-                <canvas id="digitalLeadSource"></canvas>
-            </div>
-        </div> --}}
     </div>
 </div>
 

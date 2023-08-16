@@ -89,6 +89,13 @@ class UserClient extends Authenticatable
         );
     }
 
+    protected function participated(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getParticipatedFromView($this->id)
+        );
+    }
+
     public function scopeWhereRoleName(Builder $query, $role)
     {
         $query->whereHas('roles', function ($q) use ($role) {
@@ -135,6 +142,11 @@ class UserClient extends Authenticatable
     public function getGraduationYearFromView($id)
     {
         return DB::table('client')->find($id)->graduation_year_real;
+    }
+
+    public function getParticipatedFromView($id)
+    {
+        return DB::table('client')->find($id)->participated;
     }
 
 

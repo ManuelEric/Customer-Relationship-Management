@@ -736,4 +736,20 @@ class ClientProgramController extends Controller
 
         return Redirect::to('client/student/' . $studentId)->withSuccess('Client program has been deleted');
     }
+
+    public function createFormEmbed(Request $request)
+    {
+        if ($request->get('program_name') == null) {
+            abort('404');
+        }
+        $leads = $this->leadRepository->getLeadForFormEmbedEvent();
+        $schools = $this->schoolRepository->getAllSchools();
+
+        return view('form-embed.form-programs')->with(
+            [
+                'leads' => $leads,
+                'schools' => $schools,
+            ]
+        );
+    }
 }
