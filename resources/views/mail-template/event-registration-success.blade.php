@@ -1,5 +1,5 @@
 @extends('layout.email')
-@section('header', 'Contract Expiration Notification - '.$title)
+@section('header', 'Welcome to the Event')
 @section('content')
     <p style="margin:0;">Dear {{ $client['name'] }},</p>
     <p>
