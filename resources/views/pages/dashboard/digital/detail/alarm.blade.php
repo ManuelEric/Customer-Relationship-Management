@@ -16,7 +16,7 @@
                                     role="alert">
                                     <i class="bi bi-exclamation-circle"></i>
                                         <small class="">
-                                            The number of {{ str_replace('_', ' ', $key) }} <b class="bg-white px-2 rounded text-primary">{{ $actualLeadsSales[$key] }}</b> is less
+                                            The number of {{ str_replace('_', ' ', $key) }} <b class="bg-white px-2 rounded text-primary">{{ $actualLeadsDigital[$key] }}</b> is less
                                             than the
                                             target
                                         </small>

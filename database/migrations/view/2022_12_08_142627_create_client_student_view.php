@@ -104,7 +104,8 @@ return new class extends Migration
                     ORDER BY clt2.total_result DESC LIMIT 1) as status_lead,
             (SELECT group_id FROM tbl_client_lead_tracking clt3
                     WHERE clt3.client_id = c.id AND clt3.type = "Program" AND clt3.total_result >= 0.5 AND clt3.status = 1
-                    ORDER BY clt3.total_result DESC LIMIT 1) as group_id
+                    ORDER BY clt3.total_result DESC LIMIT 1) as group_id,
+            checkParticipated (c.id) AS participated
             
         
         FROM tbl_client c

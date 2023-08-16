@@ -88,6 +88,7 @@ class AlarmRepository implements AlarmRepositoryInterface
         # referral
         $actualLeadsReferral = $this->setDataActual($dataReferralTarget);
         $leadReferralTarget = $this->setDataTarget($dataReferralTarget, $actualLeadsReferral);
+        $actualLeadsSales['referral'] = $actualLeadsReferral['lead_needed'];
         
         # digital
         $actualLeadsDigital = $this->setDataActual($dataDigitalTarget);
@@ -123,14 +124,16 @@ class AlarmRepository implements AlarmRepositoryInterface
             if ($today > date('Y-m') . '-' . $midOfMonth) {
                 # sales
                 unset($alarmLeads['sales']['mid']['lead_needed']);
-                $alarmLeads['sales']['end']['revenue'] = $actualLeadsSales['revenue'] < $dataRevenueChart['target'][2] * 50 / 100 ? true : false;
-                $alarmLeads['sales']['end']['IC'] = $actualLeadsSales['IC'] < $leadSalesTarget['IC'] ? true : false;
+                unset($alarmLeads['sales']['mid']['hot_lead']);
+                $alarmLeads['sales']['end']['revenue'] = $dataRevenueChart['actual'][2] < $dataRevenueChart['target'][2] * 50 / 100 ? true : false;
+                $alarmLeads['sales']['end']['ic'] = $actualLeadsSales['ic'] < $leadSalesTarget['ic'] ? true : false;
                 $alarmLeads['sales']['end']['hot_lead'] = $actualLeadsSales['hot_lead'] < 2 * $leadSalesTarget['hot_lead'] ? true : false;
-                $alarmLeads['sales']['end']['revenue'] = $dataRevenueChart['actual'][2] < $this->calculatePercentageLead($dataRevenueChart['target'][2], 50) ? true : false;
-    
+                
                 # digital
-                unset($alarmLeads['digital']['mid']['lead_needed']);
-                $alarmLeads['digital']['end']['hot_lead'] = $actualLeadsDigital['hot_lead'] < (4 * $leadDigitalTarget['hot_leads']) ? true : false;
+                // unset($alarmLeads['digital']['mid']['lead_needed']);
+                unset($alarmLeads['digital']['mid']['hot_lead']);
+                $alarmLeads['digital']['end']['revenue'] = $dataRevenueChart['actual'][2] < $this->calculatePercentageLead($dataRevenueChart['target'][2], 50) ? true : false;
+                $alarmLeads['digital']['end']['hot_lead'] = $actualLeadsDigital['hot_lead'] < (4 * $leadDigitalTarget['hot_lead']) ? true : false;
                 $alarmLeads['digital']['end']['lead_needed'] = $actualLeadsDigital['lead_needed'] < $leadDigitalTarget['lead_needed'] ? true : false;
             }
 

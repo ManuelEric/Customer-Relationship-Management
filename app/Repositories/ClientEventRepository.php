@@ -13,7 +13,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
 
     public function getAllClientEventDataTables($filter = [])
     {
-        $query = ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+        $query = ClientEvent::leftJoin('client', 'client.id', '=', 'tbl_client_event.client_id')
                 ->leftJoin('tbl_events', 'tbl_events.event_id', '=', 'tbl_client_event.event_id')
                 ->leftJoin('tbl_lead', 'tbl_lead.lead_id', '=', 'tbl_client_event.lead_id')
                 ->leftJoin('tbl_eduf_lead', 'tbl_eduf_lead.id', '=', 'tbl_client_event.eduf_id')
@@ -25,18 +25,23 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     // 'tbl_client_event.event_id',
                     // 'tbl_client_event.eduf_id',
                     'tbl_events.event_title as event_name',
+                    'client.participated',
+                    'client.register_as',
+                    'client.mail',
+                    'client.phone',
+                    'client.graduation_year_real',
                     // 'tbl_lead.main_lead',
                     'tbl_client_event.joined_date',
                     'tbl_client_event.status',
                     'tbl_client_event.created_at',
-                    'tbl_client.created_at as client_created_at',
+                    'client.created_at as client_created_at',
                     DB::raw('(CASE
                     WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
                     WHEN tbl_lead.main_lead = "External Edufair" THEN (CASE WHEN tbl_eduf_lead.title != null THEN CONCAT(tbl_eduf_lead.title) ELSE (CASE WHEN tbl_eduf_lead.sch_id IS NULL THEN ceduf.corp_name ELSE seduf.sch_name END)END)
                     WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
                     ELSE tbl_lead.main_lead
                 END) AS conversion_lead'),
-                    DB::raw('CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) as client_name')
+                    'client.full_name as client_name',
                 )->
                 when(!empty($filter['event_name']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('event_title', $filter['event_name']);
@@ -44,12 +49,6 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 orderBy('tbl_client_event.created_at', 'DESC');
 
         return DataTables::eloquent($query)->filterColumn(
-            'client_name',
-            function ($query, $keyword) {
-                $sql = 'CONCAT(tbl_client.first_name," ", COALESCE(tbl_client.last_name, "")) like ?';
-                $query->whereRaw($sql, ["%{$keyword}%"]);
-            }
-        )->filterColumn(
             'conversion_lead',
             function ($query, $keyword) {
                 $sql = '(CASE

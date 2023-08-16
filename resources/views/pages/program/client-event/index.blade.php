@@ -64,6 +64,10 @@
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
                         <th>Event Name</th>
+                        <th>Have you ever participated in ALL-in Event/program before</th>
+                        <th>Audience</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
                         {{-- <th>Lead</th> --}}
                         <th>Conversion Lead</th>
                         <th>Joined Date</th>
@@ -173,16 +177,40 @@
                         name: 'tbl_events.event_title'
                     },
                     {
+                       data: 'participated',
+                    //    defaultContent: '-'
+                    },
+                    {
+                       data: 'register_as',
+                       render: function(data, type, row, meta) {
+                            
+                            if(data === null){
+                                return 'student';
+                            }
+
+                            return data
+                        }
+                    //    defaultContent: '-'
+                    },
+                    {
+                       data: 'mail',
+                       defaultContent: '-'
+                    },
+                    {
+                       data: 'phone',
+                       defaultContent: '-'
+                    },
+                    {
                         data: 'conversion_lead',
                         className: 'text-center'
                         // name: 'tbl_lead.main_lead'
                     },
                     {
-                        data: 'joined_date',
                         className: 'text-center',
+                        data: 'joined_date',
                         render: function(data, type, row, meta) {
+                            
                             return moment(data).format('dddd, DD MMM YYYY');
-
                         }
                     },
                     {
