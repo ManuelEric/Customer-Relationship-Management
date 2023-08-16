@@ -24,8 +24,12 @@ use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
+use App\Interfaces\InitialProgramRepositoryInterface;
+use App\Interfaces\ClientLeadTrackingRepositoryInterface;
+use App\Interfaces\ReasonRepositoryInterface;
 use App\Imports\MasterStudentImport;
 use App\Imports\StudentImport;
+use App\Models\ClientLeadTracking;
 use App\Models\Lead;
 use App\Models\School;
 use App\Models\UserClient;
@@ -60,8 +64,11 @@ class ClientStudentController extends ClientController
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private CountryRepositoryInterface $countryRepository;
     private ClientEventRepositoryInterface $clientEventRepository;
+    private InitialProgramRepositoryInterface $initialProgramRepository;
+    private ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+    private ReasonRepositoryInterface $reasonRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository, CountryRepositoryInterface $countryRepository, ClientEventRepositoryInterface $clientEventRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, SchoolRepositoryInterface $schoolRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, ProgramRepositoryInterface $programRepository, UniversityRepositoryInterface $universityRepository, MajorRepositoryInterface $majorRepository, CurriculumRepositoryInterface $curriculumRepository, TagRepositoryInterface $tagRepository, SchoolCurriculumRepositoryInterface $schoolCurriculumRepository, ClientProgramRepositoryInterface $clientProgramRepository, CountryRepositoryInterface $countryRepository, ClientEventRepositoryInterface $clientEventRepository, InitialProgramRepositoryInterface $initialProgramRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, ReasonRepositoryInterface $reasonRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->schoolRepository = $schoolRepository;
@@ -77,6 +84,9 @@ class ClientStudentController extends ClientController
         $this->clientProgramRepository = $clientProgramRepository;
         $this->countryRepository = $countryRepository;
         $this->clientEventRepository = $clientEventRepository;
+        $this->initialProgramRepository = $initialProgramRepository;
+        $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
+        $this->reasonRepository = $reasonRepository;
     }
 
     # ajax start
@@ -95,7 +105,7 @@ class ClientStudentController extends ClientController
 
     public function index(Request $request)
     {
-
+        
         if ($request->ajax()) {
 
             $statusClient = $request->get('st');
@@ -105,12 +115,16 @@ class ClientStudentController extends ClientController
             $school_name = $request->get('school_name');
             $graduation_year = $request->get('graduation_year');
             $leads = $request->get('lead_source');
+            $initial_programs = $request->get('program_suggest');
+            $status_lead = $request->get('status_lead');
 
             # array for advanced filter request
             $advanced_filter = [
                 'school_name' => $school_name,
                 'graduation_year' => $graduation_year,
                 'leads' => $leads,
+                'initial_programs' => $initial_programs,
+                'status_lead' => $status_lead
             ];
 
             switch ($statusClient) {
@@ -138,9 +152,13 @@ class ClientStudentController extends ClientController
             
             return $this->clientRepository->getDataTables($model);
         }
-        
+
+        $reasons = $this->reasonRepository->getReasonByType('Hot Lead');
+
+        # for advance filter purpose
         $schools = $this->schoolRepository->getAllSchools();
         $parents = $this->clientRepository->getAllClientByRole('Parent');
+        $max_graduation_year = $this->clientRepository->getMaxGraduationYearFromClient();
         $main_leads = $this->leadRepository->getAllMainLead();
         $main_leads = $main_leads->map(function ($item) {
             return [
@@ -153,19 +171,18 @@ class ClientStudentController extends ClientController
                 'main_lead' => $item->sub_lead
             ];
         });
-
         $leads = $main_leads->merge($sub_leads);
-
-        # for advance filter purpose
-        $max_graduation_year = $this->clientRepository->getMaxGraduationYearFromClient();
+        $initial_programs = $this->initialProgramRepository->getAllInitProg();        
 
         return view('pages.client.student.index')->with(
             [
+                'reasons' => $reasons,
                 'advanced_filter' => [
                     'schools' => $schools,
                     'parents' => $parents,
                     'leads' => $leads,
-                    'max_graduation_year' => $max_graduation_year
+                    'max_graduation_year' => $max_graduation_year,
+                    'initial_programs' => $initial_programs
                 ]
             ]
         );
@@ -175,7 +192,13 @@ class ClientStudentController extends ClientController
     {
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
+
+        $initialPrograms = $this->initialProgramRepository->getAllInitProg();
+        $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
         $viewStudent = $this->clientRepository->getViewClientById($studentId);
+
+        $initialPrograms = $this->initialProgramRepository->getAllInitProg();
+        $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
 
         if (!$student)
             abort(404);
@@ -183,6 +206,8 @@ class ClientStudentController extends ClientController
         return view('pages.client.student.view')->with(
             [
                 'student' => $student,
+                'initialPrograms' => $initialPrograms,
+                'historyLeads' => $historyLeads,
                 'viewStudent' => $viewStudent
             ]
         );
@@ -387,8 +412,18 @@ class ClientStudentController extends ClientController
         $data = $this->initializeVariablesForStoreAndUpdate('student', $request);
 
         $studentId = $request->route('student');
+
+        $leadsTracking = $this->clientLeadTrackingRepository->getCurrentClientLead($studentId);
+
         DB::beginTransaction();
         try {
+
+            # update status client lead tracking
+            if($leadsTracking->count() > 0){
+                foreach($leadsTracking as $leadTracking){
+                    $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0]);
+                }
+            }
 
             # case 1
             # create new school
@@ -552,6 +587,113 @@ class ClientStudentController extends ClientController
                 'message' => "Status has been updated",
             ]
         );
+    }
+
+    public function updateLeadStatus(Request $request)
+    {
+        $studentId = $request->clientId;
+        $initprogName = $request->initProg;
+        $leadStatus = $request->leadStatus;
+        $groupId = $request->groupId;
+        $reason = $request->reason_id;
+        $programScore = $leadScore = 0;
+
+        $rules = [
+            'reason_id' => 'required',
+            'leadStatus' => 'required|in:hot,warm,cold',
+        ];
+
+        $validator = Validator::make($request->toArray(), $rules);
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'code' => 400,
+                    'message' => $validator->messages()
+                ]
+            );         
+        }
+
+        if($reason == 'other'){
+            $otherReason = $this->reasonRepository->createReason(['reason_name' => $request->other_reason, 'type' => 'Hot Lead']);
+            $reason = $otherReason->reason_id;
+        }
+
+        $initProg = $this->initialProgramRepository->getInitProgByName($initprogName);
+       
+        $programTracking = $this->clientLeadTrackingRepository->getLatestClientLeadTrackingByType('Program', $groupId);
+        $leadTracking = $this->clientLeadTrackingRepository->getLatestClientLeadTrackingByType('Lead', $groupId);
+
+        switch ($leadStatus) {
+            case 'hot':
+                $programScore = 0.99;
+                $leadScore = 0.99;
+                break;
+
+            case 'warm':
+                $programScore = 0.51;
+                $leadScore = 0.64;
+                break;
+
+            case 'cold':
+                $programScore = 0.49;
+                $leadScore = 0.34;
+                break;
+        }
+
+        $last_id = ClientLeadTracking::max('group_id');
+        $group_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 5) : '00000';
+        $group_id_with_label = 'CLT-' . $this->add_digit($group_id_without_label + 1, 5);
+            
+
+        $programDetails = [
+            'group_id' => $group_id_with_label,
+            'client_id' => $studentId,
+            'initialprogram_id' => $initProg->id,
+            'type' => 'Program',
+            'total_result' => $programScore,
+            'status' => 1
+        ];
+
+        $leadStatusDetails = [
+            'group_id' => $group_id_with_label,
+            'client_id' => $studentId,
+            'initialprogram_id' => $initProg->id,
+            'type' => 'Lead',
+            'total_result' => $leadScore,
+            'status' => 1
+        ];
+        
+        DB::beginTransaction();
+        try {
+
+            $this->clientLeadTrackingRepository->updateClientLeadTrackingById($programTracking->id, ['status' => 0, 'reason_id' => $reason]);
+            $this->clientLeadTrackingRepository->updateClientLeadTrackingById($leadTracking->id, ['status' => 0, 'reason_id' => $reason]);
+            
+            $this->clientLeadTrackingRepository->createClientLeadTracking($programDetails);
+            $this->clientLeadTrackingRepository->createClientLeadTracking($leadStatusDetails);
+            DB::commit();
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Update lead status client failed : ' . $e->getMessage());
+            return response()->json(
+                [
+                    'success' => false,
+                    'code' => 500,
+                    'message' => $e->getMessage()
+                ]
+            );            
+        }
+
+        return response()->json(
+            [
+                'success' => true,
+                'code' => 200,
+                'message' => 'Lead status has been updated',
+            ]
+        );
+        
     }
 
     public function import(StoreImportExcelRequest $request)

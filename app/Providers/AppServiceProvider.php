@@ -6,6 +6,7 @@ use App\Interfaces\MenuRepositoryInterface;
 use App\Models\Department;
 use App\Repositories\MenuRepository;
 use App\Models\User;
+use App\Repositories\AlarmRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
@@ -25,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind('menu-repository-services', MenuRepository::class);
+        $this->app->bind('alarm-repository-services', AlarmRepository::class);
     }
 
     /**
@@ -135,7 +137,9 @@ class AppServiceProvider extends ServiceProvider
                         'isPartnership' => $isPartnership ?? false,
                         'isFinance' => $isFinance ?? false,
                         'loggedIn_user' => $user,
-                        'deptId' => $deptId
+                        'deptId' => $deptId,
+                        // 'countAlarm' => app('alarm-repository-services')->countAlarm(),
+                        // 'notification' => app('alarm-repository-services')->notification(),
                     ]
                 );
             }

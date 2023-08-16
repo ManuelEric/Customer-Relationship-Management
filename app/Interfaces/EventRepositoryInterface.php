@@ -8,6 +8,7 @@ interface EventRepositoryInterface
     public function getAllEvents();
     public function getEventById($eventId);
     public function getEventByName($eventName);
+    public function getEventByMonthyear($monthyear);
     public function deleteEvent($eventId);
     public function createEvent(array $eventDetails);
     public function updateEvent($eventId, array $newDetails);

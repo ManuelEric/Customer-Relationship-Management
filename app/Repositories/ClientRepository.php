@@ -220,6 +220,12 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
+            })->
+            when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
+            })->
+            when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query;
@@ -246,6 +252,12 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
+            })->
+            when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
+            })->
+            when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
@@ -275,6 +287,12 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
+            })->
+            when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
+            })->
+            when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
@@ -311,6 +329,12 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['leads']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('lead_source', $advanced_filter['leads']);
+            })->
+            when(!empty($advanced_filter['initial_programs']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('program_suggest', $advanced_filter['initial_programs']);
+            })->
+            when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');

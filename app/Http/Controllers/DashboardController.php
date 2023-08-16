@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Actions\FetchClientStatus;
+use App\Http\Controllers\Module\AlarmController;
+use App\Http\Controllers\Module\DigitalDashboardController;
 use App\Http\Controllers\Module\SalesDashboardController;
 use App\Http\Controllers\Module\FinanceDashboardController;
 use App\Http\Controllers\Module\PartnerDashboardController;
@@ -20,6 +22,7 @@ use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\UniversityRepositoryInterface;
 use App\Interfaces\PartnerAgreementRepositoryInterface;
 use App\Interfaces\AgendaSpeakerRepositoryInterface;
+use App\Interfaces\AlarmRepositoryInterface;
 use App\Interfaces\PartnerProgramRepositoryInterface;
 use App\Interfaces\SchoolProgramRepositoryInterface;
 use App\Interfaces\ReferralRepositoryInterface;
@@ -28,6 +31,11 @@ use App\Interfaces\InvoiceProgramRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
+use App\Interfaces\ClientLeadTrackingRepositoryInterface;
+use App\Interfaces\TargetSignalRepositoryInterface;
+use App\Interfaces\TargetTrackingRepositoryInterface;
+use App\Interfaces\LeadTargetRepositoryInterface;
+use App\Interfaces\LeadRepositoryInterface;
 use App\Models\Client;
 use App\Models\UserClient;
 use App\Repositories\ClientRepository;
@@ -62,8 +70,14 @@ class DashboardController extends SalesDashboardController
     public InvoiceProgramRepositoryInterface $invoiceProgramRepository;
     public ReceiptRepositoryInterface $receiptRepository;
     public RefundRepositoryInterface $refundRepository;
+    public ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository;
+    public TargetTrackingRepositoryInterface $targetTrackingRepository;
+    public TargetSignalRepositoryInterface $targetSignalRepository;
+    public LeadTargetRepositoryInterface $leadTargetRepository;
+    public LeadRepositoryInterface $leadRepository;
+    public AlarmRepositoryInterface $alarmRepository;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository, RefundRepositoryInterface $refundRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, FollowupRepositoryInterface $followupRepository, CorporateRepositoryInterface $corporateRepository, SchoolRepositoryInterface $schoolRepository, UniversityRepositoryInterface $universityRepository, PartnerAgreementRepositoryInterface $partnerAgreementRepository, AgendaSpeakerRepositoryInterface $agendaSpeakerRepository, PartnerProgramRepositoryInterface $partnerProgramRepository, SchoolProgramRepositoryInterface $schoolProgramRepository, ReferralRepositoryInterface $referralRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, InvoiceB2bRepositoryInterface $invoiceB2bRepository, InvoiceProgramRepositoryInterface $invoiceProgramRepository, ReceiptRepositoryInterface $receiptRepository, SalesTargetRepositoryInterface $salesTargetRepository, ProgramRepositoryInterface $programRepository, ClientEventRepositoryInterface $clientEventRepository, EventRepositoryInterface $eventRepository, RefundRepositoryInterface $refundRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, TargetTrackingRepositoryInterface $targetTrackingRepository, TargetSignalRepositoryInterface $targetSignalRepository, LeadTargetRepositoryInterface $leadTargetRepository, LeadRepositoryInterface $leadRepository, AlarmRepositoryInterface $alarmRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->followupRepository = $followupRepository;
@@ -81,11 +95,17 @@ class DashboardController extends SalesDashboardController
         $this->programRepository = $programRepository;
         $this->clientEventRepository = $clientEventRepository;
         $this->eventRepository = $eventRepository;
+        $this->clientLeadTrackingRepository = $clientLeadTrackingRepository;
+        $this->targetTrackingRepository = $targetTrackingRepository;
 
         $this->invoiceB2bRepository = $invoiceB2bRepository;
         $this->invoiceProgramRepository = $invoiceProgramRepository;
         $this->receiptRepository = $receiptRepository;
         $this->refundRepository = $refundRepository;
+        $this->targetSignalRepository = $targetSignalRepository;
+        $this->leadTargetRepository = $leadTargetRepository;
+        $this->leadRepository = $leadRepository;
+        $this->alarmRepository = $alarmRepository;
     }
 
     public function index(Request $request)
@@ -123,15 +143,21 @@ class DashboardController extends SalesDashboardController
         // $merge_6 = $merge_5->merge($parents);
         // return $merge_6->map(function($item) {
         //     return [
+        //     return [
         //         'id' => $item['id'],
         //         'first_name' => $item['first_name'],
         //         'last_name' => $item['last_name'],
         //     ];
         // })->pluck('id')->toArray(); 
-
+        
+        // $data = (new DigitalDashboardController($this))->get($request);
+        // return $data;
+        // exit;
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
         $data = array_merge($data, (new FinanceDashboardController($this))->get($request));
+        // $data = array_merge($data, (new AlarmController($this))->get($request));
+        // $data = array_merge($data, (new DigitalDashboardController($this))->get($request));
 
         return view('pages.dashboard.index')->with($data);
     }

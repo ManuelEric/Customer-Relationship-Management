@@ -85,14 +85,19 @@ class Client extends Model
     {
         return $this->hasMany(ClientProgram::class, 'client_id', 'id');
     }
-
+    
     public function clientEvent()
     {
         return $this->hasOne(ClientEvent::class, 'event_id', 'id');
     }
-
+    
     public function clientMentor()
     {
         return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'users.id', 'id', 'clientprog_id');
+    }
+
+    public function leadTracking()
+    {
+        return $this->hasMany(ClientLeadTracking::class, 'client_id', 'id');
     }
 }

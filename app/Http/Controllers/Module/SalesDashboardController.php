@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Module;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Modules\GetClientStatusTrait;
 use App\Interfaces\ClientRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class SalesDashboardController extends Controller
@@ -21,6 +22,9 @@ class SalesDashboardController extends Controller
         $this->programRepository = $repositories->programRepository;
         $this->eventRepository = $repositories->eventRepository;
         $this->clientEventRepository = $repositories->clientEventRepository;
+        $this->clientLeadTrackingRepository = $repositories->clientLeadTrackingRepository;
+        $this->targetTrackingRepository = $repositories->targetTrackingRepository;
+        $this->targetSignalRepository = $repositories->targetSignalRepository;
     }
 
     public function get($request)
@@ -71,7 +75,7 @@ class SalesDashboardController extends Controller
 
         # fetching chart data by initial consultation
         $initialConsultation = $this->clientProgramRepository->getInitialConsultationInformation($cp_filter);
-        
+
         # sum total initial consultation by summing the data
         $totalInitialConsultation = array_sum($initialConsultation);
 
@@ -86,7 +90,7 @@ class SalesDashboardController extends Controller
 
         # get initial consultation success percentage 
         $successPercentage = $successProgram == 0 ? 0 : ($successProgram / $totalInitialConsultation) * 100;
-        
+
         # get total revenue of admission mentoring program
         $totalRevenueAdmMentoringByProgramAndMonth = $this->clientProgramRepository->getTotalRevenueByProgramAndMonth(['program' => 'Admissions Mentoring'] + $cp_filter);
 
@@ -179,7 +183,17 @@ class SalesDashboardController extends Controller
 
             # client event tab
             'events' => $events,
-            'conversion_lead_of_event' => $conversion_lead_of_event
+            'conversion_lead_of_event' => $conversion_lead_of_event,
+
+            # alarm
+            // 'salesAlarm' => $salesAlarm,
+            // 'leadSalesTarget' => $leadSalesTarget,
+            // 'leadReferralTarget' => $leadReferralTarget,
+            // 'triggerEvent' => $triggerEvent,
+            // 'actualLeadsSales' => $actualLeadsSales,
+            // 'actualLeadsReferral' => $actualLeadsReferral,
+            // 'dataLeads' => $dataLeads,
+            // 'dataLeadChart' => $dataLeadChart
         ];
     }
 
@@ -188,9 +202,17 @@ class SalesDashboardController extends Controller
         if ($total_data == 0)
             return "0,00";
 
-        if (abs($total_data-$monthly_data) == 0)
+        if (abs($total_data - $monthly_data) == 0)
             return number_format($total_data * 100, 2, ',', '.');
 
-        return number_format(($monthly_data / abs($total_data-$monthly_data)) * 100, 2, ',', '.');
+        return number_format(($monthly_data / abs($total_data - $monthly_data)) * 100, 2, ',', '.');
+    }
+
+    private function calculatePercentageLead($actual, $target)
+    {
+        if ($target == 0)
+            return 0;
+
+        return $actual/$target*100;
     }
 }

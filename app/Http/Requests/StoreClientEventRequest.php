@@ -119,7 +119,7 @@ class StoreClientEventRequest extends FormRequest
                     }
                 }
             ],
-            'st_grade' => 'required_if:status_client,Mentee,Teacher/Conselor',
+            'st_grade' => 'required_if:status_client,Student,Teacher/Conselor',
             'st_graduation_year' => 'nullable',
             'sch_name' => 'sometimes|required_if:sch_id,add-new|unique:tbl_sch,sch_name',
             'sch_type' => 'required_if:sch_id,add-new',

@@ -56,4 +56,9 @@ class ClientEvent extends Model
     {
         return $this->belongsTo(Corporate::class, 'partner_id', 'corp_id');
     }
+
+    public function logMail()
+    {
+        return $this->hasMany(ClientEventLogMail::class, 'clientevent_id', 'clientevent_id');
+    }
 }

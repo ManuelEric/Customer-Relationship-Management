@@ -10,6 +10,7 @@ use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
+use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -28,6 +29,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 
@@ -46,6 +48,7 @@ class ClientEventController extends Controller
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
     protected RoleRepositoryInterface $roleRepository;
+    protected ClientEventLogMailRepositoryInterface $clientEventLogMailRepository;
 
 
     public function __construct(
@@ -58,7 +61,8 @@ class ClientEventController extends Controller
         LeadRepositoryInterface $leadRepository,
         SchoolRepositoryInterface $schoolRepository,
         SchoolCurriculumRepositoryInterface $schoolCurriculumRepository,
-        RoleRepositoryInterface $roleRepository
+        RoleRepositoryInterface $roleRepository,
+        ClientEventLogMailRepositoryInterface $clientEventLogMailRepository
     ) {
         $this->curriculumRepository = $curriculumRepository;
         $this->clientRepository = $clientRepository;
@@ -70,6 +74,7 @@ class ClientEventController extends Controller
         $this->schoolRepository = $schoolRepository;
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
         $this->roleRepository = $roleRepository;
+        $this->clientEventLogMailRepository = $clientEventLogMailRepository;
     }
 
     public function index(Request $request)
@@ -451,10 +456,14 @@ class ClientEventController extends Controller
         $leads = $this->leadRepository->getLeadForFormEmbedEvent();
         $schools = $this->schoolRepository->getAllSchools();
 
+        $requested_event_name = str_replace('&quot;', '"', $request->event_name);
+        $event = $this->eventRepository->getEventByName(urldecode($requested_event_name));
+
         return view('form-embed.form-events')->with(
             [
                 'leads' => $leads,
                 'schools' => $schools,
+                'event' => $event
             ]
         );
     }
@@ -463,41 +472,67 @@ class ClientEventController extends Controller
     public function storeFormEmbed(Request $request)
     {
         $clientEvent = [];
-        $existClientParent = ['isExist' => false];
-        $existClientStudent = ['isExist' => false];
+        $existClientParent = $existClientStudent = $existClientTeacher = ['isExist' => false];
         $childDetails = [];
         $schoolId = null;
 
-        $requested_event_name = str_replace('&quot;', '"', $request->event_name);
+        $requested_event_name = urldecode(str_replace('&quot;', '"', $request->event_name));
 
-        $event = $this->eventRepository->getEventByName(urldecode($requested_event_name));
+        $event = $this->eventRepository->getEventByName($requested_event_name);
+
+        # attend status
+        # 1 is attending
+        # 0 is join the event 
+        $attend_status = $request->status == "attend" ? 1 : 0;
+
+        # type of event
+        # if the event helds offline then the value will be "offline"
+        # otherwise it will be null
+        # the difference is if event type is "offline" then system will send barcode via mails
+        $event_type = $request->event_type;
 
         // Check existing client by phone number and email
-        if ($request->role == 'parent') {
-            $childDetails = [
-                'name' => $request->fullname[1],
-                'email' => null,
-                'phone' => null,
-                'register_as' => 'parent',
-            ];
+        $choosen_role = $request->role;
+        switch ($choosen_role) {
 
-            $phoneParent = $request->fullnumber[0];
-            // $phoneStudent = $childDetails['phone'];
+            case "parent":
+                $childDetails = [
+                    'name' => $request->fullname[1],
+                    'email' => null,
+                    'phone' => null,
+                    'register_as' => 'parent',
+                ];
+    
+                $phoneParent = $request->fullnumber[0];
+                // $phoneStudent = $childDetails['phone'];
+    
+                $existClientParent = $this->checkExistingClient($phoneParent, $request->email[0]);
+                // $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
+                break;
 
-            $existClientParent = $this->checkExistingClient($phoneParent, $request->email[0]);
-            // $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
-        } else {
-            $childDetails = [
-                'name' => $request->fullname[0],
-                'email' => $request->email[0],
-                'phone' => $request->fullnumber[0],
-                'register_as' => 'student',
-            ];
-            $phoneStudent = $childDetails['phone'];
-            $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
+            case "student":
+                $childDetails = [
+                    'name' => $request->fullname[0],
+                    'email' => $request->email[0],
+                    'phone' => $request->fullnumber[0],
+                    'register_as' => 'student',
+                ];
+                $phoneStudent = $childDetails['phone'];
+                $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
+                break;
+
+            case "teacher/counsellor":
+                $teacherDetails = [
+                    'name' => $request->fullname[0],
+                    'email' => $request->email[0],
+                    'phone' => $request->fullnumber[0],
+                    'register_as' => 'teacher/counsellor',
+                ];
+                $phoneTeacher = $teacherDetails['phone'];
+                $existClientTeacher = $this->checkExistingClient($phoneTeacher, $teacherDetails['email']);
+                break;
+
         }
-
-
 
         DB::beginTransaction();
         try {
@@ -520,64 +555,113 @@ class ClientEventController extends Controller
                 $schoolId = $school->sch_id;
             }
 
-            if (!$existClientParent['isExist'] && $request->role == 'parent') {
-                $fullname = explode(' ', $request->fullname[0]);
-                $limit = count($fullname);
+            switch ($choosen_role) {
 
-                $firstname = $lastname = null;
-                if ($limit > 1) {
-                    $lastname = $fullname[$limit - 1];
-                    unset($fullname[$limit - 1]);
-                    $firstname = implode(" ", $fullname);
-                } else {
-                    $firstname = implode(" ", $fullname);
-                }
+                # submit parent data
+                case "parent":
+                    if (!$existClientParent['isExist']) {
+                        $fullname = explode(' ', $request->fullname[0]);
+                        $limit = count($fullname);
+        
+                        $firstname = $lastname = null;
+                        if ($limit > 1) {
+                            $lastname = $fullname[$limit - 1];
+                            unset($fullname[$limit - 1]);
+                            $firstname = implode(" ", $fullname);
+                        } else {
+                            $firstname = implode(" ", $fullname);
+                        }
+        
+                        $clientDetails = [
+                            'first_name' => $firstname,
+                            'last_name' => $lastname,
+                            'mail' => $request->email[0],
+                            'phone' => $phoneParent,
+                            // 'graduation_year' => $request->graduation_year,
+                            'lead' => $request->leadsource,
+                        ];
+        
+                        $newClientParent = $this->clientRepository->createClient(ucwords($choosen_role), $clientDetails);
+                        $clientId = $existClientParent['isExist'] ? $existClientParent['id'] : $newClientParent->id;
+                        $clientName = $request->fullname[0];
+                        $clientMail = $existClientParent['isExist'] ? $existClientParent['mail'] : $newClientParent->mail;
+                    }
 
-                $clientDetails = [
-                    'first_name' => $firstname,
-                    'last_name' => $lastname,
-                    'mail' => $request->email[0],
-                    'phone' => $phoneParent,
-                    // 'graduation_year' => $request->graduation_year,
-                    'lead' => $request->leadsource,
-                ];
+                    break;
 
+                # submit student data
+                case "student":
+                    if (!$existClientStudent['isExist']) {
+                        $fullname = explode(' ', $childDetails['name']);
+                        $limit = count($fullname);
+        
+                        $firstname = $lastname = null;
+                        if ($limit > 1) {
+                            $lastname = $fullname[$limit - 1];
+                            unset($fullname[$limit - 1]);
+                            $firstname = implode(" ", $fullname);
+                        } else {
+                            $firstname = implode(" ", $fullname);
+                        }
+        
+                        $st_grade = 12 - ($request->graduation_year - date('Y'));
+        
+        
+                        $clientDetails = [
+                            'first_name' => $firstname,
+                            'last_name' => $lastname,
+                            'mail' => $childDetails['email'],
+                            'phone' => $childDetails['phone'],
+                            'register_as' => $childDetails['register_as'],
+                            'st_grade' => $st_grade,
+                            'graduation_year' => $request->graduation_year,
+                            'lead' => $request->leadsource,
+                            'sch_id' => $schoolId != null ? $schoolId : $request->school,
+                        ];
+        
+                        $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);
+                        $clientId = $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id;
+                        $clientName = $request->childDetails['name'];
+                        $clientMail = $existClientStudent['isExist'] ? $existClientStudent['mail'] : $newClientStudent->mail;
+                    }
+                    break;
 
-                $newClientParent = $this->clientRepository->createClient(ucwords($request->role), $clientDetails);
+                # submit teacher data
+                case "teacher/counsellor":
+                    if (!$existClientTeacher['isExist']) {
+                        $fullname = explode(' ', $teacherDetails['name']);
+                        $limit = count($fullname);
+    
+                        $firstname = $lastname = null;
+                        if ($limit > 1) {
+                            $lastname = $fullname[$limit - 1];
+                            unset($fullname[$limit - 1]);
+                            $firstname = implode(" ", $fullname);
+                        } else {
+                            $firstname = implode(" ", $fullname);
+                        }
+    
+                        $clientDetails = [
+                            'first_name' => $firstname,
+                            'last_name' => $lastname,
+                            'mail' => $teacherDetails['email'],
+                            'phone' => $teacherDetails['phone'],
+                            'register_as' => $teacherDetails['register_as'],
+                            'lead' => $request->leadsource,
+                            'sch_id' => $schoolId != null ? $schoolId : $request->school,
+                        ];
+    
+                        $newClientTeacher = $this->clientRepository->createClient('Teacher/Counselor', $clientDetails);
+                        $clientId = $existClientTeacher['isExist'] ? $existClientTeacher['id'] : $newClientTeacher->id;
+                        $clientName = $request->teacherDetails['name'];
+                        $clientMail = $existClientTeacher['isExist'] ? $existClientTeacher['mail'] : $newClientTeacher->mail;
+                    }
+                    break;
+
             }
 
-            if (!$existClientStudent['isExist']) {
-                $fullname = explode(' ', $childDetails['name']);
-                $limit = count($fullname);
-
-                $firstname = $lastname = null;
-                if ($limit > 1) {
-                    $lastname = $fullname[$limit - 1];
-                    unset($fullname[$limit - 1]);
-                    $firstname = implode(" ", $fullname);
-                } else {
-                    $firstname = implode(" ", $fullname);
-                }
-
-                $st_grade = 12 - ($request->graduation_year - date('Y'));
-
-
-                $clientDetails = [
-                    'first_name' => $firstname,
-                    'last_name' => $lastname,
-                    'mail' => $childDetails['email'],
-                    'phone' => $childDetails['phone'],
-                    'register_as' => $childDetails['register_as'],
-                    'st_grade' => $st_grade,
-                    'graduation_year' => $request->graduation_year,
-                    'lead' => $request->leadsource,
-                    'sch_id' => $schoolId != null ? $schoolId : $request->school,
-                ];
-
-                $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);
-            }
-
-            if ($request->role == 'parent') {
+            # attaching parent and student
+            if ($choosen_role == 'parent') {
                 if ($existClientParent['isExist'] && $existClientStudent['isExist']) {
                     $this->clientRepository->createManyClientRelation($existClientParent['id'], $existClientStudent['id']);
                 } else if (!$existClientParent['isExist'] && $existClientStudent['isExist']) {
@@ -589,27 +673,75 @@ class ClientEventController extends Controller
                 }
             }
 
-            $clientEvent = [
-                'client_id' => $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id,
+            # initialize variable for client event
+            $clientEventDetails = [
+                'client_id' => $clientId,
                 'event_id' => $event->event_id,
                 'lead_id' => $request->leadsource,
-                'status' => 0,
+                'status' => $attend_status,
                 'joined_date' => Carbon::now(),
             ];
 
+            if ($clientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails)) {
 
-            $this->clientEventRepository->createClientEvent($clientEvent);
+                $storedClientEventId = $clientEvent->id;
+
+                # when client event has successfully stored
+                # continue to send an email
+                # but if the event type is "offline"
+
+                if (isset($event_type) && $event_type == "offline") {
+
+                    $this->sendMailQrCode($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $clientMail, 'name' => $clientName]]);
+
+                }
+
+            }
+
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Store client event embed failed : ' . $e->getMessage() . $e->getLine());
+            Log::error('Store client event embed failed : ' . $e->getMessage() . ' on line '. $e->getLine());
 
-            return Redirect::to('form/event/')->withError('Something went wrong!');
+            return Redirect::to('form/event?event_name='.$request->get('event_name'))->withErrors('Something went wrong. Please try again or contact our administrator.');
         }
 
 
         return Redirect::to('form/thanks');
+    }
+
+    public function sendMailQrCode($clientEventId, $eventName, $client)
+    {
+        $subject = 'Welcome to the '.$eventName.'!';
+        $mail_resources = 'mail-template.event-registration-success';
+
+        $recipientDetails = $client['clientDetails'];
+        
+        $url = url('/').'/handler/event/absence/'.$clientEventId;
+
+        try {
+            Mail::send($mail_resources, ['url' => $url, 'client' => $client], function ($message) use ($subject, $recipientDetails) {
+                $message->to($recipientDetails['mail'], $recipientDetails['name'])
+                    ->subject($subject);
+            });
+            $sent_mail = 1;
+            
+        } catch (Exception $e) {
+            
+            $sent_mail = 0;
+            Log::error('Failed send email to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
+
+        }
+
+        $logDetails = [
+            'clientevent_id' => $clientEventId,
+            'sent_status' => $sent_mail
+        ];
+
+        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+
+
     }
 
     public function updateAttendance($id, $status) {

@@ -17,6 +17,7 @@ class UserClient extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'tbl_client';
+    protected $appends = ['lead_source'];
 
     /**
      * The attributes that should be visible in arrays.
@@ -74,10 +75,24 @@ class UserClient extends Authenticatable
         );
     }
 
+    protected function clientProgs(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->clientProgram != NULL ? $this->clientProgram : NULL
+        );
+    }
+
     protected function graduationYearReal(): Attribute
     {
         return Attribute::make(
             get: fn ($value) => $this->getGraduationYearFromView($this->id)
+        );
+    }
+
+    protected function participated(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->getParticipatedFromView($this->id)
         );
     }
 
@@ -127,6 +142,11 @@ class UserClient extends Authenticatable
     public function getGraduationYearFromView($id)
     {
         return DB::table('client')->find($id)->graduation_year_real;
+    }
+
+    public function getParticipatedFromView($id)
+    {
+        return DB::table('client')->find($id)->participated;
     }
 
 
@@ -196,6 +216,11 @@ class UserClient extends Authenticatable
         return $this->hasMany(ClientProgram::class, 'client_id', 'id');
     }
 
+    public function viewClientProgram()
+    {
+        return $this->hasMany(ViewClientProgram::class, 'client_id', 'id');
+    }
+
     public function clientMentor()
     {
         return $this->hasManyThrough(User::class, ClientProgram::class, 'client_id', 'users.id', 'id', 'clientprog_id');
@@ -203,6 +228,6 @@ class UserClient extends Authenticatable
 
     public function leadStatus()
     {
-        return $this->belongsToMany(ClientLeadTracking::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->use(ClientLeadTracking::class)->withTimestamps();
+        return $this->belongsToMany(InitialProgram::class, 'tbl_client_lead_tracking', 'client_id', 'initialprogram_id')->using(ClientLeadTracking::class)->withTimestamps();
     }
 }

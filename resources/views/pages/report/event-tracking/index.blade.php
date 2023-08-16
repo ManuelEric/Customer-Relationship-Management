@@ -55,7 +55,7 @@
                             title="
                                         @foreach ($existingMentee as $existMentee)
                                             <p>
-                                                <b>{{ $existMentee->client->full_name }}</b> From {{ $existMentee->client->school->sch_name }}
+                                                <b>{{ $existMentee->client->full_name }}</b> From {{ $existMentee->client->school->sch_name ?? '-' }}
                                             </p> @endforeach
                                         ">
                             <div class="">Mentee</div>
@@ -66,7 +66,7 @@
                             title="
                                         @foreach ($existingNonMentee as $existNonMentee)
                                             <p>
-                                                <b>{{ $existNonMentee->client->full_name }}</b> From {{ $existNonMentee->client->school->sch_name }}
+                                                <b>{{ $existNonMentee->client->full_name }}</b> From {{ $existNonMentee->client->school->sch_name ?? '-' }}
                                             </p> @endforeach
                                         ">
                             <div class="">Non Mentee</div>
@@ -77,7 +77,7 @@
                             title="
                                         @foreach ($existingNonClient as $existNonClient)
                                             <p>
-                                                <b>{{ $existNonClient->client->full_name }}</b> From {{ $existNonClient->client->school->sch_name }}
+                                                <b>{{ $existNonClient->client->full_name }}</b> From {{ $existNonClient->client->school->sch_name ?? '-'}}
                                             </p> @endforeach">
                             <div class="">Non Client</div>
                             <span class="badge badge-info">{{ $existingNonClient->count() }}</span>

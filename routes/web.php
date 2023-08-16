@@ -6,6 +6,7 @@ use App\Http\Controllers\SchoolDetailController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Embed\PublicRegistrationController;
 use App\Http\Controllers\ClientEventController;
+use App\Http\Controllers\ClientProgramController;
 use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -51,8 +52,12 @@ Route::resource('user/volunteer', VolunteerController::class);
 Route::get('form/event', [ClientEventController::class, 'createFormEmbed']);
 Route::post('form/events', [ClientEventController::class, 'storeFormEmbed']);
 
+Route::get('form/program', [ClientProgramController::class, 'createFormEmbed']);
+
 Route::get('form/registration', [PublicRegistrationController::class, 'register']);
 Route::post('form/registrations', [PublicRegistrationController::class, 'store'])->name('submit.registration');
+
+
 
 Route::get('form/thanks', function() {
     return view('form-embed.thanks');

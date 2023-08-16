@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Hot_leads_automation;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -106,7 +106,7 @@ class ProgramLeadLibrarySeeder extends Seeder
             [
                 'programbucket_id' => 'B-1',
                 'leadbucket_id' => null,
-                'value_category' => 7,
+                'value_category' => 8,
                 'new' => 0,
                 'existing_mentee' => 0,
                 'existing_non_mentee' => 1,

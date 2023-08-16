@@ -88,7 +88,24 @@ return new class extends Migration
                     WHERE sqac.client_id = c.id GROUP BY sqac.client_id) as abr_country,
             (SELECT GROUP_CONCAT(sqm.name) FROM tbl_dreams_major sqdm
                     JOIN tbl_major sqm ON sqm.id = sqdm.major_id
-                    WHERE sqdm.client_id = c.id GROUP BY sqdm.client_id) as dream_major
+                    WHERE sqdm.client_id = c.id GROUP BY sqdm.client_id) as dream_major,
+            (SELECT name FROM tbl_client_lead_tracking clt
+                    LEFT JOIN tbl_initial_program_lead ipl ON clt.initialprogram_id = ipl.id
+                    WHERE clt.client_id = c.id AND clt.type = "Program" AND clt.total_result >= 0.5 AND clt.status = 1
+                    ORDER BY clt.total_result DESC LIMIT 1) as program_suggest,
+            (SELECT (CASE 
+                        WHEN total_result >= 0.65 THEN "Hot"
+                        WHEN total_result >= 0.35 AND total_result < 0.65 THEN "Warm"
+                        WHEN total_result < 0.35 THEN "Cold"
+                    END)
+                        FROM tbl_client_lead_tracking clt2
+                    LEFT JOIN tbl_initial_program_lead ipl2 ON clt2.initialprogram_id = ipl2.id
+                    WHERE clt2.client_id = c.id AND clt2.type = "Lead" AND ipl2.name = program_suggest AND clt2.status = 1
+                    ORDER BY clt2.total_result DESC LIMIT 1) as status_lead,
+            (SELECT group_id FROM tbl_client_lead_tracking clt3
+                    WHERE clt3.client_id = c.id AND clt3.type = "Program" AND clt3.total_result >= 0.5 AND clt3.status = 1
+                    ORDER BY clt3.total_result DESC LIMIT 1) as group_id,
+            checkParticipated (c.id) AS participated
             
         
         FROM tbl_client c

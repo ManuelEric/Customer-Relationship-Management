@@ -24,6 +24,12 @@ class SeasonalProgram extends Model
         'sales_date'
     ];
 
+    public function scopeWithAndWhereHas($query, $relation, $constraint)
+    {
+        return $query->whereHas($relation, $constraint)
+            ->with([$relation => $constraint]);
+    }
+
     public function initialProgram(): Attribute
     {
         return Attribute::make(
