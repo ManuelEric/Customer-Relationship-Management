@@ -6,93 +6,119 @@
                   <i class="bi bi-check me-1"></i>  Successful Program
                 </h5>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 text-center">
-                        <b class="text-center border-1">Lead Source</b>
-                        <hr>
-                        <ul class="list-group list-group-flush overflow-auto pe-3" style="height: 300px">
-                            @foreach ($leadsDigital->sortByDesc('count') as $lead)
-                                @php
-                                    $lead_id = $lead['lead_id'];
-                                @endphp
-                                <li
-                                    class="d-flex align-items-center justify-content-between pb-1 mb-1 border-bottom border-secondary cursor-pointer"  onclick="checkLeadSourceDetail('{{$lead_id}}')">
-                                    <small>
-                                        {{ $lead['lead_name'] }}
-                                    </small>
-                                    <div class="d-flex justify-content-center align-items-center rounded-circle border border-primary"
-                                        style="width: 25px; height:25px;">
-                                        {{  $lead['count'] }}
-                                    </div>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    <div class="col-md-6 text-center">
-                      <b class="text-center border-1">Conversion Lead</b>
-                      <hr>
-                      <ul class="list-group list-group-flush overflow-auto pe-3" style="height: 300px">
-                          @foreach ($leadsAllDepart->sortByDesc('count') as $lead)
-                                @php
-                                    $lead_id = $lead['lead_id'];
-                                @endphp
-                              <li
-                                  class="d-flex align-items-center justify-content-between pb-1 mb-1 border-bottom border-secondary cursor-pointer" onclick="checkConversionLeadDetail('{{$lead_id}}')">
-                                  <small>
-                                    {{ $lead['lead_name'] }}
-                                </small>
-                                    <div class="d-flex justify-content-center align-items-center rounded-circle border border-primary"
-                                        style="width: 25px; height:25px;">
-                                        {{  $lead['count'] }}
-                                    </div>
-                              </li>
-                          @endforeach
-                      </ul>
-                  </div>
+            <div class="col-md-4 justify-content-end">
+                <div class="d-flex w-100 gap-2">
+                    <select name="program-name" id="" class="select w-100">
+                        <option value=""></option>
+                        @for ($i = 0; $i < 5; $i++)
+                            <option value="{{$i}}">Program {{$i}}</option>
+                        @endfor
+                    </select>
+                    <input type="month" name="month-year" id="" class="form-control form-control-sm">
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-5">
-        <div class="card">
-            <div class="card-header"></div>
-            <div class="card-body overflow-auto" style="height: 340px">
-                <table class="table table-hover table-striped">
-                    <thead>
-                        <tr>
-                            <th style="font-size: 13px">No</th>
-                            <th style="font-size: 13px">Full Name</th>
-                            <th style="font-size: 13px">Lead Source</th>
-                            <th style="font-size: 13px">Conversion Lead</th>
-                            <th style="font-size: 13px">Program Name</th>
-                            <th style="font-size: 13px">Conversion Time</th>
-                            <th style="font-size: 13px">Follow Up Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($dataLead as $data)
-                            <tr>
-                                <td>{{$loop->iteration}}</td>
-                                <td>{{$data->fullname}}</td>
-                                <td>{{$data->lead_source}}</td>
-                                <td>{{$data->conversion_lead}}</td>
-                                <td>{{$data->program_name}}</td>
-                                <td>{{$data->conversion_time}} Days</td>
-                                <td>{{$data->followup_time}} Days</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div class="card-footer d-flex justify-between align-items-center w-100">
-                <div class="w-50">
-                    <small>Average of Follow Up</small>
-                    <h5><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? $dataLead->avg('followup_time') : '-' }} Days</h5>
+        <div class="row align-items-stretch">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"></div>
+                    <div class="card-body overflow-auto" style="height: 340px">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="font-size: 13px">No</th>
+                                    <th style="font-size: 13px">Full Name</th>
+                                    <th style="font-size: 13px">Lead Source</th>
+                                    <th style="font-size: 13px">Conversion Lead</th>
+                                    <th style="font-size: 13px">Program Name</th>
+                                    <th style="font-size: 13px">Follow Up Time</th>
+                                    <th style="font-size: 13px">Conversion Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($dataLead as $data)
+                                    <tr>
+                                        <td>{{$loop->iteration}}</td>
+                                        <td>{{$data->fullname}}</td>
+                                        <td>{{$data->lead_source}}</td>
+                                        <td>{{$data->conversion_lead}}</td>
+                                        <td>{{$data->program_name}}</td>
+                                        <td>{{$data->conversion_time}} Days</td>
+                                        <td>{{$data->followup_time}} Days</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer d-flex justify-between align-items-center w-100">
+                        <div class="w-50">
+                            <small>Average of Follow Up</small>
+                            <h5><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? $dataLead->avg('followup_time') : '-' }} Days</h5>
+                        </div>
+                        <div class="w-50 text-end">
+                            <small>Average of Conversion</small>
+                            <h5><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? $dataLead->avg('conversion_time') : '-' }} Days</h5>
+                        </div>
+                    </div>
                 </div>
-                <div class="w-50 text-end">
-                    <small>Average of Conversion</small>
-                    <h5><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? $dataLead->avg('conversion_time') : '-' }} Days</h5>
+                {{-- <div class="card">
+                    <div class="card-body">
+                        <canvas id="digitalLeadSource"></canvas>
+                    </div>
+                </div> --}}
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 text-center">
+                                <b class="text-center border-1">Lead Source</b>
+                                <hr>
+                                <ul class="list-group list-group-flush overflow-auto pe-3" style="height: 300px">
+                                    @foreach ($leadsDigital->sortByDesc('count') as $lead)
+                                    @php
+                                        $lead_id = $lead['lead_id'];
+                                    @endphp
+                                    <li
+                                        class="d-flex align-items-center justify-content-between pb-1 mb-1 border-bottom border-secondary cursor-pointer"  onclick="checkLeadSourceDetail('{{$lead_id}}')">
+                                        <small>
+                                            {{ $lead['lead_name'] }}
+                                        </small>
+                                        <div class="d-flex justify-content-center align-items-center rounded-circle border border-primary"
+                                            style="width: 25px; height:25px;">
+                                            {{  $lead['count'] }}
+                                        </div>
+                                    </li>
+                                @endforeach
+                                </ul>
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <b class="text-center border-1">Conversion Lead</b>
+                                <hr>
+                                <ul class="list-group list-group-flush overflow-auto pe-3" style="height: 300px">
+                                    @foreach ($leadsAllDepart->sortByDesc('count') as $lead)
+                                            @php
+                                                $lead_id = $lead['lead_id'];
+                                            @endphp
+                                        <li
+                                            class="d-flex align-items-center justify-content-between pb-1 mb-1 border-bottom border-secondary cursor-pointer" onclick="checkConversionLeadDetail('{{$lead_id}}')">
+                                            <small>
+                                                {{ $lead['lead_name'] }}
+                                            </small>
+                                                <div class="d-flex justify-content-center align-items-center rounded-circle border border-primary"
+                                                    style="width: 25px; height:25px;">
+                                                    {{  $lead['count'] }}
+                                                </div>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer"></div>
                 </div>
             </div>
         </div>
@@ -133,6 +159,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
     const digitalLeadSource = document.getElementById('digitalLeadSource');
@@ -207,5 +234,4 @@
         thead.append('<th>Conversion Lead</th>')
         thead.append('<th>Program Name</th>')
     }
-
 </script>

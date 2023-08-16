@@ -138,8 +138,8 @@ class AppServiceProvider extends ServiceProvider
                         'isFinance' => $isFinance ?? false,
                         'loggedIn_user' => $user,
                         'deptId' => $deptId,
-                        // 'countAlarm' => app('alarm-repository-services')->countAlarm(),
-                        // 'notification' => app('alarm-repository-services')->notification(),
+                        'countAlarm' => app('alarm-repository-services')->countAlarm(),
+                        'notification' => app('alarm-repository-services')->notification(),
                     ]
                 );
             }

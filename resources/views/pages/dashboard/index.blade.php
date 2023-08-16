@@ -12,7 +12,7 @@
     {{-- Alert  --}}
 
     {{-- General --}}
-    {{-- @if ($alarmLeads['general']['mid']['event'])
+    @if ($alarmLeads['general']['mid']['event'])
         <div class="row  g-3 mb-1">
             <div class="col-12">
                 <div class="alert bg-danger text-white d-flex align-items-center mb-0 py-2" role="alert">
@@ -23,19 +23,19 @@
                 </div>
             </div>
         </div>
-    @endif --}}
+    @endif 
 
-    {{-- <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-1'}} row-cols-1 g-3 mb-3"> --}}
+     <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-1'}} row-cols-1 g-3 mb-3">
         {{-- Sales --}}
-        {{-- @if ($isAdmin || $isSales)
+        @if ($isAdmin || $isSales)
             @include('pages.dashboard.sales.detail.alarm')
-        @endif --}}
+        @endif 
 
         {{-- Digital --}}
-        {{-- @if ($isAdmin)
+         @if ($isAdmin)
             @include('pages.dashboard.digital.detail.alarm')
         @endif
-    </div> --}}
+    </div> 
 
     {{-- End Alert --}}
 
@@ -60,7 +60,7 @@
         @include('pages.dashboard.partnership.index')
     @endif
     {{-- Digital  --}}
-    {{-- @if ($isAdmin)
+    @if ($isAdmin)
         <div class="card bg-secondary mb-1">
             <div class="d-flex justify-content-between align-items-center px-3 text-white">
                 <h3 class="mb-0">Digital Dashboard</h3>
@@ -68,7 +68,7 @@
             </div>
         </div>
         @include('pages.dashboard.digital.index')
-    @endif --}}
+    @endif
     {{-- Finance  --}}
     @if ($isFinance || $isAdmin)
         <div class="card bg-secondary mb-1">
