@@ -27,7 +27,7 @@ return new class extends Migration
                         JOIN tbl_main_prog mp ON mp.id = p.main_prog_id
                         JOIN tbl_sub_prog sp ON sp.id = p.sub_prog_id
                     WHERE cp.client_id = requested_client_id
-                        AND mp.prog_name = "Admissions Mentoring";
+                        AND mp.prog_name = "Admissions Mentoring" AND cp.status = 1
                    RETURN counted_program;
         END; //
        DELIMITER ;
@@ -46,7 +46,7 @@ return new class extends Migration
                         JOIN tbl_main_prog mp ON mp.id = p.main_prog_id
                         JOIN tbl_sub_prog sp ON sp.id = p.sub_prog_id
                     WHERE cp.client_id = requested_client_id
-                        AND mp.prog_name != "Admissions Mentoring";
+                        AND mp.prog_name != "Admissions Mentoring" AND cp.status = 1
                    RETURN counted_program;
         END; //
        DELIMITER ;
