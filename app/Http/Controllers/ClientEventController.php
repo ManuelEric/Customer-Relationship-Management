@@ -10,6 +10,7 @@ use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
+use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
@@ -28,6 +29,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 
@@ -46,6 +48,7 @@ class ClientEventController extends Controller
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
     protected RoleRepositoryInterface $roleRepository;
+    protected ClientEventLogMailRepositoryInterface $clientEventLogMailRepository;
 
 
     public function __construct(
@@ -58,7 +61,8 @@ class ClientEventController extends Controller
         LeadRepositoryInterface $leadRepository,
         SchoolRepositoryInterface $schoolRepository,
         SchoolCurriculumRepositoryInterface $schoolCurriculumRepository,
-        RoleRepositoryInterface $roleRepository
+        RoleRepositoryInterface $roleRepository,
+        ClientEventLogMailRepositoryInterface $clientEventLogMailRepository
     ) {
         $this->curriculumRepository = $curriculumRepository;
         $this->clientRepository = $clientRepository;
@@ -70,6 +74,7 @@ class ClientEventController extends Controller
         $this->schoolRepository = $schoolRepository;
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
         $this->roleRepository = $roleRepository;
+        $this->clientEventLogMailRepository = $clientEventLogMailRepository;
     }
 
     public function index(Request $request)
@@ -578,6 +583,8 @@ class ClientEventController extends Controller
         
                         $newClientParent = $this->clientRepository->createClient(ucwords($choosen_role), $clientDetails);
                         $clientId = $existClientParent['isExist'] ? $existClientParent['id'] : $newClientParent->id;
+                        $clientName = $request->fullname[0];
+                        $clientMail = $existClientParent['isExist'] ? $existClientParent['mail'] : $newClientParent->mail;
                     }
 
                     break;
@@ -614,6 +621,8 @@ class ClientEventController extends Controller
         
                         $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);
                         $clientId = $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id;
+                        $clientName = $request->childDetails['name'];
+                        $clientMail = $existClientStudent['isExist'] ? $existClientStudent['mail'] : $newClientStudent->mail;
                     }
                     break;
 
@@ -644,6 +653,8 @@ class ClientEventController extends Controller
     
                         $newClientTeacher = $this->clientRepository->createClient('Teacher/Counselor', $clientDetails);
                         $clientId = $existClientTeacher['isExist'] ? $existClientTeacher['id'] : $newClientTeacher->id;
+                        $clientName = $request->teacherDetails['name'];
+                        $clientMail = $existClientTeacher['isExist'] ? $existClientTeacher['mail'] : $newClientTeacher->mail;
                     }
                     break;
 
@@ -671,7 +682,9 @@ class ClientEventController extends Controller
                 'joined_date' => Carbon::now(),
             ];
 
-            if ($this->clientEventRepository->createClientEvent($clientEventDetails)) {
+            if ($clientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails)) {
+
+                $storedClientEventId = $clientEvent->id;
 
                 # when client event has successfully stored
                 # continue to send an email
@@ -679,18 +692,9 @@ class ClientEventController extends Controller
 
                 if (isset($event_type) && $event_type == "offline") {
 
-                    $subject = 'Welcome to the '.$requested_event_name.'!';
-                    $mail_resources = 'mail-template.event-registration-success';
-
-                    Mail::send($mail_resources, ['list_contracts' => $list_contracts_expired_soon, 'title' => 'Editor'], function ($message) use ($subject) {
-                        $message->to(env('HR_MAIL'))
-                            ->cc(env('HR_CC'))
-                            ->subject($subject);
-                    });
-                    $progressBar->finish();
+                    $this->sendMailQrCode($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $clientMail, 'name' => $clientName]]);
 
                 }
-
 
             }
 
@@ -705,6 +709,39 @@ class ClientEventController extends Controller
 
 
         return Redirect::to('form/thanks');
+    }
+
+    public function sendMailQrCode($clientEventId, $eventName, $client)
+    {
+        $subject = 'Welcome to the '.$eventName.'!';
+        $mail_resources = 'mail-template.event-registration-success';
+
+        $recipientDetails = $client['clientDetails'];
+        
+        $url = url('/').'/handler/event/absence/'.$clientEventId;
+
+        try {
+            Mail::send($mail_resources, ['url' => $url, 'client' => $client], function ($message) use ($subject, $recipientDetails) {
+                $message->to($recipientDetails['mail'], $recipientDetails['name'])
+                    ->subject($subject);
+            });
+            $sent_mail = 1;
+            
+        } catch (Exception $e) {
+            
+            $sent_mail = 0;
+            Log::error('Failed send email to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
+
+        }
+
+        $logDetails = [
+            'clientevent_id' => $clientEventId,
+            'sent_status' => $sent_mail
+        ];
+
+        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+
+
     }
 
     public function updateAttendance($id, $status) {

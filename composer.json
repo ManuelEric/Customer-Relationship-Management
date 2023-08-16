@@ -22,6 +22,7 @@
         "maatwebsite/excel": "^3.1",
         "psr/simple-cache": "^2.0",
         "riskihajar/terbilang": "^2.0",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "yajra/laravel-datatables-oracle": "10.0"
     },
     "require-dev": {
