@@ -461,32 +461,32 @@
                         <tr>
                             <td width="30%">Email</td>
                             <td width="1%">:</td>
-                            <td>hafidz.fanany@all-inedu.com</td>
+                            <td>{{ $clientEvent->client->mail }}</td>
                         </tr>
                         <tr>
                             <td>Phone Number</td>
                             <td width="1%">:</td>
-                            <td>+628923523523</td>
+                            <td>{{ $clientEvent->client->phone }}</td>
                         </tr>
                         <tr>
                             <td width="30%">School Name</td>
                             <td width="1%">:</td>
-                            <td>school Name</td>
+                            <td>{{ $clientEvent->client->school->sch_name ?? '-' }}</td>
                         </tr>
                         <tr>
                             <td width="30%">Graduation Year</td>
                             <td width="1%">:</td>
-                            <td>2023</td>
+                            <td>{{ $clientEvent->client->graduation_year_real }}</td>
                         </tr>
                         <tr>
                             <td>Register As</td>
                             <td width="1%">:</td>
-                            <td>Student</td>
+                            <td>{{ $clientEvent->client->register_as ?? 'student' }}</td>
                         </tr>
                         <tr>
                             <td>Have you ever participated ALL-in Event/Program?</td>
                             <td width="1%">:</td>
-                            <td><i class="bi bi-check text-success"></i></td>
+                            <td>{{ $clientEvent->client->participated }} </td>
                         </tr>
                     </table>
                 </div>
