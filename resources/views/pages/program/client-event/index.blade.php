@@ -65,6 +65,8 @@
                         <th class="bg-info text-white">Client Name</th>
                         <th>Event Name</th>
                         <th>Have you ever participated in ALL-in Event/program before</th>
+                        <th>School Name</th>
+                        <th>Graduation Year</th>
                         <th>Audience</th>
                         <th>Email</th>
                         <th>Phone Number</th>
@@ -131,7 +133,30 @@
                     'pageLength', {
                         extend: 'excel',
                         text: 'Export to Excel',
-                    }
+                        exportOptions: {
+                            format: {
+                                body: function(data, row, column, node) {
+                                    var result = '';
+                                    if (column === 1) {
+                                        if (data.indexOf('New') != -1) {
+                                            console.log('true')
+                                            result = data.replace(
+                                                '<span class="badge text-bg-primary" style="font-size:8px;">New</span>',
+                                                '')
+                                        } else {
+                                            result = data.replace(
+                                                '<span class="badge text-bg-success" style="font-size:8px";>Existing</span>',
+                                                '')
+                                        }
+                                    } else {
+                                        result = data;
+                                    }
+                                    return result;
+                                }
+                            }
+                        }
+                    },
+
                 ],
                 scrollX: true,
                 fixedColumns: {
@@ -142,7 +167,7 @@
                 serverSide: true,
                 ajax: {
                     url: '',
-                    data: function (params) {
+                    data: function(params) {
                         params.event_name = $("#event-name").val()
                     }
                 },
@@ -156,20 +181,21 @@
                     },
                     {
                         data: 'client_name',
+                        name: 'client.full_name',
                         render: function(data, type, row, meta) {
                             var existing = moment(row.created_at).format('MMMM Do YYYY, h:mm') ==
                                 moment(row.client_created_at).format('MMMM Do YYYY, h:mm');
                             var newClientEvent = moment().format("MMM Do YY") == moment(row
                                 .created_at).format('MMM Do YY');
 
-                            if (newClientEvent == true) {
-                                return data + (existing == true ?
-                                    ' <span class="badge text-bg-primary" style="font-size:8px;">New</span>' :
-                                    ' <span class="badge text-bg-success" style="font-size:8px";>Existing</span>'
-                                );
-                            } else {
-                                return data;
-                            }
+                            // if (newClientEvent == true) {
+                            return data + (existing == true ?
+                                ' <span class="badge text-bg-primary" style="font-size:8px;">New</span>' :
+                                ' <span class="badge text-bg-success" style="font-size:8px";>Existing</span>'
+                            );
+                            // } else {
+                            //     return data;
+                            // }
                         }
                     },
                     {
@@ -177,28 +203,40 @@
                         name: 'tbl_events.event_title'
                     },
                     {
-                       data: 'participated',
-                    //    defaultContent: '-'
+                        data: 'participated',
+                        name: 'client.participated'
+                        //    defaultContent: '-'
                     },
                     {
-                       data: 'register_as',
-                       render: function(data, type, row, meta) {
-                            
-                            if(data === null){
+                        data: 'school_name',
+                        name: 'client.school_name'
+                    },
+                    {
+                        data: 'graduation_year_real',
+                        name: 'client.graduation_year_real'
+                    },
+                    {
+                        data: 'register_as',
+                        name: 'client.register_as',
+                        render: function(data, type, row, meta) {
+
+                            if (data === null) {
                                 return 'student';
                             }
 
                             return data
                         }
-                    //    defaultContent: '-'
+                        //    defaultContent: '-'
                     },
                     {
-                       data: 'mail',
-                       defaultContent: '-'
+                        data: 'mail',
+                        name: 'client.mail',
+                        defaultContent: '-'
                     },
                     {
-                       data: 'phone',
-                       defaultContent: '-'
+                        data: 'phone',
+                        name: 'client.phone',
+                        defaultContent: '-'
                     },
                     {
                         data: 'conversion_lead',
@@ -209,7 +247,7 @@
                         className: 'text-center',
                         data: 'joined_date',
                         render: function(data, type, row, meta) {
-                            
+
                             return moment(data).format('dddd, DD MMM YYYY');
                         }
                     },
@@ -287,7 +325,7 @@
 
             });
 
-            $("#event-name").on('change', function (e) {
+            $("#event-name").on('change', function(e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })
