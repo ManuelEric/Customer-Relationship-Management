@@ -64,6 +64,9 @@
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
                         <th>Event Name</th>
+                        <th>Parent Name</th>
+                        <th>Parent Mail</th>
+                        <th>Parent phone</th>
                         <th>Have you ever participated in ALL-in Event/program before</th>
                         <th>School Name</th>
                         <th>Graduation Year</th>
@@ -201,6 +204,20 @@
                     {
                         data: 'event_name',
                         name: 'tbl_events.event_title'
+                    },
+                    {
+                        data: 'parent_name',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'parent_mail',
+                        name: 'parent.mail',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'parent_phone',
+                        name: 'parent.phone',
+                        defaultContent: '-'
                     },
                     {
                         data: 'participated',

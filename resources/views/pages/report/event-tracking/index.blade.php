@@ -229,6 +229,8 @@
                                 <th class="bg-info text-white">Event ID</th>
                                 <th class="bg-info text-white">Client Name</th>
                                 <th>Parent Name</th>
+                                <th>Parent Mail</th>
+                                <th>Parent Phone</th>
                                 <th>Email</th>
                                 <th>Phone Number</th>
                                 <th>School Name</th>
@@ -306,6 +308,16 @@
                     },
                     {
                         data: 'parent_name',
+                        defaultContent: '-',
+                    },
+                    {
+                        data: 'parent_mail',
+                        name: 'parent.mail',
+                        defaultContent: '-',
+                    },
+                    {
+                        data: 'parent_phone',
+                        name: 'parent.phone',
                         defaultContent: '-',
                     },
                     {
