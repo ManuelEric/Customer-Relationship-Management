@@ -1,20 +1,24 @@
 <div class="card">
     <div class="card-body">
         <div class="row align-items-center">
-            <div class="col-md-8">
+            <div class="col-md-4">
                 <h5 class="text-success">
                   <i class="bi bi-check me-1"></i>  Successful Program
                 </h5>
             </div>
-            <div class="col-md-4 justify-content-end">
-                <div class="d-flex w-100 gap-2">
-                    <select name="program-name" id="" class="select w-100">
-                        <option value=""></option>
-                        @for ($i = 0; $i < 5; $i++)
-                            <option value="{{$i}}">Program {{$i}}</option>
-                        @endfor
-                    </select>
-                    <input type="month" name="month-year" id="" class="form-control form-control-sm">
+            <div class="col-md-8 justify-content-end">
+                <div class="row justify-content-end">
+                    <div class="col-md-6">
+                        <select name="program-name" onchange="checkDataLead()" id="prog_id_digital" class="select w-100">
+                            <option value=""></option>
+                            @foreach ($programsDigital as $program)
+                                <option value="{{$program->prog_id}}">{{ $program->program_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="month" onchange="checkDataLead()" value="{{ date('Y-m') }}" name="month-year" id="month_year_digital" class="form-control form-control-sm">
+                    </div>
                 </div>
             </div>
         </div>
@@ -35,7 +39,7 @@
                                     <th style="font-size: 13px">Conversion Time</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="t-body-leads-digital">
                                 @foreach ($dataLead as $data)
                                     <tr>
                                         <td>{{$loop->iteration}}</td>
@@ -233,5 +237,42 @@
         thead.html(theadLead)
         thead.append('<th>Conversion Lead</th>')
         thead.append('<th>Program Name</th>')
+    }
+
+    function checkDataLead(){
+        var month = $('#month_year_digital').val()
+        var prog_id = $('#prog_id_digital').val()
+        Swal.showLoading()
+        axios.get('{{ url('api/digital/leads') }}/' + month + '/' + prog_id)
+            .then((response) => {
+                var result = response.data.data
+                console.log(result);
+                var html = '';
+                var i = 1;
+
+                $('t-body-leads-digital').empty()
+                result.dataLead.forEach(function (item, index) {
+                    console.log(item.fullname)
+                    html = '<tr>'
+                    html += '<td>' + i + '</td>'
+                    html += '<td>' + item.fullname + '</td>'
+                    html += '<td>' + item.lead_source + '</td>'
+                    html += '<td>' + item.conversion_lead + '</td>'
+                    html += '<td>' + item.program_name + '</td>'
+                    html += '<td>' + item.conversion_time + ' Days </td>'
+                    html += '<td>' + item.followup_time + ' Days </td>'
+                    html += '</tr>'
+                    console.log(html)
+                    $('t-body-leads-digital').append(html)
+                    i++;
+                })
+
+
+                swal.close()
+            }, (error) => {
+                console.log(error)
+                swal.close()
+            })
+
     }
 </script>

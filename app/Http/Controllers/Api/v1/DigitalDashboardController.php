@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class DigitalDashboardController extends Controller
 {
@@ -141,6 +142,33 @@ class DigitalDashboardController extends Controller
     //     );
     // }
 
+    public function getDataLead(Request $request)
+    {
+        $month = $request->route('month') ?? date('Y-m');
+        $prog_id = $request->route('prog') ?? null;
+
+         
+        # List Lead Source 
+        $leads = $this->leadRepository->getActiveLead();
+        $dataLead = $this->leadTargetRepository->getLeadDigital($month, $prog_id ?? null);
+        // $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
+
+
+        $response = [
+            'leadsDigital' => $this->mappingDataLead($leads->where('department_id', 7), $dataLead, 'Lead Source'),
+            'leadsAllDepart' => $this->mappingDataLead($leads, $dataLead, 'Conversion Lead'),
+            'dataLead' => $dataLead,
+        ];
+
+        return response()->json(
+            [
+                'success' => true,
+                'data' => $response
+            ]
+        );
+
+    }
+
     public function getDetailDataLead(Request $request)
     {
         $month = $request->route('month') ?? date('Y-m');
@@ -247,59 +275,26 @@ class DigitalDashboardController extends Controller
 
     }
 
-    private function getDataTarget($date, $divisi)
+    private function mappingDataLead($leads, $dataLead, $type)
     {
-        return $this->targetTrackingRepository->getTargetTrackingMonthlyByDivisi($date, $divisi);
-    }
+        $data = new Collection();
+        foreach ($leads as $lead) {
+            if($type == 'Lead Source'){
+                $count = $dataLead->where('lead_source_id', $lead->lead_id)->count();
+            }else if($type == 'Conversion Lead'){
+                $count = $dataLead->where('lead_id', $lead->lead_id)->count();
+            }
 
-    private function calculatePercentageLead($actual, $target)
-    {
-        if ($target == 0)
-            return 0;
+            $data->push([
+                'lead_id' => $lead->lead_id,
+                'lead_name' => $lead->main_lead . ($lead->sub_lead  != null ? ' - ' . $lead->sub_lead : ''),
+                'count' => $count,
 
-        return $actual/$target*100;
-    }
-
-    private function setDataActual($dataActual)
-    {
-        $data = [
-            'lead_needed' => isset($dataActual) ? $dataActual->achieved_lead : 0,
-            'hot_lead' => isset($dataActual) ? $dataActual->achieved_hotleads : 0,
-            'ic' => isset($dataActual) ? $dataActual->achieved_initconsult : 0,
-            'revenue' => 0,
-            'contribution' => isset($dataActual) ? $dataActual->contribution_achieved : 0,
-        ];
-
-        return $data;
-    }
-
-    private function setDataTarget($dataTarget, $dataActual)
-    {
-        $data = [
-            'ic' => 0,
-            'hot_lead' => 0,
-            'lead_needed' => 0,
-            'contribution' => 0,
-            'percentage_lead_needed' => 0,
-            'percentage_hot_lead' => 0,
-            'percentage_ic' => 0,
-            'percentage_contribution' => 0,
-        ];
-        if(isset($dataTarget)){
-            $data = [
-                'ic' => $dataTarget->target_initconsult,
-                'hot_lead' => $dataTarget->target_hotleads,
-                'lead_needed' => $dataTarget->target_lead,
-                'contribution' => $dataTarget->contribution_target,
-                'percentage_lead_needed' => $this->calculatePercentageLead($dataActual['lead_needed'], $dataTarget->target_lead),
-                'percentage_hot_lead' => $this->calculatePercentageLead($dataActual['hot_lead'], $dataTarget->target_hotleads),
-                'percentage_ic' => $this->calculatePercentageLead($dataActual['ic'], $dataTarget->target_initconsult),
-                'percentage_contribution' => $this->calculatePercentageLead($dataActual['contribution'], $dataTarget->contribution_target)
-                
-            ];
+            ]);
         }
 
         return $data;
     }
+
  
 }

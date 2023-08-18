@@ -43,6 +43,7 @@ class Receipt extends Model
 
     public function getCurrencyUnit()
     {
+        $currency = "usd"; # default
         if ($this->inv_id)
             $currency = $this->invoiceProgram->currency;
         elseif ($this->invb2b_id)
@@ -99,6 +100,7 @@ class Receipt extends Model
     
     protected function rawPph23(): Attribute
     {
+        $invTotPrice = 0;
         if ($this->inv_id)
             $invTotPrice = $this->invoiceProgram->inv_totalprice;
         elseif ($this->invb2b_id && !$this->invdtl_id)
@@ -115,6 +117,7 @@ class Receipt extends Model
 
     protected function rawPph23Idr(): Attribute
     {
+        $invTotPrice = 0;
         if ($this->inv_id)
             $invTotPrice = $this->invoiceProgram->inv_totalprice_idr;
         elseif ($this->invb2b_id && !$this->invdtl_id)
@@ -128,7 +131,6 @@ class Receipt extends Model
             get: fn ($value) => $calcPPH23,
         );
     }
-
     protected function strPph23(): Attribute
     {
         return Attribute::make(
