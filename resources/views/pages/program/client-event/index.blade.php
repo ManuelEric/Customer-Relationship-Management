@@ -73,7 +73,6 @@
                         <th>Audience</th>
                         <th>Email</th>
                         <th>Phone Number</th>
-                        {{-- <th>Lead</th> --}}
                         <th>Conversion Lead</th>
                         <th>Joined Date</th>
                         <th>Attendance</th>
@@ -82,7 +81,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="6"></td>
+                        <td colspan="13"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -221,7 +220,8 @@
                     },
                     {
                         data: 'participated',
-                        name: 'client.participated'
+                        name: 'client.participated',
+                        searchable: true
                         //    defaultContent: '-'
                     },
                     {
@@ -257,6 +257,7 @@
                     },
                     {
                         data: 'conversion_lead',
+                        name: 'conversion_lead',
                         className: 'text-center'
                         // name: 'tbl_lead.main_lead'
                     },

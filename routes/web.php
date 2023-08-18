@@ -35,6 +35,7 @@ Route::get('login', function () {
 })->middleware('guest')->name('login');
 
 Route::post('auth/login', [AuthController::class, 'login'])->name('login.action');
+Route::get('login/expired', [AuthController::class, 'logoutFromExpirationTime'])->name('logout.expiration');
 
 Route::group(['middleware' => ['auth', 'auth.department']], function () {
     Route::get('auth/logout', [AuthController::class, 'logout'])->name('logout');
@@ -52,12 +53,12 @@ Route::resource('user/volunteer', VolunteerController::class);
 Route::get('form/event', [ClientEventController::class, 'createFormEmbed']);
 Route::post('form/events', [ClientEventController::class, 'storeFormEmbed']);
 
+Route::get('form/event/{event_slug}/client/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
+
 Route::get('form/program', [ClientProgramController::class, 'createFormEmbed']);
 
 Route::get('form/registration', [PublicRegistrationController::class, 'register']);
 Route::post('form/registrations', [PublicRegistrationController::class, 'store'])->name('submit.registration');
-
-
 
 Route::get('form/thanks', function() {
     return view('form-embed.thanks');

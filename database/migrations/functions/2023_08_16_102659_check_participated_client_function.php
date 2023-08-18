@@ -53,7 +53,7 @@ return new class extends Migration
         RETURNS VARCHAR(10)
 
             BEGIN
-                DECLARE participated VARCHAR(20);
+                DECLARE participated VARCHAR(20) COLLATE utf8mb4_general_ci;
                 DECLARE join_program INTEGER DEFAULT 0; 
                 DECLARE join_event INTEGER DEFAULT 0;
 
