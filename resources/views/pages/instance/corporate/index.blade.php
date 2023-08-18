@@ -128,6 +128,10 @@
                 var data = table.row($(this).parents('tr')).data();
                 window.location.href = "{{ url('instance/corporate') }}/" + data.corp_id.toLowerCase();
             });
+
+            $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
+                window.location.href = "{{ url('/') }}"
+            };
         });
     </script>
 @endsection
