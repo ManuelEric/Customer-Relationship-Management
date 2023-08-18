@@ -317,6 +317,12 @@
                 data.ajax.reload(null, false)
             }, 7000);
         }
+
+        $(document).ready(function() {
+            $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
+                window.location.href = "{{ route('logout.expiration') }}"
+            };
+        })
     </script>
 
     {{-- Confirm Delete & Deactivate Modal  --}}
