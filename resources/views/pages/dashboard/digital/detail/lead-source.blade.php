@@ -247,12 +247,13 @@
             .then((response) => {
                 var result = response.data.data
                 console.log(result);
+                var avgFollowUpTime = 0;
+                var avgConversionTime = 0;
                 var html = '';
                 var i = 1;
 
-                $('t-body-leads-digital').empty()
+                $('#t-body-leads-digital').empty()
                 result.dataLead.forEach(function (item, index) {
-                    console.log(item.fullname)
                     html = '<tr>'
                     html += '<td>' + i + '</td>'
                     html += '<td>' + item.fullname + '</td>'
@@ -262,8 +263,7 @@
                     html += '<td>' + item.conversion_time + ' Days </td>'
                     html += '<td>' + item.followup_time + ' Days </td>'
                     html += '</tr>'
-                    console.log(html)
-                    $('t-body-leads-digital').append(html)
+                    $('#t-body-leads-digital').append(html)
                     i++;
                 })
 

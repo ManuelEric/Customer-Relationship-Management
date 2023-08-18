@@ -110,12 +110,12 @@ class ClientLeadTrackingRepository implements ClientLeadTrackingRepositoryInterf
 
     public function getFailedLead($monthyear){
 
-        $failLeads = $this->getInitialConsult($monthyear, 'all');
+        $failLeads = $this->getInitialConsult($monthyear, 'failed');
         $countFail = 0;
 
         if(isset($failLeads) > 0){
             foreach ($failLeads as $failLead) {
-                $failLead->status == 2 ? $countFail++ : $countFail--;
+                $failLead->status == 2 ? $countFail++ : $countFail = 0;
             }
         }
 
