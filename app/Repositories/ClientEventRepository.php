@@ -20,11 +20,16 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
                 ->leftJoin('tbl_corp as ceduf', 'ceduf.corp_id', '=', 'tbl_eduf_lead.corp_id')
                 ->leftJoin('tbl_sch as seduf', 'seduf.sch_id', '=', 'tbl_eduf_lead.sch_id')
+                ->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'client.id')
+                ->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')
                 ->select(
                     'tbl_client_event.clientevent_id',
                     // 'tbl_client_event.event_id',
                     // 'tbl_client_event.eduf_id',
                     'tbl_events.event_title as event_name',
+                    DB::raw('CONCAT(parent.first_name," ", COALESCE(parent.last_name, "")) as parent_name'),
+                    'parent.mail as parent_mail',
+                    'parent.phone as parent_phone',
                     'client.participated',
                     'client.register_as',
                     'client.mail',
@@ -87,7 +92,13 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
             )->
-            make(true);
+            filterColumn(
+                'parent_name',
+                function ($query, $keyword) {
+                    $sql = 'CONCAT(parent.first_name," ", COALESCE(parent.last_name, "")) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->make(true);
     }
 
     public function getAllClientEventByClientIdDataTables($clientId)
@@ -174,6 +185,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->select(
                 'client.full_name as client_name',
                 DB::raw('CONCAT(parent.first_name," ", COALESCE(parent.last_name, "")) as parent_name'),
+                'parent.mail as parent_mail',
+                'parent.phone as parent_phone',
                 'client.mail',
                 'client.phone',
                 'client.school_name',
