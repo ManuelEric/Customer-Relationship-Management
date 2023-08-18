@@ -233,6 +233,7 @@
                                 <th>Phone Number</th>
                                 <th>School Name</th>
                                 <th>Grade</th>
+                                <th>Graduation Year</th>
                                 <th>Lead Source</th>
                                 <th class="bg-info text-white">Joined At</th>
                             </tr>
@@ -268,9 +269,9 @@
         });
 
         $(document).ready(function() {
-            $('#cancel').click(function() {
-                $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
-            });
+            // $('#cancel').click(function() {
+            //     $(this).parents('.dropdown').find('button.dropdown-toggle').dropdown('toggle')
+            // });
 
             var i = 1;
 
@@ -300,6 +301,7 @@
                     },
                     {
                         data: 'client_name',
+                        name: 'client.full_name',
                         defaultContent: '-',
                     },
                     {
@@ -308,26 +310,32 @@
                     },
                     {
                         data: 'mail',
-                        name: 'child.mail',
+                        name: 'client.mail',
                         defaultContent: '-',
                     },
                     {
                         data: 'phone',
-                        name: 'child.phone',
+                        name: 'client.phone',
                         defaultContent: '-',
                     },
                     {
-                        data: 'sch_name',
-                        name: 'tbl_sch.sch_name',
+                        data: 'school_name',
+                        name: 'client.school_name',
                         defaultContent: '-',
                     },
                     {
-                        data: 'st_grade',
-                        name: 'child.st_grade',
+                        data: 'grade_now',
+                        name: 'client.grade_now',
+                        defaultContent: '-',
+                    },
+                    {
+                        data: 'graduation_year_real',
+                        name: 'client.graduation_year_real',
                         defaultContent: '-',
                     },
                     {
                         data: 'conversion_lead',
+                        // name: 'client.lead_source',
                         defaultContent: '-',
                     },
                     {
@@ -336,8 +344,8 @@
                     },
                 ]
             });
-            realtimeData(table)
-
+            
+            // realtimeData(table)
 
         });
         // function ExportToExcel() {
