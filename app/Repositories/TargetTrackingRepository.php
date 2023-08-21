@@ -28,11 +28,11 @@ class TargetTrackingRepository implements TargetTrackingRepositoryInterface
         switch ($type) {
             case 'lead':
                 $query = TargetTracking::select(DB::raw('SUM(contribution_target) as target'), DB::raw('SUM(contribution_achieved) as actual'), DB::raw('Month(month_year) as month'))
-                            ->whereBetween('month_year', [$startDate, $endDate])->groupBy(DB::raw('Month(month_year)'))->get();
+                           ->groupBy(DB::raw('Month(month_year)'))->get();
                 break;
             case 'revenue':
                 $query = TargetTracking::select('revenue_target as target', 'revenue_achieved as actual', DB::raw('Month(month_year) as month'))
-                            ->whereBetween('month_year', [$startDate, $endDate])->groupBy(DB::raw('Month(month_year)'))->get();
+                        ->groupBy(DB::raw('Month(month_year)'))->get();
                 break;
         }
         

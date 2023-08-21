@@ -113,9 +113,9 @@ class AlarmRepository implements AlarmRepositoryInterface
                 $last3month++;
             }
 
-        // TODO : Alarm always on gagal 3x berturut-turut
 
         # Day 1-14 (awal bulan)
+        $alarmLeads['sales']['always_on']['failed'] = $this->clientLeadTrackingRepository->getFailedLead($today);
         // $alarmLeads['sales']['mid']['lead_needed'] = $actualLeadsSales['lead_needed'] < $leadSalesTarget['lead_needed'] ? true : false;
         $alarmLeads['sales']['mid']['hot_lead'] = $actualLeadsSales['hot_lead'] < $leadSalesTarget['hot_lead'] ? true : false;
         $alarmLeads['sales']['mid']['referral'] = $actualLeadsReferral['lead_needed'] < 10 ? true : false;

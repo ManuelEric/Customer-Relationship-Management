@@ -14,7 +14,9 @@ use App\Interfaces\TargetTrackingRepositoryInterface;
 use App\Interfaces\EventRepositoryInterface;
 use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\LeadTargetRepositoryInterface;
+use App\Interfaces\AlarmRepositoryInterface;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use Illuminate\Http\Request;
@@ -33,9 +35,10 @@ class DigitalDashboardController extends Controller
     protected EventRepositoryInterface $eventRepository;
     protected LeadTargetRepositoryInterface $leadTargetRepository;
     protected LeadRepositoryInterface $leadRepository;
+    protected AlarmRepositoryInterface $alarmRepository;
 
 
-    public function __construct(ClientRepositoryInterface $clientRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, SalesTargetRepositoryInterface $salesTargetRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, TargetTrackingRepositoryInterface $targetTrackingRepository, TargetSignalRepositoryInterface $targetSignalRepository, EventRepositoryInterface $eventRepository, LeadTargetRepositoryInterface $leadTargetRepository, LeadRepositoryInterface $leadRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, UserRepositoryInterface $userRepository, ClientProgramRepositoryInterface $clientProgramRepository, SalesTargetRepositoryInterface $salesTargetRepository, ClientLeadTrackingRepositoryInterface $clientLeadTrackingRepository, TargetTrackingRepositoryInterface $targetTrackingRepository, TargetSignalRepositoryInterface $targetSignalRepository, EventRepositoryInterface $eventRepository, LeadTargetRepositoryInterface $leadTargetRepository, LeadRepositoryInterface $leadRepository, AlarmRepositoryInterface $alarmRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->userRepository = $userRepository;
@@ -47,102 +50,84 @@ class DigitalDashboardController extends Controller
         $this->eventRepository = $eventRepository;
         $this->leadTargetRepository = $leadTargetRepository;
         $this->leadRepository = $leadRepository;
+        $this->alarmRepository = $alarmRepository;
     }
 
-    // public function getDataLead(Request $request)
-    // {
-
-    //     $month = $request->route('month') . '-01' ?? date('Y-m') . '-01';
-    //     $curr_month = date('m', strtotime($month));
-    //     $last_month = date('Y-m', strtotime('-1 month', strtotime($month)));
-        
-
-    //     try {
-
-    //         $allTarget = $this->targetTrackingRepository->getAllTargetTrackingMonthly($month);
-    //         $dataSalesTarget = $this->getDataTarget($month, 'Sales');
-    //         $dataReferralTarget = $this->getDataTarget($month, 'Referral');
-    //         $dataDigitalTarget = $this->getDataTarget($month, 'Digital');
-            
-    //         # sales
-    //         $actualLeadsSales = $this->setDataActual($dataSalesTarget);
-    //         $leadSalesTarget = $this->setDataTarget($dataSalesTarget, $actualLeadsSales); 
-
-    //         # referral
-    //         $actualLeadsReferral = $this->setDataActual($dataReferralTarget);
-    //         $leadReferralTarget = $this->setDataTarget($dataReferralTarget, $actualLeadsReferral); 
-            
-    //         # digital
-    //         $actualLeadsDigital = $this->setDataActual($dataDigitalTarget);
-    //         $leadDigitalTarget = $this->setDataTarget($dataDigitalTarget, $actualLeadsDigital); 
-
-    //         // $revenueTarget = $dataSalesTarget->total_target;
-    //         $revenueTarget = 0;
-
-    //         $revenue = null;
-    //         $totalRevenue = $revenue != null ? $revenue->sum('total') : 0;
-
-    //         $dataLeads = [
-    //             'total_achieved_lead_needed' => $actualLeadsSales['lead_needed'] + $actualLeadsReferral['lead_needed'] + $actualLeadsDigital['lead_needed'],
-    //             'total_achieved_hot_lead' => $actualLeadsSales['hot_lead'] + $actualLeadsReferral['hot_lead'] + $actualLeadsDigital['hot_lead'],
-    //             'total_achieved_ic' => $actualLeadsSales['ic'] + $actualLeadsReferral['ic'] + $actualLeadsDigital['ic'],
-    //             'total_achieved_contribution' => $actualLeadsSales['contribution'] + $actualLeadsReferral['contribution'] + $actualLeadsDigital['contribution'],
-    //             'number_of_leads' => isset($allTarget) ? $allTarget->sum('target_lead') : 0, 
-    //             'number_of_hot_leads' => isset($allTarget) ? $allTarget->sum('target_hotleads') : 0, 
-    //             'number_of_ic' => isset($allTarget) ? $allTarget->sum('target_initconsult') : 0, 
-    //             'number_of_contribution' => isset($allTarget) ? $allTarget->sum('contribution_target') : 0, 
-    //         ];
-
-    //         $targetTrackingLead = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $month, 'lead');
-    //         $targetTrackingRevenue = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $month, 'revenue');
-        
-    //         # Chart lead
-    //         $last3month = $curr_month-2;
-    //         for($i=2; $i>=0; $i--){
-    //             $dataLeadChart['target'][] = $targetTrackingLead->where('month', $last3month)->count() > 0 ? (int)$targetTrackingLead->where('month', $last3month)->first()->target : 0;
-    //             $dataLeadChart['actual'][] = $targetTrackingLead->where('month', $last3month)->count() > 0 ? (int)$targetTrackingLead->where('month', $last3month)->first()->actual : 0;
-    //             $dataLeadChart['label'][] =  Carbon::parse($month)->subMonth($i)->format('F');
-                
-    //             $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month', $last3month)->count() > 0 ? (int)$targetTrackingRevenue->where('month', $last3month)->first()->target : 0;
-    //             $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month', $last3month)->count() > 0 ? (int)$targetTrackingRevenue->where('month', $last3month)->first()->actual : 0;
-    //             $dataRevenueChart['label'][] =  Carbon::parse($month)->subMonth($i)->format('F');
-    //             $last3month++;
-    //         }
-
-    //         # List Lead Source
-            
-    //         $leads = $this->leadRepository->getActiveLead()->where('department_id', 7);
-    //         $dataLeadSource = $this->leadTargetRepository->getAchievedLeadDigitalByMonth($month);
-        
-    //         $data = [
-    //             'leadSalesTarget' => $leadSalesTarget,
-    //             'leadReferralTarget' => $leadReferralTarget,
-    //             'leadDigitalTarget' => $leadDigitalTarget,
-    //             'actualLeadsDigital' => $actualLeadsDigital,
-    //             'actualLeadsSales' => $actualLeadsSales,
-    //             'actualLeadsReferral' => $actualLeadsReferral,
-    //             'dataLeads' => $dataLeads,
-    //             'dataLeadChart' => $dataLeadChart,
-    //             'dataRevenueChart' => $dataRevenueChart,
-    //             'leads' => $leads,
-    //             'dataLeadSource' => $dataLeadSource,
-    //         ];
-
-    //     } catch (Exception $e) {
-
-    //         Log::error($e->getMessage() . ' | Line ' . $e->getLine());
-    //         return response()->json(['message' => 'Failed to get data lead : ' . $e->getMessage() . ' | Line ' . $e->getLine()]);
-    //     }
-
-    //     return response()->json(
-    //         [
-    //             'success' => true,
-    //             'data' => $data
-    //         ]
-    //     );
-    // }
-
     public function getDataLead(Request $request)
+    {
+        $monthYear = $request->route('month') ?? date('Y-m');
+        $currMonth = date('m', strtotime($monthYear));
+        $currYear = date('Y', strtotime($monthYear));
+        $date = CarbonImmutable::create($currYear, $currMonth);
+        $last2month = $date->subMonth(2)->Format('Y-m');
+        
+        $allTarget = $this->targetTrackingRepository->getAllTargetTrackingMonthly($monthYear);
+        $dataSalesTarget = $this->alarmRepository->getDataTarget($monthYear, 'Sales');
+        $dataReferralTarget = $this->alarmRepository->getDataTarget($monthYear, 'Referral');
+        $dataDigitalTarget = $this->alarmRepository->getDataTarget($monthYear, 'Digital');
+
+        # Event
+        $events = $this->eventRepository->getEventByMonthyear($monthYear);
+
+        # sales
+        $actualLeadsSales = $this->alarmRepository->setDataActual($dataSalesTarget);
+        $leadSalesTarget = $this->alarmRepository->setDataTarget($dataSalesTarget, $actualLeadsSales);
+
+        # referral
+        $actualLeadsReferral = $this->alarmRepository->setDataActual($dataReferralTarget);
+        $leadReferralTarget = $this->alarmRepository->setDataTarget($dataReferralTarget, $actualLeadsReferral);
+
+        # digital
+        $actualLeadsDigital = $this->alarmRepository->setDataActual($dataDigitalTarget);
+        $leadDigitalTarget = $this->alarmRepository->setDataTarget($dataDigitalTarget, $actualLeadsDigital);
+
+        $actualLeadsSales['referral'] = $actualLeadsReferral['lead_needed'];
+
+        $targetTrackingLead = $this->targetTrackingRepository->getTargetTrackingPeriod($last2month, $monthYear, 'lead');
+        $targetTrackingRevenue = $this->targetTrackingRepository->getTargetTrackingPeriod($last2month, $monthYear, 'revenue');
+
+        # Chart lead
+        for ($i = 2; $i >= 0; $i--) {
+            $dataLeadChart['target'][] = $targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->first()->target : 0;
+            $dataLeadChart['actual'][] = $targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingLead->where('month', date('m', strtotime($date->subMonth($i))))->first()->actual : 0;
+            $dataLeadChart['label'][] = date('F', strtotime($date->subMonth($i)));
+
+            $dataRevenueChart['target'][] = $targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->first()->target : 0;
+            $dataRevenueChart['actual'][] = $targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->count() > 0 ? (int)$targetTrackingRevenue->where('month', date('m', strtotime($date->subMonth($i))))->first()->actual : 0;
+            $dataRevenueChart['label'][] = date('F', strtotime($date->subMonth($i)));
+        }
+
+
+        $dataLeads = [
+            'total_achieved_lead_needed' => $actualLeadsSales['lead_needed'] + $actualLeadsReferral['lead_needed'] + $actualLeadsDigital['lead_needed'],
+            'total_achieved_hot_lead' => $actualLeadsSales['hot_lead'] + $actualLeadsReferral['hot_lead'] + $actualLeadsDigital['hot_lead'],
+            'total_achieved_ic' => $actualLeadsSales['ic'] + $actualLeadsReferral['ic'] + $actualLeadsDigital['ic'],
+            'total_achieved_contribution' => $actualLeadsSales['contribution'] + $actualLeadsReferral['contribution'] + $actualLeadsDigital['contribution'],
+            'number_of_leads' => isset($allTarget) ? $allTarget->sum('target_lead') : 0,
+            'number_of_hot_leads' => isset($allTarget) ? $allTarget->sum('target_hotleads') : 0,
+            'number_of_ic' => isset($allTarget) ? $allTarget->sum('target_initconsult') : 0,
+            'number_of_contribution' => isset($allTarget) ? $allTarget->sum('contribution_target') : 0,
+        ];
+
+
+
+        $response = [
+            'leadSalesTarget' => $leadSalesTarget,
+            'leadReferralTarget' => $leadReferralTarget,
+            'leadDigitalTarget' => $leadDigitalTarget,
+            'actualLeadsDigital' => $actualLeadsDigital,
+            'actualLeadsSales' => $actualLeadsSales,
+            'actualLeadsReferral' => $actualLeadsReferral,
+            'dataLeads' => $dataLeads,
+            'dataLeadChart' => $dataLeadChart,
+            'dataRevenueChart' => $dataRevenueChart,
+            'monthYear' => $monthYear,
+        ];
+
+        return $response;
+    }
+
+    public function getLeadDigital(Request $request)
     {
         $month = $request->route('month') ?? date('Y-m');
         $prog_id = $request->route('prog') ?? null;
@@ -206,10 +191,12 @@ class DigitalDashboardController extends Controller
 
     public function getDetailLeadSource(Request $request)
     {
-        $month = date('Y-m');
+        // $month = date('Y-m');
+        $month = $request->route('month') ?? date('Y-m');
         $lead_id = $request->lead;
+        $prog_id = $request->route('prog') ?? null;
 
-        $dataLeadSource = $this->leadTargetRepository->getLeadDigital($month, null)->where('lead_source_id', $lead_id);
+        $dataLeadSource = $this->leadTargetRepository->getLeadDigital($month, $prog_id)->where('lead_source_id', $lead_id);
 
         $html = '';
 
@@ -239,13 +226,15 @@ class DigitalDashboardController extends Controller
 
     public function getDetailConversionLead(Request $request)
     {
-        $month = date('Y-m');
+        // $month = date('Y-m');
+        $month = $request->route('month') ?? date('Y-m');
         $lead_id = $request->lead;
+        $prog_id = $request->route('prog') ?? null;
 
         // $html = $lead_id;
         
 
-        $dataConversionLead = $this->leadTargetRepository->getLeadDigital($month, null)->where('lead_id', $lead_id);
+        $dataConversionLead = $this->leadTargetRepository->getLeadDigital($month, $prog_id)->where('lead_id', $lead_id);
 
         $html = '';
 
