@@ -271,6 +271,20 @@
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
+                        <div class="mb-4" id="country_input">
+                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                                Destination Country
+                            </label>
+                            <select name="destination_country" id="destination_country"
+                                class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
+                                placeholder="">
+                                <option value=""></option>
+                                @for ($i=1; $i < 5; $i++)
+                                    <option value="{{ $i }}">{{ $i }}</option>
+                                @endfor
+                            </select>
+                            <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                        </div>
                         <div class="mb-4">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                 I know this event from
@@ -348,25 +362,34 @@
         create: false
     });
 
+    new TomSelect('#destination_country', {
+        create: false
+    });
+
     new TomSelect('#leadSource', {
         create: false
     });
+    
 
     function checkRole(element) {
         const child_name = document.querySelector('#child_name')
         const input_child_name = document.querySelector('#input_child_name')
         const graduation_input = document.querySelector('#graduation_input')
+        const country_input = document.querySelector('#country_input')
 
         if (element.value == "student") {
             child_name.classList.add('hidden')
             input_child_name.type = "hidden"
             input_child_name.value = ""
+            country_input.classList.remove('hidden')
         } else if (element.value == "parent") {
             child_name.classList.remove('hidden')
             input_child_name.type = "text"
+            country_input.classList.remove('hidden')
         } else {
             child_name.classList.add('hidden')
             graduation_input.classList.add('hidden')
+            country_input.classList.add('hidden')
             input_child_name.type = "hidden"
         }
     }

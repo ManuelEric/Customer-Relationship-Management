@@ -744,7 +744,7 @@ class ClientEventController extends Controller
         return Redirect::to('form/thanks');
     }
 
-    public function sendMailQrCode($clientEventId, $eventName, $client)
+    public function sendMailQrCode($clientEventId, $eventName, $client, $update = false)
     {
         $subject = 'Welcome to the '.$eventName.'!';
         $mail_resources = 'mail-template.event-registration-success';
@@ -756,8 +756,18 @@ class ClientEventController extends Controller
                         'clientevent' => $clientEventId
                     ]);
 
+        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+        
+        $event = [
+            'eventDate_start' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
+            'eventDate_end' => date('l, d M Y', strtotime($clientEvent->event->event_enddate)),
+            'eventTime_start' => date('H.i', strtotime($clientEvent->event->event_startdate)),
+            'eventTime_end' => date('H.i', strtotime($clientEvent->event->event_enddate)),
+            'eventLocation' => $clientEvent->event->event_location
+        ];
+
         try {
-            Mail::send($mail_resources, ['url' => $url, 'client' => $client['clientDetails']], function ($message) use ($subject, $recipientDetails) {
+            Mail::send($mail_resources, ['url' => $url, 'client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
                 $message->to($recipientDetails['mail'], $recipientDetails['name'])
                     ->subject($subject);
             });
@@ -768,6 +778,11 @@ class ClientEventController extends Controller
             $sent_mail = 0;
             Log::error('Failed send email to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
 
+        }
+
+        
+        if ($update === true) {
+            return true;    
         }
 
         $logDetails = [
