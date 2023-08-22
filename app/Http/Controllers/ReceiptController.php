@@ -407,7 +407,9 @@ class ReceiptController extends Controller
         $parent_mail = $request->parent_mail;
 
 
-        $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+        if(isset($client)){
+            $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+        }
 
         return response()->json(['status' => 'success', 'message' => 'Success Update Email Parent'], 200);
     }
