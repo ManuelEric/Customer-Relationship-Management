@@ -41,7 +41,7 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
             'School',
             'Class Of', # Grade / Expected graduation year
             'Lead',
-            'Event',
+            // 'Event',
             'Partner',
             'Edufair',
             'KOL',
@@ -170,18 +170,18 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
 
 
                 // set dropdown list for first data row
-                $validation = $event->sheet->getCell("L2")->getDataValidation();
-                $validation->setType(DataValidation::TYPE_LIST);
-                $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
-                $validation->setAllowBlank(false);
-                $validation->setShowInputMessage(true);
-                $validation->setShowErrorMessage(true);
-                $validation->setShowDropDown(true);
-                $validation->setErrorTitle('Input error');
-                $validation->setError('Value is not in list.');
-                $validation->setPromptTitle('Pick from list');
-                $validation->setPrompt('Please pick a value from the drop-down list.');
-                $validation->setFormula1(sprintf('"%s"', implode(',', $event_options)));
+                // $validation = $event->sheet->getCell("L2")->getDataValidation();
+                // $validation->setType(DataValidation::TYPE_LIST);
+                // $validation->setErrorStyle(DataValidation::STYLE_INFORMATION);
+                // $validation->setAllowBlank(false);
+                // $validation->setShowInputMessage(true);
+                // $validation->setShowErrorMessage(true);
+                // $validation->setShowDropDown(true);
+                // $validation->setErrorTitle('Input error');
+                // $validation->setError('Value is not in list.');
+                // $validation->setPromptTitle('Pick from list');
+                // $validation->setPrompt('Please pick a value from the drop-down list.');
+                // $validation->setFormula1(sprintf('"%s"', implode(',', $event_options)));
 
                 // set dropdown list for first data row
                 $validation = $event->sheet->getCell("M2")->getDataValidation();
@@ -270,7 +270,7 @@ class ClientEventTemplate implements WithHeadings, WithEvents, WithStrictNullCom
         $sheet->getStyle('H1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('I1')->getFont()->getColor()->setARGB('FF0000');
         $sheet->getStyle('K1')->getFont()->getColor()->setARGB('FF0000');
-        $sheet->getStyle('L1')->getFont()->getColor()->setARGB('f0a318');
+        // $sheet->getStyle('L1')->getFont()->getColor()->setARGB('f0a318');
         $sheet->getStyle('M1')->getFont()->getColor()->setARGB('f0a318');
         $sheet->getStyle('N1')->getFont()->getColor()->setARGB('f0a318');
         $sheet->getStyle('O1')->getFont()->getColor()->setARGB('f0a318');

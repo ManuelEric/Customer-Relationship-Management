@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Interfaces\MenuRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
 
 class AuthController extends Controller
 {
@@ -58,5 +59,14 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/');
+    }
+
+    public function logoutFromExpirationTime(Request $request)
+    {
+        $timeout = 3600;
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return Redirect::to('login')->withError('You had not activity in '.$timeout/60 .' minutes ago.');
     }
 }

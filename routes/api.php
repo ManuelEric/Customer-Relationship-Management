@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\v1\FinanceDashboardController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\ClientTeacherCounselorController;
+use App\Http\Controllers\CorporateController;
 use App\Http\Controllers\CurrencyRateController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ExcelTemplateController;
