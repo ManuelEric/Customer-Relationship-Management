@@ -1,11 +1,91 @@
 @extends('layout.email')
-@section('header', 'Welcome to the Event')
+@section('header', 'Thanks for Joining')
 @section('content')
-    <p style="margin:0;">Dear {{ $client['name'] }},</p>
-    <p>
-        Thanks for joining our Event.
-    </p>
-    <div>
-        {!! QrCode::size(300)->generate($url) !!}
-    </div>
+    <table role="presentation" class="main">
+
+        <!-- START MAIN CONTENT AREA -->
+        <tr>
+            <td class="wrapper">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            <p>Dear {{ $client['name'] }},</p>
+                            <p>
+                                We are thrilled that you've decided to be a part of our upcoming event.
+                                Your
+                                presence will play a significant role in the success of this occasion.
+                            </p>
+                            <p>
+                                As a token of our appreciation, we'd like to share a registration QR
+                                code
+                                that will streamline your experience when you arrive at the event venue.
+                                This QR code can be used for re-registration on the event day, allowing
+                                you
+                                to swiftly and smoothly enter the array of activities we've prepared
+                                with
+                                utmost enthusiasm.
+                            </p>
+
+                            <table style="margin-bottom:20px; width:100%;">
+                                <tr align="center">
+                                    <td style="padding: 20px;">
+                                        {!! QrCode::size(150)->generate($url) !!}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table style="width:100%;">
+                                            <tr>
+                                                <td align="left" width="20%">📅 Date</td>
+                                                <td>: Saturday, 24th Nov 2023</td>
+                                            </tr>
+                                            <tr>
+                                                <td align="left">🕒 Time</td>
+                                                <td>: 13.00 - 17.00 WIB</td>
+                                            </tr>
+                                            <tr>
+                                                <td align="left">📍 Location</td>
+                                                <td>: Jl Jeruk Kembar Blok Q9 No 15</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            <p>
+                                QR Code Usage Instructions:
+                            </p>
+                            <table border="0">
+                                <tr>
+                                    <td width="5%">1.</td>
+                                    <td>Save this QR code on your mobile device.</td>
+                                </tr>
+                                <tr>
+                                    <td>2.</td>
+                                    <td>
+                                        On the event day, present the QR code to the registration
+                                        personnel at the venue to expedite the entry process.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3.</td>
+                                    <td>Enjoy our event and take the opportunity to connect with fellow
+                                        peers.</td>
+                                </tr>
+                            </table>
+                            <p style="margin-top: 20px;">
+                                Once again, thank you for being a part of our community. We can't wait
+                                to meet you on the event day!
+                            </p>
+                            <p>
+                                Warm regards, <br>
+                                ALL-in Eduspace
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- END MAIN CONTENT AREA -->
+    </table>
 @endsection
