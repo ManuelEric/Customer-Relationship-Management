@@ -271,7 +271,7 @@
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
-                        <div class="mb-4" id="country_input">
+                        {{-- <div class="mb-4" id="country_input">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Destination Country
                             </label>
@@ -284,7 +284,7 @@
                                 @endfor
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
-                        </div>
+                        </div> --}}
                         <div class="mb-4">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                 I know this event from
