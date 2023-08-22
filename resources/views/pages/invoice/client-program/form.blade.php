@@ -698,7 +698,7 @@
         </div>
     </div>
 
-    {{-- @if ($clientProg->client->parents->count() > 0)  --}}
+    @if ($clientProg->client->parents->count() > 0) 
     <div class="modal fade" id="sendToClientModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -718,10 +718,10 @@
                         <input type="hidden" name="clientprog_id" id="clientprog_id"
                             value="{{ $clientProg->clientprog_id }}" class="form-control w-100">
                         <input type="hidden" name="parent_id" id="parent_id"
-                            value="{{ $clientProg->client->parents->count() > 0 ? $clientProg->client->parents[0]->id : $clientProg->client->id }}" class="form-control w-100">
+                            value="{{ $clientProg->client->parents[0]->id }}" class="form-control w-100">
                         <label for="">Email Parent</label>
                         <input type="mail" name="parent_mail" id="parent_mail"
-                            value="{{ $clientProg->client->parents->count() > 0 ? $clientProg->client->parents[0]->mail : $clientProg->client->mail }}" class="form-control w-100">
+                            value="{{ $clientProg->client->parents[0]->mail }}" class="form-control w-100">
                     </div>
                     {{-- <hr> --}}
                     <div class="d-flex justify-content-between">
@@ -739,7 +739,7 @@
             </div>
         </div>
     </div>
-    {{-- @endif --}}
+    @endif
 
 
     <script>
