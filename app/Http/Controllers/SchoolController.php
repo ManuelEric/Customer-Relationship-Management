@@ -70,6 +70,7 @@ class SchoolController extends Controller
             'sch_city',
             'sch_location',
             'sch_score',
+            'status'
         ]);
 
         $last_id = School::max('sch_id');
@@ -193,6 +194,7 @@ class SchoolController extends Controller
             'sch_city',
             'sch_location',
             'sch_score',
+            'status'
         ]);
 
         $schoolId = $request->route('school');
