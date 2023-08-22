@@ -961,8 +961,11 @@ class InvoiceProgramController extends Controller
         $client = $this->clientRepository->getClientById($request->parent_id);
         $parent_mail = $request->parent_mail;
 
+        
+        if(isset($client)){
+            $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+        }
 
-        $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
 
         return response()->json(['status' => 'success', 'message' => 'Success Update Email Parent'], 200);
     }
