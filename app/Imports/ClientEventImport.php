@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Http\Traits\CheckExistingClient;
 use App\Models\ClientEvent;
 use App\Models\Corporate;
 use App\Models\EdufLead;
@@ -42,6 +43,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
     use Importable;
     use StandardizePhoneNumberTrait;
     use CreateCustomPrimaryKeyTrait;
+    use CheckExistingClient;
 
     public function collection(Collection $rows)
     {
@@ -267,7 +269,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                 $lead = Lead::where('main_lead', $data['lead'])->get()->pluck('lead_id')->first();
             }
 
-            $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
+            // $event = Event::where('event_title', $data['event'])->get()->pluck('event_id')->first();
             $getAllEduf = EdufLead::all();
             $edufair = $getAllEduf->where('organizerName', $data['edufair'])->pluck('id')->first();
             $partner = Corporate::where('corp_name', $data['partner'])->get()->pluck('corp_id')->first();
@@ -294,7 +296,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
             'school' => $data['school'],
             'class_of' => $data['class_of'],
             'lead' => isset($lead) ? $lead : $data['lead'],
-            'event' => isset($event) ? $event : $data['event'],
+            // 'event' => isset($event) ? $event : $data['event'],
             'partner' => isset($partner) ? $partner : $data['partner'],
             'edufair' => isset($edufair) ? $edufair : $data['edufair'],
             'kol' => isset($kol) ? $kol : $data['kol'],
@@ -322,7 +324,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
             '*.school' => ['required'],
             '*.class_of' => ['nullable', 'integer'],
             '*.lead' => ['required'],
-            '*.event' => ['required_if:lead,LS003', 'nullable', 'exists:tbl_events,event_id'],
+            // '*.event' => ['required_if:lead,LS003', 'nullable', 'exists:tbl_events,event_id'],
             '*.partner' => ['required_if:lead,LS010', 'nullable', 'exists:tbl_corp,corp_id'],
             '*.edufair' => ['required_if:lead,LS017', 'nullable', 'exists:tbl_eduf_lead,id'],
             '*.kol' => ['required_if:lead,KOL', 'nullable', 'exists:tbl_lead,lead_id'],
@@ -337,7 +339,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
     public function customValidationMessages()
     {
         return [
-            '*.event.required_if' => 'The :attribute is required when lead All-In Event',
+            // '*.event.required_if' => 'The :attribute is required when lead All-In Event',
             '*.partner.required_if' => 'The :attribute is required when lead All-In Partners',
             '*.edufair.required_if' => 'The :attribute is required when lead External Edufair',
         ];
@@ -354,100 +356,100 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
         return $newSchool;
     }
 
-    private function checkExistingClient($phone, $email)
-    {
-        $existClient = [];
+    // private function checkExistingClient($phone, $email)
+    // {
+    //     $existClient = [];
 
-        // Check existing client by phone number and email
-        $clientExistPhone = $this->checkExistingByPhoneNumber($phone);
-        $clientExistEmail = $this->checkExistingByEmail($email);
+    //     // Check existing client by phone number and email
+    //     $clientExistPhone = $this->checkExistingByPhoneNumber($phone);
+    //     $clientExistEmail = $this->checkExistingByEmail($email);
 
-        if ($clientExistPhone && $clientExistEmail) {
-            $existClient['isExist'] = true;
-            $existClient['id'] = $clientExistPhone['id'];
-        } else if ($clientExistPhone && !$clientExistEmail) {
-            $existClient['isExist'] = true;
-            $existClient['id'] = $clientExistPhone['id'];
+    //     if ($clientExistPhone && $clientExistEmail) {
+    //         $existClient['isExist'] = true;
+    //         $existClient['id'] = $clientExistPhone['id'];
+    //     } else if ($clientExistPhone && !$clientExistEmail) {
+    //         $existClient['isExist'] = true;
+    //         $existClient['id'] = $clientExistPhone['id'];
 
-            // Add email to client addtional info
-            $additionalInfo = [
-                'client_id' => $clientExistPhone['id'],
-                'category' => 'mail',
-                'value' => $email,
-            ];
-            UserClientAdditionalInfo::create($additionalInfo);
-        } else if (!$clientExistPhone && $clientExistEmail) {
-            $existClient['isExist'] = true;
-            $existClient['id'] = $clientExistEmail['id'];
+    //         // Add email to client addtional info
+    //         $additionalInfo = [
+    //             'client_id' => $clientExistPhone['id'],
+    //             'category' => 'mail',
+    //             'value' => $email,
+    //         ];
+    //         UserClientAdditionalInfo::create($additionalInfo);
+    //     } else if (!$clientExistPhone && $clientExistEmail) {
+    //         $existClient['isExist'] = true;
+    //         $existClient['id'] = $clientExistEmail['id'];
 
-            // Add email to client addtional info
-            $additionalInfo = [
-                'client_id' => $clientExistEmail['id'],
-                'category' => 'phone',
-                'value' => $phone,
-            ];
-            UserClientAdditionalInfo::create($additionalInfo);
-        } else {
-            $existClient['isExist'] = false;
-        }
+    //         // Add email to client addtional info
+    //         $additionalInfo = [
+    //             'client_id' => $clientExistEmail['id'],
+    //             'category' => 'phone',
+    //             'value' => $phone,
+    //         ];
+    //         UserClientAdditionalInfo::create($additionalInfo);
+    //     } else {
+    //         $existClient['isExist'] = false;
+    //     }
 
-        return $existClient;
-    }
+    //     return $existClient;
+    // }
 
-    public function checkExistingByPhoneNumber($phone)
-    {
-        # From tbl client
-        $client_phone = UserClient::select('id', 'mail', 'phone')->whereNot('phone', null)->whereNot('phone', '')->get();
-        $std_phone = $client_phone->map(function ($item, int $key) {
-            return [
-                'id' => $item['id'],
-                'mail' => $item['mail'],
-                'phone' => $this->setPhoneNumber($item['phone'])
-            ];
-        });
+    // public function checkExistingByPhoneNumber($phone)
+    // {
+    //     # From tbl client
+    //     $client_phone = UserClient::select('id', 'mail', 'phone')->whereNot('phone', null)->whereNot('phone', '')->get();
+    //     $std_phone = $client_phone->map(function ($item, int $key) {
+    //         return [
+    //             'id' => $item['id'],
+    //             'mail' => $item['mail'],
+    //             'phone' => $this->setPhoneNumber($item['phone'])
+    //         ];
+    //     });
 
-        $client = $std_phone->where('phone', $phone)->first();
+    //     $client = $std_phone->where('phone', $phone)->first();
 
-        if (!isset($client)) {
+    //     if (!isset($client)) {
 
-            # From tbl client additional info
-            $client_phone = UserClientAdditionalInfo::select('client_id', 'category', 'value')->where('category', 'phone')->whereNot('value', null)->whereNot('value', '')->get();
-            $std_phone = $client_phone->map(function ($item, int $key) {
-                return [
-                    'id' => $item['client_id'],
-                    'mail' => $item['category'] == 'mail' ? $item['value'] : null,
-                    'phone' => $this->setPhoneNumber($item['value'])
-                ];
-            });
+    //         # From tbl client additional info
+    //         $client_phone = UserClientAdditionalInfo::select('client_id', 'category', 'value')->where('category', 'phone')->whereNot('value', null)->whereNot('value', '')->get();
+    //         $std_phone = $client_phone->map(function ($item, int $key) {
+    //             return [
+    //                 'id' => $item['client_id'],
+    //                 'mail' => $item['category'] == 'mail' ? $item['value'] : null,
+    //                 'phone' => $this->setPhoneNumber($item['value'])
+    //             ];
+    //         });
 
-            $client = $std_phone->where('phone', $phone)->first();
-        }
+    //         $client = $std_phone->where('phone', $phone)->first();
+    //     }
 
-        return $client;
-    }
+    //     return $client;
+    // }
 
-    public function checkExistingByEmail($email)
-    {
-        # From tbl client
-        $client_mail = UserClient::select('id', 'mail', 'phone')->whereNot('mail', null)->whereNot('mail', '')->get();
+    // public function checkExistingByEmail($email)
+    // {
+    //     # From tbl client
+    //     $client_mail = UserClient::select('id', 'mail', 'phone')->whereNot('mail', null)->whereNot('mail', '')->get();
 
-        $client = $client_mail->where('mail', $email)->first();
+    //     $client = $client_mail->where('mail', $email)->first();
 
-        if (!isset($client)) {
+    //     if (!isset($client)) {
 
-            # From tbl client additional info
-            $client_mail = UserClientAdditionalInfo::select('client_id', 'category', 'value')->where('category', 'mail')->whereNot('value', null)->whereNot('value', '')->get();
-            $getMail = $client_mail->map(function ($item, int $key) {
-                return [
-                    'id' => $item['client_id'],
-                    'mail' => $item['category'] == 'mail' ? $item['value'] : null,
-                    'phone' => $this->setPhoneNumber($item['value'])
-                ];
-            });
+    //         # From tbl client additional info
+    //         $client_mail = UserClientAdditionalInfo::select('client_id', 'category', 'value')->where('category', 'mail')->whereNot('value', null)->whereNot('value', '')->get();
+    //         $getMail = $client_mail->map(function ($item, int $key) {
+    //             return [
+    //                 'id' => $item['client_id'],
+    //                 'mail' => $item['category'] == 'mail' ? $item['value'] : null,
+    //                 'phone' => $this->setPhoneNumber($item['value'])
+    //             ];
+    //         });
 
-            $client = $getMail->where('mail', $email)->first();
-        }
+    //         $client = $getMail->where('mail', $email)->first();
+    //     }
 
-        return $client;
-    }
+    //     return $client;
+    // }
 }
