@@ -52,31 +52,44 @@
                     {{-- <form action="" method="POST" id="reminderForm"> --}}
                     @csrf
                     {{-- @method('put') --}}
+                    <input type="hidden" name="" id="firstLink">
                     <div class="container">
                         <div class="row px-2">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="cta" id="ctaForm" onchange="linkOption(this)">
+                                    <input class="form-check-input" type="checkbox" value="cta" id="ctaForm"
+                                        onchange="linkOption()">
                                     <label class="form-check-label" for="ctaForm">
-                                      CTA Form
+                                        CTA Form
                                     </label>
-                                  </div>
+                                </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="attend" id="attendForm" onchange="linkOption(this)">
+                                    <input class="form-check-input" type="checkbox" value="attend" id="attendForm"
+                                        onchange="linkOption()">
                                     <label class="form-check-label" for="attendForm">
-                                      Attend Event
+                                        Attend Event
                                     </label>
-                                  </div>
+                                </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="offline" id="offlineForm">
+                                    <input class="form-check-input" type="checkbox" value="offline" id="offlineForm"
+                                        onchange="linkOption()">
                                     <label class="form-check-label" for="offlineForm">
-                                      Offline Event
+                                        Offline Event
                                     </label>
-                                  </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="ots" id="otsForm"
+                                        onchange="linkOption()">
+                                    <label class="form-check-label" for="offlineForm">
+                                        On The Spot
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -102,10 +115,19 @@
     {{-- Need Changing --}}
     <script>
         function linkOption(param) {
-            alert($('#link').val())
+            var cta = $('#ctaForm').is(':checked') ? '&form_type=cta' : ''
+            var attend = $('#attendForm').is(':checked') ? '&attend_status=attend' : ''
+            var offline = $('#offlineForm').is(':checked') ? '&event_type=offline' : ''
+            var ots = $('#otsForm').is(':checked') ? '&status=ots' : ''
+            var link = $('#firstLink').val() + cta + attend + offline + ots
+            $('#link').val(link)
         };
 
         function copyLink() {
+            $('#ctaForm').prop('checked', false)
+            $('#attendForm').prop('checked', false)
+            $('#offlineForm').prop('checked', false)
+            $('#otsForm').prop('checked', false)
             $('#linkEmbed').modal('hide');
             // Get the text field
             var copyText = document.getElementById("link");
@@ -119,7 +141,13 @@
 
             // Alert the copied text
             // alert("Copied the text: " + copyText.value);
-            Swal.fire("Form embed successfully copied ", '', 'success');
+            Swal.fire({
+                icon: 'success',
+                text: "Form embed successfully copied ",
+                timer: 1500,
+                width:300,
+                showConfirmButton: false,
+            });
             //    swal("Copied the text: " + copyText.value);
         }
 
@@ -208,6 +236,8 @@
             $('#eventTable tbody').on('click', '.generateLinkEmbed ', function() {
                 var data = table.row($(this).parents('tr')).data();
                 $('#link').val("{{ url('form/event') }}?event_name=" + encodeURIComponent(data.event_title))
+                $('#firstLink').val("{{ url('form/event') }}?event_name=" + encodeURIComponent(data
+                    .event_title))
                 $('#linkEmbed').modal('show')
                 // window.location.href = "{{ url('master/event') }}/" + data.event_id;
             });

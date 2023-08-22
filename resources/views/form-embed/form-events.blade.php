@@ -97,10 +97,21 @@
 
             <form action="{{ url('form/events') }}" method="POST">
                 @csrf
+                {{-- Event Name  --}}
+                <input type="hidden" name="event_name" value="{{ $_GET['event_name'] }}">
+                {{-- Attend Status  --}}
                 <input type="hidden" name="status" id=""
                     value="{{ request()->get('attend_status') == 'attend' ? 'attend' : 'join' }}">
+                {{-- Event Type  --}}
                 <input type="hidden" name="event_type" id=""
                     value="{{ request()->get('event_type') == 'offline' ? 'offline' : '' }}">
+                {{-- Status  --}}
+                <input type="hidden" name="status" id=""
+                    value="{{ request()->get('status') == 'ots' ? 'ots' : '' }}">
+                {{-- Referral  --}}
+                <input type="hidden" name="referral" id=""
+                    value="{{ request()->get('ref') ? request()->get('ref') : '' }}">
+
                 <section id="role" class="page step-active">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -165,7 +176,7 @@
                         </div>
                     </div>
                 </section>
-                <input type="hidden" name="event_name" value="{{ $_GET['event_name'] }}">
+                
 
                 <section id="user1" class="page step-inactive">
                     <div
