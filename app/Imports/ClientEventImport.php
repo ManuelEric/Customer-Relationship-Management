@@ -65,6 +65,8 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                 // Check existing school
                 $school = School::where('sch_name', $row['school'])->get()->pluck('sch_id')->first();
 
+                $status = $row['status'] == 'Join' ? 0 : 1;
+
                 if (!isset($school)) {
                     $newSchool = $this->createSchoolIfNotExists($row['school']);
                 }
@@ -230,7 +232,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
                     'joined_date' => isset($row['date']) ? $row['date'] : null,
                     'client_id' => $existClient['isExist'] ? $existClient['id'] : $newClient->id,
                     'lead_id' => $row['lead'],
-                    'status' => 0,
+                    'status' => $status,
                 ];
 
                 $existClientEvent = ClientEvent::where('event_id', $data['event_id'])
@@ -304,7 +306,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
             'destination_country' => $data['destination_country'],
             'reason_join' => $data['reason_join'],
             'expectation_join' => $data['expectation_join'],
-            // 'status' => 0,
+            'status' => $data['status'],
         ];
 
         return $data;
@@ -332,7 +334,7 @@ class ClientEventImport implements ToCollection, WithHeadingRow, WithValidation
             '*.destination_country' => ['nullable'],
             '*.reason_join' => ['nullable'],
             '*.expectation_join' => ['nullable'],
-            // '*.status' => ['required', 'in:0,1'],
+            '*.status' => ['required', 'in:Join,Attend'],
         ];
     }
 
