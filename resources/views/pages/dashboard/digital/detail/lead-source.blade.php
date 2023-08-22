@@ -35,7 +35,7 @@
                                     <th style="font-size: 13px">Lead Source</th>
                                     <th style="font-size: 13px">Conversion Lead</th>
                                     <th style="font-size: 13px">Program Name</th>
-                                    <th style="font-size: 13px">Follow Up Time</th>
+                                    {{-- <th style="font-size: 13px">Follow Up Time</th> --}}
                                     <th style="font-size: 13px">Conversion Time</th>
                                 </tr>
                             </thead>
@@ -48,18 +48,18 @@
                                         <td>{{$data->conversion_lead}}</td>
                                         <td>{{$data->program_name}}</td>
                                         <td>{{$data->conversion_time}} Days</td>
-                                        <td>{{$data->followup_time}} Days</td>
+                                        {{-- <td>{{$data->followup_time}} Days</td> --}}
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
                     <div class="card-footer d-flex justify-between align-items-center w-100">
-                        <div class="w-50">
+                        {{-- <div class="w-50">
                             <small>Average of Follow Up</small>
                             <h5 id="avg-follow-up"><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? $dataLead->avg('followup_time') : '-' }} Days</h5>
-                        </div>
-                        <div class="w-50 text-end">
+                        </div> --}}
+                        <div class="w-100 text-end">
                             <small>Average of Conversion</small>
                             <h5 id="avg-conversion"><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? $dataLead->avg('conversion_time') : '-' }} Days</h5>
                         </div>
@@ -198,7 +198,7 @@
         var prog_id = $('#prog_id_digital').val()
 
         Swal.showLoading()
-        axios.get('{{ url('api/digital/detail/') }}/' + month + '/' + prog_id + '/lead-source/' + lead) 
+        axios.get('{{ url('api/digital/detail') }}/' + month + '/lead-source/' + lead + '/' + prog_id) 
             .then((response) => {
                 var result = response.data
 
@@ -224,7 +224,7 @@
         var prog_id = $('#prog_id_digital').val()
 
         Swal.showLoading()
-        axios.get('{{ url('api/digital/detail/') }}/' + month + '/' + prog_id + '/conversion-lead/' + lead)
+        axios.get('{{ url('api/digital/detail') }}/' + month + '/conversion-lead/' + lead + '/' + prog_id)
             .then((response) => {
                 var result = response.data
                 console.log(result)
@@ -270,21 +270,21 @@
                     html += '<td>' + item.lead_source + '</td>'
                     html += '<td>' + item.conversion_lead + '</td>'
                     html += '<td>' + item.program_name + '</td>'
-                    html += '<td>' + item.followup_time + ' Days </td>'
+                    // html += '<td>' + item.followup_time + ' Days </td>'
                     html += '<td>' + item.conversion_time + ' Days </td>'
                     html += '</tr>'
                     $('#t-body-leads-digital').append(html)
 
-                    totalFollowUpTime += item.followup_time;
+                    // totalFollowUpTime += item.followup_time;
                     totalConversionTime += item.conversion_time;
                     count++;
                     i++;
                 })
 
-                avgFollowUpTime = count !== 0 ? totalFollowUpTime / count : 0;
+                // avgFollowUpTime = count !== 0 ? totalFollowUpTime / count : 0;
                 avgConversionTime = count !== 0 ? totalConversionTime / count : 0;
 
-                $('#avg-follow-up').html(icon + Math.round(avgFollowUpTime) + ' Days');
+                // $('#avg-follow-up').html(icon + Math.round(avgFollowUpTime) + ' Days');
                 $('#avg-conversion').html(icon + Math.round(avgConversionTime) + ' Days');
     
                 // Lead Source

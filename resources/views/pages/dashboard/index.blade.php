@@ -32,7 +32,7 @@
         @endif 
 
         {{-- Digital --}}
-         @if ($isAdmin)
+         @if ($isDigital || $isAdmin)
             @include('pages.dashboard.digital.detail.alarm')
         @endif
     </div> 
@@ -60,7 +60,7 @@
         @include('pages.dashboard.partnership.index')
     @endif
     {{-- Digital  --}}
-    @if ($isAdmin)
+    @if ($isDigital || $isAdmin)
         <div class="card bg-secondary mb-1">
             <div class="d-flex justify-content-between align-items-center px-3 text-white">
                 <h3 class="mb-0">Digital Dashboard</h3>
