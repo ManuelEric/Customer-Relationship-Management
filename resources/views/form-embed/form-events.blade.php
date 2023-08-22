@@ -362,9 +362,9 @@
         create: false
     });
 
-    new TomSelect('#destination_country', {
-        create: false
-    });
+    // new TomSelect('#destination_country', {
+    //     create: false
+    // });
 
     new TomSelect('#leadSource', {
         create: false
@@ -375,21 +375,21 @@
         const child_name = document.querySelector('#child_name')
         const input_child_name = document.querySelector('#input_child_name')
         const graduation_input = document.querySelector('#graduation_input')
-        const country_input = document.querySelector('#country_input')
+        // const country_input = document.querySelector('#country_input')
 
         if (element.value == "student") {
             child_name.classList.add('hidden')
             input_child_name.type = "hidden"
             input_child_name.value = ""
-            country_input.classList.remove('hidden')
+            // country_input.classList.remove('hidden')
         } else if (element.value == "parent") {
             child_name.classList.remove('hidden')
             input_child_name.type = "text"
-            country_input.classList.remove('hidden')
+            // country_input.classList.remove('hidden')
         } else {
             child_name.classList.add('hidden')
             graduation_input.classList.add('hidden')
-            country_input.classList.add('hidden')
+            // country_input.classList.add('hidden')
             input_child_name.type = "hidden"
         }
     }
