@@ -277,8 +277,8 @@
                                 <div class="mb-2">
                                     <label>Status</label>
                                     <select name="status" class="select w-100" {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
-                                        <option value="1" @selected($school->status == 1)>Active</option>
-                                        <option value="0" @selected($school->status == 0)>Inactive</option>
+                                        <option value="1" @selected(isset($school) && $school->status == 1)>Active</option>
+                                        <option value="0" @selected(isset($school) && $school->status == 0)>Inactive</option>
                                     </select>
                                     @error('status')
                                         <small class="text-danger fw-light">{{ $message }}</small>
