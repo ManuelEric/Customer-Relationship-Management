@@ -715,18 +715,14 @@ class InvoiceProgramController extends Controller
 
         $pic_mail = $clientProg->internalPic->email;
 
-        // Temp
-        $mail = $clientProg->client->mail;
 
-        // $data['email'] = $clientProg->client->parents[0]->mail;
-        $data['email'] = $mail;
+        $data['email'] = $clientProg->client->parents[0]->mail;
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
             $pic_mail
         ];
-        // $data['recipient'] = $clientProg->client->parents[0]->full_name;
-        $data['recipient'] = $clientProg->client->full_name;
+        $data['recipient'] = $clientProg->client->parents[0]->full_name;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,
             'program_name' => $clientProg->program->program_name

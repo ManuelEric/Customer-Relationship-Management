@@ -369,13 +369,17 @@ class ReceiptController extends Controller
 
         $pic_mail = $receipt->invoiceProgram->clientprog->internalPic->email;
 
-        $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
+        // Temp
+        $mail = $receipt->invoiceProgram->clientprog->client->mail;
+        // $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
+        $data['email'] = $mail;
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
             $pic_mail
         ];
-        $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
+        // $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
+        $data['recipient'] = $receipt->invoiceProgram->clientprog->client->full_name;
         $data['program_name'] = $receipt->invoiceProgram->clientprog->program->program_name;
         $data['title'] = "Receipt of program " . $data['program_name'];
 
@@ -407,7 +411,9 @@ class ReceiptController extends Controller
         $parent_mail = $request->parent_mail;
 
 
-        $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+        if(isset($client)){
+            $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+        }
 
         return response()->json(['status' => 'success', 'message' => 'Success Update Email Parent'], 200);
     }
