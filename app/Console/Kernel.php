@@ -82,8 +82,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:reminder_tutor_t3')->daily();
 
         # cron for target tracking
-        $schedule->command('insert:target_tracking_monthly')->monthly(); # should be run on cron every new month
-        $schedule->command('update:target_tracking')->everyMinute(); # run every minute because target tracking should be real-time update
+        // $schedule->command('insert:target_tracking_monthly')->monthly(); # should be run on cron every new month
+        // $schedule->command('update:target_tracking')->everyMinute(); # run every minute because target tracking should be real-time update
     }
 
     /**

@@ -318,6 +318,7 @@
             }, 7000);
         }
 
+        // for redirect to login page after session expired
         $(document).ready(function() {
             $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
                 window.location.href = "{{ route('logout.expiration') }}"
