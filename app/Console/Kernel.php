@@ -78,8 +78,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('send:reminder_expiration_contracts_external_mentor')->daily(); # daily needed!
         // $schedule->command('send:reminder_expiration_contracts_internship')->daily(); # daily needed!
 
-        $schedule->command('send:reminder_tutor_h1')->daily();
-        $schedule->command('send:reminder_tutor_t3')->daily();
+        // $schedule->command('send:reminder_tutor_h1')->daily();
+        // $schedule->command('send:reminder_tutor_t3')->daily();
         
         # cron for resend mail qrcode
         # registration event
