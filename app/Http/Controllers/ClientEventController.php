@@ -21,6 +21,7 @@ use App\Interfaces\LeadRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Interfaces\SchoolCurriculumRepositoryInterface;
 use App\Interfaces\RoleRepositoryInterface;
+use App\Interfaces\TagRepositoryInterface;
 use App\Models\Client;
 use App\Models\School;
 use App\Models\UserClientAdditionalInfo;
@@ -49,6 +50,7 @@ class ClientEventController extends Controller
     protected SchoolCurriculumRepositoryInterface $schoolCurriculumRepository;
     protected RoleRepositoryInterface $roleRepository;
     protected ClientEventLogMailRepositoryInterface $clientEventLogMailRepository;
+    protected TagRepositoryInterface $tagRepository;
 
 
     public function __construct(
@@ -62,7 +64,8 @@ class ClientEventController extends Controller
         SchoolRepositoryInterface $schoolRepository,
         SchoolCurriculumRepositoryInterface $schoolCurriculumRepository,
         RoleRepositoryInterface $roleRepository,
-        ClientEventLogMailRepositoryInterface $clientEventLogMailRepository
+        ClientEventLogMailRepositoryInterface $clientEventLogMailRepository,
+        TagRepositoryInterface $tagRepository
     ) {
         $this->curriculumRepository = $curriculumRepository;
         $this->clientRepository = $clientRepository;
@@ -75,6 +78,7 @@ class ClientEventController extends Controller
         $this->schoolCurriculumRepository = $schoolCurriculumRepository;
         $this->roleRepository = $roleRepository;
         $this->clientEventLogMailRepository = $clientEventLogMailRepository;
+        $this->tagRepository = $tagRepository;
     }
 
     public function index(Request $request)
@@ -459,13 +463,15 @@ class ClientEventController extends Controller
         $requested_event_name = str_replace('&quot;', '"', $request->event_name);
         if (!$event = $this->eventRepository->getEventByName(urldecode($requested_event_name)))
             abort(404);
-        
+
+        $tags = $this->tagRepository->getAllTags();
 
         return view('form-embed.form-events')->with(
             [
                 'leads' => $leads,
                 'schools' => $schools,
-                'event' => $event
+                'event' => $event,
+                'tags' => $tags->where('name', '!=', 'Other'),
             ]
         );
     }
@@ -618,6 +624,10 @@ class ClientEventController extends Controller
                         ];
         
                         $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);
+                        $clientStudentId = $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id;
+                        
+
+                        $this->clientRepository->createDestinationCountry($clientStudentId, $request->destination_country);
                     }
 
                     break;
@@ -656,6 +666,8 @@ class ClientEventController extends Controller
                         $clientId = $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id;
                         $clientName = $childDetails['name'];
                         $clientMail = $existClientStudent['isExist'] ? $existClientStudent['mail'] : $newClientStudent->mail;
+                        
+                        $this->clientRepository->createDestinationCountry($clientId, $request->destination_country);
                     }
                     break;
 
