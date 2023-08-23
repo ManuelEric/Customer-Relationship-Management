@@ -248,6 +248,10 @@
                             <i class="bi bi-person me-2"></i>
                             {{ isset($invoicePartner) ? 'Invoice : ' . $invoicePartner->invb2b_id : '' }}
                         </h6>
+                        <h6 class="mt-2 mb-0 p-0">
+                            <i class="bi bi-calendar-week me-2"></i>
+                            {{ isset($invoicePartner) ? 'Date : ' . $invoicePartner->created_at : '' }} 
+                        </h6>
                     </div>
                     <div class="">
                         @if (isset($invoicePartner) &&

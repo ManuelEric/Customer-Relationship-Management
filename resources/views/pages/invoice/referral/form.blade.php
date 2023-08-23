@@ -248,6 +248,10 @@
                             <i class="bi bi-person me-2"></i>
                             {{ isset($invoiceRef) ? 'Invoice : ' . $invoiceRef->invb2b_id : '' }}
                         </h6>
+                        <h6 class="mt-2 mb-0 p-0">
+                            <i class="bi bi-calendar-week me-2"></i>
+                            {{ isset($invoiceRef) ? 'Date : ' . $invoiceRef->created_at : '' }} 
+                        </h6>
                     </div>
                     <div class="">
                         @if (isset($invoiceRef) && !isset($invoiceRef->receipt) && $invoiceRef->invb2b_pm == 'Full Payment' && $status != 'edit')

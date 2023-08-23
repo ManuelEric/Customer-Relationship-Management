@@ -47,6 +47,13 @@ class InvoiceProgram extends Model
         'updated_at'
     ];
 
+    public function createdAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => date('M d, Y H:i:s', strtotime($value)),
+        );
+    }
+
     public function getCurrencyUnit()
     {
         switch ($this->currency) {
