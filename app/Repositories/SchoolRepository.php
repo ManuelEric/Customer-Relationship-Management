@@ -149,12 +149,6 @@ class SchoolRepository implements SchoolRepositoryInterface
             ]
         );
 
-        School::where('sch_curriculum', '=', '')->update(
-            [
-                'sch_curriculum' => null
-            ]
-        );
-
         School::where('sch_mail', '=', '')->update(
             [
                 'sch_mail' => null
@@ -197,6 +191,18 @@ class SchoolRepository implements SchoolRepositoryInterface
         SchoolDetail::where('schdetail_email', '=', '')->update(
             [
                 'schdetail_email' => null
+            ]
+        );
+
+        SchoolDetail::where('schdetail_grade', '=', '')->where('schdetail_grade', '=', ' ')->orWhereNull('schdetail_grade')->update(
+            [
+                'schdetail_grade' => null
+            ]
+        );
+
+        SchoolDetail::where('schdetail_position', '=', '')->update(
+            [
+                'schdetail_position' => null
             ]
         );
 

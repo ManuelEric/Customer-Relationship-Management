@@ -273,6 +273,19 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-12">
+                                <div class="mb-2">
+                                    <label>Status</label>
+                                    <select name="status" class="select w-100" {{ empty($school) || isset($edit) ? '' : 'disabled' }}>
+                                        <option value="1" @selected(isset($school) && $school->status == 1)>Active</option>
+                                        <option value="0" @selected(isset($school) && $school->status == 0)>Inactive</option>
+                                    </select>
+                                    @error('status')
+                                        <small class="text-danger fw-light">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+
                         </div>
                         @if (empty($school) || isset($edit))
                             <div class="text-end mt-3">
@@ -426,6 +439,12 @@
                                             Teacher</option>
                                         <option value="Marketing" @selected(old('schdetail_position') && old('schdetail_position')[0] == 'Marketing')>
                                             Marketing</option>
+                                        <option value="Learning Journey Coordinator" @selected(old('schdetail_position') && old('schdetail_position')[0] == 'Learning Journey Coordinator')>
+                                            Learning Journey Coordinator</option>
+                                        <option value="Head/Owner" @selected(old('schdetail_position') && old('schdetail_position')[0] == 'Head/Owner')>
+                                            Head/Owner</option>
+                                        <option value="Vice Principal" @selected(old('schdetail_position') && old('schdetail_position')[0] == 'Vice Principal')>
+                                            Vice Principal</option>
                                     </select>
                                     @error('schdetail_position.0')
                                         <small class="text-danger fw-light">{{ $message }}</small>
@@ -538,6 +557,7 @@
                     // handle success
                     let id = response.data.school_id
                     let cp = response.data.schoolDetail
+
                     $('#cp_fullname').val(cp.schdetail_fullname)
                     $('#cp_mail').val(cp.schdetail_email)
                     $('#cp_grade').val(cp.schdetail_grade).trigger('change')

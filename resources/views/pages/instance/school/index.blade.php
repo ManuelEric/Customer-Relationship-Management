@@ -27,6 +27,7 @@
                         <th>Curriculum</th>
                         <th>City</th>
                         <th>Location</th>
+                        <th>Status</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
                 </thead>
@@ -86,6 +87,13 @@
                     {
                         data: 'sch_location',
                         type: 'html'
+                    },
+                    {
+                        data: 'status',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return data == 1 ? 'Active' : 'Inactive';
+                        }
                     },
                     {
                         data: '',

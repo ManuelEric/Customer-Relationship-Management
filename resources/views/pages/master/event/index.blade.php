@@ -52,8 +52,35 @@
                     {{-- <form action="" method="POST" id="reminderForm"> --}}
                     @csrf
                     {{-- @method('put') --}}
+                    <div class="container">
+                        <div class="row px-2">
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="cta" id="ctaForm" onchange="linkOption(this)">
+                                    <label class="form-check-label" for="ctaForm">
+                                      CTA Form
+                                    </label>
+                                  </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="attend" id="attendForm" onchange="linkOption(this)">
+                                    <label class="form-check-label" for="attendForm">
+                                      Attend Event
+                                    </label>
+                                  </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="offline" id="offlineForm">
+                                    <label class="form-check-label" for="offlineForm">
+                                      Offline Event
+                                    </label>
+                                  </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group">
-
                         {{-- <label for="">Phone Number Parent</label> --}}
                         <input type="text" name="link" id="link" disabled class="form-control w-100">
                     </div>
@@ -74,6 +101,10 @@
 
     {{-- Need Changing --}}
     <script>
+        function linkOption(param) {
+            alert($('#link').val())
+        };
+
         function copyLink() {
             $('#linkEmbed').modal('hide');
             // Get the text field
@@ -91,6 +122,7 @@
             Swal.fire("Form embed successfully copied ", '', 'success');
             //    swal("Copied the text: " + copyText.value);
         }
+
         $(document).ready(function() {
 
 
