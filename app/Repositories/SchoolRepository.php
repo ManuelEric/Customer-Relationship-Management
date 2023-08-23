@@ -10,6 +10,7 @@ use App\Models\V1\School as V1School;
 use Carbon\Carbon;
 use App\Models\SchoolDetail;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 
 class SchoolRepository implements SchoolRepositoryInterface
 {
@@ -235,7 +236,12 @@ class SchoolRepository implements SchoolRepositoryInterface
 
     public function getFeederSchools($eventId)
     {
-        $schools = School::join('tbl_client as c', 'c.sch_id', '=', 'tbl_sch.sch_id')->join('tbl_client_event as ce', 'ce.client_id', '=', 'c.id')->join('tbl_client_prog as cp', 'cp.client_id', '=', 'c.id')->join('tbl_prog as p', 'p.prog_id', '=', 'cp.prog_id')->where('ce.event_id', $eventId)->where('p.main_prog_id', '=', 1)->select([
+        $schools = School::join('tbl_client as c', 'c.sch_id', '=', 'tbl_sch.sch_id')
+                            ->join('tbl_client_event as ce', DB::raw('(CASE WHEN ce.child_id is NULL THEN ce.client_id ELSE ce.child_id END)'), '=', 'c.id')
+                            ->join('tbl_client_prog as cp', 'cp.client_id', '=', 'c.id')
+                            ->join('tbl_prog as p', 'p.prog_id', '=', 'cp.prog_id')
+                            ->where('ce.event_id', $eventId)->where('p.main_prog_id', '=', 1)
+        ->select([
             'tbl_sch.sch_name',
             'tbl_sch.sch_location',
             'c.id',

@@ -483,6 +483,7 @@ class ClientEventController extends Controller
         $existClientParent = $existClientStudent = $existClientTeacher = ['isExist' => false];
         $childDetails = [];
         $schoolId = null;
+        $childId = null;
 
         $requested_event_name = urldecode(str_replace('&quot;', '"', $request->event_name));
 
@@ -586,14 +587,15 @@ class ClientEventController extends Controller
                             'mail' => $request->email[0],
                             'phone' => $phoneParent,
                             // 'graduation_year' => $request->graduation_year,
+                            'register_as' => $childDetails['register_as'],
                             'lead' => $request->leadsource,
                         ];
         
                         $newClientParent = $this->clientRepository->createClient(ucwords($choosen_role), $clientDetails);
-                        $clientId = $existClientParent['isExist'] ? $existClientParent['id'] : $newClientParent->id;
-                        $clientName = $request->fullname[0];
-                        $clientMail = $existClientParent['isExist'] ? $existClientParent['mail'] : $newClientParent->mail;
                     }
+                    $clientId = $existClientParent['isExist'] ? $existClientParent['id'] : $newClientParent->id;
+                    $clientName = $request->fullname[0];
+                    $clientMail = $existClientParent['isExist'] ? $existClientParent['mail'] : $newClientParent->mail;
 
                     if (!$existClientStudent['isExist']) {
                         $fullname = explode(' ', $childDetails['name']);
@@ -629,6 +631,7 @@ class ClientEventController extends Controller
 
                         $this->clientRepository->createDestinationCountry($clientStudentId, $request->destination_country);
                     }
+                    $childId = $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id;
 
                     break;
 
@@ -662,13 +665,12 @@ class ClientEventController extends Controller
                             'sch_id' => $schoolId != null ? $schoolId : $request->school,
                         ];
         
-                        $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);
-                        $clientId = $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id;
-                        $clientName = $childDetails['name'];
-                        $clientMail = $existClientStudent['isExist'] ? $existClientStudent['mail'] : $newClientStudent->mail;
-                        
-                        $this->clientRepository->createDestinationCountry($clientId, $request->destination_country);
+                        $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);                        
                     }
+                    $clientId = $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id;
+                    $clientName = $childDetails['name'];
+                    $clientMail = $existClientStudent['isExist'] ? $existClientStudent['mail'] : $newClientStudent->mail;
+                    $this->clientRepository->createDestinationCountry($clientId, $request->destination_country);
                     break;
 
                 # submit teacher data
@@ -697,10 +699,10 @@ class ClientEventController extends Controller
                         ];
     
                         $newClientTeacher = $this->clientRepository->createClient('Teacher/Counselor', $clientDetails);
-                        $clientId = $existClientTeacher['isExist'] ? $existClientTeacher['id'] : $newClientTeacher->id;
-                        $clientName = $teacherDetails['name'];
-                        $clientMail = $existClientTeacher['isExist'] ? $existClientTeacher['mail'] : $newClientTeacher->mail;
                     }
+                    $clientId = $existClientTeacher['isExist'] ? $existClientTeacher['id'] : $newClientTeacher->id;
+                    $clientName = $teacherDetails['name'];
+                    $clientMail = $existClientTeacher['isExist'] ? $existClientTeacher['mail'] : $newClientTeacher->mail;
                     break;
 
             }
@@ -721,6 +723,7 @@ class ClientEventController extends Controller
             # initialize variable for client event
             $clientEventDetails = [
                 'client_id' => $clientId,
+                'child_id' => $childId,
                 'event_id' => $event->event_id,
                 'lead_id' => $request->leadsource,
                 'status' => $attend_status,

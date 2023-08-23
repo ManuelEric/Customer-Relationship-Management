@@ -244,7 +244,11 @@
                     <div class="">
                         <h6 class="m-0 p-0">
                             <i class="bi bi-person me-2"></i>
-                            {{ isset($invoiceSch) ? 'Invoice : ' . $invoiceSch->invb2b_id : '' }}
+                            {{ isset($invoiceSch) ? 'Invoice : ' . $invoiceSch->invb2b_id : '' }} 
+                        </h6>
+                        <h6 class="mt-2 mb-0 p-0">
+                            <i class="bi bi-calendar-week me-2"></i>
+                            {{ isset($invoiceSch) ? 'Date : ' . $invoiceSch->created_at : '' }} 
                         </h6>
                     </div>
                     <div class="">
