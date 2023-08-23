@@ -111,6 +111,12 @@ class AppServiceProvider extends ServiceProvider
                     $department = 'Finance & Operation';
                 }
 
+                # if logged in user is from department finance
+                if ($user->department()->where('dept_name', 'Digital')->where('status', 1)->exists()) {
+                    $isDigital = true;
+                    $department = 'Digital';
+                }
+
                 $deptId = $department !== null ? Department::where('dept_name', $department)->first()->id : null;
 
                 $grouped = $collection->sortBy(['order_no', 'order_no_submenu'])->values()->mapToGroups(function (array $item, int $key) {
@@ -136,10 +142,11 @@ class AppServiceProvider extends ServiceProvider
                         'isSales' => $isSales ?? false,
                         'isPartnership' => $isPartnership ?? false,
                         'isFinance' => $isFinance ?? false,
+                        'isDigital' => $isDigital ?? false,
                         'loggedIn_user' => $user,
                         'deptId' => $deptId,
-                        // 'countAlarm' => app('alarm-repository-services')->countAlarm(),
-                        // 'notification' => app('alarm-repository-services')->notification(),
+                        'countAlarm' => app('alarm-repository-services')->countAlarm(),
+                        'notification' => app('alarm-repository-services')->notification(),
                     ]
                 );
             }

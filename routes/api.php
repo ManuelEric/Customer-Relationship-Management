@@ -88,10 +88,11 @@ Route::get('finance/revenue/detail/{year}/{month}', [FinanceDashboardController:
 Route::get('finance/outstanding/period/{start_date}/{end_date}', [FinanceDashboardController::class, 'getOutstandingPaymentByPeriod']);
 
 # dashboard digital
-Route::get('digital/leads/{month}', [DigitalDashboardController::class, 'getDataLead']);
+Route::get('digital/all-leads/{month}', [DigitalDashboardController::class, 'getDataLead']);
+Route::get('digital/leads/{month}/{prog?}', [DigitalDashboardController::class, 'getLeadDigital']);
 Route::get('digital/detail/{month}/type-lead/{type_lead}/division/{division}', [DigitalDashboardController::class, 'getDetailDataLead']);
-Route::get('digital/detail/{lead}/lead-source', [DigitalDashboardController::class, 'getDetailLeadSource']);
-Route::get('digital/detail/{lead}/conversion-lead', [DigitalDashboardController::class, 'getDetailConversionLead']);
+Route::get('digital/detail/{month}/lead-source/{lead}/{prog?}', [DigitalDashboardController::class, 'getDetailLeadSource']);
+Route::get('digital/detail/{month}/conversion-lead/{lead}/{prog?}', [DigitalDashboardController::class, 'getDetailConversionLead']);
 
 
 Route::post('/upload', [InvoiceProgramController::class, 'upload']);

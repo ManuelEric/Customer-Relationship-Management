@@ -52,7 +52,7 @@ return new class extends Migration
                 WHEN cpl.main_lead COLLATE utf8mb4_unicode_ci = "All-In Partners" THEN CONCAT("All-In Partner - ", corp.corp_name COLLATE utf8mb4_unicode_ci)
                 ELSE cpl.main_lead COLLATE utf8mb4_unicode_ci
             END) AS conversion_lead,
-            DATEDIFF(cp.first_discuss_date, cl.created_at) AS followup_time,
+            DATEDIFF(cp.first_discuss_date, c.created_at) AS followup_time,
             DATEDIFF(cp.success_date, cp.first_discuss_date) AS conversion_time,
             (SELECT GROUP_CONCAT(CONCAT(squ.first_name, " ", squ.last_name)) FROM tbl_client_mentor sqcm
                     LEFT JOIN users squ ON squ.id = sqcm.user_id
