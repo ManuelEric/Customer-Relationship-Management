@@ -715,6 +715,7 @@ class InvoiceProgramController extends Controller
 
         $pic_mail = $clientProg->internalPic->email;
 
+
         $data['email'] = $clientProg->client->parents[0]->mail;
         $data['cc'] = [
             env('CEO_CC'),

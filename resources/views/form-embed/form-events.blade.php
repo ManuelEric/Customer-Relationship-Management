@@ -286,13 +286,13 @@
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 Destination Country
                             </label>
-                            <select name="destination_country" id="destination_country"
+                            <select name="destination_country[]" multiple="multiple" id="destination_country"
                                 class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
                                 placeholder="">
                                 <option value=""></option>
-                                @for ($i=1; $i < 5; $i++)
-                                    <option value="{{ $i }}">{{ $i }}</option>
-                                @endfor
+                                @foreach ($tags as $tag)
+                                    <option value="{{ $tag->id }}">{{ $tag->name }}</option>
+                                @endforeach
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>

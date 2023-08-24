@@ -228,11 +228,11 @@
                             <tr>
                                 <th class="bg-info text-white">Event ID</th>
                                 <th class="bg-info text-white">Client Name</th>
-                                <th>Parent Name</th>
-                                <th>Parent Mail</th>
-                                <th>Parent Phone</th>
+                                {{-- <th>Parent Mail</th>
+                                    <th>Parent Phone</th> --}}
                                 <th>Email</th>
                                 <th>Phone Number</th>
+                                <th>Child Name</th>
                                 <th>School Name</th>
                                 <th>Grade</th>
                                 <th>Graduation Year</th>
@@ -306,20 +306,10 @@
                         name: 'client.full_name',
                         defaultContent: '-',
                     },
-                    {
-                        data: 'parent_name',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'parent_mail',
-                        name: 'parent.mail',
-                        defaultContent: '-',
-                    },
-                    {
-                        data: 'parent_phone',
-                        name: 'parent.phone',
-                        defaultContent: '-',
-                    },
+                    // {
+                    //     data: 'parent_name',
+                    //     defaultContent: '-',
+                    // },
                     {
                         data: 'mail',
                         name: 'client.mail',
@@ -331,18 +321,23 @@
                         defaultContent: '-',
                     },
                     {
+                        data: 'child_name',
+                        name: 'child_name',
+                        defaultContent: '-',
+                    },
+                    {
                         data: 'school_name',
-                        name: 'client.school_name',
+                        name: 'school_name',
                         defaultContent: '-',
                     },
                     {
                         data: 'grade_now',
-                        name: 'client.grade_now',
+                        name: 'grade_now',
                         defaultContent: '-',
                     },
                     {
-                        data: 'graduation_year_real',
-                        name: 'client.graduation_year_real',
+                        data: 'graduation_year',
+                        name: 'graduation_year',
                         defaultContent: '-',
                     },
                     {

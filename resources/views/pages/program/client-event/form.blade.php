@@ -469,14 +469,19 @@
                             <td>{{ $clientEvent->client->phone }}</td>
                         </tr>
                         <tr>
+                            <td width="30%">Child Name</td>
+                            <td width="1%">:</td>
+                            <td>{{ $clientEvent->child_id != null ? $clientEvent->children->full_name ?? '-' : '-' }}</td>
+                        </tr>
+                        <tr>
                             <td width="30%">School Name</td>
                             <td width="1%">:</td>
-                            <td>{{ $clientEvent->client->school->sch_name ?? '-' }}</td>
+                            <td>{{ $clientEvent->child_id != null ? $clientEvent->children->school->sch_name ?? '-' : $clientEvent->client->school_name }}</td>
                         </tr>
                         <tr>
                             <td width="30%">Graduation Year</td>
                             <td width="1%">:</td>
-                            <td>{{ $clientEvent->client->graduation_year_real }}</td>
+                            <td>{{ $clientEvent->child_id != null ? $clientEvent->children->graduation_year_real ?? '-' : $clientEvent->client->graduation_year_real ?? '-' }}</td>
                         </tr>
                         <tr>
                             <td>Register As</td>
@@ -486,7 +491,7 @@
                         <tr>
                             <td>Have you ever participated ALL-in Event/Program?</td>
                             <td width="1%">:</td>
-                            <td>{{ $clientEvent->client->participated }} </td>
+                            <td>{{ $clientEvent->child_id != null ? $clientEvent->children->participated ?? '-' : $clientEvent->client->participated ?? '-' }} </td>
                         </tr>
                     </table>
                 </div>

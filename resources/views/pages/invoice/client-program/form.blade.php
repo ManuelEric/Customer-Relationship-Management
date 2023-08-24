@@ -357,6 +357,10 @@
                             <i class="bi bi-person me-2"></i>
                             Invoice {{ isset($invoice) ? ' : ' . $invoice->inv_id : null }}
                         </h6>
+                        <h6 class="mt-2 mb-0 p-0">
+                            <i class="bi bi-calendar-week me-2"></i>
+                            {{ isset($invoice) ? 'Date : ' . $invoice->created_at : '' }} 
+                        </h6>
                     </div>
                     <div class="">
                         {{-- @if ($invoice === null && isset($invoice->receipt)) --}}

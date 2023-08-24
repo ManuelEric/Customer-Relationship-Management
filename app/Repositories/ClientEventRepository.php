@@ -20,23 +20,33 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
                 ->leftJoin('tbl_corp as ceduf', 'ceduf.corp_id', '=', 'tbl_eduf_lead.corp_id')
                 ->leftJoin('tbl_sch as seduf', 'seduf.sch_id', '=', 'tbl_eduf_lead.sch_id')
-                ->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'client.id')
-                ->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')
+                // ->leftJoin('tbl_client_relation', 'tbl_client_relation.parent_id', '=', 'client.id')
+                ->leftJoin('client as child', 'child.id', '=', 'tbl_client_event.child_id')
                 ->select(
                     'tbl_client_event.clientevent_id',
                     // 'tbl_client_event.event_id',
                     // 'tbl_client_event.eduf_id',
                     'tbl_events.event_title as event_name',
-                    DB::raw('CONCAT(parent.first_name," ", COALESCE(parent.last_name, "")) as parent_name'),
-                    'parent.mail as parent_mail',
-                    'parent.phone as parent_phone',
-                    'client.participated',
                     'client.register_as',
-                    'client.mail',
-                    'client.phone',
-                    'client.school_name',
-                    'client.graduation_year_real',
-                    // 'tbl_lead.main_lead',
+                    'client.full_name as client_name',
+                    'client.mail as client_mail',
+                    'client.phone as client_phone',
+                    DB::raw('(CASE
+                        WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN "-"
+                        WHEN client.register_as = "parent" THEN child.full_name 
+                    END) AS child_name'),
+                    DB::raw('(CASE
+                        WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.participated
+                        WHEN client.register_as = "parent" THEN child.participated 
+                    END) AS participated'),
+                    DB::raw('(CASE
+                        WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.school_name
+                        WHEN client.register_as = "parent" THEN child.school_name 
+                    END) AS school_name'),
+                    DB::raw('(CASE
+                        WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.graduation_year_real
+                        WHEN client.register_as = "parent" THEN child.graduation_year_real 
+                    END) AS graduation_year'),
                     'tbl_client_event.joined_date',
                     'tbl_client_event.status',
                     'tbl_client_event.created_at',
@@ -55,7 +65,6 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                         WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name COLLATE utf8mb4_unicode_ci)
                         ELSE tbl_lead.main_lead
                     END) AS conversion_lead'),
-                    'client.full_name as client_name',
                 )->
                 when(!empty($filter['event_name']), function ($searchQuery) use ($filter) {
                     $searchQuery->where('event_title', $filter['event_name']);
@@ -86,16 +95,42 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 }
             )->
             filterColumn(
-                'client.participated',
+                'participated',
                 function ($query, $keyword) {
-                    $sql = 'client.participated COLLATE utf8mb4_general_ci like ?';
+                    $sql = '(CASE
+                                WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.participated COLLATE utf8mb4_general_ci
+                                WHEN client.register_as = "parent" THEN child.participated COLLATE utf8mb4_general_ci
+                            END) like ?';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
             )->
             filterColumn(
-                'parent_name',
+                'child_name',
                 function ($query, $keyword) {
-                    $sql = 'CONCAT(parent.first_name," ", COALESCE(parent.last_name, "")) like ?';
+                    $sql = '(CASE
+                                WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN "-"
+                                WHEN client.register_as = "parent" THEN child.full_name 
+                            END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->
+            filterColumn(
+                'school_name',
+                function ($query, $keyword) {
+                    $sql = '(CASE
+                                WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.school_name
+                                WHEN client.register_as = "parent" THEN child.school_name 
+                            END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->
+            filterColumn(
+                'graduation_year',
+                function ($query, $keyword) {
+                    $sql = '(CASE
+                                WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.graduation_year_real
+                                WHEN client.register_as = "parent" THEN child.graduation_year_real 
+                            END) like ?';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
             )->make(true);
@@ -179,19 +214,32 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
             ->leftJoin('tbl_corp as ceduf', 'ceduf.corp_id', '=', 'tbl_eduf_lead.corp_id')
             ->leftJoin('tbl_sch as seduf', 'seduf.sch_id', '=', 'tbl_eduf_lead.sch_id')
-            ->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'client.id')
-            ->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')
+            // ->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'client.id')
+            ->leftJoin('client as child', 'child.id', '=', 'tbl_client_event.child_id')
 
             ->select(
                 'client.full_name as client_name',
-                DB::raw('CONCAT(parent.first_name," ", COALESCE(parent.last_name, "")) as parent_name'),
-                'parent.mail as parent_mail',
-                'parent.phone as parent_phone',
+                DB::raw('(CASE
+                        WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN "-"
+                        WHEN client.register_as = "parent" THEN child.full_name 
+                    END) AS child_name'),
+                // DB::raw('CONCAT(parent.first_name," ", COALESCE(parent.last_name, "")) as parent_name'),
                 'client.mail',
                 'client.phone',
-                'client.school_name',
-                'client.grade_now',
-                'client.graduation_year_real',
+                DB::raw('(CASE
+                    WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.school_name
+                    WHEN client.register_as = "parent" THEN child.school_name 
+                END) AS school_name'),
+                DB::raw('(CASE
+                    WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.graduation_year_real
+                    WHEN client.register_as = "parent" THEN child.graduation_year_real 
+                END) AS graduation_year'),
+                DB::raw('(CASE
+                    WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.grade_now
+                    WHEN client.register_as = "parent" THEN child.grade_now 
+                END) AS grade_now'),
+                // 'child.grade_now',
+                // 'client.graduation_year_real',
                 'client.lead_source',
                 'tbl_client_event.joined_date',
                 'tbl_events.event_title',
@@ -223,19 +271,53 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                             END) like ?';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
-            )
-            ->filterColumn(
-                'parent_name',
+            )->
+            filterColumn(
+                'school_name',
                 function ($query, $keyword) {
-                    $sql = 'CONCAT(parent.first_name," ", COALESCE(parent.last_name, "")) like ?';
+                    $sql = '(CASE
+                                WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.school_name
+                                WHEN client.register_as = "parent" THEN child.school_name 
+                            END) like ?';
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 }
-            )->make(true);
+            )->
+            filterColumn(
+                'graduation_year',
+                function ($query, $keyword) {
+                    $sql = '(CASE
+                                WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.graduation_year_real
+                                WHEN client.register_as = "parent" THEN child.graduation_year_real 
+                            END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->
+            filterColumn(
+                'grade_now',
+                function ($query, $keyword) {
+                    $sql = '(CASE
+                                WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN client.grade_now
+                                WHEN client.register_as = "parent" THEN child.grade_now 
+                            END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )->
+            filterColumn(
+                'child_name',
+                function ($query, $keyword) {
+                    $sql = '(CASE
+                                WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN "-"
+                                WHEN client.register_as = "parent" THEN child.full_name 
+                            END) like ?';
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                }
+            )
+            ->make(true);
     }
 
     public function getReportClientEventsGroupByRoles($eventId = null)
     {
-        $clientEvent = ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_client_event.client_id')
+        $clientEvent = ClientEvent::leftJoin('tbl_client', 'tbl_client.id', '=', DB::raw('(CASE WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id ELSE tbl_client_event.child_id END)'))
             ->leftJoin('tbl_client_roles', 'tbl_client_roles.client_id', '=', 'tbl_client.id')
             ->leftJoin('tbl_roles', 'tbl_roles.id', '=', 'tbl_client_roles.role_id')
             ->leftJoin('tbl_client_prog', 'tbl_client_prog.client_id', '=', 'tbl_client.id')
@@ -245,7 +327,8 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->select(
                 'tbl_client.register_as',
                 'tbl_client_event.clientevent_id',
-                'tbl_client_event.client_id',
+                // 'tbl_client_event.client_id',
+                DB::raw('(CASE WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id ELSE tbl_client_event.child_id END) as client_id'),
                 'tbl_client_event.created_at',
                 'tbl_client_event.joined_date',
                 'program.main_prog_id',

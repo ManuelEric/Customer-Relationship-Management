@@ -35,17 +35,24 @@
                                 <tr>
                                     <td>
                                         <table style="width:100%;">
+                                            @if ($event['eventDate_start'] == $event['eventDate_end'])
                                             <tr>
                                                 <td align="left" width="20%">📅 Date</td>
-                                                <td>: Saturday, 24th Nov 2023</td>
+                                                <td>: {{ $event['eventDate_start'] }}</td>
                                             </tr>
+                                            @else
+                                            <tr>
+                                                <td align="left" width="20%">📅 Date</td>
+                                                <td>: {{ $event['eventDate_start'] }} - {{ $event['eventDate_end'] }}</td>
+                                            </tr>
+                                            @endif
                                             <tr>
                                                 <td align="left">🕒 Time</td>
-                                                <td>: 13.00 - 17.00 WIB</td>
+                                                <td>: {{ $event['eventTime_start'] }} - {{ $event['eventTime_end'] }} WIB</td>
                                             </tr>
                                             <tr>
                                                 <td align="left">📍 Location</td>
-                                                <td>: Jl Jeruk Kembar Blok Q9 No 15</td>
+                                                <td>: {{ strip_tags($event['eventLocation']) }}</td>
                                             </tr>
                                         </table>
                                     </td>

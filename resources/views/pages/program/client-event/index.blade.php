@@ -64,15 +64,13 @@
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
                         <th>Event Name</th>
-                        <th>Parent Name</th>
-                        <th>Parent Mail</th>
-                        <th>Parent phone</th>
-                        <th>Have you ever participated in ALL-in Event/program before</th>
-                        <th>School Name</th>
-                        <th>Graduation Year</th>
                         <th>Audience</th>
                         <th>Email</th>
                         <th>Phone Number</th>
+                        <th>Child Name</th>
+                        <th>Have you ever participated in ALL-in Event/program before</th>
+                        <th>School Name</th>
+                        <th>Graduation Year</th>
                         <th>Conversion Lead</th>
                         <th>Joined Date</th>
                         <th>Attendance</th>
@@ -205,54 +203,34 @@
                         name: 'tbl_events.event_title'
                     },
                     {
-                        data: 'parent_name',
+                        data: 'register_as',
+                        name: 'client.register_as',
+                    },
+                    {
+                        data: 'client_mail',
+                        name: 'client.mail',
                         defaultContent: '-'
                     },
                     {
-                        data: 'parent_mail',
-                        name: 'parent.mail',
+                        data: 'client_phone',
+                        name: 'client.phone',
                         defaultContent: '-'
                     },
                     {
-                        data: 'parent_phone',
-                        name: 'parent.phone',
+                        data: 'child_name',
                         defaultContent: '-'
                     },
                     {
                         data: 'participated',
-                        name: 'client.participated',
                         searchable: true
                         //    defaultContent: '-'
                     },
                     {
                         data: 'school_name',
-                        name: 'client.school_name'
-                    },
-                    {
-                        data: 'graduation_year_real',
-                        name: 'client.graduation_year_real'
-                    },
-                    {
-                        data: 'register_as',
-                        name: 'client.register_as',
-                        render: function(data, type, row, meta) {
-
-                            if (data === null) {
-                                return 'student';
-                            }
-
-                            return data
-                        }
-                        //    defaultContent: '-'
-                    },
-                    {
-                        data: 'mail',
-                        name: 'client.mail',
                         defaultContent: '-'
                     },
                     {
-                        data: 'phone',
-                        name: 'client.phone',
+                        data: 'graduation_year',
                         defaultContent: '-'
                     },
                     {
@@ -285,6 +263,21 @@
                             }
                         }
                     },
+                    // {
+                    //     data: 'parent_phone',
+                    //     name: 'parent.phone',
+                    //     defaultContent: '-'
+                    // },
+                    // {
+                    //     data: 'mail',
+                    //     name: 'client.mail',
+                    //     defaultContent: '-'
+                    // },
+                    // {
+                    //     data: 'phone',
+                    //     name: 'client.phone',
+                    //     defaultContent: '-'
+                    // },
                     {
                         data: '',
                         className: 'text-center',

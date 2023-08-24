@@ -113,7 +113,7 @@ class ReportController extends Controller
 
         return view('pages.report.event-tracking.index')->with(
             [
-                'clientEvents' => $clientEvents,
+                // 'clientEvents' => $clientEvents,
                 'existingMentee' => $existingMentee,
                 'existingNonMentee' => $existingNonMentee,
                 'existingNonClient' => $existingNonClient,
@@ -268,11 +268,14 @@ class ReportController extends Controller
         $dataClient =  new Collection();
 
         foreach ($data as $data) {
-            $check = $allClientEvents->where('client_id', $data->client_id);
+
+            $child = $allClientEvents->where('child_id', '!=', null)->where('child_id', $data->client_id);
+            $student = $allClientEvents->where('child_id', null)->where('client_id', $data->client_id);
+            $check = $child->merge($student);
             if (count($check) > 1) {
                 $dataClient->push((object)[
                     'type' => 'ExistNonClient',
-                    'client_id' => $check->first()->client_id,
+                    'client_id' => $check->first()->child_id != null ? $check->first()->child_id : $check->first()->client_id,
                 ]);
                 // $extNonClient = $clients->where('client_id', $check->first()->client_id)->unique('client_id');
             } else {
@@ -281,7 +284,7 @@ class ReportController extends Controller
                 // $dataClient['id_client'][$i] = $check->first()->client_id;
                 $dataClient->push((object)[
                     'type' => 'New',
-                    'client_id' => $check->first()->client_id,
+                    'client_id' => $check->first()->child_id != null ? $check->first()->child_id : $check->first()->client_id,
                 ]);
             }
             $i++;
