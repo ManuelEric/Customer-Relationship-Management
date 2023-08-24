@@ -237,7 +237,12 @@
                         </tr>
                         <tr>
                             <td>Receipt Date :</td>
-                            <td>{{ date('d M Y H:i:s', strtotime($receiptRef->created_at)) }}</td>
+                            <td>{{ isset($receiptRef->receipt_date) ? date('M d, Y', strtotime($receiptRef->receipt_date)) : date('M d, Y H:i:s', strtotime($receiptRef->created_at)) }}
+                            </td>
+                        <tr>
+                            <td>Created At :</td>
+                            <td>{{ $receiptRef->created_at }}
+                            </td>
                         </tr>
                         <tr>
                             <td>Payment Method :</td>

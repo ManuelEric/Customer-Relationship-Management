@@ -235,7 +235,12 @@
                         </tr>
                         <tr>
                             <td>Receipt Date :</td>
-                            <td>{{ date('d M Y H:i:s', strtotime($receiptSch->created_at)) }}</td>
+                            <td>{{ isset($receiptSch->receipt_date) ? date('M d, Y', strtotime($receiptSch->receipt_date)) : date('M d, Y H:i:s', strtotime($receiptSch->created_at)) }}
+                            </td>
+                        <tr>
+                            <td>Created At :</td>
+                            <td>{{ $receiptSch->created_at }}
+                            </td>
                         </tr>
                         @if (isset($receiptSch->invdtl_id))
                             <tr>

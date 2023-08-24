@@ -233,7 +233,12 @@
                         </tr>
                         <tr>
                             <td>Receipt Date :</td>
-                            <td>{{ date('d M Y H:i:s', strtotime($receiptPartner->created_at)) }}</td>
+                            <td>{{ isset($receiptPartner->receipt_date) ? date('M d, Y', strtotime($receiptPartner->receipt_date)) : date('M d, Y H:i:s', strtotime($receiptPartner->created_at)) }}
+                            </td>
+                        <tr>
+                            <td>Created At :</td>
+                            <td>{{ $receiptPartner->created_at }}
+                            </td>
                         </tr>
                         @if (isset($receiptPartner->invdtl_id))
                             <tr>
