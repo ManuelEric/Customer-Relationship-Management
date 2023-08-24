@@ -85,6 +85,9 @@ class Kernel extends ConsoleKernel
         # registration event
         // $schedule->command('automate:resend_qrcode_mail')->everyMinute();
 
+        # cron for hot leads
+        $schedule->command('automate:determine_hot_leads')->everyMinute();
+
         # cron for target tracking
         $schedule->command('insert:target_tracking_monthly')->monthly(); # should be run on cron every new month
         $schedule->command('update:target_tracking')->everyMinute(); # run every minute because target tracking should be real-time update
