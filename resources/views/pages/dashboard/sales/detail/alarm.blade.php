@@ -24,7 +24,7 @@
                                         </small>
                                     @else 
                                         <small class="">
-                                            Failed
+                                            There are 3 times in a row the Admissions Mentoring program has failed.
                                         </small>
                                     @endif
                                 </div>

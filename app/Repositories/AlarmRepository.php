@@ -113,7 +113,6 @@ class AlarmRepository implements AlarmRepositoryInterface
                 $last3month++;
             }
 
-
         # Day 1-14 (awal bulan)
         $alarmLeads['sales']['always_on']['failed'] = $this->clientLeadTrackingRepository->getFailedLead($today);
         // $alarmLeads['sales']['mid']['lead_needed'] = $actualLeadsSales['lead_needed'] < $leadSalesTarget['lead_needed'] ? true : false;
@@ -184,9 +183,11 @@ class AlarmRepository implements AlarmRepositoryInterface
             foreach ($alarmDivisi as $alarmTime) {
                 foreach ($alarmTime as $key => $alarm) {
                     if($alarm){
+
+
                         switch ($divisi) {
                             case 'sales':
-                                $message['sales'][] = str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
+                                $message['sales'][] = ($key == 'event') ? 'There are no events this month.' : (($key == 'failed') ? 'There are 3 times in a row the Admissions Mentoring program has failed.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target');
                                 break;
                             case 'digital':
                                 $message['digital'][] = str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
@@ -196,7 +197,7 @@ class AlarmRepository implements AlarmRepositoryInterface
                                 $message['digital'][] = $key == 'event' ? 'There are no events this month.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
                                 break;
                         }
-                        $message['general'][] = $key == 'event' ? 'There are no events this month.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
+                        $message['general'][] = ($key == 'event') ? 'There are no events this month.' : (($key == 'failed') ? 'There are 3 times in a row the Admissions Mentoring program has failed.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target');
                     }
                 }
             }
