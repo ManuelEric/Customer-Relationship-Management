@@ -110,7 +110,10 @@ class ClientLeadTrackingRepository implements ClientLeadTrackingRepositoryInterf
 
     public function getFailedLead($monthyear){
 
-        $failLeads = $this->getInitialConsult($monthyear, 'failed');
+        $failLeads = ClientProgram::whereMonth('failed_date', date('m', strtotime($monthyear)))
+                                    ->whereYear('failed_date', date('Y', strtotime($monthyear)))
+                                    ->orderBy('failed_date', 'ASC')
+                                    ->get();
         $countFail = 0;
 
         if(isset($failLeads) > 0){
