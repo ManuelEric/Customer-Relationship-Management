@@ -187,7 +187,7 @@ class AlarmRepository implements AlarmRepositoryInterface
 
                         switch ($divisi) {
                             case 'sales':
-                                $message['sales'][] = $key == 'failed' ? 'There are 3 times in a row the Admissions Mentoring program has failed.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
+                                $message['sales'][] = ($key == 'event') ? 'There are no events this month.' : (($key == 'failed') ? 'There are 3 times in a row the Admissions Mentoring program has failed.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target');
                                 break;
                             case 'digital':
                                 $message['digital'][] = str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
@@ -197,7 +197,7 @@ class AlarmRepository implements AlarmRepositoryInterface
                                 $message['digital'][] = $key == 'event' ? 'There are no events this month.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
                                 break;
                         }
-                        $message['general'][] = $key == 'event' ? 'There are no events this month.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
+                        $message['general'][] = ($key == 'event') ? 'There are no events this month.' : (($key == 'failed') ? 'There are 3 times in a row the Admissions Mentoring program has failed.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target');
                     }
                 }
             }

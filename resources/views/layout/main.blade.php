@@ -97,6 +97,8 @@
                                 @php
                                     if($isSales){
                                         $notification = $notification['sales'];
+                                    }elseif($isDigital){
+                                        $notification = $notification['digital'];
                                     }elseif($isAdmin){
                                         $notification = $notification['general'];
                                     }
