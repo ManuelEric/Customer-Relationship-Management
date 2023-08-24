@@ -86,6 +86,12 @@
                                         <i class="bi bi-pen-fill"></i>
                                     </a>
                                 </div>
+                                <div class="btn btn-sm py-1 border btn-light" id="requestSignIdr" data-curr="idr"
+                                    data-bs-toggle="modal" data-bs-target="#requestSignModal">
+                                    <a href="#" class="text-info">
+                                        <i class="bi bi-pen-fill"></i>
+                                    </a>
+                                </div>
                             @else
                                 <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Print Invoice">
@@ -745,6 +751,46 @@
     </div>
     @endif
 
+    <div class="modal fade" id="requestSignModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>
+                        Request Sign
+                    </span>
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div class="modal-body w-100 text-start">
+                    {{-- <div class="form-group ms-3"> --}}
+                        <div class="d-flex justify-content-around">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="pic_sign" id="inlineRadio2" value="1">
+                                <label class="form-check-label" for="inlineRadio2">Kak Nic</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="pic_sign" id="inlineRadio1" value="2">
+                                <label class="form-check-label" for="inlineRadio1">Kak Dev</label>
+                            </div>
+                        </div>
+                    {{-- </div> --}}
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                            data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+
+                        <button type="submit" id="ConfirmSendToClient" class="btn btn-primary btn-sm">
+                            <i class="bi bi-save2 me-1"></i>
+                            Send</button>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         $(document).ready(function() {
@@ -1052,6 +1098,14 @@
                 $('#receipt_cheque').attr('disabled', 'disabled')
             }
         }
+
+        $(document).on("click", "#openModalRequestSignIdr", function() {
+            var curr = $(this).data('curr');
+            curr = "'" + curr + "'";
+            $('#ConfirmRequestSign').attr("onclick",
+                "confirmRequestSign('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', " +
+                curr + ", 'invoice')");
+        });
 
         $(document).on("click", "#openModalSendToClientIdr", function() {
             var curr = $(this).data('curr');
