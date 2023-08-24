@@ -69,9 +69,6 @@ class AutomatedDeterminedHotLeads extends Command
 
             foreach ($rawData as $client) {
 
-                if ($client->id != 420)
-                    continue;
-
                 # if the client has already graduated
                 # then no need to calculate hot leads
                 $bypass = $client->grade > 0 ? true : false;
