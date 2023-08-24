@@ -428,7 +428,7 @@ class AutomatedDeterminedHotLeads extends Command
             $total_result += $sub_result;
 
             switch ($initProgramName) {
-                case "Admission Mentoring":
+                case "Admissions Mentoring":
                     $specificConcerns->where('main_prog_id', 1)->first() != null ? $total_result = 1 : null;
                     break;
 
