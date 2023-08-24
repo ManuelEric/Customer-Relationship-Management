@@ -40,6 +40,7 @@ class AlarmRepository implements AlarmRepositoryInterface
             'percentage_hot_lead' => 0,
             'percentage_ic' => 0,
             'percentage_contribution' => 0,
+            'revenue' => 0,
         ];
         if (isset($dataTarget)) {
             $data = [
@@ -50,8 +51,8 @@ class AlarmRepository implements AlarmRepositoryInterface
                 'percentage_lead_needed' => $this->calculatePercentageLead($dataActual['lead_needed'], $dataTarget->target_lead),
                 'percentage_hot_lead' => $this->calculatePercentageLead($dataActual['hot_lead'], $dataTarget->target_hotleads),
                 'percentage_ic' => $this->calculatePercentageLead($dataActual['ic'], $dataTarget->target_initconsult),
-                'percentage_contribution' => $this->calculatePercentageLead($dataActual['contribution'], $dataTarget->contribution_target)
-
+                'percentage_contribution' => $this->calculatePercentageLead($dataActual['contribution'], $dataTarget->contribution_target),
+                'revenue' =>  $dataTarget->revenue_target,
             ];
         }
 
@@ -65,6 +66,7 @@ class AlarmRepository implements AlarmRepositoryInterface
             'hot_lead' => isset($dataActual) ? $dataActual->achieved_hotleads : 0,
             'ic' => isset($dataActual) ? $dataActual->achieved_initconsult : 0,
             'contribution' => isset($dataActual) ? $dataActual->contribution_achieved : 0,
+            'revenue' => isset($dataActual) ? $dataActual->revenue_achieved : 0,
         ];
 
         return $data;
