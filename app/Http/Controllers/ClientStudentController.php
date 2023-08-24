@@ -153,7 +153,7 @@ class ClientStudentController extends ClientController
             return $this->clientRepository->getDataTables($model);
         }
 
-        // $reasons = $this->reasonRepository->getReasonByType('Hot Lead');
+        $reasons = $this->reasonRepository->getReasonByType('Hot Lead');
 
         # for advance filter purpose
         $schools = $this->schoolRepository->getAllSchools();
@@ -176,7 +176,7 @@ class ClientStudentController extends ClientController
 
         return view('pages.client.student.index')->with(
             [
-                // 'reasons' => $reasons,
+                'reasons' => $reasons,
                 'advanced_filter' => [
                     'schools' => $schools,
                     'parents' => $parents,
@@ -193,12 +193,12 @@ class ClientStudentController extends ClientController
         $studentId = $request->route('student');
         $student = $this->clientRepository->getClientById($studentId);
 
-        // $initialPrograms = $this->initialProgramRepository->getAllInitProg();
-        // $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
+        $initialPrograms = $this->initialProgramRepository->getAllInitProg();
+        $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
         $viewStudent = $this->clientRepository->getViewClientById($studentId);
 
-        // $initialPrograms = $this->initialProgramRepository->getAllInitProg();
-        // $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
+        $initialPrograms = $this->initialProgramRepository->getAllInitProg();
+        $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
 
         if (!$student)
             abort(404);
@@ -206,8 +206,8 @@ class ClientStudentController extends ClientController
         return view('pages.client.student.view')->with(
             [
                 'student' => $student,
-                // 'initialPrograms' => $initialPrograms,
-                // 'historyLeads' => $historyLeads,
+                'initialPrograms' => $initialPrograms,
+                'historyLeads' => $historyLeads,
                 'viewStudent' => $viewStudent
             ]
         );

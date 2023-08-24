@@ -25,6 +25,8 @@ class DigitalDashboardController extends Controller
         $this->eventRepository = $repositories->eventRepository;
         $this->leadTargetRepository = $repositories->leadTargetRepository;
         $this->leadRepository = $repositories->leadRepository;
+        $this->programRepository = $repositories->programRepository;
+
     }
 
     public function get($request)
@@ -40,6 +42,7 @@ class DigitalDashboardController extends Controller
         # List Lead Source 
         $leads = $this->leadRepository->getActiveLead();
         $dataLead = $this->leadTargetRepository->getLeadDigital($today, null);
+        $programsDigital = $this->programRepository->getAllPrograms();
         // $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
 
 
@@ -47,6 +50,8 @@ class DigitalDashboardController extends Controller
             'leadsDigital' => $this->mappingDataLead($leads->where('department_id', 7), $dataLead, 'Lead Source'),
             'leadsAllDepart' => $this->mappingDataLead($leads, $dataLead, 'Conversion Lead'),
             'dataLead' => $dataLead,
+            'programsDigital' => $programsDigital,
+
         ];
 
         return $response;

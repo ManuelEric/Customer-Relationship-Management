@@ -189,8 +189,8 @@ class PartnerProgramController extends Controller
         $partners = $this->corporateRepository->getAllCorporate();
 
         # retrieve reason data
-        // $reasons = $this->reasonRepository->getReasonByType('Program');
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
+        // $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve employee data
         # because for now 29/03/2023 there aren't partnership team, so we use client management
@@ -230,7 +230,8 @@ class PartnerProgramController extends Controller
         $programs = $programsB2B->merge($programsB2BB2C);
 
         # retrieve reason data
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
+        // $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve partner data
         $partner = $this->corporateRepository->getCorporateById($corpId);
@@ -314,8 +315,8 @@ class PartnerProgramController extends Controller
 
 
         # retrieve reason data
-        // $reasons = $this->reasonRepository->getReasonByType('Program');
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
+        // $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve Partner Program data by id
         // $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);

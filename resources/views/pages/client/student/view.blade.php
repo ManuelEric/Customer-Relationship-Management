@@ -299,7 +299,7 @@
                 </div>
             </div>
 
-            {{-- @if($historyLeads->count() > 0)
+            @if($historyLeads->count() > 0)
                 <div class="card rounded mb-2">
                     <div class="card-header">
                         <div class="">
@@ -371,7 +371,7 @@
                         @endforeach
                     </div>
                 </div>
-            @endif --}}
+            @endif
 
         </div>
         <div class="col-md-12">

@@ -189,8 +189,8 @@
                         <th>Joined Date</th>
                         <th>Last Update</th>
                         <th>Status</th>
-                        {{-- <th>Program Suggest</th>
-                        <th>Status Lead</th> --}}
+                        <th>Program Suggest</th>
+                        <th>Status Lead</th>
                         {{-- <th class="bg-info text-white">Score</th> --}}
                         <th class="bg-info text-white"># Action</th>
                     </tr>
@@ -240,7 +240,7 @@
         </div>
     </div>
 
-    {{-- <div class="modal fade" id="hotLeadModal" data-bs-backdrop="static" data-bs-keyboard="false"
+    <div class="modal fade" id="hotLeadModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -300,7 +300,7 @@
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
 
     {{-- Need Changing --}}
     <script>
@@ -490,40 +490,40 @@
                             return data == 1 ? "Active" : "Non-active";
                         }
                     },
-                    // {
-                    //     data: 'program_suggest',
-                    //     className: 'text-center',
-                    //     defaultContent: '-'
-                    // },
-                    // {
-                    //     data: 'status_lead',
-                    //     className: 'text-center',
-                    //     defaultContent: '-',
-                    //     render: function(data, type, row, meta) {
-                    //         var warm = '';
-                    //         var hot = '';
-                    //         var cold = '';
-                    //         switch (data) {
-                    //             case 'Hot':
-                    //                 hot = 'selected';
-                    //                 break;
+                    {
+                        data: 'program_suggest',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'status_lead',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            var warm = '';
+                            var hot = '';
+                            var cold = '';
+                            switch (data) {
+                                case 'Hot':
+                                    hot = 'selected';
+                                    break;
 
-                    //             case 'Warm':
-                    //                 warm = 'selected';
-                    //                 break;
+                                case 'Warm':
+                                    warm = 'selected';
+                                    break;
 
-                    //             case 'Cold':
-                    //                 cold = 'selected';
-                    //                 break;
-                    //         }
-                    //         return data != null ?
-                    //             '<select name="status_lead" style="color:#212b3d" class="select w-100" id="status_lead"><option value="hot" ' +
-                    //             hot + '>Hot</option><option value="warm" ' + warm +
-                    //             '>Warm</option><option value="cold" ' + cold +
-                    //             '>Cold</option></select>' : '-';
-                    //     }
+                                case 'Cold':
+                                    cold = 'selected';
+                                    break;
+                            }
+                            return data != null ?
+                                '<select name="status_lead" style="color:#212b3d" class="select w-100" id="status_lead"><option value="hot" ' +
+                                hot + '>Hot</option><option value="warm" ' + warm +
+                                '>Warm</option><option value="cold" ' + cold +
+                                '>Cold</option></select>' : '-';
+                        }
 
-                    // },
+                    },
                     // {
                     //     data: 'total_score',
                     //     className: 'text-primary text-center',
@@ -592,8 +592,8 @@
                 $('#hotLeadForm').attr('action', '{{ url("client/student") }}/' + data.id + '/lead_status/');
                 $('#hotLeadModal').modal('show');
 
-                // confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status/" + $(
-                //     this).val(), data.id, data.program_suggest, lead_status)
+                confirmUpdateLeadStatus("{{ url('client/student') }}/" + data.id + "/lead_status/" + $(
+                    this).val(), data.id, data.program_suggest, lead_status)
             });
 
             // $('#clientTable tbody').on('click', '.deleteClient ', function() {
