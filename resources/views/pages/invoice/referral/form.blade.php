@@ -7,6 +7,44 @@
 @endsection
 @section('content')
 
+    <div class="modal fade" id="requestSignModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>
+                        Request Sign
+                    </span>
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div class="modal-body w-100 text-start">
+                    Please direct your request for a signature to these people, whichever is available :
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-around">
+                            @foreach ($invRecPics as $pic)
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="pic_sign" id="pic-{{ $pic['name'] }}" data-name="{{ $pic['name'] }}" value="{{ $pic['email'] }}">
+                                <label class="form-check-label" for="pic-{{ $pic['name'] }}">{{ $pic['name'] }}</label>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
+                            data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="submit" id="sendToChoosenPic" class="btn btn-primary btn-sm">
+                            <i class="bi bi-save2 me-1"></i>
+                            Send</button>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
     @php
         $invoiceHasRequested = null;
         $invoiceAttachment = null;
@@ -96,9 +134,15 @@
                                         ->first();
                                 @endphp
                                 @if (!$invoiceAttachment)
-                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Request Sign">
                                         <a href="#" class="text-info" id="request-acc">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </a>
+                                    </div> --}}
+                                    <div class="btn btn-sm py-1 border btn-light" id="requestSignIdr" onclick="$('#sendToChoosenPic').attr('onclick', 'requestAcc(\'idr\')')" data-curr="idr"
+                                        data-bs-toggle="modal" data-bs-target="#requestSignModal">
+                                        <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                             <i class="bi bi-pen-fill"></i>
                                         </a>
                                     </div>
@@ -151,9 +195,15 @@
                                             ->first();
                                     @endphp
                                     @if (!$invoiceAttachmentOther)
-                                        <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                             data-bs-title="Request Sign">
                                             <a href="#" class="text-info" id="request-acc-other">
+                                                <i class="bi bi-pen-fill"></i>
+                                            </a>
+                                        </div> --}}
+                                        <div class="btn btn-sm py-1 border btn-light" id="requestSignIdr" onclick="$('#sendToChoosenPic').attr('onclick', 'requestAcc(\'other\')')" data-curr="idr"
+                                            data-bs-toggle="modal" data-bs-target="#requestSignModal">
+                                            <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                                 <i class="bi bi-pen-fill"></i>
                                             </a>
                                         </div>
@@ -852,28 +902,33 @@
 
         @if (isset($invoiceRef))
 
-            $("#request-acc").on('click', function(e) {
-                e.preventDefault();
+            function requestAcc(currency) {
+                
+                showLoading();
+                var url = '{{ url("/") }}/invoice/referral/{{ $invoiceRef->invb2b_num }}/request_sign/' + currency;
+                var inv_rec_pic = $("input[name=pic_sign]:checked").val();
+                var inv_rec_pic_name = $("input[name=pic_sign]:checked").data('name');
 
-                Swal.showLoading()
                 axios
-                    .get(
-                        '{{ route('invoice-ref.request_sign', ['invoice' => $invoiceRef->invb2b_num, 'currency' => 'idr']) }}', {
+                    .get(url, {
                             responseType: 'arraybuffer',
                             params: {
-                                type: 'idr'
+                                type: currency,
+                                to: inv_rec_pic,
+                                name: inv_rec_pic_name
                             }
                         })
                     .then(response => {
                         swal.close()
                         notification('success', 'Sign has been requested')
                         setTimeout(location.reload.bind(location), 3000);
+                        $("#requestSignModal").modal('hide');
                     })
                     .catch(error => {
                         notification('error', 'Something went wrong while send email')
                         swal.close()
                     })
-            })
+            }
 
             $("#request-acc-other").on('click', function(e) {
                 e.preventDefault();

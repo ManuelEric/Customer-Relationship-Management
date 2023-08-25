@@ -605,6 +605,8 @@ class InvoiceProgramController extends Controller
         $invoice_id = $clientProg->invoice->inv_id;
 
         $type = $request->get('type');
+        $to = $request->get('to');
+        $name = $request->get('name');
 
         if ($type == "idr")
             $view = 'pages.invoice.client-program.export.invoice-pdf';
@@ -618,8 +620,8 @@ class InvoiceProgramController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = env('DIRECTOR_EMAIL');
-        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['email'] = $to;
+        $data['recipient'] = $name;
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,

@@ -434,6 +434,8 @@ class InvoicePartnerController extends Controller
 
         $invNum = $request->route('invoice');
         $currency = $request->route('currency');
+        $to = $request->get('to');
+        $name = $request->get('name');
 
         $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoicePartner->invb2b_id;
@@ -455,8 +457,8 @@ class InvoicePartnerController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = env('DIRECTOR_EMAIL');
-        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['email'] = $to;
+        $data['recipient'] = $name;
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
             'invb2b_num' => $invoice_num,

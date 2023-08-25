@@ -129,6 +129,18 @@ class AppServiceProvider extends ServiceProvider
                     ];
                 });
 
+                # invoice & receipt PIC
+                $invRecPics = [
+                    [
+                        'name' => env('DIRECTOR_NAME'),
+                        'email' => env('DIRECTOR_EMAIL')
+                    ],
+                    [
+                        'name' => env('OWNER_NAME'),
+                        'email' => env('OWNER_EMAIL')
+                    ]
+                ];
+
                 $view->with(
                     [
                         'menus' => $grouped,
@@ -140,6 +152,7 @@ class AppServiceProvider extends ServiceProvider
                         'deptId' => $deptId,
                         // 'countAlarm' => app('alarm-repository-services')->countAlarm(),
                         // 'notification' => app('alarm-repository-services')->notification(),
+                        'invRecPics' => $invRecPics
                     ]
                 );
             }
