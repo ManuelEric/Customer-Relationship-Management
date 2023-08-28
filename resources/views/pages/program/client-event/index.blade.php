@@ -64,9 +64,11 @@
                         <th class="bg-info text-white">#</th>
                         <th class="bg-info text-white">Client Name</th>
                         <th>Event Name</th>
-                        <th>Parent Name</th>
-                        <th>Parent Mail</th>
-                        <th>Parent phone</th>
+                        <th>Child Name</th>
+                        <th>Child School</th>
+                        <th>Child Graduation Year</th>
+                        {{-- <th>Parent Mail</th>
+                        <th>Parent phone</th> --}}
                         <th>Have you ever participated in ALL-in Event/program before</th>
                         <th>School Name</th>
                         <th>Graduation Year</th>
@@ -205,19 +207,27 @@
                         name: 'tbl_events.event_title'
                     },
                     {
-                        data: 'parent_name',
+                        data: 'child_name',
                         defaultContent: '-'
                     },
                     {
-                        data: 'parent_mail',
-                        name: 'parent.mail',
+                        data: 'child_school',
                         defaultContent: '-'
                     },
                     {
-                        data: 'parent_phone',
-                        name: 'parent.phone',
+                        data: 'child_graduation_year',
                         defaultContent: '-'
                     },
+                    // {
+                    //     data: 'parent_mail',
+                    //     name: 'parent.mail',
+                    //     defaultContent: '-'
+                    // },
+                    // {
+                    //     data: 'parent_phone',
+                    //     name: 'parent.phone',
+                    //     defaultContent: '-'
+                    // },
                     {
                         data: 'participated',
                         name: 'client.participated',
@@ -226,11 +236,13 @@
                     },
                     {
                         data: 'school_name',
-                        name: 'client.school_name'
+                        name: 'client.school_name',
+                        defaultContent: '-'
                     },
                     {
                         data: 'graduation_year_real',
-                        name: 'client.graduation_year_real'
+                        name: 'client.graduation_year_real',
+                        defaultContent: '-'
                     },
                     {
                         data: 'register_as',
@@ -242,8 +254,8 @@
                             }
 
                             return data
-                        }
-                        //    defaultContent: '-'
+                        },
+                        defaultContent: '-'
                     },
                     {
                         data: 'mail',

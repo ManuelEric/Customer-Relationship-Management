@@ -299,7 +299,7 @@
                 </div>
             </div>
 
-            @if($historyLeads->count() > 0)
+            @if(isset($historyLeads) && $historyLeads->count() > 0)
                 <div class="card rounded mb-2">
                     <div class="card-header">
                         <div class="">

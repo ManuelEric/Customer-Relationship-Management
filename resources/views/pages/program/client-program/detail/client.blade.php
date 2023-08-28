@@ -42,8 +42,8 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8 col-8">
-                                {!! $student->address !!} 
-                                {!! $student->postal_code ? $student->postal_code."<br>" : null !!} 
+                                {{ strip_tags($student->address) }} 
+                                {{ $student->postal_code ? $student->postal_code."<br>" : null }} 
                                 {{ $student->city }} {{ $student->state }}
                             </div>
                         </div>

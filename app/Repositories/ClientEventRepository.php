@@ -20,13 +20,20 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 ->leftJoin('tbl_corp', 'tbl_corp.corp_id', '=', 'tbl_client_event.partner_id')
                 ->leftJoin('tbl_corp as ceduf', 'ceduf.corp_id', '=', 'tbl_eduf_lead.corp_id')
                 ->leftJoin('tbl_sch as seduf', 'seduf.sch_id', '=', 'tbl_eduf_lead.sch_id')
-                ->leftJoin('tbl_client_relation', 'tbl_client_relation.child_id', '=', 'client.id')
-                ->leftJoin('tbl_client as parent', 'parent.id', '=', 'tbl_client_relation.parent_id')
+                ->leftJoin('tbl_client_relation as crp', 'crp.parent_id', '=', 'client.id')
+                ->leftJoin('tbl_client_relation as crc', 'crc.child_id', '=', 'client.id')
+                ->leftJoin('tbl_client as parent', 'parent.id', '=', 'crc.parent_id')
+                ->leftJoin('tbl_client as child', 'child.id', '=', 'crp.child_id')
+                    ->leftJoin('tbl_sch as c_sch', 'c_sch.sch_id', '=', 'child.sch_id')
                 ->select(
                     'tbl_client_event.clientevent_id',
                     // 'tbl_client_event.event_id',
                     // 'tbl_client_event.eduf_id',
                     'tbl_events.event_title as event_name',
+                    DB::raw('CONCAT(child.first_name," ", COALESCE(child.last_name, "")) as child_name'),
+                    'child.graduation_year as child_graduation_year',
+                    'c_sch.sch_name as child_school',
+
                     DB::raw('CONCAT(parent.first_name," ", COALESCE(parent.last_name, "")) as parent_name'),
                     'parent.mail as parent_mail',
                     'parent.phone as parent_phone',
