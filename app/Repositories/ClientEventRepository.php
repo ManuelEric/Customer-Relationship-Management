@@ -328,7 +328,10 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 'tbl_client.register_as',
                 'tbl_client_event.clientevent_id',
                 // 'tbl_client_event.client_id',
-                DB::raw('(CASE WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id ELSE tbl_client_event.child_id END) as client_id'),
+                DB::raw('(CASE 
+                    WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
+                    ELSE tbl_client_event.child_id 
+                END) as client_id'),
                 'tbl_client_event.created_at',
                 'tbl_client_event.joined_date',
                 'program.main_prog_id',

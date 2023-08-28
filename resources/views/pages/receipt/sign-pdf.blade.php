@@ -42,7 +42,7 @@
                         @endif
                     @else
                         {{-- onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('receipt.client-program.upload-signed', ['receipt' => Request::route('receipt'), 'currency' => Request::route('currency')]) }}')" --}}
-                        onclick="savePDF('save','{{ $attachment }}','{{ route('receipt.client-program.upload-signed', ['receipt' => Request::route('receipt'), 'currency' => Request::route('currency')]) }}')"
+                        onclick="savePDF('save','{{ $attachment->attachment }}','{{ route('receipt.client-program.upload-signed', ['receipt' => Request::route('receipt'), 'currency' => Request::route('currency')]) }}')"
                     @endif
                     <i class="fa fa-save me-2"></i>
                     Save</button>
