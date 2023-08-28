@@ -134,7 +134,7 @@ class DigitalDashboardController extends Controller
 
          
         # List Lead Source 
-        $leads = $this->leadRepository->getActiveLead();
+        $leads = $this->leadRepository->getAllLead();
         $dataLead = $this->leadTargetRepository->getLeadDigital($month, $prog_id ?? null);
         // $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
 
@@ -274,12 +274,13 @@ class DigitalDashboardController extends Controller
                 $count = $dataLead->where('lead_id', $lead->lead_id)->count();
             }
 
-            $data->push([
-                'lead_id' => $lead->lead_id,
-                'lead_name' => $lead->main_lead . ($lead->sub_lead  != null ? ' - ' . $lead->sub_lead : ''),
-                'count' => $count,
-
-            ]);
+            if($count > 0){
+                $data->push([
+                    'lead_id' => $lead->lead_id,
+                    'lead_name' => $lead->main_lead . ($lead->sub_lead  != null ? ' - ' . $lead->sub_lead : ''),
+                    'count' => $count,
+                ]);
+            }
         }
 
         return $data;
