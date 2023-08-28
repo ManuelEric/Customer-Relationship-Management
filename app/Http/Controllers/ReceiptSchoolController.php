@@ -262,34 +262,33 @@ class ReceiptSchoolController extends Controller
     {
         $receipt_identifier = $request->route('receipt');
         $currency = $request->route('currency');
+        $to = $request->get('to');
+        $name = $request->get('name');
 
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
+        
+        # check whether invoiceb2b is installment or not        
+        $is_installment = is_null($receipt->invoiceB2b) ? true : false; 
+
         $receipt_id = $receipt->receipt_id;
 
         $receiptAtt = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
 
-        $companyDetail = [
-            'name' => env('ALLIN_COMPANY'),
-            'address' => env('ALLIN_ADDRESS'),
-            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
-        ];
-
-        $data['email'] = env('DIRECTOR_EMAIL');
-        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['email'] = $to;
+        $data['recipient'] = $name;
         $data['title'] = "Request Sign of Receipt Number : " . $receipt_id;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
             'currency' => $currency,
-            'fullname' => $receipt->invoiceB2b->sch_prog->school->sch_name,
-            'program_name' => $receipt->invoiceB2b->sch_prog->program->program_name,
+            'fullname' => $is_installment === false ? $receipt->invoiceB2b->sch_prog->school->sch_name : $receipt->invoiceInstallment->inv_b2b->sch_prog->school->sch_name,
+            'program_name' => $is_installment === false ? $receipt->invoiceB2b->sch_prog->program->program_name : $receipt->invoiceInstallment->inv_b2b->sch_prog->program->program_name,
             'receipt_date' => date('d F Y', strtotime($receipt->created_at)),
         ];
 
         try {
 
             # Update status request
-            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested']);
+            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested', 'recipient' => $to]);
 
             Mail::send('pages.receipt.school-program.mail.view', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['recipient'])

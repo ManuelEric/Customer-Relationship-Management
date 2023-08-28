@@ -233,6 +233,8 @@ class ReceiptController extends Controller
         $invoice_id = $receipt->invoiceProgram->inv_id;
 
         $type = $request->get('type');
+        $to = $request->get('to');
+        $name = $request->get('name');
 
         if ($type == "idr")
             $view = 'pages.receipt.client-program.export.receipt-pdf';
@@ -246,8 +248,8 @@ class ReceiptController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = env('DIRECTOR_EMAIL');
-        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['email'] = $to;
+        $data['recipient'] = $name;
         $data['title'] = "Request Sign of Receipt Number : " . $receipt->receipt_id;
         $data['param'] = [
             'receipt' => $receipt,
@@ -260,6 +262,7 @@ class ReceiptController extends Controller
 
             # update request status on receipt attachment
             $attachment = $receipt->receiptAttachment()->where('currency', $type)->first();
+            $attachment->recipient = $to;
             $attachment->request_status = 'requested';
             $attachment->save();
 

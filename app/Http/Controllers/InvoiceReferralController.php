@@ -311,6 +311,8 @@ class InvoiceReferralController extends Controller
     {
         $invNum = $request->route('invoice');
         $currency = $request->route('currency');
+        $to = $request->get('to');
+        $name = $request->get('name');
 
         $invoiceRef = $this->invoiceB2bRepository->getInvoiceB2bById($invNum);
         $invoice_id = $invoiceRef->invb2b_id;
@@ -322,6 +324,7 @@ class InvoiceReferralController extends Controller
         $attachmentDetails = [
             'invb2b_id' => $invoice_id,
             'currency' => $currency,
+            'recipient' => $to,
             'attachment' => 'storage/' . $path . $file_name,
         ];
 
@@ -332,8 +335,8 @@ class InvoiceReferralController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = env('DIRECTOR_EMAIL');
-        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['email'] = $to;
+        $data['recipient'] = $name;
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
             'invb2b_num' => $invoice_num,
