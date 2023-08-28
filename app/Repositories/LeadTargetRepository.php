@@ -127,8 +127,8 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     })->
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->
-                            whereMonth('updated_at', $month)->
-                            whereYear('updated_at', $year)->
+                            whereMonth('success_date', $month)->
+                            whereYear('success_date', $year)->
                             where('status', 1)-> # status programnya success
                             whereHas('invoice', function ($subQuery) {
                                 $subQuery->
@@ -233,8 +233,8 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     })->
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->
-                            whereMonth('updated_at', $month)->
-                            whereYear('updated_at', $year)->
+                            whereMonth('success_date', $month)->
+                            whereYear('success_date', $year)->
                             where('status', 1)-> # status programnya success
                             whereHas('invoice', function ($subQuery) {
                                 $subQuery->

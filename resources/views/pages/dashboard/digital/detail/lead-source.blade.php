@@ -61,7 +61,7 @@
                         </div> --}}
                         <div class="w-100 text-end">
                             <small>Average of Conversion</small>
-                            <h5 id="avg-conversion"><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? $dataLead->avg('conversion_time') : '-' }} Days</h5>
+                            <h5 id="avg-conversion"><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? round($dataLead->avg('conversion_time')) : '-' }} Days</h5>
                         </div>
                     </div>
                 </div>
@@ -283,6 +283,8 @@
 
                 // avgFollowUpTime = count !== 0 ? totalFollowUpTime / count : 0;
                 avgConversionTime = count !== 0 ? totalConversionTime / count : 0;
+                console.log(avgConversionTime)
+                console.log(Math.round(avgConversionTime))
 
                 // $('#avg-follow-up').html(icon + Math.round(avgFollowUpTime) + ' Days');
                 $('#avg-conversion').html(icon + Math.round(avgConversionTime) + ' Days');
