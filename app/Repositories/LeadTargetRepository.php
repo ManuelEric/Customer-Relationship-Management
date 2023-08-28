@@ -130,6 +130,13 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                             whereMonth('success_date', $month)->
                             whereYear('success_date', $year)->
                             where('status', 1)-> # status programnya success
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
+                            })->
                             whereHas('invoice', function ($subQuery) {
                                 $subQuery->
                                     where('inv_status', '!=', 2); # status invoicenya tidak refund
@@ -236,6 +243,13 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                             whereMonth('success_date', $month)->
                             whereYear('success_date', $year)->
                             where('status', 1)-> # status programnya success
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
+                            })->
                             whereHas('invoice', function ($subQuery) {
                                 $subQuery->
                                     where('inv_status', '!=', 2); # status invoicenya tidak refund
@@ -312,6 +326,13 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                             whereMonth('success_date', $month)->
                             whereYear('success_date', $year)->
                             where('status', 1)-> # status programnya success
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
+                            })->
                             whereHas('invoice', function ($subQuery) {
                                 $subQuery->
                                     where('inv_status', '!=', 2); # status invoicenya tidak refund

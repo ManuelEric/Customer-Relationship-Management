@@ -276,13 +276,13 @@
                     $('#t-body-leads-digital').append(html)
 
                     // totalFollowUpTime += item.followup_time;
-                    totalConversionTime += item.conversion_time;
+                    totalConversionTime += parseInt(item.conversion_time);
                     count++;
                     i++;
                 })
 
                 // avgFollowUpTime = count !== 0 ? totalFollowUpTime / count : 0;
-                avgConversionTime = count !== 0 ? totalConversionTime / count : 0;
+                avgConversionTime = count !== 0 ? parseInt(totalConversionTime) / count : 0;
                 console.log(avgConversionTime)
                 console.log(Math.round(avgConversionTime))
 
