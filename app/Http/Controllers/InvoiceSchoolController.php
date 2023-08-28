@@ -447,6 +447,7 @@ class InvoiceSchoolController extends Controller
         $attachmentDetails = [
             'invb2b_id' => $invoice_id,
             'currency' => $currency,
+            'recipient' => $to,
             'attachment' => 'storage/' . $path . $file_name,
         ];
 

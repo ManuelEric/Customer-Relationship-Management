@@ -6,6 +6,9 @@
     <li class="breadcrumb-item active" aria-current="page">View Detail</li>
 @endsection
 @section('content')
+
+    @include('pages.receipt.pic-modal')
+
     <div class="row">
         <div class="col-md-4 mb-3">
 
@@ -108,9 +111,15 @@
                                         </a>
                                     </div>
                                 @elseif(isset($receiptAttachmentNotYet))
-                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Request Sign" id="request-acc">
                                         <a href="#" class="text-info">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </a>
+                                    </div> --}}
+                                    <div class="btn btn-sm py-1 border btn-light" id="requestSignIdr" onclick="$('#sendToChoosenPic').attr('onclick', 'requestAcc(\'idr\')')" data-curr="idr"
+                                        data-bs-toggle="modal" data-bs-target="#requestSignModal">
+                                        <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                             <i class="bi bi-pen-fill"></i>
                                         </a>
                                     </div>
@@ -189,9 +198,15 @@
                                             </a>
                                         </div>
                                     @elseif(isset($receiptAttachmentNotYetOther))
-                                        <div id="request-acc-other" class="btn btn-sm py-1 border btn-light"
+                                        {{-- <div id="request-acc-other" class="btn btn-sm py-1 border btn-light"
                                             data-bs-toggle="tooltip" data-bs-title="Request Sign" id="request-acc-other">
                                             <a href="#" class="text-info">
+                                                <i class="bi bi-pen-fill"></i>
+                                            </a>
+                                        </div> --}}
+                                        <div class="btn btn-sm py-1 border btn-light" id="requestSignIdr" onclick="$('#sendToChoosenPic').attr('onclick', 'requestAcc(\'other\')')" data-curr="idr"
+                                            data-bs-toggle="modal" data-bs-target="#requestSignModal">
+                                            <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                                 <i class="bi bi-pen-fill"></i>
                                             </a>
                                         </div>
@@ -559,51 +574,33 @@
             $("#currency").val('other')
         });
 
-        $("#request-acc").on('click', function(e) {
-            e.preventDefault();
+        function requestAcc(currency) {
 
-            Swal.showLoading()
+            showLoading();
+            var url = '{{ url("/") }}/receipt/school-program/{{ $receiptSch->id }}/request_sign/'+currency;
+            var inv_rec_pic = $("input[name=pic_sign]:checked").val();
+            var inv_rec_pic_name = $("input[name=pic_sign]:checked").data('name');
+
             axios
-                .get(
-                    '{{ route('receipt.school.request_sign', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}', {
-                        responseType: 'arraybuffer',
+                .get(url, {
+                        // responseType: 'arraybuffer',
                         params: {
-                            type: 'idr'
+                            type: currency,
+                            to: inv_rec_pic,
+                            name: inv_rec_pic_name
                         }
                     })
                 .then(response => {
                     swal.close()
                     notification('success', 'Sign has been requested')
                     setTimeout(location.reload.bind(location), 3000);
+                    $("#requestSignModal").modal('hide');
                 })
                 .catch(error => {
+                    console.log(error)
                     notification('error', 'Something went wrong while send email')
-                    swal.close()
                 })
-        })
-
-        $("#request-acc-other").on('click', function(e) {
-            e.preventDefault();
-
-            Swal.showLoading()
-            axios
-                .get(
-                    '{{ route('receipt.school.request_sign', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}', {
-                        responseType: 'arraybuffer',
-                        params: {
-                            type: 'other'
-                        }
-                    })
-                .then(response => {
-                    swal.close()
-                    notification('success', 'Sign has been requested')
-                    setTimeout(location.reload.bind(location), 3000);
-                })
-                .catch(error => {
-                    notification('error', 'Something went wrong while send email')
-                    swal.close()
-                })
-        })
+        }
 
         function checkCurrency() {
             let cur = $('#currency').val()

@@ -245,6 +245,8 @@ class ReceiptReferralController extends Controller
     {
         $receipt_identifier = $request->route('receipt');
         $currency = $request->route('currency');
+        $to = $request->get('to');
+        $name = $request->get('name');
 
         $receipt = $this->receiptRepository->getReceiptById($receipt_identifier);
         $receipt_id = $receipt->receipt_id;
@@ -258,8 +260,8 @@ class ReceiptReferralController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = env('DIRECTOR_EMAIL');
-        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['email'] = $to;
+        $data['recipient'] = $name;
         $data['title'] = "Request Sign of Receipt Number : " . $receipt_id;
         $data['param'] = [
             'receipt_identifier' => $receipt_identifier,
@@ -272,7 +274,7 @@ class ReceiptReferralController extends Controller
         try {
 
             # Update status request
-            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested']);
+            $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested', 'recipient' => $to]);
 
             Mail::send('pages.receipt.referral.mail.view', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['recipient'])
