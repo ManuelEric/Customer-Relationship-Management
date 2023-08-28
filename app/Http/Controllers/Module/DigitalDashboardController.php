@@ -40,7 +40,7 @@ class DigitalDashboardController extends Controller
         $currMonth = date('m');
         
         # List Lead Source 
-        $leads = $this->leadRepository->getActiveLead();
+        $leads = $this->leadRepository->getAllLead();
         $dataLead = $this->leadTargetRepository->getLeadDigital($today, null);
         $programsDigital = $this->programRepository->getAllPrograms();
         // $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
@@ -66,13 +66,15 @@ class DigitalDashboardController extends Controller
             }else if($type == 'Conversion Lead'){
                 $count = $dataLead->where('lead_id', $lead->lead_id)->count();
             }
+            
+            if($count > 0){
+                $data->push([
+                    'lead_id' => $lead->lead_id,
+                    'lead_name' => $lead->main_lead . ($lead->sub_lead  != null ? ' - ' . $lead->sub_lead : ''),
+                    'count' => $count,
 
-            $data->push([
-                'lead_id' => $lead->lead_id,
-                'lead_name' => $lead->main_lead . ($lead->sub_lead  != null ? ' - ' . $lead->sub_lead : ''),
-                'count' => $count,
-
-            ]);
+                ]);
+            }
         }
 
         return $data;
