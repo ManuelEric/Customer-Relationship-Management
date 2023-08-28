@@ -111,7 +111,14 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->
                             whereMonth('assessmentsent_date', $month)->
-                            whereYear('assessmentsent_date', $year);
+                            whereYear('assessmentsent_date', $year)->
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
+                            });
                     })->
                     get();
     }
@@ -217,7 +224,14 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->
                             whereMonth('assessmentsent_date', $month)->
-                            whereYear('assessmentsent_date', $year);
+                            whereYear('assessmentsent_date', $year)->
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
+                            });
                     })->
                     get();
     }
@@ -307,7 +321,14 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->
                             whereMonth('assessmentsent_date', $month)->
-                            whereYear('assessmentsent_date', $year);
+                            whereYear('assessmentsent_date', $year)->
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
+                            });
                     })->
                     get();
     }

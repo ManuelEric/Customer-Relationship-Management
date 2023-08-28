@@ -252,7 +252,7 @@
         axios.get('{{ url('api/digital/leads') }}/' + month + '/' + prog_id)
             .then((response) => {
                 var result = response.data.data
-                console.log(result);
+                // console.log(result);
                 var avgFollowUpTime = 0;
                 var totalFollowUpTime = 0;
                 var avgConversionTime = 0;
@@ -283,8 +283,6 @@
 
                 // avgFollowUpTime = count !== 0 ? totalFollowUpTime / count : 0;
                 avgConversionTime = count !== 0 ? parseInt(totalConversionTime) / count : 0;
-                console.log(avgConversionTime)
-                console.log(Math.round(avgConversionTime))
 
                 // $('#avg-follow-up').html(icon + Math.round(avgFollowUpTime) + ' Days');
                 $('#avg-conversion').html(icon + Math.round(avgConversionTime) + ' Days');
