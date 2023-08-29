@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('tbl_already_joined', function (Blueprint $table) {
-            $table->foreign('initialprogram_id')->references('id')->on('tbl_initial_program_lead')->onUpdate('cascade')->onDelete('cascade');
+            // $table->foreign('initialprogram_id')->references('id')->on('tbl_initial_program_lead')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
