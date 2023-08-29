@@ -40,7 +40,10 @@ class ClientMenteeController extends Controller
 
     public function show(Request $request)
     {
-        $menteeId = $request->route('mentee');
+        $segment = $request->segment(3);
+        $alumni_type = str_replace('-', '_', $segment);
+
+        $menteeId = $request->route($alumni_type);
         $student = $this->clientRepository->getClientById($menteeId);
         $viewStudent = $this->clientRepository->getViewClientById($menteeId);
 

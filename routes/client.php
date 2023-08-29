@@ -53,7 +53,11 @@ Route::prefix('student')->name('student.')->group(function () {
         Route::resource('{program}/followup', FollowupController::class);
     });
 });
-Route::resource('mentee', ClientMenteeController::class);
+Route::prefix('alumni')->group(function() {
+
+    Route::resource('mentee', ClientMenteeController::class);
+    Route::resource('non-mentee', ClientMenteeController::class);
+});
 Route::resource('alumni', ClientMenteeController::class);
 
 Route::resource('teacher-counselor', ClientTeacherCounselorController::class);
