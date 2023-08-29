@@ -194,7 +194,7 @@ class ClientStudentController extends ClientController
         $student = $this->clientRepository->getClientById($studentId);
 
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
-        $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
+        // $historyLeads = $this->clientLeadTrackingRepository->getHistoryClientLead($studentId);
         $viewStudent = $this->clientRepository->getViewClientById($studentId);
 
         $initialPrograms = $this->initialProgramRepository->getAllInitProg();
