@@ -133,11 +133,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                         $query->
                             where(function ($subQuery) use ($month, $year) {
                                 $subQuery->
-                                    where(function ($subQuery) use ($month, $year){
-                                        $subQuery->whereMonth('success_date', $month)->whereYear('success_date', $year);
-                                    })->orWhere(function ($subQuery) use ($month, $year){
-                                        $subQuery->whereMonth('assessmentsent_date', $month)->whereYear('assessmentsent_date', $year);
-                                    });
+                                    whereMonth('success_date', $month)->whereYear('success_date', $year);
                             })->
                             where('status', 1)-> # status programnya success
                             whereHas('lead', function ($query) {
@@ -256,11 +252,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                         $query->
                             where(function ($subQuery) use ($month, $year) {
                                 $subQuery->
-                                    where(function ($subQuery) use ($month, $year){
-                                        $subQuery->whereMonth('success_date', $month)->whereYear('success_date', $year);
-                                    })->orWhere(function ($subQuery) use ($month, $year){
-                                        $subQuery->whereMonth('assessmentsent_date', $month)->whereYear('assessmentsent_date', $year);
-                                    });
+                                    whereMonth('success_date', $month)->whereYear('success_date', $year);
                             })->
                             where('status', 1)-> # status programnya success
                             whereHas('lead', function ($query) {
@@ -353,11 +345,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                         $query->
                             where(function ($subQuery) use ($month, $year) {
                                 $subQuery->
-                                    where(function ($subQuery) use ($month, $year){
-                                        $subQuery->whereMonth('success_date', $month)->whereYear('success_date', $year);
-                                    })->orWhere(function ($subQuery) use ($month, $year){
-                                        $subQuery->whereMonth('assessmentsent_date', $month)->whereYear('assessmentsent_date', $year);
-                                    });
+                                    whereMonth('success_date', $month)->whereYear('success_date', $year);
                             })->
                             where('status', 1)-> # status programnya success
                             whereHas('lead', function ($query) {
