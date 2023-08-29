@@ -87,7 +87,7 @@ class AutomatedDeterminedHotLeads extends Command
     
                 # this condition is to make system run every 1 April & 1 Oktober
                 # 01 April & 01 Oktober
-                // if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
+                if (date('d-m H:i') == '01-04 00:00' || date('d-m H:i') == '01-08 00:00')
                     $recalculate = true;    
     
                 # currently we have 4 initial programs
