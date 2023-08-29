@@ -241,7 +241,7 @@
                         <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
                             <i class="bi bi-x-square me-1"></i>
                             Cancel</button>
-                        <button type="button" id="send-to-client--app-0604" class="btn btn-primary btn-sm">
+                        <button type="button" id="send-to-client--app-0604-1" class="btn btn-primary btn-sm">
                             <i class="bi bi-trash3 me-1"></i>
                             Yes!</button>
                     </div>
@@ -371,21 +371,21 @@
             $('#formActionDeactive').attr('action', '{{ url('') }}/' + subject + '/' + id);
         }
 
-        function confirmRequestSign(subject, id, category) {
-            var myModal = new bootstrap.Modal(document.getElementById('requestSign--modal'))
-            myModal.show()
+        // function confirmRequestSign(subject, id, category) {
+        //     var myModal = new bootstrap.Modal(document.getElementById('requestSign--modal'))
+        //     myModal.show()
 
-            var warningMessage = 'You want to request sign?';
+        //     var warningMessage = 'You want to request sign?';
 
-            // change form action 
-            $("#formActionRequestSign h6").html(warningMessage);
+        //     // change form action 
+        //     $("#formActionRequestSign h6").html(warningMessage);
 
-            var link = subject + '/' + id
-            $('#send-to-client--app-0604').unbind('click');
-            $("#send-to-client--app-0604").bind('click', function() {
-                sendToClient(link)
-            })
-        }
+        //     var link = subject + '/' + id
+        //     $('#send-to-client--app-0604').unbind('click');
+        //     $("#send-to-client--app-0604").bind('click', function() {
+        //         sendToClient(link)
+        //     })
+        // }
 
         function confirmSendToClient(subject, id, category) {
             var myModal = new bootstrap.Modal(document.getElementById('sendToClient--modal'))
@@ -396,7 +396,7 @@
             // change form action 
             $("#formActionSendToClient h6").html(warningMessage);
 
-            var link = subject + '/' + id
+            var link = subject + '/' + id;
             $('#send-to-client--app-0604').unbind('click');
             $("#send-to-client--app-0604").bind('click', function() {
                 sendToClient(link)
