@@ -146,7 +146,7 @@ return new class extends Migration
                     FROM target_tracking
                     WHERE MONTH(month_year) = MONTH(now() - INTERVAL 1 MONTH) 
                         AND YEAR(month_year) = YEAR(now() - INTERVAL 1 MONTH)
-                        AND divisi = requested_division COLLATE utf8mb4_unicode_ci;
+                        AND divisi = requested_division;
 
             RETURN difference;
         END; //

@@ -58,9 +58,6 @@ class AlarmController extends Controller
 
         $actualLeadsSales['referral'] = $actualLeadsReferral['lead_needed'];
 
-        # Gagal 3x berturut-turut
-        $alarmLeads['sales']['always_on']['failed'] = $this->clientLeadTrackingRepository->getFailedLead($today);
-
         $targetTrackingLead = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today, 'lead');
         $targetTrackingRevenue = $this->targetTrackingRepository->getTargetTrackingPeriod(Carbon::now()->startOfMonth()->subMonth(2)->toDateString(), $today, 'revenue');
 
@@ -78,7 +75,6 @@ class AlarmController extends Controller
         }
 
         $alarmLeads = $this->alarmRepository->setAlarmLead();
-
         $dataLeads = [
             'total_achieved_lead_needed' => $actualLeadsSales['lead_needed'] + $actualLeadsReferral['lead_needed'] + $actualLeadsDigital['lead_needed'],
             'total_achieved_hot_lead' => $actualLeadsSales['hot_lead'] + $actualLeadsReferral['hot_lead'] + $actualLeadsDigital['hot_lead'],

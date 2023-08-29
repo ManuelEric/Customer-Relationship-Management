@@ -150,14 +150,14 @@ class DashboardController extends SalesDashboardController
         //     ];
         // })->pluck('id')->toArray(); 
         
-        // $data = (new DigitalDashboardController($this))->get($request);
+        // $data = (new AlarmController($this))->get($request);
         // return $data;
         // exit;
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
         $data = array_merge($data, (new FinanceDashboardController($this))->get($request));
-        // $data = array_merge($data, (new AlarmController($this))->get($request));
-        // $data = array_merge($data, (new DigitalDashboardController($this))->get($request));
+        $data = array_merge($data, (new AlarmController($this))->get($request));
+        $data = array_merge($data, (new DigitalDashboardController($this))->get($request));
 
         return view('pages.dashboard.index')->with($data);
     }

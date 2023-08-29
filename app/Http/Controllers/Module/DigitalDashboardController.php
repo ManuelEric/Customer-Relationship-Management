@@ -25,6 +25,8 @@ class DigitalDashboardController extends Controller
         $this->eventRepository = $repositories->eventRepository;
         $this->leadTargetRepository = $repositories->leadTargetRepository;
         $this->leadRepository = $repositories->leadRepository;
+        $this->programRepository = $repositories->programRepository;
+
     }
 
     public function get($request)
@@ -38,8 +40,9 @@ class DigitalDashboardController extends Controller
         $currMonth = date('m');
         
         # List Lead Source 
-        $leads = $this->leadRepository->getActiveLead();
+        $leads = $this->leadRepository->getAllLead();
         $dataLead = $this->leadTargetRepository->getLeadDigital($today, null);
+        $programsDigital = $this->programRepository->getAllPrograms();
         // $dataConversionLead = $this->leadTargetRepository->getConversionLeadDigital($today);
 
 
@@ -47,6 +50,8 @@ class DigitalDashboardController extends Controller
             'leadsDigital' => $this->mappingDataLead($leads->where('department_id', 7), $dataLead, 'Lead Source'),
             'leadsAllDepart' => $this->mappingDataLead($leads, $dataLead, 'Conversion Lead'),
             'dataLead' => $dataLead,
+            'programsDigital' => $programsDigital,
+
         ];
 
         return $response;
@@ -61,13 +66,15 @@ class DigitalDashboardController extends Controller
             }else if($type == 'Conversion Lead'){
                 $count = $dataLead->where('lead_id', $lead->lead_id)->count();
             }
+            
+            if($count > 0){
+                $data->push([
+                    'lead_id' => $lead->lead_id,
+                    'lead_name' => $lead->main_lead . ($lead->sub_lead  != null ? ' - ' . $lead->sub_lead : ''),
+                    'count' => $count,
 
-            $data->push([
-                'lead_id' => $lead->lead_id,
-                'lead_name' => $lead->main_lead . ($lead->sub_lead  != null ? ' - ' . $lead->sub_lead : ''),
-                'count' => $count,
-
-            ]);
+                ]);
+            }
         }
 
         return $data;

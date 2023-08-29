@@ -184,8 +184,8 @@ class SchoolProgramController extends Controller
         $programs = $programsB2B->merge($programsB2BB2C);
 
         # retrieve reason data
-        // $reasons = $this->reasonRepository->getReasonByType('Program');
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
+        // $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve employee data
         $employees = $this->userRepository->getAllUsersByDepartmentAndRole('Employee', 'Business Development');
@@ -222,8 +222,8 @@ class SchoolProgramController extends Controller
         $programs = $programsB2B->merge($programsB2BB2C);
 
         # retrieve reason data
-        // $reasons = $this->reasonRepository->getReasonByType('Program');
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
+        // $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve School Program data by schoolId
         $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);
@@ -310,8 +310,8 @@ class SchoolProgramController extends Controller
 
 
         # retrieve reason data
-        // $reasons = $this->reasonRepository->getReasonByType('Program');
-        $reasons = $this->reasonRepository->getAllReasons();
+        $reasons = $this->reasonRepository->getReasonByType('Program');
+        // $reasons = $this->reasonRepository->getAllReasons();
 
         # retrieve School Program data by id
         $schoolProgram = $this->schoolProgramRepository->getSchoolProgramById($sch_progId);

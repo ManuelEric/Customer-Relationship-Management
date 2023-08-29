@@ -458,9 +458,10 @@
         }
 
         Swal.showLoading()
-        axios.get('{{ url('api/digital/leads/') }}/' + month)
+        axios.get('{{ url('api/digital/all-leads') }}/' + month)
             .then((response) => {
-                var result = response.data.data
+                var result = response.data
+                // console.log(result)
                 var html = '';
                 var no = 1;
                 var divisi = ['sales', 'referral', 'digital'];
