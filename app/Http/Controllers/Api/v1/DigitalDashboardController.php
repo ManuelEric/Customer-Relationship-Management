@@ -168,10 +168,12 @@ class DigitalDashboardController extends Controller
 
         $index = 1;
         foreach ($dataAchieved as $achieved) {
+            $achievedParents = $achieved->parents !== null ? $achieved->parents->count() : 0;
+        
             $html .= '<tr>
                         <td>' . $index++ . '</td>
                         <td>' . $achieved->full_name . '</td>
-                        <td>' . ($achieved->parents->count() > 0 ? $achieved->parents->first()->full_name : '-'). '</td>
+                        <td>' . ($achievedParents > 0 ? $achieved->parents->first()->full_name : '-'). '</td>
                         <td>' . ($achieved->school != null ? $achieved->school->sch_name : '-') . '</td>
                         <td>' . $achieved->graduation_year_real . '</td>
                         <td>' . $achieved->leadSource . '</td>
