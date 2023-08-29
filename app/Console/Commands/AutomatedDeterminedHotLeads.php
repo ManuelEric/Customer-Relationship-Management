@@ -69,9 +69,6 @@ class AutomatedDeterminedHotLeads extends Command
 
             foreach ($rawData as $client) {
 
-                if ($client->id != 420)
-                    continue;
-
                 # if the client has already graduated
                 # then no need to calculate hot leads
                 $bypass = $client->grade > 0 ? true : false;
@@ -428,7 +425,7 @@ class AutomatedDeterminedHotLeads extends Command
             $total_result += $sub_result;
 
             switch ($initProgramName) {
-                case "Admission Mentoring":
+                case "Admissions Mentoring":
                     $specificConcerns->where('main_prog_id', 1)->first() != null ? $total_result = 1 : null;
                     break;
 

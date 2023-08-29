@@ -131,7 +131,6 @@ class Receipt extends Model
             get: fn ($value) => $calcPPH23,
         );
     }
-
     protected function strPph23(): Attribute
     {
         return Attribute::make(

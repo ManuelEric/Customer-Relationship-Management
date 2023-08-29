@@ -79,7 +79,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="13"></td>
+                        <td colspan="14"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -220,6 +220,16 @@
                         data: 'child_name',
                         defaultContent: '-'
                     },
+                    // {
+                    //     data: 'parent_mail',
+                    //     name: 'parent.mail',
+                    //     defaultContent: '-'
+                    // },
+                    // {
+                    //     data: 'parent_phone',
+                    //     name: 'parent.phone',
+                    //     defaultContent: '-'
+                    // },
                     {
                         data: 'participated',
                         searchable: true

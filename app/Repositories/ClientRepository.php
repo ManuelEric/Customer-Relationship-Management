@@ -783,7 +783,8 @@ class ClientRepository implements ClientRepositoryInterface
 
         # why sync?
         # to create and update all at once
-        $parent->childrens()->sync($studentId);
+        // $parent->childrens()->sync($childrens);
+        $parent->childrens()->syncWithoutDetaching($studentId);
         return $parent;
     }
 
