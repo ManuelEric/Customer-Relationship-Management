@@ -159,6 +159,7 @@ class AppServiceProvider extends ServiceProvider
                         'deptId' => $deptId,
                         'countAlarm' => app('alarm-repository-services')->countAlarm(),
                         'notification' => app('alarm-repository-services')->notification(),
+                        'invRecPics' => $invRecPics,
                     ]
                 );
             }

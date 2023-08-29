@@ -25,7 +25,8 @@ return new class extends Migration
                 month(CURDATE()),
                 month(cl.created_at),
                 cl.st_grade
-            ) -12 AS grade,
+            ) -12 AS grade_old,
+            cv.grade_now -12 AS grade,
             sc.sch_id as school,
             sc.sch_type as type_school,
             (CASE 
@@ -64,14 +65,19 @@ return new class extends Migration
             cl.register_as as register_as
 
         FROM tbl_client cl
+        LEFT JOIN client cv
+                ON cv.id = cl.id
         LEFT JOIN tbl_sch sc 
             ON sc.sch_id = cl.sch_id
         LEFT JOIN tbl_lead l
             ON l.lead_id = cl.lead_id
 
-            WHERE (SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
-            JOIN tbl_roles role ON role.id = clrole.role_id
-            WHERE clrole.client_id = cl.id) NOT IN ('Parent') AND cl.st_statusact = 1
+            WHERE (
+                SELECT GROUP_CONCAT(role_name) FROM tbl_client_roles clrole
+                        JOIN tbl_roles role ON role.id = clrole.role_id
+                        WHERE clrole.client_id = cl.id
+                ) NOT IN ('Parent') 
+                AND cl.st_statusact = 1
 
         ");
         }
