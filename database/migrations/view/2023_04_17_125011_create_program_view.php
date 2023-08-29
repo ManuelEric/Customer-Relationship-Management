@@ -37,7 +37,7 @@ return new class extends Migration
                 END)
             ELSE
                 CONCAT(mp.prog_name COLLATE utf8mb4_unicode_ci, ' : ', pr.prog_program COLLATE utf8mb4_unicode_ci)
-            END) as program_name,
+            END) as program_name
 
         FROM tbl_prog pr
         LEFT JOIN tbl_main_prog mp 
