@@ -544,7 +544,7 @@
         </div>
     </div>
 
-    @if ($client_prog->client->parents->count() > 0)
+    {{-- @if ($client_prog->client->parents->count() > 0) --}}
     <div class="modal fade" id="sendToClientModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -589,7 +589,7 @@
             </div>
         </div>
     </div>
-    @endif
+    {{-- @endif --}}
 
     @if ($errors->has('attachment'))
         <script>

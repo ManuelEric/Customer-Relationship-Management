@@ -225,7 +225,7 @@
     </div>
 
     {{-- Request Sign  --}}
-    <div class="modal modal-sm fade" tabindex="-1" id="requestSign--modal" data-bs-backdrop="static" data-bs-keyboard="false">
+    {{-- <div class="modal modal-sm fade" tabindex="-1" id="requestSign--modal" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <form action="" method="post" id="formActionRequestSign">
@@ -248,7 +248,7 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Send Invoice / Receipt to Client  --}}
     <div class="modal modal-sm fade" tabindex="-1" id="sendToClient--modal" data-bs-backdrop="static" data-bs-keyboard="false">
