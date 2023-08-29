@@ -120,7 +120,7 @@ class AlarmRepository implements AlarmRepositoryInterface
         // $alarmLeads['sales']['mid']['lead_needed'] = $actualLeadsSales['lead_needed'] < $leadSalesTarget['lead_needed'] ? true : false;
         $alarmLeads['sales']['mid']['hot_lead'] = $actualLeadsSales['hot_lead'] < $leadSalesTarget['hot_lead'] ? true : false;
         $alarmLeads['sales']['mid']['referral'] = $actualLeadsReferral['lead_needed'] < 10 ? true : false;
-        $alarmLeads['digital']['mid']['hot_lead'] = $actualLeadsDigital['hot_lead'] < $leadDigitalTarget['lead_needed'] ? true : false;
+        $alarmLeads['digital']['mid']['hot_lead'] = $actualLeadsDigital['hot_lead'] < $leadDigitalTarget['hot_lead'] ? true : false;
         $alarmLeads['general']['mid']['event'] = ($alarmLeads['sales']['mid']['hot_lead'] || $alarmLeads['sales']['mid']['referral']) && $events->count() < 1 ? true : false;
   
             # Day 15-30 (akhir bulan)
@@ -130,13 +130,13 @@ class AlarmRepository implements AlarmRepositoryInterface
                 unset($alarmLeads['sales']['mid']['hot_lead']);
                 $alarmLeads['sales']['end']['revenue'] = $dataRevenueChart['actual'][2] < ($dataRevenueChart['target'][2] != 0 ? $dataRevenueChart['target'][2] * 50 / 100 : 0) ? true : false;
                 $alarmLeads['sales']['end']['ic'] = $actualLeadsSales['ic'] < $leadSalesTarget['ic'] ? true : false;
-                $alarmLeads['sales']['end']['hot_lead'] = $actualLeadsSales['hot_lead'] < $leadSalesTarget['lead_needed'] ? true : false;
+                $alarmLeads['sales']['end']['hot_lead'] = $actualLeadsSales['hot_lead'] < $leadSalesTarget['hot_lead'] ? true : false;
                 
                 # digital
                 // unset($alarmLeads['digital']['mid']['lead_needed']);
                 unset($alarmLeads['digital']['mid']['hot_lead']);
                 $alarmLeads['digital']['end']['revenue'] = $dataRevenueChart['actual'][2] < ($dataRevenueChart['target'][2] != 0 ? $dataRevenueChart['target'][2] * 50 / 100 : 0) ? true : false;
-                $alarmLeads['digital']['end']['hot_lead'] = $actualLeadsDigital['hot_lead'] < $leadDigitalTarget['lead_needed'] ? true : false;
+                $alarmLeads['digital']['end']['hot_lead'] = $actualLeadsDigital['hot_lead'] < $leadDigitalTarget['hot_lead'] ? true : false;
                 $alarmLeads['digital']['end']['lead_needed'] = $actualLeadsDigital['lead_needed'] < $leadDigitalTarget['lead_needed'] ? true : false;
             }
 
