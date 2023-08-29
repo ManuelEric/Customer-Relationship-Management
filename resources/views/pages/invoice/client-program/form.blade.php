@@ -515,7 +515,7 @@
                                     <div class="col-md-6 mb-3 invoice d-none">
                                         <label for="">Created Date <sup class="text-danger">*</sup></label>
                                         <input type="date" name="invoice_date" id=""
-                                            value="{{ date('Y-m-d') }}" {{ $disabled }}
+                                            value="{{ isset($invoice->created_at) ? $invoice->created_at : date('Y-m-d') }}" {{ $disabled }}
                                             class='form-control form-control-sm rounded'>
                                         @error('invoice_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
