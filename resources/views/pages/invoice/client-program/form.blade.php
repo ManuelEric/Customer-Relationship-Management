@@ -515,7 +515,7 @@
                                     <div class="col-md-6 mb-3 invoice d-none">
                                         <label for="">Created Date <sup class="text-danger">*</sup></label>
                                         <input type="date" name="invoice_date" id=""
-                                            value="{{ date('Y-m-d') }}" {{ $disabled }}
+                                            value="{{ isset($invoice->created_at) ? date('Y-m-d', strtotime($invoice->created_at)) : date('Y-m-d') }}" {{ $disabled }}
                                             class='form-control form-control-sm rounded'>
                                         @error('invoice_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -710,7 +710,7 @@
         </div>
     </div>
 
-    {{-- @if ($clientProg->client->parents->count() > 0)  --}}
+    @if ($clientProg->client->parents->count() > 0) 
     <div class="modal fade" id="sendToClientModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -730,12 +730,12 @@
                         <input type="hidden" name="clientprog_id" id="clientprog_id"
                             value="{{ $clientProg->clientprog_id }}" class="form-control w-100">
                         <input type="hidden" name="parent_id" id="parent_id"
-                            {{-- value="{{ $clientProg->client->parents[0]->id }}" class="form-control w-100"> --}}
-                            value="{{ $clientProg->client->id }}" class="form-control w-100">
+                            value="{{ $clientProg->client->parents[0]->id }}" class="form-control w-100">
+                            {{-- value="{{ $clientProg->client->id }}" class="form-control w-100"> --}}
                         <label for="">Email Parent</label>
                         <input type="mail" name="parent_mail" id="parent_mail"
-                            {{-- value="{{ $clientProg->client->parents[0]->mail }}" class="form-control w-100"> --}}
-                            value="{{ $clientProg->client->mail }}" class="form-control w-100">
+                            value="{{ $clientProg->client->parents[0]->mail }}" class="form-control w-100">
+                            {{-- value="{{ $clientProg->client->mail }}" class="form-control w-100"> --}}
                     </div>
                     {{-- <hr> --}}
                     <div class="d-flex justify-content-between">
@@ -753,7 +753,7 @@
             </div>
         </div>
     </div>
-    {{-- @endif --}}
+    @endif
 
     @include('pages.invoice.pic-modal');
 
