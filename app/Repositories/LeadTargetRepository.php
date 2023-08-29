@@ -130,12 +130,14 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
 
         return UserClient::
                     whereHas('clientProgram', function ($query) use ($month, $year) {
-                        $query->where(function ($subQuery) use ($month, $year){
-                            $subQuery->whereMonth('success_date', $month)->
-                                whereYear('success_date', $year);
-                            })->orWhere(function ($subQuery) use ($month, $year){
-                                $subQuery->whereMonth('assessmentsent_date', $month)->
-                                whereYear('assessmentsent_date', $year);
+                        $query->
+                            where(function ($subQuery) use ($month, $year) {
+                                $subQuery->
+                                    where(function ($subQuery) use ($month, $year){
+                                        $subQuery->whereMonth('success_date', $month)->whereYear('success_date', $year);
+                                    })->orWhere(function ($subQuery) use ($month, $year){
+                                        $subQuery->whereMonth('assessmentsent_date', $month)->whereYear('assessmentsent_date', $year);
+                                    });
                             })->
                             where('status', 1)-> # status programnya success
                             whereHas('lead', function ($query) {
@@ -250,27 +252,19 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $year = date('Y', strtotime($now));
 
         return UserClient::
-                    // where(function ($query) {
-                    //     $query->whereHas('lead', function ($subQuery) {
-                    //         $subQuery->where('main_lead', 'Referral');
-                    //     })->
-                    //     orWhereHas('clientProgram', function ($subQuery) {
-                    //         $subQuery->whereHas('lead', function ($subQuery_2) {
-                    //             $subQuery_2->where('main_lead', 'Referral');
-                    //         });
-                    //     });
-                    // })->
                     whereHas('clientProgram', function ($query) use ($month, $year) {
-                        $query->where(function ($subQuery) use ($month, $year){
-                                $subQuery->whereMonth('success_date', $month)->
-                                whereYear('success_date', $year);
-                            })->orWhere(function ($subQuery) use ($month, $year){
-                                $subQuery->whereMonth('assessmentsent_date', $month)->
-                                whereYear('assessmentsent_date', $year);
+                        $query->
+                            where(function ($subQuery) use ($month, $year) {
+                                $subQuery->
+                                    where(function ($subQuery) use ($month, $year){
+                                        $subQuery->whereMonth('success_date', $month)->whereYear('success_date', $year);
+                                    })->orWhere(function ($subQuery) use ($month, $year){
+                                        $subQuery->whereMonth('assessmentsent_date', $month)->whereYear('assessmentsent_date', $year);
+                                    });
                             })->
                             where('status', 1)-> # status programnya success
                             whereHas('lead', function ($query) {
-                                $query->where('main_lead', 'Referral');    
+                                $query->where('main_lead', 'Referral');      
                             })->
                             whereHas('program', function ($subQuery) {
                                 $subQuery->whereHas('main_prog', function ($subQuery2) {
@@ -356,12 +350,14 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
 
         return UserClient::
                     whereHas('clientProgram', function ($query) use ($month, $year) {
-                        $query->where(function ($subQuery) use ($month, $year){
-                            $subQuery->whereMonth('success_date', $month)->
-                                whereYear('success_date', $year);
-                            })->orWhere(function ($subQuery) use ($month, $year){
-                                $subQuery->whereMonth('assessmentsent_date', $month)->
-                                whereYear('assessmentsent_date', $year);
+                        $query->
+                            where(function ($subQuery) use ($month, $year) {
+                                $subQuery->
+                                    where(function ($subQuery) use ($month, $year){
+                                        $subQuery->whereMonth('success_date', $month)->whereYear('success_date', $year);
+                                    })->orWhere(function ($subQuery) use ($month, $year){
+                                        $subQuery->whereMonth('assessmentsent_date', $month)->whereYear('assessmentsent_date', $year);
+                                    });
                             })->
                             where('status', 1)-> # status programnya success
                             whereHas('lead', function ($query) {
