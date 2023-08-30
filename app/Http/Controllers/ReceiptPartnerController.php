@@ -279,12 +279,12 @@ class ReceiptPartnerController extends Controller
 
         $receiptAtt = $this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receipt_id, $currency);
 
-        // $companyDetail = [
-        //     'name' => env('ALLIN_COMPANY'),
-        //     'address' => env('ALLIN_ADDRESS'),
-        //     'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-        //     'city' => env('ALLIN_CITY')
-        // ];
+        $companyDetail = [
+            'name' => env('ALLIN_COMPANY'),
+            'address' => env('ALLIN_ADDRESS'),
+            'address_dtl' => env('ALLIN_ADDRESS_DTL'),
+            'city' => env('ALLIN_CITY')
+        ];
 
         $data['email'] = $to;
         $data['recipient'] = $name;
@@ -297,19 +297,33 @@ class ReceiptPartnerController extends Controller
             'receipt_date' => date('d F Y', strtotime($receipt->created_at)),
         ];
 
+        DB::beginTransaction();
         try {
 
             # Update status request
             $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested', 'recipient' => $to]);
+            
+            # create attachment 
+            $view = 'pages.receipt.corporate-program.export.receipt-pdf';
+            $pdf = PDF::loadView($view, [
+                    'receiptPartner' => $receipt, 
+                    'invoicePartner' => $is_installment === false ? $receipt->invoiceB2b : $receipt->invoiceInstallment->inv_b2b, 
+                    'currency' => $currency, 
+                    'companyDetail' => $companyDetail
+                ]);
 
-            Mail::send('pages.receipt.corporate-program.mail.view', $data, function ($message) use ($data) {
+            Mail::send('pages.receipt.corporate-program.mail.view', $data, function ($message) use ($data, $pdf, $receipt) {
                 $message->to($data['email'], $data['recipient'])
-                    ->subject($data['title']);
+                    ->subject($data['title'])
+                    ->attachData($pdf->output(), $receipt->receipt_id . '.pdf');
             });
+            DB::commit();
+
         } catch (Exception $e) {
 
+            DB::rollBack();
             Log::info('Failed to request sign receipt : ' . $e->getMessage());
-            return $e->getMessage();
+            return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
 
         return true;

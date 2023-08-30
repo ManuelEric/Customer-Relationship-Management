@@ -85,7 +85,7 @@
                                         <i class="bi bi-pen-fill"></i>
                                     </a>
                                 </div> --}}
-                                <div class="btn btn-sm py-1 border btn-light" id="requestSignIdr" onclick="$('#sendToChoosenPic').attr('onclick', 'requestAcc(\'idr\')')" data-curr="idr"
+                                <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="idr"
                                     data-bs-toggle="modal" data-bs-target="#requestSignModal">
                                     <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                         <i class="bi bi-pen-fill"></i>
@@ -135,7 +135,7 @@
                                             <i class="bi bi-pen-fill"></i>
                                         </a>
                                     </div> --}}
-                                    <div class="btn btn-sm py-1 border btn-light" id="requestSignIdr" onclick="$('#sendToChoosenPic').attr('onclick', 'requestAcc(\'other\')')" data-curr="idr"
+                                    <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="other"
                                         data-bs-toggle="modal" data-bs-target="#requestSignModal">
                                         <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                             <i class="bi bi-pen-fill"></i>
@@ -1068,9 +1068,9 @@
         $(document).on("click", "#openModalRequestSignIdr", function() {
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
-            $('#ConfirmRequestSign').attr("onclick",
-                "confirmRequestSign('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', " +
-                curr + ", 'invoice')");
+            $('#sendToChoosenPic').attr("onclick",
+            "confirmRequestSign('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', " +
+                curr + ")");
         });
 
         $(document).on("click", "#openModalSendToClientIdr", function() {
@@ -1123,15 +1123,14 @@
 
         }
 
-        function requestAcc(currency)
+        function requestAcc(link, currency)
         {
             showLoading()
             var inv_rec_pic = $("input[name=pic_sign]:checked").val();
             var inv_rec_pic_name = $("input[name=pic_sign]:checked").data('name');
 
             axios
-                .get(
-                    '{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
+                .get(link, {
                         params: {
                             type: currency,
                             to: inv_rec_pic,
@@ -1144,6 +1143,7 @@
                     notification('success', 'Sign has been requested')
                     $(".step-one").addClass('active')
                     $("#requestSignModal").modal('hide');
+                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box   
                 })
                 .catch(error => {
                     console.log(error)

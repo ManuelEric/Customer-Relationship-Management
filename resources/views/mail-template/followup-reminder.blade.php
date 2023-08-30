@@ -21,11 +21,13 @@
                     <tr>
                         <td><b>Notes</b></td>
                         <td><b>:</b></td>
-                        <td><i>{!! $data['followup']->notes !!}</i></td>
+                        <td><i>{{ strip_tags($data['followup']->notes) }}</i></td>
                     </tr>
                     @if ($i < $row)
                     <tr>
-                        <td>&nbsp;</td>
+                        <td colspan="3">&nbsp;
+                            <hr>
+                        </td>
                     </tr>
                     @endif
                     @php
