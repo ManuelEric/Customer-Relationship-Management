@@ -227,7 +227,7 @@
     </div>
 
     {{-- Request Sign  --}}
-    {{-- <div class="modal modal-sm fade" tabindex="-1" id="requestSign--modal" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal modal-sm fade" tabindex="-1" id="requestSign--modal" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <form action="" method="post" id="formActionRequestSign">
@@ -243,14 +243,14 @@
                         <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
                             <i class="bi bi-x-square me-1"></i>
                             Cancel</button>
-                        <button type="button" id="send-to-client--app-2908" class="btn btn-primary btn-sm">
+                        <button type="button" id="send-request--app-2908" class="btn btn-primary btn-sm">
                             <i class="bi bi-trash3 me-1"></i>
                             Yes!</button>
                     </div>
                 </form>
             </div>
         </div>
-    </div> --}}
+    </div>
 
     {{-- Send Invoice / Receipt to Client  --}}
     <div class="modal modal-sm fade" tabindex="-1" id="sendToClient--modal" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -382,8 +382,8 @@
             $("#formActionRequestSign h6").html(warningMessage);
 
             var link = subject;
-            $('#send-to-client--app-2908').unbind('click');
-            $("#send-to-client--app-2908").bind('click', function() {
+            $('#send-request--app-2908').unbind('click');
+            $("#send-request--app-2908").bind('click', function() {
                 requestAcc(link, currency)
             })
         }
