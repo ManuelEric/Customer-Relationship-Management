@@ -19,6 +19,11 @@
                         <td>{{ $data['client']->full_name }}</td>
                     </tr>
                     <tr>
+                        <td><b>Program</b></td>
+                        <td><b>:</b></td>
+                        <td>{{ $data['program']->invoice_program_name }}</td>
+                    </tr>
+                    <tr>
                         <td><b>Notes</b></td>
                         <td><b>:</b></td>
                         <td><i>{{ strip_tags($data['followup']->notes) }}</i></td>
