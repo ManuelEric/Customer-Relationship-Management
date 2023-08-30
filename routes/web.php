@@ -63,3 +63,7 @@ Route::post('form/registrations', [PublicRegistrationController::class, 'store']
 Route::get('form/thanks', function() {
     return view('form-embed.thanks');
 });
+
+Route::get('form/test', function() {
+    return view('form-embed.response.form-events-new');
+});
