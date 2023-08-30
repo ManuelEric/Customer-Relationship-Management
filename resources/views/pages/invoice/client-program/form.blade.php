@@ -135,7 +135,7 @@
                                             <i class="bi bi-pen-fill"></i>
                                         </a>
                                     </div> --}}
-                                    <div class="btn btn-sm py-1 border btn-light" id="requestSignIdr" onclick="$('#sendToChoosenPic').attr('onclick', 'requestAcc(\'other\')')" data-curr="idr"
+                                    <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="other"
                                         data-bs-toggle="modal" data-bs-target="#requestSignModal">
                                         <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                             <i class="bi bi-pen-fill"></i>
@@ -1069,7 +1069,7 @@
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
             $('#sendToChoosenPic').attr("onclick",
-                "{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', " +
+            "confirmRequestSign('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', " +
                 curr + ")");
         });
 
@@ -1143,6 +1143,7 @@
                     notification('success', 'Sign has been requested')
                     $(".step-one").addClass('active')
                     $("#requestSignModal").modal('hide');
+                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box   
                 })
                 .catch(error => {
                     console.log(error)

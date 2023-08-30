@@ -114,7 +114,7 @@
                                             <i class="bi bi-pen-fill"></i>
                                         </a>
                                     </div> --}}
-                                    <div class="btn btn-sm py-1 border btn-light" id="requestSignIdr" onclick="$('#sendToChoosenPic').attr('onclick', 'requestAcc(\'idr\')')" data-curr="idr"
+                                    <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="idr"
                                         data-bs-toggle="modal" data-bs-target="#requestSignModal">
                                         <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                             <i class="bi bi-pen-fill"></i>
@@ -202,7 +202,7 @@
                                                 <i class="bi bi-pen-fill"></i>
                                             </a>
                                         </div> --}}
-                                        <div class="btn btn-sm py-1 border btn-light" id="requestSignIdr" onclick="$('#sendToChoosenPic').attr('onclick', 'requestAcc(\'other\')')" data-curr="idr"
+                                        <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="other"
                                             data-bs-toggle="modal" data-bs-target="#requestSignModal">
                                             <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                                 <i class="bi bi-pen-fill"></i>
@@ -572,16 +572,15 @@
             $("#currency").val('other')
         });
 
-        function requestAcc(currency) {
+        function requestAcc(link, currency) {
 
             showLoading();
-            var url = '{{ url("/") }}/receipt/corporate-program/{{ $receiptPartner->id }}/request_sign/'+currency;
             var inv_rec_pic = $("input[name=pic_sign]:checked").val();
             var inv_rec_pic_name = $("input[name=pic_sign]:checked").data('name');
 
 
             axios
-                .get(url, {
+                .get(link, {
                         responseType: 'arraybuffer',
                         params: {
                             type: currency,
@@ -594,12 +593,23 @@
                     notification('success', 'Sign has been requested')
                     setTimeout(location.reload.bind(location), 3000);
                     $("#requestSignModal").modal('hide');
+                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box 
                 })
                 .catch(error => {
                     notification('error', 'Something went wrong while send email')
-                    swal.close()
+                    // swal.close()
                 })
         }
+
+        $(document).on("click", "#openModalRequestSignIdr", function() {
+            var curr = $(this).data('curr');
+            var currency = "'" + curr + "'";
+
+            var url = '{{ url("/") }}/receipt/corporate-program/{{ $receiptPartner->id }}/request_sign/'+curr;
+
+            $('#sendToChoosenPic').attr("onclick", "confirmRequestSign('"+ url +"', "+ currency +")");
+
+        });
 
         function checkCurrency() {
             let cur = $('#currency').val()

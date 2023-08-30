@@ -271,19 +271,33 @@ class ReceiptReferralController extends Controller
             'receipt_date' => date('d F Y', strtotime($receipt->created_at)),
         ];
 
+        DB::beginTransaction();
         try {
 
             # Update status request
             $this->receiptAttachmentRepository->updateReceiptAttachment($receiptAtt->id, ['request_status' => 'requested', 'recipient' => $to]);
 
-            Mail::send('pages.receipt.referral.mail.view', $data, function ($message) use ($data) {
+            # create attachment
+            $view = 'pages.receipt.referral.export.receipt-pdf';
+            $pdf = PDF::loadView($view, [
+                    'receiptRef' => $receipt, 
+                    'invoiceRef' => $receipt->invoiceB2b, 
+                    'currency' => $currency, 
+                    'companyDetail' => $companyDetail
+                ]);
+
+            Mail::send('pages.receipt.referral.mail.view', $data, function ($message) use ($data, $pdf, $receipt) {
                 $message->to($data['email'], $data['recipient'])
-                    ->subject($data['title']);
+                    ->subject($data['title'])
+                    ->attachData($pdf->output(), $receipt->receipt_id . '.pdf');
             });
+            DB::commit();
+
         } catch (Exception $e) {
 
+            DB::rollBack();
             Log::info('Failed to request sign receipt : ' . $e->getMessage());
-            return $e->getMessage();
+            return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
 
         return true;

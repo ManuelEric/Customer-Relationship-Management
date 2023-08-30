@@ -376,11 +376,12 @@
             var myModal = new bootstrap.Modal(document.getElementById('requestSign--modal'))
             myModal.show()
 
-            var warningMessage = 'You want to request a signature him/her for this document?';
+            var warningMessage = 'You want to request his/her signature for this document?';
 
             // change form action 
             $("#formActionRequestSign h6").html(warningMessage);
 
+            var link = subject;
             $('#send-to-client--app-2908').unbind('click');
             $("#send-to-client--app-2908").bind('click', function() {
                 requestAcc(link, currency)
