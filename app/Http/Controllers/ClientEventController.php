@@ -8,6 +8,7 @@ use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Requests\StoreClientEventEmbedRequest;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\RegisterExpressTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
 use App\Imports\InvitaionMailImport;
@@ -42,6 +43,7 @@ class ClientEventController extends Controller
     use CheckExistingClient;
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
+    use RegisterExpressTrait;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -450,8 +452,8 @@ class ClientEventController extends Controller
         $file = $request->file('file');
 
         // $import = new ClientEventImport;
-        // $import = new InvitationMailImport;
-        $import = new ThankMailImport;
+        $import = new InvitationMailImport;
+        // $import = new ThankMailImport;
         $import->import($file);
 
         return back()->withSuccess('Client event successfully imported');
@@ -841,56 +843,9 @@ class ClientEventController extends Controller
     {
     
         $clientId = $request->route('client');
-        
-        DB::beginTransaction();
-        
-        try {
-            
-            $client = $this->clientRepository->getClientById($clientId);
+        $client = $this->clientRepository->getClientById($clientId);
+        $eventId = $request->route('event');
+        $this->register($client->mail, $eventId, 'VIP');
 
-            $checkJoined = $this->clientEventRepository->getAllClientEvents()->where('client_id', $clientId)->where('event_id', $request->route('event'))->first();
-            
-            $referralCode = strtoupper(substr($client->first_name, 0, 3));
-
-            $clientEvents = [
-                'client_id' => $clientId,
-                'child_id' => $client->childrens->count() > 0 ? $client->childrens[0]->id : null,
-                'event_id' => $request->route('event'),
-                'lead_id' => 'LS012',
-                'status' => 0,
-                'joined_date' => Carbon::now(),
-            ];
-
-            $this->clientRepository->updateClient($clientId, ['register_as' => 'parent']);
-            if($client->childrens->count() > 0){
-                $this->clientRepository->updateClient($client->childrens[0]->id, ['register_as' => 'parent']);
-            }
-           
-            if(!isset($checkJoined)){
-                $this->clientEventRepository->createClientEvent($clientEvents);
-            }
-
-            $data['email'] = $client->mail;
-            $data['recipient'] = $client->full_name;
-            $data['title'] = "You have Successfully registered STEM+ WONDERLAB";
-           
-            Mail::send('mail-template.thanks-email', $data, function ($message) use ($data) {
-                $message->to($data['email'], $data['recipient'])
-                    ->subject($data['title']);
-            });
-
-
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-
-            Log::error('Register express client event failed : ' . $e->getMessage());
-        }
-
-        Log::info('Client '. $clientId . 'successfully register express');
-        return Redirect::to('form/thanks');
-
-        
     }
 }

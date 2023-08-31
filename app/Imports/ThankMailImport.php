@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\RegisterExpressTrait;
 use App\Models\ClientEvent;
 use App\Models\Event;
 use App\Models\UserClient;
@@ -29,64 +30,66 @@ class ThankMailImport implements ToCollection, WithHeadingRow, WithValidation
     use StandardizePhoneNumberTrait;
     use CreateCustomPrimaryKeyTrait;
     use CheckExistingClient;
+    use RegisterExpressTrait;
 
     public function collection(Collection $rows)
     {
 
-            foreach ($rows as $row) {                
+            foreach ($rows as $row) {      
+                // $a = UserClient::where('mail', $row['email'])->first();
+                // Log::info($row['email']);
+                $this->register($row['email'], $row['event_id'], 'VVIP');
                 
-                try {
-                    $client = UserClient::where('mail', $row['email'])->first();
-                    $event = Event::where('event_id', $row['event'])->first();
-                    $referralCode = strtoupper(substr($client->first_name, 0, 3)) . $client->id;
-                    // $referralCode = "TES";
+                // try {
+                //     $client = UserClient::where('mail', $row['email'])->first();
+                //     $event = Event::where('event_id', $row['event'])->first();
+                //     $referralCode = strtoupper(substr($client->first_name, 0, 3)) . $client->id;
 
-                    $checkJoined = ClientEvent::where('client_id', $client->id)->where('event_id', $row['event'])->first();
+                //     $checkJoined = ClientEvent::where('client_id', $client->id)->where('event_id', $row['event'])->first();
                     
-                    $data['email'] = $row['email'];
-                    $data['recipient'] = $row['full_name'];
-                    $data['title'] = "You have Successfully registered STEM+ WONDERLAB";
-                    $data['param'] = [
-                            'event_name' => $event->event_title,
-                            'event_date' => date('M d, Y', strtotime($event->event_startdate)),
-                            'ref_code' => $referralCode,
-                            // 'link' => 'program/event/reg-exp/' . $client['id'] . '/' . $row['event']
-                        ];
+                //     $data['email'] = $row['email'];
+                //     $data['recipient'] = $row['full_name'];
+                //     $data['title'] = "You have Successfully registered STEM+ WONDERLAB";
+                //     $data['param'] = [
+                //             'event_name' => $event->event_title,
+                //             'event_date' => date('M d, Y', strtotime($event->event_startdate)),
+                //             'ref_code' => $referralCode,
+                //         ];
                     
-                    $clientEvents = [
-                        'client_id' => $client->id,
-                        'child_id' => $client->childrens->count() > 0 ? $client->childrens[0]->id : null,
-                        'event_id' => 'EVT-0001',
-                        'lead_id' => 'LS012',
-                        'status' => 0,
-                        'joined_date' => Carbon::now(),
-                    ];
+                //     $clientEvents = [
+                //         'client_id' => $client->id,
+                //         'child_id' => $client->childrens->count() > 0 ? $client->childrens[0]->id : null,
+                //         'event_id' => 'EVT-0001',
+                //         'lead_id' => 'LS012',
+                //         'status' => 0,
+                //         'joined_date' => Carbon::now(),
+                //     ];
 
-                    UserClient::whereId($client->id)->update(['register_as' => 'parent']);
-                    if($client->childrens->count() > 0){
-                       UserClient::whereId($client->childrens[0]->id)->update(['register_as' => 'parent']);
-                    }
+                //     UserClient::whereId($client->id)->update(['register_as' => 'parent']);
+                //     if($client->childrens->count() > 0){
+                //        UserClient::whereId($client->childrens[0]->id)->update(['register_as' => 'parent']);
+                //     }
 
-                    if(!isset($checkJoined)){
-                        ClientEvent::create($clientEvents);
-                    }
+                //     if(!isset($checkJoined)){
+                //         ClientEvent::create($clientEvents);
+                //     }
 
-                    Mail::send('mail-template.thanks-email-referral', $data, function ($message) use ($data) {
-                        $message->to($data['email'], $data['recipient'])
-                            ->subject($data['title']);
-                    });
+                //     Mail::send('mail-template.thanks-email-referral', $data, function ($message) use ($data) {
+                //         $message->to($data['email'], $data['recipient'])
+                //             ->subject($data['title']);
+                //     });
         
-                } catch (Exception $e) {
+                // } catch (Exception $e) {
         
-                    Log::info('Failed to send thanks mail : ' . $e->getMessage());
+                //     Log::info('Failed to send thanks mail : ' . $e->getMessage());
         
-                    return response()->json(
-                        [
-                            'message' => 'Something went wrong when sending thanks mail to client. Please try again'
-                        ],
-                        500
-                    );
-                }
+                //     return response()->json(
+                //         [
+                //             'message' => 'Something went wrong when sending thanks mail to client. Please try again'
+                //         ],
+                //         500
+                //     );
+                // }
                
                 }
             }
@@ -95,13 +98,12 @@ class ThankMailImport implements ToCollection, WithHeadingRow, WithValidation
 
     public function prepareForValidation($data)
     {
-
-        $email = str_replace('"', '', $data['email']);
    
         $data = [
-            'event' => $data['event'],
+            'client_id' => $data['client_id'],
+            'event_id' => $data['event_id'],
             'full_name' => $data['full_name'],
-            'email' => $email,
+            'email' => $data['email'],
         ];
 
         return $data;
@@ -110,7 +112,8 @@ class ThankMailImport implements ToCollection, WithHeadingRow, WithValidation
     public function rules(): array
     {
         return [
-            '*.event' => ['required'],
+            '*.client_id' => ['required'],
+            '*.event_id' => ['required'],
             '*.full_name' => ['required'],
             '*.email' => ['required'],
         ];
