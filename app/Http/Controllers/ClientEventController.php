@@ -450,8 +450,8 @@ class ClientEventController extends Controller
         $file = $request->file('file');
 
         // $import = new ClientEventImport;
-        $import = new InvitationMailImport;
-        // $import = new ThankMailImport;
+        // $import = new InvitationMailImport;
+        $import = new ThankMailImport;
         $import->import($file);
 
         return back()->withSuccess('Client event successfully imported');
