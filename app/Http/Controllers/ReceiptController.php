@@ -258,6 +258,8 @@ class ReceiptController extends Controller
             'program_name' => $receipt->invoiceProgram->clientprog->program->program_name,
             'receipt_date' => date('d F Y', strtotime($receipt->created_at))
         ];
+
+        DB::beginTransaction();
         try {
 
             # update request status on receipt attachment
@@ -274,8 +276,11 @@ class ReceiptController extends Controller
                     ->subject($data['title'])
                     ->attachData($pdf->output(), $receipt->receipt_id . '.pdf');
             });
+            DB::commit();
+
         } catch (Exception $e) {
 
+            DB::rollBack();
             Log::info('Failed to request sign receipt : ' . $e->getMessage());
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }

@@ -66,6 +66,7 @@ class SendReminderFollowup extends Command
             $params[$pic_name]['name'] = $pic_name;
             $params[$pic_name]['schedules'][] = [
                 'client' => $data->clientProgram->client,
+                'program' => $data->clientProgram,
                 'followup' => $data
             ];
 
