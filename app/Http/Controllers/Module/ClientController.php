@@ -84,7 +84,7 @@ class ClientController extends Controller
                     'st_grade' => $request->st_grade,
                     'st_abryear' => $request->st_abryear,
                     'graduation_year' => $request->graduation_year,
-                    'is_funding' => $request->is_funding,
+                    'is_funding' => $request->is_funding ?? 0,
                     'register_as' => $request->register_as
                 ];
                 return compact('studentDetails', 'parentDetails');
