@@ -511,7 +511,8 @@ class ClientEventController extends Controller
         # referral code
         $referral_code = $request->referral;
 
-        # registration type
+        # registration type 
+        # will be "ots" or "pr"
         $registration_type = $request->status;
 
         // Check existing client by phone number and email
@@ -545,7 +546,7 @@ class ClientEventController extends Controller
             $clientEventDetails = [
                 'client_id' => $createdClient['clientId'],
                 'event_id' => $event->event_id,
-                'lead_id' => $request->leadsource,
+                'lead_id' => isset($referral_code) ? "LS005" : $request->leadsource, # if using referral code then lead source will be "referral" which is "LS005"
                 'number_of_attend' => $number_of_attend,
                 'notes' => $notes,
                 'referral_code' => $referral_code,
