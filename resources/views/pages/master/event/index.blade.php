@@ -86,7 +86,7 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="ots" id="otsForm"
                                         onchange="linkOption()">
-                                    <label class="form-check-label" for="offlineForm">
+                                    <label class="form-check-label" for="otsForm">
                                         On The Spot
                                     </label>
                                 </div>
