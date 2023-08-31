@@ -492,13 +492,27 @@ class ClientEventController extends Controller
         # attend status
         # 1 is attending
         # 0 is join the event 
-        $attend_status = $request->status == "attend" ? 1 : 0;
+        $attend_status = $request->attend_status == "attend" ? 1 : 0;
 
         # type of event
         # if the event helds offline then the value will be "offline"
         # otherwise it will be null
         # the difference is if event type is "offline" then system will send barcode via mails
         $event_type = $request->event_type;
+
+        # number of attend
+        # only for the people that register on the spot
+        $number_of_attend = isset($request->attend) ? $request->attend : 1;
+
+        # notes
+        # for stem+ wonderlab is for VIP & VVIP
+        $notes = $request->notes;
+
+        # referral code
+        $referral_code = $request->referral;
+
+        # registration type
+        $registration_type = $request->status;
 
         // Check existing client by phone number and email
         $choosen_role = $request->role;
@@ -531,9 +545,17 @@ class ClientEventController extends Controller
                 'client_id' => $createdClient['clientId'],
                 'event_id' => $event->event_id,
                 'lead_id' => $request->leadsource,
+                'number_of_attend' => $number_of_attend,
+                'notes' => $notes,
+                'referral_code' => $referral_code,
                 'status' => $attend_status,
                 'joined_date' => Carbon::now(),
             ];
+
+            # if registration_type is exist 
+            # add the registration_type into the clientEventDetails that will be stored
+            if (isset($registration_type))
+                $clientEventDetails['registration_type'] = $registration_type;
 
             # store a new client event
             if ($clientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails)) {
@@ -567,137 +589,129 @@ class ClientEventController extends Controller
 
     private function createClient($choosen_role, $schoolId, $request)
     {
-        # store children information if it is parent that filled the form
-        if ($choosen_role == 'parent') {
-            $childDetails = [
-                'name' => $request->fullname[1],
-                'email' => null,
-                'phone' => null,
-                'register_as' => 'parent',
+
+        $relation = count($request->fullname); # this is the parameter that has maximum length of the requested client (ex: for parent and student the value would be 2 but teacher the value would be 1
+        $loop = 0;
+
+        while ($loop < $relation) {
+
+            # initialize raw variable
+            # why newClientDetails[$loop] should be array?
+            # because to make easier for system to differentiate between parents and students like for example if user registered as a parent 
+            # then index 0 is for parent data and index 1 is for children data, otherwise 
+            $newClientDetails[$loop] = [
+                'name' => $request->fullname[$loop],
+                'email' => $request->email[$loop],
+                'phone' => $request->fullnumber[$loop],
+                'register_as' => $choosen_role,
             ];
 
-            $phoneStudent = $childDetails['phone'];
+            # check if the client exist in our databases
+            $existingClient = $this->checkExistingClient($newClientDetails[$loop]['phone'], $newClientDetails[$loop]['email']);
+            if (!$existingClient['isExist']) {
 
-            $existClientStudent = $this->checkExistingClient($phoneStudent, $childDetails['email']);
-
-            if (!$existClientStudent['isExist']) {
-                $fullname = explode(' ', $childDetails['name']);
-                $limit = count($fullname);
+                # get firstname & lastname from fullname
+                $fullname = explode(' ', $newClientDetails[$loop]['name']);
+                $fullname_words = count($fullname);
 
                 $firstname = $lastname = null;
-                if ($limit > 1) {
-                    $lastname = $fullname[$limit - 1];
-                    unset($fullname[$limit - 1]);
+                if ($fullname_words > 1) {
+                    $lastname = $fullname[$fullname_words - 1];
+                    unset($fullname[$fullname_words - 1]);
                     $firstname = implode(" ", $fullname);
                 } else {
                     $firstname = implode(" ", $fullname);
                 }
 
-                $st_grade = 12 - ($request->graduation_year - date('Y'));
-
-
+                # all client basic info (whatever their role is)
                 $clientDetails = [
                     'first_name' => $firstname,
                     'last_name' => $lastname,
-                    'mail' => $childDetails['email'],
-                    'phone' => $childDetails['phone'],
-                    'register_as' => $childDetails['register_as'],
-                    'st_grade' => $st_grade,
-                    'graduation_year' => $request->graduation_year,
+                    'mail' => $newClientDetails[$loop]['email'],
+                    'phone' => $newClientDetails[$loop]['phone'],
                     'lead' => $request->leadsource,
-                    'sch_id' => $schoolId != null ? $schoolId : $request->school,
+                    'register_as' => $choosen_role,
                 ];
-                
 
-                $newClientStudent = $this->clientRepository->createClient('Student', $clientDetails);
+                # additional info that should be stored when role is student and parent
+                # because all of the additional info are for the student
+                if ($choosen_role == 'parent' && $loop == 1) {
+
+                    $additionalInfo = [
+                        'st_grade' => 12 - ($request->graduation_year - date('Y')),
+                        'graduation_year' => $request->graduation_year,
+                        'lead' => $request->leadsource,
+                        'sch_id' => $schoolId != null ? $schoolId : $request->school,
+                    ];
+
+                    $clientDetails = array_merge($clientDetails, $additionalInfo);
+                
+                } else if ($choosen_role == 'student' && $loop == 0) {
+
+                    $additionalInfo = [
+                        'st_grade' => 12 - ($request->graduation_year - date('Y')),
+                        'graduation_year' => $request->graduation_year,
+                        'lead' => $request->leadsource,
+                        'sch_id' => $schoolId != null ? $schoolId : $request->school,
+                    ];
+
+                    $clientDetails = array_merge($clientDetails, $additionalInfo);
+
+                }
+
+                # additional info that should be stored when role is teacher
+                if ($choosen_role == 'teacher/counsellor') {
+
+                    $additionalInfo = [
+                        'sch_id' => $schoolId != null ? $schoolId : $request->school,
+                    ];
+
+                    $clientDetails = array_merge($clientDetails, $additionalInfo);
+                }
+                
+                # stored a new client information
+                $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($choosen_role), $clientDetails);
+                
             }
 
-            $clientStudentId = $existClientStudent['isExist'] ? $existClientStudent['id'] : $newClientStudent->id;
-            
+            $clientArrayIds[$loop] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$loop]->id;
+
+            $loop++;
         }
 
-        # initialize raw variable
-        $newClientDetails = [
-            'name' => $request->fullname[0],
-            'email' => $request->email[0],
-            'phone' => $request->fullnumber[0],
-            'register_as' => $choosen_role,
-        ];
-
-        # check if the client exist in our databases
-        $existingClient = $this->checkExistingClient($newClientDetails['phone'], $newClientDetails['email']);
-        if (!$existingClient['isExist']) {
-
-            # get firstname & lastname from fullname
-            $fullname = explode(' ', $newClientDetails['name']);
-            $fullname_words = count($fullname);
-
-            $firstname = $lastname = null;
-            if ($fullname_words > 1) {
-                $lastname = $fullname[$fullname_words - 1];
-                unset($fullname[$fullname_words - 1]);
-                $firstname = implode(" ", $fullname);
-            } else {
-                $firstname = implode(" ", $fullname);
-            }
-
-            # all client basic info (whatever their role is)
-            $clientDetails = [
-                'first_name' => $firstname,
-                'last_name' => $lastname,
-                'mail' => $newClientDetails['email'],
-                'phone' => $newClientDetails['phone'],
-                'lead' => $request->leadsource,
-                'register_as' => $choosen_role,
-            ];
-
-            # additional info that should be stored when role is student
-            if ($choosen_role == 'student') {
-
-                $additionalInfo = [
-                    'st_grade' => 12 - ($request->graduation_year - date('Y')),
-                    'graduation_year' => $request->graduation_year,
-                    'lead' => $request->leadsource,
-                    'sch_id' => $schoolId != null ? $schoolId : $request->school,
-                ];
-
-                $clientDetails = array_merge($clientDetails, $additionalInfo);
-            }
-
-            # additional info that should be stored when role is teacher
-            if ($choosen_role == 'teacher/counsellor') {
-
-                $additionalInfo = [
-                    'sch_id' => $schoolId != null ? $schoolId : $request->school,
-                ];
-
-                $clientDetails = array_merge($clientDetails, $additionalInfo);
-            }
-            
-            # stored a new client information
-            $newClient = $this->clientRepository->createClient($this->getRoleName($choosen_role), $clientDetails);
-
-            
+        # the indexes
+        # the idea is assuming the index 0 as the main user that will be added into tbl_client_event
+        if ($choosen_role == 'parent') 
+        {
+            $parentId = $newClientDetails[0]['id'] = $clientArrayIds[0];
+            $childId = $clientArrayIds[1];
+        } 
+        else if ($choosen_role == 'student')
+        {
+            $parentId = $clientArrayIds[1];
+            $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
+        } 
+        else 
+        {
+            $teacherId = $newClientDetails[0]['id'] = $clientArrayIds[0];
         }
 
         # store the destination country if registrant either parent or student
         if ($choosen_role == 'parent' || $choosen_role == 'student') {
 
-            $clientStudentId = isset($clientStudentId) ? $clientStudentId : $newClient->id;
-
-            $this->clientRepository->createDestinationCountry($clientStudentId, $request->destination_country);
+            $this->clientRepository->createDestinationCountry($childId, $request->destination_country);
         }
 
         $response = [
-            'clientId' => $existingClient['isExist'] ? $existingClient['id'] : $newClient->id,
-            'clientName' => $newClientDetails['name'],
-            'clientMail' => $newClientDetails['email']
+            'clientId' => $newClientDetails[0]['id'],
+            'clientName' => $newClientDetails[0]['name'],
+            'clientMail' => $newClientDetails[0]['email']
         ];
 
         # attaching parent and student
-        if ($choosen_role == 'parent') {
+        if ($choosen_role == 'parent' || $choosen_role == 'student') {
 
-            $this->clientRepository->createManyClientRelation($response['clientId'], $clientStudentId);
+            $this->clientRepository->createManyClientRelation($parentId, $childId);
 
         }
 

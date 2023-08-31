@@ -116,6 +116,8 @@
                 {{-- Referral  --}}
                 <input type="hidden" name="referral" id=""
                     value="{{ request()->get('ref') ? request()->get('ref') : '' }}">
+                {{-- Notes VIP / VVIP --}}
+                <input type="text" name="client_type" value="{{ request()->get('type') ?? '' }}">
 
                 <section id="role" class="page step-active">
                     <div
@@ -191,7 +193,7 @@
                         </h2>
                         <hr class="my-5">
                         <div class="grid md:grid-cols-3 grid-cols-1 gap-4">
-                            <div class="col mb-4">
+                            <div class="col mb-4 main-user">
                                 <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                     Full Name <span class="text-red-400">*</span>
                                 </label>
@@ -199,7 +201,7 @@
                                     class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                             </div>
-                            <div class="col mb-4">
+                            <div class="col mb-4 main-user">
                                 <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                     Email <span class="text-red-400">*</span>
                                 </label>
@@ -207,7 +209,7 @@
                                     class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                             </div>
-                            <div class="col mb-4">
+                            <div class="col mb-4 main-user">
                                 <label class="font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                     Phone Number <span class="text-red-400">*</span>
                                 </label>
@@ -215,13 +217,13 @@
                                     class="required w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser1">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
-                                {{-- <input type="hidden" name="fullnumber[]" id="phone1"> --}}
+                                <input type="hidden" name="fullnumber[]" id="phone1">
                             </div>
                             <div class="col mb-4 user-other">
                                 <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                     Your <span class="role">Child's</span> Name <span class="text-red-400">*</span>
                                 </label>
-                                <input type="text" name="other_name" id="other_name"
+                                <input type="text" name="fullname[]" id="other_name"
                                     class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                             </div>
@@ -232,7 +234,7 @@
                                         <span class="text-red-400">*</span>
                                     @endif
                                 </label>
-                                <input type="text" name="other_email" id="other_email"
+                                <input type="text" name="email[]" id="other_email"
                                     class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                             </div>
@@ -243,10 +245,10 @@
                                         <span class="text-red-400">*</span>
                                     @endif
                                 </label>
-                                <input type="text" name="other_phone"
+                                <input type="text" name="phone[]"
                                     class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser2">
-                                <input type="hidden" name="child_fullnumber[]" id="phone2" class="child_info">
+                                <input type="hidden" name="fullnumber[]" id="phone2" class="child_info">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                             </div>
                         </div>
@@ -430,25 +432,32 @@
 
 
     function checkRole(element) {
+        
+
         const input_child_name = $('#input_child_name')
         const graduation_input = $('#graduation_input')
         const country_input = $('#country_input')
         const role = $('.role')
+        const main_user = $(".main-user")
         const user_other = $('.user-other')
         const other_name = $('#other_name')
 
         if (element.value == "student") {
+            
             role.html('Parent\'s')
             user_other.removeClass('hidden')
             other_name.addClass('required')
             graduation_input.removeClass('hidden')
             country_input.removeClass('hidden')
+
         } else if (element.value == "parent") {
+            
             role.html('Child\'s')
             user_other.removeClass('hidden')
             other_name.addClass('required')
             graduation_input.removeClass('hidden')
             country_input.removeClass('hidden')
+
         } else {
             user_other.addClass('hidden')
             other_name.removeClass('required')
