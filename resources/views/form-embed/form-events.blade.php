@@ -117,7 +117,7 @@
                 <input type="hidden" name="referral" id=""
                     value="{{ request()->get('ref') ? request()->get('ref') : '' }}">
                 {{-- Notes VIP / VVIP --}}
-                <input type="text" name="client_type" value="{{ request()->get('type') ?? '' }}">
+                <input type="hidden" name="client_type" value="{{ request()->get('type') ?? '' }}">
 
                 <section id="role" class="page step-active">
                     <div

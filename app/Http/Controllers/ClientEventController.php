@@ -506,7 +506,7 @@ class ClientEventController extends Controller
 
         # notes
         # for stem+ wonderlab is for VIP & VVIP
-        $notes = $request->notes;
+        $notes = $request->client_type;
 
         # referral code
         $referral_code = $request->referral;
@@ -516,6 +516,7 @@ class ClientEventController extends Controller
 
         // Check existing client by phone number and email
         $choosen_role = $request->role;
+
         DB::beginTransaction();
         try {
 
@@ -569,6 +570,11 @@ class ClientEventController extends Controller
                 if (isset($event_type) && $event_type == "offline") {
 
                     $this->sendMailQrCode($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
+
+                } else {
+                    
+                    # send thanks mail
+                    $this->sendMailThanks();
 
                 }
 
@@ -629,7 +635,7 @@ class ClientEventController extends Controller
                     'last_name' => $lastname,
                     'mail' => $newClientDetails[$loop]['email'],
                     'phone' => $newClientDetails[$loop]['phone'],
-                    'lead' => $request->leadsource,
+                    'lead_id' => "LS001", # hardcode for lead website
                     'register_as' => $choosen_role,
                 ];
 
@@ -783,6 +789,11 @@ class ClientEventController extends Controller
         ];
 
         return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+    }
+
+    public function sendMailThanks()
+    {
+
     }
 
     public function handlerScanQrCodeForAttend(Request $request)
