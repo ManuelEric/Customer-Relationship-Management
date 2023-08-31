@@ -513,16 +513,18 @@ class ClientEventController extends Controller
 
         # notes
         # for stem+ wonderlab is for VIP & VVIP
-        $notes = $request->notes;
+        $notes = $request->client_type;
 
         # referral code
         $referral_code = $request->referral;
 
-        # registration type
+        # registration type 
+        # will be "ots" or "pr"
         $registration_type = $request->status;
 
         // Check existing client by phone number and email
         $choosen_role = $request->role;
+
         DB::beginTransaction();
         try {
 
@@ -551,7 +553,7 @@ class ClientEventController extends Controller
             $clientEventDetails = [
                 'client_id' => $createdClient['clientId'],
                 'event_id' => $event->event_id,
-                'lead_id' => $request->leadsource,
+                'lead_id' => isset($referral_code) ? "LS005" : $request->leadsource, # if using referral code then lead source will be "referral" which is "LS005"
                 'number_of_attend' => $number_of_attend,
                 'notes' => $notes,
                 'referral_code' => $referral_code,
@@ -577,6 +579,11 @@ class ClientEventController extends Controller
 
                     $this->sendMailQrCode($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
 
+                } else {
+                    
+                    # send thanks mail
+                    $this->sendMailThanks($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
+
                 }
 
             }
@@ -597,7 +604,7 @@ class ClientEventController extends Controller
     private function createClient($choosen_role, $schoolId, $request)
     {
 
-        $relation = count($request->fullname); # this is the parameter that has maximum length of the requested client (ex: for parent and student the value would be 2 but teacher the value would be 1
+        $relation = count(array_filter($request->fullname)); # this is the parameter that has maximum length of the requested client (ex: for parent and student the value would be 2 but teacher the value would be 1
         $loop = 0;
 
         while ($loop < $relation) {
@@ -636,7 +643,7 @@ class ClientEventController extends Controller
                     'last_name' => $lastname,
                     'mail' => $newClientDetails[$loop]['email'],
                     'phone' => $newClientDetails[$loop]['phone'],
-                    'lead' => $request->leadsource,
+                    'lead_id' => "LS001", # hardcode for lead website
                     'register_as' => $choosen_role,
                 ];
 
@@ -773,7 +780,7 @@ class ClientEventController extends Controller
         } catch (Exception $e) {
             
             $sent_mail = 0;
-            Log::error('Failed send email to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
+            Log::error('Failed send email qr code to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
 
         }
 
@@ -786,7 +793,53 @@ class ClientEventController extends Controller
 
         $logDetails = [
             'clientevent_id' => $clientEventId,
-            'sent_status' => $sent_mail
+            'sent_status' => $sent_mail,
+            'category' => 'qrcode-mail'
+        ];
+
+        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+    }
+
+    public function sendMailThanks($clientEventId, $eventName, $client, $update = false)
+    {
+        $subject = 'Welcome to the '.$eventName.'!';
+        $mail_resources = 'mail-template.thanks-email';
+
+        $recipientDetails = $client['clientDetails'];
+
+        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+        
+        $event = [
+            'eventName' => $eventName,
+            'eventDate' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
+            'eventLocation' => $clientEvent->event->event_location
+        ];
+
+        try {
+            Mail::send($mail_resources, ['client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
+                $message->to($recipientDetails['mail'], $recipientDetails['name'])
+                    ->subject($subject);
+            });
+            $sent_mail = 1;
+            
+        } catch (Exception $e) {
+            
+            $sent_mail = 0;
+            Log::error('Failed send email thanks to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
+
+        }
+
+        # if update is true 
+        # meaning that this function being called from scheduler
+        # that updating the client event log mail, so the system no longer have to create the client event log mail
+        if ($update === true) {
+            return true;    
+        }
+
+        $logDetails = [
+            'clientevent_id' => $clientEventId,
+            'sent_status' => $sent_mail,
+            'category' => 'thanks-mail'
         ];
 
         return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
