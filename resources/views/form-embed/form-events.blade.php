@@ -338,6 +338,8 @@
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                             </div>
                         @endif
+                        
+                        @if (!request()->get('ref') && request()->get('ref') === NULL)
                         <div class="mb-4">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                 I know this event from <span class="text-red-400">*</span>
@@ -354,6 +356,7 @@
                                 @endforeach
                             </select>
                         </div>
+                        @endif
 
                         <div class="flex justify-between mt-10">
                             <button type="button" onclick="step('info','user1','prev')"
