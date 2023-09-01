@@ -14,6 +14,7 @@ use App\Imports\ClientEventImport;
 use App\Imports\InvitaionMailImport;
 use App\Imports\InvitationMailImport;
 use App\Imports\ThankMailImport;
+use App\Imports\ReminderEventImport;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -452,8 +453,9 @@ class ClientEventController extends Controller
         $file = $request->file('file');
 
         // $import = new ClientEventImport;
-        $import = new InvitationMailImport;
+        // $import = new InvitationMailImport;
         // $import = new ThankMailImport;
+        $import = new ReminderEventImport;
         $import->import($file);
 
         return back()->withSuccess('Client event successfully imported');
@@ -898,7 +900,13 @@ class ClientEventController extends Controller
         $clientId = $request->route('client');
         $client = $this->clientRepository->getClientById($clientId);
         $eventId = $request->route('event');
-        $this->register($client->mail, $eventId, 'VIP');
+        $dataRegister = $this->register($client->mail, $eventId, 'VIP'); 
+        if($dataRegister['success'] && !$dataRegister['already_join']){
+            return Redirect::to('form/thanks');
+        }else if($dataRegister['success'] && $dataRegister['already_join']){
+            return Redirect::to('form/already-join');
+        }
+        
 
     }
 }

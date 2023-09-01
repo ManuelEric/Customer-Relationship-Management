@@ -64,6 +64,10 @@ Route::get('form/thanks', function() {
     return view('form-embed.thanks');
 });
 
+Route::get('form/already-join', function() {
+    return view('form-embed.response.already-join');
+});
+
 Route::get('form/test', function() {
     return view('form-embed.response.form-events-new');
 });
