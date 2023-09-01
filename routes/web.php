@@ -68,6 +68,14 @@ Route::get('form/already-join', function() {
     return view('form-embed.response.already-join');
 });
 
-Route::get('form/test', function() {
-    return view('form-embed.response.form-events-new');
+Route::get('scan', function() {
+    return view('scan-qrcode.index');
+});
+
+Route::get('client-detail', function() {
+    return view('scan-qrcode.client-detail');
+});
+
+Route::get('mailing', function() {
+    return view('mailing.stem-wonderlab');
 });
