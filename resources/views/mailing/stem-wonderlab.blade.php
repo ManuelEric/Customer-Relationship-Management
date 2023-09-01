@@ -22,7 +22,7 @@
                                         <select name="" id="" class="form-select" required>
                                             <option value=""></option>
                                             <option value="VVIP">VVIP</option>
-                                            <option value="VIP">VVIP</option>
+                                            <option value="VIP">VIP</option>
                                         </select>
                                     </div>
                                     <div class="col-2">
