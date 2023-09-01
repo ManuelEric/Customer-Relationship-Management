@@ -452,13 +452,36 @@ class ClientEventController extends Controller
 
         $file = $request->file('file');
 
-        // $import = new ClientEventImport;
-        // $import = new InvitationMailImport;
-        // $import = new ThankMailImport;
-        $import = new ReminderEventImport;
+        $import = new ClientEventImport;
         $import->import($file);
 
         return back()->withSuccess('Client event successfully imported');
+    }
+
+    public function mailing(StoreImportExcelRequest $request)
+    {
+
+        $type = $request->route('type');
+        $file = $request->file('file');
+
+        $import = '';
+        switch ($type) {
+            case 'VVIP':
+                $import = new ThankMailImport;
+                break;
+
+            case 'VIP':
+                $import = new InvitationMailImport;
+                break;
+
+            case 'reminder1':
+                $import = new ReminderEventImport;
+                break;
+            
+        }
+        $import->import($file);
+
+        return back()->withSuccess('Successfully send mail');
     }
 
     public function createFormEmbed(Request $request)

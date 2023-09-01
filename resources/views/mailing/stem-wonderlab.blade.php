@@ -12,14 +12,14 @@
                     </div>
                     <div class="card mb-3">
                         <div class="card-body">
-                            <form action="" method="POST">
+                            <form action="" method="POST" id="invitation" enctype="multipart/form-data">
                                 @csrf
                                 <div class="row align-items-center">
                                     <div class="col-5">
-                                        <input type="file" class="form-control">
+                                        <input type="file" name="file" class="form-control" required>
                                     </div>
                                     <div class="col-5">
-                                        <select name="" id="" class="form-select" required>
+                                        <select id="type" class="form-select" required onchange="checkType()">
                                             <option value=""></option>
                                             <option value="VVIP">VVIP</option>
                                             <option value="VIP">VIP</option>
@@ -41,7 +41,7 @@
                                         <input type="file" class="form-control">
                                     </div>
                                     <div class="col-5">
-                                        <select name="" id="" class="form-select" required>
+                                        <select name="file" id="" class="form-select" required>
                                             <option value=""></option>
                                             <option value="Reminder 1">Reminder 1</option>
                                             <option value="Reminder 2">Reminder 2</option>
@@ -58,4 +58,12 @@
             </div>
         </div>
     </section>
+
+    <script>
+        function checkType(){
+            let type = $('#type').val()
+            $('#invitation').attr('action', '{{url("program/event")}}/' + type + '/import');
+                   
+        }
+    </script>
 @endsection
