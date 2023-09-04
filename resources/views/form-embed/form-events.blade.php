@@ -68,9 +68,8 @@
             background-repeat: no-repeat
         }
     </style>
-
+</head>
 <body>
-    </head>
     @php
         $image = isset($event->event_banner) ? asset('storage/uploaded_file/events/' . $event->event_banner) : 'https://picsum.photos/900/200';
     @endphp
