@@ -72,6 +72,7 @@
                         <th>School Name</th>
                         <th>Graduation Year</th>
                         <th>Conversion Lead</th>
+                        <th>Country of Study Abroad</th>
                         <th>Joined Date</th>
                         <th>Attendance</th>
                         <th class="bg-info text-white">Action</th>
@@ -248,6 +249,12 @@
                         name: 'conversion_lead',
                         className: 'text-center'
                         // name: 'tbl_lead.main_lead'
+                    },
+                    {
+                        data: 'abr_country',
+                        name: 'client.abr_country',
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         className: 'text-center',
