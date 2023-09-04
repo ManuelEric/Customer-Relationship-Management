@@ -474,7 +474,7 @@ class ClientEventController extends Controller
                 $import = new InvitationMailImport;
                 break;
 
-            case 'reminder1':
+            case 'reminder_1':
                 $import = new ReminderEventImport;
                 break;
             
@@ -1012,7 +1012,7 @@ class ClientEventController extends Controller
         $eventId = $request->route('event');
 
         $dataRegister = $this->register($client->mail, $eventId, 'VIP'); 
-        
+
         if($dataRegister['success'] && !$dataRegister['already_join']){
             return Redirect::to('form/thanks');
         }else if($dataRegister['success'] && $dataRegister['already_join']){

@@ -23,6 +23,8 @@
                                             <option value=""></option>
                                             <option value="VVIP">VVIP</option>
                                             <option value="VIP">VIP</option>
+                                            <option value="reminder_1">Reminder 1</option>
+                                            <option value="reminder_2">Reminder 2</option>
                                         </select>
                                     </div>
                                     <div class="col-2">
@@ -32,7 +34,7 @@
                             </form>
                         </div>
                     </div>
-                    <div class="card">
+                    {{-- <div class="card">
                         <div class="card-body">
                             <form action="" method="POST">
                                 @csrf
@@ -43,8 +45,7 @@
                                     <div class="col-5">
                                         <select name="file" id="" class="form-select" required>
                                             <option value=""></option>
-                                            <option value="Reminder 1">Reminder 1</option>
-                                            <option value="Reminder 2">Reminder 2</option>
+                                            
                                         </select>
                                     </div>
                                     <div class="col-2">
@@ -53,7 +54,7 @@
                                 </div>
                             </form>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
