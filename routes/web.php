@@ -53,7 +53,8 @@ Route::resource('user/volunteer', VolunteerController::class);
 Route::get('form/event', [ClientEventController::class, 'createFormEmbed']);
 Route::post('form/events', [ClientEventController::class, 'storeFormEmbed']);
 
-Route::get('form/event/{event_slug}/client/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
+// Route::get('form/event/{event_slug}/client/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
+Route::put('form/event/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
 
 Route::get('form/program', [ClientProgramController::class, 'createFormEmbed']);
 
@@ -72,9 +73,7 @@ Route::get('scan', function() {
     return view('scan-qrcode.index');
 });
 
-Route::get('client-detail', function() {
-    return view('scan-qrcode.client-detail');
-});
+Route::get('client-detail/{clientevent}', [ClientEventController::class, 'previewClientInformation']);
 
 Route::get('mailing', function() {
     return view('mailing.stem-wonderlab');

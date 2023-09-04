@@ -395,12 +395,6 @@
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
 <script>
-    // const myTimeout = setTimeout(notif, 5000);
-
-    // function notif() {
-    //     document.getElementById("notif").classList.add('hidden')
-    // }
-
     var user1 = document.querySelector("#phoneUser1");
     var user2 = document.querySelector("#phoneUser2");
 
