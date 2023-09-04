@@ -18,7 +18,8 @@ class ClientEventLogMail extends Model
      */
     protected $fillable = [
         'clientevent_id',
-        'sent_status'
+        'sent_status',
+        'category'
     ];
 
     public function clientEvent()
