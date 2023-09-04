@@ -236,6 +236,7 @@
                                 <th>School Name</th>
                                 <th>Grade</th>
                                 <th>Graduation Year</th>
+                                <th>Country of Study Abroad</th>
                                 <th>Lead Source</th>
                                 <th class="bg-info text-white">Joined At</th>
                             </tr>
@@ -338,6 +339,11 @@
                     {
                         data: 'graduation_year',
                         name: 'graduation_year',
+                        defaultContent: '-',
+                    },
+                    {
+                        data: 'abr_country',
+                        name: 'client.abr_country',
                         defaultContent: '-',
                     },
                     {
