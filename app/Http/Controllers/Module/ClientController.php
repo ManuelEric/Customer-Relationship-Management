@@ -87,6 +87,10 @@ class ClientController extends Controller
                     'is_funding' => $request->is_funding ?? 0,
                     'register_as' => $request->register_as
                 ];
+
+                if (isset($request->is_funding))
+                    $studentDetails['is_funding'] = $request->is_funding;
+
                 return compact('studentDetails', 'parentDetails');
                 break;
 
@@ -114,9 +118,12 @@ class ClientController extends Controller
                     'st_note',
                     'pr_id',
                     'pr_id_old',
-                    'is_funding',
+                    // 'is_funding',
                     'register_as'
                 ]);
+
+                if (isset($request->is_funding))
+                    $studentDetails['is_funding'] = $request->is_funding;
 
                 $studentDetails['phone'] = $this->setPhoneNumber($request->phone);
                 // $studentDetails['st_abrcountry'] = json_encode($request->st_abrcountry);
