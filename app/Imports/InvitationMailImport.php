@@ -13,6 +13,7 @@ use App\Http\Traits\StandardizePhoneNumberTrait;
 use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\RegisterExpressTrait;
+use App\Models\ClientEventLogMail;
 use App\Models\UserClient;
 use App\Models\UserClientAdditionalInfo;
 use Illuminate\Support\Facades\Mail;
@@ -33,8 +34,6 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
     {
 
             foreach ($rows as $row) {
-
-                // $this->register($row['email'], $row['event_id'], 'VVIP');
                 
                 $client = UserClient::where('mail', $row['email'])->first();
 
@@ -51,12 +50,22 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
                         $message->to($data['email'], $data['recipient'])
                             ->subject($data['title']);
                     });
+                    $sent_mail = 1;
         
                 } catch (Exception $e) {
         
+                    $sent_mail = 0;
                     Log::info('Failed to send invitation mail : ' . $e->getMessage());
         
                 }
+
+                $logDetails = [
+                    'client_id' => $client['id'],
+                    'sent_status' => $sent_mail,
+                    'category' => 'invitation-mail'
+                ];
+        
+                ClientEventLogMail::create($logDetails);
                
                 }
             }

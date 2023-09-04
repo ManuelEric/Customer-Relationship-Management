@@ -919,11 +919,13 @@ class ClientEventController extends Controller
 
     public function registerExpress(Request $request)
     {
-    
+       
         $clientId = $request->route('client');
         $client = $this->clientRepository->getClientById($clientId);
         $eventId = $request->route('event');
+
         $dataRegister = $this->register($client->mail, $eventId, 'VIP'); 
+        
         if($dataRegister['success'] && !$dataRegister['already_join']){
             return Redirect::to('form/thanks');
         }else if($dataRegister['success'] && $dataRegister['already_join']){
