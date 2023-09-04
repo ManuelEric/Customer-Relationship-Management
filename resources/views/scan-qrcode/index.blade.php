@@ -66,7 +66,7 @@
         </div>
     </section>
 
-    <div class="modal modal-lg" tabindex="-1" id="clientDetail">
+    <div class="modal fade modal-lg" tabindex="-1" id="clientDetail">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
@@ -74,19 +74,40 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <iframe src="{{url('client-detail')}}" frameborder="0" width="100%" height="360"></iframe>
+                <iframe src="" id="client-detail-ctx" frameborder="0" width="100%" height="360"></iframe>
             </div>
           </div>
         </div>
       </div>
     
     <script>
+        $(function() {
+            $("#client-detail-ctx").on('load', function() {
+                $('#clientDetail').modal('show');
+                swal.close();
+
+            });
+        })
+
         function onScanSuccess(decodedText, decodedResult) {
+            showLoading();
+            
+            const url = decodedText;
+            const arrSegments = url.split('/');
+            const maxIndexes = arrSegments.length - 1;
+
+            const identifier = arrSegments[maxIndexes];
+            let source = "{{ url('client-detail') }}/" + identifier;
+
+            var iframe = $("#client-detail-ctx")
+            iframe.attr('src', source)
+
             // console.log(`Scan result: ${decodedText}`, decodedResult);
             // Handle on success condition with the decoded text or result.
-            $('#clientDetail').modal('show')
+            // $('#clientDetail').modal('show')
             // window.location.href = `${decodedText}`;
             // html5QrcodeScanner.clear();
+ 
         }
 
         function onScanError(errorMessage) {
@@ -100,5 +121,10 @@
                 qrbox: 350
             });
         html5QrcodeScanner.render(onScanSuccess);
+
+        function submitUpdate()
+        {
+            window.location.reload();
+        }
     </script>
 @endsection
