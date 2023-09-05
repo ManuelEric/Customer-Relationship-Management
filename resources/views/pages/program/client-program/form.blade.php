@@ -520,7 +520,7 @@
                                     </div>
                                     <div class="col-md">
                                         <div class="row">
-                                            <div class="col-md-8">
+                                            <div class="col-md-6">
                                                 <select name="tutor_1" class="select w-100" {{ $disabled }}>
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
@@ -537,6 +537,12 @@
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
                                             </div>
+                                            <div class="col-md-6">
+                                                <input type="text" name="timesheet_1" id="" {{ $disabled }}
+                                                class="form-control form-control-sm rounded"
+                                                placeholder="Timesheet 1"
+                                                value="">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -548,7 +554,7 @@
                                     </div>
                                     <div class="col-md">
                                         <div class="row">
-                                            <div class="col-md-8">
+                                            <div class="col-md-6">
                                                 <select name="tutor_2" class="select w-100" {{ $disabled }}>
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
@@ -564,6 +570,12 @@
                                                 @error('tutor_2')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
+                                            </div>
+                                            <div class="col-md-6">
+                                                <input type="text" name="timesheet_2" id="" {{ $disabled }}
+                                                class="form-control form-control-sm rounded"
+                                                placeholder="Timesheet 2"
+                                                value="">
                                             </div>
                                         </div>
                                     </div>
