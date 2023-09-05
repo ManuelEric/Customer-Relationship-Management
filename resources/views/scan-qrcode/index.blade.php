@@ -106,7 +106,7 @@
             // Handle on success condition with the decoded text or result.
             // $('#clientDetail').modal('show')
             // window.location.href = `${decodedText}`;
-            // html5QrcodeScanner.clear();
+            html5QrcodeScanner.clear();
  
         }
 
