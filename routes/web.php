@@ -75,3 +75,7 @@ Route::get('client-detail', function() {
 Route::get('mailing', function() {
     return view('mailing.stem-wonderlab');
 });
+
+Route::get('your-qrcode', function() {
+    return view('scan-qrcode.qrcode');
+});
