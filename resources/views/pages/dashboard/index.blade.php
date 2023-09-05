@@ -23,7 +23,7 @@
                 </div>
             </div>
         </div>
-    @endif 
+    @endif
 
      <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-1'}} row-cols-1 g-3 mb-3">
         {{-- Sales --}}

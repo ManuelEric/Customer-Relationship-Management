@@ -25,8 +25,12 @@ class ClientEvent extends Model
         'eduf_id',
         'lead_id',
         'partner_id',
-        'joined_date',
+        'registration_type',
+        'number_of_attend',
+        'notes',
+        'referral_code',
         'status',
+        'joined_date',
     ];
 
     public function joinedDate(): Attribute

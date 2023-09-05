@@ -110,16 +110,22 @@ class ClientLeadTrackingRepository implements ClientLeadTrackingRepositoryInterf
 
     public function getFailedLead($monthyear){
 
-        $failLeads = $this->getInitialConsult($monthyear, 'failed');
-        $countFail = 0;
+        // Note : sementara pake created_at 
+        $failLeads = ClientProgram::whereMonth('created_at', date('m', strtotime($monthyear)))
+                                    ->whereYear('created_at', date('Y', strtotime($monthyear)))
+                                    ->orderBy('created_at', 'ASC')
+                                    ->get();
+        $count = 0;
+        $countFailed = 0;
 
         if(isset($failLeads) > 0){
             foreach ($failLeads as $failLead) {
-                $failLead->status == 2 ? $countFail++ : $countFail = 0;
+                $failLead->status == 2 ? $count++ : $count = 0;
+                $count == 3 ? $countFailed++ : '';
             }
         }
 
-        $isFailed = $countFail == 3 ? true : false;
+        $isFailed = $countFailed > 0 ? true : false;
         return $isFailed;
 
     }

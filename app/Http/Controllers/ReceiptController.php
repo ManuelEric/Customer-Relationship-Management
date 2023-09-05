@@ -233,6 +233,8 @@ class ReceiptController extends Controller
         $invoice_id = $receipt->invoiceProgram->inv_id;
 
         $type = $request->get('type');
+        $to = $request->get('to');
+        $name = $request->get('name');
 
         if ($type == "idr")
             $view = 'pages.receipt.client-program.export.receipt-pdf';
@@ -246,8 +248,8 @@ class ReceiptController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = env('DIRECTOR_EMAIL');
-        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['email'] = $to;
+        $data['recipient'] = $name;
         $data['title'] = "Request Sign of Receipt Number : " . $receipt->receipt_id;
         $data['param'] = [
             'receipt' => $receipt,
@@ -256,10 +258,13 @@ class ReceiptController extends Controller
             'program_name' => $receipt->invoiceProgram->clientprog->program->program_name,
             'receipt_date' => date('d F Y', strtotime($receipt->created_at))
         ];
+
+        DB::beginTransaction();
         try {
 
             # update request status on receipt attachment
             $attachment = $receipt->receiptAttachment()->where('currency', $type)->first();
+            $attachment->recipient = $to;
             $attachment->request_status = 'requested';
             $attachment->save();
 
@@ -271,8 +276,11 @@ class ReceiptController extends Controller
                     ->subject($data['title'])
                     ->attachData($pdf->output(), $receipt->receipt_id . '.pdf');
             });
+            DB::commit();
+
         } catch (Exception $e) {
 
+            DB::rollBack();
             Log::info('Failed to request sign receipt : ' . $e->getMessage());
             return response()->json(['message' => 'Something went wrong. Please try again.'], 500);
         }
@@ -370,12 +378,14 @@ class ReceiptController extends Controller
         $pic_mail = $receipt->invoiceProgram->clientprog->internalPic->email;
 
         $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
+        // $data['email'] = $receipt->invoiceProgram->clientprog->client->mail;
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
             $pic_mail
         ];
         $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
+        // $data['recipient'] = $receipt->invoiceProgram->clientprog->client->full_name;
         $data['program_name'] = $receipt->invoiceProgram->clientprog->program->program_name;
         $data['title'] = "Receipt of program " . $data['program_name'];
 

@@ -25,6 +25,7 @@ class InvoiceAttachment extends Model
         'invb2b_id',
         'currency',
         'sign_status',
+        'recipient',
         'approve_date',
         'send_to_client',
         'attachment',

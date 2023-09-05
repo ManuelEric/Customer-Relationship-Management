@@ -1,7 +1,7 @@
 @extends('layout.email')
 @section('header', 'Request Sign - Receipt')
 @section('content')
-    <p style="margin:0;">Dear Nicholas,</p>
+    <p style="margin:0;">Dear {{ ucfirst($recipient) }},</p>
     <p>
         Please sign the receipt with details below:
     </p>

@@ -100,9 +100,6 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $year = date('Y', strtotime($now));
 
         return UserClient::
-                    whereHas('lead', function ($query) {
-                        $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
-                    })->
                     // whereHas('leadStatus', function ($query) use ($month, $year) {
                     //     $query->
                     //         whereMonth('tbl_client_lead_tracking.updated_at', $month)->
@@ -111,7 +108,17 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->
                             whereMonth('assessmentsent_date', $month)->
-                            whereYear('assessmentsent_date', $year);
+                            whereYear('assessmentsent_date', $year)->
+                            whereHas('lead', function ($query) {
+                                $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
+                            })->
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
+                            });
                     })->
                     get();
     }
@@ -122,18 +129,28 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $year = date('Y', strtotime($now));
 
         return UserClient::
-                    whereHas('lead', function ($query) {
-                        $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
-                    })->
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->
-                            whereMonth('updated_at', $month)->
-                            whereYear('updated_at', $year)->
-                            where('status', 1)-> # status programnya success
-                            whereHas('invoice', function ($subQuery) {
+                            where(function ($subQuery) use ($month, $year) {
                                 $subQuery->
-                                    where('inv_status', '!=', 2); # status invoicenya tidak refund
+                                    whereMonth('success_date', $month)->whereYear('success_date', $year);
+                            })->
+                            where('status', 1)-> # status programnya success
+                            whereHas('lead', function ($query) {
+                                $query->where('note', 'Sales')->where('main_lead', '!=', 'Referral');    
+                            })->
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
                             });
+                            // ->
+                            // whereHas('invoice', function ($subQuery) {
+                            //     $subQuery->
+                            //         where('inv_status', '!=', 2); # status invoicenya tidak refund
+                            // });
                     })->
                     get();
     }
@@ -167,7 +184,7 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
 
         $achieved_lead = $clients->merge($client_program);
 
-        return $achieved_lead;
+        return $clients; # because we only get the client where lead id is referral
     }
 
     public function getAchievedHotLeadReferralByMonth($now)
@@ -197,20 +214,30 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
 
         # get all client from referral and client program from referral
         return UserClient::
-                    where(function ($query) {
-                        $query->whereHas('lead', function ($subQuery) {
-                            $subQuery->where('main_lead', 'Referral');
-                        })->
-                        orWhereHas('clientProgram', function ($subQuery) {
-                            $subQuery->whereHas('lead', function ($subQuery_2) {
-                                $subQuery_2->where('main_lead', 'Referral');
-                            });
-                        });
-                    })->
+                    // where(function ($query) {
+                    //     $query->whereHas('lead', function ($subQuery) {
+                    //         $subQuery->where('main_lead', 'Referral');
+                    //     })->
+                    //     orWhereHas('clientProgram', function ($subQuery) {
+                    //         $subQuery->whereHas('lead', function ($subQuery_2) {
+                    //             $subQuery_2->where('main_lead', 'Referral');
+                    //         });
+                    //     });
+                    // })->
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->
                             whereMonth('assessmentsent_date', $month)->
-                            whereYear('assessmentsent_date', $year);
+                            whereYear('assessmentsent_date', $year)->
+                            whereHas('lead', function ($query) {
+                                $query->where('main_lead', 'Referral');    
+                            })->
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
+                            });
                     })->
                     get();
     }
@@ -221,25 +248,28 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $year = date('Y', strtotime($now));
 
         return UserClient::
-                    where(function ($query) {
-                        $query->whereHas('lead', function ($subQuery) {
-                            $subQuery->where('main_lead', 'Referral');
-                        })->
-                        orWhereHas('clientProgram', function ($subQuery) {
-                            $subQuery->whereHas('lead', function ($subQuery_2) {
-                                $subQuery_2->where('main_lead', 'Referral');
-                            });
-                        });
-                    })->
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->
-                            whereMonth('updated_at', $month)->
-                            whereYear('updated_at', $year)->
-                            where('status', 1)-> # status programnya success
-                            whereHas('invoice', function ($subQuery) {
+                            where(function ($subQuery) use ($month, $year) {
                                 $subQuery->
-                                    where('inv_status', '!=', 2); # status invoicenya tidak refund
+                                    whereMonth('success_date', $month)->whereYear('success_date', $year);
+                            })->
+                            where('status', 1)-> # status programnya success
+                            whereHas('lead', function ($query) {
+                                $query->where('main_lead', 'Referral');      
+                            })->
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
                             });
+                            // ->
+                            // whereHas('invoice', function ($subQuery) {
+                            //     $subQuery->
+                            //         where('inv_status', '!=', 2); # status invoicenya tidak refund
+                            // });
                     })->
                     get();
     }
@@ -287,13 +317,20 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $year = date('Y', strtotime($now));
 
         return UserClient::
-                    whereHas('lead', function ($query) {
-                        $query->where('note', 'Digital');    
-                    })->
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->
                             whereMonth('assessmentsent_date', $month)->
-                            whereYear('assessmentsent_date', $year);
+                            whereYear('assessmentsent_date', $year)->
+                            whereHas('lead', function ($query) {
+                                $query->where('note', 'Digital');    
+                            })->
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
+                            });
                     })->
                     get();
     }
@@ -304,18 +341,28 @@ class LeadTargetRepository implements LeadTargetRepositoryInterface
         $year = date('Y', strtotime($now));
 
         return UserClient::
-                    whereHas('lead', function ($query) {
-                        $query->where('note', 'Digital');    
-                    })->
                     whereHas('clientProgram', function ($query) use ($month, $year) {
                         $query->
-                            whereMonth('updated_at', $month)->
-                            whereYear('updated_at', $year)->
-                            where('status', 1)-> # status programnya success
-                            whereHas('invoice', function ($subQuery) {
+                            where(function ($subQuery) use ($month, $year) {
                                 $subQuery->
-                                    where('inv_status', '!=', 2); # status invoicenya tidak refund
+                                    whereMonth('success_date', $month)->whereYear('success_date', $year);
+                            })->
+                            where('status', 1)-> # status programnya success
+                            whereHas('lead', function ($query) {
+                                $query->where('note', 'Digital');    
+                            })->
+                            whereHas('program', function ($subQuery) {
+                                $subQuery->whereHas('main_prog', function ($subQuery2) {
+                                    $subQuery2->where('prog_name', 'like', '%Admissions Mentoring%');
+                                })->whereHas('sub_prog', function ($subQuery2) {
+                                    $subQuery2->where('sub_prog_name', 'like', '%Admissions Mentoring%');
+                                });
                             });
+                            // ->
+                            // whereHas('invoice', function ($subQuery) {
+                            //     $subQuery->
+                            //         where('inv_status', '!=', 2); # status invoicenya tidak refund
+                            // });
                     })->
                     get();
     }

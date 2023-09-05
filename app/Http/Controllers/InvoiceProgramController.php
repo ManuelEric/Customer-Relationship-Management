@@ -605,6 +605,8 @@ class InvoiceProgramController extends Controller
         $invoice_id = $clientProg->invoice->inv_id;
 
         $type = $request->get('type');
+        $to = $request->get('to');
+        $name = $request->get('name');
 
         if ($type == "idr")
             $view = 'pages.invoice.client-program.export.invoice-pdf';
@@ -618,8 +620,8 @@ class InvoiceProgramController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = env('DIRECTOR_EMAIL');
-        $data['recipient'] = env('DIRECTOR_NAME');
+        $data['email'] = $to;
+        $data['recipient'] = $name;
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,
@@ -631,32 +633,6 @@ class InvoiceProgramController extends Controller
         ];
 
         $attachment = $this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice_id, $type);
-
-        # validate 
-        # if the invoice has already requested to be signed
-
-        // if ($this->invoiceAttachmentRepository->getInvoiceAttachmentByInvoiceCurrency('Program', $invoice_id, $type)) {
-
-        //     $file_name = str_replace('/', '_', $invoice_id) . '_' . $type;
-        //     $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
-
-        //     # insert to invoice attachment
-        //     $attachmentDetails = [
-        //         'inv_id' => $invoice_id,
-        //         'currency' => $type,
-        //         'sign_status' => 'not yet',
-        //         'send_to_client' => 'not sent',
-        //         'attachment' => $file_name . '.pdf'
-        //     ];
-
-        //     Mail::send('pages.invoice.client-program.mail.view', $data, function ($message) use ($data, $pdf, $invoice_id) {
-        //         $message->to($data['email'], $data['recipient'])
-        //             ->subject($data['title'])
-        //             ->attachData($pdf->output(), $invoice_id . '.pdf');
-        //     });
-
-        //     return response()->json(['success' => false, 'message' => 'Invoice has already been requested to be signed.']);
-        // }
 
         try {
 
@@ -670,6 +646,7 @@ class InvoiceProgramController extends Controller
                 'inv_id' => $invoice_id,
                 'currency' => $type,
                 'sign_status' => 'not yet',
+                'recipient' => $to,
                 'send_to_client' => 'not sent',
                 'attachment' => $file_name . '.pdf'
             ];
@@ -717,12 +694,14 @@ class InvoiceProgramController extends Controller
 
 
         $data['email'] = $clientProg->client->parents[0]->mail;
+        // $data['email'] = $clientProg->client->mail;
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
             $pic_mail
         ];
         $data['recipient'] = $clientProg->client->parents[0]->full_name;
+        // $data['recipient'] = $clientProg->client->full_name;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,
             'program_name' => $clientProg->program->program_name

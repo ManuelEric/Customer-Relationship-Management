@@ -6,6 +6,9 @@
     <li class="breadcrumb-item active" aria-current="page">View Detail</li>
 @endsection
 @section('content')
+
+    @include('pages.invoice.pic-modal');
+    
     @php
         $invoiceHasRequested = null;
         $invoiceAttachment = null;
@@ -87,12 +90,18 @@
                                         ->first();
                                 @endphp
                                 @if (!$invoiceAttachment)
-                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                    {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Request Sign">
                                         <a href="#" class="text-info" id="request-acc">
                                             <i class="bi bi-pen-fill"></i>
                                         </a>
-                                    </div>
+                                    </div> --}}
+                                    <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="idr"
+                                    data-bs-toggle="modal" data-bs-target="#requestSignModal">
+                                    <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
+                                        <i class="bi bi-pen-fill"></i>
+                                    </a>
+                                </div>
                                 @else
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Print Invoice">
@@ -142,12 +151,18 @@
                                             ->first();
                                     @endphp
                                     @if (!$invoiceAttachmentOther)
-                                        <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                        {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                             data-bs-title="Request Sign">
                                             <a href="#" class="text-info" id="request-acc-other">
                                                 <i class="bi bi-pen-fill"></i>
                                             </a>
-                                        </div>
+                                        </div> --}}
+                                        <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="other"
+                                        data-bs-toggle="modal" data-bs-target="#requestSignModal">
+                                        <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </a>
+                                    </div>
                                     @else
                                         <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                             data-bs-title="Print Invoice">
@@ -730,6 +745,7 @@
             }
 
         }
+        
 
         function calcPPH23(){
             let pph23 = $('#pph23').val()
@@ -923,53 +939,51 @@
                     swal.close()
                 })
         }
+        
 
         @if (isset($invoicePartner))
 
-            $("#request-acc").on('click', function(e) {
-                e.preventDefault();
-                Swal.showLoading()
-                axios
-                    .get(
-                        '{{ route('invoice-corp.request_sign', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'idr']) }}', {
-                            responseType: 'arraybuffer',
-                            params: {
-                                type: 'idr'
-                            }
-                        })
-                    .then(response => {
-                        swal.close()
-                        notification('success', 'Sign has been requested')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong while send email')
-                        swal.close()
-                    })
-            })
+            function requestAcc(link, currency) {
+                
+                var inv_rec_pic = $("input[name=pic_sign]:checked").val();
+                var inv_rec_pic_name = $("input[name=pic_sign]:checked").data('name');
 
-            $("#request-acc-other").on('click', function(e) {
-                e.preventDefault();
-                Swal.showLoading()
+                showLoading();
+
                 axios
-                    .get(
-                        '{{ route('invoice-corp.request_sign', ['invoice' => $invoicePartner->invb2b_num, 'currency' => 'other']) }}', {
+                    .get(link, {
                             responseType: 'arraybuffer',
                             params: {
-                                type: 'other'
+                                type: currency,
+                                to: inv_rec_pic,
+                                name: inv_rec_pic_name
                             }
                         })
                     .then(response => {
                         swal.close()
                         notification('success', 'Sign has been requested')
                         setTimeout(location.reload.bind(location), 3000);
+                        $("#requestSignModal").modal('hide');
+                        $("#requestSign--modal").modal('hide'); // this modal is for confirmation box  
+
                     })
                     .catch(error => {
                         notification('error', 'Something went wrong while send email')
                         swal.close()
                     })
-            })
+            }
+
         @endif
+
+        $(document).on("click", "#openModalRequestSignIdr", function() {
+            var curr = $(this).data('curr');
+            var currency = "'" + curr + "'";
+
+            var url = '{{ url("/") }}/invoice/corporate-program/{{ $invoicePartner->invb2b_num }}/request_sign/' + curr;
+
+            $('#sendToChoosenPic').attr("onclick", "confirmRequestSign('"+ url +"', "+ currency +")");
+
+        });
 
         $("#submit-form").click(function(e) {
             e.preventDefault();

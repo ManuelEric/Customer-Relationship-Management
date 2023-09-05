@@ -31,6 +31,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     'client.full_name as client_name',
                     'client.mail as client_mail',
                     'client.phone as client_phone',
+                    'client.abr_country as abr_country',
                     DB::raw('(CASE
                         WHEN client.register_as = "student" OR client.register_as = "teacher/counsellor" THEN "-"
                         WHEN client.register_as = "parent" THEN child.full_name 
@@ -241,6 +242,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 // 'child.grade_now',
                 // 'client.graduation_year_real',
                 'client.lead_source',
+                'client.abr_country',
                 'tbl_client_event.joined_date',
                 'tbl_events.event_title',
                 'tbl_events.event_id',
@@ -328,7 +330,10 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 'tbl_client.register_as',
                 'tbl_client_event.clientevent_id',
                 // 'tbl_client_event.client_id',
-                DB::raw('(CASE WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id ELSE tbl_client_event.child_id END) as client_id'),
+                DB::raw('(CASE 
+                    WHEN tbl_client_event.child_id is null THEN tbl_client_event.client_id 
+                    ELSE tbl_client_event.child_id 
+                END) as client_id'),
                 'tbl_client_event.created_at',
                 'tbl_client_event.joined_date',
                 'program.main_prog_id',

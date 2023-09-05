@@ -243,7 +243,7 @@
                         <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
                             <i class="bi bi-x-square me-1"></i>
                             Cancel</button>
-                        <button type="button" id="send-to-client--app-0604" class="btn btn-primary btn-sm">
+                        <button type="button" id="send-request--app-2908" class="btn btn-primary btn-sm">
                             <i class="bi bi-trash3 me-1"></i>
                             Yes!</button>
                     </div>
@@ -372,19 +372,19 @@
             $('#formActionDeactive').attr('action', '{{ url('') }}/' + subject + '/' + id);
         }
 
-        function confirmRequestSign(subject, id, category) {
+        function confirmRequestSign(subject, currency) {
             var myModal = new bootstrap.Modal(document.getElementById('requestSign--modal'))
             myModal.show()
 
-            var warningMessage = 'You want to request sign?';
+            var warningMessage = 'You want to request his/her signature for this document?';
 
             // change form action 
             $("#formActionRequestSign h6").html(warningMessage);
 
-            var link = subject + '/' + id
-            $('#send-to-client--app-0604').unbind('click');
-            $("#send-to-client--app-0604").bind('click', function() {
-                sendToClient(link)
+            var link = subject;
+            $('#send-request--app-2908').unbind('click');
+            $("#send-request--app-2908").bind('click', function() {
+                requestAcc(link, currency)
             })
         }
 

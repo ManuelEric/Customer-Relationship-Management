@@ -61,7 +61,7 @@
                         </div> --}}
                         <div class="w-100 text-end">
                             <small>Average of Conversion</small>
-                            <h5 id="avg-conversion"><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? $dataLead->avg('conversion_time') : '-' }} Days</h5>
+                            <h5 id="avg-conversion"><i class="bi bi-calendar me-1"></i> {{ $dataLead->count() > 0 ? round($dataLead->avg('conversion_time')) : '-' }} Days</h5>
                         </div>
                     </div>
                 </div>
@@ -252,7 +252,7 @@
         axios.get('{{ url('api/digital/leads') }}/' + month + '/' + prog_id)
             .then((response) => {
                 var result = response.data.data
-                console.log(result);
+                // console.log(result);
                 var avgFollowUpTime = 0;
                 var totalFollowUpTime = 0;
                 var avgConversionTime = 0;
@@ -276,13 +276,13 @@
                     $('#t-body-leads-digital').append(html)
 
                     // totalFollowUpTime += item.followup_time;
-                    totalConversionTime += item.conversion_time;
+                    totalConversionTime += parseInt(item.conversion_time);
                     count++;
                     i++;
                 })
 
                 // avgFollowUpTime = count !== 0 ? totalFollowUpTime / count : 0;
-                avgConversionTime = count !== 0 ? totalConversionTime / count : 0;
+                avgConversionTime = count !== 0 ? parseInt(totalConversionTime) / count : 0;
 
                 // $('#avg-follow-up').html(icon + Math.round(avgFollowUpTime) + ' Days');
                 $('#avg-conversion').html(icon + Math.round(avgConversionTime) + ' Days');

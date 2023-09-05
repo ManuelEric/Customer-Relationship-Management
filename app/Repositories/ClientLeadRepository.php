@@ -9,6 +9,6 @@ class ClientLeadRepository implements ClientLeadRepositoryInterface
 {
     public function getAllClientLeads()
     {
-        return ViewClientLead::with('leadStatus')->get();
+        return ViewClientLead::with('leadStatus')->where('grade', '!=', null)->where('grade', '<=', 0)->get();
     }
 }

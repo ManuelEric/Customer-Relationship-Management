@@ -75,7 +75,6 @@ class AlarmController extends Controller
         }
 
         $alarmLeads = $this->alarmRepository->setAlarmLead();
-
         $dataLeads = [
             'total_achieved_lead_needed' => $actualLeadsSales['lead_needed'] + $actualLeadsReferral['lead_needed'] + $actualLeadsDigital['lead_needed'],
             'total_achieved_hot_lead' => $actualLeadsSales['hot_lead'] + $actualLeadsReferral['hot_lead'] + $actualLeadsDigital['hot_lead'],

@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('tbl_already_joined', function (Blueprint $table) {
-            // $table->foreign('initialprogram_id')->references('id')->on('tbl_initial_program_lead')->onUpdate('cascade')->onDelete('cascade');
+        Schema::table('tbl_client_event_log_mail', function (Blueprint $table) {
+            $table->enum('category', ['thanks-mail', 'qrcode-mail', 'reminder-mail'])->nullable()->after('sent_status');
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('tbl_already_joined', function (Blueprint $table) {
-            //
+        Schema::table('tbl_client_event_log_mail', function (Blueprint $table) {
+            $table->dropColumn('category');
         });
     }
 };

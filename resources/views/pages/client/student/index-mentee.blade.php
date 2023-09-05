@@ -274,8 +274,13 @@
             @endif
 
             $('#clientTable tbody').on('click', '.editClient ', function() {
+                const queryString = window.location.search;
+                const urlParams = new URLSearchParams(queryString);
+                const type = urlParams.get('st');
+
+
                 var data = table.row($(this).parents('tr')).data();
-                window.location.href = "{{ url('client/mentee') }}/" + data.id;
+                window.location.href = "{{ url('client/alumni/') }}/" + type + "/" + data.id;
             });
         });
     </script>

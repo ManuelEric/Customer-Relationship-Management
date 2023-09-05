@@ -24,6 +24,7 @@ class ReceiptAttachment extends Model
         'receipt_id',
         'currency',
         'sign_status',
+        'recipient',
         'approve_date',
         'send_to_client',
         'attachment',

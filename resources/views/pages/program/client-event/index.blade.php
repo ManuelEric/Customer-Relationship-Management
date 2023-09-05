@@ -72,6 +72,7 @@
                         <th>School Name</th>
                         <th>Graduation Year</th>
                         <th>Conversion Lead</th>
+                        <th>Country of Study Abroad</th>
                         <th>Joined Date</th>
                         <th>Attendance</th>
                         <th class="bg-info text-white">Action</th>
@@ -79,7 +80,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="13"></td>
+                        <td colspan="14"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -220,6 +221,16 @@
                         data: 'child_name',
                         defaultContent: '-'
                     },
+                    // {
+                    //     data: 'parent_mail',
+                    //     name: 'parent.mail',
+                    //     defaultContent: '-'
+                    // },
+                    // {
+                    //     data: 'parent_phone',
+                    //     name: 'parent.phone',
+                    //     defaultContent: '-'
+                    // },
                     {
                         data: 'participated',
                         searchable: true
@@ -238,6 +249,12 @@
                         name: 'conversion_lead',
                         className: 'text-center'
                         // name: 'tbl_lead.main_lead'
+                    },
+                    {
+                        data: 'abr_country',
+                        name: 'client.abr_country',
+                        className: 'text-center',
+                        defaultContent: '-'
                     },
                     {
                         className: 'text-center',

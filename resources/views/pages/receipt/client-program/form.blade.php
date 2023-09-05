@@ -6,6 +6,9 @@
     <li class="breadcrumb-item active" aria-current="page">View Detail</li>
 @endsection
 @section('content')
+    
+    @include('pages.receipt.pic-modal')
+
     <div class="row">
         <div class="col-md-4">
             <div class="card rounded mb-3">
@@ -75,9 +78,15 @@
                                     </a>
                                 </div>
                             @elseif ($receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first())
-                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Request Sign" id="request-acc">
                                     <a href="" class="text-info">
+                                        <i class="bi bi-pen-fill"></i>
+                                    </a>
+                                </div> --}}
+                                <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="idr"
+                                    data-bs-toggle="modal" data-bs-target="#requestSignModal">
+                                    <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                         <i class="bi bi-pen-fill"></i>
                                     </a>
                                 </div>
@@ -131,9 +140,15 @@
                                     </div>
                                     {{-- @endif --}}
                                 @elseif ($receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
-                                    <div id="request-acc-other" class="btn btn-sm py-1 border btn-light"
+                                    {{-- <div id="request-acc-other" class="btn btn-sm py-1 border btn-light"
                                         data-bs-toggle="tooltip" data-bs-title="Request Sign" id="request-acc-other">
                                         <a href="" class="text-info">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </a>
+                                    </div> --}}
+                                    <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="other"
+                                        data-bs-toggle="modal" data-bs-target="#requestSignModal">
+                                        <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                             <i class="bi bi-pen-fill"></i>
                                         </a>
                                     </div>
@@ -552,9 +567,11 @@
                             value="{{ $client_prog->clientprog_id }}" class="form-control w-100">
                         <input type="hidden" name="parent_id" id="parent_id"
                             value="{{ $client_prog->client->parents[0]->id }}" class="form-control w-100">
+                            {{-- value="{{ $client_prog->client->id }}" class="form-control w-100"> --}}
                         <label for="">Email Parent</label>
                         <input type="mail" name="parent_mail" id="parent_mail"
                             value="{{ $client_prog->client->parents[0]->mail }}" class="form-control w-100">
+                            {{-- value="{{ $client_prog->client->mail }}" class="form-control w-100"> --}}
                     </div>
                     {{-- <hr> --}}
                     <div class="d-flex justify-content-between">
@@ -633,6 +650,48 @@
 
         }
 
+        function requestAcc(link, currency) {
+                
+            showLoading();
+            var url = '{{ url("/") }}/receipt/client-program/{{ $receipt->id }}/request_sign';
+            var inv_rec_pic = $("input[name=pic_sign]:checked").val();
+            var inv_rec_pic_name = $("input[name=pic_sign]:checked").data('name');
+
+            axios
+                .get(link, {
+                        params: {
+                            type: currency,
+                            to: inv_rec_pic,
+                            name: inv_rec_pic_name
+                        }
+                    })
+                .then(response => {
+
+                    swal.close()
+                    notification('success', 'Sign has been requested')
+                    $(".step-three").addClass('active');
+                    $("#requestSignModal").modal('hide');
+                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box 
+
+                })
+                .catch(error => {
+
+                    // notification('error', error.message)
+                    notification('error', 'Something went wrong while send email')
+                    // swal.close()
+                })
+        }
+
+        $(document).on("click", "#openModalRequestSignIdr", function() {
+            var curr = $(this).data('curr');
+            var currency = "'" + curr + "'";
+
+            var url = "{{ route('receipt.client-program.request_sign', ['receipt' => $receipt->id]) }}"
+
+            $('#sendToChoosenPic').attr("onclick", "confirmRequestSign('"+ url +"', "+ currency +")");
+
+        });
+
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
@@ -660,55 +719,7 @@
             //         })
             // })
 
-            $("#request-acc").on('click', function(e) {
-                e.preventDefault();
-                showLoading()
-
-                axios
-                    .get(
-                        '{{ route('receipt.client-program.request_sign', ['receipt' => $receipt->id]) }}', {
-                            params: {
-                                type: 'idr'
-                            }
-                        })
-                    .then(response => {
-
-                        swal.close()
-                        notification('success', 'Sign has been requested')
-                        $(".step-three").addClass('active');
-                    })
-                    .catch(error => {
-
-                        notification('error', error.message)
-                        // notification('error', 'Something went wrong while send email')
-                        swal.close()
-                    })
-            })
-
-            $("#request-acc-other").on('click', function(e) {
-                e.preventDefault();
-                showLoading()
-
-                axios
-                    .get(
-                        '{{ route('receipt.client-program.request_sign', ['receipt' => $receipt->id]) }}', {
-                            params: {
-                                type: 'other'
-                            }
-                        })
-                    .then(response => {
-
-                        swal.close()
-                        notification('success', 'Sign has been requested')
-                        $(".step-three-other").addClass('active');
-                    })
-                    .catch(error => {
-
-                        notification('error', error.message)
-                        // notification('error', 'Something went wrong while send email')
-                        swal.close()
-                    })
-            })
+            
 
             $("#upload-idr").on('click', function() {
                 $("#currency").val('idr');

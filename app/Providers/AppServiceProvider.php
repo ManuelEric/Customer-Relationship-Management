@@ -111,7 +111,7 @@ class AppServiceProvider extends ServiceProvider
                     $department = 'Finance & Operation';
                 }
 
-                # if logged in user is from department finance
+                # if logged in user is from department digital
                 if ($user->department()->where('dept_name', 'Digital')->where('status', 1)->exists()) {
                     $isDigital = true;
                     $department = 'Digital';
@@ -135,6 +135,18 @@ class AppServiceProvider extends ServiceProvider
                     ];
                 });
 
+                # invoice & receipt PIC
+                $invRecPics = [
+                    [
+                        'name' => env('DIRECTOR_NAME'),
+                        'email' => env('DIRECTOR_EMAIL')
+                    ],
+                    [
+                        'name' => env('OWNER_NAME'),
+                        'email' => env('OWNER_EMAIL')
+                    ]
+                ];
+
                 $view->with(
                     [
                         'menus' => $grouped,
@@ -147,6 +159,7 @@ class AppServiceProvider extends ServiceProvider
                         'deptId' => $deptId,
                         'countAlarm' => app('alarm-repository-services')->countAlarm(),
                         'notification' => app('alarm-repository-services')->notification(),
+                        'invRecPics' => $invRecPics,
                     ]
                 );
             }

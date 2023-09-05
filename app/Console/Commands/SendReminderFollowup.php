@@ -6,6 +6,7 @@ use App\Interfaces\FollowupRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -55,6 +56,7 @@ class SendReminderFollowup extends Command
             return Command::SUCCESS;
         }
 
+        DB::beginTransaction();
         foreach ($list_followup_schedule as $data) {
             
             $pic_email = $data->clientProgram->internalPic->email;
@@ -64,6 +66,7 @@ class SendReminderFollowup extends Command
             $params[$pic_name]['name'] = $pic_name;
             $params[$pic_name]['schedules'][] = [
                 'client' => $data->clientProgram->client,
+                'program' => $data->clientProgram,
                 'followup' => $data
             ];
 
@@ -91,9 +94,12 @@ class SendReminderFollowup extends Command
                     # if mail successfully sent
                     $this->followupRepository->updateFollowup($followup_id, ['reminder' => 1]);
                 }
+
+                DB::commit();
     
             } catch (Exception $e) {
     
+                DB::rollBack();
                 Log::error('Failed to send followup reminder to ' . $value['name'] . ' caused by : ' . $e->getMessage() . ' | Line ' . $e->getLine());
                 return $this->error($e->getMessage() . ' | Line ' . $e->getLine());
             }

@@ -150,7 +150,7 @@ class DashboardController extends SalesDashboardController
         //     ];
         // })->pluck('id')->toArray(); 
         
-        // $data = (new DigitalDashboardController($this))->get($request);
+        // $data = (new AlarmController($this))->get($request);
         // return $data;
         // exit;
         $data = (new SalesDashboardController($this))->get($request);

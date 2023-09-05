@@ -78,17 +78,16 @@
                                     <i class="bi bi-eye-fill"></i>
                                 </a>
                             </div>
-                            @if (isset($invoice) &&
-                                    !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
-                                <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                            @if (isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'idr')->where('sign_status', 'signed')->first())
+                                {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Request Sign" id="request-acc">
                                     <a href="" class="text-info">
                                         <i class="bi bi-pen-fill"></i>
                                     </a>
-                                </div>
-                                <div class="btn btn-sm py-1 border btn-light" id="requestSignIdr" data-curr="idr"
+                                </div> --}}
+                                <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="idr"
                                     data-bs-toggle="modal" data-bs-target="#requestSignModal">
-                                    <a href="#" class="text-info">
+                                    <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                         <i class="bi bi-pen-fill"></i>
                                     </a>
                                 </div>
@@ -129,13 +128,16 @@
                                         <i class="bi bi-eye-fill"></i>
                                     </a>
                                 </div>
-                                @if (
-                                    !isset($invoice->refund) &&
-                                        isset($invoice) &&
-                                        !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
-                                    <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
+                                @if ( !isset($invoice->refund) && isset($invoice) && !$invoice->invoiceAttachment()->where('currency', 'other')->where('sign_status', 'signed')->first())
+                                    {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Request Sign" id="request-acc-other">
                                         <a href="" class="text-info">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </a>
+                                    </div> --}}
+                                    <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="other"
+                                        data-bs-toggle="modal" data-bs-target="#requestSignModal">
+                                        <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                             <i class="bi bi-pen-fill"></i>
                                         </a>
                                     </div>
@@ -513,7 +515,7 @@
                                     <div class="col-md-6 mb-3 invoice d-none">
                                         <label for="">Created Date <sup class="text-danger">*</sup></label>
                                         <input type="date" name="invoice_date" id=""
-                                            value="{{ date('Y-m-d') }}" {{ $disabled }}
+                                            value="{{ isset($invoice->created_at) ? date('Y-m-d', strtotime($invoice->created_at)) : date('Y-m-d') }}" {{ $disabled }}
                                             class='form-control form-control-sm rounded'>
                                         @error('invoice_date')
                                             <small class="text-danger fw-light">{{ $message }}</small>
@@ -729,9 +731,11 @@
                             value="{{ $clientProg->clientprog_id }}" class="form-control w-100">
                         <input type="hidden" name="parent_id" id="parent_id"
                             value="{{ $clientProg->client->parents[0]->id }}" class="form-control w-100">
+                            {{-- value="{{ $clientProg->client->id }}" class="form-control w-100"> --}}
                         <label for="">Email Parent</label>
                         <input type="mail" name="parent_mail" id="parent_mail"
                             value="{{ $clientProg->client->parents[0]->mail }}" class="form-control w-100">
+                            {{-- value="{{ $clientProg->client->mail }}" class="form-control w-100"> --}}
                     </div>
                     {{-- <hr> --}}
                     <div class="d-flex justify-content-between">
@@ -751,46 +755,7 @@
     </div>
     @endif
 
-    <div class="modal fade" id="requestSignModal" data-bs-backdrop="static" data-bs-keyboard="false"
-        aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span>
-                        Request Sign
-                    </span>
-                    <i class="bi bi-pencil-square"></i>
-                </div>
-                <div class="modal-body w-100 text-start">
-                    {{-- <div class="form-group ms-3"> --}}
-                        <div class="d-flex justify-content-around">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="pic_sign" id="inlineRadio2" value="1">
-                                <label class="form-check-label" for="inlineRadio2">Kak Nic</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="pic_sign" id="inlineRadio1" value="2">
-                                <label class="form-check-label" for="inlineRadio1">Kak Dev</label>
-                            </div>
-                        </div>
-                    {{-- </div> --}}
-
-                    <div class="d-flex justify-content-between">
-                        <button type="button" href="#" class="btn btn-outline-danger btn-sm"
-                            data-bs-dismiss="modal">
-                            <i class="bi bi-x-square me-1"></i>
-                            Cancel</button>
-
-                        <button type="submit" id="ConfirmSendToClient" class="btn btn-primary btn-sm">
-                            <i class="bi bi-save2 me-1"></i>
-                            Send</button>
-                    </div>
-                   
-                </div>
-            </div>
-        </div>
-    </div>
-
+    @include('pages.invoice.pic-modal');
 
     <script>
         $(document).ready(function() {
@@ -818,6 +783,7 @@
         })
     </script>
     <script>
+
         function setIdentifier(paymethod, id) {
             $("#identifier").val(id);
             $("#paymethod").val(paymethod);
@@ -1102,9 +1068,9 @@
         $(document).on("click", "#openModalRequestSignIdr", function() {
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
-            $('#ConfirmRequestSign').attr("onclick",
-                "confirmRequestSign('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', " +
-                curr + ", 'invoice')");
+            $('#sendToChoosenPic').attr("onclick",
+            "confirmRequestSign('{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', " +
+                curr + ")");
         });
 
         $(document).on("click", "#openModalSendToClientIdr", function() {
@@ -1157,59 +1123,41 @@
 
         }
 
+        function requestAcc(link, currency)
+        {
+            showLoading()
+            var inv_rec_pic = $("input[name=pic_sign]:checked").val();
+            var inv_rec_pic_name = $("input[name=pic_sign]:checked").data('name');
+
+            axios
+                .get(link, {
+                        params: {
+                            type: currency,
+                            to: inv_rec_pic,
+                            name: inv_rec_pic_name
+                        }
+                    })
+                .then(response => {
+
+                    swal.close()
+                    notification('success', 'Sign has been requested')
+                    $(".step-one").addClass('active')
+                    $("#requestSignModal").modal('hide');
+                    $("#requestSign--modal").modal('hide'); // this modal is for confirmation box   
+                })
+                .catch(error => {
+                    console.log(error)
+                    swal.close()
+                    notification('error', error.message)
+                    // notification('error', 'Something went wrong while send email')
+                })
+        }
+
         $(document).ready(function() {
             @if (old('inv_paymentmethod'))
                 $("#payment_method").val("{{ old('inv_paymentmethod') }}").trigger('change');
             @endif
 
-            $("#request-acc").on('click', function(e) {
-                e.preventDefault();
-                showLoading()
-
-                axios
-                    .get(
-                        '{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
-                            params: {
-                                type: 'idr'
-                            }
-                        })
-                    .then(response => {
-
-                        swal.close()
-                        notification('success', 'Sign has been requested')
-                        $(".step-one").addClass('active')
-                    })
-                    .catch(error => {
-                        console.log(error)
-                        swal.close()
-                        notification('error', error.message)
-                        // notification('error', 'Something went wrong while send email')
-                    })
-            })
-
-            $("#request-acc-other").on('click', function(e) {
-                e.preventDefault();
-
-                showLoading()
-                axios
-                    .get(
-                        '{{ route('invoice.program.request_sign', ['client_program' => $clientProg->clientprog_id]) }}', {
-                            params: {
-                                type: 'other'
-                            }
-                        })
-                    .then(response => {
-
-                        swal.close()
-                        notification('success', 'Sign has been requested')
-                        $(".step-one-other").addClass('active')
-                    })
-                    .catch(error => {
-                        console.log(error)
-                        notification('error', 'Something went wrong while send email')
-                        swal.close()
-                    })
-            })
 
             // $("#send-to-client--app-0604").on('click', function(e) {
             //     e.preventDefault()
