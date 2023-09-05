@@ -156,8 +156,8 @@ class StoreClientProgramRequest extends FormRequest
                             if (($student->mail == NULL || $student->mail == '') && ($student->phone == NULL || $student->phone == ''))
                                 $fail('Not able to change status to success. Please complete student\'s email and phone number.');
     
-                            // if ($student->parents()->count() == 0)
-                            //     $fail('Not able to change status to success. Please complete the parent\'s information');
+                            if ($student->parents()->count() == 0)
+                                $fail('Not able to change status to success. Please complete the parent\'s information');
 
                             if (isset($clientProg) && $clientProg->status == 3) 
                                 $fail('Not able to change status to success. This activities has marked as "refunded" ');
