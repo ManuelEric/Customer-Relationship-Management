@@ -541,7 +541,7 @@
                                                 <input type="text" name="timesheet_1" id="" {{ $disabled }}
                                                 class="form-control form-control-sm rounded"
                                                 placeholder="Timesheet 1"
-                                                value="">
+                                                value="{{ isset($clientProgram->clientMentor[0]->pivot->timesheet_link) ? $clientProgram->clientMentor[0]->pivot->timesheet_link : old('timesheet_1') }}">
                                             </div>
                                         </div>
                                     </div>
@@ -575,7 +575,7 @@
                                                 <input type="text" name="timesheet_2" id="" {{ $disabled }}
                                                 class="form-control form-control-sm rounded"
                                                 placeholder="Timesheet 2"
-                                                value="">
+                                                value="{{ isset($clientProgram->clientMentor[1]->pivot->timesheet_link) ? $clientProgram->clientMentor[1]->pivot->timesheet_link : old('timesheet_2') }}">
                                             </div>
                                         </div>
                                     </div>

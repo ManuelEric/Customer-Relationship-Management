@@ -361,6 +361,8 @@ class ClientProgramController extends Controller
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     $clientProgramDetails['tutor_2'] = $request->tutor_2;
+                    $clientProgramDetails['timesheet_1'] = $request->timesheet_1;
+                    $clientProgramDetails['timesheet_2'] = $request->timesheet_2;
                 }
                 break;
 
@@ -627,6 +629,9 @@ class ClientProgramController extends Controller
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     $clientProgramDetails['tutor_2'] = $request->tutor_2;
+                    $clientProgramDetails['timesheet_1'] = $request->timesheet_1;
+                    $clientProgramDetails['timesheet_2'] = $request->timesheet_2;
+
                 }
 
                 break;

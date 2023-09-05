@@ -592,6 +592,8 @@ class StoreClientProgramRequest extends FormRequest
                     }
                 },
             ],
+            'timesheet_1' => 'required_if:tutor_1,!=,null',
+            'timesheet_2' => 'required_if:tutor_2,!=,null',
             'prog_running_status' => 'required',
         ];
     }
