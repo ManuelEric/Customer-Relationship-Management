@@ -508,13 +508,13 @@ class StoreClientProgramRequest extends FormRequest
             'prog_running_status' => 'required',
         ];
 
-        if ($invoice_exist) {
-            $extended_rules = [
-                'session' => 'required',
-                'sessionDetail.*' => 'required',
-                'sessionLinkMeet.*' => 'required|url',
-            ];
-        }
+        // if ($invoice_exist) {
+        //     $extended_rules = [
+        //         'session' => 'required',
+        //         'sessionDetail.*' => 'required',
+        //         'sessionLinkMeet.*' => 'required|url',
+        //     ];
+        // }
 
         $rules = array_merge($rules, $extended_rules);
         return $rules;
