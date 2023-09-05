@@ -42,7 +42,6 @@ class ProgramController extends Controller
         $programDetails = $request->only([
             'prog_id',
             'prog_main',
-            'prog_sub',
             'prog_name',
             'prog_type',
             'prog_mentor',
@@ -50,6 +49,10 @@ class ProgramController extends Controller
             'prog_scope',
             'active',
         ]);
+
+        # prog sub can be null
+        if (isset($request->prog_sub))
+            $programDetails['prog_sub'] = $request->prog_sub;
 
         DB::beginTransaction();
         try {
