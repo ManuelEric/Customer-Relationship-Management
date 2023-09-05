@@ -7,7 +7,7 @@
 @endsection
 @section('content')
 
-    @include('pages.invoice.pic-modal');    
+    @include('pages.invoice.pic-modal') 
 
     @php
         $invoiceHasRequested = null;

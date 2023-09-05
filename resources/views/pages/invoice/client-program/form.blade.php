@@ -755,7 +755,7 @@
     </div>
     @endif
 
-    @include('pages.invoice.pic-modal');
+    @include('pages.invoice.pic-modal')
 
     <script>
         $(document).ready(function() {
