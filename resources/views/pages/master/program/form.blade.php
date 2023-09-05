@@ -80,7 +80,7 @@
                             <div class="col-md-6">
                                 <div class="mb-2">
                                     <label for="">
-                                        Sub Program <sup class="text-danger">*</sup>
+                                        Sub Program
                                     </label>
                                     <select type="text" name="prog_sub" class="select w-100" id="subProgram">
                                         <option data-placeholder="true"></option>
