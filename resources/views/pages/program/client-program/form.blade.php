@@ -542,6 +542,9 @@
                                                 class="form-control form-control-sm rounded"
                                                 placeholder="Timesheet 1"
                                                 value="{{ isset($clientProgram->clientMentor[0]->pivot->timesheet_link) ? $clientProgram->clientMentor[0]->pivot->timesheet_link : old('timesheet_1') }}">
+                                                @error('timesheet_1')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>
@@ -576,6 +579,9 @@
                                                 class="form-control form-control-sm rounded"
                                                 placeholder="Timesheet 2"
                                                 value="{{ isset($clientProgram->clientMentor[1]->pivot->timesheet_link) ? $clientProgram->clientMentor[1]->pivot->timesheet_link : old('timesheet_2') }}">
+                                                @error('timesheet_2')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>
