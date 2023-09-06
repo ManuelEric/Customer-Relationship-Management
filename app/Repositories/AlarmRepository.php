@@ -181,9 +181,11 @@ class AlarmRepository implements AlarmRepositoryInterface
         $alarmLeads = $this->setAlarmLead();
 
         $message = null;
+        $message['sales'][] = $message['digital'][] = $message['general'][] = null;
         foreach ($alarmLeads as $divisi => $alarmDivisi) {
             foreach ($alarmDivisi as $alarmTime) {
                 foreach ($alarmTime as $key => $alarm) {
+
                     if($alarm){
 
 

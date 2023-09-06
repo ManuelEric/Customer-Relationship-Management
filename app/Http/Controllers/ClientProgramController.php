@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreClientProgramRequest;
+use App\Http\Requests\StoreFormProgramEmbedRequest;
+use App\Http\Traits\CheckExistingClient;
 use App\Interfaces\ClientEventRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -15,10 +17,12 @@ use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Interfaces\TagRepositoryInterface;
 use App\Models\Program;
 use App\Models\UserClient;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -26,6 +30,7 @@ use Illuminate\Support\Facades\Redirect;
 
 class ClientProgramController extends Controller
 {
+    use CheckExistingClient;
     private ClientRepositoryInterface $clientRepository;
     private ProgramRepositoryInterface $programRepository;
     private LeadRepositoryInterface $leadRepository;
@@ -37,13 +42,14 @@ class ClientProgramController extends Controller
     private ClientProgramRepositoryInterface $clientProgramRepository;
     private ClientEventRepositoryInterface $clientEventRepository;
     private SchoolRepositoryInterface $schoolRepository;
+    private TagRepositoryInterface $tagRepository;
     private $admission_prog_list;
     private $tutoring_prog_list;
     private $satact_prog_list;
 
     use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -56,6 +62,7 @@ class ClientProgramController extends Controller
         $this->clientProgramRepository = $clientProgramRepository;
         $this->clientEventRepository = $clientEventRepository;
         $this->schoolRepository = $schoolRepository;
+        $this->tagRepository = $tagRepository;
 
         $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
@@ -361,6 +368,8 @@ class ClientProgramController extends Controller
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     $clientProgramDetails['tutor_2'] = $request->tutor_2;
+                    $clientProgramDetails['timesheet_1'] = $request->timesheet_1;
+                    $clientProgramDetails['timesheet_2'] = $request->timesheet_2;
                 }
                 break;
 
@@ -566,6 +575,8 @@ class ClientProgramController extends Controller
 
                 # when program status is active
             case 1:
+                $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
+
                 # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
 
@@ -627,6 +638,9 @@ class ClientProgramController extends Controller
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     $clientProgramDetails['tutor_2'] = $request->tutor_2;
+                    $clientProgramDetails['timesheet_1'] = $request->timesheet_1;
+                    $clientProgramDetails['timesheet_2'] = $request->timesheet_2;
+
                 }
 
                 break;
@@ -742,17 +756,163 @@ class ClientProgramController extends Controller
 
     public function createFormEmbed(Request $request)
     {
-        if ($request->get('program_name') == null) {
+        if ($programName = $request->get('program_name') == null)
             abort('404');
-        }
+        
+        $program = $this->programRepository->getProgramByName($programName);
         $leads = $this->leadRepository->getLeadForFormEmbedEvent();
         $schools = $this->schoolRepository->getAllSchools();
+        $tags = $this->tagRepository->getAllTags();
 
         return view('form-embed.form-programs')->with(
             [
+                'program' => $program,
                 'leads' => $leads,
                 'schools' => $schools,
+                'tags' => $tags,
             ]
         );
     }
+
+    public function storeFormEmbed(StoreFormProgramEmbedRequest $request)
+    {
+        $programId = $request->program;
+        $program = $this->programRepository->getProgramById($programId);
+        $leadId = $request->leadsource;
+        $schoolId = $request->school;
+        $choosen_role = $request->role;
+
+        DB::beginTransaction();
+        try {
+
+            $index = 0;
+            while($index < 2) 
+            {   
+                # initialize raw variable
+                # why newClientDetails[$loop] should be array?
+                # because to make easier for system to differentiate between parents and students like for example if user registered as a parent 
+                # then index 0 is for parent data and index 1 is for children data, otherwise 
+                $newClientDetails[$index] = [
+                    'name' => $request->fullname[$index],
+                    'email' => $request->email[$index],
+                    'phone' => $request->fullnumber[$index]
+                ];
+
+                # check if the client exist in our databases
+                $existingClient = $this->checkExistingClient($newClientDetails[$index]['phone'], $newClientDetails[$index]['email']);
+                if (!$existingClient['isExist']) {
+
+                    # get firstname & lastname from fullname
+                    $fullname = explode(' ', $newClientDetails[$index]['name']);
+                    $fullname_words = count($fullname);
+
+                    $firstname = $lastname = null;
+                    if ($fullname_words > 1) {
+                        $lastname = $fullname[$fullname_words - 1];
+                        unset($fullname[$fullname_words - 1]);
+                        $firstname = implode(" ", $fullname);
+                    } else {
+                        $firstname = implode(" ", $fullname);
+                    }
+
+                    # all client basic info (whatever their role is)
+                    $clientDetails = [
+                        'first_name' => $firstname,
+                        'last_name' => $lastname,
+                        'mail' => $newClientDetails[$index]['email'],
+                        'phone' => $newClientDetails[$index]['phone'],
+                        'lead_id' => "LS001", # hardcode for lead website
+                        'register_as' => $choosen_role
+                    ];
+
+                    switch ($choosen_role) {
+
+                        case "parent":
+                            $role = $index == 0 ? 'parent' : 'student';
+                            break;
+
+                        case "student":
+                            $role = $index == 1 ? 'parent' : 'student';
+                            break;
+
+
+                    }
+
+                    # additional info that should be stored when role is student and parent
+                    # because all of the additional info are for the student
+                    if ($choosen_role == 'parent' && $index == 1) {
+
+                        $additionalInfo = [
+                            'st_grade' => 12 - ($request->graduation_year - date('Y')),
+                            'graduation_year' => $request->graduation_year,
+                            'lead' => $request->leadsource,
+                            'sch_id' => $schoolId != null ? $schoolId : $request->school,
+                        ];
+
+                        $clientDetails = array_merge($clientDetails, $additionalInfo);
+                    
+                    } else if ($choosen_role == 'student' && $index == 0) {
+
+                        $additionalInfo = [
+                            'st_grade' => 12 - ($request->graduation_year - date('Y')),
+                            'graduation_year' => $request->graduation_year,
+                            'lead' => $request->leadsource,
+                            'sch_id' => $schoolId != null ? $schoolId : $request->school,
+                        ];
+
+                        $clientDetails = array_merge($clientDetails, $additionalInfo);
+
+                    }
+
+                    # stored a new client information
+                    $newClient[$index] = $this->clientRepository->createClient($role, $clientDetails);
+                    
+                }
+
+                $clientArrayIds[$index] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$index]->id;
+                $index++;
+            }
+
+            switch ($choosen_role) {
+
+                case "parent":
+                    $parentId = $newClientDetails[0]['id'] = $clientArrayIds[0];
+                    $childId = $clientArrayIds[1];
+                    break;
+
+                case "student":
+                    $parentId = $clientArrayIds[1];
+                    $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
+                    break;
+
+            }
+
+            # store the destination country if registrant either parent or student
+            $this->clientRepository->createDestinationCountry($childId, $request->destination_country);
+            
+            # attaching parent and student
+            $this->clientRepository->createManyClientRelation($parentId, $childId);
+
+            # initiate variables for client program
+            $clientProgramDetails = [
+                'client_id' => $childId,
+                'prog_id' => $programId,
+                'lead_id' => $leadId,
+                'first_discuss_date' => Carbon::now(),
+                'status' => 0,
+            ];
+            # store to client program
+            $this->clientProgramRepository->createClientProgram($clientProgramDetails);
+            DB::commit();
+        
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            Log::error('Failed to register client from form program embed | error : '.$e->getMessage().' | Line : '.$e->getLine());
+            return Redirect::to('form/program?program_name='.$program->prog_program)->withErrors('Something went wrong. Please try again or contact our administrator.');
+        
+        }
+
+        return Redirect::to('form/thanks');
+    }    
 }

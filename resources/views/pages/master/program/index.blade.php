@@ -41,8 +41,71 @@
         </div>
     </div>
 
+    <div class="modal fade" id="linkEmbed" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>
+                        Link Form Embed
+                    </span>
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div class="modal-body w-100 text-start">
+                    {{-- <form action="" method="POST" id="reminderForm"> --}}
+                    @csrf
+                    {{-- @method('put') --}}
+                    <div class="form-group">
+                        {{-- <label for="">Phone Number Parent</label> --}}
+                        <input type="text" name="link" id="link" disabled class="form-control w-100">
+                    </div>
+                    {{-- <hr> --}}
+                    <div class="d-flex justify-content-between">
+                        <button type="button" href="#" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">
+                            <i class="bi bi-x-square me-1"></i>
+                            Cancel</button>
+                        <button type="submit" onclick="copyLink()" class="btn btn-primary btn-sm">
+                            <i class="bi bi-save2 me-1"></i>
+                            Copy</button>
+                    </div>
+                    {{-- </form> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     {{-- Need Changing --}}
     <script>
+
+        function copyLink() {
+            $('#ctaForm').prop('checked', false)
+            $('#attendForm').prop('checked', false)
+            $('#offlineForm').prop('checked', false)
+            $('#otsForm').prop('checked', false)
+            $('#linkEmbed').modal('hide');
+            // Get the text field
+            var copyText = document.getElementById("link");
+            // Select the text field
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText.value);
+
+
+            // Alert the copied text
+            // alert("Copied the text: " + copyText.value);
+            Swal.fire({
+                icon: 'success',
+                text: "Form embed successfully copied ",
+                timer: 1500,
+                width:300,
+                showConfirmButton: false,
+            });
+            //    swal("Copied the text: " + copyText.value);
+        }
+
         $(document).ready(function() {
             var table = $('#programTable').DataTable({
                 dom: 'Bfrtip',
@@ -119,7 +182,8 @@
                     {
                         data: '',
                         className: 'text-center',
-                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-warning editProgram"><i class="bi bi-pencil"></i></button>' +
+                        defaultContent: '<button type="button" class="btn btn-sm btn-outline-info generateLinkEmbed"><i class="bi bi-link"></i></button>' +
+                            ' <button type="button" class="btn btn-sm btn-outline-warning editProgram"><i class="bi bi-pencil"></i></button>' +
                             '<button type="button" class="btn btn-sm btn-outline-danger ms-1 deleteProgram"><i class="bi bi-trash2"></i></button>'
                     }
                 ]
@@ -142,6 +206,15 @@
             @endif
 
             realtimeData(table)
+
+            $('#programTable tbody').on('click', '.generateLinkEmbed ', function() {
+                var data = table.row($(this).parents('tr')).data();
+                $('#link').val("{{ url('form/program') }}?program_name=" + encodeURIComponent(data.program_name))
+                // $('#firstLink').val("{{ url('form/event') }}?event_name=" + encodeURIComponent(data
+                //     .event_title))
+                $('#linkEmbed').modal('show')
+                // window.location.href = "{{ url('master/event') }}/" + data.event_id;
+            });
 
             $('#programTable tbody').on('click', '.editProgram ', function() {
                 var data = table.row($(this).parents('tr')).data();

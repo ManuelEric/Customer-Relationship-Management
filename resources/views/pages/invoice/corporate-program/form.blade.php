@@ -7,7 +7,7 @@
 @endsection
 @section('content')
 
-    @include('pages.invoice.pic-modal');
+    @include('pages.invoice.pic-modal')
     
     @php
         $invoiceHasRequested = null;
@@ -975,6 +975,7 @@
 
         @endif
 
+        @if (isset($invoicePartner))
         $(document).on("click", "#openModalRequestSignIdr", function() {
             var curr = $(this).data('curr');
             var currency = "'" + curr + "'";
@@ -984,6 +985,7 @@
             $('#sendToChoosenPic').attr("onclick", "confirmRequestSign('"+ url +"', "+ currency +")");
 
         });
+        @endif
 
         $("#submit-form").click(function(e) {
             e.preventDefault();

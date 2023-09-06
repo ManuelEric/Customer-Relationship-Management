@@ -111,7 +111,7 @@ class AppServiceProvider extends ServiceProvider
                     $department = 'Finance & Operation';
                 }
 
-                # if logged in user is from department finance
+                # if logged in user is from department digital
                 if ($user->department()->where('dept_name', 'Digital')->where('status', 1)->exists()) {
                     $isDigital = true;
                     $department = 'Digital';

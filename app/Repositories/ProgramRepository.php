@@ -50,6 +50,11 @@ class ProgramRepository implements ProgramRepositoryInterface
         return Program::whereProgId($programId);
     }
 
+    public function getProgramByName($programName)
+    {
+        return Program::where('prog_program', $programName)->first();
+    }
+
     public function deleteProgram($programId)
     {
         return Program::destroy($programId);
@@ -67,7 +72,7 @@ class ProgramRepository implements ProgramRepositoryInterface
             unset($programDetails['prog_main']);
         }
 
-        if (!array_key_exists('sub_prog_id', $programDetails)) {
+        if (!array_key_exists('sub_prog_id', $programDetails) && array_key_exists('prog_sub', $programDetails)) {
             $programDetails['sub_prog_id'] = $programDetails['prog_sub'];
             unset($programDetails['prog_sub']);
         }
