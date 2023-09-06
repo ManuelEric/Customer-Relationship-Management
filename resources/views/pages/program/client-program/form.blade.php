@@ -9,14 +9,14 @@
 
     @php
         $disabled = !isset($edit) ? 'disabled' : null;
-        $open_information_for_tutor = isset($clientProgram->invoice) && $clientProgram->program->main_prog->prog_name == "Academic & Test Preparation" && $clientProgram->session_tutor === NULL ? true : false;
+        // $open_information_for_tutor = isset($clientProgram->invoice) && $clientProgram->program->main_prog->prog_name == "Academic & Test Preparation" && $clientProgram->session_tutor === NULL ? true : false;
     @endphp
-    
+{{--     
     @if ($open_information_for_tutor)
     <div class="alert alert-danger">
         The specific field that needs your attention is "Session Detail". Currently, it appears to be blank, and we kindly request you to provide the necessary information.
     </div>
-    @endif
+    @endif --}}
 
     <div class="row">
         <div class="col-md-4">
