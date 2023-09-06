@@ -652,6 +652,7 @@ class ClientEventController extends Controller
                     ];
 
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
+                    
                 
                 } else if ($choosen_role == 'student' && $loop == 0) {
 
@@ -665,19 +666,34 @@ class ClientEventController extends Controller
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
 
                 }
-
+                
                 # additional info that should be stored when role is teacher
-                if ($choosen_role == 'teacher/counsellor') {
-
+                if ($choosen_role == 'teacher/counsellor') { 
+                
                     $additionalInfo = [
                         'sch_id' => $schoolId != null ? $schoolId : $request->school,
                     ];
 
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
                 }
+
+                switch ($choosen_role) {
+
+                    case "parent":
+                        $role = $loop == 0 ? 'parent' : 'student';
+                        break;
+
+                    case "student":
+                        $role = $loop == 1 ? 'parent' : 'student';
+                        break;
+
+                    case "teacher/counsellor":
+                        $role = $choosen_role;
+                        break;
+                }
                 
                 # stored a new client information
-                $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($choosen_role), $clientDetails);
+                $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($role), $clientDetails);
                 
             }
 
