@@ -12,23 +12,31 @@
                 <div class="card-body">
                     <img src="{{ asset('img/program.webp') }}" alt="" class="w-75">
                     @if (isset($clientEvent))
-                        <div class="mt-3 d-flex justify-content-center">
-                            @if (isset($edit))
-                                <a href="{{ url('program/event/' . $clientEvent->clientevent_id) }}"
+                        <div class="mt-3 d-flex flex-column justify-content-center">
+                            <div class="mb-2">
+                                <a href="{{ url($clientEvent->client->roles[0]->role_name == 'Parent' ? 'client/parent/' . $clientEvent->client->id : 'client/student/' . $clientEvent->client->id . '/program/create') }}"
                                     class="btn btn-sm btn-outline-info rounded mx-1">
-                                    <i class="bi bi-arrow-left"></i> Back
+                                    <i class="bi bi-plus"></i> {{ $clientEvent->client->roles[0]->role_name == 'Student' ? 'Add Program' : 'Detail Parent'}}
                                 </a>
-                            @else
-                                <a href="{{ url('program/event/' . $clientEvent->clientevent_id . '/edit') }}"
-                                    class="btn btn-sm btn-outline-info rounded mx-1">
-                                    <i class="bi bi-pencil"></i> Edit
-                                </a>
-                            @endif
-                            <button type="button"
-                                onclick="confirmDelete('{{ 'program/event' }}', {{ $clientEvent->clientevent_id }})"
-                                class="btn btn-sm btn-outline-danger rounded mx-1">
-                                <i class="bi bi-trash2"></i> Delete
-                            </button>
+                            </div>
+                            <div>
+                                @if (isset($edit))
+                                    <a href="{{ url('program/event/' . $clientEvent->clientevent_id) }}"
+                                        class="btn btn-sm btn-outline-info rounded mx-1">
+                                        <i class="bi bi-arrow-left"></i> Back
+                                    </a>
+                                @else
+                                    <a href="{{ url('program/event/' . $clientEvent->clientevent_id . '/edit') }}"
+                                        class="btn btn-sm btn-outline-info rounded mx-1">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                @endif
+                                <button type="button"
+                                    onclick="confirmDelete('{{ 'program/event' }}', {{ $clientEvent->clientevent_id }})"
+                                    class="btn btn-sm btn-outline-danger rounded mx-1">
+                                    <i class="bi bi-trash2"></i> Delete
+                                </button>
+                            </div>
                         </div>
                     @endif
                 </div>

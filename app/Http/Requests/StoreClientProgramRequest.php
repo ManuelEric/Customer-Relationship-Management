@@ -508,13 +508,13 @@ class StoreClientProgramRequest extends FormRequest
             'prog_running_status' => 'required',
         ];
 
-        if ($invoice_exist) {
-            $extended_rules = [
-                'session' => 'required',
-                'sessionDetail.*' => 'required',
-                'sessionLinkMeet.*' => 'required|url',
-            ];
-        }
+        // if ($invoice_exist) {
+        //     $extended_rules = [
+        //         'session' => 'required',
+        //         'sessionDetail.*' => 'required',
+        //         'sessionLinkMeet.*' => 'required|url',
+        //     ];
+        // }
 
         $rules = array_merge($rules, $extended_rules);
         return $rules;
@@ -592,6 +592,8 @@ class StoreClientProgramRequest extends FormRequest
                     }
                 },
             ],
+            'timesheet_1' => 'required_if:tutor_1,!=,null',
+            'timesheet_2' => 'required_if:tutor_2,!=,null',
             'prog_running_status' => 'required',
         ];
     }

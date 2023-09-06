@@ -361,6 +361,8 @@ class ClientProgramController extends Controller
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     $clientProgramDetails['tutor_2'] = $request->tutor_2;
+                    $clientProgramDetails['timesheet_1'] = $request->timesheet_1;
+                    $clientProgramDetails['timesheet_2'] = $request->timesheet_2;
                 }
                 break;
 
@@ -566,6 +568,8 @@ class ClientProgramController extends Controller
 
                 # when program status is active
             case 1:
+                $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
+
                 # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
 
@@ -627,6 +631,9 @@ class ClientProgramController extends Controller
 
                     $clientProgramDetails['tutor_1'] = $request->tutor_1;
                     $clientProgramDetails['tutor_2'] = $request->tutor_2;
+                    $clientProgramDetails['timesheet_1'] = $request->timesheet_1;
+                    $clientProgramDetails['timesheet_2'] = $request->timesheet_2;
+
                 }
 
                 break;
