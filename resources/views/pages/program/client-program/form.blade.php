@@ -9,14 +9,14 @@
 
     @php
         $disabled = !isset($edit) ? 'disabled' : null;
-        $open_information_for_tutor = isset($clientProgram->invoice) && $clientProgram->program->main_prog->prog_name == "Academic & Test Preparation" && $clientProgram->session_tutor === NULL ? true : false;
+        // $open_information_for_tutor = isset($clientProgram->invoice) && $clientProgram->program->main_prog->prog_name == "Academic & Test Preparation" && $clientProgram->session_tutor === NULL ? true : false;
     @endphp
-    
+{{--     
     @if ($open_information_for_tutor)
     <div class="alert alert-danger">
         The specific field that needs your attention is "Session Detail". Currently, it appears to be blank, and we kindly request you to provide the necessary information.
     </div>
-    @endif
+    @endif --}}
 
     <div class="row">
         <div class="col-md-4">
@@ -520,7 +520,7 @@
                                     </div>
                                     <div class="col-md">
                                         <div class="row">
-                                            <div class="col-md-8">
+                                            <div class="col-md-6">
                                                 <select name="tutor_1" class="select w-100" {{ $disabled }}>
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
@@ -537,6 +537,15 @@
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
                                             </div>
+                                            <div class="col-md-6">
+                                                <input type="text" name="timesheet_1" id="" {{ $disabled }}
+                                                class="form-control form-control-sm rounded"
+                                                placeholder="Timesheet 1"
+                                                value="{{ isset($clientProgram->clientMentor[0]->pivot->timesheet_link) ? $clientProgram->clientMentor[0]->pivot->timesheet_link : old('timesheet_1') }}">
+                                                @error('timesheet_1')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -548,7 +557,7 @@
                                     </div>
                                     <div class="col-md">
                                         <div class="row">
-                                            <div class="col-md-8">
+                                            <div class="col-md-6">
                                                 <select name="tutor_2" class="select w-100" {{ $disabled }}>
                                                     <option data-placeholder="true"></option>
                                                     @foreach ($tutors as $tutor)
@@ -562,6 +571,15 @@
                                                     @endforeach
                                                 </select>
                                                 @error('tutor_2')
+                                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-6">
+                                                <input type="text" name="timesheet_2" id="" {{ $disabled }}
+                                                class="form-control form-control-sm rounded"
+                                                placeholder="Timesheet 2"
+                                                value="{{ isset($clientProgram->clientMentor[1]->pivot->timesheet_link) ? $clientProgram->clientMentor[1]->pivot->timesheet_link : old('timesheet_2') }}">
+                                                @error('timesheet_2')
                                                     <small class="text-danger fw-light">{{ $message }}</small>
                                                 @enderror
                                             </div>
