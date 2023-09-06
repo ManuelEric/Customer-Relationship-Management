@@ -815,6 +815,7 @@ class ClientProgramController extends Controller
                         'mail' => $newClientDetails[$index]['email'],
                         'phone' => $newClientDetails[$index]['phone'],
                         'lead_id' => "LS001", # hardcode for lead website
+                        'register_as' => $choosen_role
                     ];
 
                     switch ($choosen_role) {
