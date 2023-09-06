@@ -51,7 +51,7 @@
                             <small class="text-danger fw-light">{{ $message }}</small>
                         @enderror
                     </div>
-                    <div class="mt-3"></div>
+                    {{-- <div class="mt-3"></div>
                     @if (isset($clientProgram->invoice))
                     <hr>
                     <label for="">
@@ -61,6 +61,7 @@
                         <span class="text-danger">Fill the detail of academic tutoring program for his/her</span>
                         @endif
                     </label>
+
                     <div class="row mt-3">
                         <div class="col-md-3">
                             <input type="hidden" name="invoice_exist" value="true" />
@@ -126,7 +127,7 @@
                             @endforeach
                         @endif
                     </div>
-                    @endif
+                    @endif --}}
                 </div>
             </div>
         </div>

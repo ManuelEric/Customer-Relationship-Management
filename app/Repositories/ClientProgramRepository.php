@@ -277,11 +277,16 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
             if (isset($clientProgramDetails['tutor_1']))
                 $tutors['tutor_1'] = $clientProgramDetails['tutor_1'];
-
+                $tutors['timesheet_1'] = $clientProgramDetails['timesheet_1'];
+                $clientProgram->clientMentor()->attach($tutors['tutor_1'], ['status' => $status, 'timesheet_link' => $tutors['timesheet_1']]);
+                
             if (isset($clientProgramDetails['tutor_2']))
                 $tutors['tutor_2'] = $clientProgramDetails['tutor_2'];
+                $tutors['timesheet_2'] = $clientProgramDetails['timesheet_2'];
+                $clientProgram->clientMentor()->attach($tutors['tutor_2'], ['status' => $status, 'timesheet_link' => $tutors['timesheet_2']]);
+            
 
-            $clientProgram->clientMentor()->attach($tutors, ['status' => $status]);
+
         }
 
 
@@ -358,11 +363,15 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
 
             $additionalDetails = [
                 'tutor_1' => $clientProgramDetails['tutor_1'],
-                'tutor_2' => $clientProgramDetails['tutor_2']
+                'tutor_2' => $clientProgramDetails['tutor_2'],
+                'timesheet_1' => $clientProgramDetails['timesheet_1'],
+                'timesheet_2' => $clientProgramDetails['timesheet_2']
             ];
 
             unset($clientProgramDetails['tutor_1']);
             unset($clientProgramDetails['tutor_2']);
+            unset($clientProgramDetails['timesheet_1']);
+            unset($clientProgramDetails['timesheet_2']);
         }
 
         if (array_key_exists('reason_id', $clientProgramDetails) || array_key_exists('other_reason', $clientProgramDetails)) {
@@ -461,13 +470,29 @@ class ClientProgramRepository implements ClientProgramRepositoryInterface
             # hardcode
             $status = 1;
 
-            if (isset($additionalDetails['tutor_1']))
+            $tutorInfo = [];
+            if (isset($additionalDetails['tutor_1'])){
                 $tutors['tutor_1'] = $additionalDetails['tutor_1'];
-
-            if (isset($additionalDetails['tutor_2']))
+                $tutors['timesheet_1'] = $additionalDetails['timesheet_1'];
+                $tutorInfo[]=[
+                    'user_id' => $tutors['tutor_1'],
+                    'timesheet_link' => $tutors['timesheet_1'],
+                ];
+            }
+               
+                // $clientProgram->clientMentor()->syncWithPivotValues($tutors['tutor_1'], ['status' => $status, 'timesheet_link' => $tutors['timesheet_1']]);
+                
+            if (isset($additionalDetails['tutor_2'])){
                 $tutors['tutor_2'] = $additionalDetails['tutor_2'];
-
-            $clientProgram->clientMentor()->syncWithPivotValues($tutors, ['status' => $status]);
+                $tutors['timesheet_2'] = $additionalDetails['timesheet_2'];
+                $tutorInfo[]=[
+                    'user_id' => $tutors['tutor_2'],
+                    'timesheet_link' => $tutors['timesheet_2'],
+                ];
+            }
+             
+            if(count($tutorInfo) > 0)
+                $clientProgram->clientMentor()->sync($tutorInfo, ['status' => $status]);
         }
 
 

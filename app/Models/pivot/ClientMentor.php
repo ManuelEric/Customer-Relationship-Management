@@ -21,6 +21,7 @@ class ClientMentor extends Pivot
     protected $fillable = [
         'clientprog_id',
         'user_id', 
+        'timesheet_link',
         'status',
     ];
 
