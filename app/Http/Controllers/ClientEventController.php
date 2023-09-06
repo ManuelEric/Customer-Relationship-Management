@@ -675,9 +675,24 @@ class ClientEventController extends Controller
 
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
                 }
+
+                switch ($choosen_role) {
+
+                    case "parent":
+                        $role = $loop == 0 ? 'parent' : 'student';
+                        break;
+
+                    case "student":
+                        $role = $loop == 1 ? 'parent' : 'student';
+                        break;
+
+                    case "teacher/counsellor":
+                        $role = $choosen_role;
+                        break;
+                }
                 
                 # stored a new client information
-                $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($choosen_role), $clientDetails);
+                $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($role), $clientDetails);
                 
             }
 
