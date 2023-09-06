@@ -177,7 +177,7 @@ trait RegisterExpressTrait
         $logDetails = [
             'clientevent_id' => $clientEventId,
             'sent_status' => $sent_mail,
-            'category' => $notes == 'VVIP' ? 'thanks-mail' : 'qrcode-mail'
+            'category' => $notes == 'VVIP' ? 'thanks-mail-referral' : 'qrcode-mail-referral'
         ];
 
         return ClientEventLogMail::create($logDetails);
