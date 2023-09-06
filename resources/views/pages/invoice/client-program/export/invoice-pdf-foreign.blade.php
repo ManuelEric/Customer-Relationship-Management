@@ -318,7 +318,7 @@
                     </td>
                     <td width="40%" align="center" valign="top">
                         {{ $companyDetail['name'] }}
-                        <br><br><br><br><br><br>
+                        <br><br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director
                     </td>

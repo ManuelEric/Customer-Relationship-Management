@@ -83,7 +83,11 @@
                                     <td><b>
                                             {{$invoiceSch->sch_prog->school->sch_name}}
                                         </b><br>
-                                        {{$invoiceSch->sch_prog->school->sch_city}}
+                                        @if(isset($invoiceSch->sch_prog->school->sch_location))
+                                            {{ html_entity_decode(strip_tags($invoiceSch->sch_prog->school->sch_location)) }}
+                                        @else
+                                            {{ $invoiceSch->sch_prog->school->sch_city }}
+                                        @endif
                                         <br>
                                     </td>
                                 </tr>
@@ -271,7 +275,7 @@
                     <td width="40%" align="center" valign="top">
                         {{ $companyDetail['name'] }}
                         {{-- Jakarta, {{ date('d F Y') }} --}}
-                        <br><br><br><br><br><br>
+                        <br><br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director
                     </td>

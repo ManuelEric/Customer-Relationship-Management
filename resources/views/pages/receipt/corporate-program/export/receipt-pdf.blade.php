@@ -90,7 +90,11 @@
                                 <td>
                                     {{ $invoicePartner->partner_prog->corp->corp_name }}
                                     <br>
-                                    {{ $invoicePartner->partner_prog->corp->corp_region }}
+                                    @if(isset($invoicePartner->partner_prog->corp->corp_address))
+                                        {{ html_entity_decode(strip_tags($invoicePartner->partner_prog->corp->corp_address)) }}
+                                    @else
+                                        {{ $invoicePartner->partner_prog->corp->corp_region }}
+                                    @endif
                                 </td>
                             </tr>
                         </table>
@@ -260,7 +264,7 @@
                     <td width="40%" align="center" valign="top">
                         {{-- PT. Jawara Edukasih Indonesia --}}
                         Jakarta, {{ isset($receiptPartner->receipt_date) ? date('d F Y', strtotime($receiptPartner->receipt_date)) : date('d F Y', strtotime($receiptPartner->created_at)) }}
-                        <br><br><br><br><br><br>
+                        <br><br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director
                     </td>
