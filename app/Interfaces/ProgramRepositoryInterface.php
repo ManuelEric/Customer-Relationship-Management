@@ -8,6 +8,7 @@ interface ProgramRepositoryInterface
     public function getAllPrograms();
     public function getAllProgramByType($type, bool $active = null);
     public function getProgramById($programId);
+    public function getProgramByName($programName);
     public function deleteProgram($programId);
     public function createProgram(array $programDetails);
     public function createProgramFromV1(array $programDetails);

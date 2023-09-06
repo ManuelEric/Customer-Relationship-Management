@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Form</title>
+    <title>{{ ucfirst(request()->get('event_name')) }} Form</title>
     <link rel="shortcut icon" href="{{ asset('img/favicon.png') }}" type="image/x-icon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.6/flowbite.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
@@ -15,6 +15,10 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
     <style>
+        .iti {
+            width: 100% !important;
+        }
+
         .ts-control {
             border: none !important;
             padding: 8px 0 !important;
@@ -64,9 +68,12 @@
             background-repeat: no-repeat
         }
     </style>
-</head>
 
 <body>
+    </head>
+    @php
+        $image = isset($event->event_banner) ? asset('storage/uploaded_file/events/' . $event->event_banner) : 'https://picsum.photos/900/200';
+    @endphp
     <div
         class="min-h-screen flex items-center {{ request()->get('form_type') == 'cta' ? 'bg-form' : 'bg-transparent' }}">
         <div class="max-w-screen-lg w-full mx-auto p-4 relative overflow-hidden">
@@ -76,7 +83,7 @@
                 </div>
 
                 <div class="h-[200px] overflow-hidden mb-2 rounded-lg shadow">
-                    <img src="https://picsum.photos/900/200" alt=""
+                    <img src="{{ $image }}" alt=""
                         class="w-full object-cover hover:scale-[1.05] ease-in-out duration-500">
                 </div>
             @endif
@@ -95,6 +102,11 @@
 
             <form action="{{ url('form/program') }}" method="POST">
                 @csrf
+
+                @if (isset($program))
+                    <input type="hidden" name="program" value="{{ $program->prog_id }}">
+                @endif
+
                 <section id="role" class="page step-active">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -108,11 +120,10 @@
                         </p>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
-                            <div class="flex">
+                            <div class="flex select-box">
                                 <input checked id="role-1" type="radio" value="parent" name="role"
                                     class="hidden peer" onchange="checkRole(this)">
-                                <label for="role-1"
-                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc]">
+                                <label for="role-1" class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
                                         <img src="{{ asset('img/form-embed/parent.png') }}" alt="Student"
                                             style="width: 70px;">
@@ -120,11 +131,11 @@
                                     </div>
                                 </label>
                             </div>
-                            <div class="flex">
+                            <div class="flex select-box">
                                 <input id="role-2" type="radio" value="student" name="role" class="hidden peer"
                                     onchange="checkRole(this)">
                                 <label for="role-2"
-                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc]">
+                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
                                         <img src="{{ asset('img/form-embed/student.png') }}" alt="Student"
                                             style="width: 70px;">
@@ -147,7 +158,7 @@
                         </div>
                     </div>
                 </section>
-                <input type="hidden" name="event_name" value="{{ $_GET['program_name'] }}">
+
 
                 <section id="user1" class="page step-inactive">
                     <div
@@ -156,40 +167,65 @@
                             Please fill in your information
                         </h2>
                         <hr class="my-5">
-
-                        <div class="mb-4">
-                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
-                                Full Name
-                            </label>
-                            <input type="text" name="fullname[]"
-                                class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
-                            <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
-                        </div>
-                        <div class="mb-4" id="child_name">
-                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
-                                Your Child Full Name
-                            </label>
-                            <input type="text" name="fullname[]" id="input_child_name"
-                                class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
-                            <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
-                        </div>
-                        <div class="mb-4">
-                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
-                                Email
-                            </label>
-                            <input type="text" name="email[]"
-                                class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
-                            <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
-                        </div>
-                        <div class="mb-4">
-                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
-                                Phone Number
-                            </label>
-                            <input type="text" name="phone[]"
-                                class="w-full md:w-[126vh] text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
-                                id="phoneUser1">
-                            <input type="hidden" name="fullnumber[]" id="phone1">
-                            <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                        <div class="grid md:grid-cols-3 grid-cols-1 gap-4">
+                            <div class="col mb-4 main-user">
+                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                                    Full Name <span class="text-red-400">*</span>
+                                </label>
+                                <input type="text" name="fullname[]"
+                                    class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
+                                <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                            </div>
+                            <div class="col mb-4 main-user">
+                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                                    Email <span class="text-red-400">*</span>
+                                </label>
+                                <input type="text" name="email[]"
+                                    class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
+                                <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                            </div>
+                            <div class="col mb-4 main-user">
+                                <label class="font-normal text-lg text-gray-700 dark:text-gray-400 block">
+                                    Phone Number <span class="text-red-400">*</span>
+                                </label>
+                                <input type="text" name="phone[]"
+                                    class="required w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
+                                    id="phoneUser1">
+                                <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                <input type="hidden" name="fullnumber[]" id="phone1">
+                            </div>
+                            <div class="col mb-4 user-other">
+                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                                    Your <span class="role">Child's</span> Name <span class="text-red-400">*</span>
+                                </label>
+                                <input type="text" name="fullname[]" id="other_name"
+                                    class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info required">
+                                <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                            </div>
+                            <div class="col mb-4 user-other">
+                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                                    Your <span class="role">Child's</span> Email
+                                    @if (request()->get('status') || request()->get('status') == 'ots')
+                                        <span class="text-red-400">*</span>
+                                    @endif
+                                </label>
+                                <input type="text" name="email[]" id="other_email"
+                                    class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info">
+                                <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                            </div>
+                            <div class="col mb-4 user-other">
+                                <label class="font-normal text-lg text-gray-700 dark:text-gray-400 block">
+                                    <span class="role">Child's</span> Number
+                                    @if (request()->get('status') || request()->get('status') == 'ots')
+                                        <span class="text-red-400">*</span>
+                                    @endif
+                                </label>
+                                <input type="text" name="phone[]"
+                                    class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
+                                    id="phoneUser2">
+                                <input type="hidden" name="fullnumber[]" id="phone2" class="child_info">
+                                <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                            </div>
                         </div>
 
                         <div class="flex justify-between mt-10">
@@ -225,7 +261,7 @@
 
                         <div class="mb-4">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
-                                School
+                                School <span class="text-red-400">*</span>
                             </label>
                             <select name="school" id="schoolList"
                                 class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
@@ -241,7 +277,7 @@
                         </div>
                         <div class="mb-4" id="graduation_input">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
-                                Expected Graduation Year
+                                Expected Graduation Year <span class="text-red-400">*</span>
                             </label>
                             <select name="graduation_year" id="graduation_year"
                                 class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
@@ -253,9 +289,24 @@
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                         </div>
+                        <div class="mb-4" id="country_input">
+                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                                Destination Country <span class="text-red-400">*</span>
+                            </label>
+                            <select name="destination_country[]" multiple="multiple" id="destination_country"
+                                class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
+                                placeholder="">
+                                <option value=""></option>
+                                @foreach ($tags as $tag)
+                                    <option value="{{ $tag->id }}">{{ $tag->name }}</option>
+                                @endforeach
+                            </select>
+                            <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                        </div>
+                        
                         <div class="mb-4">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
-                                I know this event from
+                                I know this event from <span class="text-red-400">*</span>
                             </label>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                             <select name="leadsource" id="leadSource"
@@ -308,15 +359,22 @@
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
 <script>
-    const myTimeout = setTimeout(notif, 5000);
+    // const myTimeout = setTimeout(notif, 5000);
 
-    function notif() {
-        document.getElementById("notif").classList.add('hidden')
-    }
+    // function notif() {
+    //     document.getElementById("notif").classList.add('hidden')
+    // }
 
     var user1 = document.querySelector("#phoneUser1");
-    // var user2 = document.querySelector("#phoneUser2");
+    var user2 = document.querySelector("#phoneUser2");
+
     const phoneInput1 = window.intlTelInput(user1, {
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+        initialCountry: 'id',
+        onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
+    });
+
+    const phoneInput2 = window.intlTelInput(user2, {
         utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
         initialCountry: 'id',
         onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
@@ -330,60 +388,81 @@
         create: false
     });
 
+    new TomSelect('#destination_country', {
+        create: false
+    });
+
     new TomSelect('#leadSource', {
         create: false
     });
 
+
     function checkRole(element) {
-        const child_name = document.querySelector('#child_name')
-        const input_child_name = document.querySelector('#input_child_name')
-        const graduation_input = document.querySelector('#graduation_input')
+        
+
+        const input_child_name = $('#input_child_name')
+        const graduation_input = $('#graduation_input')
+        const country_input = $('#country_input')
+        const role = $('.role')
+        const main_user = $(".main-user")
+        const user_other = $('.user-other')
+        const other_name = $('#other_name')
 
         if (element.value == "student") {
-            child_name.classList.add('hidden')
-            input_child_name.type = "hidden"
-            input_child_name.value = ""
+            
+            role.html('Parent\'s')
+            user_other.removeClass('hidden')
+            other_name.addClass('required')
+            graduation_input.removeClass('hidden')
+            country_input.removeClass('hidden')
+
+        } else if (element.value == "parent") {
+            
+            role.html('Child\'s')
+            user_other.removeClass('hidden')
+            other_name.addClass('required')
+            graduation_input.removeClass('hidden')
+            country_input.removeClass('hidden')
+
         } else {
-            child_name.classList.remove('hidden')
-            input_child_name.type = "text"
+            user_other.addClass('hidden')
+            other_name.removeClass('required')
+            graduation_input.addClass('hidden')
+            country_input.addClass('hidden')
         }
     }
 
     function step(current, next, type) {
-        const input = document.querySelectorAll('#' + current + ' input');
-        const alert = document.querySelectorAll('#' + current + ' small.alert');
-        const page = document.querySelectorAll('.page');
-        const currentPage = document.querySelector("#" + current);
-        const nextPage = document.querySelector("#" + next);
+        const input = $('#' + current + ' input.required')
+        const alert = input.siblings('small.alert')
+        const page = $('.page')
+        const currentPage = $("#" + current)
+        const nextPage = $("#" + next)
 
         for (var i = 0; i < page.length; ++i) {
-            page[i].classList.add('step-inactive');
+            page.eq(i).addClass('step-inactive');
         }
 
         if (type === "prev") {
-            nextPage.classList.remove("step-inactive");
-            nextPage.classList.add("step-active");
+            nextPage.removeClass("step-inactive").addClass("step-active")
         } else {
             const check_input = [];
             for (var i = 0; i < input.length; ++i) {
-                if (input[i].type === "text") {
-                    if (input[i].value === "") {
-                        alert[i].classList.remove('hidden')
-                        alert[i].classList.add('block')
+                if (input.eq(i).attr('type') === "text" || input.eq(i).attr('type') === "number") {
+                    if (input.eq(i).val() === "") {
+                        alert.eq(i).removeClass('hidden').addClass('block')
                         check_input.push(false);
                     } else {
-                        alert[i].classList.add('hidden')
+                        alert.eq(i).removeClass('block').addClass('hidden')
                     }
                 }
             }
 
             var index = check_input.indexOf(false);
             if (index === 0) {
-                currentPage.classList.remove("step-inactive");
-                currentPage.classList.add("step-active");
+                currentPage.removeClass("step-inactive").addClass("step-active");
             } else {
-                nextPage.classList.remove("step-inactive");
-                nextPage.classList.add("step-active");
+                nextPage.removeClass("step-inactive").addClass("step-active");
             }
         }
     }
@@ -392,6 +471,11 @@
     $("#phoneUser1").on('keyup', function(e) {
         var number1 = phoneInput1.getNumber();
         $("#phone1").val(number1);
+    });
+
+    $("#phoneUser2").on('keyup', function(e) {
+        var number2 = phoneInput2.getNumber();
+        $("#phone2").val(number2);
     });
 </script>
 
