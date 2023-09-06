@@ -311,7 +311,7 @@ class UserRepository implements UserRepositoryInterface
     {
         for ($i = 0; $i < count($userRoleDetails['listRoles']); $i++) {
             $ext_id_with_label = null;
-            if ($userRoleDetails['listRoles'][$i] == "mentor") {
+            if ($userRoleDetails['listRoles'][$i] == "Mentor") {
                 # generate secondary extended_id 
                 $last_id = UserRole::max('extended_id');
                 $ext_id_without_label = $this->remove_primarykey_label($last_id, 3);
