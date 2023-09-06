@@ -29,6 +29,7 @@ use App\Exports\ParentTemplate;
 use App\Http\Controllers\Module\ClientController;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Imports\MasterParentImport;
+use App\Imports\ParentImport;
 use App\Interfaces\ClientEventRepositoryInterface;
 
 class ClientParentController extends ClientController
@@ -334,10 +335,8 @@ class ClientParentController extends ClientController
 
         $file = $request->file('file');
 
-        $import = new MasterParentImport();
-        $import->onlySheets('Parent');
-        // $import->import($file);
-        Excel::import($import, $file);
+        $import = new ParentImport();
+        $import->import($file);
 
         return back()->withSuccess('Parent successfully imported');
     }

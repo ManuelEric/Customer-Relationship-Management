@@ -701,10 +701,8 @@ class ClientStudentController extends ClientController
 
         $file = $request->file('file');
 
-        $import = new MasterStudentImport();
-        $import->onlySheets('Student');
-        // $import->import($file);
-        Excel::import($import, $file);
+        $import = new StudentImport();
+        $import->import($file);
 
         return back()->withSuccess('Student successfully imported');
     }
