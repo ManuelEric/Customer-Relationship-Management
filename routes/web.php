@@ -56,6 +56,7 @@ Route::post('form/events', [ClientEventController::class, 'storeFormEmbed']);
 Route::get('form/event/{event_slug}/client/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
 
 Route::get('form/program', [ClientProgramController::class, 'createFormEmbed']);
+Route::post('form/program', [ClientProgramController::class, 'storeFormEmbed']);
 
 Route::get('form/registration', [PublicRegistrationController::class, 'register']);
 Route::post('form/registrations', [PublicRegistrationController::class, 'store'])->name('submit.registration');
