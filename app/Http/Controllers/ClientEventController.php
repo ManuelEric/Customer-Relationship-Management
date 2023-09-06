@@ -652,6 +652,7 @@ class ClientEventController extends Controller
                     ];
 
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
+                    
                 
                 } else if ($choosen_role == 'student' && $loop == 0) {
 
@@ -665,10 +666,10 @@ class ClientEventController extends Controller
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
 
                 }
-
+                
                 # additional info that should be stored when role is teacher
-                if ($choosen_role == 'teacher/counsellor') {
-
+                if ($choosen_role == 'teacher/counsellor') { 
+                
                     $additionalInfo = [
                         'sch_id' => $schoolId != null ? $schoolId : $request->school,
                     ];
