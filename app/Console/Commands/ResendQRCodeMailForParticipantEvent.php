@@ -43,6 +43,7 @@ class ResendQRCodeMailForParticipantEvent extends Command
      */
     public function handle()
     {
+        Log::info('Cron for resend qr code mail - form event works fine');
         $unsend_qrcode = $this->clientEventLogMailRepository->getClientEventLogMail('qrcode-mail');
         $progressBar = $this->output->createProgressBar($unsend_qrcode->count());
         $progressBar->start();
@@ -77,6 +78,7 @@ class ResendQRCodeMailForParticipantEvent extends Command
 
             } catch (Exception $e) {
                 
+                DB::rollBack();
                 Log::error('Failed to send mail QrCode for : '.$client->full_name.' on the event : '.$eventName.' | Error '.$e->getMessage().' Line '.$e->getLine());
                 $sent_mail = 0;
                 
@@ -87,7 +89,16 @@ class ResendQRCodeMailForParticipantEvent extends Command
                 'sent_status' => $sent_mail
             ];
             
-            $this->clientEventLogMailRepository->updateClientEventLogMail($logId, $logDetails);
+            try {
+
+                $this->clientEventLogMailRepository->updateClientEventLogMail($logId, $logDetails);
+                DB::commit();
+
+            } catch (Exception $e) {
+
+                DB::rollBack();
+                Log::error('Failed to update client event log mail for Id : '.$logId. ' | Error '. $e->getMessage().' Line '.$e->getLine());
+            }
         }
 
 
