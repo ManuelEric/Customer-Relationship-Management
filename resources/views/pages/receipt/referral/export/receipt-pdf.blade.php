@@ -207,7 +207,7 @@
                     <td width="40%" align="center" valign="top">
                         {{-- PT. Jawara Edukasih Indonesia --}}
                         Jakarta, {{ isset($receiptRef->receipt_date) ? date('d F Y', strtotime($receiptRef->receipt_date)) : date('d F Y', strtotime($receiptRef->created_at)) }}
-                        <br><br><br><br><br><br>
+                        <br><br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director
                     </td>
