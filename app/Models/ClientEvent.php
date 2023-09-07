@@ -21,6 +21,7 @@ class ClientEvent extends Model
     protected $fillable = [
         'client_id',
         'child_id',
+        'parent_id',
         'event_id',
         'eduf_id',
         'lead_id',
@@ -58,6 +59,11 @@ class ClientEvent extends Model
     public function children()
     {
         return $this->belongsTo(Client::class, 'child_id', 'id');
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Client::class, 'parent_id', 'id');
     }
 
     public function edufLead()

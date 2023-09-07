@@ -68,6 +68,8 @@ Route::resource('event', ClientEventController::class, [
 ]);
 
 Route::post('event/import', [ClientEventController::class, 'import'])->name('program.event.import');
+Route::post('event/{type}/import', [ClientEventController::class, 'mailing'])->name('program.event.mailing');
+Route::get('event/reg-exp/{client}/{event}', [ClientEventController::class, 'registerExpress'])->name('program.event.register-express')->withoutMiddleware(['auth', 'auth.department']);
 
 
 Route::get('corporate', [PartnerProgramController::class, 'index'])->name('program.corporate.index');
