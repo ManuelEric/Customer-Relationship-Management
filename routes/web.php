@@ -79,3 +79,7 @@ Route::get('mailing', function() {
 Route::get('your-qrcode', function() {
     return view('scan-qrcode.qrcode');
 });
+
+Route::get('referral', function() {
+    return view('referral-link.index');
+});
