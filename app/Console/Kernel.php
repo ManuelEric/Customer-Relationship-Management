@@ -72,6 +72,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:reminder_invoicereferral_program')->everyFiveMinutes();
 
         $schedule->command('send:reminder_followup')->daily(); # daily needed!
+        
         // $schedule->command('send:reminder_expiration_contracts_probation')->daily(); # daily needed!
         // $schedule->command('send:reminder_expiration_contracts_tutor')->daily(); # daily needed!
         // $schedule->command('send:reminder_expiration_contracts_editor')->daily(); # daily needed!
@@ -91,6 +92,9 @@ class Kernel extends ConsoleKernel
         # cron for target tracking
         $schedule->command('insert:target_tracking_monthly')->monthly(); # should be run on cron every new month
         $schedule->command('update:target_tracking')->everyMinute(); # run every minute because target tracking should be real-time update
+
+        # cron for form event
+        $schedule->command('automate:resend_qrcode_mail')->everyMinute();
     }
 
     /**

@@ -43,7 +43,7 @@ class ResendQRCodeMailForParticipantEvent extends Command
      */
     public function handle()
     {
-        $unsend_qrcode = $this->clientEventLogMailRepository->getClientEventLogMail();
+        $unsend_qrcode = $this->clientEventLogMailRepository->getClientEventLogMail('qrcode-mail');
         $progressBar = $this->output->createProgressBar($unsend_qrcode->count());
         $progressBar->start();
         DB::beginTransaction();
