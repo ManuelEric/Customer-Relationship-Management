@@ -11,10 +11,13 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use AshAllenDesign\ShortURL\Facades\ShortURL;
 
 trait MailingEventOfflineTrait
 {
-
+    use CreateReferralCodeTrait;
+    use CreateShortUrlTrait;
+    
     public function register($email, $event_id, $notes)
     {
         $data = [
@@ -40,23 +43,6 @@ trait MailingEventOfflineTrait
                 'notes' => $notes,
                 'joined_date' => Carbon::now(),
             ];
-
-            // $data['email'] = $client->mail;
-            // $data['client'] = [
-            //     'name' => $client->full_name
-            // ];
-            // $data['title'] = "Invitation For STEM+ Wonderlab";
-            // $data['notes'] = $notes;
-            // $data['referral_link'] = url('form/event?event_name='.urlencode($event->event_name).'&form_type=cta&event_type=offline&ref='. substr($client->fist_name,0,3) . $client->id); 
-            // $data['event'] = [
-            //     'eventName' => $event->event_title,
-            //     'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
-            //     'eventDate_start' => date('M d, Y', strtotime($event->event_startdate)),
-            //     'eventDate_end' => date('M d, Y', strtotime($event->event_enddate)),
-            //     'eventTime_start' => date('H:i', strtotime($event->event_startdate)),
-            //     'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
-            //     'eventLocation' => $event->event_location,
-            // ];
             
             $data['success'] = true;
             $data['already_join'] = true;
@@ -97,6 +83,7 @@ trait MailingEventOfflineTrait
     {
         $client = $clientEvent->client;
         $event = $clientEvent->event;
+        $referralCode = $this->createReferralCode($client->first_name, $client->id);
 
         $data['email'] = $client->mail;
         $data['client'] = [
@@ -104,7 +91,9 @@ trait MailingEventOfflineTrait
         ];
         $data['title'] = "Invitation For STEM+ Wonderlab";
         $data['notes'] = $notes;
-        $data['referral_link'] = url('form/event?event_name='.urlencode($event->event_name).'&form_type=cta&event_type=offline&ref='. substr($client->fist_name,0,3) . $client->id); 
+        $data['referral_link'] = $this->createShortUrl(url('form/event?event_name='.urlencode($event->event_title).'&form_type=cta&event_type=offline&ref='. $referralCode), $referralCode);
+                                    
+        // $data['referral_link'] = url('form/event?event_name='.urlencode($event->event_name).'&form_type=cta&event_type=offline&ref='. substr($client->fist_name,0,3) . $client->id); 
         $data['event'] = [
             'eventName' => $event->event_title,
             'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
