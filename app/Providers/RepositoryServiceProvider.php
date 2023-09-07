@@ -15,6 +15,7 @@ use App\Interfaces\ClientLeadRepositoryInterface;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
 use App\Interfaces\ClientLeadTrackingRepositoryInterface;
+use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\CorporatePartnerEventRepositoryInterface;
 use App\Interfaces\CorporatePicRepositoryInterface;
 use App\Interfaces\CorporateRepositoryInterface;
@@ -89,6 +90,7 @@ use App\Repositories\ClientLeadRepository;
 use App\Repositories\ClientProgramRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientLeadTrackingRepository;
+use App\Repositories\ClientProgramLogMailRepository;
 use App\Repositories\CorporatePartnerEventRepository;
 use App\Repositories\CorporatePicRepository;
 use App\Repositories\CorporateRepository;
@@ -225,6 +227,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(SeasonalProgramRepositoryInterface::class, SeasonalProgramRepository::class);
         $this->app->bind(ClientLeadRepositoryInterface::class, ClientLeadRepository::class);
         $this->app->bind(ClientEventLogMailRepositoryInterface::class, ClientEventLogMailRepository::class);
+        $this->app->bind(ClientProgramLogMailRepositoryInterface::class, ClientProgramLogMailRepository::class);
 
         $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, PositionRepository::class);
