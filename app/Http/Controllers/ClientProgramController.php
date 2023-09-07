@@ -760,7 +760,8 @@ class ClientProgramController extends Controller
 
     public function createFormEmbed(Request $request)
     {
-        if ($programName = $request->get('program_name') == null)
+        $programName = $request->get('program_name');
+        if ($programName == null)
             abort('404');
         
         $program = $this->programRepository->getProgramByName($programName);
