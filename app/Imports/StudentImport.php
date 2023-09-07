@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Http\Traits\CheckExistingClientImport;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -24,9 +25,11 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class StudentImport implements ToCollection, WithHeadingRow, WithValidation
+
+class StudentImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets
 {
     /**
      * @param Collection $collection
@@ -34,7 +37,14 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
 
     use Importable;
     use StandardizePhoneNumberTrait;
-    use CreateCustomPrimaryKeyTrait;
+    use CheckExistingClientImport;
+
+    public function sheets(): array
+    {
+        return [
+            0 => $this,
+        ];
+    }
 
     public function collection(Collection $rows)
     {
@@ -61,25 +71,15 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
                     $newSchool = $this->createSchoolIfNotExists($row['school']);
                 }
 
-                $studentFromDB = UserClient::select('id', 'mail', 'phone')->get();
-                $mapStudent = $studentFromDB->map(function ($item, int $key) {
-                    return [
-                        'id' => $item['id'],
-                        'mail' => $item['mail'],
-                        'phone' => $this->setPhoneNumber($item['phone'])
-                    ];
-                });
+                $mail = isset($row['email']) ? $row['email'] : null;
+                $student = $this->checkExistingClientImport($phoneNumber, $mail);
 
-                $student = $mapStudent->where('mail', $row['email'])
-                    ->where('phone', $phoneNumber)
-                    ->first();
-
-                if (!isset($student)) {
+                if (!$student['isExist']) {
                     $studentDetails = [
                         // 'st_id' => $studentId,
                         'first_name' => $studentName != null ? $studentName['firstname'] : ($parentName != null ? $parentName['firstname'] . ' ' . $parentName['lastname'] : null),
                         'last_name' =>  $studentName != null && isset($studentName['lastname']) ? $studentName['lastname'] : ($parentName != null ? 'Child' : null),
-                        'mail' => isset($row['email']) ? $row['email'] : null,
+                        'mail' => $mail,
                         'phone' => $phoneNumber,
                         'dob' => isset($row['date_of_birth']) ? $row['date_of_birth'] : null,
                         'insta' => isset($row['instagram']) ? $row['instagram'] : null,
@@ -134,7 +134,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Import student failed : ' . $e->getMessage());
+            Log::error('Import student failed : ' . $e->getMessage() . $e->getLine());
         }
     }
 
@@ -201,8 +201,8 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation
     public function rules(): array
     {
         return [
-            '*.full_name' => ['nullable'],
-            '*.email' => ['nullable', 'email', 'unique:tbl_client,mail'],
+            '*.full_name' => ['required'],
+            '*.email' => ['required', 'email', 'unique:tbl_client,mail'],
             '*.phone_number' => ['nullable', 'min:10', 'max:15'],
             '*.date_of_birth' => ['nullable', 'date'],
             '*.parents_name' => ['nullable'],
