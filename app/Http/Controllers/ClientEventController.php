@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientEventRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Requests\StoreClientEventEmbedRequest;
+use App\Http\Requests\StoreFormEventEmbedRequest;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\RegisterExpressTrait;
@@ -509,7 +510,7 @@ class ClientEventController extends Controller
     }
 
 
-    public function storeFormEmbed(Request $request)
+    public function storeFormEmbed(StoreFormEventEmbedRequest $request)
     {
         $clientEvent = [];
         $existClientParent = $existClientStudent = $existClientTeacher = ['isExist' => false];
@@ -555,7 +556,7 @@ class ClientEventController extends Controller
 
             # when sch_id is "add-new" 
             // $choosen_school = $request->school;
-            if (!$this->schoolRepository->getSchoolById($request->school)) {
+            if (!$this->schoolRepository->getSchoolById($request->school) && $request->school !== NULL) {
 
                 $last_id = School::max('sch_id');
                 $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';

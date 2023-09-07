@@ -20,6 +20,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Models\Program;
+use App\Models\School;
 use App\Models\UserClient;
 use Exception;
 use Illuminate\Http\Request;
@@ -789,6 +790,24 @@ class ClientProgramController extends Controller
 
         DB::beginTransaction();
         try {
+
+            # when sch_id is "add-new" 
+            // $choosen_school = $request->school;
+            if (!$this->schoolRepository->getSchoolById($request->school) && $request->school !== NULL) {
+
+                $last_id = School::max('sch_id');
+                $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
+                $school_id_with_label = 'SCH-' . $this->add_digit($school_id_without_label + 1, 4);
+
+                $school = [
+                    'sch_id' => $school_id_with_label,
+                    'sch_name' => $request->school,
+                ];
+
+                # create a new school
+                $school = $this->schoolRepository->createSchool($school);
+                $schoolId = $school->sch_id;
+            }
 
             $index = 0;
             while($index < 2) 
