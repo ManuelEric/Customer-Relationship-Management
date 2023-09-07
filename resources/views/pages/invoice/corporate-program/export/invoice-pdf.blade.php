@@ -83,7 +83,11 @@
                                     <td><b>
                                             {{$invoicePartner->partner_prog->corp->corp_name}}
                                         </b><br>
-                                        {{ $invoicePartner->partner_prog->corp->corp_region }}
+                                        @if(isset($invoicePartner->partner_prog->corp->corp_address))
+                                            {{ html_entity_decode(strip_tags($invoicePartner->partner_prog->corp->corp_address)) }}
+                                        @else
+                                            {{ $invoicePartner->partner_prog->corp->corp_region }}
+                                        @endif
                                         <br>
                                     </td>
                                 </tr>
@@ -271,7 +275,7 @@
                     <td width="40%" align="center" valign="top">
                         {{ $companyDetail['name'] }}
                         {{-- Jakarta, {{ date('d F Y') }} --}}
-                        <br><br><br><br><br><br>
+                        <br><br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director
                     </td>
