@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-use App\Http\Traits\RegisterExpressTrait;
+use App\Http\Traits\MailingEventOfflineTrait;
 use App\Models\ClientEventLogMail;
 use App\Models\UserClient;
 use App\Models\UserClientAdditionalInfo;
@@ -28,7 +28,7 @@ class ReminderEventImport implements ToCollection, WithHeadingRow, WithValidatio
     use StandardizePhoneNumberTrait;
     use CreateCustomPrimaryKeyTrait;
     use CheckExistingClient;
-    use RegisterExpressTrait;
+    use MailingEventOfflineTrait;
 
     public function collection(Collection $rows)
     {

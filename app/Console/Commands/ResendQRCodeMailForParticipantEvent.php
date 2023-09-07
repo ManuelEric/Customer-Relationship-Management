@@ -3,8 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\ClientEventController;
+use App\Http\Traits\MailingEventOfflineTrait;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\ClientEventRepositoryInterface;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +19,9 @@ class ResendQRCodeMailForParticipantEvent extends Command
      *
      * @var string
      */
+
+    use MailingEventOfflineTrait;
+
     protected $signature = 'automate:resend_qrcode_mail';
 
     /**
@@ -44,6 +49,8 @@ class ResendQRCodeMailForParticipantEvent extends Command
     public function handle()
     {
         $unsend_qrcode = $this->clientEventLogMailRepository->getClientEventLogMail();
+        $full_name = '';
+        $eventName = '';
         $progressBar = $this->output->createProgressBar($unsend_qrcode->count());
         $progressBar->start();
         DB::beginTransaction();
@@ -53,21 +60,64 @@ class ResendQRCodeMailForParticipantEvent extends Command
             try {
 
                 $logId = $detail->id;
-    
-                $clientEventId = $detail->clientevent_id;
-                $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-                $eventName = $clientEvent->event->event_title;
-                $client = $clientEvent->client;
-    
-                $clientDetails = ['clientDetails' => 
-                    [
-                        'mail' => $client->mail, 
-                        'name' => $client->full_name
-                    ]
-                ];
+                $category = $detail->category;
+
                 
-    
-                $con = app('App\Http\Controllers\ClientEventController')->sendMailQrCode($clientEventId, $eventName, $clientDetails, true);
+                switch ($category) {
+                    case 'qrcode-mail':
+
+                        $clientEventId = $detail->clientevent_id;
+                        $clientEvent = $this->clientEventRepository->getClientEventById($detail->clientEvent->clientEventId);
+                        $eventName = $clientEvent->event->event_title;
+                        $client = $clientEvent->client;
+                        $full_name = $client->full_name;
+
+                        if($clientEvent->event->event_enddate > Carbon::now()){
+                            $clientDetails = ['clientDetails' => 
+                                [
+                                    'mail' => $client->mail, 
+                                    'name' => $client->full_name
+                                ]
+                            ];
+                            
+                            $con = app('App\Http\Controllers\ClientEventController')->sendMailQrCode($clientEventId, $eventName, $clientDetails, true);
+                        }
+                        break;
+
+                    case 'thanks-mail-referral':
+                        $clientEventId = $detail->clientevent_id;
+                        $eventName = $detail->clientEvent->event->event_title;
+
+                        $this->sendMailReferral($detail->clientEvent, 'VVIP', 'automate');
+                        break;
+
+                    case 'qrcode-mail-referral':
+                        $clientEventId = $detail->clientevent_id;
+                        $eventName = $detail->clientEvent->event->event_title;
+
+                        $this->sendMailReferral($detail->clientEvent, 'VIP', 'automate');
+                        break;
+                    
+                    case 'invitation-mail':
+                        $full_name = $detail->client->full_name;
+                        $eventName = $detail->event->event_title;
+                        
+                        $data = [
+                            'email' => $detail->client->mail,
+                            'recipient' => $full_name,
+                            'title' => 'Invitation For STEM+ Wonderlab',
+                            'param' => [
+                                'link' => 'program/event/reg-exp/' . $detail->client->id . '/' . $detail->event->event_id,
+                            ]
+                        ];
+
+
+                        if($detail->event->event_enddate > Carbon::now()){
+                            $this->sendMailInvitation($data, $detail->client, 'automate');
+                        }
+                        break;
+                }
+                    
 
                 $progressBar->advance();
         
@@ -77,15 +127,12 @@ class ResendQRCodeMailForParticipantEvent extends Command
 
             } catch (Exception $e) {
                 
-                Log::error('Failed to send mail QrCode for : '.$client->full_name.' on the event : '.$eventName.' | Error '.$e->getMessage().' Line '.$e->getLine());
+                Log::error('Failed to send mail QrCode for : '.$full_name.' on the event : '.$eventName.' | Error '.$e->getMessage().' Line '.$e->getLine());
                 $sent_mail = 0;
                 
             }
 
-            $logDetails = [
-                'clientevent_id' => $clientEventId,
-                'sent_status' => $sent_mail
-            ];
+            $logDetails['sent_status'] = $sent_mail;
             
             $this->clientEventLogMailRepository->updateClientEventLogMail($logId, $logDetails);
         }

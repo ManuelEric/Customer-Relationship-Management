@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-use App\Http\Traits\RegisterExpressTrait;
+use App\Http\Traits\MailingEventOfflineTrait;
 use App\Models\ClientEventLogMail;
 use App\Models\UserClient;
 use App\Models\UserClientAdditionalInfo;
@@ -28,7 +28,7 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
     use StandardizePhoneNumberTrait;
     use CreateCustomPrimaryKeyTrait;
     use CheckExistingClient;
-    use RegisterExpressTrait;
+    use MailingEventOfflineTrait;
 
     public function collection(Collection $rows)
     {
@@ -38,34 +38,37 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
                 $client = UserClient::where('mail', $row['email'])->first();
 
                 $data['email'] = $row['email'];
+                $data['event_id'] = $row['event_id'];
                 $data['recipient'] = $row['full_name'];
                 $data['title'] = "Invitation For STEM+ Wonderlab";
                 $data['param'] = [
                     'link' => 'program/event/reg-exp/' . $client['id'] . '/' . $row['event_id']
                 ];
 
-                try {
+                $this->sendMailInvitation($data, $client, 'first-send');
 
-                    Mail::send('mail-template.invitation-email', $data, function ($message) use ($data) {
-                        $message->to($data['email'], $data['recipient'])
-                            ->subject($data['title']);
-                    });
-                    $sent_mail = 1;
-        
-                } catch (Exception $e) {
-        
-                    $sent_mail = 0;
-                    Log::info('Failed to send invitation mail : ' . $e->getMessage());
-        
-                }
+                // try {
 
-                $logDetails = [
-                    'client_id' => $client['id'],
-                    'sent_status' => $sent_mail,
-                    'category' => 'invitation-mail'
-                ];
+                //     Mail::send('mail-template.invitation-email', $data, function ($message) use ($data) {
+                //         $message->to($data['email'], $data['recipient'])
+                //             ->subject($data['title']);
+                //     });
+                //     $sent_mail = 1;
         
-                ClientEventLogMail::create($logDetails);
+                // } catch (Exception $e) {
+        
+                //     $sent_mail = 0;
+                //     Log::info('Failed to send invitation mail : ' . $e->getMessage());
+        
+                // }
+
+                // $logDetails = [
+                //     'client_id' => $client['id'],
+                //     'sent_status' => $sent_mail,
+                //     'category' => 'invitation-mail'
+                // ];
+        
+                // ClientEventLogMail::create($logDetails);
                
                 }
             }
@@ -90,7 +93,7 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
         return [
             '*.event_id' => ['required'],
             '*.full_name' => ['required'],
-            '*.email' => ['required'],
+            '*.email' => ['required', 'exists:tbl_client,mail'],
         ];
     }
 

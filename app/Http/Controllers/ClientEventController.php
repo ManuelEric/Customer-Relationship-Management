@@ -8,7 +8,7 @@ use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Requests\StoreClientEventEmbedRequest;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-use App\Http\Traits\RegisterExpressTrait;
+use App\Http\Traits\MailingEventOfflineTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
 use App\Imports\InvitaionMailImport;
@@ -44,7 +44,7 @@ class ClientEventController extends Controller
     use CheckExistingClient;
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
-    use RegisterExpressTrait;
+    use MailingEventOfflineTrait;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
