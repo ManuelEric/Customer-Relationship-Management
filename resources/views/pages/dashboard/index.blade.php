@@ -77,7 +77,7 @@
                 <h1><i class="bi bi-currency-dollar me-2 opacity-50"></i></h1>
             </div>
         </div>
-        {{-- @include('pages.dashboard.finance.index') --}}
+        @include('pages.dashboard.finance.index')
     @endif
 
 
@@ -117,8 +117,6 @@
             // }
             url.searchParams.append('u', user)
             url.searchParams.append('query_month', use_filter_by_month);
-
-            console.log(url)
 
             axios.get(url)
                 .then(function(response) {
