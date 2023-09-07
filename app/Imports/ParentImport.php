@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Http\Traits\CheckExistingClientImport;
 use App\Models\Lead;
 use App\Models\UserClient;
 use Exception;
@@ -19,9 +20,10 @@ use App\Models\Event;
 use App\Models\Program;
 use App\Models\Role;
 use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class ParentImport implements ToCollection, WithHeadingRow, WithValidation
+class ParentImport implements ToCollection, WithHeadingRow, WithValidation, WithMultipleSheets
 {
     /**
      * @param Collection $collection
@@ -30,6 +32,14 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
     use Importable;
     use StandardizePhoneNumberTrait;
     use CreateCustomPrimaryKeyTrait;
+    use CheckExistingClientImport;
+
+    public function sheets(): array
+    {
+        return [
+            0 => $this,
+        ];
+    }
 
     public function collection(Collection $rows)
     {
@@ -45,21 +55,10 @@ class ParentImport implements ToCollection, WithHeadingRow, WithValidation
                 $phoneNumber = $this->setPhoneNumber($row['phone_number']);
 
                 $parentName = $this->explodeName($row['full_name']);
+                
+                $parent = $this->checkExistingClientImport($phoneNumber, $row['email']);
 
-                $parentFromDB = UserClient::select('id', 'mail', 'phone')->get();
-                $mapParent = $parentFromDB->map(function ($item, int $key) {
-                    return [
-                        'id' => $item['id'],
-                        'mail' => $item['mail'],
-                        'phone' => $this->setPhoneNumber($item['phone'])
-                    ];
-                });
-
-                $parent = $mapParent->where('mail', $row['email'])
-                    ->where('phone', $phoneNumber)
-                    ->first();
-
-                if (!isset($parent)) {
+                if (!$parent['isExist']) {
                     $parentDetails = [
                         'first_name' => $parentName['firstname'],
                         'last_name' => isset($parentName['lastname']) ? $parentName['lastname'] : null,

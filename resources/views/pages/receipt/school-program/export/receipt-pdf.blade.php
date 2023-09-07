@@ -90,7 +90,11 @@
                                 <td>
                                     {{ $invoiceSch->sch_prog->school->sch_name }}
                                     <br>
-                                    {{ $invoiceSch->sch_prog->school->sch_city }}
+                                    @if(isset($invoiceSch->sch_prog->school->sch_location))
+                                        {{ html_entity_decode(strip_tags($invoiceSch->sch_prog->school->sch_location)) }}
+                                    @else
+                                        {{ $invoiceSch->sch_prog->school->sch_city }}
+                                    @endif
                                 </td>
                             </tr>
                         </table>
@@ -261,7 +265,7 @@
                     <td width="40%" align="center" valign="top">
                         {{-- PT. Jawara Edukasih Indonesia --}}
                         Jakarta, {{ isset($receiptSch->receipt_date) ? date('d F Y', strtotime($receiptSch->receipt_date)) : date('d F Y', strtotime($receiptSch->created_at)) }}
-                        <br><br><br><br><br><br>
+                        <br><br><br><br><br><br><br>
                         Nicholas Hendra Soepriatna <br>
                         Director
                     </td>

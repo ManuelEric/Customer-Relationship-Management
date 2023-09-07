@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Http\Traits\CheckExistingClientImport;
 use App\Models\Lead;
 use App\Models\UserClient;
 use Exception;
@@ -30,6 +31,7 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
     use Importable;
     use StandardizePhoneNumberTrait;
     use CreateCustomPrimaryKeyTrait;
+    use CheckExistingClientImport;
 
     public function collection(Collection $rows)
     {
@@ -50,20 +52,9 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
                     $newSchool = $this->createSchoolIfNotExists($row['school']);
                 }
 
-                $teacherFromDB = UserClient::select('id', 'mail', 'phone')->get();
-                $mapTeacher = $teacherFromDB->map(function ($item, int $key) {
-                    return [
-                        'id' => $item['id'],
-                        'mail' => $item['mail'],
-                        'phone' => $this->setPhoneNumber($item['phone'])
-                    ];
-                });
+                $teacher = $this->checkExistingClientImport($phoneNumber, $row['email']);
 
-                $teacher = $mapTeacher->where('mail', $row['email'])
-                    ->where('phone', $phoneNumber)
-                    ->first();
-
-                if (!isset($teacher)) {
+                if (!$teacher['isExist']) {
                     $teacherDetails = [
                         'first_name' => $teacherName['firstname'],
                         'last_name' => isset($teacherName['lastname']) ? $teacherName['lastname'] : null,
