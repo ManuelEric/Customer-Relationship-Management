@@ -100,7 +100,7 @@
                 </div>
             @endif
 
-            <form action="{{ url('form/program') }}" method="POST">
+            <form action="{{ url('form/program') }}" method="POST" onsubmit="showLoading()">
                 @csrf
 
                 @if (isset($program))
@@ -298,7 +298,9 @@
                                 placeholder="">
                                 <option value=""></option>
                                 @foreach ($tags as $tag)
+                                    @if ($tag->name != 'Other')
                                     <option value="{{ $tag->id }}">{{ $tag->name }}</option>
+                                    @endif
                                 @endforeach
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
@@ -477,6 +479,16 @@
         var number2 = phoneInput2.getNumber();
         $("#phone2").val(number2);
     });
+
+    function showLoading()
+    {
+        Swal.fire({
+            width: 100,
+            backdrop: '#4e4e4e7d',
+            allowOutsideClick: false,
+        })
+        Swal.showLoading();
+    }
 </script>
 
 </html>

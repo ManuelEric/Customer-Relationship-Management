@@ -155,4 +155,9 @@ class ClientProgram extends Model
     {
         return $this->hasMany(AcadTutorDetail::class, 'clientprog_id', 'clientprog_id');
     }
+
+    public function logMail()
+    {
+        return $this->hasMany(ClientProgramLogMail::class, 'clientprog_id', 'clientprog_id');
+    }
 }

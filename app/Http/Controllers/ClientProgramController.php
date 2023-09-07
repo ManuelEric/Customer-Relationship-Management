@@ -17,6 +17,7 @@ use App\Interfaces\ReasonRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Interfaces\SchoolRepositoryInterface;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Interfaces\ClientProgramLogMailRepositoryInterface;
 use App\Interfaces\TagRepositoryInterface;
 use App\Models\Program;
 use App\Models\UserClient;
@@ -26,6 +27,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 
 class ClientProgramController extends Controller
@@ -43,13 +45,14 @@ class ClientProgramController extends Controller
     private ClientEventRepositoryInterface $clientEventRepository;
     private SchoolRepositoryInterface $schoolRepository;
     private TagRepositoryInterface $tagRepository;
+    private ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository;
     private $admission_prog_list;
     private $tutoring_prog_list;
     private $satact_prog_list;
 
     use CreateCustomPrimaryKeyTrait;
 
-    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository)
+    public function __construct(ClientRepositoryInterface $clientRepository, ProgramRepositoryInterface $programRepository, LeadRepositoryInterface $leadRepository, EventRepositoryInterface $eventRepository, EdufLeadRepositoryInterface $edufLeadRepository, UserRepositoryInterface $userRepository, CorporateRepositoryInterface $corporateRepository, ReasonRepositoryInterface $reasonRepository, ClientProgramRepositoryInterface $clientProgramRepository, ClientEventRepositoryInterface $clientEventRepository, SchoolRepositoryInterface $schoolRepository, TagRepositoryInterface $tagRepository, ClientProgramLogMailRepositoryInterface $clientProgramLogMailRepository)
     {
         $this->clientRepository = $clientRepository;
         $this->programRepository = $programRepository;
@@ -63,6 +66,7 @@ class ClientProgramController extends Controller
         $this->clientEventRepository = $clientEventRepository;
         $this->schoolRepository = $schoolRepository;
         $this->tagRepository = $tagRepository;
+        $this->clientProgramLogMailRepository = $clientProgramLogMailRepository;
 
         $this->admission_prog_list = Program::whereHas('main_prog', function ($query) {
             $query->where('prog_name', 'Admissions Mentoring');
@@ -901,8 +905,15 @@ class ClientProgramController extends Controller
                 'first_discuss_date' => Carbon::now(),
                 'status' => 0,
             ];
+            
             # store to client program
-            $this->clientProgramRepository->createClientProgram($clientProgramDetails);
+            if ($storedClientProgram = $this->clientProgramRepository->createClientProgram($clientProgramDetails))
+            {
+
+                # send thanks mail
+                $this->sendMailThanks($storedClientProgram, $parentId, $childId);
+            }
+
             DB::commit();
         
         } catch (Exception $e) {
@@ -915,4 +926,53 @@ class ClientProgramController extends Controller
 
         return Redirect::to('form/thanks');
     }    
+
+    public function sendMailThanks($clientProgram, $parentId, $childId, $update = false)
+    {
+        $subject = 'Your registration is confirmed';
+        $mail_resources = 'mail-template.thanks-email-program';
+
+        $parent = $this->clientRepository->getClientById($parentId);
+        $children = $this->clientRepository->getClientById($childId);
+        
+        $recipientDetails = [
+            'name' => $parent->full_name,  
+            'mail' => $parent->mail,
+            'children_details' => [
+                'name' => $children->full_name
+            ]
+        ];
+        
+        $program = [
+            'name' => $clientProgram->program->program_name
+        ];
+
+        try {
+            Mail::send($mail_resources, ['client' => $recipientDetails, 'program' => $program], function ($message) use ($subject, $recipientDetails) {
+                $message->to($recipientDetails['mail'], $recipientDetails['name'])
+                    ->subject($subject);
+            });
+            $sent_mail = 1;
+            
+        } catch (Exception $e) {
+            
+            $sent_mail = 0;
+            Log::error('Failed send email thanks to client that register using form program | error : '.$e->getMessage().' | Line '.$e->getLine());
+
+        }
+
+        # if update is true 
+        # meaning that this function being called from scheduler
+        # that updating the client event log mail, so the system no longer have to create the client event log mail
+        if ($update === true) {
+            return true;    
+        }
+
+        $logDetails = [
+            'clientprog_id' => $clientProgram->clientprog_id,
+            'sent_status' => $sent_mail
+        ];
+
+        return $this->clientProgramLogMailRepository->createClientProgramLogMail($logDetails);
+    }
 }
