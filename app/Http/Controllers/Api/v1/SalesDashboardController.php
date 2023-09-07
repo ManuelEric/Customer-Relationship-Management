@@ -786,7 +786,7 @@ class SalesDashboardController extends Controller
 
     public function getConversionLeadByMonth(Request $request)
     {
-        $dataset_leadsource_labels = $dataset_leadsource = $dataset_conversionlead_labels = $dataset_conversionlead = [];
+        $dataset_leadsource_labels = $dataset_leadsource = $dataset_leadsource_bgcolor = $dataset_conversionlead_labels = $dataset_conversionlead = $dataset_conversionlead_bgcolor = [];
         $cp_filter['qdate'] = $request->route('month');
         $cp_filter['quuid'] = $request->route('user') ?? null;
 

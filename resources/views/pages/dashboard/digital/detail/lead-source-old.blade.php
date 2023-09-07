@@ -135,32 +135,32 @@
 </div>
 
 <script>
-    const digitalLeadSource = document.getElementById('digitalLeadSource');
-    const theadLead = "<th>No</th>" +
-                    "<th>Full Name</th>" +
-                    "<th>Parents Name</th>" +
-                    "<th>School Name</th>" +
-                    "<th>Graduation Year</th>" +
-                    "<th>Lead Source</th>";
+    // const digitalLeadSource = document.getElementById('digitalLeadSource');
+    // const theadLead = "<th>No</th>" +
+    //                 "<th>Full Name</th>" +
+    //                 "<th>Parents Name</th>" +
+    //                 "<th>School Name</th>" +
+    //                 "<th>Graduation Year</th>" +
+    //                 "<th>Lead Source</th>";
 
-    new Chart(digitalLeadSource, {
-        type: 'bar',
-        data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-            datasets: [{
-                label: '# of Votes',
-                data: [12, 19, 3, 5, 2, 3],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+    // new Chart(digitalLeadSource, {
+    //     type: 'bar',
+    //     data: {
+    //         labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+    //         datasets: [{
+    //             label: '# of Votes',
+    //             data: [12, 19, 3, 5, 2, 3],
+    //             borderWidth: 1
+    //         }]
+    //     },
+    //     options: {
+    //         scales: {
+    //             y: {
+    //                 beginAtZero: true
+    //             }
+    //         }
+    //     }
+    // });
 
     function checkLeadSourceDetail(lead){
         Swal.showLoading()
