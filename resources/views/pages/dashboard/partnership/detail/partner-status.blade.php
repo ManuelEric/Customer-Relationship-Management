@@ -317,19 +317,18 @@
             'university': { 'total': {{$totalUniversity}}, 'new': {{$newUniversity}}, 'percentage': '0,00'},       
             'agreement': { 'total': {{$totalAgreement}}, 'percentage': '0,00'}       
         });
-        Swal.showLoading()
+        showLoading()
 
         // Axios here...
         axios.get('{{ url("api/partner/total/") }}/' + month + '/' + type)
             .then((response) => {
+
                 var result = response.data.data
                 var html = ""
                 var no = 1;
                 var percentage;
                 var old;
                 var news;
-
-                swal.close()
 
                 data.partner.new = result.newPartner
                 data.partner.total = result.totalPartner
@@ -406,17 +405,19 @@
                 $('#tot_school').html(data.school.total + ('<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.school.new + ' New</small></span></sup>'))
                 $('#tot_univ').html(data.university.total + ('<sup><span class="badge bg-primary text-white p-1 px-2 ms-2"><small>' + data.university.new + ' New</small></span></sup>'))
                 $('#tot_agreement').html(data.agreement.total)
-            }, (error) => {
-                console.log(error)
-                swal.close()
-            })
-            
-    
 
+                swal.close();
+                
+            }, (error) => {
+                
+                notification('error', error);
+            })
     }
     
+    $(function() {
 
-    checkPartnerStatusbyMonth()
+        checkPartnerStatusbyMonth()
+    })
 
 
         

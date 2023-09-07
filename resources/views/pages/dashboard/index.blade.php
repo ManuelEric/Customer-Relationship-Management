@@ -77,7 +77,7 @@
                 <h1><i class="bi bi-currency-dollar me-2 opacity-50"></i></h1>
             </div>
         </div>
-        @include('pages.dashboard.finance.index')
+        {{-- @include('pages.dashboard.finance.index') --}}
     @endif
 
 
@@ -225,6 +225,7 @@
             get_career_exp_lead(month, uuid)
             get_all_program(month, uuid)
             get_program_comparison()
+
             // get_client_event(year, uuid)
         }
     </script>

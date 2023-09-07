@@ -254,10 +254,6 @@
         // });
     });
 </script>
-<script>
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-</script>
 <script async type="text/javascript">
     var client_program_status_chart, admission_mentoring_chart, initial_consult_chart, academic_prep_chart,
         career_exploration_chart = null;
