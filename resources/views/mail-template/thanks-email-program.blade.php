@@ -9,7 +9,7 @@
             <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                     <td>
-                        <p>Dear {{ $client['name'] }},</p>
+                        <p>Dear Mr./ Mrs. {{ ucfirst($client['name']) }},</p>
                         <p>
                             I hope this email finds you well.<br>
                             <br>
