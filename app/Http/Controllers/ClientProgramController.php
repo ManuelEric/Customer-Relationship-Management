@@ -924,6 +924,7 @@ class ClientProgramController extends Controller
                 'lead_id' => $leadId,
                 'first_discuss_date' => Carbon::now(),
                 'status' => 0,
+                'registration_type' => 'FE'
             ];
             
             # store to client program

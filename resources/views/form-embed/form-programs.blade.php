@@ -110,7 +110,7 @@
                 <section id="role" class="page step-active">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                        <h2 class="mb-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                        <h2 class="mb-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-center">
                             Let us know you better by filling out this form!
                         </h2>
                         <hr class="my-5">
