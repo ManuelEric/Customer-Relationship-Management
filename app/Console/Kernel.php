@@ -67,9 +67,9 @@ class Kernel extends ConsoleKernel
         // $schedule->command('set:graduation_year')->everyMinute();
 
         $schedule->command('send:reminder_invoiceprogram')->everyFiveMinutes();
-        $schedule->command('send:reminder_invoiceschool_program')->everyFiveMinutes();
-        $schedule->command('send:reminder_invoicepartner_program')->everyFiveMinutes();
-        $schedule->command('send:reminder_invoicereferral_program')->everyFiveMinutes();
+        // $schedule->command('send:reminder_invoiceschool_program')->everyFiveMinutes();
+        // $schedule->command('send:reminder_invoicepartner_program')->everyFiveMinutes();
+        // $schedule->command('send:reminder_invoicereferral_program')->everyFiveMinutes();
 
         $schedule->command('send:reminder_followup')->daily(); # daily needed!
         // $schedule->command('send:reminder_expiration_contracts_probation')->daily(); # daily needed!
