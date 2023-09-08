@@ -28,7 +28,7 @@ class StoreFormProgramEmbedRequest extends FormRequest
             'email.*' => 'required|email',
             'fullnumber.*' => 'required',
             
-            'school' => 'required|exists:tbl_sch,sch_id',
+            'school' => 'required',
             'graduation_year' => 'required',
             'destination_country' => 'required|exists:tbl_tag,id',
             'leadsource' => 'required|exists:tbl_lead,lead_id'
