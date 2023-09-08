@@ -91,7 +91,7 @@ trait MailingEventOfflineTrait
         ];
         $data['title'] = "Invitation For STEM+ Wonderlab";
         $data['notes'] = $notes;
-        $data['referral_link'] = $this->createShortUrl(url('form/event?event_name='.urlencode($event->event_title).'&form_type=cta&event_type=offline&ref='. $referralCode), $referralCode);
+        // $data['referral_link'] = $this->createShortUrl(url('form/event?event_name='.urlencode($event->event_title).'&form_type=cta&event_type=offline&ref='. $referralCode), $referralCode);
                                     
         // $data['referral_link'] = url('form/event?event_name='.urlencode($event->event_name).'&form_type=cta&event_type=offline&ref='. substr($client->fist_name,0,3) . $client->id); 
         $data['event'] = [
@@ -115,9 +115,13 @@ trait MailingEventOfflineTrait
                 
                 case 'VIP':
                     $data['title'] = 'You have Successfully registered STEM+ WONDERLAB';
-                    $data['url'] = route('link-event-attend', [
+                    $data['qr_page'] = route('program.event.qr-page', [
                         'event_slug' => urlencode($event->event_title),
                         'clientevent' => $clientEvent->clientevent_id
+                    ]);
+                    $data['referral_page'] = route('program.event.referral-page', [
+                        'event_slug' => urlencode($event->event_title),
+                        'refcode' => $referralCode
                     ]);
     
                     $isSendMail = Mail::send('mail-template.event-registration-success', $data, function ($message) use ($data) {
@@ -167,14 +171,18 @@ trait MailingEventOfflineTrait
         }
 
         if($for == 'first-send'){
-            $logDetails = [
+            $keyLog = [
                 'client_id' => $client['id'],
                 'event_id' => $data['event_id'],
                 'sent_status' => $sent_mail,
                 'category' => 'invitation-mail'
             ];
+            
+            $valueLog = [
+                'sent_status' => $sent_mail,
+            ];
     
-            ClientEventLogMail::create($logDetails);
+            ClientEventLogMail::updateOrCreate($keyLog, $valueLog);
         }
 
 

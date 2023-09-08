@@ -30,6 +30,7 @@ use App\Interfaces\TagRepositoryInterface;
 use App\Models\Client;
 use App\Models\School;
 use App\Models\UserClientAdditionalInfo;
+use AshAllenDesign\ShortURL\Models\ShortURL;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -808,7 +809,7 @@ class ClientEventController extends Controller
 
         $recipientDetails = $client['clientDetails'];
         
-        $url = route('link-event-attend', [
+        $url = route('program.event.qr-page', [
                         'event_slug' => urlencode($eventName),
                         'clientevent' => $clientEventId
                     ]);
@@ -824,7 +825,7 @@ class ClientEventController extends Controller
         ];
 
         try {
-            Mail::send($mail_resources, ['url' => $url, 'client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
+            Mail::send($mail_resources, ['qr_page' => $url, 'client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
                 $message->to($recipientDetails['mail'], $recipientDetails['name'])
                     ->subject($subject);
             });
@@ -1041,12 +1042,33 @@ class ClientEventController extends Controller
     public function referralPage(Request $request)
     {
         $refcode = $request->route('refcode');
-        $eventId = $request->route('event');
-        $event = $this->eventRepository->getEventById($eventId);
+        $event_slug = $request->route('event_slug');
 
-        $link = $this->createShortUrl(url('form/event?event_name='.urlencode($event->event_title).'&form_type=cta&event_type=offline&ref='. $refcode), $refcode);
+        $shortUrl = ShortURL::where('url_key', $refcode)->first();
+
+        if(isset($shortUrl)){
+            $link = $shortUrl->default_short_url;
+        }else{
+            $link = $this->createShortUrl(url('form/event?event_name='.$event_slug.'&form_type=cta&event_type=offline&ref='. $refcode), $refcode);
+        }
+
         return view('referral-link.index')->with([
             'link' => $link
+        ]);
+    }
+
+    public function qrPage(Request $request)
+    {
+        $event_slug = $request->route('event_slug');
+        $clientEventId = $request->route('clientevent');
+
+        $url =  route('link-event-attend', [
+            'event_slug' => $event_slug,
+            'clientevent' => $clientEventId
+        ]);
+
+        return view('scan-qrcode.qrcode')->with([
+            'url' => $url
         ]);
     }
 }

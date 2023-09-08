@@ -15,6 +15,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\CreateReferralCodeTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
 use App\Models\ClientEventLogMail;
+use App\Models\Event;
 use App\Models\UserClient;
 use App\Models\UserClientAdditionalInfo;
 use Illuminate\Support\Facades\Mail;
@@ -38,15 +39,18 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
             foreach ($rows as $row) {
                 
                 $client = UserClient::where('mail', $row['email'])->first();
+                $event = Event::where('event_id', $row['event_id'])->first();
 
                 $data['email'] = $row['email'];
                 $data['event_id'] = $row['event_id'];
                 $data['recipient'] = $row['full_name'];
                 $data['title'] = "Invitation For STEM+ Wonderlab";
                 $data['param'] = [
-                    'refcode' => $this->createReferralCode($client->first_name, $client->id),
-                    'event' => $row['event_id'],
-                    // 'link' => 'program/event/reg-exp/' . $client['id'] . '/' . $row['event_id']
+                    'referral_page' => route('program.event.referral-page',[
+                        'event_slug' => urlencode($event->event_title),
+                        'refcode' => $this->createReferralCode($client->first_name, $client->id)
+                    ]),                  
+                    'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $row['event_id'])
                 ];
 
                 $this->sendMailInvitation($data, $client, 'first-send');

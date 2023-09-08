@@ -9,6 +9,7 @@
     <section>
         <div class="container-fluid mt-3">
             <div class="row align-items-center justify-content-center" style="height:95vh;">
+                
                 <div class="col-md-3">
                     <div class="card shadow mb-3" style="background: #233469;">
                         <div class="card-body">
@@ -19,7 +20,7 @@
                                             <img src="{{asset('img/favicon.png')}}" alt="" class="w-100" >
                                         </div>
                                     </div>
-                                    {!! QrCode::size(200)->generate('https://all-inedu.com') !!}
+                                    {!! QrCode::size(200)->generate($url) !!}
                                 </div>
                             </div>
                             <div class="text-center mt-3">

@@ -19,10 +19,15 @@
                 <div class="col-md-4 px-5">
                     <div class="card" style="background: #233469;">
                         <div class="card-body">
-                            <textarea name="" id="bar" class="form-control" rows="15">  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fuga itaque voluptas cum ratione ab, quidem laboriosam nulla praesentium atque expedita aut, eius corrupti explicabo vitae repellat deleniti nemo eaque ea. 
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit voluptatum est deleniti, neque, fugit, ipsam quibusdam laborum fugiat illo rem dolores modi iure quae inventore! Nobis impedit corrupti ducimus officiis.
+                            <textarea name="" id="bar" class="form-control" rows="15">"Hi! I'm inviting you & your family to <b>[EVENT NAME]</b>, Indonesia's FIRST Student Makerspace Expo where our children can dive into <b>advanced tools, connect</b> with fellow innovators, collaborate on cool projects, and make a real impact on global issues!
+                                📍[location]
+                                [date]
+As my invited guest, enjoy VIP privileges, such as
+ - Priority access via the dedicated VIP lane and fast-track entry for your child to explore event booths.
+ - Exclusive merchandise courtesy of ALL-in.
+ - Exclusive access to a range of special promotions and premium products.
 
-{{$link}}
+Come with me to the event by clicking this link: {{$link}} See you there!
                             </textarea>
                         </div>
                     </div>
