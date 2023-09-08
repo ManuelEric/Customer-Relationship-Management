@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\CreateReferralCodeTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
 use App\Models\ClientEventLogMail;
 use App\Models\UserClient;
@@ -29,6 +30,7 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
     use CreateCustomPrimaryKeyTrait;
     use CheckExistingClient;
     use MailingEventOfflineTrait;
+    use CreateReferralCodeTrait;
 
     public function collection(Collection $rows)
     {
@@ -42,33 +44,12 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
                 $data['recipient'] = $row['full_name'];
                 $data['title'] = "Invitation For STEM+ Wonderlab";
                 $data['param'] = [
-                    'link' => 'program/event/reg-exp/' . $client['id'] . '/' . $row['event_id']
+                    'refcode' => $this->createReferralCode($client->first_name, $client->id),
+                    'event' => $row['event_id'],
+                    // 'link' => 'program/event/reg-exp/' . $client['id'] . '/' . $row['event_id']
                 ];
 
                 $this->sendMailInvitation($data, $client, 'first-send');
-
-                // try {
-
-                //     Mail::send('mail-template.invitation-email', $data, function ($message) use ($data) {
-                //         $message->to($data['email'], $data['recipient'])
-                //             ->subject($data['title']);
-                //     });
-                //     $sent_mail = 1;
-        
-                // } catch (Exception $e) {
-        
-                //     $sent_mail = 0;
-                //     Log::info('Failed to send invitation mail : ' . $e->getMessage());
-        
-                // }
-
-                // $logDetails = [
-                //     'client_id' => $client['id'],
-                //     'sent_status' => $sent_mail,
-                //     'category' => 'invitation-mail'
-                // ];
-        
-                // ClientEventLogMail::create($logDetails);
                
                 }
             }

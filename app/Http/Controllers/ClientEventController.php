@@ -1037,4 +1037,16 @@ class ClientEventController extends Controller
         
 
     }
+
+    public function referralPage(Request $request)
+    {
+        $refcode = $request->route('refcode');
+        $eventId = $request->route('event');
+        $event = $this->eventRepository->getEventById($eventId);
+
+        $link = $this->createShortUrl(url('form/event?event_name='.urlencode($event->event_title).'&form_type=cta&event_type=offline&ref='. $refcode), $refcode);
+        return view('referral-link.index')->with([
+            'link' => $link
+        ]);
+    }
 }
