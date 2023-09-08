@@ -6,10 +6,16 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreClientEventRequest;
 use App\Http\Requests\StoreImportExcelRequest;
 use App\Http\Requests\StoreClientEventEmbedRequest;
+use App\Http\Requests\StoreFormEventEmbedRequest;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
+use App\Http\Traits\RegisterExpressTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
+use App\Imports\InvitaionMailImport;
+use App\Imports\InvitationMailImport;
+use App\Imports\ThankMailImport;
+use App\Imports\ReminderEventImport;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -39,6 +45,7 @@ class ClientEventController extends Controller
     use CheckExistingClient;
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
+    use RegisterExpressTrait;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -452,6 +459,32 @@ class ClientEventController extends Controller
         return back()->withSuccess('Client event successfully imported');
     }
 
+    public function mailing(StoreImportExcelRequest $request)
+    {
+
+        $type = $request->route('type');
+        $file = $request->file('file');
+
+        $import = '';
+        switch ($type) {
+            case 'VVIP':
+                $import = new ThankMailImport;
+                break;
+
+            case 'VIP':
+                $import = new InvitationMailImport;
+                break;
+
+            case 'reminder_1':
+                $import = new ReminderEventImport;
+                break;
+            
+        }
+        $import->import($file);
+
+        return back()->withSuccess('Successfully send mail');
+    }
+
     public function createFormEmbed(Request $request)
     {        
         if ($request->get('event_name') == null) {
@@ -477,7 +510,7 @@ class ClientEventController extends Controller
     }
 
 
-    public function storeFormEmbed(Request $request)
+    public function storeFormEmbed(StoreFormEventEmbedRequest $request)
     {
         $clientEvent = [];
         $existClientParent = $existClientStudent = $existClientTeacher = ['isExist' => false];
@@ -523,7 +556,7 @@ class ClientEventController extends Controller
 
             # when sch_id is "add-new" 
             // $choosen_school = $request->school;
-            if (!$this->schoolRepository->getSchoolById($request->school)) {
+            if (!$this->schoolRepository->getSchoolById($request->school) && $request->school !== NULL) {
 
                 $last_id = School::max('sch_id');
                 $school_id_without_label = $last_id ? $this->remove_primarykey_label($last_id, 4) : '0000';
@@ -553,6 +586,12 @@ class ClientEventController extends Controller
                 'status' => $attend_status,
                 'joined_date' => Carbon::now(),
             ];
+
+            if ($choosen_role == "parent")
+                $clientEventDetails['child_id'] = $createdClient['childId'];
+
+            if ($choosen_role == "student")
+                $clientEventDetails['parent_id'] = $createdClient['parentId'];
 
             # if registration_type is exist 
             # add the registration_type into the clientEventDetails that will be stored
@@ -728,8 +767,14 @@ class ClientEventController extends Controller
         $response = [
             'clientId' => $newClientDetails[0]['id'],
             'clientName' => $newClientDetails[0]['name'],
-            'clientMail' => $newClientDetails[0]['email']
+            'clientMail' => $newClientDetails[0]['email'],
         ];
+
+        if ($choosen_role == "parent")
+            $response['childId'] = $childId;
+
+        if ($choosen_role == "student")
+            $response['parentId'] = $parentId;
 
         # attaching parent and student
         if ($choosen_role == 'parent' || $choosen_role == 'student') {
@@ -854,20 +899,95 @@ class ClientEventController extends Controller
         return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
     }
 
-    public function handlerScanQrCodeForAttend(Request $request)
+    public function previewClientInformation(Request $request) 
     {
-        # get request
-        $event = $request->event;
         $clientEventId = $request->clientevent;
 
         $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-        $clientFullname = $clientEvent->client->full_name;
+        $client = $clientEvent->client;
+        $clientFullname = $client->full_name;
         $eventName = $clientEvent->event->event_title;
+
+        $secondaryClientInfo = $responseAdditionalInfo = array();
+        switch ($client->register_as) { # this is a choosen role
+
+            case "parent":
+                $secondaryClientInfo = $clientEvent->children;
+                $responseAdditionalInfo = [
+                    'school' => $secondaryClientInfo->school->sch_name,
+                    'graduation_year' => $secondaryClientInfo->graduation_year,
+                    'abr_country' => str_replace(',', ', ', $secondaryClientInfo->abr_country)
+                ];
+                break;
+
+            case "student":
+                $secondaryClientInfo = $clientEvent->parent;
+                $responseAdditionalInfo = [
+                    'school' => $client->school->sch_name,
+                    'graduation_year' => $client->graduation_year,
+                    'abr_country' => str_replace(',', ', ', $client->abr_country)
+                ];
+                break;
+
+        }
+
+        if (!isset($secondaryClientInfo))
+            abort(404);
+
+        $response = [
+            'client' => $client,
+            'client_event' => $clientEvent,
+            'secondary_client' => [
+                'personal_info' => $secondaryClientInfo,
+            ] + $responseAdditionalInfo
+        ];
+
+        return view('scan-qrcode.client-detail')->with($response);
+    }
+
+    public function handlerScanQrCodeForAttend(Request $request)
+    {
+        # get request
+        $event = $request->event; # not used for now becuase there is no event slug
+        $clientEventId = $request->clientevent;
+
+        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+        $client = $clientEvent->client;
+
+        $clientFullname = $client->full_name;
+        $eventName = $clientEvent->event->event_title;
+
+        # initiate variables in order to
+        # update student information details
+        switch ($client->register_as) { # this is a choosen role
+
+            case "parent":
+                $childId = $clientEvent->children->id;
+                break;
+
+            case "student":
+                $childId = $client->id;
+                break;
+
+        }
+
+        # initiate variable in order to update client event
+        $newDetails = [
+            'number_of_attend' => $request->how_many_people_attended,
+            'status' => 1 # they came to the event
+        ];
 
         DB::beginTransaction();
         try {
 
-            $this->clientEventRepository->updateClientEvent($clientEventId, ['status' => 1]);
+            # update student information details
+            $this->clientRepository->updateClient($childId, [
+                'mail' => $request->secondary_mail,
+                'phone' => $request->secondary_phone
+            ]);
+
+            # update client event
+            $this->clientEventRepository->updateClientEvent($clientEventId, $newDetails);
             DB::commit();
 
         } catch (Exception $e) {
@@ -898,6 +1018,24 @@ class ClientEventController extends Controller
             Log::error('Update attendance client event failed : ' . $e->getMessage());
         }
         return response()->json($data);
+
+    }
+
+    public function registerExpress(Request $request)
+    {
+       
+        $clientId = $request->route('client');
+        $client = $this->clientRepository->getClientById($clientId);
+        $eventId = $request->route('event');
+
+        $dataRegister = $this->register($client->mail, $eventId, 'VIP'); 
+
+        if($dataRegister['success'] && !$dataRegister['already_join']){
+            return Redirect::to('form/thanks');
+        }else if($dataRegister['success'] && $dataRegister['already_join']){
+            return Redirect::to('form/already-join');
+        }
+        
 
     }
 }

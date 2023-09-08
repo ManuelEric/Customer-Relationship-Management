@@ -9,19 +9,17 @@
             <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                     <td>
-                        <p>Dear {{ $client['name'] }},</p>
+                        <p>Dear {{$recipient}},</p>
                         <p>
-                            We wanted to extend our gratitude for joining us at {{ $event['eventName'] }} on {{ $event['eventDate'] }}. Your presence made a difference, and we're thrilled you could be there with us!
+                            We wanted to extend our gratitude for joining us at {{$param['event_name']}} on {{$param['event_date']}}. Your presence made a difference, and we're thrilled you could be there with us!
                         </p>
                         <p>
                             Once again, thank you for being a part of our community. We can't wait
                             to meet you on the event day!
                         </p>
-                        @if(isset($notes) && $notes == 'VVIP')
-                            <p>
-                                <a href="{{$referral_link}}">Your Referral Link</a>
-                            </p>
-                        @endif
+                        <h3>
+                            {{$param['ref_code']}}
+                        </h3>
                         <p>
                             Warm regards, <br>
                             ALL-in Eduspace

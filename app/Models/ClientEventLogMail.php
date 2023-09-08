@@ -17,6 +17,7 @@ class ClientEventLogMail extends Model
      * @var array
      */
     protected $fillable = [
+        'client_id',
         'clientevent_id',
         'sent_status',
         'category'
