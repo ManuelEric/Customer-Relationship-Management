@@ -60,12 +60,13 @@ class ResendQRCodeMailForParticipantEvent extends Command
                 $eventName = $clientEvent->event->event_title;
                 $client = $clientEvent->client;
     
-                $clientDetails = ['clientDetails' => 
-                    [
-                        'mail' => $client->mail, 
-                        'name' => $client->full_name
-                    ]
-                ];
+                $clientDetails = [
+                    'clientDetails' => 
+                        [
+                            'mail' => $client->mail, 
+                            'name' => $client->full_name
+                        ]
+                    ];
                 
     
                 $con = app('App\Http\Controllers\ClientEventController')->sendMailQrCode($clientEventId, $eventName, $clientDetails, true);

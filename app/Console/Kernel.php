@@ -95,6 +95,7 @@ class Kernel extends ConsoleKernel
 
         # cron for form event
         $schedule->command('automate:resend_qrcode_mail')->everyMinute();
+        $schedule->command('automate:resend_thanks_mail_program')->everyMinute();
     }
 
     /**
