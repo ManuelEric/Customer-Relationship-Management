@@ -418,6 +418,7 @@ class ClientStudentController extends ClientController
         DB::beginTransaction();
         try {
 
+            //! perlu nunggu 1 menit dlu sampai ada client lead tracking status yg 1
             # update status client lead tracking
             if($leadsTracking->count() > 0){
                 foreach($leadsTracking as $leadTracking){
@@ -435,8 +436,10 @@ class ClientStudentController extends ClientController
             # create new user client as parents
             # when pr_id is "add-new" 
 
-            if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
-                throw new Exception('Failed to store new parent', 2);
+            if ($data['studentDetails']['pr_id'] !== NULL) {
+                if (!$parentId = $this->createParentsIfAddNew($data['parentDetails'], $data['studentDetails']))
+                    throw new Exception('Failed to store new parent', 2);
+            }
             
 
             # removing the kol_lead_id & pr_id from studentDetails array

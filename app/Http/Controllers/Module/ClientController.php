@@ -268,10 +268,13 @@ class ClientController extends Controller
 
     public function createInterestedProgram(array $interestPrograms, int $clientId) # clientId can be studentId & parentId
     {
+        $interestProgramDetails = array();
         if (isset($interestPrograms) && count($interestPrograms) > 0) {
 
             for ($i = 0; $i < count($interestPrograms); $i++) {
-                $interestProgramDetails[] = $interestPrograms[$i];
+                $interestProgramDetails[] = [
+                    'prog_id' => $interestPrograms[$i]
+                ];
             }
 
             $interestedProgram = $this->clientRepository->createInterestProgram($clientId, $interestProgramDetails);
