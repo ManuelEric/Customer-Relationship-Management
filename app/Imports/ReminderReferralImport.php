@@ -13,14 +13,12 @@ use App\Http\Traits\StandardizePhoneNumberTrait;
 use Maatwebsite\Excel\Concerns\Importable;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
-use App\Models\ClientEvent;
-use App\Models\Event;
+use App\Models\ClientEventLogMail;
 use App\Models\UserClient;
 use App\Models\UserClientAdditionalInfo;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
-class ThankMailImport implements ToCollection, WithHeadingRow, WithValidation
+class ReminderReferralImport implements ToCollection, WithHeadingRow, WithValidation
 {
     /**
      * @param Collection $collection
@@ -35,16 +33,19 @@ class ThankMailImport implements ToCollection, WithHeadingRow, WithValidation
     public function collection(Collection $rows)
     {
 
-            foreach ($rows as $row) {      
-                $this->register($row['email'], $row['event_id'], 'VVIP');
-                               
-                }
+            foreach ($rows as $row) {
+                
+                $this->sendMailReminder($row['email'], $row['event_id'], 'first-send', 'referral');
+                                   
+                
             }
           
     
-
+    }
+    
     public function prepareForValidation($data)
     {
+
    
         $data = [
             'event_id' => $data['event_id'],
@@ -60,7 +61,7 @@ class ThankMailImport implements ToCollection, WithHeadingRow, WithValidation
         return [
             '*.event_id' => ['required'],
             '*.full_name' => ['required'],
-            '*.email' => ['required', 'exists:tbl_client,mail'],
+            '*.email' => ['required'],
         ];
     }
 

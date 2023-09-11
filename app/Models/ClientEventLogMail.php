@@ -18,6 +18,7 @@ class ClientEventLogMail extends Model
      */
     protected $fillable = [
         'client_id',
+        'event_id',
         'clientevent_id',
         'sent_status',
         'category'
@@ -26,5 +27,15 @@ class ClientEventLogMail extends Model
     public function clientEvent()
     {
         return $this->belongsTo(ClientEvent::class, 'clientevent_id', 'clientevent_id');
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id', 'id');
+    }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id', 'event_id');
     }
 }

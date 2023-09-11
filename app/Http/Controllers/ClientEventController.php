@@ -9,13 +9,16 @@ use App\Http\Requests\StoreClientEventEmbedRequest;
 use App\Http\Requests\StoreFormEventEmbedRequest;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-use App\Http\Traits\RegisterExpressTrait;
+use App\Http\Traits\MailingEventOfflineTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
 use App\Imports\InvitaionMailImport;
 use App\Imports\InvitationMailImport;
 use App\Imports\ThankMailImport;
 use App\Imports\ReminderEventImport;
+use App\Imports\ReminderReferralImport;
+use App\Imports\ReminderRegisrationImport;
+use App\Imports\ReminderRegistrationImport;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -31,6 +34,7 @@ use App\Interfaces\TagRepositoryInterface;
 use App\Models\Client;
 use App\Models\School;
 use App\Models\UserClientAdditionalInfo;
+use AshAllenDesign\ShortURL\Models\ShortURL;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -45,7 +49,7 @@ class ClientEventController extends Controller
     use CheckExistingClient;
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
-    use RegisterExpressTrait;
+    use MailingEventOfflineTrait;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -475,8 +479,12 @@ class ClientEventController extends Controller
                 $import = new InvitationMailImport;
                 break;
 
-            case 'reminder_1':
-                $import = new ReminderEventImport;
+            case 'reminder_registration':
+                $import = new ReminderRegistrationImport;
+                break;
+
+            case 'reminder_referral':
+                $import = new ReminderReferralImport;
                 break;
             
         }
@@ -809,7 +817,7 @@ class ClientEventController extends Controller
 
         $recipientDetails = $client['clientDetails'];
         
-        $url = route('link-event-attend', [
+        $url = route('program.event.qr-page', [
                         'event_slug' => urlencode($eventName),
                         'clientevent' => $clientEventId
                     ]);
@@ -825,7 +833,7 @@ class ClientEventController extends Controller
         ];
 
         try {
-            Mail::send($mail_resources, ['url' => $url, 'client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
+            Mail::send($mail_resources, ['qr_page' => $url, 'client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
                 $message->to($recipientDetails['mail'], $recipientDetails['name'])
                     ->subject($subject);
             });
@@ -1037,5 +1045,38 @@ class ClientEventController extends Controller
         }
         
 
+    }
+
+    public function referralPage(Request $request)
+    {
+        $refcode = $request->route('refcode');
+        $event_slug = $request->route('event_slug');
+
+        $shortUrl = ShortURL::where('url_key', $refcode)->first();
+
+        if(isset($shortUrl)){
+            $link = $shortUrl->default_short_url;
+        }else{
+            $link = $this->createShortUrl(url('form/event?event_name='.$event_slug.'&form_type=cta&event_type=offline&ref='. $refcode), $refcode);
+        }
+
+        return view('referral-link.index')->with([
+            'link' => $link
+        ]);
+    }
+
+    public function qrPage(Request $request)
+    {
+        $event_slug = $request->route('event_slug');
+        $clientEventId = $request->route('clientevent');
+
+        $url =  route('link-event-attend', [
+            'event_slug' => $event_slug,
+            'clientevent' => $clientEventId
+        ]);
+
+        return view('scan-qrcode.qrcode')->with([
+            'url' => $url
+        ]);
     }
 }

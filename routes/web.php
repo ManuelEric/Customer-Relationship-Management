@@ -79,3 +79,11 @@ Route::get('client-detail/{clientevent}', [ClientEventController::class, 'previe
 Route::get('mailing', function() {
     return view('mailing.stem-wonderlab');
 });
+
+Route::get('your-qrcode', function() {
+    return view('scan-qrcode.qrcode');
+});
+
+Route::get('referral', function() {
+    return view('referral-link.index');
+});

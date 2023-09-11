@@ -84,8 +84,19 @@
                                 to meet you on the event day!
                             </p>
                             @if(isset($notes) && $notes == 'VIP')
-                                <p>
-                                    <a href="{{$referral_link}}">Your Referral Link</a>
+                                <p style="text-align: center;margin: 2.5em auto;">
+                                    <a class="button" href="{{ $link }}"
+                                        style="background: #3b6cde; 
+                                        text-decoration: none; 
+                                        padding: .5em 1.5em;
+                                        color: #ffffff; 
+                                        border-radius: 48px;
+                                        mso-padding-alt:0;
+                                        text-underline-color:#156ab3">
+                                        <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:20pt">&nbsp;</i><![endif]-->
+                                        <span style="mso-text-raise:10pt;font-weight:bold;">Sign Now</span>
+                                        <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
+                                    </a>
                                 </p>
                             @endif
                             <p>
