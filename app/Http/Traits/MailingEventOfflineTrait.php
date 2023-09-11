@@ -94,27 +94,18 @@ trait MailingEventOfflineTrait
         // $data['referral_link'] = $this->createShortUrl(url('form/event?event_name='.urlencode($event->event_title).'&form_type=cta&event_type=offline&ref='. $referralCode), $referralCode);
                                     
         // $data['referral_link'] = url('form/event?event_name='.urlencode($event->event_name).'&form_type=cta&event_type=offline&ref='. substr($client->fist_name,0,3) . $client->id); 
-        $data['event'] = [
-            'eventName' => $event->event_title,
-            'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
-            'eventDate_start' => date('M d, Y', strtotime($event->event_startdate)),
-            'eventDate_end' => date('M d, Y', strtotime($event->event_enddate)),
-            'eventTime_start' => date('H:i', strtotime($event->event_startdate)),
-            'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
-            'eventLocation' => $event->event_location,
-        ];
 
         try {
             switch ($notes) {
                 case 'VVIP':
-                    $isSendMail['status'] = Mail::send('mail-template.thanks-email', $data, function ($message) use ($data) {
-                        $message->to($data['email'], $data['client']['name'])
-                            ->subject($data['title']);
-                    });
+                    // $isSendMail['status'] = Mail::send('mail-template.thanks-email', $data, function ($message) use ($data) {
+                    //     $message->to($data['email'], $data['client']['name'])
+                    //         ->subject($data['title']);
+                    // });
                     break;
                 
                 case 'VIP':
-                    $data['title'] = 'You have Successfully registered STEM+ WONDERLAB';
+                    $data['title'] = 'Thank you for registering as our VIP guest';
                     $data['qr_page'] = route('program.event.qr-page', [
                         'event_slug' => urlencode($event->event_title),
                         'clientevent' => $clientEvent->clientevent_id
@@ -123,8 +114,18 @@ trait MailingEventOfflineTrait
                         'event_slug' => urlencode($event->event_title),
                         'refcode' => $referralCode
                     ]);
+
+                    $data['event'] = [
+                        'eventName' => $event->event_title,
+                        'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
+                        'eventDate_start' => date('l, M d Y', strtotime($event->event_startdate)),
+                        'eventDate_end' => date('M d, Y', strtotime($event->event_enddate)),
+                        'eventTime_start' => date('g A', strtotime($event->event_startdate)),
+                        'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
+                        'eventLocation' => $event->event_location,
+                    ];
     
-                    $isSendMail = Mail::send('mail-template.event-registration-success', $data, function ($message) use ($data) {
+                    $isSendMail = Mail::send('mail-template.thanks-mail-vip', $data, function ($message) use ($data) {
                         $message->to($data['email'], $data['client']['name'])
                             ->subject($data['title']);
                     });   
@@ -140,7 +141,7 @@ trait MailingEventOfflineTrait
         }
 
 
-        if($for == 'first-send'){
+        if($for == 'first-send' && $notes == 'VIP'){
             $logDetails = [
                 'clientevent_id' => $clientEvent->clientevent_id,
                 'sent_status' => $sent_mail,
@@ -152,10 +153,35 @@ trait MailingEventOfflineTrait
 
     }
 
-    public function sendMailInvitation($data, $client, $for)
+    public function sendMailInvitation($email, $event_id, $for)
     {
 
         try {
+
+            $client = UserClient::where('mail', $email)->first();
+            $event = Event::where('event_id', $event_id)->first();
+
+            $data['email'] = $email;
+            $data['event_id'] = $event_id;
+            $data['recipient'] = $client->full_name;
+            $data['title'] = "[VIP Special Invitation] STEM+ Wonderlab, Indonesia’s FIRST Student
+            Makerspace Expo";
+            $data['param'] = [
+                'referral_page' => route('program.event.referral-page',[
+                    'event_slug' => urlencode($event->event_title),
+                    'refcode' => $this->createReferralCode($client->first_name, $client->id)
+                ]),                  
+                'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id),
+            ];
+            $data['event'] = [
+                'eventName' => $event->event_title,
+                'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
+                'eventDate_start' => date('l, M d Y', strtotime($event->event_startdate)),
+                'eventDate_end' => date('M d, Y', strtotime($event->event_enddate)),
+                'eventTime_start' => date('g A', strtotime($event->event_startdate)),
+                'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
+                'eventLocation' => $event->event_location,
+            ];
 
             Mail::send('mail-template.invitation-email', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['recipient'])
@@ -176,6 +202,69 @@ trait MailingEventOfflineTrait
                 'event_id' => $data['event_id'],
                 'sent_status' => $sent_mail,
                 'category' => 'invitation-mail'
+            ];
+            
+            $valueLog = [
+                'sent_status' => $sent_mail,
+            ];
+    
+            ClientEventLogMail::updateOrCreate($keyLog, $valueLog);
+        }
+
+
+    }
+
+    public function sendMailReminder($email, $event_id, $for, $type)
+    {
+        
+        try {
+            $client = UserClient::where('mail', $email)->first();
+    
+            $event = Event::where('event_id', $event_id)->first();
+
+            $data = [
+                'email' => $email,
+                'recipient' => $client->full_name,
+                'title' => $type == 'registration' ? 'Enjoy special privileges as our VIP guest at STEM+ Wonderlab!' : '🔔 Reminder to our VIP guests of STEM+ Wonderlab',
+                'param' => [
+                    'referral_page' => route('program.event.referral-page',[
+                        'event_slug' => urlencode($event->event_title),
+                        'refcode' => $this->createReferralCode($client->first_name, $client->id)
+                    ]),                  
+                    'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id)
+                ],
+                'event' => [
+                    'eventName' => $event->event_title,
+                    'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
+                    'eventDate_start' => date('l, M d Y', strtotime($event->event_startdate)),
+                    'eventDate_end' => date('M d, Y', strtotime($event->event_enddate)),
+                    'eventTime_start' => date('g A', strtotime($event->event_startdate)),
+                    'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
+                    'eventLocation' => $event->event_location,
+                ]
+    
+            ];
+            
+
+            Mail::send('mail-template.reminder-'.$type, $data, function ($message) use ($data) {
+                $message->to($data['email'], $data['recipient'])
+                    ->subject($data['title']);
+            });
+            $sent_mail = 1;
+
+        } catch (Exception $e) {
+
+            $sent_mail = 0;
+            Log::info('Failed to send reminder registration mail : ' . $e->getMessage());
+
+        }
+
+        if($for == 'first-send'){
+            $keyLog = [
+                'client_id' => $client['id'],
+                'event_id' => $event_id,
+                'sent_status' => $sent_mail,
+                'category' => 'reminder-'.$type
             ];
             
             $valueLog = [

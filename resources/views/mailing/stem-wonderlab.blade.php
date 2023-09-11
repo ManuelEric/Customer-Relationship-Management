@@ -32,8 +32,8 @@
                                             <option value=""></option>
                                             <option value="VVIP">VVIP</option>
                                             <option value="VIP">VIP</option>
-                                            <option value="reminder_1">Reminder 1</option>
-                                            <option value="reminder_2">Reminder 2</option>
+                                            <option value="reminder_registration">Reminder Registration</option>
+                                            <option value="reminder_referral">Reminder Referral</option>
                                         </select>
                                     </div>
                                     <div class="col-2">

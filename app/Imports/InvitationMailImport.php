@@ -38,22 +38,9 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
 
             foreach ($rows as $row) {
                 
-                $client = UserClient::where('mail', $row['email'])->first();
-                $event = Event::where('event_id', $row['event_id'])->first();
+               
 
-                $data['email'] = $row['email'];
-                $data['event_id'] = $row['event_id'];
-                $data['recipient'] = $row['full_name'];
-                $data['title'] = "Invitation For STEM+ Wonderlab";
-                $data['param'] = [
-                    'referral_page' => route('program.event.referral-page',[
-                        'event_slug' => urlencode($event->event_title),
-                        'refcode' => $this->createReferralCode($client->first_name, $client->id)
-                    ]),                  
-                    'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $row['event_id'])
-                ];
-
-                $this->sendMailInvitation($data, $client, 'first-send');
+                $this->sendMailInvitation($row['email'], $row['event_id'], 'first-send');
                
                 }
             }

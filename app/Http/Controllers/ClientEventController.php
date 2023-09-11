@@ -15,6 +15,9 @@ use App\Imports\InvitaionMailImport;
 use App\Imports\InvitationMailImport;
 use App\Imports\ThankMailImport;
 use App\Imports\ReminderEventImport;
+use App\Imports\ReminderReferralImport;
+use App\Imports\ReminderRegisrationImport;
+use App\Imports\ReminderRegistrationImport;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -475,8 +478,12 @@ class ClientEventController extends Controller
                 $import = new InvitationMailImport;
                 break;
 
-            case 'reminder_1':
-                $import = new ReminderEventImport;
+            case 'reminder_registration':
+                $import = new ReminderRegistrationImport;
+                break;
+
+            case 'reminder_referral':
+                $import = new ReminderReferralImport;
                 break;
             
         }

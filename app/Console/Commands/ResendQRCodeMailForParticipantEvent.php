@@ -99,22 +99,17 @@ class ResendQRCodeMailForParticipantEvent extends Command
                         break;
                     
                     case 'invitation-mail':
-                        $full_name = $detail->client->full_name;
-                        $eventName = $detail->event->event_title;
-                        
-                        $data = [
-                            'email' => $detail->client->mail,
-                            'recipient' => $full_name,
-                            'title' => 'Invitation For STEM+ Wonderlab',
-                            'param' => [
-                                'link' => 'program/event/reg-exp/' . $detail->client->id . '/' . $detail->event->event_id,
-                            ]
-                        ];
-
-
                         if($detail->event->event_enddate > Carbon::now()){
-                            $this->sendMailInvitation($data, $detail->client, 'automate');
+                            $this->sendMailInvitation($detail->client->mail, $detail->event->event_id, 'automate');
                         }
+                        break;
+
+                    case 'reminder-registration':
+                        $this->sendMailReminder($detail->client->mail, $detail->event->event_id, 'automate', 'registration');
+                        break;
+
+                    case 'reminder-referral':
+                        $this->sendMailReminder($detail->client->mail, $detail->event->event_id, 'automate', 'referral');
                         break;
                 }
                     

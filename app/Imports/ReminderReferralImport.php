@@ -18,7 +18,7 @@ use App\Models\UserClient;
 use App\Models\UserClientAdditionalInfo;
 use Illuminate\Support\Facades\Mail;
 
-class ReminderEventImport implements ToCollection, WithHeadingRow, WithValidation
+class ReminderReferralImport implements ToCollection, WithHeadingRow, WithValidation
 {
     /**
      * @param Collection $collection
@@ -35,42 +35,14 @@ class ReminderEventImport implements ToCollection, WithHeadingRow, WithValidatio
 
             foreach ($rows as $row) {
                 
-                $client = UserClient::where('mail', $row['email'])->first();
-
-                $data['email'] = $row['email'];
-                $data['recipient'] = $row['full_name'];
-                $data['title'] = "Reminder For STEM+ Wonderlab";
-                $data['param'] = [
-                    'link' => 'program/event/reg-exp/' . $client['id'] . '/' . $row['event_id']
-                ];
-
-                try {
-
-                    Mail::send('mail-template.invitation-email', $data, function ($message) use ($data) {
-                        $message->to($data['email'], $data['recipient'])
-                            ->subject($data['title']);
-                    });
-                    $sent_mail = 1;
-        
-                } catch (Exception $e) {
-        
-                    $sent_mail = 0;
-                    Log::info('Failed to send reminder mail STEM Wonderlab : ' . $e->getMessage());
-        
-                }
-               
-                    $logDetails = [
-                        'client_id' => $client['id'],
-                        'sent_status' => $sent_mail,
-                        'category' => 'invitation-mail'
-                    ];
-            
-                    ClientEventLogMail::create($logDetails);
-                }
+                $this->sendMailReminder($row['email'], $row['event_id'], 'first-send', 'referral');
+                                   
+                
             }
           
     
-
+    }
+    
     public function prepareForValidation($data)
     {
 
