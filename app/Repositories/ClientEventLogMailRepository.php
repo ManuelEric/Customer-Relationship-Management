@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class ClientEventLogMailRepository implements ClientEventLogMailRepositoryInterface
 {
-    public function getClientEventLogMail($category)
+    public function getClientEventLogMail()
     {
         # find client event log mail that has sent_status = 0 and the event still up
         // return ClientEventLogMail::whereHas('clientEvent.event', function($query) {
