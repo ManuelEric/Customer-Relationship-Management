@@ -125,7 +125,7 @@ trait MailingEventOfflineTrait
                         'eventLocation' => $event->event_location,
                     ];
     
-                    $isSendMail = Mail::send('mail-template.thanks-mail-vip', $data, function ($message) use ($data) {
+                    $isSendMail = Mail::send('mail-template.thanks-email-vip', $data, function ($message) use ($data) {
                         $message->to($data['email'], $data['client']['name'])
                             ->subject($data['title']);
                     });   
