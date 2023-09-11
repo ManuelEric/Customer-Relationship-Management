@@ -617,9 +617,17 @@ class InvoicePartnerController extends Controller
             );
         }
 
+        # get partner pic
+        $getPartnerPics = $invoicePartner->partner_prog->corp->pic->where('is_pic', '1')->toArray();
+        $pic = $getPartnerPics[0];
+        # uncomment if they want the email send directly to pic partner 
+        #$data['email'] = $pic->pic_mail;
+        #$data['recipient'] = $pic->pic_name;
+
+
         $data['email'] = $invoicePartner->partner_prog->user->email; # email to pic of the partner program
-        $data['cc'] = [env('CEO_CC'), env('FINANCE_CC')];
         $data['recipient'] = $invoicePartner->partner_prog->user->full_name; # name of the pic of the partner program
+        $data['cc'] = [env('CEO_CC'), env('FINANCE_CC')];
         $data['title'] = "Invoice of program " . $program_name;
         $data['param'] = [
             'invb2b_num' => $invNum,
