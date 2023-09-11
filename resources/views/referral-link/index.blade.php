@@ -17,7 +17,7 @@
         <div class="container-fluid">
             <div class="row justify-content-center align-items-center" style="height: 100vh">
                 <div class="col-md-4 px-5">
-                    {{-- <div class="card" style="background: #233469;">
+                    <div class="card" style="background: #233469;">
                         <div class="card-body">
                             <textarea name="" id="bar" class="form-control" rows="15">
                                 Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fuga itaque voluptas cum ratione ab, quidem laboriosam nulla praesentium atque expedita aut, eius corrupti explicabo vitae repellat deleniti nemo eaque ea. 
@@ -34,13 +34,14 @@
                             <i class="bi bi-clipboard-check"></i>
                             Copy & Share
                         </button>
-                    </div> --}}
-
-                    <div class="text-center d-flex align-items-center mb-3 justify-content-between">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    {{-- <div class="text-center d-flex align-items-center mb-3 justify-content-between">
                         <input type="url" name="" id="url" value="https://all-inedu.com"
                             class="form-control">
                         <div id="share" class="w-50 text-end"></div>
-                    </div>
+                    </div> --}}
 
                     {{-- Instruction  --}}
                     <div class="card shadow mb-3">
