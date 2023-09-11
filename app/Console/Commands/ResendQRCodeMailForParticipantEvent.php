@@ -129,7 +129,16 @@ class ResendQRCodeMailForParticipantEvent extends Command
 
             $logDetails['sent_status'] = $sent_mail;
             
-            $this->clientEventLogMailRepository->updateClientEventLogMail($logId, $logDetails);
+            try {
+
+                $this->clientEventLogMailRepository->updateClientEventLogMail($logId, $logDetails);
+                DB::commit();
+
+            } catch (Exception $e) {
+
+                DB::rollBack();
+                Log::error('Failed to update client event log mail for Id : '.$logId. ' | Error '. $e->getMessage().' Line '.$e->getLine());
+            }
         }
 
 

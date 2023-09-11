@@ -54,7 +54,7 @@ class StoreEventRequest extends FormRequest
                 },
             ],
             'event_target' => 'required|min:1',
-            'event_banner' => 'required|mimes:jpg|max:5000|image',
+            'event_banner' => 'nullable|mimes:jpg|max:5000|image',
         ];
     }
 
@@ -84,7 +84,7 @@ class StoreEventRequest extends FormRequest
         ];
 
         if (!$uploadedBanner && !$newUploadedBanner) {
-            $rules['event_banner'] = 'required';
+            $rules['event_banner'] = 'mimes:jpg|max:5000|image';
         }
 
         return $rules;

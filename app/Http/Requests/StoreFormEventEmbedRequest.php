@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreFormProgramEmbedRequest extends FormRequest
+class StoreFormEventEmbedRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -48,7 +48,13 @@ class StoreFormProgramEmbedRequest extends FormRequest
                 ];
                 break;
             
+            default:
+                return [
+                    'fullname.0' => 'name',
+                    'leadsource' => 'where do you know this event'
+                ];
         }
+        
     }
 
     /**
@@ -58,6 +64,21 @@ class StoreFormProgramEmbedRequest extends FormRequest
      */
     public function rules()
     {
+        switch ($this->input('role')) {
+            
+            case "parent":
+            case "student":
+                return $this->validateParentAndStudent();
+                break;
+
+            case "teacher/counsellor":
+                return $this->validateTeacher();
+                break;
+        }
+    }
+
+    public function validateParentAndStudent()
+    {
         return [
             'fullname.*' => 'required',
             'email.*' => 'required|email',
@@ -66,6 +87,18 @@ class StoreFormProgramEmbedRequest extends FormRequest
             'school' => 'required',
             'graduation_year' => 'required',
             'destination_country' => 'required|exists:tbl_tag,id',
+            'leadsource' => 'required|exists:tbl_lead,lead_id'
+        ];
+    }
+
+    public function validateTeacher()
+    {
+        return [
+            'fullname.0' => 'required',
+            'email.0' => 'required|email',
+            'fullnumber.0' => 'required',
+            
+            'school' => 'required',
             'leadsource' => 'required|exists:tbl_lead,lead_id'
         ];
     }

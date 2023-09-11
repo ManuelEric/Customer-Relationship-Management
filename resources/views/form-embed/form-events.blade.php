@@ -99,7 +99,7 @@
                 </div>
             @endif
 
-            <form action="{{ url('form/events') }}" method="POST">
+            <form action="{{ url('form/events') }}" method="POST" id="form-events">
                 @csrf
                 {{-- Event Name  --}}
                 <input type="hidden" name="event_name" value="{{ $_GET['event_name'] }}">
@@ -367,7 +367,7 @@
                                 </svg>
                                 Previous
                             </button>
-                            <button type="submit"
+                            <button type="submit" id="btn-submit"
                                 class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-blue-700 bg-white border-2 border-blue-700 rounded-lg hover:bg-blue-800 hover:text-white ease-in-out duration-500">
                                 Submit
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -390,6 +390,12 @@
         </div>
     </div>
 </body>
+<script src="
+https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js
+"></script>
+<link href="
+https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
+" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
     integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -426,6 +432,18 @@
         create: false
     });
 
+    $("#btn-submit").on('click', function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            didOpen: () => {
+                Swal.showLoading()
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        })
+
+        $('#form-events').submit()
+    })
 
     function checkRole(element) {
         

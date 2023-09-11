@@ -9,11 +9,11 @@
             <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                     <td>
-                        <p>Dear {{ $client['name'] }},</p>
+                        <p>Dear Mr./ Mrs. {{ ucfirst($client['name']) }},</p>
                         <p>
                             I hope this email finds you well.<br>
                             <br>
-                            I'm writing to confirm that your child, <b>{{ $client['children_details']['name'] }}</b>, has been successfully registered for the <u>{{ $program['name'] }}</u> program. We're so excited to have them join us!<br>
+                            I'm writing to confirm that your child, <b>{{ ucwords($client['children_details']['name']) }}</b>, has been successfully registered for the <u>{{ $program['name'] }}</u> program. We're so excited to have them join us!<br>
                             <br>
                             We'll be sending out more information about the program in the coming weeks, including the syllabus, a list of required materials, and contact information for the program leaders.<br>
                             <br>

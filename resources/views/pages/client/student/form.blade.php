@@ -150,7 +150,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-2">
-                                    <label>City <i class='text-danger font-weight-bold'>*</i></label>
+                                    <label>City </label>
                                     <input name="city" type="text" class="form-control form-control-sm"
                                         placeholder="City" id="city"
                                         value="{{ isset($student->city) ? $student->city : old('city') }}">

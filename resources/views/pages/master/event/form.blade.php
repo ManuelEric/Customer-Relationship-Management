@@ -130,7 +130,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-3 mb-2">
-                                <label>Banner <sup class="text-warning">*</sup></label>
+                                <label>Banner </label>
                                 <div class="banner-control">
                                     @if (isset($event->event_banner))
                                     <div class="form-control form-control-sm d-flex banner-control">

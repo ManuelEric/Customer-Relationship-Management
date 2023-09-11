@@ -118,8 +118,6 @@
             url.searchParams.append('u', user)
             url.searchParams.append('query_month', use_filter_by_month);
 
-            console.log(url)
-
             axios.get(url)
                 .then(function(response) {
 
@@ -225,6 +223,7 @@
             get_career_exp_lead(month, uuid)
             get_all_program(month, uuid)
             get_program_comparison()
+
             // get_client_event(year, uuid)
         }
     </script>

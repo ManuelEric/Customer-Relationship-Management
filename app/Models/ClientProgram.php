@@ -63,6 +63,7 @@ class ClientProgram extends Model
         'timesheet_link',
         'trial_date',
         'session_tutor',
+        'registration_type',
         'created_at',
         'updated_at'
     ];
