@@ -28,12 +28,12 @@
      <div class="row {{$isAdmin ? 'row-cols-md-2' : 'row-cols-md-1'}} row-cols-1 g-3 mb-3">
         {{-- Sales --}}
         @if ($isAdmin || $isSales)
-            @include('pages.dashboard.sales.detail.alarm')
+            {{-- @include('pages.dashboard.sales.detail.alarm') --}}
         @endif 
 
         {{-- Digital --}}
          @if ($isDigital || $isAdmin)
-            @include('pages.dashboard.digital.detail.alarm')
+            {{-- @include('pages.dashboard.digital.detail.alarm') --}}
         @endif
     </div> 
 
@@ -47,7 +47,7 @@
                 <h1><i class="bi bi-person me-2 opacity-50"></i></h1>
             </div>
         </div>
-        @include('pages.dashboard.sales.index')
+        {{-- @include('pages.dashboard.sales.index') --}}
     @endif
     {{-- Partnership --}}
     @if ($isPartnership || $isAdmin)
@@ -57,7 +57,7 @@
                 <h1><i class="bi bi-building me-2 opacity-50"></i></h1>
             </div>
         </div>
-        @include('pages.dashboard.partnership.index')
+        {{-- @include('pages.dashboard.partnership.index') --}}
     @endif
     {{-- Digital  --}}
     @if ($isDigital || $isAdmin)
@@ -67,7 +67,7 @@
                 <h1><i class="bi bi-bar-chart-line me-2 opacity-50"></i></h1>
             </div>
         </div>
-        @include('pages.dashboard.digital.index')
+        {{-- @include('pages.dashboard.digital.index') --}}
     @endif
     {{-- Finance  --}}
     @if ($isFinance || $isAdmin)

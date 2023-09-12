@@ -361,7 +361,7 @@
             return arr.reduce((a, v)=>a + v);
         }
         
-        Swal.showLoading()
+        showLoading()
           axios.get('{{ url("api/finance/total/") }}/' + month)
             .then((response) => {
                 var result = response.data.data

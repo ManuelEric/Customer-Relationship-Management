@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class ResendQRCodeMailForParticipantEvent extends Command
+class ResendMail extends Command
 {
     /**
      * The name and signature of the console command.
@@ -48,14 +48,14 @@ class ResendQRCodeMailForParticipantEvent extends Command
      */
     public function handle()
     {
-        $unsend_qrcode = $this->clientEventLogMailRepository->getClientEventLogMail();
+        $unsend_mail = $this->clientEventLogMailRepository->getClientEventLogMail();
         $full_name = '';
         $eventName = '';
-        $progressBar = $this->output->createProgressBar($unsend_qrcode->count());
+        $progressBar = $this->output->createProgressBar($unsend_mail->count());
         $progressBar->start();
         DB::beginTransaction();
 
-        foreach ($unsend_qrcode as $detail) {
+        foreach ($unsend_mail as $detail) {
 
             try {
 
@@ -67,7 +67,7 @@ class ResendQRCodeMailForParticipantEvent extends Command
                     case 'qrcode-mail':
 
                         $clientEventId = $detail->clientevent_id;
-                        $clientEvent = $this->clientEventRepository->getClientEventById($detail->clientEvent->clientEventId);
+                        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
                         $eventName = $clientEvent->event->event_title;
                         $client = $clientEvent->client;
                         $full_name = $client->full_name;
@@ -81,6 +81,27 @@ class ResendQRCodeMailForParticipantEvent extends Command
                             ];
                             
                             $con = app('App\Http\Controllers\ClientEventController')->sendMailQrCode($clientEventId, $eventName, $clientDetails, true);
+                        }
+                        break;
+
+                    case 'thanks-mail':
+                        $clientEventId = $detail->clientevent_id;
+                        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+                        
+                        $eventName = $clientEvent->event->event_title;
+                        $client = $clientEvent->client;
+                        $full_name = $client->full_name;
+
+                        if($clientEvent->event->event_enddate > Carbon::now()){
+                            
+                            $clientDetails = ['clientDetails' => 
+                                [
+                                    'mail' => $client->mail, 
+                                    'name' => $client->full_name
+                                ]
+                            ];
+                            
+                            $con = app('App\Http\Controllers\ClientEventController')->sendMailThanks($clientEventId, $eventName, $clientDetails, true);
                         }
                         break;
 

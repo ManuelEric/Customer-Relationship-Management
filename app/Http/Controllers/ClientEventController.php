@@ -813,7 +813,8 @@ class ClientEventController extends Controller
     public function sendMailQrCode($clientEventId, $eventName, $client, $update = false)
     {
         $subject = 'Welcome to the '.$eventName.'!';
-        $mail_resources = 'mail-template.event-registration-success';
+        // $mail_resources = 'mail-template.event-registration-success';
+        $mail_resources = 'mail-template.thanks-email-reg';
 
         $recipientDetails = $client['clientDetails'];
         
