@@ -14,7 +14,7 @@
     <div class="min-h-screen flex items-center bg-gray-200">
         <div class="max-w-screen-md w-full mx-auto p-4 text-center">
             <h2 class="text-3xl mb-4 font-bold">
-                Your already joined program
+                Your already joined event
             </h2>
             <h4 class="text-xl">
                 Your information has been successfully received. You can expect a call from us in the next 24 hours.

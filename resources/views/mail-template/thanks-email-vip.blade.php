@@ -11,7 +11,7 @@
                         <td>
                             <p>Dear Mr./Mrs. {{ $client['name'] }},</p>
                             <p>
-                                Thank you for your VIP registration at {{$event['eventName']}}, Indonesia's FIRST student makerspace expo!
+                                Thank you for your VIP registration at <b>STEM+ Wonderlab</b>, Indonesia's FIRST student makerspace expo!
                             </p>
                             <p>
                                 By registering for this event, enjoy special privileges as our VIP guests, such as
@@ -30,10 +30,8 @@
                             </ul>
 
                             <p style="text-align: center;">
-                                <b>{{ $event['eventName'] }}</b>
-                                <br>{{ strip_tags($event['eventLocation']) }}
-                                <br>{{ $event['eventDate_start'] }}
-                                <br>{{ $event['eventTime_start'] }} WIB
+                                📍{{ strip_tags($event['eventLocation']) }}
+                                <br>🗓{{ $event['eventDate_start'] }} | {{ $event['eventTime_start'] }} WIB
                                 <br>
                                 Show this QR at the registration table at the event
                             </p>

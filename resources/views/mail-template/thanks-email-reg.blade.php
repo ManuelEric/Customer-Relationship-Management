@@ -11,16 +11,15 @@
                         <td>
                             <p>Dear Mr./Mrs. {{ $client['name'] }},</p>
                             <p>
-                                Thank you for registering to {{$event['eventName']}}, the FIRST Student Makerspace Expo in
+                                Thank you for registering to <b>STEM+ Wonderlab</b>, the FIRST Student Makerspace Expo in
                                 Indonesia! In this event, you will gain access to advanced tools, <b>connect</b> with fellow young
                                 innovators, <b>collaborate</b> on exciting projects, and contribute to real impact on global issues!
                             </p>
 
                             <p style="text-align: center;">
-                                <b>{{ $event['eventName'] }}</b>
-                                <br>{{ strip_tags($event['eventLocation']) }}
-                                <br>{{ $event['eventDate_start'] }}
-                                <br>{{ $event['eventTime_start'] }} WIB
+                                <b>STEM+ Wonderlab</b>
+                                <br>📍{{ strip_tags($event['eventLocation']) }}
+                                <br>🗓{{ $event['eventDate_start'] }} | {{ $event['eventTime_start'] }} WIB
                                 <br>
                                 Show this QR at the registration table at the event
                             </p>

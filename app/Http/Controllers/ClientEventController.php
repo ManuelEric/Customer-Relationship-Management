@@ -1054,15 +1054,18 @@ class ClientEventController extends Controller
         $event_slug = $request->route('event_slug');
 
         $shortUrl = ShortURL::where('url_key', $refcode)->first();
+        $event = $this->eventRepository->getEventByName(urldecode($event_slug));
 
         if(isset($shortUrl)){
-            $link = $shortUrl->default_short_url;
+            $link = $shortUrl->default_short_url; 
         }else{
+            #insert short url to database
             $link = $this->createShortUrl(url('form/event?event_name='.$event_slug.'&form_type=cta&event_type=offline&ref='. $refcode), $refcode);
         }
 
         return view('referral-link.index')->with([
-            'link' => $link
+            'link' => $link,
+            'event' => $event
         ]);
     }
 

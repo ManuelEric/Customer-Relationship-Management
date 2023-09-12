@@ -9,7 +9,7 @@
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                         <td>
-                            <p>Dear Mr./Mrs. {{$recipient}}, we've noticed you haven't registered for STEM+ Wonderlab yet. It's not
+                            <p>Dear Mr./Mrs. {{$recipient}}, we've noticed you haven't registered for <b>STEM+ Wonderlab</b> yet. It's not
                                 too late to register for Indonesia's FIRST Student Makerspace Expo!</p>
                             <p>
                             <p style="text-align: center;margin: 2.5em auto;">
@@ -28,10 +28,9 @@
                             </p>
                                
                             <p style="text-align: center;">
-                                <b>{{ $event['eventName'] }}</b>
-                                <br>{{ strip_tags($event['eventLocation']) }}
-                                <br>{{ $event['eventDate_start'] }}
-                                <br>{{ $event['eventTime_start'] }} WIB
+                                <b>STEM+ Wonderlab</b>
+                                <br>📍{{ strip_tags($event['eventLocation']) }}
+                                <br>🗓{{ $event['eventDate_start'] }} | {{ $event['eventTime_start'] }} WIB
                                 <br>
                                 Show this QR at the registration table at the event
                             </p>

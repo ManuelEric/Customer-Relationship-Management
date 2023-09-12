@@ -80,14 +80,18 @@ class StoreFormEventEmbedRequest extends FormRequest
     public function validateParentAndStudent()
     {
         return [
-            'fullname.*' => 'required',
-            'email.*' => 'required|email',
-            'fullnumber.*' => 'required',
+            'fullname.0' => 'required',
+            'email.0' => 'required|email',
+            'fullnumber.0' => 'required',
+
+            'fullname.1' => 'required',
+            'email.1' => 'nullable|email',
+            'fullnumber.1' => 'nullable',
             
             'school' => 'required',
             'graduation_year' => 'required',
             'destination_country' => 'required|exists:tbl_tag,id',
-            'leadsource' => 'required|exists:tbl_lead,lead_id'
+            'leadsource' => 'nullable|exists:tbl_lead,lead_id'
         ];
     }
 
@@ -99,7 +103,7 @@ class StoreFormEventEmbedRequest extends FormRequest
             'fullnumber.0' => 'required',
             
             'school' => 'required',
-            'leadsource' => 'required|exists:tbl_lead,lead_id'
+            'leadsource' => 'nullable|exists:tbl_lead,lead_id'
         ];
     }
 }
