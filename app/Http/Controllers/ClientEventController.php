@@ -908,6 +908,52 @@ class ClientEventController extends Controller
         return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
     }
 
+    public function sendMailClaim($clientEventId, $eventName, $client, $update = false)
+    {
+        $subject = 'Claim Lorem ipsum dolor sit amet';
+        $mail_resources = 'mail-template.claim-email';
+
+        $recipientDetails = $client['clientDetails'];
+
+        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+        
+
+        $event = [
+            'eventName' => $eventName,
+            'eventDate' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
+            'eventLocation' => $clientEvent->event->event_location
+        ];
+
+        try {
+            Mail::send($mail_resources, ['client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
+                $message->to($recipientDetails['mail'], $recipientDetails['name'])
+                    ->subject($subject);
+            });
+            $sent_mail = 1;
+            
+        } catch (Exception $e) {
+            
+            $sent_mail = 0;
+            Log::error('Failed send email claim to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
+
+        }
+
+        # if update is true 
+        # meaning that this function being called from scheduler
+        # that updating the client event log mail, so the system no longer have to create the client event log mail
+        if ($update === true) {
+            return true;    
+        }
+
+        $logDetails = [
+            'clientevent_id' => $clientEventId,
+            'sent_status' => $sent_mail,
+            'category' => 'thanks-mail'
+        ];
+
+        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+    }
+
     public function previewClientInformation(Request $request) 
     {
         $clientEventId = $request->clientevent;
@@ -997,6 +1043,7 @@ class ClientEventController extends Controller
 
             # update client event
             $this->clientEventRepository->updateClientEvent($clientEventId, $newDetails);
+            $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
             DB::commit();
 
         } catch (Exception $e) {
@@ -1075,7 +1122,7 @@ class ClientEventController extends Controller
         $clientEventId = $request->route('clientevent');
 
         $url =  route('link-event-attend', [
-            'event_slug' => $event_slug,
+            // 'event_slug' => $event_slug,
             'clientevent' => $clientEventId
         ]);
 

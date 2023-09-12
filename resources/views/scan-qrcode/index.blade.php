@@ -84,13 +84,20 @@
                     <button type="button" class="btn-close" onclick="closeModal()"></button>
                 </div>
                 <div class="modal-body">
-                    <iframe src="{{ url('client-detail') }}" frameborder="0" width="100%" height="360"></iframe>
+                    <iframe src="" frameborder="0" width="100%" height="360" id="client-detail-ctx"></iframe>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        $(function() {
+            $("#client-detail-ctx").on('load', function() {
+                $('#clientDetail').modal('show');
+                swal.close();
+
+            });
+        })
         function closeModal() {
             $('#clientDetail').modal('hide')
             $('#reading').addClass('d-none')
@@ -100,13 +107,14 @@
 
         function onScanSuccess(decodedText, decodedResult) {
             showLoading();
-            
+            // console.log(decodedText);
             const url = decodedText;
             const arrSegments = url.split('/');
             const maxIndexes = arrSegments.length - 1;
 
             const identifier = arrSegments[maxIndexes];
             let source = "{{ url('client-detail') }}/" + identifier;
+            console.log(source)
 
             var iframe = $("#client-detail-ctx")
             iframe.attr('src', source)
@@ -114,6 +122,7 @@
             // console.log(`Scan result: ${decodedText}`, decodedResult);
             // Handle on success condition with the decoded text or result.
             // $('#clientDetail').modal('show')
+            // swal.close()
             // window.location.href = `${decodedText}`;
             html5QrcodeScanner.clear();
             $('#reading').removeClass('d-none')
