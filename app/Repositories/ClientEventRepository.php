@@ -64,6 +64,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                                 END)
                             END)
                         WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name COLLATE utf8mb4_unicode_ci)
+                        WHEN tbl_lead.main_lead = "Referral" THEN CONCAT("Ref: ", (SELECT CONCAT(first_name, " ", last_name) FROM client_ref_code_view WHERE ref_code = tbl_client_event.referral_code))
                         ELSE tbl_lead.main_lead
                     END) AS conversion_lead'),
                 )->
@@ -247,11 +248,12 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                 'tbl_events.event_title',
                 'tbl_events.event_id',
                 DB::raw('(CASE
-                WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
-                WHEN tbl_lead.main_lead = "External Edufair" THEN (CASE WHEN tbl_eduf_lead.title != null THEN CONCAT(tbl_eduf_lead.title) ELSE (CASE WHEN tbl_eduf_lead.sch_id IS NULL THEN ceduf.corp_name ELSE seduf.sch_name END)END)
-                WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
-                ELSE tbl_lead.main_lead
-            END) AS conversion_lead'),
+                    WHEN tbl_lead.main_lead = "KOL" THEN CONCAT(tbl_lead.sub_lead)
+                    WHEN tbl_lead.main_lead = "External Edufair" THEN (CASE WHEN tbl_eduf_lead.title != null THEN CONCAT(tbl_eduf_lead.title) ELSE (CASE WHEN tbl_eduf_lead.sch_id IS NULL THEN ceduf.corp_name ELSE seduf.sch_name END)END)
+                    WHEN tbl_lead.main_lead = "All-In Partners" THEN CONCAT(tbl_corp.corp_name)
+                    WHEN tbl_lead.main_lead = "Referral" THEN CONCAT("Ref: ", (SELECT CONCAT(first_name, " ", last_name) FROM client_ref_code_view WHERE ref_code = tbl_client_event.referral_code))
+                    ELSE tbl_lead.main_lead
+                END) AS conversion_lead'),
                 DB::raw(isset($eventId) ? "'ByEvent' as filter" : "'ByMonth' as filter"),
             );
 

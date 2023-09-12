@@ -622,7 +622,7 @@ class ClientEventController extends Controller
                 } else {
                     
                     # send thanks mail
-                    $this->sendMailThanks($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
+                    // $this->sendMailThanks($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
 
                 }
 

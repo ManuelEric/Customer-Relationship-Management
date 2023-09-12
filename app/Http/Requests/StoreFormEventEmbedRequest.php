@@ -51,6 +51,8 @@ class StoreFormEventEmbedRequest extends FormRequest
             default:
                 return [
                     'fullname.0' => 'name',
+                    'email.0' => 'email address',
+                    'fullnumber.0' => 'phone number',
                     'leadsource' => 'where do you know this event'
                 ];
         }
@@ -87,7 +89,7 @@ class StoreFormEventEmbedRequest extends FormRequest
             'school' => 'required',
             'graduation_year' => 'required',
             'destination_country' => 'required|exists:tbl_tag,id',
-            'leadsource' => 'required|exists:tbl_lead,lead_id'
+            'leadsource' => 'nullable|exists:tbl_lead,lead_id'
         ];
     }
 
@@ -97,9 +99,12 @@ class StoreFormEventEmbedRequest extends FormRequest
             'fullname.0' => 'required',
             'email.0' => 'required|email',
             'fullnumber.0' => 'required',
+            'fullname.1' => 'required',
+            'email.1' => 'nullable|email',
+            'fullnumber.1' => 'nullable',
             
             'school' => 'required',
-            'leadsource' => 'required|exists:tbl_lead,lead_id'
+            'leadsource' => 'nullable|exists:tbl_lead,lead_id'
         ];
     }
 }
