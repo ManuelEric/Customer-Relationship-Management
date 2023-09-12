@@ -38,7 +38,8 @@ Come with me to the event by clicking this link: {{$link}} See you there!
                             Copy & Share
                         </button>
                     </div>
-
+                </div>
+                <div class="col-md-4">
                     {{-- <div class="text-center d-flex align-items-center mb-3 justify-content-between">
                         <input type="url" name="" id="url" value="https://all-inedu.com"
                             class="form-control">
