@@ -19,9 +19,11 @@
                 <div class="col-md-4 px-5">
                     <div class="card" style="background: #233469;">
                         <div class="card-body">
-                            <textarea name="" id="bar" class="form-control" rows="15">"Hi! I'm inviting you & your family to <b>[EVENT NAME]</b>, Indonesia's FIRST Student Makerspace Expo where our children can dive into <b>advanced tools, connect</b> with fellow innovators, collaborate on cool projects, and make a real impact on global issues!
-                                📍[location]
-                                [date]
+                            <textarea name="" id="bar" class="form-control" rows="15">"Hi! I'm inviting you & your family to *STEM+ Wonderlab*, Indonesia's FIRST Student Makerspace Expo where our children can dive into *advanced tools, connect* with fellow innovators, collaborate on cool projects, and make a real impact on global issues!
+
+📍{{ strip_tags($event->event_location) }}
+🗓 {{ date('l, d M Y', strtotime($event->event_startdate)) }} | {{ date('g A', strtotime($event->event_startdate)) }} onwards
+
 As my invited guest, enjoy VIP privileges, such as
  - Priority access via the dedicated VIP lane and fast-track entry for your child to explore event booths.
  - Exclusive merchandise courtesy of ALL-in.
@@ -38,7 +40,8 @@ Come with me to the event by clicking this link: {{$link}} See you there!
                             Copy & Share
                         </button>
                     </div>
-
+                </div>
+                <div class="col-md-4">
                     {{-- <div class="text-center d-flex align-items-center mb-3 justify-content-between">
                         <input type="url" name="" id="url" value="https://all-inedu.com"
                             class="form-control">

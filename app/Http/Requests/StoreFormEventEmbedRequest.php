@@ -82,9 +82,13 @@ class StoreFormEventEmbedRequest extends FormRequest
     public function validateParentAndStudent()
     {
         return [
-            'fullname.*' => 'required',
-            'email.*' => 'required|email',
-            'fullnumber.*' => 'required',
+            'fullname.0' => 'required',
+            'email.0' => 'required|email',
+            'fullnumber.0' => 'required',
+
+            'fullname.1' => 'required',
+            'email.1' => 'nullable|email',
+            'fullnumber.1' => 'nullable',
             
             'school' => 'required',
             'graduation_year' => 'required',

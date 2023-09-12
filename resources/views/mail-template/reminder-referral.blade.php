@@ -11,17 +11,16 @@
                         <td>
                             <p>Dear Mr./Mrs. {{ $recipient }},</p>
                             <p>
-                                We hope this message finds you well and brimming with excitement for STEM+ Wonderlab,
+                                We hope this message finds you well and brimming with excitement for <b>STEM+ Wonderlab</b>,
                                 Indonesia's FIRST student makerspace expo. In this event, your child will gain access to
                                 advanced tools, connect with fellow young innovators, collaborate on exciting projects, and
                                 contribute to real impact on global issues!
                             </p>
                                
                             <p style="text-align: center;">
-                                <b>{{ $event['eventName'] }}</b>
-                                <br>{{ strip_tags($event['eventLocation']) }}
-                                <br>{{ $event['eventDate_start'] }}
-                                <br>{{ $event['eventTime_start'] }} WIB
+                                <b>STEM+ Wonderlab</b>
+                                <br>📍{{ strip_tags($event['eventLocation']) }}
+                                <br>🗓{{ $event['eventDate_start'] }} | {{ $event['eventTime_start'] }} WIB
                                 <br>
                                 Show this QR at the registration table at the event
                             </p>

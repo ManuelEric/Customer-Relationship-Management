@@ -11,7 +11,7 @@
                     <td>
                         <p>Dear Mr./Mrs. {{$recipient}},</p>
                         <p>
-                            We are thrilled to share an exclusive invitation to your family as VIP guests for {{ $event['eventName'] }}, Indonesia's FIRST student makerspace expo!                        
+                            We are thrilled to share an exclusive invitation to your family as VIP guests for STEM+ Wonderlab, Indonesia's FIRST student makerspace expo!                        
                         </p>
                         <p>
                            [flyer]
