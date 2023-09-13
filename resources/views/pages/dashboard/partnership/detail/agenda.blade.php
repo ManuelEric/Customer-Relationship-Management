@@ -1,3 +1,4 @@
+@push('styles')
 <style>
     .fc .fc-button-primary:disabled {
         text-transform: capitalize;
@@ -17,6 +18,7 @@
         color: white;
     }
 </style>
+@endpush
 
 <div class="card mb-3">
     <div class="card-body">
@@ -58,6 +60,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     let data_speaker = new Array();
 
@@ -170,3 +173,4 @@
             
     }
 </script>
+@endpush

@@ -70,6 +70,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     var revenue_chart = null;
 
@@ -95,7 +96,7 @@
     function checkRevenueByYear() {
         let year = $('#revenue_year').val()
 
-        Swal.showLoading()
+        showLoading()
         axios.get('{{ url('api/finance/revenue') }}/' + year)
             .then((response) => {
 
@@ -222,7 +223,7 @@
                 let year = $('#revenue_year').val()
 
 
-                Swal.showLoading()
+                showLoading()
                 axios.get('{{ url('api/finance/revenue/detail') }}/' + year + '/' + month)
                     .then((response) => {
                         var result = response.data.data
@@ -272,3 +273,4 @@
 
     // checkRevenueByYear()
 </script>
+@endpush

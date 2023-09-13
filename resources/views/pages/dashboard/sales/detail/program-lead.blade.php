@@ -42,6 +42,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     // Background Custom 
     let background = []
@@ -398,3 +399,4 @@
         }
     });
 </script>
+@endpush

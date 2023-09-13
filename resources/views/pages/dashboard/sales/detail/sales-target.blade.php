@@ -95,6 +95,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     var target_revenue_chart, target_people_chart = null;
 
@@ -310,3 +311,4 @@
         },
     });
 </script>
+@endpush

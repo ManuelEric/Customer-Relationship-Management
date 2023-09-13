@@ -324,6 +324,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     const digitalLeadsTarget = document.getElementById('leadsTarget');
 
@@ -424,7 +425,6 @@
         }
     });
 </script>
-
 
 <script>
     function ucwords(str) {
@@ -563,3 +563,4 @@
         $('#leadsModal').modal('show')
     }
 </script>
+@endpush

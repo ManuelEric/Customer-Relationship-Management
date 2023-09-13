@@ -1,5 +1,14 @@
+<div class="card bg-secondary mb-1">
+    <div class="d-flex justify-content-between align-items-center px-3 text-white">
+        <h3 class="mb-0">Sales Dashboard</h3>
+        <h1><i class="bi bi-person me-2 opacity-50"></i></h1>
+    </div>
+</div>
+
 @include('pages.dashboard.sales.detail.client-status')
-@include('pages.dashboard.sales.detail.leads')
+
+@includeWhen(!$isAdmin, 'pages.dashboard.sales.detail.leads')
+
 <div class="d-flex flex-md-row flex-column-reverse justify-content-between align-items-center">
     <ul class="nav nav-tabs flex-nowrap mt-md-0 mt-1">
         <li class="nav-item" style="cursor: pointer" onclick="dashboardTab('sales','client-program')">

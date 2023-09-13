@@ -82,6 +82,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     var school_program_chart, partner_program_chart, referral_program_chart = null;
 
@@ -419,3 +420,4 @@
 
     checkProgrambyMonth()
 </script>
+@endpush

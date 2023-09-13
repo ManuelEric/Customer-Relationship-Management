@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="{{ asset('library/dashboard/css/vertical-layout-light/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/step.css') }}">
 @endsection
-@section('style')
+@push('styles')
     <style>
         @media (min-width: 768px) {
             .position-md-static {
@@ -27,8 +27,8 @@
             }
         }
     </style>
-@endsection
-@section('script')
+@endpush
+@push('scripts')
     <script src="{{ asset('library/dashboard/js/off-canvas.js') }}"></script>
     <script src="{{ asset('library/dashboard/js/hoverable-collapse.js') }}"></script>
     <script src="{{ asset('library/dashboard/js/template.js') }}"></script>
@@ -38,8 +38,8 @@
     {{-- <script src="{{ asset('assets/dist/pspdfkit.js')}}"></script> --}}
 
     {{-- Sheet Js --}}
-    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>
-@endsection
+    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.19.2/package/dist/xlsx.full.min.js"></script>)
+@endpush
 
 @section('body')
     <div class="container-scroller">

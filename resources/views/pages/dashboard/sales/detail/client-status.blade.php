@@ -479,7 +479,7 @@
     </div>
 </div>
 
-
+@push('scripts')
 <script src="//www.datejs.com/build/date.js" type="text/javascript"></script>
 <script>
     $(".card-client").each(function() {
@@ -820,13 +820,5 @@
         window.open(url, '_blank');
 
     });
-
-    function showLoading() {
-        Swal.fire({
-            width: 100,
-            backdrop: '#4e4e4e7d',
-            allowOutsideClick: false,
-        })
-        Swal.showLoading();
-    }
 </script>
+@endpush

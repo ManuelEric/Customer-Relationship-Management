@@ -1,67 +1,71 @@
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="row justify-content-end mb-2">
-            <div class="col-md-2">
-                <select name="" id="qclient-event-year" class="select w-100">
-                    <option value="current">Current Year</option>
-                    <option value="last-3-year">The Last 3 Year</option>
-                </select>
-            </div>
-        </div>
-        <div class="row d-flex align-items-stretch">
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-header">
-                        Client Event Percentage
-                    </div>
-                    <div class="card-body overflow-auto" style="height: 300px">
-                        <table class="table table-hover" id="client-event-percentage-tbl">
-                            <thead>
-                                <tr>
-                                    <th>Event Name</th>
-                                    <th class="text-end">Percentage</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($events as $event)
-                                    <tr>
-                                        <td wrap>{{ $event->event_title }}</td>
-                                        <td class="text-end">
-                                            {{ $event->participants != 0 && $event->event_target != 0 ? ($event->participants / $event->event_target) * 100 : 0 }}%
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="2">No Data</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+
+<section id="client-event" class="dashboard-partnership d-none">
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row justify-content-end mb-2">
+                <div class="col-md-2">
+                    <select name="" id="qclient-event-year" class="select w-100">
+                        <option value="current">Current Year</option>
+                        <option value="last-3-year">The Last 3 Year</option>
+                    </select>
                 </div>
             </div>
-            <div class="col-md-5">
-                <div class="card h-100">
-                    <div class="card-body d-flex align-items-center">
-                        <canvas id="client_event"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between">
-                        <div class="" id="event_title">{{ count($events) > 0 ? $events[0]->event_title : null }}
+            <div class="row d-flex align-items-stretch">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            Client Event Percentage
                         </div>
-                        <div class="text-end">Conversion Lead</div>
+                        <div class="card-body overflow-auto" style="height: 300px">
+                            <table class="table table-hover" id="client-event-percentage-tbl">
+                                <thead>
+                                    <tr>
+                                        <th>Event Name</th>
+                                        <th class="text-end">Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($events as $event)
+                                        <tr>
+                                            <td wrap>{{ $event->event_title }}</td>
+                                            <td class="text-end">
+                                                {{ $event->participants != 0 && $event->event_target != 0 ? ($event->participants / $event->event_target) * 100 : 0 }}%
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="2">No Data</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="card-body client-event-lead">
-                        <canvas id="client_event_lead" class="w-100"></canvas>
+                </div>
+                <div class="col-md-5">
+                    <div class="card h-100">
+                        <div class="card-body d-flex align-items-center">
+                            <canvas id="client_event"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between">
+                            <div class="" id="event_title">{{ count($events) > 0 ? $events[0]->event_title : null }}
+                            </div>
+                            <div class="text-end">Conversion Lead</div>
+                        </div>
+                        <div class="card-body client-event-lead">
+                            <canvas id="client_event_lead" class="w-100"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+@push('scripts')
 <script>
     var client_event_chart_pct, event_lead_chart = null;
 
@@ -248,3 +252,4 @@
     });
 
 </script>
+@endpush
