@@ -480,7 +480,7 @@
 </div>
 
 @push('scripts')
-<script src="//www.datejs.com/build/date.js" type="text/javascript"></script>
+<script src="{{ asset('js/date.js') }}" type="text/javascript"></script>
 <script>
     $(".card-client").each(function() {
         $(this).click(function() {
