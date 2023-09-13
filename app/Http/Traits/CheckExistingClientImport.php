@@ -11,8 +11,8 @@ trait CheckExistingClientImport {
         $existClient = [];
 
         // Check existing client by phone number and email
-        $clientExistPhone = $this->checkExistingByPhoneNumber($phone);
-        $clientExistEmail = $this->checkExistingByEmail($email);
+        $clientExistPhone = isset($phone) ? $this->checkExistingByPhoneNumber($phone) : false;
+        $clientExistEmail = isset($email) ? $this->checkExistingByEmail($email) : false;
 
         if ($clientExistPhone && $clientExistEmail) {
             $existClient['isExist'] = true;
