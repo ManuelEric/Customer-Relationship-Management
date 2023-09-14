@@ -164,8 +164,7 @@ trait MailingEventOfflineTrait
             $data['email'] = $email;
             $data['event_id'] = $event_id;
             $data['recipient'] = $client->full_name;
-            $data['title'] = "[VIP Special Invitation] STEM+ Wonderlab, Indonesia’s FIRST Student
-            Makerspace Expo";
+            $data['title'] = "[VIP Special Invitation] STEM+ Wonderlab, Indonesia’s FIRST Student Makerspace Expo";
             $data['param'] = [
                 'referral_page' => route('program.event.referral-page',[
                     'event_slug' => urlencode($event->event_title),
