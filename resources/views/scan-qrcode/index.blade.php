@@ -41,9 +41,6 @@
         }
     </style>
 @endsection
-@push('scripts')
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-@endpush
 @section('body')
     <section>
         <div class="container-fluid">
@@ -89,15 +86,19 @@
             </div>
         </div>
     </div>
+@endsection
 
+
+@push('scripts')
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
         $(function() {
             $("#client-detail-ctx").on('load', function() {
                 $('#clientDetail').modal('show');
                 swal.close();
 
-            });
-        })
+            });
+        })
         function closeModal() {
             $('#clientDetail').modal('hide')
             $('#reading').addClass('d-none')
@@ -146,4 +147,4 @@
             window.location.reload();
         }
     </script>
-@endsection
+@endpush
