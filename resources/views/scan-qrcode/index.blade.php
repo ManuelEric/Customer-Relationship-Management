@@ -115,7 +115,7 @@
 
             const identifier = arrSegments[maxIndexes];
             let source = "{{ url('client-detail') }}/" + identifier;
-            console.log(source)
+            // console.log(source)
 
             var iframe = $("#client-detail-ctx")
             iframe.attr('src', source)
