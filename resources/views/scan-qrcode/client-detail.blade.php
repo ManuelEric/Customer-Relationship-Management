@@ -1,6 +1,6 @@
 @extends('app')
 @section('title', 'Confirmation')
-@section('style')
+@push('styles')
     <style>
         input {
             border: 0 !important;
@@ -21,7 +21,7 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
-@endsection
+@endpush
 @section('body')
     <section>
         <div class="container-fluid my-3">
@@ -89,35 +89,37 @@
 
 @endsection
 
-
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
 
     <script>
-        var user1 = document.querySelector("#phoneUser1");
-        var user2 = document.querySelector("#phoneUser2");
+        $(function() {
 
-        const phoneInput1 = window.intlTelInput(user1, {
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
-            initialCountry: 'id',
-            onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
-        });
+            var user1 = document.querySelector("#phoneUser1");
+            var user2 = document.querySelector("#phoneUser2");
 
-        const phoneInput2 = window.intlTelInput(user2, {
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
-            initialCountry: 'id',
-            onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
-        });
+            const phoneInput1 = window.intlTelInput(user1, {
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+                initialCountry: 'id',
+                onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
+            });
 
-        $("#phoneUser1").on('keyup', function(e) {
-            var number1 = phoneInput1.getNumber();
-            $("#phone1").val(number1);
-        });
+            const phoneInput2 = window.intlTelInput(user2, {
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js",
+                initialCountry: 'id',
+                onlyCountries: ["id", "us", "gb", "sg", "au", "my"],
+            });
 
-        $("#phoneUser2").on('keyup', function(e) {
-            var number2 = phoneInput2.getNumber();
-            $("#phone2").val(number2);
-        });
+            $("#phoneUser1").on('keyup', function(e) {
+                var number1 = phoneInput1.getNumber();
+                $("#phone1").val(number1);
+            });
+
+            $("#phoneUser2").on('keyup', function(e) {
+                var number2 = phoneInput2.getNumber();
+                $("#phone2").val(number2);
+            });
+        })
     </script>
     <script>
         function test() {
