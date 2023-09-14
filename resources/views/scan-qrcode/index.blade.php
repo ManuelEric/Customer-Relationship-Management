@@ -41,9 +41,9 @@
         }
     </style>
 @endsection
-@section('script')
+@push('scripts')
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-@endsection
+@endpush
 @section('body')
     <section>
         <div class="container-fluid">
@@ -133,7 +133,7 @@
             console.warn('Please scan your QR-Code!');
         }
 
-        // initialiaze scanner 
+        // initialiaze scanner
         var html5QrcodeScanner = new Html5QrcodeScanner(
             "reader", {
                 fps: 10,
