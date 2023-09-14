@@ -94,7 +94,7 @@ class ClientEventController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax()) 
+        if ($request->ajax())
         {
             $event_name = $request->get('event_name');
             $filter['event_name'] = $event_name;
@@ -198,7 +198,7 @@ class ClientEventController extends Controller
         # when lead_id is kol
         # then put kol_lead_id to lead_id
         # otherwise
-        # when lead_id is not kol 
+        # when lead_id is not kol
         # then lead_id is lead_id
         if ($request->lead_id == "kol") {
 
@@ -229,7 +229,7 @@ class ClientEventController extends Controller
 
             # case 1
             # create new school
-            # when sch_id is "add-new" 
+            # when sch_id is "add-new"
             if ($request->sch_id == "add-new") {
 
                 $schoolDetails = $request->only([
@@ -397,7 +397,7 @@ class ClientEventController extends Controller
         # when lead_id is kol
         # then put kol_lead_id to lead_id
         # otherwise
-        # when lead_id is not kol 
+        # when lead_id is not kol
         # then lead_id is lead_id
         if ($request->lead_id == "kol") { # lead = kol
 
@@ -486,7 +486,7 @@ class ClientEventController extends Controller
             case 'reminder_referral':
                 $import = new ReminderReferralImport;
                 break;
-            
+
         }
         $import->import($file);
 
@@ -494,7 +494,7 @@ class ClientEventController extends Controller
     }
 
     public function createFormEmbed(Request $request)
-    {        
+    {
         if ($request->get('event_name') == null) {
             abort(404);
         }
@@ -532,7 +532,7 @@ class ClientEventController extends Controller
 
         # attend status
         # 1 is attending
-        # 0 is join the event 
+        # 0 is join the event
         $attend_status = $request->attend_status == "attend" ? 1 : 0;
 
         # type of event
@@ -552,7 +552,7 @@ class ClientEventController extends Controller
         # referral code
         $referral_code = $request->referral;
 
-        # registration type 
+        # registration type
         # will be "ots" or "pr"
         $registration_type = $request->status;
 
@@ -562,7 +562,7 @@ class ClientEventController extends Controller
         DB::beginTransaction();
         try {
 
-            # when sch_id is "add-new" 
+            # when sch_id is "add-new"
             // $choosen_school = $request->school;
             if (!$this->schoolRepository->getSchoolById($request->school) && $request->school !== NULL) {
 
@@ -601,7 +601,7 @@ class ClientEventController extends Controller
             if ($choosen_role == "student")
                 $clientEventDetails['parent_id'] = $createdClient['parentId'];
 
-            # if registration_type is exist 
+            # if registration_type is exist
             # add the registration_type into the clientEventDetails that will be stored
             if (isset($registration_type))
                 $clientEventDetails['registration_type'] = $registration_type;
@@ -620,7 +620,7 @@ class ClientEventController extends Controller
                     $this->sendMailQrCode($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
 
                 } else {
-                    
+
                     # send thanks mail
                     // $this->sendMailThanks($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
 
@@ -651,8 +651,8 @@ class ClientEventController extends Controller
 
             # initialize raw variable
             # why newClientDetails[$loop] should be array?
-            # because to make easier for system to differentiate between parents and students like for example if user registered as a parent 
-            # then index 0 is for parent data and index 1 is for children data, otherwise 
+            # because to make easier for system to differentiate between parents and students like for example if user registered as a parent
+            # then index 0 is for parent data and index 1 is for children data, otherwise
             $newClientDetails[$loop] = [
                 'name' => $request->fullname[$loop],
                 'email' => $request->email[$loop],
@@ -699,8 +699,8 @@ class ClientEventController extends Controller
                     ];
 
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
-                    
-                
+
+
                 } else if ($choosen_role == 'student' && $loop == 0) {
 
                     $additionalInfo = [
@@ -713,10 +713,10 @@ class ClientEventController extends Controller
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
 
                 }
-                
+
                 # additional info that should be stored when role is teacher
-                if ($choosen_role == 'teacher/counsellor') { 
-                
+                if ($choosen_role == 'teacher/counsellor') {
+
                     $additionalInfo = [
                         'sch_id' => $schoolId != null ? $schoolId : $request->school,
                     ];
@@ -738,10 +738,10 @@ class ClientEventController extends Controller
                         $role = $choosen_role;
                         break;
                 }
-                
+
                 # stored a new client information
                 $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($role), $clientDetails);
-                
+
             }
 
             $clientArrayIds[$loop] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$loop]->id;
@@ -751,17 +751,17 @@ class ClientEventController extends Controller
 
         # the indexes
         # the idea is assuming the index 0 as the main user that will be added into tbl_client_event
-        if ($choosen_role == 'parent') 
+        if ($choosen_role == 'parent')
         {
             $parentId = $newClientDetails[0]['id'] = $clientArrayIds[0];
             $childId = $clientArrayIds[1];
-        } 
+        }
         else if ($choosen_role == 'student')
         {
             $parentId = $clientArrayIds[1];
             $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
-        } 
-        else 
+        }
+        else
         {
             $teacherId = $newClientDetails[0]['id'] = $clientArrayIds[0];
         }
@@ -817,14 +817,14 @@ class ClientEventController extends Controller
         $mail_resources = 'mail-template.thanks-email-reg';
 
         $recipientDetails = $client['clientDetails'];
-        
+
         $url = route('program.event.qr-page', [
                         'event_slug' => urlencode($eventName),
                         'clientevent' => $clientEventId
                     ]);
 
         $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-        
+
         $event = [
             'eventDate_start' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
             'eventDate_end' => date('l, d M Y', strtotime($clientEvent->event->event_enddate)),
@@ -839,19 +839,19 @@ class ClientEventController extends Controller
                     ->subject($subject);
             });
             $sent_mail = 1;
-            
+
         } catch (Exception $e) {
-            
+
             $sent_mail = 0;
             Log::error('Failed send email qr code to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
 
         }
 
-        # if update is true 
+        # if update is true
         # meaning that this function being called from scheduler
         # that updating the client event log mail, so the system no longer have to create the client event log mail
         if ($update === true) {
-            return true;    
+            return true;
         }
 
         $logDetails = [
@@ -871,7 +871,7 @@ class ClientEventController extends Controller
         $recipientDetails = $client['clientDetails'];
 
         $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-        
+
         $event = [
             'eventName' => $eventName,
             'eventDate' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
@@ -884,19 +884,19 @@ class ClientEventController extends Controller
                     ->subject($subject);
             });
             $sent_mail = 1;
-            
+
         } catch (Exception $e) {
-            
+
             $sent_mail = 0;
             Log::error('Failed send email thanks to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
 
         }
 
-        # if update is true 
+        # if update is true
         # meaning that this function being called from scheduler
         # that updating the client event log mail, so the system no longer have to create the client event log mail
         if ($update === true) {
-            return true;    
+            return true;
         }
 
         $logDetails = [
@@ -916,7 +916,7 @@ class ClientEventController extends Controller
         $recipientDetails = $client['clientDetails'];
 
         $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-        
+
 
         $event = [
             'eventName' => $eventName,
@@ -930,19 +930,19 @@ class ClientEventController extends Controller
                     ->subject($subject);
             });
             $sent_mail = 1;
-            
+
         } catch (Exception $e) {
-            
+
             $sent_mail = 0;
             Log::error('Failed send email claim to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
 
         }
 
-        # if update is true 
+        # if update is true
         # meaning that this function being called from scheduler
         # that updating the client event log mail, so the system no longer have to create the client event log mail
         if ($update === true) {
-            return true;    
+            return true;
         }
 
         $logDetails = [
@@ -954,7 +954,7 @@ class ClientEventController extends Controller
         return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
     }
 
-    public function previewClientInformation(Request $request) 
+    public function previewClientInformation(Request $request)
     {
         $clientEventId = $request->clientevent;
 
@@ -1043,7 +1043,10 @@ class ClientEventController extends Controller
 
             # update client event
             $this->clientEventRepository->updateClientEvent($clientEventId, $newDetails);
-            $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
+
+            if ($clientEvent->status == 0)
+                $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
+
             DB::commit();
 
         } catch (Exception $e) {
@@ -1079,19 +1082,19 @@ class ClientEventController extends Controller
 
     public function registerExpress(Request $request)
     {
-       
+
         $clientId = $request->route('client');
         $client = $this->clientRepository->getClientById($clientId);
         $eventId = $request->route('event');
 
-        $dataRegister = $this->register($client->mail, $eventId, 'VIP'); 
+        $dataRegister = $this->register($client->mail, $eventId, 'VIP');
 
         if($dataRegister['success'] && !$dataRegister['already_join']){
             return Redirect::to('form/thanks');
         }else if($dataRegister['success'] && $dataRegister['already_join']){
             return Redirect::to('form/already-join');
         }
-        
+
 
     }
 
@@ -1104,7 +1107,7 @@ class ClientEventController extends Controller
         $event = $this->eventRepository->getEventByName(urldecode($event_slug));
 
         if(isset($shortUrl)){
-            $link = $shortUrl->default_short_url; 
+            $link = $shortUrl->default_short_url;
         }else{
             #insert short url to database
             $link = $this->createShortUrl(url('form/event?event_name='.$event_slug.'&form_type=cta&event_type=offline&ref='. $refcode), $refcode);
