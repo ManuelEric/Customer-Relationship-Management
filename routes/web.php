@@ -50,8 +50,8 @@ Route::resource('user/volunteer', VolunteerController::class);
 // Route::get('form/event', function() {
 //     return view('form-embed.form-event');
 // });
-Route::get('form/event', [ClientEventController::class, 'createFormEmbed']);
-Route::post('form/events', [ClientEventController::class, 'storeFormEmbed']);
+Route::get('form/event', [ClientEventController::class, 'createFormEmbed'])->name('form.event.create');
+Route::post('form/events', [ClientEventController::class, 'storeFormEmbed'])->name('form.event.store');
 
 // Route::get('form/event/{event_slug}/client/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
 Route::put('form/event/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
@@ -64,7 +64,7 @@ Route::post('form/registrations', [PublicRegistrationController::class, 'store']
 
 Route::get('form/thanks', function() {
     return view('form-embed.thanks');
-});
+})->name('form.event.registration.success');
 
 Route::get('form/already-join', function() {
     return view('form-embed.response.already-join');
