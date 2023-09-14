@@ -35,15 +35,13 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
 
     public function collection(Collection $rows)
     {
-
-            foreach ($rows as $row) {
+        
+        foreach ($rows as $row) {
                 
+            $this->sendMailInvitation($row['email'], $row['event_id'], 'first-send');
                
-
-                $this->sendMailInvitation($row['email'], $row['event_id'], 'first-send');
-               
-                }
-            }
+        }
+    }
           
     
 

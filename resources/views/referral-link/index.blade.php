@@ -9,9 +9,9 @@
         integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endsection
-@section('script')
+@push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
-@endsection
+@endpush
 @section('body')
     <section>
         <div class="container-fluid">
@@ -35,7 +35,7 @@ Come with me to the event by clicking this link: {{$link}} See you there!
                     </div>
                     <div class="text-center mt-2">
                         <button class="btn btn-sm text-white" data-clipboard-action="copy" data-clipboard-target="#bar"
-                            style="background: #233469;">
+                            style="background: #233469;" onclick="alert('Copied')">
                             <i class="bi bi-clipboard-check"></i>
                             Copy & Share
                         </button>
