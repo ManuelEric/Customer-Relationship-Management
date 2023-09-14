@@ -23,6 +23,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
 @endpush
 @section('body')
+    @php
+        $secondary_client_role = $client->register_as == "parent" ? "Child's" : "Parent's";
+    @endphp
     <section>
         <div class="container-fluid my-3">
             <div class="row justify-content-center align-items-center">
@@ -48,23 +51,26 @@
                                 <label>Number of Attend <span class="text-danger">*</span></label>
                                 <input type="number" name="how_many_people_attended" class="form-control">
                             </div>
+                            @if (in_array($client->register_as, ['parent', 'student']))
                             <div class="col-4 mb-3">
-                                <label>Your Child's Name <span class="text-danger">*</span></label>
+                                <label>Your {{ $secondary_client_role  }} Name <span class="text-danger">*</span></label>
                                 <input type="text" readonly class="form-control" value="{{ $secondary_client['personal_info']->full_name }}">
                             </div>
                             <div class="col-4 mb-3">
-                                <label>Your Child's Email <span class="text-danger">*</span></label>
+                                <label>Your {{ $secondary_client_role  }} Email <span class="text-danger">*</span></label>
                                 <input type="text" name="secondary_mail" class="form-control" value="{{ $secondary_client['personal_info']->mail }}">
                             </div>
                             <div class="col-4 mb-3">
-                                <label>Child's Number <span class="text-danger">*</span></label>
+                                <label>{{ $secondary_client_role  }} Number <span class="text-danger">*</span></label>
                                 <input type="text" id="phoneUser2" class="form-control" value="{{ $secondary_client['personal_info']->phone }}">
                                 <input type="hidden" name="secondary_phone" id="phone2" value="{{ $secondary_client['personal_info']->phone }}">
                             </div>
+                            @endif
                             <div class="col-4 mb-3">
                                 <label>School Name <span class="text-danger">*</span></label>
                                 <input type="text" readonly class="form-control" value="{{ $secondary_client['school'] }}">
                             </div>
+                            @if (in_array($client->register_as, ['parent', 'student']))
                             <div class="col-4 mb-3">
                                 <label>Graduation Year <span class="text-danger">*</span></label>
                                 <input type="text" readonly class="form-control" value="{{ $secondary_client['graduation_year'] }}">
@@ -73,6 +79,7 @@
                                 <label>Destination Country <span class="text-danger">*</span></label>
                                 <input type="text" readonly class="form-control" value="{{ $secondary_client['abr_country'] }}">
                             </div>
+                            @endif
                             <div class="col-12">
                                 <hr>
                                 <div class="d-flex justify-content-center">
