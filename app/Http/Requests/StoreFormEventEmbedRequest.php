@@ -47,7 +47,7 @@ class StoreFormEventEmbedRequest extends FormRequest
                     'leadsource' => 'where do you know this event'
                 ];
                 break;
-            
+
             default:
                 return [
                     'fullname.0' => 'name',
@@ -56,7 +56,7 @@ class StoreFormEventEmbedRequest extends FormRequest
                     'leadsource' => 'where do you know this event'
                 ];
         }
-        
+
     }
 
     /**
@@ -67,7 +67,7 @@ class StoreFormEventEmbedRequest extends FormRequest
     public function rules()
     {
         switch ($this->input('role')) {
-            
+
             case "parent":
             case "student":
                 return $this->validateParentAndStudent();
@@ -89,7 +89,7 @@ class StoreFormEventEmbedRequest extends FormRequest
             'fullname.1' => 'required',
             'email.1' => 'nullable|email',
             'fullnumber.1' => 'nullable',
-            
+
             'school' => 'required',
             'graduation_year' => 'required',
             'destination_country' => 'required|exists:tbl_tag,id',
@@ -103,10 +103,10 @@ class StoreFormEventEmbedRequest extends FormRequest
             'fullname.0' => 'required',
             'email.0' => 'required|email',
             'fullnumber.0' => 'required',
-            'fullname.1' => 'required',
+            'fullname.1' => 'nullable',
             'email.1' => 'nullable|email',
             'fullnumber.1' => 'nullable',
-            
+
             'school' => 'required',
             'leadsource' => 'nullable|exists:tbl_lead,lead_id'
         ];
