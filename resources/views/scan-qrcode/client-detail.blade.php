@@ -24,6 +24,8 @@
 @endpush
 @section('body')
     @php
+        $isTeacher = $client->register_as == "teacher/counsellor" ? true : false
+        $isParentOrStudent = $client->register_as == "parent" || $client->register_as == "student" ? true : false
         $secondary_client_role = $client->register_as == "parent" ? "Child's" : "Parent's";
     @endphp
     <section>
@@ -34,15 +36,27 @@
                         @csrf
                         @method('PUT')
                         <div class="row">
-                            <div class="col-4 mb-3">
+                            <div @class([
+                                    'col-12' => $isTeacher,
+                                    'col-4' => $isParentOrStudent,
+                                    'mb-3'
+                                ])>
                                 <label>Full Name <span class="text-danger">*</span></label>
                                 <input type="text" readonly class="form-control" value="{{ $client->full_name }}">
                             </div>
-                            <div class="col-4 mb-3">
+                            <div @class([
+                                    'col-12' => $isTeacher,
+                                    'col-4' => $isParentOrStudent,
+                                    'mb-3'
+                                ])>
                                 <label>Email <span class="text-danger">*</span></label>
                                 <input type="text" readonly class="form-control" value="{{ $client->mail }}">
                             </div>
-                            <div class="col-4 mb-3">
+                            <div @class([
+                                    'col-12' => $isTeacher,
+                                    'col-4' => $isParentOrStudent,
+                                    'mb-3'
+                                ])>
                                 <label>Phone Number <span class="text-danger">*</span></label>
                                 <input type="text" id="phoneUser1" readonly class="form-control" value="{{ $client->phone }}">
                                 <input type="hidden" id="phone1">
@@ -82,7 +96,7 @@
                                     @break
 
                                 @case("teacher/counsellor")
-                                    <div class="col-4 mb-3">
+                                    <div class="col-12 mb-3">
                                         <label>School Name <span class="text-danger">*</span></label>
                                         <input type="text" readonly class="form-control" value="{{ $client->school->sch_name }}">
                                     </div>
