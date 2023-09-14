@@ -46,7 +46,7 @@
                             </div>
                             <div class="col-12 mb-3">
                                 <label>Number of Attend <span class="text-danger">*</span></label>
-                                <input type="number" name="how_many_people_attended" value="{{ $client_event->number_of_attend }}" class="form-control">
+                                <input type="number" name="how_many_people_attended" class="form-control">
                             </div>
                             <div class="col-4 mb-3">
                                 <label>Your Child's Name <span class="text-danger">*</span></label>
