@@ -24,8 +24,9 @@
 @endpush
 @section('body')
     @php
-        $isTeacher = $client->register_as == "teacher/counsellor" ? true : false
-        $isParentOrStudent = $client->register_as == "parent" || $client->register_as == "student" ? true : false
+        $isTeacher = $client->register_as == "teacher/counsellor" ? true : false;
+        $isParent = $client->register_as == "parent" ? true : false;
+        $isStudent = $client->register_as == "student" ? true : false;
         $secondary_client_role = $client->register_as == "parent" ? "Child's" : "Parent's";
     @endphp
     <section>
@@ -38,7 +39,7 @@
                         <div class="row">
                             <div @class([
                                     'col-12' => $isTeacher,
-                                    'col-4' => $isParentOrStudent,
+                                    'col-4' => $isParent || $isStudent,
                                     'mb-3'
                                 ])>
                                 <label>Full Name <span class="text-danger">*</span></label>
@@ -46,7 +47,7 @@
                             </div>
                             <div @class([
                                     'col-12' => $isTeacher,
-                                    'col-4' => $isParentOrStudent,
+                                    'col-4' => $isParent || $isStudent,
                                     'mb-3'
                                 ])>
                                 <label>Email <span class="text-danger">*</span></label>
@@ -54,7 +55,7 @@
                             </div>
                             <div @class([
                                     'col-12' => $isTeacher,
-                                    'col-4' => $isParentOrStudent,
+                                    'col-4' => $isParent || $isStudent,
                                     'mb-3'
                                 ])>
                                 <label>Phone Number <span class="text-danger">*</span></label>
