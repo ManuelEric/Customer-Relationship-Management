@@ -1014,14 +1014,21 @@ class ClientEventController extends Controller
 
         # initiate variables in order to
         # update student information details
+        $isParent = $isStudent = $isTeacher = false;
         switch ($client->register_as) { # this is a choosen role
 
             case "parent":
                 $childId = $clientEvent->children->id;
+                $isParent = true;
                 break;
 
             case "student":
                 $childId = $client->id;
+                $isStudent = true;
+                break;
+
+            case "teacher/counsellor":
+                $isTeacher = true;
                 break;
 
         }
@@ -1035,11 +1042,13 @@ class ClientEventController extends Controller
         DB::beginTransaction();
         try {
 
-            # update student information details
-            $this->clientRepository->updateClient($childId, [
-                'mail' => $request->secondary_mail,
-                'phone' => $request->secondary_phone
-            ]);
+            if ($isParent || $isStudent) {
+                # update student information details
+                $this->clientRepository->updateClient($childId, [
+                    'mail' => $request->secondary_mail,
+                    'phone' => $request->secondary_phone
+                ]);
+            }
 
             # update client event
             $this->clientEventRepository->updateClientEvent($clientEventId, $newDetails);
