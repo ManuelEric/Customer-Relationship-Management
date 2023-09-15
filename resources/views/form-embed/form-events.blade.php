@@ -212,7 +212,7 @@
                                 <label class="font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                     Phone Number <span class="text-red-400">*</span>
                                 </label>
-                                <input type="text" name="phone[]"
+                                <input type="tel" name="phone[]"
                                     class="required w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser1">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
@@ -244,7 +244,7 @@
                                         <span class="text-red-400">*</span>
                                     @endif
                                 </label>
-                                <input type="text" name="phone[]"
+                                <input type="tel" name="phone[]"
                                     class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser2">
                                 <input type="hidden" name="fullnumber[]" id="phone2" class="child_info">

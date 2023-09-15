@@ -1052,7 +1052,7 @@ class ClientEventController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to process the attending request from '.$clientFullname.' ( '.$eventName.' )');
+            Log::error('Failed to process the attending request from '.$clientFullname.' ( '.$eventName.' ) | error : '.$e->getMessage().' '.$e->getLine());
             return view('form-embed.response.error');
 
         }
