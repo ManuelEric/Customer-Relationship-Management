@@ -183,6 +183,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     var comparison_partner_chart, comparison_school_chart, comparison_referral_chart = null;
 
@@ -455,3 +456,4 @@
 
     checkComparison()
 </script>
+@endpush

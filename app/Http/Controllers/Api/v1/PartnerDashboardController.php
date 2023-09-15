@@ -356,7 +356,7 @@ class PartnerDashboardController extends Controller
                 $universities = $this->universityRepository->getUniversityByMonthly($monthYear, 'list');
                 if ($universities->count() == 0)
                     return response()->json(
-                        ['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="5">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']
+                        ['title' => 'List of ' . ucwords(str_replace('-', ' ', $type)), 'html_ctx' => '<tr align="center"><td colspan="8">No ' . str_replace('-', ' ', $type) . ' data</td></tr>']
                     );
 
                 foreach ($universities as $university) {

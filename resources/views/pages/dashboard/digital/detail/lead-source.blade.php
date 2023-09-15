@@ -164,7 +164,7 @@
     </div>
 </div>
 
-
+@push('scripts')
 <script>
     const digitalLeadSource = document.getElementById('digitalLeadSource');
     const theadLead = "<th>No</th>" +
@@ -327,3 +327,4 @@
 
     }
 </script>
+@endpush

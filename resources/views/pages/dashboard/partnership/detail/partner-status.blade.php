@@ -1,6 +1,5 @@
 <div class="card mb-3">
     <div class="card-body">
-
         <div class="row justify-content-between g-1 mb-2">
             <div class="col-md-2">
                     <select id="period-partnership" class="select w-100" onchange="checkPeriodPartnership()">
@@ -8,16 +7,12 @@
                     <option value="monthly">Monthly</option>
                 </select>
             </div>
-                    
-                   
             <div class="col-md-2 text-end d-none" id="monthly-partnership">
                     <input type="month" name="" id="partner_status_month" class="form-control form-control-sm"
                     onchange="checkPartnerStatusbyMonth()" value="{{ date('Y-m') }}">
             </div>
-
         </div>
 
-       
         <div class="row align-items-stretch">
             <div class="col-md-3">
                 <div class="card rounded border h-100 card-partner cursor-pointer" data-partner-type="Partner">
@@ -158,6 +153,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     function checkPeriodPartnership() {
         let period = $('#period-partnership').val()
@@ -422,3 +418,4 @@
 
         
 </script>
+@endpush
