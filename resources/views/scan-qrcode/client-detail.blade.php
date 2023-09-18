@@ -30,8 +30,8 @@
         $secondary_client_role = $client->register_as == "parent" ? "Child's" : "Parent's";
     @endphp
     <section>
-        <div class="container-fluid my-3">
-            <div class="row justify-content-center align-items-center">
+        <div class="container-fluid my-3" style="height: 90vh">
+            <div class="row justify-content-center align-items-center h-100">
                 <div class="col-md-8">
                     <form action="{{ route("link-event-attend", ['clientevent' => request()->route('clientevent')]) }}" method="POST">
                         @csrf
@@ -61,10 +61,6 @@
                                 <label>Phone Number <span class="text-danger">*</span></label>
                                 <input type="text" id="phoneUser1" readonly class="form-control" value="{{ $client->phone }}">
                                 <input type="hidden" id="phone1">
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label>Number of Attend <span class="text-danger">*</span></label>
-                                <input type="number" name="how_many_people_attended" class="form-control">
                             </div>
                             @switch ($client->register_as)
                                 @case("parent")
@@ -105,9 +101,15 @@
                             @endswitch
                             <div class="col-12">
                                 <hr>
-                                <div class="d-flex justify-content-center">
-                                    <button type="submit" class="btn btn-sm btn-primary"><i
-                                            class="bi bi-send me-2"></i> Submit</button>
+                                <div class="row justify-content-end align-items-end">
+                                    <div class="col-3">
+                                        <label>Number of Party <span class="text-danger">*</span></label>
+                                        <input type="number" name="how_many_people_attended" class="form-control" style="border-bottom: 3px solid rgb(55, 98, 227) !important;">
+                                    </div>
+                                    <div class="col-2">
+                                        <button type="submit" class="btn btn-sm btn-primary"><i
+                                                class="bi bi-send me-2"></i> Submit</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
