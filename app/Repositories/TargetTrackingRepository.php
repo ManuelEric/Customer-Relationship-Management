@@ -12,7 +12,7 @@ class TargetTrackingRepository implements TargetTrackingRepositoryInterface
     {
         return TargetTracking::whereMonth('month_year', date('m', strtotime($monthYear)))
                                 ->whereYear('month_year', date('Y', strtotime($monthYear)))
-                                ->first();
+                                ->get();
     }
 
     public function getTargetTrackingMonthlyByDivisi($monthYear, $divisi)
