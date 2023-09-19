@@ -122,6 +122,7 @@ class AlarmRepository implements AlarmRepositoryInterface
         $alarmLeads['sales']['mid']['referral'] = $actualLeadsReferral['lead_needed'] < 10 ? true : false;
         $alarmLeads['digital']['mid']['hot_lead'] = $actualLeadsDigital['hot_lead'] < $leadDigitalTarget['hot_lead'] ? true : false;
         $alarmLeads['general']['mid']['event'] = ($alarmLeads['sales']['mid']['hot_lead'] || $alarmLeads['sales']['mid']['referral']) && $events->count() < 1 ? true : false;
+        $alarmLeads['general']['mid']['target'] = isset($dataSalesTarget) ? false : true;
   
             # Day 15-30 (akhir bulan)
             if ($today > date('Y-m') . '-' . $midOfMonth) {
@@ -161,10 +162,10 @@ class AlarmRepository implements AlarmRepositoryInterface
                         case 'digital':
                             $alarm == true ? $count['digital']++ : null;
                             break;
-                        case 'general':
-                            $alarm == true ? $count['sales']++ : null;
-                            $alarm == true ? $count['digital']++ : null;
-                            break;
+                        // case 'general':
+                        //     $alarm == true ? $count['sales']++ : null;
+                        //     $alarm == true ? $count['digital']++ : null;
+                        //     break;
                     }
                     
                     $alarm == true ? $count['general']++ : null;
@@ -180,7 +181,7 @@ class AlarmRepository implements AlarmRepositoryInterface
     {
         $alarmLeads = $this->setAlarmLead();
 
-        $message = null;
+        // $message = null;
         $message['sales'][] = $message['digital'][] = $message['general'][] = null;
         foreach ($alarmLeads as $divisi => $alarmDivisi) {
             foreach ($alarmDivisi as $alarmTime) {
@@ -188,23 +189,46 @@ class AlarmRepository implements AlarmRepositoryInterface
 
                     if($alarm){
 
-
                         switch ($divisi) {
+                            
                             case 'sales':
-                                $message['sales'][] = ($key == 'event') ? 'There are no events this month.' : (($key == 'failed') ? 'There are 3 times in a row the Admissions Mentoring program has failed.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target');
+                                $message['sales'][] = $this->messageNotification($key, $divisi);
                                 break;
                             case 'digital':
-                                $message['digital'][] = str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
+                                $message['digital'][] = $this->messageNotification($key, $divisi);
                                 break;
-                            case 'general':
-                                $message['sales'][] = $key == 'event' ? 'There are no events this month.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
-                                $message['digital'][] = $key == 'event' ? 'There are no events this month.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target';
-                                break;
+                            // case 'general':
+                            //     $message['sales'][] = $this->messageNotification($key, $divisi);
+                            //     $message['digital'][] = $this->messageNotification($key, $divisi);
+                            //     break;
                         }
-                        $message['general'][] = ($key == 'event') ? 'There are no events this month.' : (($key == 'failed') ? 'There are 3 times in a row the Admissions Mentoring program has failed.' : str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target');
+                        $message['general'][] = $this->messageNotification($key, $divisi);
                     }
                 }
             }
+        }
+
+        return $message;
+    }
+
+    private function messageNotification($key, $divisi)
+    {
+        switch ($key) {
+            case 'event':
+                $message = 'There are no events this month.';
+                break;
+
+            case 'failed':
+                $message = 'There are 3 times in a row the Admissions Mentoring program has failed.';
+                break;
+
+            case 'target':
+                $message = 'There are no sales target this month.';
+                break;
+            
+            default:
+                $message = str_replace('_', ' ', $key) . '<b> '.$divisi.'</b> less than target.';
+                break;
         }
 
         return $message;
