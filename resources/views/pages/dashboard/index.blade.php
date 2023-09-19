@@ -12,7 +12,7 @@
     {{-- Alert  --}}
 
     {{-- General --}}
-    @includeIf($alarmLeads['general']['mid']['event'])
+    @includeWhen($alarmLeads['general']['mid']['target'] || $alarmLeads['general']['mid']['event'], 'pages.dashboard.alarm')
 
      <div @class([
         'row',
@@ -26,7 +26,7 @@
         @includeWhen($isAdmin || $isSales, 'pages.dashboard.sales.detail.alarm')
 
         {{-- Digital --}}
-        @includeWhen($isAdmin || $isSales, 'pages.dashboard.digital.detail.alarm')
+        @includeWhen($isAdmin || $isDigital, 'pages.dashboard.digital.detail.alarm')
 
     </div> 
 

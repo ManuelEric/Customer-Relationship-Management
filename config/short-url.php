@@ -11,7 +11,7 @@ return [
     | is registered for the short URL route.
     |
     */
-    'prefix' => '/all-inedu',
+    'prefix' => 'referral',
 
     /*
     |--------------------------------------------------------------------------
@@ -63,7 +63,9 @@ return [
     | "app.url" config value, set this field to null.
     |
     */
-    'default_url' => env('APP_URL', 'http://localhost'),
+    // 'default_url' => 'https://all-inedu.com',
+    'default_url' => 'http://127.0.0.1:9000',
+    // 'default_url' => env('APP_URL', 'http://localhost'),
 
     /*
     |--------------------------------------------------------------------------

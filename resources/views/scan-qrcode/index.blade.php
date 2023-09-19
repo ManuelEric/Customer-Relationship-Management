@@ -75,13 +75,13 @@
 
     <div class="modal fade modal-lg" tabindex="-1" id="clientDetail">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+            <div class="modal-content  rounded-5">
                 <div class="modal-header">
                     <h5 class="modal-title">Confirmation</h5>
                     <button type="button" class="btn-close" onclick="closeModal()"></button>
                 </div>
                 <div class="modal-body">
-                    <iframe src="" frameborder="0" width="100%" height="360" id="client-detail-ctx"></iframe>
+                    <iframe src="" frameborder="0" width="100%" height="400" id="client-detail-ctx"></iframe>
                 </div>
             </div>
         </div>

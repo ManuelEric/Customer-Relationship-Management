@@ -377,15 +377,15 @@ class ReceiptController extends Controller
 
         $pic_mail = $receipt->invoiceProgram->clientprog->internalPic->email;
 
-        // $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
-        $data['email'] = $receipt->invoiceProgram->clientprog->client->mail;
+        $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
+        // $data['email'] = $receipt->invoiceProgram->clientprog->client->mail;
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
             $pic_mail
         ];
-        // $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
-        $data['recipient'] = $receipt->invoiceProgram->clientprog->client->full_name;
+        $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
+        // $data['recipient'] = $receipt->invoiceProgram->clientprog->client->full_name;
         $data['program_name'] = $receipt->invoiceProgram->clientprog->program->program_name;
         $data['title'] = "Receipt of program " . $data['program_name'];
 

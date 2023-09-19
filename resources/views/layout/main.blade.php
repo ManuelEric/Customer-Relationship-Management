@@ -108,14 +108,14 @@
                                         }
                                     @endphp
                                     @foreach ($notification as $notif)
-                                                        
-                                        <li class="d-flex align-items-center border-bottom py-2">
-                                            
-                                            <i class="bi bi-exclamation-circle me-2"></i>
-                                            <span class="lh-sm">
-                                                {!! $notif !!}
-                                            </span>
-                                        </li>
+                                        @if(isset($notif))
+                                            <li class="d-flex align-items-center border-bottom py-2">
+                                                <i class="bi bi-exclamation-circle me-2"></i>
+                                                <span class="lh-sm">
+                                                    {!! $notif !!}
+                                                </span>
+                                            </li>
+                                        @endif
                                     @endforeach
 
                                 </ul>
