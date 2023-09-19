@@ -436,6 +436,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
         e.preventDefault();
 
         Swal.fire({
+            width:100,
             didOpen: () => {
                 Swal.showLoading()
             },

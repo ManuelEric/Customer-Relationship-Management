@@ -30,86 +30,84 @@
         $secondary_client_role = $client->register_as == "parent" ? "Child's" : "Parent's";
     @endphp
     <section>
-        <div class="container-fluid my-3">
-            <div class="row justify-content-center align-items-center">
+        <div class="container-fluid my-3" style="height: 90vh">
+            <div class="row justify-content-center align-items-center h-100">
                 <div class="col-md-8">
                     @if ($client_event->status == 0)
-                        <form action="{{ route("link-event-attend", ['clientevent' => request()->route('clientevent')]) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-                            <div class="row">
-                                <div @class([
-                                        'col-12' => $isTeacher,
-                                        'col-4' => $isParent || $isStudent,
-                                        'mb-3'
-                                    ])>
-                                    <label>Full Name <span class="text-danger">*</span></label>
-                                    <input type="text" readonly class="form-control" value="{{ $client->full_name }}">
-                                </div>
-                                <div @class([
-                                        'col-12' => $isTeacher,
-                                        'col-4' => $isParent || $isStudent,
-                                        'mb-3'
-                                    ])>
-                                    <label>Email <span class="text-danger">*</span></label>
-                                    <input type="text" readonly class="form-control" value="{{ $client->mail }}">
-                                </div>
-                                <div @class([
-                                        'col-12' => $isTeacher,
-                                        'col-4' => $isParent || $isStudent,
-                                        'mb-3'
-                                    ])>
-                                    <label>Phone Number <span class="text-danger">*</span></label>
-                                    <input type="text" id="phoneUser1" readonly class="form-control" value="{{ $client->phone }}">
-                                    <input type="hidden" id="phone1">
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label>Number of Attend <span class="text-danger">*</span></label>
-                                    <input type="number" name="how_many_people_attended" class="form-control">
-                                    @error('how_many_people_attended')
-                                        <small class="text-danger fw-light">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                @switch ($client->register_as)
-                                    @case("parent")
-                                    @case("student")
-                                        <div class="col-4 mb-3">
-                                            <label>Your {{ $secondary_client_role  }} Name <span class="text-danger">*</span></label>
-                                            <input type="text" readonly class="form-control" value="{{ $secondary_client['personal_info']->full_name }}">
-                                        </div>
-                                        <div class="col-4 mb-3">
-                                            <label>Your {{ $secondary_client_role  }} Email <span class="text-danger">*</span></label>
-                                            <input type="text" name="secondary_mail" class="form-control" value="{{ $secondary_client['personal_info']->mail }}">
-                                        </div>
-                                        <div class="col-4 mb-3">
-                                            <label>{{ $secondary_client_role  }} Number <span class="text-danger">*</span></label>
-                                            <input type="text" id="phoneUser2" class="form-control" value="{{ $secondary_client['personal_info']->phone }}">
-                                            <input type="hidden" name="secondary_phone" id="phone2" value="{{ $secondary_client['personal_info']->phone }}">
-                                        </div>
-                                        <div class="col-4 mb-3">
-                                            <label>School Name <span class="text-danger">*</span></label>
-                                            <input type="text" readonly class="form-control" value="{{ $secondary_client['school'] }}">
-                                        </div>
-                                        <div class="col-4 mb-3">
-                                            <label>Graduation Year <span class="text-danger">*</span></label>
-                                            <input type="text" readonly class="form-control" value="{{ $secondary_client['graduation_year'] }}">
-                                        </div>
-                                        <div class="col-4 mb-3">
-                                            <label>Destination Country <span class="text-danger">*</span></label>
-                                            <input type="text" readonly class="form-control" value="{{ $secondary_client['abr_country'] }}">
-                                        </div>
-                                        @break
+                    <form action="{{ route("link-event-attend", ['clientevent' => request()->route('clientevent')]) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="row">
+                            <div @class([
+                                    'col-12' => $isTeacher,
+                                    'col-4' => $isParent || $isStudent,
+                                    'mb-3'
+                                ])>
+                                <label>Full Name <span class="text-danger">*</span></label>
+                                <input type="text" readonly class="form-control" value="{{ $client->full_name }}">
+                            </div>
+                            <div @class([
+                                    'col-12' => $isTeacher,
+                                    'col-4' => $isParent || $isStudent,
+                                    'mb-3'
+                                ])>
+                                <label>Email <span class="text-danger">*</span></label>
+                                <input type="text" readonly class="form-control" value="{{ $client->mail }}">
+                            </div>
+                            <div @class([
+                                    'col-12' => $isTeacher,
+                                    'col-4' => $isParent || $isStudent,
+                                    'mb-3'
+                                ])>
+                                <label>Phone Number <span class="text-danger">*</span></label>
+                                <input type="text" id="phoneUser1" readonly class="form-control" value="{{ $client->phone }}">
+                                <input type="hidden" id="phone1">
+                            </div>
+                            @switch ($client->register_as)
+                                @case("parent")
+                                @case("student")
+                                    <div class="col-4 mb-3">
+                                        <label>Your {{ $secondary_client_role  }} Name <span class="text-danger">*</span></label>
+                                        <input type="text" readonly class="form-control" value="{{ $secondary_client['personal_info']->full_name }}">
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <label>Your {{ $secondary_client_role  }} Email <span class="text-danger">*</span></label>
+                                        <input type="text" name="secondary_mail" class="form-control" style="border-bottom: 3px solid rgb(55, 98, 227) !important;" value="{{ $secondary_client['personal_info']->mail }}">
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <label>{{ $secondary_client_role  }} Number <span class="text-danger">*</span></label>
+                                        <input type="text" id="phoneUser2" class="form-control" style="border-bottom: 3px solid rgb(55, 98, 227) !important;" value="{{ $secondary_client['personal_info']->phone }}">
+                                        <input type="hidden" name="secondary_phone" id="phone2" value="{{ $secondary_client['personal_info']->phone }}">
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <label>School Name <span class="text-danger">*</span></label>
+                                        <input type="text" readonly class="form-control" value="{{ $secondary_client['school'] }}">
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <label>Graduation Year <span class="text-danger">*</span></label>
+                                        <input type="text" readonly class="form-control" value="{{ $secondary_client['graduation_year'] }}">
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <label>Destination Country <span class="text-danger">*</span></label>
+                                        <input type="text" readonly class="form-control" value="{{ $secondary_client['abr_country'] }}">
+                                    </div>
+                                    @break
 
-                                    @case("teacher/counsellor")
-                                        <div class="col-12 mb-3">
-                                            <label>School Name <span class="text-danger">*</span></label>
-                                            <input type="text" readonly class="form-control" value="{{ $client->school->sch_name }}">
-                                        </div>
-                                        @break
-                                @endswitch
-                                <div class="col-12">
-                                    <hr>
-                                    <div class="d-flex justify-content-center">
+                                @case("teacher/counsellor")
+                                    <div class="col-12 mb-3">
+                                        <label>School Name <span class="text-danger">*</span></label>
+                                        <input type="text" readonly class="form-control" value="{{ $client->school->sch_name }}">
+                                    </div>
+                                    @break
+                            @endswitch
+                            <div class="col-12">
+                                <hr>
+                                <div class="row justify-content-end align-items-end">
+                                    <div class="col-3">
+                                        <label>Number of Party <span class="text-danger">*</span></label>
+                                        <input type="number" name="how_many_people_attended" class="form-control" style="border-bottom: 3px solid rgb(55, 98, 227) !important;">
+                                    </div>
+                                    <div class="col-2">
                                         <button type="submit" class="btn btn-sm btn-primary"><i
                                                 class="bi bi-send me-2"></i> Submit</button>
                                     </div>

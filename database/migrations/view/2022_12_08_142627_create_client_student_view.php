@@ -83,7 +83,12 @@ return new class extends Migration
             (SELECT GROUP_CONCAT(sqp.prog_program) FROM tbl_interest_prog sqip
                     LEFT JOIN tbl_prog sqp ON sqp.prog_id = sqip.prog_id
                     WHERE sqip.client_id = c.id GROUP BY sqip.client_id) as interest_prog,
-            (SELECT GROUP_CONCAT(sqt.name) FROM tbl_client_abrcountry sqac
+            (SELECT GROUP_CONCAT(
+                        (CASE
+                            WHEN sqt.name = "Other" THEN sqac.country_name
+                            ELSE sqt.name 
+                        END)
+                    ) FROM tbl_client_abrcountry sqac
                     JOIN tbl_tag sqt ON sqt.id = sqac.tag_id
                     WHERE sqac.client_id = c.id GROUP BY sqac.client_id) as abr_country,
             (SELECT GROUP_CONCAT(sqm.name) FROM tbl_dreams_major sqdm
