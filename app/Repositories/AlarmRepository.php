@@ -236,8 +236,11 @@ class AlarmRepository implements AlarmRepositoryInterface
 
     private function calculatePercentageLead($actual, $target)
     {
-        if ($target == 0)
+        if ($target == 0 && $actual > 0){
+            return 100;
+        }else if($target == 0 && $actual == 0){
             return 0;
+        }
 
         return $actual / $target * 100;
     }

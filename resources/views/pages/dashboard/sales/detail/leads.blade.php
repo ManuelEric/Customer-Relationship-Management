@@ -434,6 +434,7 @@
     }
 
     function checkDataLead() {
+
         let month = $('#digital_lead_month').val()
 
         let today = moment().format('YYYY-MM')
@@ -466,6 +467,7 @@
                 var no = 1;
                 var divisi = ['sales', 'referral', 'digital'];
                 var typeLead = ['lead_needed', 'hot_lead', 'ic', 'contribution']
+
 
                 // Actual
                 chart_dataleads.data.datasets[0].data = [];
@@ -525,7 +527,7 @@
                             itemDivisi)][itemType] + '/' + result['lead' + ucwords(
                             itemDivisi) + 'Target'][itemType]);
                         $('#' + itemType + '_percentage_' + itemDivisi).css('width', result['lead' +
-                            ucwords(itemDivisi) + 'Target']['percentage_' + itemType])
+                            ucwords(itemDivisi) + 'Target']['percentage_' + itemType]+"%")
                     })
                 })
 
