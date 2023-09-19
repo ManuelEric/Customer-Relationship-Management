@@ -1002,6 +1002,12 @@ class ClientEventController extends Controller
 
     public function handlerScanQrCodeForAttend(Request $request)
     {
+        # nambahin validasi number of attend tidak boleh 0
+        $request->validate([
+            'how_many_people_attended' => 'required|min:1'
+        ], $request->all(), ['how_many_people_attended' => 'number of party field']);
+        # 
+
         # get request
         $event = $request->event; # not used for now becuase there is no event slug
         $clientEventId = $request->clientevent;
@@ -1127,6 +1133,22 @@ class ClientEventController extends Controller
             'event' => $event
         ]);
     }
+
+    # for API User
+    public function trackReferralURL(Request $request)
+    {
+        $refcode = $request->route('referral');
+        $shortURL = ShortURL::findByKey($refcode);
+        $shortURL->trackingEnabled();
+
+        return response()->json(
+            [
+                'success' => true,
+                'data' => $shortURL
+            ]
+        );
+    }
+    # end
 
     public function qrPage(Request $request)
     {
