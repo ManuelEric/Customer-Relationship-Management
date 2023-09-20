@@ -102,7 +102,7 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-12 mt-3">
+                                <div class="col-md-12 mt-3 d-none">
                                     <div class="d-flex justify-content-between">
                                         <button type="button" class="btn btn-sm btn-outline-danger"
                                             id="cancel">Cancel</button>
