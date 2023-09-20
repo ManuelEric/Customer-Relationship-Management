@@ -38,6 +38,7 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
     use Importable;
     use StandardizePhoneNumberTrait;
     use CheckExistingClientImport;
+    use CreateCustomPrimaryKeyTrait;
 
     public function sheets(): array
     {
