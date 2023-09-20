@@ -1164,13 +1164,4 @@ class ClientEventController extends Controller
             'url' => $url
         ]);
     }
-
-    public function createQrCode(Request $request)
-    {
- 
-        return view('scan-qrcode.generate-qrcode')->with([
-            'url' => $request->get('url'),
-            'size' => $request->route('size')
-        ]);
-    }
 }
