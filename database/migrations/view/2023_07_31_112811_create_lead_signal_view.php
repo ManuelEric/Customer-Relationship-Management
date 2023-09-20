@@ -59,7 +59,7 @@ return new class extends Migration
         DB::statement("
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION SetInitialConsult ( contribution_to_target INTEGER, requested_division VARCHAR(20) )
+        CREATE OR REPLACE FUNCTION SetInitialConsult ( contribution_to_target INTEGER, requested_division VARCHAR(20) COLLATE utf8mb4_unicode_ci )
         RETURNS INTEGER
 
             BEGIN
@@ -135,7 +135,7 @@ return new class extends Migration
         DB::statement("
         DELIMITER //
 
-        CREATE OR REPLACE FUNCTION GetDiffFromLastMonth( requested_division VARCHAR(20) )
+        CREATE OR REPLACE FUNCTION GetDiffFromLastMonth( requested_division VARCHAR(20) COLLATE utf8mb4_unicode_ci )
         RETURNS INTEGER
         DETERMINISTIC
 

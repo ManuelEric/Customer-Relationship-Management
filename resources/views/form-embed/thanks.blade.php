@@ -17,7 +17,7 @@
                 Thank you for submitting your form!
             </h2>
             <h4 class="text-xl">
-                Your information has been successfully received. You can expect a call from us in the next 24 hours.
+                You will receive a confirmation email and our team will contact you shortly.
             </h4>
         </div>
     </div>
