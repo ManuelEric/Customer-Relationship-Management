@@ -62,7 +62,8 @@ return new class extends Migration
                     WHERE clrole.client_id = cl.id) as roles,
 
             GetClientType(cl.id) as type,
-            cl.register_as as register_as
+            cl.register_as as register_as,
+            cl.st_statusact as active
 
         FROM tbl_client cl
         LEFT JOIN client cv
