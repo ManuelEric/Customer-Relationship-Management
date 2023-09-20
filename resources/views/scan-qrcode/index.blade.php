@@ -1,6 +1,9 @@
 @extends('app')
-@section('title', 'Scanner')
-@section('style')
+@section('title', 'STEM+ WONDERLAB SCANNER')
+@section('css')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+@endsection
+@push('styles')
     <style>
         @layer base {
 
@@ -9,6 +12,16 @@
                 -webkit-appearance: none;
                 margin: 0;
             }
+        }
+
+        @font-face {
+            font-family: 'nulshock';
+            src: url('/img/makerspace/font/nulshock-bd.otf');
+            font-display: swap;
+        }
+
+        h2 {
+            font-family: 'nulshock' !important;
         }
 
         #html5-qrcode-button-camera-stop {
@@ -40,21 +53,39 @@
             width: 25%;
         }
     </style>
-@endsection
+@endpush
 @section('body')
     <section>
         <div class="container-fluid">
             <div class="row align-items-stretch">
-                <div class="col-8 px-5" style="height: 100vh; background:#233469;">
+                <div class="col-8 px-5 position-relative overflow-hidden" style="height: 100vh; background:#233469;">
+                    <img src="{{ asset('img/makerspace/asset-1.webp') }}" alt=""
+                        class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
+                        style="top:-2vh; left:-10vh; --animate-duration:10s">
+                    <img src="{{ asset('img/makerspace/asset-2.webp') }}" alt=""
+                        class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
+                        style="bottom:-7vh; left:-10vh; --animate-duration:10s">
+                    <img src="{{ asset('img/makerspace/asset-3.webp') }}" alt=""
+                        class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
+                        style="top:-7vh; right:-10vh; --animate-duration:10s">
+                    <img src="{{ asset('img/makerspace/asset-4.webp') }}" alt=""
+                        class="position-absolute w-25 animate__animated animate__pulse animate__infinite"
+                        style="bottom:-7vh; right:-10vh; --animate-duration:10s">
+
                     <div class="d-flex align-items-center h-100">
-                        <div class="text-white">
-                            <h1>Test</h1>
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <img src="{{ asset('img/makerspace/stem-logo-white.webp') }}" alt="" class="w-100">
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-4 px-5">
                     <div class="d-flex align-items-center h-100">
                         <div class="w-100">
+                            <div class="text-center mb-3">
+                                <h2>SCAN YOUR <br> QR-CODE HERE</h2>
+                            </div>
                             <div id="reading" class="card text-center shadow d-none">
                                 <div class="card-body">
                                     <img width="100"
@@ -65,7 +96,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div id="reader" class="rounded shadow p-3"></div>
+                            <div id="reader" class="rounded-4 shadow-lg p-3 border-0"></div>
                         </div>
                     </div>
                 </div>
@@ -99,6 +130,7 @@
 
             });
         })
+
         function closeModal() {
             $('#clientDetail').modal('hide')
             $('#reading').addClass('d-none')
@@ -142,8 +174,7 @@
             });
         html5QrcodeScanner.render(onScanSuccess);
 
-        function submitUpdate()
-        {
+        function submitUpdate() {
             window.location.reload();
         }
     </script>
