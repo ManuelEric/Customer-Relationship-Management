@@ -124,6 +124,9 @@ Route::get('teacher/{teacher}/events', [ClientTeacherCounselorController::class,
 # invoice program menu
 Route::get('current/rate/{base_currency}/{to_currency}', [CurrencyRateController::class, 'getCurrencyRate']);
 
+# create QR Code
+Route::get('create-qr/{size}', [ClientEventController::class, 'createQrCode']);
+
 # external API
 Route::prefix('v1')->group(function () {
     Route::get('get/mentees', [ExtClientController::class, 'getClientFromAdmissionMentoring']);
