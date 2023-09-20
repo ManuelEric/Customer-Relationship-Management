@@ -1059,8 +1059,8 @@ class ClientEventController extends Controller
             # update client event
             $this->clientEventRepository->updateClientEvent($clientEventId, $newDetails);
 
-            if ($clientEvent->status == 0)
-                $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
+            // if ($clientEvent->status == 0)
+            //     $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
 
             DB::commit();
 
