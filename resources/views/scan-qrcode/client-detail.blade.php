@@ -103,6 +103,9 @@
                             <div class="col-12">
                                 <hr>
                                 <div class="row justify-content-end align-items-end">
+                                    <div class="col">
+                                        {{ $client_event->notes }}
+                                    </div>
                                     <div class="col-3">
                                         <label>Number of Party <span class="text-danger">*</span></label>
                                         <input type="number" name="how_many_people_attended" class="form-control" style="border-bottom: 3px solid rgb(55, 98, 227) !important;">

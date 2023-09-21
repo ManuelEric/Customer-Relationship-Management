@@ -485,9 +485,9 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             country_input.removeClass('hidden')
 
             setAdditionalInputLabel({
-                "school" : "Please provide the student's school name",
-                "graduation" : "Please provide the student's expected graduation year?",
-                "country" : "Please provide the student's destination country to study?",
+                "school" : "What school does your child go to?",
+                "graduation" : "When do you expect your child to graduate?",
+                "country" : "Which country does your child interest in studying abroad?",
             });
 
         } else {

@@ -69,6 +69,9 @@ class AutomatedDeterminedHotLeads extends Command
 
             foreach ($rawData as $client) {
 
+                if ($client->active == 0)
+                    continue;
+
                 # if the client has already graduated
                 # then no need to calculate hot leads
                 $bypass = $client->grade > 0 ? true : false;
@@ -117,7 +120,7 @@ class AutomatedDeterminedHotLeads extends Command
 
                     # check if the data on tbl_client_lead_tracking doesnt have status active (1)
                     # meaning if there is no active status
-                    # then it means, set trigger update  as true so the system should be running for these clients
+                    # then it means, set trigger update  as true so the system will running for these clients
                     $triggerUpdate = $leadTracking->where('pivot.initialprogram_id', $initProgramId)->where('pivot.status', 1)->count() < 1 ? true : false;
                     
                     if ($recalculate == false && $triggerUpdate == false && $newClient == false)
