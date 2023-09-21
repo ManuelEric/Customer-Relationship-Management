@@ -1147,16 +1147,9 @@ class ClientEventController extends Controller
         $event = $this->eventRepository->getEventByName(urldecode($event_slug));
 
         $link = 'https://makerspace.all-inedu.com';
-        $query = '?ref='.$refcode;
+        $query = '?ref='.$refcode.'#form';
 
         $link = $link.$query;
-        // if(isset($shortUrl)){
-        //     $link = $shortUrl->default_short_url;
-        // }else{
-        //     #insert short url to database
-        //     $link = $this->createShortUrl(url('form/event?event_name='.$event_slug.'&form_type=cta&event_type=offline&ref='. $refcode), $refcode);
-        // }
-
         return view('referral-link.index')->with([
             'link' => $link,
             'event' => $event

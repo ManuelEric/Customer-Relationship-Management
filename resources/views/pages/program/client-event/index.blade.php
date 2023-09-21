@@ -364,13 +364,13 @@
             $("#eventTable tbody").on('change', '.num-party', function() {
 
                 var data = table.row($(this).parents('tr')).data();
-                var clientEventId = data.clientEventId;
+                var clientEventId = data.clientevent_id;
                 var number_of_party = this.value;
 
                 var url = "{{ url('api/event/party') }}/" + clientEventId + "/" + number_of_party;
                 axios.get(url)
                     .then(function(response) {
-                        notification('success', response.message);
+                        notification('success', response.data.message);
                     }).catch(function(error) {
                         console.log(error)
                         notification('error', 'Ooops! Something went wrong. Please try again.')
