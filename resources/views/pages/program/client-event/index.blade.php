@@ -19,13 +19,13 @@
 
     <div class="card bg-secondary mb-1 p-2">
         <div class="row align-items-center justify-content-between">
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
                     Client Event
                 </h5>
             </div>
-            <div class="col-md-6 d-flex align-items-center gap-2">
+            <div class="col-md-7 d-flex align-items-center gap-2">
                 <select class="select w-100" name="event_name" id="event-name">
                     <option data-placeholder="true"></option>
                     @foreach ($events as $event)
@@ -74,6 +74,7 @@
                         <th>Conversion Lead</th>
                         <th>Country of Study Abroad</th>
                         <th>Joined Date</th>
+                        <th>Number of Party</th>
                         <th>Attendance</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
@@ -265,6 +266,14 @@
                         }
                     },
                     {
+                        data: 'number_of_party',
+                        className: 'text-center',
+                        searchable: false,
+                        render: function(data, type, row, meta) {
+                            return '<input type="number" class="form-control form-control-sm num-party w-50 m-auto" value="'+ data +'" />'
+                        }
+                    },
+                    {
                         data: 'status',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
@@ -350,6 +359,23 @@
 
                 // merubah value status 
                 this.value = status == 1 ? 0 : 1
+
+            });
+
+            $("#eventTable tbody").on('change', '.num-party', function() {
+
+                var data = table.row($(this).parents('tr')).data();
+                var clientEventId = data.clientevent_id;
+                var number_of_party = this.value;
+
+                var url = "{{ url('api/event/party') }}/" + clientEventId + "/" + number_of_party;
+                axios.get(url)
+                    .then(function(response) {
+                        notification('success', response.data.message);
+                    }).catch(function(error) {
+                        console.log(error)
+                        notification('error', 'Ooops! Something went wrong. Please try again.')
+                    });
 
             });
 

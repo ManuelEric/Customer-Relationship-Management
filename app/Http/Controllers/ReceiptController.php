@@ -377,8 +377,11 @@ class ReceiptController extends Controller
 
         $pic_mail = $receipt->invoiceProgram->clientprog->internalPic->email;
 
+        # if recipient is parent (bachelor program) use below
         $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
-        // $data['email'] = $receipt->invoiceProgram->clientprog->client->mail;
+
+        # if recipient is student (master program) use below
+        // $data['email'] = $receipt->invoiceProgram->clientprog->client->mail; 
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),

@@ -34,7 +34,7 @@
             <div class="row justify-content-center align-items-center h-100">
                 <div class="col-md-8">
                     @if ($client_event->status == 0)
-                    <form action="{{ route("link-event-attend", ['clientevent' => request()->route('clientevent')]) }}" method="POST">
+                    <form action="{{ route("link-event-attend", ['clientevent' => $client_event->clientevent_id]) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="row">
@@ -103,6 +103,9 @@
                             <div class="col-12">
                                 <hr>
                                 <div class="row justify-content-end align-items-end">
+                                    <div class="col">
+                                        {{ $client_event->notes }}
+                                    </div>
                                     <div class="col-3">
                                         <label>Number of Party <span class="text-danger">*</span></label>
                                         <input type="number" name="how_many_people_attended" class="form-control" style="border-bottom: 3px solid rgb(55, 98, 227) !important;">
@@ -120,9 +123,6 @@
                                 <h2 class="text-3xl mb-4 font-bold">
                                     Thank you for your attendance.
                                 </h2>
-                                <h4 class="text-xl">
-                                    Please check your email to claim the benefit.
-                                </h4>
                             </div>
                         </div>
                     @endif

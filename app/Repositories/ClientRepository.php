@@ -226,6 +226,9 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
+            })->
+            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query;
@@ -258,6 +261,9 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
+            })->
+            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
@@ -293,6 +299,9 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
+            })->
+            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
@@ -335,6 +344,9 @@ class ClientRepository implements ClientRepositoryInterface
             })->
             when(!empty($advanced_filter['status_lead']), function ($querySearch) use ($advanced_filter) {
                 $querySearch->whereIn('status_lead', $advanced_filter['status_lead']);
+            })->
+            when(!empty($advanced_filter['active_status']), function ($querySearch) use ($advanced_filter) {
+                $querySearch->whereIn('st_statusact', $advanced_filter['active_status']);
             });
 
         return $asDatatables === false ? $query->orderBy('created_at', 'desc')->get() : $query->orderBy('first_name', 'asc');
@@ -682,6 +694,14 @@ class ClientRepository implements ClientRepositoryInterface
     public function getClientById($clientId)
     {
         return UserClient::find($clientId);
+    }
+
+    public function getClientByPhoneNumber($phoneNumber)
+    {
+        if (substr($phoneNumber, 0, 1) == "+")
+            $phoneNumber = substr($phoneNumber, 4);
+        
+        return UserClient::whereRaw('SUBSTR(phone, 4) LIKE ?', ['%'.$phoneNumber.'%'])->first();
     }
 
     public function getViewClientById($clientId)

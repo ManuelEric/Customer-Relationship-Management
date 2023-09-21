@@ -956,10 +956,32 @@ class ClientEventController extends Controller
 
     public function previewClientInformation(Request $request)
     {
-        $clientEventId = $request->clientevent;
+        $screening_type = $request->route('screening_type');
+        switch ($screening_type) {
 
-        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-        $client = $clientEvent->client;
+            case "qr":
+                $clientEventId = $request->route('identifier');
+                $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+                $client = $clientEvent->client;
+                break;
+
+            case "phone":
+                $phoneNumber = $request->route('identifier');
+                if (!$client = $this->clientRepository->getClientByPhoneNumber($phoneNumber))
+                    return view('scan-qrcode.error')->with(['message' => "We're sorry, but your data was not found"]);
+
+                # for now
+                # event id is hardcoded for STEM+ Wonderlab
+                $clientEvent = $client->clientEvent()->where('event_id', "EVT-0008")->first();
+                if (!$clientEvent)
+                    return view('scan-qrcode.error')->with(['message' => 'We\'re sorry, but you haven\'t joined our event.']);
+
+                break;
+
+        }
+
+        
+        
         $clientFullname = $client->full_name;
         $eventName = $clientEvent->event->event_title;
 
@@ -1059,8 +1081,8 @@ class ClientEventController extends Controller
             # update client event
             $this->clientEventRepository->updateClientEvent($clientEventId, $newDetails);
 
-            if ($clientEvent->status == 0)
-                $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
+            // if ($clientEvent->status == 0)
+            //     $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
 
             DB::commit();
 
@@ -1075,7 +1097,8 @@ class ClientEventController extends Controller
         return view('form-embed.response.success');
     }
 
-    public function updateAttendance($id, $status) {
+    public function updateAttendance($id, $status) 
+    {
         $clientEvent = $this->clientEventRepository->getClientEventById($id);
 
         DB::beginTransaction();
@@ -1093,6 +1116,30 @@ class ClientEventController extends Controller
         }
         return response()->json($data);
 
+    }
+
+    public function updateNumberOfParty(int $id, int $number_of_party)
+    {
+        $clientEvent = $this->clientEventRepository->getClientEventById($id);
+
+        DB::beginTransaction();
+        try {
+            $clientEvent->number_of_attend = $number_of_party;
+            $clientEvent->save();
+            DB::commit();
+            
+            $success = true;
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Update number of party client event failed : ' . $e->getMessage());
+            $success = false;
+        }
+
+        return response()->json([
+            'success' => $success,
+            'message' => 'Information updated'
+        ]);
     }
 
     public function registerExpress(Request $request)
@@ -1121,13 +1168,10 @@ class ClientEventController extends Controller
         $shortUrl = ShortURL::where('url_key', $refcode)->first();
         $event = $this->eventRepository->getEventByName(urldecode($event_slug));
 
-        if(isset($shortUrl)){
-            $link = $shortUrl->default_short_url;
-        }else{
-            #insert short url to database
-            $link = $this->createShortUrl(url('form/event?event_name='.$event_slug.'&form_type=cta&event_type=offline&ref='. $refcode), $refcode);
-        }
+        $link = 'https://makerspace.all-inedu.com';
+        $query = '?ref='.$refcode.'#form';
 
+        $link = $link.$query;
         return view('referral-link.index')->with([
             'link' => $link,
             'event' => $event
