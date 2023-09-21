@@ -102,7 +102,16 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-12 mt-3">
+                                <div class="col-md-12 mb-2">
+                                    <label for="">Active Status</label>
+                                    <select name="active_status[]" class="select form-select form-select-sm w-100" multiple
+                                        id="active-status">
+                                        <option value="1">Active</option>
+                                        <option value="0">Non-active</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-12 mt-3 d-none">
                                     <div class="d-flex justify-content-between">
                                         <button type="button" class="btn btn-sm btn-outline-danger"
                                             id="cancel">Cancel</button>
@@ -366,6 +375,7 @@
                         params.lead_source = $("#lead-sources").val()
                         params.program_suggest = $("#program-name").val()
                         params.status_lead = $("#lead-source").val()
+                        params.active_status = $("#active-status").val()
                     }
                 },
                 columns: [{
@@ -623,6 +633,11 @@
             })
 
             $("#lead-source").on('change', function (e) {
+                var value = $(e.currentTarget).find("option:selected").val();
+                table.draw();
+            })
+
+            $("#active-status").on('change', function (e) {
                 var value = $(e.currentTarget).find("option:selected").val();
                 table.draw();
             })

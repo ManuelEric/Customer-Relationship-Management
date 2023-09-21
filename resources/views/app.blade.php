@@ -52,10 +52,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.0.3/index.global.min.js"
         integrity="sha256-3ytVDiLNNR0KlhglNHqXDFL94uOszVxoQeU7AZEALYo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{{ asset('js/generate-number.js') }}"></script>
     <script src="{{ asset('js/currency.js') }}"></script>
-    @yield('script')
-    @yield('style')
+    @stack('styles')
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
@@ -316,28 +316,7 @@
 
     {{-- Loading when Submiting  --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function showLoading()
-        {
-            Swal.fire({
-                width: 100,
-                backdrop: '#4e4e4e7d',
-                allowOutsideClick: false,
-            })
-            Swal.showLoading();
-        }
-
-        $('form').submit(function(e) {
-            e.preventDefault();
-            Swal.fire({
-                width: 100,
-                backdrop: '#4e4e4e7d',
-                allowOutsideClick: false,
-            })
-            Swal.showLoading();
-            this.closest('form').submit();
-        })
-    </script>
+    <script src="{{ asset('js/general-use-script.js') }}"></script>
 
     {{-- Realtime for Datatables  --}}
     <script>
@@ -527,6 +506,7 @@
         // });
     </script>
 
+    @stack('scripts')
 </body>
 
 </html>

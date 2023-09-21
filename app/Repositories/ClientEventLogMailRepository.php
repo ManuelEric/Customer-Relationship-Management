@@ -9,14 +9,15 @@ use Illuminate\Support\Facades\DB;
 
 class ClientEventLogMailRepository implements ClientEventLogMailRepositoryInterface
 {
-    public function getClientEventLogMail($category)
+    public function getClientEventLogMail()
     {
         # find client event log mail that has sent_status = 0 and the event still up
-        return ClientEventLogMail::whereHas('clientEvent.event', function($query) {
-                $query->where('event_enddate', '>', 'NOW()');
-            })->
-            where('category', $category)->
-            where('sent_status', 0)->
+        // return ClientEventLogMail::whereHas('clientEvent.event', function($query) {
+        //         $query->where('event_enddate', '>', 'NOW()');
+        //     })->
+        //     where('sent_status', 0)->
+        //     orderBy('created_at', 'asc')->get();
+        return ClientEventLogMail::where('sent_status', 0)->
             orderBy('created_at', 'asc')->get();
     }
 

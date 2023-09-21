@@ -29,9 +29,9 @@
             $(window).on('load', function() {
                 setTimeout(() => {
                     parent.submitUpdate();
-                }, 4000);
+                }, 3000);
             });
         });
     </script>
 </body>
-</html> 
+</html>

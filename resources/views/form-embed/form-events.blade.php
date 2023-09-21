@@ -212,7 +212,7 @@
                                 <label class="font-normal text-lg text-gray-700 dark:text-gray-400 block">
                                     Phone Number <span class="text-red-400">*</span>
                                 </label>
-                                <input type="text" name="phone[]"
+                                <input type="tel" name="phone[]"
                                     class="required w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser1">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
@@ -244,7 +244,7 @@
                                         <span class="text-red-400">*</span>
                                     @endif
                                 </label>
-                                <input type="text" name="phone[]"
+                                <input type="tel" name="phone[]"
                                     class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser2">
                                 <input type="hidden" name="fullnumber[]" id="phone2" class="child_info">
@@ -283,7 +283,7 @@
                         </h2>
                         <hr class="my-5">
 
-                        <div class="mb-4">
+                        <div class="mb-4" id="school_input">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
                                 School <span class="text-red-400">*</span>
                             </label>
@@ -301,7 +301,7 @@
                         </div>
                         <div class="mb-4" id="graduation_input">
                             <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
-                                Expected Graduation Year <span class="text-red-400">*</span>
+                                When do you expect to graduate? <span class="text-red-400">*</span>
                             </label>
                             <select name="graduation_year" id="graduation_year"
                                 class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
@@ -436,6 +436,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
         e.preventDefault();
 
         Swal.fire({
+            width:100,
             didOpen: () => {
                 Swal.showLoading()
             },
@@ -444,6 +445,11 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
 
         $('#form-events').submit()
     })
+
+    $(function() {
+
+        $("#role-1").prop('checked', true).trigger('change');
+    })    
 
     function checkRole(element) {
         
@@ -464,6 +470,12 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             graduation_input.removeClass('hidden')
             country_input.removeClass('hidden')
 
+            setAdditionalInputLabel({
+                "school" : "Which school are you from?",
+                "graduation" : "When do you expect to graduate?",
+                "country" : "Which country are you thinking of studying in?",
+            });
+
         } else if (element.value == "parent") {
             
             role.html('Child\'s')
@@ -472,12 +484,30 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             graduation_input.removeClass('hidden')
             country_input.removeClass('hidden')
 
+            setAdditionalInputLabel({
+                "school" : "What school does your child go to?",
+                "graduation" : "When do you expect your child to graduate?",
+                "country" : "Which country does your child interest in studying abroad?",
+            });
+
         } else {
             user_other.addClass('hidden')
             other_name.removeClass('required')
             graduation_input.addClass('hidden')
             country_input.addClass('hidden')
+
+            setAdditionalInputLabel({
+                "school" : "Which school are you from?",
+                "graduation" : null,
+
+            })
         }
+    }
+
+    function setAdditionalInputLabel(messages) {
+        $("#school_input label").html(messages['school']);
+        $("#graduation_input label").html(messages['graduation']);
+        $("#country_input label").html(messages['country'])
     }
 
     function step(current, next, type) {

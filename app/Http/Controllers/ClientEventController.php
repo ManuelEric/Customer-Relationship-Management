@@ -9,13 +9,16 @@ use App\Http\Requests\StoreClientEventEmbedRequest;
 use App\Http\Requests\StoreFormEventEmbedRequest;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
-use App\Http\Traits\RegisterExpressTrait;
+use App\Http\Traits\MailingEventOfflineTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
 use App\Imports\InvitaionMailImport;
 use App\Imports\InvitationMailImport;
 use App\Imports\ThankMailImport;
 use App\Imports\ReminderEventImport;
+use App\Imports\ReminderReferralImport;
+use App\Imports\ReminderRegisrationImport;
+use App\Imports\ReminderRegistrationImport;
 use App\Interfaces\ClientEventLogMailRepositoryInterface;
 use App\Interfaces\CurriculumRepositoryInterface;
 use App\Interfaces\ClientRepositoryInterface;
@@ -31,6 +34,7 @@ use App\Interfaces\TagRepositoryInterface;
 use App\Models\Client;
 use App\Models\School;
 use App\Models\UserClientAdditionalInfo;
+use AshAllenDesign\ShortURL\Models\ShortURL;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -45,7 +49,7 @@ class ClientEventController extends Controller
     use CheckExistingClient;
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
-    use RegisterExpressTrait;
+    use MailingEventOfflineTrait;
     protected CurriculumRepositoryInterface $curriculumRepository;
     protected ClientRepositoryInterface $clientRepository;
     protected ClientEventRepositoryInterface $clientEventRepository;
@@ -90,7 +94,7 @@ class ClientEventController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax()) 
+        if ($request->ajax())
         {
             $event_name = $request->get('event_name');
             $filter['event_name'] = $event_name;
@@ -194,7 +198,7 @@ class ClientEventController extends Controller
         # when lead_id is kol
         # then put kol_lead_id to lead_id
         # otherwise
-        # when lead_id is not kol 
+        # when lead_id is not kol
         # then lead_id is lead_id
         if ($request->lead_id == "kol") {
 
@@ -225,7 +229,7 @@ class ClientEventController extends Controller
 
             # case 1
             # create new school
-            # when sch_id is "add-new" 
+            # when sch_id is "add-new"
             if ($request->sch_id == "add-new") {
 
                 $schoolDetails = $request->only([
@@ -393,7 +397,7 @@ class ClientEventController extends Controller
         # when lead_id is kol
         # then put kol_lead_id to lead_id
         # otherwise
-        # when lead_id is not kol 
+        # when lead_id is not kol
         # then lead_id is lead_id
         if ($request->lead_id == "kol") { # lead = kol
 
@@ -475,10 +479,14 @@ class ClientEventController extends Controller
                 $import = new InvitationMailImport;
                 break;
 
-            case 'reminder_1':
-                $import = new ReminderEventImport;
+            case 'reminder_registration':
+                $import = new ReminderRegistrationImport;
                 break;
-            
+
+            case 'reminder_referral':
+                $import = new ReminderReferralImport;
+                break;
+
         }
         $import->import($file);
 
@@ -486,7 +494,7 @@ class ClientEventController extends Controller
     }
 
     public function createFormEmbed(Request $request)
-    {        
+    {
         if ($request->get('event_name') == null) {
             abort(404);
         }
@@ -524,7 +532,7 @@ class ClientEventController extends Controller
 
         # attend status
         # 1 is attending
-        # 0 is join the event 
+        # 0 is join the event
         $attend_status = $request->attend_status == "attend" ? 1 : 0;
 
         # type of event
@@ -544,7 +552,7 @@ class ClientEventController extends Controller
         # referral code
         $referral_code = $request->referral;
 
-        # registration type 
+        # registration type
         # will be "ots" or "pr"
         $registration_type = $request->status;
 
@@ -554,7 +562,7 @@ class ClientEventController extends Controller
         DB::beginTransaction();
         try {
 
-            # when sch_id is "add-new" 
+            # when sch_id is "add-new"
             // $choosen_school = $request->school;
             if (!$this->schoolRepository->getSchoolById($request->school) && $request->school !== NULL) {
 
@@ -593,7 +601,7 @@ class ClientEventController extends Controller
             if ($choosen_role == "student")
                 $clientEventDetails['parent_id'] = $createdClient['parentId'];
 
-            # if registration_type is exist 
+            # if registration_type is exist
             # add the registration_type into the clientEventDetails that will be stored
             if (isset($registration_type))
                 $clientEventDetails['registration_type'] = $registration_type;
@@ -612,9 +620,9 @@ class ClientEventController extends Controller
                     $this->sendMailQrCode($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
 
                 } else {
-                    
+
                     # send thanks mail
-                    $this->sendMailThanks($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
+                    // $this->sendMailThanks($storedClientEventId, $requested_event_name, ['clientDetails' => ['mail' => $createdClient['clientMail'], 'name' => $createdClient['clientName']]]);
 
                 }
 
@@ -643,8 +651,8 @@ class ClientEventController extends Controller
 
             # initialize raw variable
             # why newClientDetails[$loop] should be array?
-            # because to make easier for system to differentiate between parents and students like for example if user registered as a parent 
-            # then index 0 is for parent data and index 1 is for children data, otherwise 
+            # because to make easier for system to differentiate between parents and students like for example if user registered as a parent
+            # then index 0 is for parent data and index 1 is for children data, otherwise
             $newClientDetails[$loop] = [
                 'name' => $request->fullname[$loop],
                 'email' => $request->email[$loop],
@@ -691,8 +699,8 @@ class ClientEventController extends Controller
                     ];
 
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
-                    
-                
+
+
                 } else if ($choosen_role == 'student' && $loop == 0) {
 
                     $additionalInfo = [
@@ -705,10 +713,10 @@ class ClientEventController extends Controller
                     $clientDetails = array_merge($clientDetails, $additionalInfo);
 
                 }
-                
+
                 # additional info that should be stored when role is teacher
-                if ($choosen_role == 'teacher/counsellor') { 
-                
+                if ($choosen_role == 'teacher/counsellor') {
+
                     $additionalInfo = [
                         'sch_id' => $schoolId != null ? $schoolId : $request->school,
                     ];
@@ -730,10 +738,10 @@ class ClientEventController extends Controller
                         $role = $choosen_role;
                         break;
                 }
-                
+
                 # stored a new client information
                 $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($role), $clientDetails);
-                
+
             }
 
             $clientArrayIds[$loop] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$loop]->id;
@@ -743,17 +751,17 @@ class ClientEventController extends Controller
 
         # the indexes
         # the idea is assuming the index 0 as the main user that will be added into tbl_client_event
-        if ($choosen_role == 'parent') 
+        if ($choosen_role == 'parent')
         {
             $parentId = $newClientDetails[0]['id'] = $clientArrayIds[0];
             $childId = $clientArrayIds[1];
-        } 
+        }
         else if ($choosen_role == 'student')
         {
             $parentId = $clientArrayIds[1];
             $childId = $newClientDetails[0]['id'] = $clientArrayIds[0];
-        } 
-        else 
+        }
+        else
         {
             $teacherId = $newClientDetails[0]['id'] = $clientArrayIds[0];
         }
@@ -805,17 +813,18 @@ class ClientEventController extends Controller
     public function sendMailQrCode($clientEventId, $eventName, $client, $update = false)
     {
         $subject = 'Welcome to the '.$eventName.'!';
-        $mail_resources = 'mail-template.event-registration-success';
+        // $mail_resources = 'mail-template.event-registration-success';
+        $mail_resources = 'mail-template.thanks-email-reg';
 
         $recipientDetails = $client['clientDetails'];
-        
-        $url = route('link-event-attend', [
+
+        $url = route('program.event.qr-page', [
                         'event_slug' => urlencode($eventName),
                         'clientevent' => $clientEventId
                     ]);
 
         $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-        
+
         $event = [
             'eventDate_start' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
             'eventDate_end' => date('l, d M Y', strtotime($clientEvent->event->event_enddate)),
@@ -825,24 +834,24 @@ class ClientEventController extends Controller
         ];
 
         try {
-            Mail::send($mail_resources, ['url' => $url, 'client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
+            Mail::send($mail_resources, ['qr_page' => $url, 'client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
                 $message->to($recipientDetails['mail'], $recipientDetails['name'])
                     ->subject($subject);
             });
             $sent_mail = 1;
-            
+
         } catch (Exception $e) {
-            
+
             $sent_mail = 0;
             Log::error('Failed send email qr code to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
 
         }
 
-        # if update is true 
+        # if update is true
         # meaning that this function being called from scheduler
         # that updating the client event log mail, so the system no longer have to create the client event log mail
         if ($update === true) {
-            return true;    
+            return true;
         }
 
         $logDetails = [
@@ -862,7 +871,7 @@ class ClientEventController extends Controller
         $recipientDetails = $client['clientDetails'];
 
         $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-        
+
         $event = [
             'eventName' => $eventName,
             'eventDate' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
@@ -875,19 +884,19 @@ class ClientEventController extends Controller
                     ->subject($subject);
             });
             $sent_mail = 1;
-            
+
         } catch (Exception $e) {
-            
+
             $sent_mail = 0;
             Log::error('Failed send email thanks to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
 
         }
 
-        # if update is true 
+        # if update is true
         # meaning that this function being called from scheduler
         # that updating the client event log mail, so the system no longer have to create the client event log mail
         if ($update === true) {
-            return true;    
+            return true;
         }
 
         $logDetails = [
@@ -899,7 +908,53 @@ class ClientEventController extends Controller
         return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
     }
 
-    public function previewClientInformation(Request $request) 
+    public function sendMailClaim($clientEventId, $eventName, $client, $update = false)
+    {
+        $subject = 'Claim Lorem ipsum dolor sit amet';
+        $mail_resources = 'mail-template.claim-email';
+
+        $recipientDetails = $client['clientDetails'];
+
+        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+
+
+        $event = [
+            'eventName' => $eventName,
+            'eventDate' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
+            'eventLocation' => $clientEvent->event->event_location
+        ];
+
+        try {
+            Mail::send($mail_resources, ['client' => $client['clientDetails'], 'event' => $event], function ($message) use ($subject, $recipientDetails) {
+                $message->to($recipientDetails['mail'], $recipientDetails['name'])
+                    ->subject($subject);
+            });
+            $sent_mail = 1;
+
+        } catch (Exception $e) {
+
+            $sent_mail = 0;
+            Log::error('Failed send email claim to participant of Event '.$eventName.' | error : '.$e->getMessage().' | Line '.$e->getLine());
+
+        }
+
+        # if update is true
+        # meaning that this function being called from scheduler
+        # that updating the client event log mail, so the system no longer have to create the client event log mail
+        if ($update === true) {
+            return true;
+        }
+
+        $logDetails = [
+            'clientevent_id' => $clientEventId,
+            'sent_status' => $sent_mail,
+            'category' => 'thanks-mail'
+        ];
+
+        return $this->clientEventLogMailRepository->createClientEventLogMail($logDetails);
+    }
+
+    public function previewClientInformation(Request $request)
     {
         $clientEventId = $request->clientevent;
 
@@ -947,6 +1002,12 @@ class ClientEventController extends Controller
 
     public function handlerScanQrCodeForAttend(Request $request)
     {
+        # nambahin validasi number of attend tidak boleh 0
+        $request->validate([
+            'how_many_people_attended' => 'required|min:1'
+        ], $request->all(), ['how_many_people_attended' => 'number of party field']);
+        # 
+
         # get request
         $event = $request->event; # not used for now becuase there is no event slug
         $clientEventId = $request->clientevent;
@@ -959,14 +1020,21 @@ class ClientEventController extends Controller
 
         # initiate variables in order to
         # update student information details
+        $isParent = $isStudent = $isTeacher = false;
         switch ($client->register_as) { # this is a choosen role
 
             case "parent":
                 $childId = $clientEvent->children->id;
+                $isParent = true;
                 break;
 
             case "student":
                 $childId = $client->id;
+                $isStudent = true;
+                break;
+
+            case "teacher/counsellor":
+                $isTeacher = true;
                 break;
 
         }
@@ -980,20 +1048,26 @@ class ClientEventController extends Controller
         DB::beginTransaction();
         try {
 
-            # update student information details
-            $this->clientRepository->updateClient($childId, [
-                'mail' => $request->secondary_mail,
-                'phone' => $request->secondary_phone
-            ]);
+            if ($isParent || $isStudent) {
+                # update student information details
+                $this->clientRepository->updateClient($childId, [
+                    'mail' => $request->secondary_mail,
+                    'phone' => $request->secondary_phone
+                ]);
+            }
 
             # update client event
             $this->clientEventRepository->updateClientEvent($clientEventId, $newDetails);
+
+            // if ($clientEvent->status == 0)
+            //     $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
+
             DB::commit();
 
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::error('Failed to process the attending request from '.$clientFullname.' ( '.$eventName.' )');
+            Log::error('Failed to process the attending request from '.$clientFullname.' ( '.$eventName.' ) | error : '.$e->getMessage().' '.$e->getLine());
             return view('form-embed.response.error');
 
         }
@@ -1001,7 +1075,8 @@ class ClientEventController extends Controller
         return view('form-embed.response.success');
     }
 
-    public function updateAttendance($id, $status) {
+    public function updateAttendance($id, $status) 
+    {
         $clientEvent = $this->clientEventRepository->getClientEventById($id);
 
         DB::beginTransaction();
@@ -1021,21 +1096,94 @@ class ClientEventController extends Controller
 
     }
 
+    public function updateNumberOfParty(int $id, int $number_of_party)
+    {
+        $clientEvent = $this->clientEventRepository->getClientEventById($id);
+
+        DB::beginTransaction();
+        try {
+            $clientEvent->number_of_attend = $number_of_party;
+            $clientEvent->save();
+            DB::commit();
+            
+            $success = true;
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Update number of party client event failed : ' . $e->getMessage());
+            $success = false;
+        }
+
+        return response()->json([
+            'success' => $success,
+            'message' => 'Information updated'
+        ]);
+    }
+
     public function registerExpress(Request $request)
     {
-       
+
         $clientId = $request->route('client');
         $client = $this->clientRepository->getClientById($clientId);
         $eventId = $request->route('event');
 
-        $dataRegister = $this->register($client->mail, $eventId, 'VIP'); 
+        $dataRegister = $this->register($client->mail, $eventId, 'VIP');
 
         if($dataRegister['success'] && !$dataRegister['already_join']){
             return Redirect::to('form/thanks');
         }else if($dataRegister['success'] && $dataRegister['already_join']){
             return Redirect::to('form/already-join');
         }
-        
 
+
+    }
+
+    public function referralPage(Request $request)
+    {
+        $refcode = $request->route('refcode');
+        $event_slug = $request->route('event_slug');
+
+        $shortUrl = ShortURL::where('url_key', $refcode)->first();
+        $event = $this->eventRepository->getEventByName(urldecode($event_slug));
+
+        $link = 'https://makerspace.all-inedu.com';
+        $query = '?ref='.$refcode.'#form';
+
+        $link = $link.$query;
+        return view('referral-link.index')->with([
+            'link' => $link,
+            'event' => $event
+        ]);
+    }
+
+    # for API User
+    public function trackReferralURL(Request $request)
+    {
+        $refcode = $request->route('referral');
+        $shortURL = ShortURL::findByKey($refcode);
+        $shortURL->trackingEnabled();
+
+        return response()->json(
+            [
+                'success' => true,
+                'data' => $shortURL
+            ]
+        );
+    }
+    # end
+
+    public function qrPage(Request $request)
+    {
+        $event_slug = $request->route('event_slug');
+        $clientEventId = $request->route('clientevent');
+
+        $url =  route('link-event-attend', [
+            // 'event_slug' => $event_slug,
+            'clientevent' => $clientEventId
+        ]);
+
+        return view('scan-qrcode.qrcode')->with([
+            'url' => $url
+        ]);
     }
 }

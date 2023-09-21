@@ -12,6 +12,15 @@
                     </div>
                     <div class="card mb-3">
                         <div class="card-body">
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                             <form action="" method="POST" id="invitation" enctype="multipart/form-data">
                                 @csrf
                                 <div class="row align-items-center">
@@ -23,8 +32,8 @@
                                             <option value=""></option>
                                             <option value="VVIP">VVIP</option>
                                             <option value="VIP">VIP</option>
-                                            <option value="reminder_1">Reminder 1</option>
-                                            <option value="reminder_2">Reminder 2</option>
+                                            <option value="reminder_registration">Reminder Registration</option>
+                                            <option value="reminder_referral">Reminder Referral</option>
                                         </select>
                                     </div>
                                     <div class="col-2">

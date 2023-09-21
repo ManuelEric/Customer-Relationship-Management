@@ -135,3 +135,9 @@ Route::prefix('v1')->group(function () {
 
 # Client Event Attendance
 Route::get('event/attendance/{id}/{status}', [ClientEventController::class, 'updateAttendance']);
+
+# Client Event Number of Party
+Route::get('event/party/{id}/{party}', [ClientEventController::class, 'updateNumberOfParty']);
+
+# Get URL from short URL
+Route::get('track/referral/{referral}', [ClientEventController::class, 'trackReferralURL']);

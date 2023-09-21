@@ -118,6 +118,8 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
 <script>
     var outstanding_chart = null;
 
@@ -163,7 +165,7 @@
             }).format(number);
         }
         
-        Swal.showLoading()
+        showLoading()
         // Axios here ...
         axios.get('{{ url("api/finance/outstanding/") }}/' + month)
         .then((response) => {
@@ -248,7 +250,7 @@
             'total': [0, 0],
         }
 
-        Swal.showLoading()
+        showLoading()
         // Axios here ...
             axios.get('{{ url("api/finance/outstanding/period") }}/' + start_date + '/' + end_date)
             .then((response) => {
@@ -361,5 +363,6 @@
         }
     }
 
-    checkFinancebyMonth()
+    // checkFinancebyMonth()
 </script>
+@endpush

@@ -17,11 +17,6 @@
                             Once again, thank you for being a part of our community. We can't wait
                             to meet you on the event day!
                         </p>
-                        @if(isset($notes) && $notes == 'VVIP')
-                            <p>
-                                <a href="{{$referral_link}}">Your Referral Link</a>
-                            </p>
-                        @endif
                         <p>
                             Warm regards, <br>
                             ALL-in Eduspace

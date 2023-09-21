@@ -324,6 +324,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     const digitalLeadsTarget = document.getElementById('leadsTarget');
 
@@ -425,7 +426,6 @@
     });
 </script>
 
-
 <script>
     function ucwords(str) {
         return (str + '').replace(/^([a-z])|\s+([a-z])/g, function($1) {
@@ -434,6 +434,7 @@
     }
 
     function checkDataLead() {
+
         let month = $('#digital_lead_month').val()
 
         let today = moment().format('YYYY-MM')
@@ -466,6 +467,7 @@
                 var no = 1;
                 var divisi = ['sales', 'referral', 'digital'];
                 var typeLead = ['lead_needed', 'hot_lead', 'ic', 'contribution']
+
 
                 // Actual
                 chart_dataleads.data.datasets[0].data = [];
@@ -525,7 +527,7 @@
                             itemDivisi)][itemType] + '/' + result['lead' + ucwords(
                             itemDivisi) + 'Target'][itemType]);
                         $('#' + itemType + '_percentage_' + itemDivisi).css('width', result['lead' +
-                            ucwords(itemDivisi) + 'Target']['percentage_' + itemType])
+                            ucwords(itemDivisi) + 'Target']['percentage_' + itemType]+"%")
                     })
                 })
 
@@ -563,3 +565,4 @@
         $('#leadsModal').modal('show')
     }
 </script>
+@endpush

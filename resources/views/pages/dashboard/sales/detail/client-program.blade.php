@@ -221,43 +221,41 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
-    $(document).ready(function(){
-        // $(document).each(function(e) {
-            $(document).on('click', '.detail-success-program', function() {
-                showLoading();
+$(document).ready(function(){
+    $(document).on('click', '.detail-success-program', function() {
+        showLoading();
 
-                var progId = $(this).data('prog');
-                var month = $(".qdate").val();
-                var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val();
-                var link = "{{ url('/') }}/api/get/detail/successful-program/" + month + "/" + progId;
+        var progId = $(this).data('prog');
+        var month = $(".qdate").val();
+        var user = $('#cp_employee').val() == "all" ? null : $('#cp_employee').val();
+        var link = "{{ url('/') }}/api/get/detail/successful-program/" + month + "/" + progId;
 
-                if (user !== null)
-                    link += "/" + user;
+        if (user !== null)
+            link += "/" + user;
 
-                axios.get(link)
-                    .then( function (response) {
-                        
-                        let obj = response.data;
-                        let html = obj.ctx;
+        axios.get(link)
+            .then( function (response) {
+                
+                let obj = response.data;
+                let html = obj.ctx;
 
-                        $("#success_program_detail_modal").modal('show');
-                        $("#success_program_detail_modal .success_program_detail_modal_body").html(html);
-                        swal.close();
-                    })
-                    .catch( function (error) {
-                        swal.close();
-                        notification('error', error.message);
-                    })
+                $("#success_program_detail_modal").modal('show');
+                $("#success_program_detail_modal .success_program_detail_modal_body").html(html);
+                swal.close();
+            })
+            .catch( function (error) {
+                swal.close();
+                notification('error', error.message);
+            })
 
-            });
-        // });
     });
+});
 </script>
 <script async type="text/javascript">
     var client_program_status_chart, admission_mentoring_chart, initial_consult_chart, academic_prep_chart,
         career_exploration_chart = null;
-
 
     function get_successful_program(month = null, user = null) {
         var today = new Date()
@@ -745,3 +743,4 @@
         }
     });
 </script>
+@endpush
