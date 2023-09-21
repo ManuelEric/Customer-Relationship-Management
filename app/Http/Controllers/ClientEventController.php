@@ -956,10 +956,32 @@ class ClientEventController extends Controller
 
     public function previewClientInformation(Request $request)
     {
-        $clientEventId = $request->clientevent;
+        $screening_type = $request->route('screening_type');
+        switch ($screening_type) {
 
-        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-        $client = $clientEvent->client;
+            case "qr":
+                $clientEventId = $request->route('identifier');
+                $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+                $client = $clientEvent->client;
+                break;
+
+            case "phone":
+                $phoneNumber = $request->route('identifier');
+                if (!$client = $this->clientRepository->getClientByPhoneNumber($phoneNumber))
+                    return view('scan-qrcode.error')->with(['message' => "We're sorry, but your data was not found"]);
+
+                # for now
+                # event id is hardcoded for STEM+ Wonderlab
+                $clientEvent = $client->clientEvent()->where('event_id', "EVT-0008")->first();
+                if (!$clientEvent)
+                    return view('scan-qrcode.error')->with(['message' => 'We\'re sorry, but you haven\'t joined our event.']);
+
+                break;
+
+        }
+
+        
+        
         $clientFullname = $client->full_name;
         $eventName = $clientEvent->event->event_title;
 

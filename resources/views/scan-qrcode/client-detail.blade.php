@@ -123,9 +123,6 @@
                                 <h2 class="text-3xl mb-4 font-bold">
                                     Thank you for your attendance.
                                 </h2>
-                                <h4 class="text-xl">
-                                    Please check your email to claim the benefit.
-                                </h4>
                             </div>
                         </div>
                     @endif

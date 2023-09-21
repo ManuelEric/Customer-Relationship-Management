@@ -56,6 +56,11 @@ class ClientEvent extends Model
         return $this->belongsTo(Client::class, 'client_id', 'id');
     }
 
+    public function clientMaster()
+    {
+        return $this->belongsTo(UserClient::class, 'client_id', 'id');
+    }
+
     public function children()
     {
         return $this->belongsTo(Client::class, 'child_id', 'id');

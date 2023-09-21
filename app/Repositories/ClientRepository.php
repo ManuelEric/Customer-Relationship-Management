@@ -696,6 +696,14 @@ class ClientRepository implements ClientRepositoryInterface
         return UserClient::find($clientId);
     }
 
+    public function getClientByPhoneNumber($phoneNumber)
+    {
+        if (substr($phoneNumber, 0, 1) == "+")
+            $phoneNumber = substr($phoneNumber, 4);
+        
+        return UserClient::whereRaw('SUBSTR(phone, 4) LIKE ?', ['%'.$phoneNumber.'%'])->first();
+    }
+
     public function getViewClientById($clientId)
     {
         return Client::find($clientId);
