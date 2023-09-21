@@ -34,7 +34,7 @@
             <div class="row justify-content-center align-items-center h-100">
                 <div class="col-md-8">
                     @if ($client_event->status == 0)
-                    <form action="{{ route("link-event-attend", ['clientevent' => request()->route('clientevent')]) }}" method="POST">
+                    <form action="{{ route("link-event-attend", ['clientevent' => $client_event->clientevent_id]) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="row">
