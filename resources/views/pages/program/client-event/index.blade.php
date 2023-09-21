@@ -268,6 +268,7 @@
                     {
                         data: 'number_of_party',
                         className: 'text-center',
+                        searchable: false,
                         render: function(data, type, row, meta) {
                             return '<input type="number" class="form-control form-control-sm num-party w-50 m-auto" value="'+ data +'" />'
                         }
