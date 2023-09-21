@@ -19,13 +19,13 @@
 
     <div class="card bg-secondary mb-1 p-2">
         <div class="row align-items-center justify-content-between">
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <h5 class="text-white m-0">
                     <i class="bi bi-tag me-1"></i>
                     Client Event
                 </h5>
             </div>
-            <div class="col-md-6 d-flex align-items-center gap-2">
+            <div class="col-md-7 d-flex align-items-center gap-2">
                 <select class="select w-100" name="event_name" id="event-name">
                     <option data-placeholder="true"></option>
                     @foreach ($events as $event)
@@ -74,6 +74,7 @@
                         <th>Conversion Lead</th>
                         <th>Country of Study Abroad</th>
                         <th>Joined Date</th>
+                        <th>Number of Party</th>
                         <th>Attendance</th>
                         <th class="bg-info text-white">Action</th>
                     </tr>
@@ -262,6 +263,13 @@
                         render: function(data, type, row, meta) {
 
                             return moment(data).format('dddd, DD MMM YYYY');
+                        }
+                    },
+                    {
+                        data: 'number_of_party',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return '<input type="number" class="form-control form-control-sm number_of_party w-50 m-auto" value="'+ data +'" />'
                         }
                     },
                     {
