@@ -69,7 +69,7 @@
                                 <label>:</label>
                             </div>
                             <div class="col-md-8 col-8">
-                                    {{$viewStudent->grade_now != null ? $viewStudent->grade_now : ''}}
+                                    {{ $viewStudent->show_grade }}
                             </div>
                         </div>
                         <div class="row mb-2 g-1">
