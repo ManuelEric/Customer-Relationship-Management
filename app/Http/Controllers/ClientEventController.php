@@ -1075,7 +1075,8 @@ class ClientEventController extends Controller
         return view('form-embed.response.success');
     }
 
-    public function updateAttendance($id, $status) {
+    public function updateAttendance($id, $status) 
+    {
         $clientEvent = $this->clientEventRepository->getClientEventById($id);
 
         DB::beginTransaction();
@@ -1093,6 +1094,30 @@ class ClientEventController extends Controller
         }
         return response()->json($data);
 
+    }
+
+    public function updateNumberOfParty(int $id, int $number_of_party)
+    {
+        $clientEvent = $this->clientEventRepository->getClientEventById($id);
+
+        DB::beginTransaction();
+        try {
+            $clientEvent->number_of_attend = $number_of_party;
+            $clientEvent->save();
+            DB::commit();
+            
+            $success = true;
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Update number of party client event failed : ' . $e->getMessage());
+            $success = false;
+        }
+
+        return response()->json([
+            'success' => $success,
+            'message' => 'Information updated'
+        ]);
     }
 
     public function registerExpress(Request $request)
@@ -1121,13 +1146,10 @@ class ClientEventController extends Controller
         $shortUrl = ShortURL::where('url_key', $refcode)->first();
         $event = $this->eventRepository->getEventByName(urldecode($event_slug));
 
-        if(isset($shortUrl)){
-            $link = $shortUrl->default_short_url;
-        }else{
-            #insert short url to database
-            $link = $this->createShortUrl(url('form/event?event_name='.$event_slug.'&form_type=cta&event_type=offline&ref='. $refcode), $refcode);
-        }
+        $link = 'https://makerspace.all-inedu.com';
+        $query = '?ref='.$refcode.'#form';
 
+        $link = $link.$query;
         return view('referral-link.index')->with([
             'link' => $link,
             'event' => $event
