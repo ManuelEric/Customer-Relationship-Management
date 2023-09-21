@@ -269,7 +269,7 @@
                         data: 'number_of_party',
                         className: 'text-center',
                         render: function(data, type, row, meta) {
-                            return '<input type="number" class="form-control form-control-sm number_of_party w-50 m-auto" value="'+ data +'" />'
+                            return '<input type="number" class="form-control form-control-sm num-party w-50 m-auto" value="'+ data +'" />'
                         }
                     },
                     {
@@ -358,6 +358,23 @@
 
                 // merubah value status 
                 this.value = status == 1 ? 0 : 1
+
+            });
+
+            $("#eventTable tbody").on('change', '.num-party', function() {
+
+                var data = table.row($(this).parents('tr')).data();
+                var clientEventId = data.clientEventId;
+                var number_of_party = this.value;
+
+                var url = "{{ url('api/event/party') }}/" + clientEventId + "/" + number_of_party;
+                axios.get(url)
+                    .then(function(response) {
+                        notification('success', response.message);
+                    }).catch(function(error) {
+                        console.log(error)
+                        notification('error', 'Ooops! Something went wrong. Please try again.')
+                    });
 
             });
 
