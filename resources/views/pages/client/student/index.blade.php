@@ -176,6 +176,8 @@
                     <tr class="text-center" role="row">
                         <th class="bg-info text-white">No</th>
                         <th class="bg-info text-white">Name</th>
+                        <th class="bg-info text-white">Program Suggest</th>
+                        <th class="bg-info text-white">Status Lead</th>
                         <th>Mail</th>
                         <th>Phone</th>
                         <th>Parents Name</th>
@@ -198,8 +200,6 @@
                         <th>Joined Date</th>
                         <th>Last Update</th>
                         <th>Status</th>
-                        <th>Program Suggest</th>
-                        <th>Status Lead</th>
                         {{-- <th class="bg-info text-white">Score</th> --}}
                         <th class="bg-info text-white"># Action</th>
                     </tr>
@@ -362,7 +362,7 @@
                 ],
                 scrollX: true,
                 fixedColumns: {
-                    left: (widthView < 768) ? 1 : 2,
+                    left: (widthView < 768) ? 1 : 4,
                     right: 1
                 },
                 processing: true,
@@ -390,6 +390,41 @@
                         render: function(data, type, row, meta) {
                             return data
                         }
+                    },
+                    
+                    {
+                        data: 'program_suggest',
+                        className: 'text-center',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'status_lead',
+                        className: 'text-center',
+                        defaultContent: '-',
+                        render: function(data, type, row, meta) {
+                            var warm = '';
+                            var hot = '';
+                            var cold = '';
+                            switch (data) {
+                                case 'Hot':
+                                    hot = 'selected';
+                                    break;
+
+                                case 'Warm':
+                                    warm = 'selected';
+                                    break;
+
+                                case 'Cold':
+                                    cold = 'selected';
+                                    break;
+                            }
+                            return data != null ?
+                                '<select name="status_lead" style="color:#212b3d" class="select w-100" id="status_lead"><option value="hot" ' +
+                                hot + '>Hot</option><option value="warm" ' + warm +
+                                '>Warm</option><option value="cold" ' + cold +
+                                '>Cold</option></select>' : '-';
+                        }
+
                     },
                     {
                         data: 'mail',
@@ -499,40 +534,6 @@
                         render: function(data, type, row, meta) {
                             return data == 1 ? "Active" : "Non-active";
                         }
-                    },
-                    {
-                        data: 'program_suggest',
-                        className: 'text-center',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'status_lead',
-                        className: 'text-center',
-                        defaultContent: '-',
-                        render: function(data, type, row, meta) {
-                            var warm = '';
-                            var hot = '';
-                            var cold = '';
-                            switch (data) {
-                                case 'Hot':
-                                    hot = 'selected';
-                                    break;
-
-                                case 'Warm':
-                                    warm = 'selected';
-                                    break;
-
-                                case 'Cold':
-                                    cold = 'selected';
-                                    break;
-                            }
-                            return data != null ?
-                                '<select name="status_lead" style="color:#212b3d" class="select w-100" id="status_lead"><option value="hot" ' +
-                                hot + '>Hot</option><option value="warm" ' + warm +
-                                '>Warm</option><option value="cold" ' + cold +
-                                '>Cold</option></select>' : '-';
-                        }
-
                     },
                     // {
                     //     data: 'total_score',
