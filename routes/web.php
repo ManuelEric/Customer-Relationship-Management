@@ -74,7 +74,7 @@ Route::get('scan', function() {
     return view('scan-qrcode.index');
 });
 
-Route::get('client-detail/{clientevent}', [ClientEventController::class, 'previewClientInformation']);
+Route::get('client-detail/{identifier}/{screening_type}', [ClientEventController::class, 'previewClientInformation']);
 
 Route::get('mailing', function() {
     return view('mailing.stem-wonderlab');
