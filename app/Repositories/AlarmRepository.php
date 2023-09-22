@@ -136,7 +136,7 @@ class AlarmRepository implements AlarmRepositoryInterface
                 # digital
                 // unset($alarmLeads['digital']['mid']['lead_needed']);
                 unset($alarmLeads['digital']['mid']['hot_lead']);
-                $alarmLeads['digital']['end']['revenue'] = $dataRevenueChart['actual'][2] < ($dataRevenueChart['target'][2] != 0 ? $dataRevenueChart['target'][2] * 50 / 100 : 0) ? true : false;
+                // $alarmLeads['digital']['end']['revenue'] = $dataRevenueChart['actual'][2] < ($dataRevenueChart['target'][2] != 0 ? $dataRevenueChart['target'][2] * 50 / 100 : 0) ? true : false;
                 $alarmLeads['digital']['end']['hot_lead'] = $actualLeadsDigital['hot_lead'] < $leadDigitalTarget['hot_lead'] ? true : false;
                 $alarmLeads['digital']['end']['lead_needed'] = $actualLeadsDigital['lead_needed'] < $leadDigitalTarget['lead_needed'] ? true : false;
             }

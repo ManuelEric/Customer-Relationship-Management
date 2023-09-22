@@ -293,7 +293,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body overflow-auto" style="max-height: 300px" id="leadContentModal">
-                <table class="table table-hover table-striped">
+                <table class="table table-hover table-striped" id="listDataLeads">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -554,6 +554,14 @@
                 var result = response.data
 
                 $('#tbody-lead-detail').html(result.html_ctx)
+
+                $("#listDataLeads .detail").each(function(){
+                    var link = "{{url('/')}}/client/student/" + $(this).data('clientid')
+                    
+                    $(this).click(function() {
+                        window.open(link, '_blank')
+                    })
+                })
 
                 swal.close()
             }, (error) => {
