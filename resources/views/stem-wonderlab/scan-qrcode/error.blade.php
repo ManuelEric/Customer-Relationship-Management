@@ -30,7 +30,7 @@
                     <div class="min-h-screen d-flex align-items-center bg-gray-200">
                         <div class="max-w-screen-md w-full mx-auto p-4 text-center">
                             <h2 class="text-3xl mb-4 font-bold">
-                                {{ $message }}
+                                {!! $message !!}
                             </h2>
                         </div>
                     </div>
