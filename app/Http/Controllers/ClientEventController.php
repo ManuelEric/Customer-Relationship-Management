@@ -968,20 +968,18 @@ class ClientEventController extends Controller
             case "phone":
                 $phoneNumber = $request->route('identifier');
                 if (!$client = $this->clientRepository->getClientByPhoneNumber($phoneNumber))
-                    return view('scan-qrcode.error')->with(['message' => "We're sorry, but your data was not found"]);
+                    return view('stem-wonderlab.scan-qrcode.error')->with(['message' => "We're sorry, but your data was not found"]);
 
                 # for now
                 # event id is hardcoded for STEM+ Wonderlab
                 $clientEvent = $client->clientEvent()->where('event_id', "EVT-0008")->first();
                 if (!$clientEvent)
-                    return view('scan-qrcode.error')->with(['message' => 'We\'re sorry, but you haven\'t joined our event.']);
+                    return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'We\'re sorry, but you haven\'t joined our event.']);
 
                 break;
 
         }
 
-        
-        
         $clientFullname = $client->full_name;
         $eventName = $clientEvent->event->event_title;
 
@@ -991,25 +989,25 @@ class ClientEventController extends Controller
             case "parent":
                 $secondaryClientInfo = $clientEvent->children;
                 $responseAdditionalInfo = [
-                    'school' => $secondaryClientInfo->school->sch_name,
-                    'graduation_year' => $secondaryClientInfo->graduation_year,
-                    'abr_country' => str_replace(',', ', ', $secondaryClientInfo->abr_country)
+                    'school' => isset($secondaryClientInfo->school->sch_name) ? $secondaryClientInfo->school->sch_name : null,
+                    'graduation_year' => isset($secondaryClientInfo->graduation_year) ? $secondaryClientInfo->graduation_year : null,
+                    'abr_country' => isset($secondaryClientInfo->abr_country) ? str_replace(',', ', ', $secondaryClientInfo->abr_country) : null
                 ];
                 break;
 
             case "student":
                 $secondaryClientInfo = $clientEvent->parent;
                 $responseAdditionalInfo = [
-                    'school' => $client->school->sch_name,
-                    'graduation_year' => $client->graduation_year,
-                    'abr_country' => str_replace(',', ', ', $client->abr_country)
+                    'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
+                    'graduation_year' => isset($client->graduation_year) ? $client->graduation_year : null,
+                    'abr_country' => isset($client->abr_country) ? str_replace(',', ', ', $client->abr_country) : null
                 ];
                 break;
 
         }
 
         if (!isset($secondaryClientInfo))
-            abort(404);
+            return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'Something went wrong. <br>Please contact our staff to help you scan the QR.']);
 
         $response = [
             'client' => $client,
@@ -1019,7 +1017,7 @@ class ClientEventController extends Controller
             ] + $responseAdditionalInfo
         ];
 
-        return view('scan-qrcode.client-detail')->with($response);
+        return view('stem-wonderlab.scan-qrcode.client-detail')->with($response);
     }
 
     public function handlerScanQrCodeForAttend(Request $request)
@@ -1171,8 +1169,7 @@ class ClientEventController extends Controller
         $link = 'https://makerspace.all-inedu.com';
         $query = '?ref='.$refcode.'#form';
 
-        $link = $link.$query;
-        return view('referral-link.index')->with([
+        return view('stem-wonderlab.referral-link.index')->with([
             'link' => $link,
             'event' => $event
         ]);
@@ -1204,7 +1201,7 @@ class ClientEventController extends Controller
             'clientevent' => $clientEventId
         ]);
 
-        return view('scan-qrcode.qrcode')->with([
+        return view('stem-wonderlab.scan-qrcode.qrcode')->with([
             'url' => $url
         ]);
     }

@@ -617,10 +617,11 @@
                 curr + ", 'receipt')");
         });
 
-        function sendToClient(link) {
+        function updateParentMail() {
             $("#sendToClient--modal").modal('hide');
             $('#sendToClientModal').modal('hide');
-            showLoading()
+            
+            showLoading();
             var linkUpdateMail = '{{ url('/') }}/receipt/client-program/' + $('#receipt_id').val() +
                 '/update/parent/mail';
 
@@ -629,25 +630,27 @@
                     parent_mail: $('#parent_mail').val(),
                 })
                 .then(function(response1) {
-
-                    axios
-                        .get(link)
-                        .then(response => {
-                            swal.close()
-                            notification('success', 'Receipt has been send to client')
-                            $(".step-five").addClass('active');
-                        })
-                        .catch(error => {
-                            notification('error',
-                                'Something went wrong when sending receipt to client. Please try again');
-                            swal.close()
-                        })
+                    swal.close();
                 })
                 .catch(function(error) {
-                    swal.close();
                     notification('error', error)
                 })
 
+        }
+
+        function sendToClient(link)
+        {
+            axios
+                .get(link)
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Receipt has been send to client')
+                    $(".step-five").addClass('active');
+                })
+                .catch(error => {
+                    var message = error.response.data.message;
+                    notification('error', message);
+                })
         }
 
         function requestAcc(link, currency) {

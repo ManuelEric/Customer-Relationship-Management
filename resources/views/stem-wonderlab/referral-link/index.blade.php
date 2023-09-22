@@ -9,6 +9,13 @@
         integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endsection
+@push('styles')
+    <style>
+        .bg-eduall {
+            background: #0C0F38 !important;
+        }
+    </style>
+@endpush
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
 @endpush
@@ -16,9 +23,12 @@
     <section>
         <div class="container-fluid">
             <div class="row justify-content-center align-items-center" style="height: 100vh">
-                <div class="col-md-4 px-5">
-                    <div class="card" style="background: #233469;">
-                        <div class="card-body">
+                <div class="col-md-4 mb-4">
+                    <div class="d-flex justify-content-center py-3">
+                        <img src="{{asset('img/makerspace/stem-logo-allin-color.webp')}}" alt="STEM+ Wonderlab" class="w-50" >
+                    </div>
+                    <div class="card bg-eduall shadow">
+                        <div class="card-body p-1">
                             <textarea name="" id="bar" class="form-control" rows="15">"Hi! I'm inviting you & your family to *STEM+ Wonderlab*, Indonesia's FIRST Student Makerspace Expo where our children can dive into *advanced tools, connect* with fellow innovators, collaborate on cool projects, and make a real impact on global issues!
 
 📍{{ strip_tags($event->event_location) }}
@@ -29,7 +39,7 @@ As my invited guest, enjoy VIP privileges, such as
  - Exclusive merchandise courtesy of ALL-in.
  - Exclusive access to a range of special promotions and premium products.
 
-Come with me to the event by clicking this link: {{$link}} See you there!
+Come with me to the event by clicking this link: {{ $link }} See you there!
                             </textarea>
                         </div>
                     </div>
@@ -42,12 +52,6 @@ Come with me to the event by clicking this link: {{$link}} See you there!
                     </div>
                 </div>
                 <div class="col-md-4">
-                    {{-- <div class="text-center d-flex align-items-center mb-3 justify-content-between">
-                        <input type="url" name="" id="url" value="https://all-inedu.com"
-                            class="form-control">
-                        <div id="share" class="w-50 text-end"></div>
-                    </div> --}}
-
                     {{-- Instruction  --}}
                     <div class="card shadow mb-3">
                         <div class="card-header" style="background: #233469;">
@@ -95,17 +99,10 @@ Come with me to the event by clicking this link: {{$link}} See you there!
             </div>
         </div>
     </section>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.min.js"></script>
     <script>
         $(document).ready(function() {
-            $("#share").jsSocials({
-                url: $('#url').val(),
-                showLabel: false,
-                showCount: false,
-                shares: ["whatsapp", "facebook", "linkedin"]
-            });
-
             new ClipboardJS('.btn');
+
             tinymce.remove('#bar');
         });
     </script>

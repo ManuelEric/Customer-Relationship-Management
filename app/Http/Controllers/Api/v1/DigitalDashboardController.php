@@ -170,7 +170,7 @@ class DigitalDashboardController extends Controller
         foreach ($dataAchieved as $achieved) {
             $achievedParents = $achieved->parents !== null ? $achieved->parents->count() : 0;
         
-            $html .= '<tr>
+            $html .= '<tr class="detail" data-clientid="' .$achieved->id. '" style="cursor:pointer">
                         <td>' . $index++ . '</td>
                         <td>' . $achieved->full_name . '</td>
                         <td>' . ($achievedParents > 0 ? $achieved->parents->first()->full_name : '-'). '</td>
