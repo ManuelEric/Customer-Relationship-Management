@@ -63,7 +63,7 @@
                     <div class="col-md-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <p class="m-0 p-0">Here your QR Code</p>
-                            <button id="dl-qr" class="btn btn-sm text-white rounded-3" style="background: #233469">
+                            <button id="dl-qr" class="btn btn-sm text-white rounded-3" style="background: #233469; z-index:9999;">
                                 <i class="bi bi-download"></i>
                             </button>
                         </div>
