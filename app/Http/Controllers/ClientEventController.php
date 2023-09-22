@@ -1171,8 +1171,7 @@ class ClientEventController extends Controller
         $link = 'https://makerspace.all-inedu.com';
         $query = '?ref='.$refcode.'#form';
 
-        $link = $link.$query;
-        return view('referral-link.index')->with([
+        return view('stem-wonderlab.referral-link.index')->with([
             'link' => $link,
             'event' => $event
         ]);
@@ -1204,7 +1203,7 @@ class ClientEventController extends Controller
             'clientevent' => $clientEventId
         ]);
 
-        return view('scan-qrcode.qrcode')->with([
+        return view('stem-wonderlab.scan-qrcode.qrcode')->with([
             'url' => $url
         ]);
     }
