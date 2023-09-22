@@ -1128,7 +1128,7 @@ class ClientEventController extends Controller
             $link = $this->createShortUrl(url('form/event?event_name='.$event_slug.'&form_type=cta&event_type=offline&ref='. $refcode), $refcode);
         }
 
-        return view('referral-link.index')->with([
+        return view('stem-wonderlab.referral-link.index')->with([
             'link' => $link,
             'event' => $event
         ]);
@@ -1160,7 +1160,7 @@ class ClientEventController extends Controller
             'clientevent' => $clientEventId
         ]);
 
-        return view('scan-qrcode.qrcode')->with([
+        return view('stem-wonderlab.scan-qrcode.qrcode')->with([
             'url' => $url
         ]);
     }
