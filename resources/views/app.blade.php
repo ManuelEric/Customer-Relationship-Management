@@ -380,6 +380,9 @@
             var link = subject + '/' + id
             $('#send-to-client--app-0604').unbind('click');
             $("#send-to-client--app-0604").bind('click', function() {
+                if (typeof updateParentMail == "function")
+                    updateParentMail()
+
                 sendToClient(link)
             })
         }
