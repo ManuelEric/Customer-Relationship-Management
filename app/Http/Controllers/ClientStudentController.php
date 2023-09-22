@@ -711,4 +711,10 @@ class ClientStudentController extends ClientController
 
         return back()->withSuccess('Student successfully imported');
     }
+
+    public function siblings(Request $request)
+    {
+        $clients = $this->clientRepository->getAlumniMenteesSiblings();
+        return $clients;
+    }
 }
