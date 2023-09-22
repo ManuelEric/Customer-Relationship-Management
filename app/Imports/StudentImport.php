@@ -204,10 +204,10 @@ class StudentImport implements ToCollection, WithHeadingRow, WithValidation, Wit
         return [
             '*.full_name' => ['required'],
             '*.email' => ['required', 'email', 'unique:tbl_client,mail'],
-            '*.phone_number' => ['nullable', 'min:10', 'max:15'],
+            '*.phone_number' => ['nullable', 'min:5', 'max:15'],
             '*.date_of_birth' => ['nullable', 'date'],
             '*.parents_name' => ['nullable'],
-            '*.parents_phone' => ['nullable', 'min:10', 'max:15'],
+            '*.parents_phone' => ['nullable', 'min:5', 'max:15'],
             '*.school' => ['required'],
             '*.graduation_year' => ['nullable', 'integer'],
             '*.grade' => ['required', 'integer'],
