@@ -186,7 +186,7 @@ class StoreClientProgramRequest extends FormRequest
                         }
                     ],
                     'lead_id' => 'required',
-                    'clientevent_id' => 'required_if:lead_id,LS004',
+                    'clientevent_id' => 'required_if:lead_id,LS003',
                     'eduf_lead_id' => 'required_if:lead_id,LS018',
                     'kol_lead_id' => [
                         function ($attribute, $value, $fail) {
@@ -230,7 +230,7 @@ class StoreClientProgramRequest extends FormRequest
                         }
                     ],
                     'lead_id' => 'required',
-                    'clientevent_id' => 'required_if:lead_id,LS004',
+                    'clientevent_id' => 'required_if:lead_id,LS003',
                     'eduf_lead_id' => 'required_if:lead_id,LS018',
                     'kol_lead_id' => [
                         function ($attribute, $value, $fail) {
@@ -291,7 +291,7 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
-            'clientevent_id' => 'required_if:lead_id,LS004',
+            'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
@@ -339,7 +339,7 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
-            'clientevent_id' => 'required_if:lead_id,LS004',
+            'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
@@ -419,7 +419,7 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
-            'clientevent_id' => 'required_if:lead_id,LS004',
+            'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
@@ -463,7 +463,7 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
-            'clientevent_id' => 'required_if:lead_id,LS004',
+            'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
@@ -533,7 +533,7 @@ class StoreClientProgramRequest extends FormRequest
                 }
             ],
             'lead_id' => 'required',
-            'clientevent_id' => 'required_if:lead_id,LS004',
+            'clientevent_id' => 'required_if:lead_id,LS003',
             'eduf_lead_id' => 'required_if:lead_id,LS018',
             'kol_lead_id' => [
                 function ($attribute, $value, $fail) {
