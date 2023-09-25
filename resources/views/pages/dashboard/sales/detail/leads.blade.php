@@ -56,8 +56,7 @@
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Digital</label>
-                                        <label
-                                            id="lead_needed_digital">{{ $actualLeadsDigital['lead_needed'] }}/{{ $leadDigitalTarget['lead_needed'] }}</label>
+                                        <label id="lead_needed_digital">{{ $actualLeadsDigital['lead_needed'] }}/{{ $leadDigitalTarget['lead_needed'] }}</label>
                                     </div>
                                     <div class="progress cursor-pointer " role="progressbar"
                                         onclick="checkLeadDetail('Digital', 'lead')" aria-valuenow="25" aria-valuemin="0"
