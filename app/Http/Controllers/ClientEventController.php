@@ -1164,13 +1164,15 @@ class ClientEventController extends Controller
         $event_slug = $request->route('event_slug');
 
         $shortUrl = ShortURL::where('url_key', $refcode)->first();
-        $event = $this->eventRepository->getEventByName(urldecode($event_slug));
+        
+        $slug = str_replace('-', ' ', $event_slug);
+        $event = $this->eventRepository->getEventByName($slug);
 
         $link = 'https://makerspace.all-inedu.com';
         $query = '?ref='.$refcode.'#form';
 
         return view('stem-wonderlab.referral-link.index')->with([
-            'link' => $link,
+            'link' => $link.$query,
             'event' => $event
         ]);
     }
