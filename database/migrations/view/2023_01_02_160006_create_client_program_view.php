@@ -18,6 +18,13 @@ return new class extends Migration
         CREATE OR REPLACE VIEW clientprogram AS
         SELECT cp.*, 
             c.st_grade,
+            UpdateGradeStudent (
+                year(CURDATE()),
+                year(c.created_at),
+                month(CURDATE()),
+                month(c.created_at),
+                c.st_grade
+            ) AS grade_now,
             r.reason_name as reason,
             CONCAT(c.first_name, " ", COALESCE(c.last_name, "")) as fullname,
             sch.sch_name as school_name,

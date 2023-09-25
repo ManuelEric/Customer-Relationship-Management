@@ -1170,7 +1170,7 @@ class ClientEventController extends Controller
         $query = '?ref='.$refcode.'#form';
 
         return view('stem-wonderlab.referral-link.index')->with([
-            'link' => $link,
+            'link' => $link.$query,
             'event' => $event
         ]);
     }

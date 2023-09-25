@@ -73,7 +73,11 @@ return new class extends Migration
                 month(CURDATE()),
                 month(c.created_at),
                 c.st_grade
-            ) AS grade_now,
+            ) AS real_grade,
+            (CASE
+                WHEN (SELECT real_grade IS NULL) AND c.graduation_year IS NOT NULL THEN (12 - (c.graduation_year - YEAR(NOW())))  
+                ELSE (SELECT real_grade)
+            END) as grade_now,
             (SELECT ((SELECT grade_now) - 12)) AS year_gap,
             (SELECT YEAR((NOW() - INTERVAL (SELECT year_gap) YEAR) + INTERVAL 1 YEAR)) AS graduation_year_real,
 
