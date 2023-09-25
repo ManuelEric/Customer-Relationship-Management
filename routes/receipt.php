@@ -51,8 +51,8 @@ Route::prefix('client-program')->name('receipt.client-program.')->group(function
     Route::get('{receipt}/request_sign', [ReceiptController::class, 'requestSign'])->name('request_sign');
     Route::get('{receipt}/preview/{currency}', [ReceiptController::class, 'preview'])->name('preview');
     Route::post('{receipt}/preview/{currency}', [ReceiptController::class, 'uploadSigned'])->name('upload-signed');
-    Route::get('{receipt}/send/{currency}', [ReceiptController::class, 'sendToClient'])->name('send_to_client'); # new
-    Route::post('{receipt}/update/parent/mail', [ReceiptController::class, 'updateParentMail']);
+    Route::get('{receipt}/send/{currency}/{type_recipient}', [ReceiptController::class, 'sendToClient'])->name('send_to_client'); # new
+    Route::post('{receipt}/update/mail', [ReceiptController::class, 'updateMail']);
 });
 
 // CORPORATE 
