@@ -1,5 +1,5 @@
 @extends('app')
-@section('title', 'Registration Form - STEM + Wonderlab')
+@section('title', 'STEM + Wonderlab - Referral Page')
 @section('css')
     <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.css" />
 
@@ -52,7 +52,7 @@ Come with me to the event by clicking this link: {{ $link }} See you there!
                     </div>
                 </div>
                 <div class="col-md-4">
-                    {{-- Instruction  --}}
+                     {{-- Instruction  --}}
                     <div class="card shadow mb-3">
                         <div class="card-header" style="background: #233469;">
                             <h6 class="p-0 m-0 text-white  d-flex justify-content-between">
@@ -63,34 +63,32 @@ Come with me to the event by clicking this link: {{ $link }} See you there!
                         <div class="card-body">
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item">
-                                    On the event day, present the QR code to the registration
-                                    personnel at the venue to expedite the entry process.
+                                    Copy & paste this message to your friends and their families through WhatsApp, Facebook,
+                                    and other platforms
                                 </li>
                                 <li class="list-group-item">
-                                    Enjoy our event and take the opportunity to connect with fellow
-                                    peers.
+                                    Advise your invitees to present their QR code at the event day for seamless and
+                                    exclusive privileges at STEM+ Wonderlab
                                 </li>
                             </ul>
                         </div>
                     </div>
 
-                    {{-- Instruction  --}}
+                    {{-- Benefit  --}}
                     <div class="card shadow">
                         <div class="card-header" style="background: #233469;">
                             <h6 class="p-0 m-0 text-white  d-flex justify-content-between">
-                                Benefit
+                                Your Benefits
                                 <i class="bi bi-info-circle me-2"></i>
                             </h6>
                         </div>
                         <div class="card-body">
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item">
-                                    On the event day, present the QR code to the registration
-                                    personnel at the venue to expedite the entry process.
-                                </li>
-                                <li class="list-group-item">
-                                    Enjoy our event and take the opportunity to connect with fellow
-                                    peers.
+                                    Share the invitation to your friends and their families, and gain what your child needs for a
+                                    profile boost: <br><br>
+                                    - Personal Branding Website <br>
+                                    - Exclusive Professional Photoshoot
                                 </li>
                             </ul>
                         </div>

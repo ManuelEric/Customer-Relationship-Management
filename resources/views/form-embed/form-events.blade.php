@@ -67,8 +67,21 @@
             background-position: center;
             background-repeat: no-repeat
         }
+
+        .banner img {
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .bg-form {
+                background: white !important;
+            }
+        }
     </style>
 </head>
+
 <body>
     @php
         $image = isset($event->event_banner) ? asset('storage/uploaded_file/events/' . $event->event_banner) : 'https://picsum.photos/900/200';
@@ -81,8 +94,8 @@
                     <img src="{{ asset('img/logo.png') }}" alt="Form ALL-in Event" class="w-[150px]">
                 </div>
 
-                <div class="h-[200px] overflow-hidden mb-2 rounded-lg shadow">
-                    <img src="{{ $image }}" alt=""
+                <div class="h-[200px] overflow-hidden mb-2 rounded-lg shadow banner">
+                    <img src="{{ $image }}" alt="Form ALL-in Event"
                         class="w-full object-cover hover:scale-[1.05] ease-in-out duration-500">
                 </div>
             @endif
@@ -135,10 +148,12 @@
                                 <input checked id="role-1" type="radio" value="parent" name="role"
                                     class="hidden peer" onchange="checkRole(this)">
                                 <label for="role-1"
-                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
+                                    class="flex items-center justify-center w-full md:py-4 py-2 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
-                                        <img src="{{ asset('img/form-embed/parent.png') }}" alt="Student"
-                                            style="width: 70px;">
+                                        <div class="flex justify-center">
+                                            <img src="{{ asset('img/form-embed/parent.png') }}" alt="Student"
+                                                class="md:w-[70px] w-[40px]">
+                                        </div>
                                         Parent
                                     </div>
                                 </label>
@@ -147,10 +162,12 @@
                                 <input id="role-2" type="radio" value="student" name="role" class="hidden peer"
                                     onchange="checkRole(this)">
                                 <label for="role-2"
-                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
+                                    class="flex items-center justify-center w-full md:py-4 py-2 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
-                                        <img src="{{ asset('img/form-embed/student.png') }}" alt="Student"
-                                            style="width: 70px;">
+                                        <div class="flex justify-center">
+                                            <img src="{{ asset('img/form-embed/student.png') }}" alt="Parent"
+                                                class="md:w-[70px] w-[40px]">
+                                        </div>
                                         Student
                                     </div>
                                 </label>
@@ -159,10 +176,12 @@
                                 <input id="role-3" type="radio" value="teacher/counsellor" name="role"
                                     class="hidden peer" onchange="checkRole(this)">
                                 <label for="role-3"
-                                    class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
+                                    class="flex items-center justify-center w-full md:py-4 py-2 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="flex flex-col items-center">
-                                        <img src="{{ asset('img/form-embed/teacher.png') }}" alt="Student"
-                                            style="width: 70px;" class="flex justify-center">
+                                        <div class="flex justify-center">
+                                            <img src="{{ asset('img/form-embed/teacher.png') }}" alt="Parent"
+                                                class="md:w-[70px] w-[40px]">
+                                        </div>
                                         Teacher/Counsellor
                                     </div>
                                 </label>
@@ -337,24 +356,25 @@
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                             </div>
                         @endif
-                        
-                        @if (!request()->get('ref') && request()->get('ref') === NULL)
-                        <div class="mb-4">
-                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
-                                I know this event from <span class="text-red-400">*</span>
-                            </label>
-                            <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
-                            <select name="leadsource" id="leadSource"
-                                class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
-                                placeholder="Pick one item">
-                                <option data-placeholder="true"></option>
-                                @foreach ($leads as $lead)
-                                    <option value="{{ $lead->lead_id }}"
-                                        {{ old('leadsource') == $lead->lead_id ? 'selected' : null }}>
-                                        {{ $lead->main_lead == 'KOL' ? $lead->sub_lead : $lead->main_lead }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+
+                        @if (!request()->get('ref') && request()->get('ref') === null)
+                            <div class="mb-4">
+                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
+                                    I know this event from <span class="text-red-400">*</span>
+                                </label>
+                                <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                <select name="leadsource" id="leadSource"
+                                    class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
+                                    placeholder="Pick one item">
+                                    <option data-placeholder="true"></option>
+                                    @foreach ($leads as $lead)
+                                        <option value="{{ $lead->lead_id }}"
+                                            {{ old('leadsource') == $lead->lead_id ? 'selected' : null }}>
+                                            {{ $lead->main_lead == 'KOL' ? $lead->sub_lead : $lead->main_lead }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         @endif
 
                         <div class="flex justify-between mt-10">
@@ -436,7 +456,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
         e.preventDefault();
 
         Swal.fire({
-            width:100,
+            width: 100,
             didOpen: () => {
                 Swal.showLoading()
             },
@@ -449,10 +469,10 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
     $(function() {
 
         $("#role-1").prop('checked', true).trigger('change');
-    })    
+    })
 
     function checkRole(element) {
-        
+
 
         const input_child_name = $('#input_child_name')
         const graduation_input = $('#graduation_input')
@@ -463,7 +483,7 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
         const other_name = $('#other_name')
 
         if (element.value == "student") {
-            
+
             role.html('Parent\'s')
             user_other.removeClass('hidden')
             other_name.addClass('required')
@@ -471,13 +491,13 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             country_input.removeClass('hidden')
 
             setAdditionalInputLabel({
-                "school" : "Which school are you from?",
-                "graduation" : "When do you expect to graduate?",
-                "country" : "Which country are you thinking of studying in?",
+                "school": "Which school are you from?",
+                "graduation": "When do you expect to graduate?",
+                "country": "Which country are you thinking of studying in?",
             });
 
         } else if (element.value == "parent") {
-            
+
             role.html('Child\'s')
             user_other.removeClass('hidden')
             other_name.addClass('required')
@@ -485,9 +505,9 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             country_input.removeClass('hidden')
 
             setAdditionalInputLabel({
-                "school" : "What school does your child go to?",
-                "graduation" : "When do you expect your child to graduate?",
-                "country" : "Which country does your child interest in studying abroad?",
+                "school": "What school does your child go to?",
+                "graduation": "When do you expect your child to graduate?",
+                "country": "Which country does your child interest in studying abroad?",
             });
 
         } else {
@@ -497,8 +517,8 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
             country_input.addClass('hidden')
 
             setAdditionalInputLabel({
-                "school" : "Which school are you from?",
-                "graduation" : null,
+                "school": "Which school are you from?",
+                "graduation": null,
 
             })
         }
