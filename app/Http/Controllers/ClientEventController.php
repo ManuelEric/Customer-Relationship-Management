@@ -841,11 +841,11 @@ class ClientEventController extends Controller
         $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
 
         $event = [
-            'eventDate_start' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
-            'eventDate_end' => date('l, d M Y', strtotime($clientEvent->event->event_enddate)),
-            'eventTime_start' => date('H.i', strtotime($clientEvent->event->event_startdate)),
-            'eventTime_end' => date('H.i', strtotime($clientEvent->event->event_enddate)),
-            'eventLocation' => $clientEvent->event->event_location
+            'eventDate_start' => date('l, M d Y', strtotime($clientEvent->event->event_startdate)),
+            'eventDate_end' => date('M d, Y', strtotime($clientEvent->event->event_enddate)),
+            'eventTime_start' => date('g A', strtotime($clientEvent->event->event_startdate)),
+            'eventTime_end' => date('H:i', strtotime($clientEvent->event->event_enddate)),
+            'eventLocation' => $clientEvent->event->event_location,
         ];
 
         try {
