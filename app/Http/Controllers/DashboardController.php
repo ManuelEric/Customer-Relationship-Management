@@ -110,7 +110,8 @@ class DashboardController extends SalesDashboardController
     }
 
     public function index(Request $request)
-    {
+    {   
+
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
         $data = array_merge($data, (new FinanceDashboardController($this))->get($request));

@@ -111,7 +111,7 @@ trait MailingEventOfflineTrait
                         'clientevent' => $clientEvent->clientevent_id
                     ]);
                     $data['referral_page'] = route('program.event.referral-page', [
-                        'event_slug' => urlencode($event->event_title),
+                        'event_slug' => str_replace(' ', '-', $event->event_title),
                         'refcode' => $referralCode
                     ]);
 
