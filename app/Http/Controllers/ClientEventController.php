@@ -1150,8 +1150,9 @@ class ClientEventController extends Controller
         $clientId = $request->route('client');
         $client = $this->clientRepository->getClientById($clientId);
         $eventId = $request->route('event');
+        $notes = $request->route('notes');
 
-        $dataRegister = $this->register($client->mail, $eventId, 'VIP');
+        $dataRegister = $this->register($client->mail, $eventId, $notes);
 
         if($dataRegister['success'] && !$dataRegister['already_join']){
             return Redirect::to('form/thanks');
