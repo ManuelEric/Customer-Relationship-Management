@@ -82,7 +82,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="14"></td>
+                        <td colspan="17"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -269,6 +269,8 @@
                     {
                         className: 'text-center',
                         data: 'notes',
+                        searchable: true,
+                        defaultContent: '-'
                     },
                     {
                         data: 'number_of_party',

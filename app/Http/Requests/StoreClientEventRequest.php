@@ -92,6 +92,7 @@ class StoreClientEventRequest extends FormRequest
                 }
             ],
             'status' => 'required|in:0,1',
+            'notes' => 'nullable',
         ];
 
         if ($this->input('lead_id') != "kol") {
@@ -140,6 +141,7 @@ class StoreClientEventRequest extends FormRequest
             ],
             'joined_date' => 'required|date',
             'status' => 'required|in:0,1',
+            'notes' => 'nullable',
         ];
 
         if ($this->input('lead_id') != "kol") {

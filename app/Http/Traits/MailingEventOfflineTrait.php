@@ -170,7 +170,7 @@ trait MailingEventOfflineTrait
                     'event_slug' => urlencode($event->event_title),
                     'refcode' => $this->createReferralCode($client->first_name, $client->id)
                 ]),                  
-                'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id),
+                'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id .'/VIP'),
             ];
             $data['event'] = [
                 'eventName' => $event->event_title,
