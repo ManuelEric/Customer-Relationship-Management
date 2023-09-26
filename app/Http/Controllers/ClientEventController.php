@@ -831,7 +831,7 @@ class ClientEventController extends Controller
         $choosen_role = $request->get('role');
         $name = $request->get('name');
 
-        return view('form-embed.form-events.success')->with([
+        return view('form-embed.response.success')->with([
             'choosen_role' => $choosen_role,
             'name' => $name
         ]);
