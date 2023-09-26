@@ -1212,7 +1212,7 @@ class ClientEventController extends Controller
             abort(404);
 
         $link = 'https://makerspace.all-inedu.com';
-        $query = '?ref='.$refcode.'#form';
+        $query = '?ref='.$refcode;
 
         return view('stem-wonderlab.referral-link.index')->with([
             'link' => $link.$query,
