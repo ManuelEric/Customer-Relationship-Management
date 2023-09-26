@@ -27,6 +27,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                     // 'tbl_client_event.event_id',
                     // 'tbl_client_event.eduf_id',
                     'tbl_events.event_title as event_name',
+                    'tbl_client_event.notes',
                     'client.register_as',
                     'client.full_name as client_name',
                     'client.mail as client_mail',

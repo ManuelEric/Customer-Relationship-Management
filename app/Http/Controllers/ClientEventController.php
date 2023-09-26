@@ -147,6 +147,7 @@ class ClientEventController extends Controller
             'eduf_id',
             'partner_id',
             'status',
+            'notes',
             'joined_date'
         ]);
 
@@ -390,6 +391,7 @@ class ClientEventController extends Controller
             'eduf_id',
             'partner_id',
             'status',
+            'notes',
             'joined_date'
         ]);
 
