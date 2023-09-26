@@ -259,8 +259,14 @@
                         data: 'school_name',
                     },
                     {
-                        data: 'st_grade',
-                        className: 'text-center'
+                        data: 'grade_now',
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            if (data > 12)
+                                return "Not High School";
+
+                            return data;
+                        }
                     },
                     {
                         data: 'program_name',

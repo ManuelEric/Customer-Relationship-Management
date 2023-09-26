@@ -138,7 +138,7 @@ class TeacherImport implements ToCollection, WithHeadingRow, WithValidation
         return [
             '*.full_name' => ['required'],
             '*.email' => ['required', 'email', 'unique:tbl_client,mail'],
-            '*.phone_number' => ['required', 'min:10', 'max:15'],
+            '*.phone_number' => ['required', 'min:5', 'max:15'],
             '*.date_of_birth' => ['nullable', 'date'],
             '*.instagram' => ['nullable', 'unique:tbl_client,insta'],
             '*.state' => ['nullable'],

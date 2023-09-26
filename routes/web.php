@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Embed\PublicRegistrationController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientProgramController;
+use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
 
@@ -70,20 +71,20 @@ Route::get('form/already-join', function() {
     return view('form-embed.response.already-join');
 });
 
+Route::get('registration', function() {
+    return view('stem-wonderlab.registration');
+});
+
+Route::get('onsite', function() {
+    return view('stem-wonderlab.onsite');
+});
+
 Route::get('scan', function() {
-    return view('scan-qrcode.index');
+    return view('stem-wonderlab.scan-qrcode.index');
 });
 
 Route::get('client-detail/{identifier}/{screening_type}', [ClientEventController::class, 'previewClientInformation']);
 
 Route::get('mailing', function() {
     return view('mailing.stem-wonderlab');
-});
-
-Route::get('your-qrcode', function() {
-    return view('scan-qrcode.qrcode');
-});
-
-Route::get('referral', function() {
-    return view('referral-link.index');
 });
