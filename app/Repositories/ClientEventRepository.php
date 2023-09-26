@@ -49,6 +49,7 @@ class ClientEventRepository implements ClientEventRepositoryInterface
                         WHEN client.register_as = "parent" THEN child.graduation_year_real 
                     END) AS graduation_year'),
                     'tbl_client_event.joined_date',
+                    'tbl_client_event.notes',
                     'tbl_client_event.status',
                     'tbl_client_event.created_at',
                     'tbl_client_event.number_of_attend as number_of_party',

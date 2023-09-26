@@ -2,6 +2,16 @@
 @section('title', 'Confirmation')
 @push('styles')
     <style>
+
+        @font-face {
+            font-family: 'nulshock';
+            src: url('/img/makerspace/font/nulshock-bd.otf');
+            font-display: swap;
+        }
+
+        .notes{
+            font-family: 'nulshock' !important;
+        }
         input {
             border: 0 !important;
             border-bottom: 1px solid #16236a !important;
@@ -104,7 +114,11 @@
                                 <hr>
                                 <div class="row justify-content-end align-items-end">
                                     <div class="col">
-                                        {{ $client_event->notes }}
+                                        @if(isset($client_event->notes) && ($client_event->notes == 'VIP' || $client_event->notes == 'VVIP'))
+                                            <div class="badge rounded-pill px-3" style="background:#FF7701">
+                                                <h2 class="notes p-0 m-0" style="color:#0C0F38 ">{{ $client_event->notes }}</h2>
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="col-3">
                                         <label>Number of Party <span class="text-danger">*</span></label>

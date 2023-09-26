@@ -74,6 +74,7 @@
                         <th>Conversion Lead</th>
                         <th>Country of Study Abroad</th>
                         <th>Joined Date</th>
+                        <th>Notes</th>
                         <th>Number of Party</th>
                         <th>Attendance</th>
                         <th class="bg-info text-white">Action</th>
@@ -81,7 +82,7 @@
                 </thead>
                 <tfoot class="bg-light text-white">
                     <tr>
-                        <td colspan="14"></td>
+                        <td colspan="17"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -264,6 +265,12 @@
 
                             return moment(data).format('dddd, DD MMM YYYY');
                         }
+                    },
+                    {
+                        className: 'text-center',
+                        data: 'notes',
+                        searchable: true,
+                        defaultContent: '-'
                     },
                     {
                         data: 'number_of_party',

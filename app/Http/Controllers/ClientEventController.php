@@ -94,6 +94,10 @@ class ClientEventController extends Controller
 
     public function index(Request $request)
     {
+        // $filter['event_name'] = $request->get('event_name');
+        // return $this->clientEventRepository->getAllClientEventDataTables($filter);
+        // exit;
+
         if ($request->ajax())
         {
             $event_name = $request->get('event_name');
@@ -147,7 +151,8 @@ class ClientEventController extends Controller
             'eduf_id',
             'partner_id',
             'status',
-            'joined_date'
+            'joined_date',
+            'notes'
         ]);
 
         // Client not existing
@@ -390,6 +395,7 @@ class ClientEventController extends Controller
             'eduf_id',
             'partner_id',
             'status',
+            'notes',
             'joined_date'
         ]);
 
@@ -1146,8 +1152,9 @@ class ClientEventController extends Controller
         $clientId = $request->route('client');
         $client = $this->clientRepository->getClientById($clientId);
         $eventId = $request->route('event');
+        $notes = $request->route('notes');
 
-        $dataRegister = $this->register($client->mail, $eventId, 'VIP');
+        $dataRegister = $this->register($client->mail, $eventId, $notes);
 
         if($dataRegister['success'] && !$dataRegister['already_join']){
             return Redirect::to('form/thanks');
