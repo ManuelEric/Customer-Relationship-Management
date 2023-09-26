@@ -30,7 +30,7 @@
                     @default
                         {{ $name }}
                 @endswitch <br>
-                Thank you for registering.
+                Thank You For Registering
                 </h2>
                 <h4 class="md:text-xl text-md">
                     Please kindly make your way to the registration desk.

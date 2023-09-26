@@ -18,7 +18,7 @@
                     <img src="{{ asset('img/submitted.png') }}" alt="Form ALL-in Event" class="w-[200px]">
                 </div>
                 <h2 class="md:text-3xl text-xl mb-4 font-bold">
-                    Thanks for submitting your form!
+                    Thank You <br> For Submitting Your Form!
                 </h2>
                 <h4 class="md:text-xl text-md">
                     You will receive a confirmation email and our team will contact you shortly.

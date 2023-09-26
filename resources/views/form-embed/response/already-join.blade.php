@@ -31,10 +31,10 @@
                         {{ $name }}
                 @endswitch 
                 <br>
-                You're already joined event
+                You've Already Registered
                 </h2>
                 <h4 class="md:text-xl text-md">
-                    You will receive a confirmation email and our team will contact you shortly.
+                    Please check your email for your registration details.
                 </h4>
             </div>
         </div>
