@@ -651,10 +651,7 @@ class ClientEventController extends Controller
             $newly_registrant_user = $this->clientRepository->getClientById($newly_registrant);
 
 
-            return Redirect::to('form/registration/success', [
-                'role' => $choosen_role,
-                'name' => $newly_registrant_user->full_name
-            ]);
+            return Redirect::to('form/registration/success?role='.$choosen_role.'&name='.$newly_registrant_user->full_name);
         }
         
         return Redirect::to('form/thanks');
