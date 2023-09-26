@@ -123,6 +123,9 @@
                                     <div class="col-3">
                                         <label>Number of Party <span class="text-danger">*</span></label>
                                         <input type="number" name="how_many_people_attended" class="form-control" style="border-bottom: 3px solid rgb(55, 98, 227) !important;">
+                                        @error('how_many_people_attended')
+                                            <small class="text-danger fw-light">{{ $message }}</small>
+                                        @enderror
                                     </div>
                                     <div class="col-2">
                                         <button type="submit" class="btn btn-sm btn-primary"><i

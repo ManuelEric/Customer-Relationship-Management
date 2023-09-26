@@ -614,6 +614,13 @@ class ClientEventController extends Controller
             if (isset($registration_type))
                 $clientEventDetails['registration_type'] = $registration_type;
 
+            # get data created user
+            $newly_registrant_user = $this->clientRepository->getClientById($newly_registrant);
+
+            # check if client has already join the event
+            if ($this->clientEventRepository->getClientEventByClientId($createdClient['clientId']))
+                return Redirect::to('form/already-join?role='.$choosen_role.'&name='.$newly_registrant_user->full_name);
+
             # store a new client event
             if ($clientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails)) {
 
@@ -646,13 +653,9 @@ class ClientEventController extends Controller
         }
         
         # if they regist on the spot then should return view success
-        if (isset($registration_type) && $registration_type == "ots") {
-            
-            $newly_registrant_user = $this->clientRepository->getClientById($newly_registrant);
-
-
+        if (isset($registration_type) && $registration_type == "ots")
             return Redirect::to('form/registration/success?role='.$choosen_role.'&name='.$newly_registrant_user->full_name);
-        }
+        
         
         return Redirect::to('form/thanks');
     }
@@ -759,7 +762,7 @@ class ClientEventController extends Controller
                 $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($role), $clientDetails);
 
             }
-
+            
             $clientArrayIds[$loop] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$loop]->id;
 
             $loop++;
