@@ -601,11 +601,13 @@ class ClientEventController extends Controller
                 'joined_date' => Carbon::now(),
             ];
 
+            $newly_registrant = $createdClient['clientId'];
+
             if ($choosen_role == "parent")
-                $clientEventDetails['child_id'] = $newly_registrant = $createdClient['childId'];
+                $clientEventDetails['child_id'] = $createdClient['childId'];
 
             if ($choosen_role == "student")
-                $clientEventDetails['parent_id'] = $newly_registrant = $createdClient['parentId'];
+                $clientEventDetails['parent_id'] = $createdClient['parentId'];
 
             # if registration_type is exist
             # add the registration_type into the clientEventDetails that will be stored
@@ -646,11 +648,13 @@ class ClientEventController extends Controller
         # if they regist on the spot then should return view success
         if (isset($registration_type) && $registration_type == "ots") {
             
-            $newly_registrant = $this->clientRepository->getClientById($newly_registrant);
+            $newly_registrant_user = $this->clientRepository->getClientById($newly_registrant);
 
-            return view('form-embed.response.success')->with([
-                'name' => $newly_registrant->full_name
-            ]); 
+
+            return Redirect::to('form/registration/success', [
+                'role' => $choosen_role,
+                'name' => $newly_registrant_user->full_name
+            ]);
         }
         
         return Redirect::to('form/thanks');
@@ -823,6 +827,17 @@ class ClientEventController extends Controller
         }
 
         return $role;
+    }
+
+    public function successPage(Request $request)
+    {
+        $choosen_role = $request->get('role');
+        $name = $request->get('name');
+
+        return view('form-embed.form-events.success')->with([
+            'choosen_role' => $choosen_role,
+            'name' => $name
+        ]);
     }
 
     public function sendMailQrCode($clientEventId, $eventName, $client, $update = false)

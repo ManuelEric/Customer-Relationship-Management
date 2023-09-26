@@ -14,9 +14,18 @@
     <div class="min-h-screen flex items-center bg-gray-200">
         <div class="max-w-screen-md w-full mx-auto p-4 text-center">
             <h2 class="text-3xl mb-4 font-bold">
-                @if (isset($name))
-                Mr./Mrs. {{ $name }},
-                @endif
+                @switch($choosen_role)
+                    @case("parent")
+                    @case("teacher/counsellor")
+                        @if (isset($name))
+                        Mr./Mrs. {{ $name }},
+                        @endif
+                        @break
+                
+                    @default
+                        {{ $name }},
+                @endswitch
+                
                 Thank you for registering.
             </h2>
             <h4 class="text-xl">
