@@ -69,9 +69,7 @@ Route::get('form/thanks', function() {
 
 Route::get('form/registration/success', [ClientEventController::class, 'successPage']);
 
-Route::get('form/already-join', function() {
-    return view('form-embed.response.already-join');
-});
+Route::get('form/already-join', [ClientEventController::class, 'alreadyJoinPage']);
 
 Route::get('registration', function() {
     return view('stem-wonderlab.registration');

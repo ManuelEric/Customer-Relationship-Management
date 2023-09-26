@@ -840,6 +840,17 @@ class ClientEventController extends Controller
         ]);
     }
 
+    public function alreadyJoinPage(Request $request)
+    {
+        $choosen_role = $request->get('role');
+        $name = $request->get('name');
+
+        return view('form-embed.response.already-join')->with([
+            'choosen_role' => $choosen_role,
+            'name' => $name
+        ]);
+    }
+
     public function sendMailQrCode($clientEventId, $eventName, $client, $update = false)
     {
         $subject = 'Welcome to the '.$eventName.'!';
@@ -1183,7 +1194,7 @@ class ClientEventController extends Controller
         if($dataRegister['success'] && !$dataRegister['already_join']){
             return Redirect::to('form/thanks');
         }else if($dataRegister['success'] && $dataRegister['already_join']){
-            return Redirect::to('form/already-join');
+            return Redirect::to('form/already-join?role='.$client->register_as.'&name='.$client->full_name);
         }
 
 
