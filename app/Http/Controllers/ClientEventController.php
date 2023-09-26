@@ -1119,9 +1119,7 @@ class ClientEventController extends Controller
 
         }
 
-        return view('form-embed.response.success')->with([
-            'name' => $clientFullname
-        ]);
+        return Redirect::to('form/registration/success?role='.$client->register_as.'&name='.$clientFullname);
     }
 
     public function updateAttendance($id, $status) 
