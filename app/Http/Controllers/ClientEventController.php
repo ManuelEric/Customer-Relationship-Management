@@ -602,10 +602,10 @@ class ClientEventController extends Controller
             ];
 
             if ($choosen_role == "parent")
-                $clientEventDetails['child_id'] = $createdClient['childId'];
+                $clientEventDetails['child_id'] = $newly_registrant = $createdClient['childId'];
 
             if ($choosen_role == "student")
-                $clientEventDetails['parent_id'] = $createdClient['parentId'];
+                $clientEventDetails['parent_id'] = $newly_registrant = $createdClient['parentId'];
 
             # if registration_type is exist
             # add the registration_type into the clientEventDetails that will be stored
@@ -642,8 +642,17 @@ class ClientEventController extends Controller
 
             return Redirect::to('form/event?event_name='.$request->get('event_name'))->withErrors('Something went wrong. Please try again or contact our administrator.');
         }
+        
+        # if they regist on the spot then should return view success
+        if (isset($registration_type) && $registration_type == "ots") {
+            
+            $newly_registrant = $this->clientRepository->getClientById($newly_registrant);
 
-
+            return view('form-embed.response.success')->with([
+                'name' => $newly_registrant->full_name
+            ]); 
+        }
+        
         return Redirect::to('form/thanks');
     }
 

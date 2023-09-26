@@ -14,7 +14,10 @@
     <div class="min-h-screen flex items-center bg-gray-200">
         <div class="max-w-screen-md w-full mx-auto p-4 text-center">
             <h2 class="text-3xl mb-4 font-bold">
-                Thank you! Enjoy the Event!
+                @if (isset($name))
+                Mr./Mrs. {{ $name }},
+                @endif
+                Thank you for registering.
             </h2>
             <h4 class="text-xl">
                 Please kindly make your way to the registration desk.
