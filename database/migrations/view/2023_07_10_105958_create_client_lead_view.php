@@ -18,6 +18,7 @@ return new class extends Migration
         CREATE OR REPLACE VIEW client_lead AS
         SELECT 
             cl.id,
+            cl.graduation_year,
             CONCAT(cl.first_name, ' ', COALESCE(cl.last_name, '')) as name,
             UpdateGradeStudent (
                 year(CURDATE()),
@@ -25,8 +26,12 @@ return new class extends Migration
                 month(CURDATE()),
                 month(cl.created_at),
                 cl.st_grade
-            ) -12 AS grade_old,
-            cv.grade_now -12 AS grade,
+            ) AS real_grade,
+            (CASE
+                WHEN (SELECT real_grade) IS NULL AND cl.graduation_year IS NOT NULL THEN getGradeStudentByGraduationYear(cl.graduation_year)
+                ELSE (SELECT real_grade)
+            END) -12 AS grade_client_lead,
+            (SELECT grade_client_lead) AS grade,
             sc.sch_id as school,
             sc.sch_type as type_school,
             (CASE 
@@ -62,7 +67,8 @@ return new class extends Migration
                     WHERE clrole.client_id = cl.id) as roles,
 
             GetClientType(cl.id) as type,
-            cl.register_as as register_as
+            cl.register_as as register_as,
+            cl.st_statusact as active
 
         FROM tbl_client cl
         LEFT JOIN client cv

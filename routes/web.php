@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Embed\PublicRegistrationController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientProgramController;
+use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
 
@@ -82,7 +83,7 @@ Route::get('scan', function() {
     return view('stem-wonderlab.scan-qrcode.index');
 });
 
-Route::get('client-detail/{clientevent}', [ClientEventController::class, 'previewClientInformation']);
+Route::get('client-detail/{identifier}/{screening_type}', [ClientEventController::class, 'previewClientInformation']);
 
 Route::get('mailing', function() {
     return view('mailing.stem-wonderlab');

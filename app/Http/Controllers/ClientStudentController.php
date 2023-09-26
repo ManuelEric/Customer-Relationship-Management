@@ -117,6 +117,7 @@ class ClientStudentController extends ClientController
             $leads = $request->get('lead_source');
             $initial_programs = $request->get('program_suggest');
             $status_lead = $request->get('status_lead');
+            $active_status = $request->get('active_status');
 
             # array for advanced filter request
             $advanced_filter = [
@@ -124,7 +125,8 @@ class ClientStudentController extends ClientController
                 'graduation_year' => $graduation_year,
                 'leads' => $leads,
                 'initial_programs' => $initial_programs,
-                'status_lead' => $status_lead
+                'status_lead' => $status_lead,
+                'active_status' => $active_status
             ];
 
             switch ($statusClient) {
@@ -708,5 +710,11 @@ class ClientStudentController extends ClientController
         $import->import($file);
 
         return back()->withSuccess('Student successfully imported');
+    }
+
+    public function siblings(Request $request)
+    {
+        $clients = $this->clientRepository->getAlumniMenteesSiblings();
+        return $clients;
     }
 }

@@ -56,8 +56,7 @@
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-between">
                                         <label>Digital</label>
-                                        <label
-                                            id="lead_needed_digital">{{ $actualLeadsDigital['lead_needed'] }}/{{ $leadDigitalTarget['lead_needed'] }}</label>
+                                        <label id="lead_needed_digital">{{ $actualLeadsDigital['lead_needed'] }}/{{ $leadDigitalTarget['lead_needed'] }}</label>
                                     </div>
                                     <div class="progress cursor-pointer " role="progressbar"
                                         onclick="checkLeadDetail('Digital', 'lead')" aria-valuenow="25" aria-valuemin="0"
@@ -293,7 +292,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body overflow-auto" style="max-height: 300px" id="leadContentModal">
-                <table class="table table-hover table-striped">
+                <table class="table table-hover table-striped" id="listDataLeads">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -434,6 +433,7 @@
     }
 
     function checkDataLead() {
+
         let month = $('#digital_lead_month').val()
 
         let today = moment().format('YYYY-MM')
@@ -466,6 +466,7 @@
                 var no = 1;
                 var divisi = ['sales', 'referral', 'digital'];
                 var typeLead = ['lead_needed', 'hot_lead', 'ic', 'contribution']
+
 
                 // Actual
                 chart_dataleads.data.datasets[0].data = [];
@@ -525,7 +526,7 @@
                             itemDivisi)][itemType] + '/' + result['lead' + ucwords(
                             itemDivisi) + 'Target'][itemType]);
                         $('#' + itemType + '_percentage_' + itemDivisi).css('width', result['lead' +
-                            ucwords(itemDivisi) + 'Target']['percentage_' + itemType])
+                            ucwords(itemDivisi) + 'Target']['percentage_' + itemType]+"%")
                     })
                 })
 
@@ -552,6 +553,14 @@
                 var result = response.data
 
                 $('#tbody-lead-detail').html(result.html_ctx)
+
+                $("#listDataLeads .detail").each(function(){
+                    var link = "{{url('/')}}/client/student/" + $(this).data('clientid')
+                    
+                    $(this).click(function() {
+                        window.open(link, '_blank')
+                    })
+                })
 
                 swal.close()
             }, (error) => {

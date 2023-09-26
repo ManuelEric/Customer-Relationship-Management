@@ -956,10 +956,30 @@ class ClientEventController extends Controller
 
     public function previewClientInformation(Request $request)
     {
-        $clientEventId = $request->clientevent;
+        $screening_type = $request->route('screening_type');
+        switch ($screening_type) {
 
-        $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
-        $client = $clientEvent->client;
+            case "qr":
+                $clientEventId = $request->route('identifier');
+                $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
+                $client = $clientEvent->client;
+                break;
+
+            case "phone":
+                $phoneNumber = $request->route('identifier');
+                if (!$client = $this->clientRepository->getClientByPhoneNumber($phoneNumber))
+                    return view('stem-wonderlab.scan-qrcode.error')->with(['message' => "We're sorry, but your data was not found"]);
+
+                # for now
+                # event id is hardcoded for STEM+ Wonderlab
+                $clientEvent = $client->clientEvent()->where('event_id', "EVT-0008")->first();
+                if (!$clientEvent)
+                    return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'We\'re sorry, but you haven\'t joined our event.']);
+
+                break;
+
+        }
+
         $clientFullname = $client->full_name;
         $eventName = $clientEvent->event->event_title;
 
@@ -969,25 +989,25 @@ class ClientEventController extends Controller
             case "parent":
                 $secondaryClientInfo = $clientEvent->children;
                 $responseAdditionalInfo = [
-                    'school' => $secondaryClientInfo->school->sch_name,
-                    'graduation_year' => $secondaryClientInfo->graduation_year,
-                    'abr_country' => str_replace(',', ', ', $secondaryClientInfo->abr_country)
+                    'school' => isset($secondaryClientInfo->school->sch_name) ? $secondaryClientInfo->school->sch_name : null,
+                    'graduation_year' => isset($secondaryClientInfo->graduation_year) ? $secondaryClientInfo->graduation_year : null,
+                    'abr_country' => isset($secondaryClientInfo->abr_country) ? str_replace(',', ', ', $secondaryClientInfo->abr_country) : null
                 ];
                 break;
 
             case "student":
                 $secondaryClientInfo = $clientEvent->parent;
                 $responseAdditionalInfo = [
-                    'school' => $client->school->sch_name,
-                    'graduation_year' => $client->graduation_year,
-                    'abr_country' => str_replace(',', ', ', $client->abr_country)
+                    'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
+                    'graduation_year' => isset($client->graduation_year) ? $client->graduation_year : null,
+                    'abr_country' => isset($client->abr_country) ? str_replace(',', ', ', $client->abr_country) : null
                 ];
                 break;
 
         }
 
         if (!isset($secondaryClientInfo))
-            abort(404);
+            return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'Something went wrong. <br>Please contact our staff to help you scan the QR.']);
 
         $response = [
             'client' => $client,
@@ -997,7 +1017,7 @@ class ClientEventController extends Controller
             ] + $responseAdditionalInfo
         ];
 
-        return view('scan-qrcode.client-detail')->with($response);
+        return view('stem-wonderlab.scan-qrcode.client-detail')->with($response);
     }
 
     public function handlerScanQrCodeForAttend(Request $request)
@@ -1059,8 +1079,8 @@ class ClientEventController extends Controller
             # update client event
             $this->clientEventRepository->updateClientEvent($clientEventId, $newDetails);
 
-            if ($clientEvent->status == 0)
-                $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
+            // if ($clientEvent->status == 0)
+            //     $this->sendMailClaim($clientEventId, $eventName, ['clientDetails' => ['mail' => $client->mail, 'name' => $client->full_name]], $update = false);
 
             DB::commit();
 
@@ -1075,7 +1095,8 @@ class ClientEventController extends Controller
         return view('form-embed.response.success');
     }
 
-    public function updateAttendance($id, $status) {
+    public function updateAttendance($id, $status) 
+    {
         $clientEvent = $this->clientEventRepository->getClientEventById($id);
 
         DB::beginTransaction();
@@ -1093,6 +1114,30 @@ class ClientEventController extends Controller
         }
         return response()->json($data);
 
+    }
+
+    public function updateNumberOfParty(int $id, int $number_of_party)
+    {
+        $clientEvent = $this->clientEventRepository->getClientEventById($id);
+
+        DB::beginTransaction();
+        try {
+            $clientEvent->number_of_attend = $number_of_party;
+            $clientEvent->save();
+            DB::commit();
+            
+            $success = true;
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Update number of party client event failed : ' . $e->getMessage());
+            $success = false;
+        }
+
+        return response()->json([
+            'success' => $success,
+            'message' => 'Information updated'
+        ]);
     }
 
     public function registerExpress(Request $request)
@@ -1119,17 +1164,16 @@ class ClientEventController extends Controller
         $event_slug = $request->route('event_slug');
 
         $shortUrl = ShortURL::where('url_key', $refcode)->first();
-        $event = $this->eventRepository->getEventByName(urldecode($event_slug));
+        
+        $slug = str_replace('-', ' ', $event_slug);
+        if (!$event = $this->eventRepository->getEventByName($slug))
+            abort(404);
 
-        if(isset($shortUrl)){
-            $link = $shortUrl->default_short_url;
-        }else{
-            #insert short url to database
-            $link = $this->createShortUrl(url('form/event?event_name='.$event_slug.'&form_type=cta&event_type=offline&ref='. $refcode), $refcode);
-        }
+        $link = 'https://makerspace.all-inedu.com';
+        $query = '?ref='.$refcode.'#form';
 
         return view('stem-wonderlab.referral-link.index')->with([
-            'link' => $link,
+            'link' => $link.$query,
             'event' => $event
         ]);
     }

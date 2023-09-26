@@ -26,6 +26,13 @@ class Client extends Model
         );
     }
 
+    protected function showGrade(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->grade_now > 12 ? "Not high school" : $this->grade_now
+        );
+    }
+
     public function parents()
     {
         return $this->belongsToMany(UserClient::class, 'tbl_client_relation', 'child_id', 'parent_id');

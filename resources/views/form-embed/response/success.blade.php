@@ -17,7 +17,7 @@
                 Thank you! Enjoy the Event!
             </h2>
             <h4 class="text-xl">
-                Your information has been successfully received.
+                Please kindly make your way to the registration desk.
             </h4>
         </div>
     </div>

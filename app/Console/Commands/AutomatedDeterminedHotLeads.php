@@ -69,6 +69,9 @@ class AutomatedDeterminedHotLeads extends Command
 
             foreach ($rawData as $client) {
 
+                if ($client->active == 0)
+                    continue;
+
                 # if the client has already graduated
                 # then no need to calculate hot leads
                 $bypass = $client->grade > 0 ? true : false;
@@ -117,7 +120,7 @@ class AutomatedDeterminedHotLeads extends Command
 
                     # check if the data on tbl_client_lead_tracking doesnt have status active (1)
                     # meaning if there is no active status
-                    # then it means, set trigger update  as true so the system should be running for these clients
+                    # then it means, set trigger update  as true so the system will running for these clients
                     $triggerUpdate = $leadTracking->where('pivot.initialprogram_id', $initProgramId)->where('pivot.status', 1)->count() < 1 ? true : false;
                     
                     if ($recalculate == false && $triggerUpdate == false && $newClient == false)
@@ -140,11 +143,17 @@ class AutomatedDeterminedHotLeads extends Command
                     # store / update the data program & lead scores information
                     if ($recalculate == true) {
 
+                        # if they haven't any lead scores
                         if (!isset($statusLeadTracking) && !isset($programLeadTracking)) {
+
                             $this->clientLeadTrackingRepository->createClientLeadTracking($programBucketDetails);
                             $this->clientLeadTrackingRepository->createClientLeadTracking($leadBucketDetails);
-                        } else {
 
+                        } else { # if they have lead scores
+                            
+                            # if the scores before is different with the total scores now
+                            # put the scores before to inactive, which is status 0
+                            # then create a new one that has active status   
                             if ($this->comparison($statusLeadTracking->pivot->total_result, $leadScore) || $this->comparison($programLeadTracking->pivot->total_result, $programScore)) {
     
     
@@ -195,7 +204,7 @@ class AutomatedDeterminedHotLeads extends Command
         } catch (Exception $e) {
             
             DB::rollBack();
-            $this->info($e->getMessage().' | Line '.$e->getLine());
+            $this->info('Failed to generate hot leads : '.$e->getMessage().' | Line '.$e->getLine());
             Log::info('Cron automated determine hot leads not working normal. Error : '.$e->getMessage().' | Line '.$e->getLine());
 
         }
@@ -217,7 +226,7 @@ class AutomatedDeterminedHotLeads extends Command
             )
     {
         
-        $total_result = 0;
+        $total_result = $total_potential_point = 0;
         $isFunding = $client->is_funding;
 
         # get client interest programs as specific concerns
@@ -262,8 +271,7 @@ class AutomatedDeterminedHotLeads extends Command
                                                 where('value_category', $value_of_field)->
                                                 pluck($type)->first();
 
-                    $sub_result = ($weight / 100) * $value_from_library;
-                    $this->info("school : ".$sub_result);
+                    $sub_result = $potential_point = ($weight / 100) * $value_from_library;
                     break;
 
                 case "Grade":
@@ -276,8 +284,8 @@ class AutomatedDeterminedHotLeads extends Command
                                                 where('value_category', $value_of_field)->
                                                 pluck($type)->first();
                                                 
-                    $sub_result = ($weight / 100) * $value_from_library;
-                    $this->info("grade : ".$sub_result);
+                    $sub_result = $potential_point = ($weight / 100) * $value_from_library;
+                    
                     break;
 
                 case "Destination_country":
@@ -296,8 +304,8 @@ class AutomatedDeterminedHotLeads extends Command
                                                 where('value_category', $value_of_field)->
                                                 pluck($type)->first();
 
-                    $sub_result = ($weight / 100) * $value_from_library;
-                    $this->info("country : ".$sub_result);
+                    $sub_result = $potential_point = ($weight / 100) * $value_from_library;
+                    
                     break;
 
                 case "Status":
@@ -316,7 +324,7 @@ class AutomatedDeterminedHotLeads extends Command
                                                 pluck($type)->first();
 
                     $sub_result = ($weight / 100) * $value_from_library;
-                    $this->info("major : ".$sub_result);
+                    
                     break;
 
                 case "Priority":
@@ -341,7 +349,7 @@ class AutomatedDeterminedHotLeads extends Command
                             $sub_result = ($weight / 100) * 0.25;
                             break;
                     }
-                    $this->info("priority : ".$sub_result);
+                    
                     break;
 
                 case "Seasonal":
@@ -388,7 +396,6 @@ class AutomatedDeterminedHotLeads extends Command
                             $sub_result = ($weight / 100) * 0;
                             $value_from_library = 0;  
                     }
-                    $this->info('seasonal : '.$sub_result);
                     
                     break;
 
@@ -423,6 +430,7 @@ class AutomatedDeterminedHotLeads extends Command
 
 
             $total_result += $sub_result;
+            $total_potential_point += $potential_point;
 
             switch ($initProgramName) {
                 case "Admissions Mentoring":
@@ -457,6 +465,7 @@ class AutomatedDeterminedHotLeads extends Command
                 'initialprogram_id' => $initProgramId,
                 'type' => 'Program',
                 'total_result' => $total_result,
+                'potential_point' => $total_potential_point,
                 'status' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
@@ -479,7 +488,7 @@ class AutomatedDeterminedHotLeads extends Command
         # Check Lead
         $leadBuckets = $initialProgram->leadBucketParams()->where('value', 1)->orderBy('tbl_lead_bucket_params.id', 'asc')->get();
         
-        $total_result = 0;
+        $total_result = $total_potential_point = 0;
         foreach ($leadBuckets as $leadBucket) {
             $leadBucketId = $leadBucket->pivot->bucket_id;
             $paramName = $leadBucket->name;
@@ -496,8 +505,8 @@ class AutomatedDeterminedHotLeads extends Command
                                                 where('value_category', $value_of_field)->
                                                 pluck($type)->first();
                             
-                    $sub_result = ($weight / 100) * $value_from_library;
-                    $this->info("school : ".$sub_result);
+                    $sub_result = $potential_point = ($weight / 100) * $value_from_library;
+                    
                     break;
 
                 case "Grade":
@@ -510,8 +519,8 @@ class AutomatedDeterminedHotLeads extends Command
                                                 where('value_category', $value_of_field)->
                                                 pluck($type)->first();
 
-                    $sub_result = ($weight / 100) * $value_from_library;
-                    $this->info("grade : ".$sub_result);
+                    $sub_result = $potential_point = ($weight / 100) * $value_from_library;
+                    
                     break;
 
                 case "Destination_country":
@@ -524,8 +533,8 @@ class AutomatedDeterminedHotLeads extends Command
                                                 where('value_category', $value_of_field)->
                                                 pluck($type)->first();
 
-                    $sub_result = ($weight / 100) * $value_from_library;
-                    $this->info("country : ".$sub_result);
+                    $sub_result = $potential_point = ($weight / 100) * $value_from_library;
+                    
                     break;
 
                 case "Status":
@@ -572,6 +581,7 @@ class AutomatedDeterminedHotLeads extends Command
             }
 
             $total_result += $sub_result / 2;
+            $total_potential_point += $potential_point / 2;
 
             if ($programScore <= 0.34) {
                 $total_result = 0;
@@ -591,6 +601,7 @@ class AutomatedDeterminedHotLeads extends Command
                 'initialprogram_id' => $initProgramId,
                 'type' => 'Lead',
                 'total_result' => $total_result,
+                'potential_point' => $total_potential_point,
                 'status' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),

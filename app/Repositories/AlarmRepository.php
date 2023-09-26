@@ -122,7 +122,7 @@ class AlarmRepository implements AlarmRepositoryInterface
         $alarmLeads['sales']['mid']['referral'] = $actualLeadsReferral['lead_needed'] < 10 ? true : false;
         $alarmLeads['digital']['mid']['hot_lead'] = $actualLeadsDigital['hot_lead'] < $leadDigitalTarget['hot_lead'] ? true : false;
         $alarmLeads['general']['mid']['event'] = ($alarmLeads['sales']['mid']['hot_lead'] || $alarmLeads['sales']['mid']['referral']) && $events->count() < 1 ? true : false;
-        $alarmLeads['general']['mid']['target'] = isset($dataSalesTarget) ? false : true;
+        $alarmLeads['general']['mid']['target'] = isset($dataSalesTarget) && $dataSalesTarget['lead_needed'] != 0 ? false : true;
   
             # Day 15-30 (akhir bulan)
             if ($today > date('Y-m') . '-' . $midOfMonth) {
@@ -136,7 +136,7 @@ class AlarmRepository implements AlarmRepositoryInterface
                 # digital
                 // unset($alarmLeads['digital']['mid']['lead_needed']);
                 unset($alarmLeads['digital']['mid']['hot_lead']);
-                $alarmLeads['digital']['end']['revenue'] = $dataRevenueChart['actual'][2] < ($dataRevenueChart['target'][2] != 0 ? $dataRevenueChart['target'][2] * 50 / 100 : 0) ? true : false;
+                // $alarmLeads['digital']['end']['revenue'] = $dataRevenueChart['actual'][2] < ($dataRevenueChart['target'][2] != 0 ? $dataRevenueChart['target'][2] * 50 / 100 : 0) ? true : false;
                 $alarmLeads['digital']['end']['hot_lead'] = $actualLeadsDigital['hot_lead'] < $leadDigitalTarget['hot_lead'] ? true : false;
                 $alarmLeads['digital']['end']['lead_needed'] = $actualLeadsDigital['lead_needed'] < $leadDigitalTarget['lead_needed'] ? true : false;
             }
@@ -236,8 +236,11 @@ class AlarmRepository implements AlarmRepositoryInterface
 
     private function calculatePercentageLead($actual, $target)
     {
-        if ($target == 0)
+        if ($target == 0 && $actual > 0){
+            return 100;
+        }else if($target == 0 && $actual == 0){
             return 0;
+        }
 
         return $actual / $target * 100;
     }
