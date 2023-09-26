@@ -94,6 +94,10 @@ class ClientEventController extends Controller
 
     public function index(Request $request)
     {
+        // $filter['event_name'] = $request->get('event_name');
+        // return $this->clientEventRepository->getAllClientEventDataTables($filter);
+        // exit;
+
         if ($request->ajax())
         {
             $event_name = $request->get('event_name');
@@ -147,7 +151,8 @@ class ClientEventController extends Controller
             'eduf_id',
             'partner_id',
             'status',
-            'joined_date'
+            'joined_date',
+            'notes'
         ]);
 
         // Client not existing
@@ -390,6 +395,7 @@ class ClientEventController extends Controller
             'eduf_id',
             'partner_id',
             'status',
+            'notes',
             'joined_date'
         ]);
 
@@ -595,6 +601,8 @@ class ClientEventController extends Controller
                 'joined_date' => Carbon::now(),
             ];
 
+            $newly_registrant = $createdClient['clientId'];
+
             if ($choosen_role == "parent")
                 $clientEventDetails['child_id'] = $createdClient['childId'];
 
@@ -605,6 +613,13 @@ class ClientEventController extends Controller
             # add the registration_type into the clientEventDetails that will be stored
             if (isset($registration_type))
                 $clientEventDetails['registration_type'] = $registration_type;
+
+            # get data created user
+            $newly_registrant_user = $this->clientRepository->getClientById($newly_registrant);
+
+            # check if client has already join the event
+            if ($this->clientEventRepository->getClientEventByClientId($createdClient['clientId']))
+                return Redirect::to('form/already-join?role='.$choosen_role.'&name='.$newly_registrant_user->full_name);
 
             # store a new client event
             if ($clientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails)) {
@@ -636,8 +651,12 @@ class ClientEventController extends Controller
 
             return Redirect::to('form/event?event_name='.$request->get('event_name'))->withErrors('Something went wrong. Please try again or contact our administrator.');
         }
-
-
+        
+        # if they regist on the spot then should return view success
+        if (isset($registration_type) && $registration_type == "ots")
+            return Redirect::to('form/registration/success?role='.$choosen_role.'&name='.$newly_registrant_user->full_name);
+        
+        
         return Redirect::to('form/thanks');
     }
 
@@ -743,7 +762,7 @@ class ClientEventController extends Controller
                 $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($role), $clientDetails);
 
             }
-
+            
             $clientArrayIds[$loop] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$loop]->id;
 
             $loop++;
@@ -810,6 +829,17 @@ class ClientEventController extends Controller
         return $role;
     }
 
+    public function successPage(Request $request)
+    {
+        $choosen_role = $request->get('role');
+        $name = $request->get('name');
+
+        return view('form-embed.response.success')->with([
+            'choosen_role' => $choosen_role,
+            'name' => $name
+        ]);
+    }
+
     public function sendMailQrCode($clientEventId, $eventName, $client, $update = false)
     {
         $subject = 'Welcome to the '.$eventName.'!';
@@ -826,11 +856,11 @@ class ClientEventController extends Controller
         $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
 
         $event = [
-            'eventDate_start' => date('l, d M Y', strtotime($clientEvent->event->event_startdate)),
-            'eventDate_end' => date('l, d M Y', strtotime($clientEvent->event->event_enddate)),
-            'eventTime_start' => date('H.i', strtotime($clientEvent->event->event_startdate)),
-            'eventTime_end' => date('H.i', strtotime($clientEvent->event->event_enddate)),
-            'eventLocation' => $clientEvent->event->event_location
+            'eventDate_start' => date('l, M d Y', strtotime($clientEvent->event->event_startdate)),
+            'eventDate_end' => date('M d, Y', strtotime($clientEvent->event->event_enddate)),
+            'eventTime_start' => date('g A', strtotime($clientEvent->event->event_startdate)),
+            'eventTime_end' => date('H:i', strtotime($clientEvent->event->event_enddate)),
+            'eventLocation' => $clientEvent->event->event_location,
         ];
 
         try {
@@ -1092,7 +1122,7 @@ class ClientEventController extends Controller
 
         }
 
-        return view('form-embed.response.success');
+        return Redirect::to('form/registration/success?role='.$client->register_as.'&name='.$clientFullname);
     }
 
     public function updateAttendance($id, $status) 
@@ -1146,8 +1176,9 @@ class ClientEventController extends Controller
         $clientId = $request->route('client');
         $client = $this->clientRepository->getClientById($clientId);
         $eventId = $request->route('event');
+        $notes = $request->route('notes');
 
-        $dataRegister = $this->register($client->mail, $eventId, 'VIP');
+        $dataRegister = $this->register($client->mail, $eventId, $notes);
 
         if($dataRegister['success'] && !$dataRegister['already_join']){
             return Redirect::to('form/thanks');

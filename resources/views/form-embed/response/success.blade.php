@@ -18,7 +18,19 @@
                     <img src="{{ asset('img/submitted.png') }}" alt="Form ALL-in Event" class="w-[200px]">
                 </div>
                 <h2 class="md:text-3xl text-xl mb-4 font-bold">
-                    Thank you! <br> Enjoy the Event!
+                    Hi, 
+                    @switch($choosen_role)
+                    @case("parent")
+                    @case("teacher/counsellor")
+                        @if (isset($name))
+                        Mr./Mrs. {{ $name }}
+                        @endif
+                        @break
+                
+                    @default
+                        {{ $name }}
+                @endswitch <br>
+                Thank you for registering.
                 </h2>
                 <h4 class="md:text-xl text-md">
                     Please kindly make your way to the registration desk.

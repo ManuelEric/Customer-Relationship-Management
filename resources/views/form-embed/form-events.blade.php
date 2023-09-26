@@ -15,6 +15,9 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
     <style>
+        .text-danger {
+            color: red;
+        }
         .iti {
             width: 100% !important;
         }
@@ -100,14 +103,10 @@
                 </div>
             @endif
 
-
             @if ($errors->any())
                 <div class="fixed bottom-5 right-5 w-[350px] z-[999]" id="notif">
                     <ul class="grid grid-cols-1 gap-2">
-                        @foreach ($errors->all() as $error)
-                            <li class="p-2 border-2 border-red-800 rounded-lg text-red-800 bg-white">{{ $error }}
-                            </li>
-                        @endforeach
+                        <li class="p-2 border-2 border-red-800 rounded-lg text-red-800 bg-white">Registration failed. Please fill your data</li>
                     </ul>
                 </div>
             @endif
@@ -218,6 +217,9 @@
                                 <input type="text" name="fullname[]"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('fullname.0')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col md:mb-4 mb-2 main-user">
                                 <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
@@ -226,6 +228,9 @@
                                 <input type="text" name="email[]"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('email.0')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col md:mb-4 mb-2 main-user">
                                 <label class="font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400 block">
@@ -235,6 +240,9 @@
                                     class="required w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser1">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('fullnumber.0')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                                 <input type="hidden" name="fullnumber[]" id="phone1">
                             </div>
                             <div class="col md:mb-4 mb-2 user-other">
@@ -244,6 +252,9 @@
                                 <input type="text" name="fullname[]" id="other_name"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('fullname.1')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col md:mb-4 mb-2 user-other">
                                 <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
@@ -255,6 +266,9 @@
                                 <input type="text" name="email[]" id="other_email"
                                     class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('email.1')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col md:mb-4 mb-2 user-other">
                                 <label class="font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400 block">
@@ -268,6 +282,9 @@
                                     id="phoneUser2">
                                 <input type="hidden" name="fullnumber[]" id="phone2" class="child_info">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('fullnumber.1')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
 
@@ -317,6 +334,9 @@
                                 @endforeach
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                            @error('school')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="mb-4" id="graduation_input">
                             <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
@@ -331,6 +351,9 @@
                                 @endfor
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                            @error('graduation_year')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="mb-4" id="country_input">
                             <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
@@ -345,15 +368,21 @@
                                 @endforeach
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                            @error('destination_country.*')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
                         @if (request()->get('status') || request()->get('status') == 'ots')
                             <div class="mb-4">
-                                <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
-                                    Number of Attend
+                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                                    Number of Party
                                 </label>
                                 <input type="number" name="attend"
                                     class="required w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('attend')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                         @endif
 
@@ -374,6 +403,9 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                @error('leadsource')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                         @endif
 
@@ -575,6 +607,13 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
         var number2 = phoneInput2.getNumber();
         $("#phone2").val(number2);
     });
+</script>
+<script>
+    @if ($errors->any())
+        setTimeout(function() {
+            $("#notif").fadeOut();
+        }, 4000)
+    @endif
 </script>
 
 </html>
