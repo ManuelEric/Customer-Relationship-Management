@@ -349,7 +349,7 @@
                         @if (request()->get('status') || request()->get('status') == 'ots')
                             <div class="mb-4">
                                 <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
-                                    Number of Attend
+                                    Number of Party
                                 </label>
                                 <input type="number" name="attend"
                                     class="required w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
