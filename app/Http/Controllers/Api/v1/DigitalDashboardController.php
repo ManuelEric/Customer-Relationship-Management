@@ -116,6 +116,7 @@ class DigitalDashboardController extends Controller
             'leadReferralTarget' => $leadReferralTarget,
             'leadDigitalTarget' => $leadDigitalTarget,
             'actualLeadsDigital' => $actualLeadsDigital,
+            'potentialLeadDigital' => null,
             'actualLeadsSales' => $actualLeadsSales,
             'actualLeadsReferral' => $actualLeadsReferral,
             'dataLeads' => $dataLeads,

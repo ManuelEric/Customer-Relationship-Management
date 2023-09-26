@@ -1166,7 +1166,8 @@ class ClientEventController extends Controller
         $shortUrl = ShortURL::where('url_key', $refcode)->first();
         
         $slug = str_replace('-', ' ', $event_slug);
-        $event = $this->eventRepository->getEventByName($slug);
+        if (!$event = $this->eventRepository->getEventByName($slug))
+            abort(404);
 
         $link = 'https://makerspace.all-inedu.com';
         $query = '?ref='.$refcode.'#form';
