@@ -1107,7 +1107,9 @@ class ClientEventController extends Controller
 
         }
 
-        return view('form-embed.response.success');
+        return view('form-embed.response.success')->with([
+            'name' => $clientFullname
+        ]);
     }
 
     public function updateAttendance($id, $status) 
