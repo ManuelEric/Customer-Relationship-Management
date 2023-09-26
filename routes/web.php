@@ -67,6 +67,8 @@ Route::get('form/thanks', function() {
     return view('form-embed.thanks');
 })->name('form.event.registration.success');
 
+Route::get('form/registration/success', [ClientEventController::class, 'successPage']);
+
 Route::get('form/already-join', function() {
     return view('form-embed.response.already-join');
 });
