@@ -151,7 +151,8 @@ class ClientEventController extends Controller
             'eduf_id',
             'partner_id',
             'status',
-            'joined_date'
+            'joined_date',
+            'notes'
         ]);
 
         // Client not existing

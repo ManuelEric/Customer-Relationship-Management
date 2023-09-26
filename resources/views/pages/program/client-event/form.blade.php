@@ -417,7 +417,7 @@
                             <div class="col-md-6 mb-2">
                                 <label>Joined Date <sup class="text-danger">*</sup></label>
                                 <input type="date" name="joined_date"
-                                    value="{{ isset($clientEvent) ? $clientEvent->joined_date : date('Y-m-d') }}"
+                                    value="{{ isset($clientEvent) ? date('Y-m-d', strtotime($clientEvent->joined_date)) : date('Y-m-d') }}"
                                     class="form-control form-control-sm rounded"
                                     {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
                                 @error('joined_date')
@@ -436,6 +436,25 @@
                                     @else
                                         <option value="0">Join</option>
                                         <option value="1">Attend</option>
+                                    @endif
+                                </select>
+                                @error('status')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label>Notes </label>
+                                <select name="notes" id="" class="select w-100"
+                                    {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
+                                    @if (isset($clientEvent) && isset($clientEvent->notes))
+                                        <option value="VVIP" {{ $clientEvent->status == 'VVIP' ? 'selected' : '' }}>VVIP
+                                        </option>
+                                        <option value="VIP" {{ $clientEvent->status == 'VIP' ? 'selected' : '' }}>VIP
+                                        </option>
+                                    @else
+                                        <option value="">-</option>
+                                        <option value="VVIP">VVIP</option>
+                                        <option value="VIP">VIP</option>
                                     @endif
                                 </select>
                                 @error('status')
