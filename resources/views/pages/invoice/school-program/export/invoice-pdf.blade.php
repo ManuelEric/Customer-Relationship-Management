@@ -276,7 +276,12 @@
                         {{ $companyDetail['name'] }}
                         {{-- Jakarta, {{ date('d F Y') }} --}}
                         <br><br><br><br><br><br><br>
-                        Nicholas Hendra Soepriatna <br>
+                        @if (isset($director)) 
+                            {{ $director }} 
+                        @else
+                            * Director name *
+                        @endif 
+                        <br>
                         Director
                     </td>
                 </tr>

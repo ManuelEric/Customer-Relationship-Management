@@ -458,8 +458,8 @@ class InvoicePartnerController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = $to;
-        $data['recipient'] = $name;
+        $data['email'] = $to; # our director email
+        $data['recipient'] = $name; # our director name
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
             'invb2b_num' => $invoice_num,
@@ -475,7 +475,8 @@ class InvoicePartnerController extends Controller
             $pdf = PDF::loadView('pages.invoice.corporate-program.export.invoice-pdf', [
                 'invoicePartner' => $invoicePartner,
                 'currency' => $currency,
-                'companyDetail' => $companyDetail
+                'companyDetail' => $companyDetail,
+                'director' => $name
             ]);
 
             # Generate PDF file

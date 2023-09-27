@@ -352,7 +352,8 @@ class InvoiceReferralController extends Controller
             $pdf = PDF::loadView('pages.invoice.referral.export.invoice-pdf', [
                 'invoiceRef' => $invoiceRef,
                 'currency' => $currency,
-                'companyDetail' => $companyDetail
+                'companyDetail' => $companyDetail,
+                'director' => $name
             ]);
 
             // # Generate PDF file

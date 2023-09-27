@@ -605,8 +605,8 @@ class InvoiceProgramController extends Controller
         $invoice_id = $clientProg->invoice->inv_id;
 
         $type = $request->get('type');
-        $to = $request->get('to');
-        $name = $request->get('name');
+        $to = $request->get('to'); # our director mail
+        $name = $request->get('name'); # our director name
 
         if ($type == "idr")
             $view = 'pages.invoice.client-program.export.invoice-pdf';
@@ -638,7 +638,7 @@ class InvoiceProgramController extends Controller
 
             # generate invoice as a PDF file
             $file_name = str_replace('/', '-', $invoice_id) . '-' . $type;
-            $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+            $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail, 'director' => $name]);
             Storage::put('public/uploaded_file/invoice/client/' . $file_name . '.pdf', $pdf->output());
 
             # insert to invoice attachment
