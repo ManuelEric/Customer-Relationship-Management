@@ -11,14 +11,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.6/flowbite.min.js"></script>
 </head>
 <body>
-    <div class="min-h-screen flex items-center bg-gray-200">
-        <div class="max-w-screen-md w-full mx-auto p-4 text-center">
-            <h2 class="text-3xl mb-4 font-bold">
-                Thank you! Enjoy the Event!
-            </h2>
-            <h4 class="text-xl">
-                Your information has been successfully received.
-            </h4>
+    <div class="min-h-screen flex items-center justify-center bg-white">
+        <div class="max-w-screen-md w-full">
+            <div class="md:mx-auto mx-4 md:p-4 px-4 py-5 text-center shadow rounded-lg">
+                <div class="flex justify-center my-4">
+                    <img src="{{ asset('img/submitted.png') }}" alt="Form ALL-in Event" class="w-[200px]">
+                </div>
+                <h2 class="md:text-3xl text-xl mb-4 font-bold">
+                    Hi, 
+                    @switch($choosen_role)
+                    @case("parent")
+                    @case("teacher/counsellor")
+                        @if (isset($name))
+                        Mr./Mrs. {{ $name }}
+                        @endif
+                        @break
+                
+                    @default
+                        {{ $name }}
+                @endswitch <br>
+                Thank You For Registering
+                </h2>
+                <h4 class="md:text-xl text-md">
+                    Please kindly make your way to the registration desk.
+                </h4>
+            </div>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"

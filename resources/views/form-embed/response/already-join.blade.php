@@ -18,10 +18,23 @@
                     <img src="{{ asset('img/submitted.png') }}" alt="Form ALL-in Event" class="w-[200px]">
                 </div>
                 <h2 class="md:text-3xl text-xl mb-4 font-bold">
-                    Thank You <br> For Submitting Your Form!
+                    Hi, 
+                    @switch($choosen_role)
+                    @case("parent")
+                    @case("teacher/counsellor")
+                        @if (isset($name))
+                        Mr./Mrs. {{ $name }}
+                        @endif
+                        @break
+                
+                    @default
+                        {{ $name }}
+                @endswitch 
+                <br>
+                You've Already Registered
                 </h2>
                 <h4 class="md:text-xl text-md">
-                    You will receive a confirmation email and our team will contact you shortly.
+                    Please check your email for your registration details.
                 </h4>
             </div>
         </div>
