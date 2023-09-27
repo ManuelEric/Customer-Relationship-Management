@@ -13,14 +13,8 @@
                         <p>
                             We are thrilled to share an exclusive invitation to your family as VIP guests for STEM+ Wonderlab, Indonesia's FIRST student makerspace expo!                        
                         </p>
-                        <p>
-                           [flyer]
-                        </p>
-                        <p>
-                           [flyer]
-                        </p>
-                        <p>
-                           [flyer]
+                        <p style="text-align: center;">
+                            <img src="https://drive.google.com/uc?id=1FnGPGz4aM0uHC7nRvmLTc9zGX0MVXvGe" width="400" height="600">
                         </p>
                         <p style="text-align: center;margin: 2.5em auto;">
                             <a class="button" href="{{ $param['link'] }}"
