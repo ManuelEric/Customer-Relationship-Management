@@ -116,7 +116,7 @@ class ResendMail extends Command
                         $clientEventId = $detail->clientevent_id;
                         $eventName = $detail->clientEvent->event->event_title;
 
-                        $this->sendMailReferral($detail->clientEvent, 'VIP', 'automate');
+                        $this->sendMailReferral($detail->clientEvent, $detail->clientEvent->notes, 'automate');
                         break;
                     
                     case 'invitation-mail':
