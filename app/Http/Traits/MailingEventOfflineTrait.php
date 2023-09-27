@@ -39,7 +39,7 @@ trait MailingEventOfflineTrait
                 'child_id' => $client->childrens->count() > 0 ? $client->childrens[0]->id : null,
                 'event_id' => $event_id,
                 'lead_id' => 'LS012',
-                'status' => $notes == 'VVIP' ? 1 : 0,
+                'status' => 0,
                 'notes' => $notes,
                 'joined_date' => Carbon::now(),
             ];
@@ -95,35 +95,42 @@ trait MailingEventOfflineTrait
                                     
         // $data['referral_link'] = url('form/event?event_name='.urlencode($event->event_name).'&form_type=cta&event_type=offline&ref='. substr($client->fist_name,0,3) . $client->id); 
 
+        $data['qr_page'] = route('program.event.qr-page', [
+            'event_slug' => urlencode($event->event_title),
+            'clientevent' => $clientEvent->clientevent_id
+        ]);
+        $data['referral_page'] = route('program.event.referral-page', [
+            'event_slug' => str_replace(' ', '-', $event->event_title),
+            'refcode' => $referralCode
+        ]);
+
+        $data['event'] = [
+            'eventName' => $event->event_title,
+            'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
+            'eventDate_start' => date('l, M d Y', strtotime($event->event_startdate)),
+            'eventDate_end' => date('M d, Y', strtotime($event->event_enddate)),
+            'eventTime_start' => date('g A', strtotime($event->event_startdate)),
+            'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
+            'eventLocation' => $event->event_location,
+        ];
+
         try {
             switch ($notes) {
                 case 'VVIP':
+                    $data['title'] = 'Thank you for registering as our VVIP guest';
                     // $isSendMail['status'] = Mail::send('mail-template.thanks-email', $data, function ($message) use ($data) {
                     //     $message->to($data['email'], $data['client']['name'])
                     //         ->subject($data['title']);
                     // });
+                    $isSendMail = Mail::send('mail-template.thanks-email-vip', $data, function ($message) use ($data) {
+                        $message->to($data['email'], $data['client']['name'])
+                            ->subject($data['title']);
+                    });  
                     break;
                 
                 case 'VIP':
                     $data['title'] = 'Thank you for registering as our VIP guest';
-                    $data['qr_page'] = route('program.event.qr-page', [
-                        'event_slug' => urlencode($event->event_title),
-                        'clientevent' => $clientEvent->clientevent_id
-                    ]);
-                    $data['referral_page'] = route('program.event.referral-page', [
-                        'event_slug' => str_replace(' ', '-', $event->event_title),
-                        'refcode' => $referralCode
-                    ]);
-
-                    $data['event'] = [
-                        'eventName' => $event->event_title,
-                        'eventDate' => date('M d, Y', strtotime($event->event_startdate)),
-                        'eventDate_start' => date('l, M d Y', strtotime($event->event_startdate)),
-                        'eventDate_end' => date('M d, Y', strtotime($event->event_enddate)),
-                        'eventTime_start' => date('g A', strtotime($event->event_startdate)),
-                        'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
-                        'eventLocation' => $event->event_location,
-                    ];
+                    
     
                     $isSendMail = Mail::send('mail-template.thanks-email-vip', $data, function ($message) use ($data) {
                         $message->to($data['email'], $data['client']['name'])
@@ -141,11 +148,11 @@ trait MailingEventOfflineTrait
         }
 
 
-        if($for == 'first-send' && $notes == 'VIP'){
+        if($for == 'first-send'){
             $logDetails = [
                 'clientevent_id' => $clientEvent->clientevent_id,
                 'sent_status' => $sent_mail,
-                'category' => $notes == 'VVIP' ? 'thanks-mail-referral' : 'qrcode-mail-referral'
+                'category' => 'qrcode-mail-referral'
             ];
     
             return ClientEventLogMail::create($logDetails);

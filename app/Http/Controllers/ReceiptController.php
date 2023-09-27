@@ -379,24 +379,30 @@ class ReceiptController extends Controller
     public function sendToClient(Request $request)
     {
         $receipt_id = $request->route('receipt');
+        $type_recipient = $request->route('type_recipient');
         $receipt = $this->receiptRepository->getReceiptById($receipt_id);
         $currency = $request->route('currency');
         $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
 
         $pic_mail = $receipt->invoiceProgram->clientprog->internalPic->email;
 
-        # if recipient is parent (bachelor program) use below
-        $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
+        switch ($type_recipient) {
+            case 'Parent':
+                $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
+                $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
+                break;
 
-        # if recipient is student (master program) use below
-        // $data['email'] = $receipt->invoiceProgram->clientprog->client->mail; 
+            case 'Client':
+                $data['email'] = $receipt->invoiceProgram->clientprog->client->mail;
+                $data['recipient'] = $receipt->invoiceProgram->clientprog->client->full_name;
+                break;
+        }
+
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
             $pic_mail
         ];
-        $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
-        // $data['recipient'] = $receipt->invoiceProgram->clientprog->client->full_name;
         $data['program_name'] = $receipt->invoiceProgram->clientprog->program->program_name;
         $data['title'] = "Receipt of program " . $data['program_name'];
 
@@ -445,27 +451,27 @@ class ReceiptController extends Controller
         return response()->json(['message' => 'Successfully sent receipt to client.']);
     }
 
-    public function updateParentMail(Request $request)
+    public function updateMail(Request $request)
     {
 
-        $client = $this->clientRepository->getClientById($request->parent_id);
-        $parent_mail = $request->parent_mail;
+        $client = $this->clientRepository->getClientById($request->client_id);
+        $mail = $request->mail;
 
         if(isset($client)){
             DB::beginTransaction();
             try {
 
-                $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+                $client->mail != $mail ? $this->clientRepository->updateClient($client->id, ['mail' => $mail]) : null;
                 DB::commit();
 
             } catch (Exception $e) {
 
                 DB::rollBack();
-                Log::error('Failed to update client parents mail '. $e->getMessage().' | line '.$e->getLine() );
+                Log::error('Failed to update client mail '. $e->getMessage().' | line '.$e->getLine() );
                 return response()->json(['status' => 'failed', 'message' => 'Something went wrong. Please try again or contact the administrator.'], 500);
             }
         }
 
-        return response()->json(['status' => 'success', 'message' => 'Success Update Email Parent'], 200);
+        return response()->json(['status' => 'success', 'message' => 'Success Update Email'], 200);
     }
 }

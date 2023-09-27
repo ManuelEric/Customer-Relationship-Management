@@ -271,7 +271,7 @@
                                     Bank <br>
                                     A/C No. <br>
                                     Branch <br>
-                                    Branch Address <br>
+                                    {{-- Branch Address <br> --}}
                                 </td>
                                 <td width="78%">
                                     : PT. Jawara Edukasih International PTI Ltd <br>

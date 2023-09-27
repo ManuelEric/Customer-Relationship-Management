@@ -619,8 +619,9 @@ class InvoicePartnerController extends Controller
         }
 
         # get partner pic
-        $getPartnerPics = $invoicePartner->partner_prog->corp->pic->where('is_pic', '1')->toArray();
-        $pic = $getPartnerPics[0];
+        #$getPartnerPics = $invoicePartner->partner_prog->corp->pic->where('is_pic', '1')->toArray();
+        #$pic = $getPartnerPics[0];
+
         # uncomment if they want the email send directly to pic partner 
         #$data['email'] = $pic->pic_mail;
         #$data['recipient'] = $pic->pic_name;
