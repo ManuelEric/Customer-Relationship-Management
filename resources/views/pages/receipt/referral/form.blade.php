@@ -466,7 +466,7 @@
             $("#export_other").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()
+                showLoading()
                 axios
                     .get(
                         '{{ route('receipt.referral.export', ['receipt' => $receiptRef->id, 'currency' => 'other']) }}', {
@@ -508,7 +508,7 @@
             $("#export_idr").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()
+                showLoading()
                 axios
                     .get(
                         '{{ route('receipt.referral.export', ['receipt' => $receiptRef->id, 'currency' => 'idr']) }}', {

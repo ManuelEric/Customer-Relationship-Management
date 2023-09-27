@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreReceiptRequest;
 use App\Http\Traits\CreateReceiptIdTrait;
+use App\Http\Traits\DirectorListTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
@@ -22,6 +23,7 @@ use PDF;
 
 class ReceiptController extends Controller
 {
+    use DirectorListTrait;
     use CreateReceiptIdTrait;
     private ReceiptRepositoryInterface $receiptRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
@@ -146,6 +148,10 @@ class ReceiptController extends Controller
     {
         $receiptId = $request->route('receipt');
         $receipt = $this->receiptRepository->getReceiptById($receiptId);
+        $director = $receipt->invoiceProgram->invoiceAttachment()->first();
+        
+        # directors name
+        $name = $this->getDirectorByEmail($director->recipient);
 
         $type = $request->get('type');
 
@@ -172,8 +178,9 @@ class ReceiptController extends Controller
                 'address_dtl' => env('ALLIN_ADDRESS_DTL'),
                 'city' => env('ALLIN_CITY')
             ];
-            $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
+            $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail, 'director' => $name]);
             return $pdf->download($file_name . ".pdf");
+
         } catch (Exception $e) {
 
             Log::info('Export receipt failed: ' . $e->getMessage());

@@ -16,6 +16,7 @@ use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateReceiptIdTrait;
+use App\Http\Traits\DirectorListTrait;
 use App\Models\Invb2b;
 use App\Models\Receipt;
 use App\Repositories\ReceiptRepository;
@@ -34,6 +35,7 @@ use PDF;
 
 class ReceiptSchoolController extends Controller
 {
+    use DirectorListTrait;
     use CreateReceiptIdTrait;
     protected SchoolRepositoryInterface $schoolRepository;
     protected SchoolProgramRepositoryInterface $schoolProgramRepository;
@@ -203,6 +205,15 @@ class ReceiptSchoolController extends Controller
         $invb2b_id = isset($receiptSch->invdtl_id) ? $receiptSch->invoiceInstallment->invb2b_id : $receiptSch->invb2b_id;
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
+        # when invoice is installment
+        if (isset($receiptSch->invdtl_id))
+            $director = $receiptSch->invoiceInstallment->invoiceAttachment()->first();
+        else
+            $director = $receiptSch->invoiceB2b->invoiceAttachment()->first();
+        
+        # directors name
+        $name = $this->getDirectorByEmail($director->recipient);
+
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
@@ -210,7 +221,14 @@ class ReceiptSchoolController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receiptSch, 'invoiceSch' => $invoiceSch, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+        $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', 
+                [
+                    'receiptSch' => $receiptSch, 
+                    'invoiceSch' => $invoiceSch, 
+                    'currency' => $currency, 
+                    'companyDetail' => $companyDetail,
+                    'director' => $name
+                ]);
 
 
 
@@ -498,6 +516,15 @@ class ReceiptSchoolController extends Controller
         $invb2b_id = isset($receipt->invdtl_id) ? $receipt->invoiceInstallment->invb2b_id : $receipt->invb2b_id;
         $invoiceSch = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
+        # when invoice is installment
+        if (isset($receipt->invdtl_id))
+            $director = $receipt->invoiceInstallment->invoiceAttachment()->first();
+        else
+            $director = $receipt->invoiceB2b->invoiceAttachment()->first();
+        
+        # directors name
+        $name = $this->getDirectorByEmail($director->recipient);
+
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
@@ -505,7 +532,14 @@ class ReceiptSchoolController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', ['receiptSch' => $receipt, 'invoiceSch' => $invoiceSch, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+        $pdf = PDF::loadView('pages.receipt.school-program.export.receipt-pdf', 
+                [
+                    'receiptSch' => $receipt, 
+                    'invoiceSch' => $invoiceSch, 
+                    'currency' => $currency, 
+                    'companyDetail' => $companyDetail,
+                    'director' => $name
+                ]);
 
         return $pdf->stream();
     }
