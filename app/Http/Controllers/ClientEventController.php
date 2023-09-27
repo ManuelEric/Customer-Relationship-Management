@@ -1076,6 +1076,7 @@ class ClientEventController extends Controller
         $client = $clientEvent->client;
 
         $clientFullname = $client->full_name;
+
         $eventName = $clientEvent->event->event_title;
 
         # initiate variables in order to
@@ -1177,6 +1178,7 @@ class ClientEventController extends Controller
                 # update childs school information
                 $destination_countries = $request->destination_country;
                 $child->destinationCountries()->sync($destination_countries);
+
             }
 
             if ($isTeacher)
@@ -1198,7 +1200,7 @@ class ClientEventController extends Controller
 
         }
 
-        return Redirect::to('form/registration/success?role='.$client->register_as.'&name='.$clientFullname);
+        return Redirect::to('form/registration/success?role='.$client->register_as.'&name='.$request->fullname[0]);
     }
 
     public function updateAttendance($id, $status) 
