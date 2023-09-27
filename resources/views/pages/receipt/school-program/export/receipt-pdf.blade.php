@@ -266,7 +266,12 @@
                         {{-- PT. Jawara Edukasih Indonesia --}}
                         Jakarta, {{ isset($receiptSch->receipt_date) ? date('d F Y', strtotime($receiptSch->receipt_date)) : date('d F Y', strtotime($receiptSch->created_at)) }}
                         <br><br><br><br><br><br><br>
-                        Nicholas Hendra Soepriatna <br>
+                        @if (isset($director)) 
+                            {{ $director }} 
+                        @else
+                            * Director name *
+                        @endif
+                        <br>
                         Director
                     </td>
                 </tr>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreReceiptRequest;
 use App\Http\Traits\CreateReceiptIdTrait;
+use App\Http\Traits\DirectorListTrait;
 use App\Interfaces\ClientProgramRepositoryInterface;
 use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\ReceiptRepositoryInterface;
@@ -22,6 +23,7 @@ use PDF;
 
 class ReceiptController extends Controller
 {
+    use DirectorListTrait;
     use CreateReceiptIdTrait;
     private ReceiptRepositoryInterface $receiptRepository;
     private ClientProgramRepositoryInterface $clientProgramRepository;
@@ -146,6 +148,10 @@ class ReceiptController extends Controller
     {
         $receiptId = $request->route('receipt');
         $receipt = $this->receiptRepository->getReceiptById($receiptId);
+        $director = $receipt->invoiceProgram->invoiceAttachment()->first();
+        
+        # directors name
+        $name = $this->getDirectorByEmail($director->recipient);
 
         $type = $request->get('type');
 
@@ -172,8 +178,9 @@ class ReceiptController extends Controller
                 'address_dtl' => env('ALLIN_ADDRESS_DTL'),
                 'city' => env('ALLIN_CITY')
             ];
-            $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
+            $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail, 'director' => $name]);
             return $pdf->download($file_name . ".pdf");
+
         } catch (Exception $e) {
 
             Log::info('Export receipt failed: ' . $e->getMessage());
@@ -372,24 +379,30 @@ class ReceiptController extends Controller
     public function sendToClient(Request $request)
     {
         $receipt_id = $request->route('receipt');
+        $type_recipient = $request->route('type_recipient');
         $receipt = $this->receiptRepository->getReceiptById($receipt_id);
         $currency = $request->route('currency');
         $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
 
         $pic_mail = $receipt->invoiceProgram->clientprog->internalPic->email;
 
-        # if recipient is parent (bachelor program) use below
-        $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
+        switch ($type_recipient) {
+            case 'Parent':
+                $data['email'] = $receipt->invoiceProgram->clientprog->client->parents[0]->mail;
+                $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
+                break;
 
-        # if recipient is student (master program) use below
-        // $data['email'] = $receipt->invoiceProgram->clientprog->client->mail; 
+            case 'Client':
+                $data['email'] = $receipt->invoiceProgram->clientprog->client->mail;
+                $data['recipient'] = $receipt->invoiceProgram->clientprog->client->full_name;
+                break;
+        }
+
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
             $pic_mail
         ];
-        $data['recipient'] = $receipt->invoiceProgram->clientprog->client->parents[0]->full_name;
-        // $data['recipient'] = $receipt->invoiceProgram->clientprog->client->full_name;
         $data['program_name'] = $receipt->invoiceProgram->clientprog->program->program_name;
         $data['title'] = "Receipt of program " . $data['program_name'];
 
@@ -438,27 +451,27 @@ class ReceiptController extends Controller
         return response()->json(['message' => 'Successfully sent receipt to client.']);
     }
 
-    public function updateParentMail(Request $request)
+    public function updateMail(Request $request)
     {
 
-        $client = $this->clientRepository->getClientById($request->parent_id);
-        $parent_mail = $request->parent_mail;
+        $client = $this->clientRepository->getClientById($request->client_id);
+        $mail = $request->mail;
 
         if(isset($client)){
             DB::beginTransaction();
             try {
 
-                $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+                $client->mail != $mail ? $this->clientRepository->updateClient($client->id, ['mail' => $mail]) : null;
                 DB::commit();
 
             } catch (Exception $e) {
 
                 DB::rollBack();
-                Log::error('Failed to update client parents mail '. $e->getMessage().' | line '.$e->getLine() );
+                Log::error('Failed to update client mail '. $e->getMessage().' | line '.$e->getLine() );
                 return response()->json(['status' => 'failed', 'message' => 'Something went wrong. Please try again or contact the administrator.'], 500);
             }
         }
 
-        return response()->json(['status' => 'success', 'message' => 'Success Update Email Parent'], 200);
+        return response()->json(['status' => 'success', 'message' => 'Success Update Email'], 200);
     }
 }

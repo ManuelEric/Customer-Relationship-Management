@@ -478,7 +478,7 @@
             $("#export_other").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()
+                showLoading()
                 axios
                     .get(
                         '{{ route('receipt.corporate.export', ['receipt' => $receiptPartner->id, 'currency' => 'other']) }}', {
@@ -520,7 +520,7 @@
             $("#export_idr").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()
+                showLoading()
                 axios
                     .get(
                         '{{ route('receipt.corporate.export', ['receipt' => $receiptPartner->id, 'currency' => 'idr']) }}', {

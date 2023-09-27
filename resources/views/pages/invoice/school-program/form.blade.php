@@ -992,6 +992,7 @@
 
         @endif
 
+        @if (isset($invoiceSch))
         $(document).on("click", "#openModalRequestSignIdr", function() {
             var curr = $(this).data('curr');
             var currency = "'" + curr + "'";
@@ -1001,6 +1002,7 @@
             $('#sendToChoosenPic').attr("onclick", "confirmRequestSign('"+ url +"', "+ currency +")");
 
         });
+        @endif
 
         $("#submit-form").click(function(e) {
             e.preventDefault();

@@ -726,14 +726,24 @@
                     @csrf
                     {{-- @method('put') --}}
                     <div class="form-group">
+                        <div class="d-flex justify-content-around">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input input-recipient" id="parent" type="radio" name="recipient" value="Parent" onchange="checkRecipient()" checked>
+                                <label class="form-check-label" for="parent">Parent</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input input-recipient" id="client" type="radio" name="recipient" value="Client" onchange="checkRecipient()">
+                                <label class="form-check-label" for="client">Client</label>
+                            </div>
+                        </div>
 
                         <input type="hidden" name="clientprog_id" id="clientprog_id"
                             value="{{ $clientProg->clientprog_id }}" class="form-control w-100">
-                        <input type="hidden" name="parent_id" id="parent_id"
+                        <input type="hidden" name="client_id" id="client_id"
                             value="{{ $clientProg->client->parents[0]->id }}" class="form-control w-100">
                             {{-- value="{{ $clientProg->client->id }}" class="form-control w-100"> --}}
-                        <label for="">Email Parent</label>
-                        <input type="mail" name="parent_mail" id="parent_mail"
+                        <label for="">Email</label>
+                        <input type="mail" name="mail" id="mail"
                             value="{{ $clientProg->client->parents[0]->mail }}" class="form-control w-100">
                             {{-- value="{{ $clientProg->client->mail }}" class="form-control w-100"> --}}
                     </div>
@@ -783,6 +793,21 @@
         })
     </script>
     <script>
+
+        function checkRecipient(){
+            var recipient = $("input[name=recipient]:checked").val();
+            switch (recipient) {
+                case 'Parent':
+                    $("#client_id").val('{{ $clientProg->client->parents[0]->id }}')
+                    $("#mail").val('{{ $clientProg->client->parents[0]->mail }}')
+                    break;
+                    
+                case 'Client':
+                    $("#client_id").val('{{ $clientProg->client->id }}')
+                    $("#mail").val('{{ $clientProg->client->mail }}')
+                    break;
+            }
+        }
 
         function setIdentifier(paymethod, id) {
             $("#identifier").val(id);
@@ -1076,6 +1101,7 @@
         $(document).on("click", "#openModalSendToClientIdr", function() {
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
+
             $('#ConfirmSendToClient').attr("onclick",
                 "confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', " +
                 curr + ", 'invoice')");
@@ -1084,6 +1110,7 @@
         $(document).on("click", "#openModalSendToClientOther", function() {
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
+
             $('#ConfirmSendToClient').attr("onclick",
                 "confirmSendToClient('{{ url('/') }}/invoice/client-program/{{ $clientProg->clientprog_id }}/send', " +
                 curr + ", 'invoice')");
@@ -1093,16 +1120,18 @@
             $("#sendToClient--modal").modal('hide');
             $('#sendToClientModal').modal('hide');
             showLoading()
+            var recipient = $("input[name=recipient]:checked").val();
+
             var linkUpdateMail = '{{ url('/') }}/invoice/client-program/' + $('#clientprog_id').val() +
-                '/update/parent/mail';
+                '/update/mail';
             axios.post(linkUpdateMail, {
-                    parent_id: $('#parent_id').val(),
-                    parent_mail: $('#parent_mail').val(),
+                    client_id: $('#client_id').val(),
+                    mail: $('#mail').val(),
                 })
                 .then(function(response1) {
 
                     axios
-                        .get(link)
+                        .get(link + '/' + recipient)
                         .then(response => {
                             swal.close()
                             notification('success', 'Invoice has been send to client')
@@ -1157,48 +1186,6 @@
             @if (old('inv_paymentmethod'))
                 $("#payment_method").val("{{ old('inv_paymentmethod') }}").trigger('change');
             @endif
-
-
-            // $("#send-to-client--app-0604").on('click', function(e) {
-            //     e.preventDefault()
-            //     showLoading()
-
-            //     axios
-            //         .get(
-            //             '{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'idr']) }}'
-            //         )
-            //         .then(response => {
-            //             swal.close()
-            //             notification('success', 'Invoice has been send to client')
-            //             $('.step-three').addClass('active');
-            //             $("#sendToClient--modal").modal('hide');
-            //         })
-            //         .catch(error => {
-            //             notification('error',
-            //                 'Something went wrong when sending invoice to client. Please try again');
-            //             swal.close()
-            //         })
-            // })
-
-            // $("#send-inv-client-other").on('click', function(e) {
-            //     e.preventDefault()
-            //     showLoading()
-
-            //     axios
-            //         .get(
-            //             '{{ route('invoice.program.send_to_client', ['client_program' => $clientProg->clientprog_id, 'currency' => 'other']) }}'
-            //         )
-            //         .then(response => {
-            //             swal.close()
-            //             notification('success', 'Invoice has been send to client')
-            //             $('.step-three-other').addClass('active');
-            //         })
-            //         .catch(error => {
-            //             notification('error',
-            //                 'Something went wrong when sending invoice to client. Please try again');
-            //             swal.close()
-            //         })
-            // })
 
             $("#print").on('click', function(e) {
                 e.preventDefault();

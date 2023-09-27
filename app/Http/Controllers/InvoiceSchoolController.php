@@ -475,7 +475,8 @@ class InvoiceSchoolController extends Controller
             $pdf = PDF::loadView('pages.invoice.school-program.export.invoice-pdf', [
                 'invoiceSch' => $invoiceSch,
                 'currency' => $currency,
-                'companyDetail' => $companyDetail
+                'companyDetail' => $companyDetail,
+                'director' => $name
             ]);
 
             # Generate PDF file

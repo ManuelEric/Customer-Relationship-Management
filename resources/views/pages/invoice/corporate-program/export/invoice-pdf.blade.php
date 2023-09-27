@@ -271,7 +271,7 @@
                                     Bank <br>
                                     A/C No. <br>
                                     Branch <br>
-                                    Branch Address <br>
+                                    {{-- Branch Address <br> --}}
                                 </td>
                                 <td width="78%">
                                     : PT. Jawara Edukasih International PTI Ltd <br>
@@ -294,7 +294,12 @@
                         {{-- Jawara Edukasih International Pte Ltd --}}
                         {{-- Jakarta, {{ date('d F Y') }} --}}
                         <br><br><br><br><br><br><br>
-                        Nicholas Hendra Soepriatna <br>
+                        @if (isset($director)) 
+                            {{ $director }} 
+                        @else
+                            * Director name *
+                        @endif
+                        <br>
                         Director
                     </td>
                 </tr>
