@@ -15,6 +15,9 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
     <style>
+        .text-danger {
+            color: red;
+        }
         .iti {
             width: 100% !important;
         }
@@ -100,14 +103,10 @@
                 </div>
             @endif
 
-
             @if ($errors->any())
                 <div class="fixed bottom-5 right-5 w-[350px] z-[999]" id="notif">
                     <ul class="grid grid-cols-1 gap-2">
-                        @foreach ($errors->all() as $error)
-                            <li class="p-2 border-2 border-red-800 rounded-lg text-red-800 bg-white">{{ $error }}
-                            </li>
-                        @endforeach
+                        <li class="p-2 border-2 border-red-800 rounded-lg text-red-800 bg-white">Registration failed. Please fill your data</li>
                     </ul>
                 </div>
             @endif
@@ -134,12 +133,12 @@
                 <section id="role" class="page step-active">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                        <h2 class="mb-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                        <h2 class="mb-2 md:text-3xl text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                             Let us know you better by filling out this form!
                         </h2>
                         <hr class="my-5">
 
-                        <p class="mb-3 font-normal text-xl text-gray-700 dark:text-gray-400">
+                        <p class="mb-3 font-normal md:text-xl text-md text-gray-700 dark:text-gray-400">
                             You are a
                         </p>
 
@@ -206,68 +205,86 @@
                 <section id="user1" class="page step-inactive">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                        <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                        <h2 class="mb-2 md:text-2xl text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                             Please fill in your information
                         </h2>
                         <hr class="my-5">
                         <div class="grid md:grid-cols-3 grid-cols-1 gap-4">
-                            <div class="col mb-4 main-user">
-                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                            <div class="col md:mb-4 mb-2 main-user">
+                                <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                     Full Name <span class="text-red-400">*</span>
                                 </label>
                                 <input type="text" name="fullname[]"
-                                    class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
+                                    class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('fullname.0')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
-                            <div class="col mb-4 main-user">
-                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                            <div class="col md:mb-4 mb-2 main-user">
+                                <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                     Email <span class="text-red-400">*</span>
                                 </label>
                                 <input type="text" name="email[]"
-                                    class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
+                                    class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('email.0')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
-                            <div class="col mb-4 main-user">
-                                <label class="font-normal text-lg text-gray-700 dark:text-gray-400 block">
+                            <div class="col md:mb-4 mb-2 main-user">
+                                <label class="font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400 block">
                                     Phone Number <span class="text-red-400">*</span>
                                 </label>
                                 <input type="tel" name="phone[]"
-                                    class="required w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
+                                    class="required w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser1">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('fullnumber.0')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                                 <input type="hidden" name="fullnumber[]" id="phone1">
                             </div>
-                            <div class="col mb-4 user-other">
-                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                            <div class="col md:mb-4 mb-2 user-other">
+                                <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                     Your <span class="role">Child's</span> Name <span class="text-red-400">*</span>
                                 </label>
                                 <input type="text" name="fullname[]" id="other_name"
-                                    class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info required">
+                                    class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info required">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('fullname.1')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
-                            <div class="col mb-4 user-other">
-                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                            <div class="col md:mb-4 mb-2 user-other">
+                                <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                     Your <span class="role">Child's</span> Email
                                     @if (request()->get('status') || request()->get('status') == 'ots')
                                         <span class="text-red-400">*</span>
                                     @endif
                                 </label>
                                 <input type="text" name="email[]" id="other_email"
-                                    class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info">
+                                    class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 child_info">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('email.1')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
-                            <div class="col mb-4 user-other">
-                                <label class="font-normal text-lg text-gray-700 dark:text-gray-400 block">
+                            <div class="col md:mb-4 mb-2 user-other">
+                                <label class="font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400 block">
                                     <span class="role">Child's</span> Number
                                     @if (request()->get('status') || request()->get('status') == 'ots')
                                         <span class="text-red-400">*</span>
                                     @endif
                                 </label>
                                 <input type="tel" name="phone[]"
-                                    class="w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
+                                    class="w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0 mx-0"
                                     id="phoneUser2">
                                 <input type="hidden" name="fullnumber[]" id="phone2" class="child_info">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('fullnumber.1')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
 
@@ -297,17 +314,17 @@
                 <section id="info" class="page step-inactive">
                     <div
                         class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                        <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                        <h2 class="mb-2 md:text-3xl text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                             Please fill in your information
                         </h2>
                         <hr class="my-5">
 
                         <div class="mb-4" id="school_input">
-                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                            <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                 School <span class="text-red-400">*</span>
                             </label>
                             <select name="school" id="schoolList"
-                                class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
+                                class="w-full md:text-xl text-md border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
                                 placeholder="Type School Name" onChange="addSchool();">
                                 <option data-placeholder="true"></option>
                                 @foreach ($schools as $school)
@@ -317,13 +334,16 @@
                                 @endforeach
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                            @error('school')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="mb-4" id="graduation_input">
-                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                            <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                 When do you expect to graduate? <span class="text-red-400">*</span>
                             </label>
                             <select name="graduation_year" id="graduation_year"
-                                class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
+                                class="w-full md:text-xl text-md border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
                                 placeholder="">
                                 <option value=""></option>
                                 @for ($i = date('Y'); $i < date('Y') + 6; $i++)
@@ -331,13 +351,16 @@
                                 @endfor
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                            @error('graduation_year')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="mb-4" id="country_input">
-                            <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400">
+                            <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400">
                                 Destination Country <span class="text-red-400">*</span>
                             </label>
                             <select name="destination_country[]" multiple="multiple" id="destination_country"
-                                class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
+                                class="w-full md:text-xl text-md border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
                                 placeholder="">
                                 <option value=""></option>
                                 @foreach ($tags as $tag)
@@ -345,6 +368,9 @@
                                 @endforeach
                             </select>
                             <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                            @error('destination_country.*')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
                         </div>
                         @if (request()->get('status') || request()->get('status') == 'ots')
                             <div class="mb-4">
@@ -352,19 +378,22 @@
                                     Number of Party
                                 </label>
                                 <input type="number" name="attend"
-                                    class="required w-full text-xl border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
+                                    class="required w-full md:text-xl text-md border-0 border-b-2 focus:outline-0 focus:ring-0 px-0">
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
+                                @error('attend')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                         @endif
 
                         @if (!request()->get('ref') && request()->get('ref') === null)
                             <div class="mb-4">
-                                <label class="mb-3 font-normal text-lg text-gray-700 dark:text-gray-400 block">
+                                <label class="md:mb-3 mb-1 font-normal md:text-lg text-sm text-gray-700 dark:text-gray-400 block">
                                     I know this event from <span class="text-red-400">*</span>
                                 </label>
                                 <small class="alert text-red-500 text-md hidden">Please fill in above field!</small>
                                 <select name="leadsource" id="leadSource"
-                                    class="w-full text-xl border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
+                                    class="w-full md:text-xl text-md border-0 border-b-2 border-gray-500 focus:outline-0 focus:ring-0 px-0"
                                     placeholder="Pick one item">
                                     <option data-placeholder="true"></option>
                                     @foreach ($leads as $lead)
@@ -374,6 +403,9 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                @error('leadsource')
+                                    <small class="text-danger fw-light">{{ $message }}</small>
+                                @enderror
                             </div>
                         @endif
 
@@ -403,8 +435,8 @@
 
             {{-- Footer  --}}
             @if (request()->get('form_type') == 'cta')
-                <div class="w-full flex justify-center my-4 text-sm text-gray-400">
-                    Copyright © 2023. ALL-in Eduspace. All rights reserved
+                <div class="w-full flex justify-center md:my-4 mt-[30px] text-sm text-center text-gray-400">
+                    Copyright © 2023. ALL-in Eduspace. <br> All rights reserved
                 </div>
             @endif
         </div>
@@ -575,6 +607,13 @@ https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css
         var number2 = phoneInput2.getNumber();
         $("#phone2").val(number2);
     });
+</script>
+<script>
+    @if ($errors->any())
+        setTimeout(function() {
+            $("#notif").fadeOut();
+        }, 4000)
+    @endif
 </script>
 
 </html>

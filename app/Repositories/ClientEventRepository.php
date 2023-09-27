@@ -444,6 +444,11 @@ class ClientEventRepository implements ClientEventRepositoryInterface
             ->get();
     }
 
+    public function getClientEventByClientId($clientId)
+    {
+        return ClientEvent::where('client_id', $clientId)->first();
+    }
+
     public function getClientEventById($clientEventId)
     {
         return ClientEvent::find($clientEventId);

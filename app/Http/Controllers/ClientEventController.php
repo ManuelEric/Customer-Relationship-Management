@@ -10,6 +10,7 @@ use App\Http\Requests\StoreFormEventEmbedRequest;
 use App\Http\Traits\CheckExistingClient;
 use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
+use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
 use App\Imports\InvitaionMailImport;
@@ -46,6 +47,7 @@ use Illuminate\Support\Facades\Session;
 
 class ClientEventController extends Controller
 {
+    use SplitNameTrait;
     use CheckExistingClient;
     use CreateCustomPrimaryKeyTrait;
     use StandardizePhoneNumberTrait;
@@ -614,6 +616,13 @@ class ClientEventController extends Controller
             if (isset($registration_type))
                 $clientEventDetails['registration_type'] = $registration_type;
 
+            # get data created user
+            $newly_registrant_user = $this->clientRepository->getClientById($newly_registrant);
+
+            # check if client has already join the event
+            if ($this->clientEventRepository->getClientEventByClientId($createdClient['clientId']))
+                return Redirect::to('form/already-join?role='.$choosen_role.'&name='.$newly_registrant_user->full_name);
+
             # store a new client event
             if ($clientEvent = $this->clientEventRepository->createClientEvent($clientEventDetails)) {
 
@@ -646,13 +655,9 @@ class ClientEventController extends Controller
         }
         
         # if they regist on the spot then should return view success
-        if (isset($registration_type) && $registration_type == "ots") {
-            
-            $newly_registrant_user = $this->clientRepository->getClientById($newly_registrant);
-
-
+        if (isset($registration_type) && $registration_type == "ots")
             return Redirect::to('form/registration/success?role='.$choosen_role.'&name='.$newly_registrant_user->full_name);
-        }
+        
         
         return Redirect::to('form/thanks');
     }
@@ -681,17 +686,9 @@ class ClientEventController extends Controller
             if (!$existingClient['isExist']) {
 
                 # get firstname & lastname from fullname
-                $fullname = explode(' ', $newClientDetails[$loop]['name']);
-                $fullname_words = count($fullname);
-
-                $firstname = $lastname = null;
-                if ($fullname_words > 1) {
-                    $lastname = $fullname[$fullname_words - 1];
-                    unset($fullname[$fullname_words - 1]);
-                    $firstname = implode(" ", $fullname);
-                } else {
-                    $firstname = implode(" ", $fullname);
-                }
+                $splitName = $this->split($newClientDetails[$loop]['name']);
+                $firstname = $splitName['first_name'];
+                $lastname = $splitName['last_name'];
 
                 # all client basic info (whatever their role is)
                 $clientDetails = [
@@ -759,7 +756,7 @@ class ClientEventController extends Controller
                 $newClient[$loop] = $this->clientRepository->createClient($this->getRoleName($role), $clientDetails);
 
             }
-
+            
             $clientArrayIds[$loop] = $existingClient['isExist'] ? $existingClient['id'] : $newClient[$loop]->id;
 
             $loop++;
@@ -832,6 +829,17 @@ class ClientEventController extends Controller
         $name = $request->get('name');
 
         return view('form-embed.response.success')->with([
+            'choosen_role' => $choosen_role,
+            'name' => $name
+        ]);
+    }
+
+    public function alreadyJoinPage(Request $request)
+    {
+        $choosen_role = $request->get('role');
+        $name = $request->get('name');
+
+        return view('form-embed.response.already-join')->with([
             'choosen_role' => $choosen_role,
             'name' => $name
         ]);
@@ -1016,18 +1024,20 @@ class ClientEventController extends Controller
             case "parent":
                 $secondaryClientInfo = $clientEvent->children;
                 $responseAdditionalInfo = [
+                    'sch_id' => isset($secondaryClientInfo->school) ? $secondaryClientInfo->school->sch_id : null,
                     'school' => isset($secondaryClientInfo->school->sch_name) ? $secondaryClientInfo->school->sch_name : null,
                     'graduation_year' => isset($secondaryClientInfo->graduation_year) ? $secondaryClientInfo->graduation_year : null,
-                    'abr_country' => isset($secondaryClientInfo->abr_country) ? str_replace(',', ', ', $secondaryClientInfo->abr_country) : null
+                    'abr_country' => isset($secondaryClientInfo->abr_country) ? $secondaryClientInfo->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
                 ];
                 break;
 
             case "student":
                 $secondaryClientInfo = $clientEvent->parent;
                 $responseAdditionalInfo = [
+                    'sch_id' => isset($secondaryClientInfo->school) ? $secondaryClientInfo->school->sch_id : null,
                     'school' => isset($client->school->sch_name) ? $client->school->sch_name : null,
                     'graduation_year' => isset($client->graduation_year) ? $client->graduation_year : null,
-                    'abr_country' => isset($client->abr_country) ? str_replace(',', ', ', $client->abr_country) : null
+                    'abr_country' => isset($client->abr_country) ? $client->destinationCountries()->pluck('tbl_tag.id')->toArray() : null
                 ];
                 break;
 
@@ -1036,33 +1046,37 @@ class ClientEventController extends Controller
         if (!isset($secondaryClientInfo))
             return view('stem-wonderlab.scan-qrcode.error')->with(['message' => 'Something went wrong. <br>Please contact our staff to help you scan the QR.']);
 
+        $tags = $this->tagRepository->getAllTags();
+
         $response = [
             'client' => $client,
             'client_event' => $clientEvent,
             'secondary_client' => [
                 'personal_info' => $secondaryClientInfo,
-            ] + $responseAdditionalInfo
+            ] + $responseAdditionalInfo,
+            'schools' => $this->schoolRepository->getAllSchools(),
+            'tags' => $tags->where('name', '!=', 'Other')
         ];
 
         return view('stem-wonderlab.scan-qrcode.client-detail')->with($response);
     }
 
-    public function handlerScanQrCodeForAttend(Request $request)
+    public function handlerScanQrCodeForAttend(StoreFormEventEmbedRequest $request)
     {
         # nambahin validasi number of attend tidak boleh 0
         $request->validate([
             'how_many_people_attended' => 'required|min:1'
         ], $request->all(), ['how_many_people_attended' => 'number of party field']);
-        # 
 
         # get request
-        $event = $request->event; # not used for now becuase there is no event slug
-        $clientEventId = $request->clientevent;
+        $event = $request->event; # not used for now because there is no event slug
+        $clientEventId = $request->route('clientevent');
 
         $clientEvent = $this->clientEventRepository->getClientEventById($clientEventId);
         $client = $clientEvent->client;
 
         $clientFullname = $client->full_name;
+
         $eventName = $clientEvent->event->event_title;
 
         # initiate variables in order to
@@ -1073,15 +1087,73 @@ class ClientEventController extends Controller
             case "parent":
                 $childId = $clientEvent->children->id;
                 $isParent = true;
+
+                $splitParentName = $this->split($request->fullname[0]);
+                $splitChildName = $this->split($request->fullname[1]);
+
+                $newParentInformation = [
+                    'first_name' => $splitParentName['first_name'],
+                    'last_name' => $splitParentName['last_name'],
+                    'mail' => $request->email[0],
+                    'phone' => $request->fullnumber[0]
+                ];
+
+                $newChildInformation = [
+                    'first_name' => $splitChildName['first_name'],
+                    'last_name' => $splitChildName['last_name'],
+                    'mail' => $request->email[1],
+                    'phone' => $request->fullnumber[1],
+                    'sch_id' => $request->school,
+                    'graduation_year' => $request->graduation_year
+                ];
+
+                $child = $this->clientRepository->getClientById($childId);
+                $parent = $this->clientRepository->getClientById($client->id);
+
                 break;
 
             case "student":
                 $childId = $client->id;
                 $isStudent = true;
+
+                $splitChildName = $this->split($request->fullname[0]);
+                $splitParentName = $this->split($request->fullname[1]);
+
+                $newChildInformation = [
+                    'first_name' => $splitChildName['first_name'],
+                    'last_name' => $splitChildName['last_name'],
+                    'mail' => $request->email[0],
+                    'phone' => $request->fullnumber[0],
+                    'sch_id' => $request->school,
+                    'graduation_year' => $request->graduation_year
+                ];
+
+                $newParentInformation = [
+                    'first_name' => $splitParentName['first_name'],
+                    'last_name' => $splitParentName['last_name'],
+                    'mail' => $request->email[1],
+                    'phone' => $request->fullnumber[1]
+                ];
+
+                $child = $this->clientRepository->getClientById($client->id);
+                $parent = $this->clientRepository->getClientById($clientEvent->parent->id);
+
                 break;
 
             case "teacher/counsellor":
                 $isTeacher = true;
+
+                $splitTeacherName = $this->split($request->fullname[0]);
+                
+                $newTeacherInformation = [
+                    'first_name' => $splitTeacherName['first_name'],
+                    'last_name' => $splitTeacherName['last_name'],
+                    'mail' => $request->email[0],
+                    'phone' => $request->fullnumber[0]
+                ];
+
+                $teacher = $this->clientRepository->getClientById($client->id);
+
                 break;
 
         }
@@ -1095,13 +1167,22 @@ class ClientEventController extends Controller
         DB::beginTransaction();
         try {
 
+            # when the client parent or student 
+            # they need to complete the email or phone for index 1 which is secondary data
             if ($isParent || $isStudent) {
-                # update student information details
-                $this->clientRepository->updateClient($childId, [
-                    'mail' => $request->secondary_mail,
-                    'phone' => $request->secondary_phone
-                ]);
+
+                # update master client information
+                $parent->update($newParentInformation);
+                $child->update($newChildInformation);
+
+                # update childs school information
+                $destination_countries = $request->destination_country;
+                $child->destinationCountries()->sync($destination_countries);
+
             }
+
+            if ($isTeacher)
+                $teacher->update($newTeacherInformation);
 
             # update client event
             $this->clientEventRepository->updateClientEvent($clientEventId, $newDetails);
@@ -1119,7 +1200,7 @@ class ClientEventController extends Controller
 
         }
 
-        return Redirect::to('form/registration/success?role='.$client->register_as.'&name='.$clientFullname);
+        return Redirect::to('form/registration/success?role='.$client->register_as.'&name='.$request->fullname[0]);
     }
 
     public function updateAttendance($id, $status) 
@@ -1180,7 +1261,7 @@ class ClientEventController extends Controller
         if($dataRegister['success'] && !$dataRegister['already_join']){
             return Redirect::to('form/thanks');
         }else if($dataRegister['success'] && $dataRegister['already_join']){
-            return Redirect::to('form/already-join');
+            return Redirect::to('form/already-join?role='.$client->register_as.'&name='.$client->full_name);
         }
 
 
@@ -1198,7 +1279,7 @@ class ClientEventController extends Controller
             abort(404);
 
         $link = 'https://makerspace.all-inedu.com';
-        $query = '?ref='.$refcode.'#form';
+        $query = '?ref='.$refcode;
 
         return view('stem-wonderlab.referral-link.index')->with([
             'link' => $link.$query,

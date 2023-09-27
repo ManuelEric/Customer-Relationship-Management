@@ -55,7 +55,7 @@ Route::get('form/event', [ClientEventController::class, 'createFormEmbed'])->nam
 Route::post('form/events', [ClientEventController::class, 'storeFormEmbed'])->name('form.event.store');
 
 // Route::get('form/event/{event_slug}/client/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
-Route::put('form/event/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
+Route::put('form/event/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend')->withoutMiddleware(['auth', 'auth.department']);
 
 Route::get('form/program', [ClientProgramController::class, 'createFormEmbed']);
 Route::post('form/program', [ClientProgramController::class, 'storeFormEmbed']);
@@ -69,9 +69,7 @@ Route::get('form/thanks', function() {
 
 Route::get('form/registration/success', [ClientEventController::class, 'successPage']);
 
-Route::get('form/already-join', function() {
-    return view('form-embed.response.already-join');
-});
+Route::get('form/already-join', [ClientEventController::class, 'alreadyJoinPage']);
 
 Route::get('registration', function() {
     return view('stem-wonderlab.registration');
