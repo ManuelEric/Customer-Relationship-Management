@@ -28,7 +28,7 @@
                 <tr>
                     <td>{{ $loop->iteration }}.</td>
                     <td>{{ $partnerProgram->program->prog_program }}</td>
-                    <td class="text-center">{{ isset($partnerProgram->user) ? $partnerProgram->user->first_name : null}}
+                    <td class="text-center">{{ isset($partnerProgram->user) ? $partnerProgram->user->first_name : '-'}}
                         {{ isset($partnerProgram->user) ? $partnerProgram->user->last_name : null }}</td>
                     <td class="text-center">{{ $partnerProgram->first_discuss }}</td>
                     <td class="text-center">
