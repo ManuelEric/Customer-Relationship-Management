@@ -150,8 +150,9 @@
                                     class="flex items-center justify-center w-full md:py-4 py-2 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
                                         <div class="flex justify-center">
-                                            <!--<img src="{{ asset('img/form-embed/parent.png') }}" alt="Student"-->
-                                            <!--    class="md:w-[70px] w-[40px]">-->
+
+                                            <img src="{{ asset('img/form-embed/parent.webp') }}" alt="Student"
+                                                class="md:w-[70px] w-[40px]">
                                         </div>
                                         Parent
                                     </div>
@@ -164,8 +165,10 @@
                                     class="flex items-center justify-center w-full md:py-4 py-2 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
                                         <div class="flex justify-center">
-                                            <!--<img src="{{ asset('img/form-embed/student.png') }}" alt="Parent"-->
-                                            <!--    class="md:w-[70px] w-[40px]">-->
+
+                                            <img src="{{ asset('img/form-embed/student.webp') }}" alt="Parent"
+                                                class="md:w-[70px] w-[40px]">
+
                                         </div>
                                         Student
                                     </div>
@@ -178,8 +181,10 @@
                                     class="flex items-center justify-center w-full md:py-4 py-2 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="flex flex-col items-center">
                                         <div class="flex justify-center">
-                                            <!--<img src="{{ asset('img/form-embed/teacher.png') }}" alt="Parent"-->
-                                            <!--    class="md:w-[70px] w-[40px]">-->
+
+                                            <img src="{{ asset('img/form-embed/teacher.webp') }}" alt="Parent"
+                                                class="md:w-[70px] w-[40px]">
+
                                         </div>
                                         Teacher/Counsellor
                                     </div>
