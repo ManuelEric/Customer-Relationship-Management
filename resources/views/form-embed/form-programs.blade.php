@@ -125,7 +125,7 @@
                                     class="hidden peer" onchange="checkRole(this)">
                                 <label for="role-1" class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
-                                        <img src="{{ asset('img/form-embed/parent.png') }}" alt="Student"
+                                        <img src="{{ asset('img/form-embed/parent.webp') }}" alt="Student"
                                             style="width: 70px;">
                                         Parent
                                     </div>
@@ -137,7 +137,7 @@
                                 <label for="role-2"
                                     class="flex items-center justify-center w-full py-4 border rounded-lg border-1 border-[#bbbbbb] text-md font-medium text-gray-900 cursor-pointer dark:text-gray-300 transition-all duration-700 peer-checked:bg-[#cccccc] dark:peer-checked:text-[#999]">
                                     <div class="text-center">
-                                        <img src="{{ asset('img/form-embed/student.png') }}" alt="Student"
+                                        <img src="{{ asset('img/form-embed/student.webp') }}" alt="Student"
                                             style="width: 70px;">
                                         Student
                                     </div>
