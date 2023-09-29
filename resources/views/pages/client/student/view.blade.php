@@ -106,6 +106,17 @@
                     <div class="row mb-2 g-1">
                         <div class="col d-flex justify-content-between">
                             <label>
+                                Gap Year
+                            </label>
+                            <label>:</label>
+                        </div>
+                        <div class="col-md-9 col-8">
+                            {{ $student->gap_year }}
+                        </div>
+                    </div>
+                    <div class="row mb-2 g-1">
+                        <div class="col d-flex justify-content-between">
+                            <label>
                                 Follow-up Priority
                             </label>
                             <label>:</label>
