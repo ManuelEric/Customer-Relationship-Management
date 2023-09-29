@@ -46,6 +46,7 @@ class UserClient extends Authenticatable
         'event_id',
         'st_levelinterest',
         'graduation_year',
+        'gap_year',
         'st_abryear',
         // 'st_abrcountry',
         'st_statusact',

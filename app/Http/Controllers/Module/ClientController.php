@@ -47,6 +47,7 @@ class ClientController extends Controller
                     'event_id',
                     'st_levelinterest',
                     'graduation_year',
+                    'gap_year',
                     // 'st_abrcountry',
                     'st_note',
                 ]);
@@ -84,6 +85,7 @@ class ClientController extends Controller
                     'st_grade' => $request->st_grade,
                     'st_abryear' => $request->st_abryear,
                     'graduation_year' => $request->graduation_year,
+                    'gap_year' => $request->gap_year,
                     'is_funding' => $request->is_funding ?? 0,
                     'register_as' => $request->register_as
                 ];
@@ -113,6 +115,7 @@ class ClientController extends Controller
                     'event_id',
                     'st_levelinterest',
                     'graduation_year',
+                    'gap_year',
                     'st_abryear',
                     // 'st_abrcountry',
                     'st_note',
