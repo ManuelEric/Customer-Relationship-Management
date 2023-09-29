@@ -63,10 +63,10 @@ class AuthController extends Controller
 
     public function logoutFromExpirationTime(Request $request)
     {
-        $timeout = 3600;
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return Redirect::to('login')->withError('You had not activity in '.$timeout/60 .' minutes ago.');
+        // $timeout = 3600;
+        // Auth::logout();
+        // $request->session()->invalidate();
+        // $request->session()->regenerateToken();
+        // return Redirect::to('login')->withError('You had not activity in '.$timeout/60 .' minutes ago.');
     }
 }
