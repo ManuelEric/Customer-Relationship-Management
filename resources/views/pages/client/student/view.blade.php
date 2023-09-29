@@ -327,22 +327,28 @@
                                 <div class="col-5">
                                     {{ $initprog }}
                                 </div>
-                                <div class="col-3 text-center d-flex align-items-center">
-                                    <i class="{{ $currentLead['total_result_program'] >= 0.5 ? 'bi bi-check text-success' : 'bi bi-x text-danger' }}  fs-3"></i>
-                                    <small class="text-muted">({{ $currentLead['total_result_program'] }}/1)</small>
-                                </div>
-                                <div class="col-3 text-center d-flex align-items-center">
-                                    @if ($currentLead['lead_status'] == 'Hot')
-                                        <i class="bi bi-fire text-danger fs-5 me-2"></i> {{ $currentLead['lead_status'] }}
-                                        <small class="text-muted">({{$currentLead['total_result_lead']}}/1)</small>
-                                    @elseif($currentLead['lead_status'] == 'Warm')
-                                        <i class="bi bi-fire text-warning fs-5 me-2"></i> {{ $currentLead['lead_status'] }}
-                                        <small class="text-muted">({{$currentLead['total_result_lead']}}/1)</small>
-                                    @elseif($currentLead['lead_status'] == 'Cold')
-                                        <i class="bi bi-snow3 text-info fs-5 me-2"></i> {{ $currentLead['lead_status'] }}
-                                        <small class="text-muted">({{$currentLead['total_result_lead']}}/1)</small>
-                                    @endif
-                                </div>
+                                @if(isset($currentLead))
+                                    <div class="col-3 text-center d-flex align-items-center">
+                                        <i class="{{ $currentLead['total_result_program'] >= 0.5 ? 'bi bi-check text-success' : 'bi bi-x text-danger' }}  fs-3"></i>
+                                        <small class="text-muted">({{ $currentLead['total_result_program'] }}/1)</small>
+                                    </div>
+                                    <div class="col-3 text-center d-flex align-items-center">
+                                        @if ($currentLead['lead_status'] == 'Hot')
+                                            <i class="bi bi-fire text-danger fs-5 me-2"></i> {{ $currentLead['lead_status'] }}
+                                            <small class="text-muted">({{$currentLead['total_result_lead']}}/1)</small>
+                                        @elseif($currentLead['lead_status'] == 'Warm')
+                                            <i class="bi bi-fire text-warning fs-5 me-2"></i> {{ $currentLead['lead_status'] }}
+                                            <small class="text-muted">({{$currentLead['total_result_lead']}}/1)</small>
+                                        @elseif($currentLead['lead_status'] == 'Cold')
+                                            <i class="bi bi-snow3 text-info fs-5 me-2"></i> {{ $currentLead['lead_status'] }}
+                                            <small class="text-muted">({{$currentLead['total_result_lead']}}/1)</small>
+                                        @endif
+                                    </div>
+                                @else
+                                    <div class="col-3 text-center d-flex align-items-center">
+                                        -
+                                    </div>
+                                @endif
                                 <div class="col-1 text-end">
                                     <div class="dropdown">
                                         <i class="bi bi-info-circle cursor-pointer" title="History"
