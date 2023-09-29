@@ -121,9 +121,9 @@ class ClientProgramController extends Controller
         $data['startDate'] = $request->get('start_date') ?? null;
         $data['endDate'] = $request->get('end_date') ?? null;
 
-        // if ($request->ajax()) {
+        if ($request->ajax()) {
             return $this->clientProgramRepository->getAllClientProgramDataTables($data);
-        // }
+        }
 
         # advanced filter data
         $programs = $this->clientProgramRepository->getAllProgramOnClientProgram();
