@@ -59,14 +59,23 @@ class StoreFormProgramEmbedRequest extends FormRequest
     public function rules()
     {
         return [
-            'fullname.*' => 'required',
-            'email.*' => 'required|email',
-            'fullnumber.*' => 'required',
+            // 'fullname.*' => 'required',
+            // 'email.*' => 'required|email',
+            // 'fullnumber.*' => 'required',
+
+            'fullname.0' => 'required',
+            'email.0' => 'required|email',
+            'fullnumber.0' => 'required',
+
+            'fullname.1' => 'required',
+            'email.1' => 'nullable|email',
+            'fullnumber.1' => 'nullable',
             
             'school' => 'required',
             'graduation_year' => 'required',
             'destination_country' => 'required|exists:tbl_tag,id',
-            'leadsource' => 'required|exists:tbl_lead,lead_id'
+            'leadsource' => 'required|exists:tbl_lead,lead_id',
+            'program' => 'nullable',
         ];
     }
 }

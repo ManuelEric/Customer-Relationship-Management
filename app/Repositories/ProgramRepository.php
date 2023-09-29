@@ -52,7 +52,10 @@ class ProgramRepository implements ProgramRepositoryInterface
 
     public function getProgramByName($programName)
     {
-        return Program::where('prog_program', $programName)->first();
+        $programs = $this->getAllPrograms();
+        return $programs->where('program_name', $programName)->first();
+        // exit;
+        // return Program::where('program_name', $programName)->first();
     }
 
     public function deleteProgram($programId)
