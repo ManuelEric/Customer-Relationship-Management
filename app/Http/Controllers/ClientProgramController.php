@@ -581,6 +581,7 @@ class ClientProgramController extends Controller
                 # when program status is active
             case 1:
                 $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
+                $clientProgramDetails['success_date'] = $request->success_date;
 
                 # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
