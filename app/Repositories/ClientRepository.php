@@ -389,6 +389,28 @@ class ClientRepository implements ClientRepositoryInterface
             : $query->orderBy('first_name', 'asc');
     }
 
+    public function getAlumniMenteesSiblings()
+    {
+        $query = Client::
+            with(['parents', 'parents.childrens'])->
+            whereHas('clientProgram.program.main_prog', function ($subQuery) {
+                $subQuery->where('prog_name', 'Admissions Mentoring')->where('status', 1)->where('prog_running_status', 2);
+            })->
+            whereDoesntHave('clientProgram', function ($subQuery) {
+                $subQuery->whereHas('program.main_prog', function ($subQuery_2) {
+                    $subQuery_2->where('prog_name', 'Admissions Mentoring');
+                })->where('status', 1)->where('prog_running_status', '!=', 2);
+            })->
+            whereHas('roles', function ($subQuery) {
+                $subQuery->where('role_name', 'student');
+            })->
+            whereHas('parents', function ($subQuery) {
+                $subQuery->has('childrens', '>', 1);
+            });
+
+        return $query->get();
+    }
+
     public function getAlumniNonMentees($groupBy = false, $asDatatables = false, $month = null)
     {
         # has finish our program and hasnt joined admission program
@@ -694,6 +716,14 @@ class ClientRepository implements ClientRepositoryInterface
     public function getClientById($clientId)
     {
         return UserClient::find($clientId);
+    }
+
+    public function getClientByPhoneNumber($phoneNumber)
+    {
+        if (substr($phoneNumber, 0, 1) == "+")
+            $phoneNumber = substr($phoneNumber, 4);
+        
+        return UserClient::whereRaw('SUBSTR(phone, 4) LIKE ?', ['%'.$phoneNumber.'%'])->first();
     }
 
     public function getViewClientById($clientId)

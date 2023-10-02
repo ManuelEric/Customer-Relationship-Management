@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Embed\PublicRegistrationController;
 use App\Http\Controllers\ClientEventController;
 use App\Http\Controllers\ClientProgramController;
+use App\Http\Controllers\ClientStudentController;
 use App\Http\Controllers\VolunteerController;
 use Illuminate\Support\Facades\Route;
 
@@ -54,7 +55,7 @@ Route::get('form/event', [ClientEventController::class, 'createFormEmbed'])->nam
 Route::post('form/events', [ClientEventController::class, 'storeFormEmbed'])->name('form.event.store');
 
 // Route::get('form/event/{event_slug}/client/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
-Route::put('form/event/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend');
+Route::put('form/event/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend')->withoutMiddleware(['auth', 'auth.department']);
 
 Route::get('form/program', [ClientProgramController::class, 'createFormEmbed']);
 Route::post('form/program', [ClientProgramController::class, 'storeFormEmbed']);
@@ -66,24 +67,24 @@ Route::get('form/thanks', function() {
     return view('form-embed.thanks');
 })->name('form.event.registration.success');
 
-Route::get('form/already-join', function() {
-    return view('form-embed.response.already-join');
+Route::get('form/registration/success', [ClientEventController::class, 'successPage']);
+
+Route::get('form/already-join', [ClientEventController::class, 'alreadyJoinPage']);
+
+Route::get('registration', function() {
+    return view('stem-wonderlab.registration');
+});
+
+Route::get('onsite', function() {
+    return view('stem-wonderlab.onsite');
 });
 
 Route::get('scan', function() {
-    return view('scan-qrcode.index');
+    return view('stem-wonderlab.scan-qrcode.index');
 });
 
-Route::get('client-detail/{clientevent}', [ClientEventController::class, 'previewClientInformation']);
+Route::get('client-detail/{identifier}/{screening_type}', [ClientEventController::class, 'previewClientInformation']);
 
 Route::get('mailing', function() {
     return view('mailing.stem-wonderlab');
-});
-
-Route::get('your-qrcode', function() {
-    return view('scan-qrcode.qrcode');
-});
-
-Route::get('referral', function() {
-    return view('referral-link.index');
 });

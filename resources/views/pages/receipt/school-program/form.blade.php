@@ -480,7 +480,7 @@
             $("#export_other").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()
+                showLoading()
                 axios
                     .get(
                         '{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'other']) }}', {
@@ -522,7 +522,7 @@
             $("#export_idr").on('click', function(e) {
                 e.preventDefault();
 
-                Swal.showLoading()
+                showLoading()
                 axios
                     .get(
                         '{{ route('receipt.school.export', ['receipt' => $receiptSch->id, 'currency' => 'idr']) }}', {

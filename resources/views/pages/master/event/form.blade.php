@@ -141,6 +141,7 @@
                                         @endif
                                     </div>
                                     @else
+                                    <input type="hidden" name="change_banner" value="no">
                                     <input type="file" class="form-control form-control-sm rounded" name="event_banner" {{ $disabled }}>
                                     @endif
                                 </div>

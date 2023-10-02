@@ -46,6 +46,7 @@ class UserClient extends Authenticatable
         'event_id',
         'st_levelinterest',
         'graduation_year',
+        'gap_year',
         'st_abryear',
         // 'st_abrcountry',
         'st_statusact',
@@ -214,6 +215,11 @@ class UserClient extends Authenticatable
     public function clientProgram()
     {
         return $this->hasMany(ClientProgram::class, 'client_id', 'id');
+    }
+
+    public function clientEvent()
+    {
+        return $this->hasMany(ClientEvent::class, 'client_id', 'id');
     }
 
     public function viewClientProgram()

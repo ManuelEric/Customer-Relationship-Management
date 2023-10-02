@@ -560,16 +560,26 @@
                     @csrf
                     {{-- @method('put') --}}
                     <div class="form-group">
+                        <div class="d-flex justify-content-around">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input input-recipient" id="parent" type="radio" name="recipient" value="Parent" onchange="checkRecipient()" checked>
+                                <label class="form-check-label" for="parent">Parent</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input input-recipient" id="client" type="radio" name="recipient" value="Client" onchange="checkRecipient()">
+                                <label class="form-check-label" for="client">Client</label>
+                            </div>
+                        </div>
 
                         <input type="hidden" name="receipt_id" id="receipt_id" value="{{ $receipt->id }}"
                             class="form-control w-100">
                         <input type="hidden" name="clientprog_id" id="clientprog_id"
                             value="{{ $client_prog->clientprog_id }}" class="form-control w-100">
-                        <input type="hidden" name="parent_id" id="parent_id"
+                        <input type="hidden" name="client_id" id="client_id"
                             value="{{ $client_prog->client->parents[0]->id }}" class="form-control w-100">
                             {{-- value="{{ $client_prog->client->id }}" class="form-control w-100"> --}}
                         <label for="">Email Parent</label>
-                        <input type="mail" name="parent_mail" id="parent_mail"
+                        <input type="mail" name="mail" id="mail"
                             value="{{ $client_prog->client->parents[0]->mail }}" class="form-control w-100">
                             {{-- value="{{ $client_prog->client->mail }}" class="form-control w-100"> --}}
                     </div>
@@ -600,6 +610,21 @@
     @endif
 
     <script>
+        function checkRecipient(){
+            var recipient = $("input[name=recipient]:checked").val();
+            switch (recipient) {
+                case 'Parent':
+                    $("#client_id").val('{{ $client_prog->client->parents[0]->id }}')
+                    $("#mail").val('{{ $client_prog->client->parents[0]->mail }}')
+                    break;
+                    
+                case 'Client':
+                    $("#client_id").val('{{ $client_prog->client->id }}')
+                    $("#mail").val('{{ $client_prog->client->mail }}')
+                    break;
+            }
+        }
+
         $(document).on("click", "#openModalSendToClientIdr", function() {
             var curr = $(this).data('curr');
             curr = "'" + curr + "'";
@@ -617,37 +642,44 @@
                 curr + ", 'receipt')");
         });
 
-        function sendToClient(link) {
+        function updateMail() {
             $("#sendToClient--modal").modal('hide');
             $('#sendToClientModal').modal('hide');
-            showLoading()
+            
+            showLoading();
             var linkUpdateMail = '{{ url('/') }}/receipt/client-program/' + $('#receipt_id').val() +
-                '/update/parent/mail';
+                '/update/mail';
 
             axios.post(linkUpdateMail, {
-                    parent_id: $('#parent_id').val(),
-                    parent_mail: $('#parent_mail').val(),
+                    client_id: $('#client_id').val(),
+                    mail: $('#mail').val(),
                 })
                 .then(function(response1) {
-
-                    axios
-                        .get(link)
-                        .then(response => {
-                            swal.close()
-                            notification('success', 'Receipt has been send to client')
-                            $(".step-five").addClass('active');
-                        })
-                        .catch(error => {
-                            notification('error',
-                                'Something went wrong when sending receipt to client. Please try again');
-                            swal.close()
-                        })
+                    // swal.close();
                 })
                 .catch(function(error) {
-                    swal.close();
                     notification('error', error)
                 })
 
+        }
+
+        function sendToClient(link)
+        {
+            // showLoading()
+            var recipient = $("input[name=recipient]:checked").val();
+
+            axios
+                .get(link + '/' + recipient)
+                .then(response => {
+                    swal.close()
+                    notification('success', 'Receipt has been send to client')
+                    $(".step-five").addClass('active');
+                })
+                .catch(error => {
+                    var message = error.response.data.message;
+                    notification('error', message);
+                    swal.close()
+                })
         }
 
         function requestAcc(link, currency) {
@@ -698,27 +730,6 @@
                 placeholder: "Select value",
                 allowClear: true
             });
-
-            // $("#send-rec-client-other").on('click', function(e) {
-            //     e.preventDefault()
-            //     showLoading()
-
-            //     axios
-            //         .get(
-            //             '{{ route('receipt.client-program.send_to_client', ['receipt' => $receipt->id, 'currency' => 'other']) }}'
-            //         )
-            //         .then(response => {
-            //             swal.close()
-            //             notification('success', 'Receipt has been send to client')
-            //             $(".step-five-other").addClass('active');
-            //         })
-            //         .catch(error => {
-            //             notification('error',
-            //                 'Something went wrong when sending receipt to client. Please try again');
-            //             swal.close()
-            //         })
-            // })
-
             
 
             $("#upload-idr").on('click', function() {

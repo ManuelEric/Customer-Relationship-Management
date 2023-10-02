@@ -319,7 +319,12 @@
                     <td width="40%" align="center" valign="top">
                         {{ $companyDetail['name'] }}
                         <br><br><br><br><br><br><br>
-                        Nicholas Hendra Soepriatna <br>
+                        @if (isset($director)) 
+                            {{ $director }} 
+                        @else
+                            * Director name *
+                        @endif
+                        <br>
                         Director
                     </td>
                 </tr>

@@ -49,6 +49,7 @@ class StoreClientStudentRequest extends FormRequest
             'address' => 'nullable',
             'st_grade' => 'required',
             'st_graduation_year' => 'nullable',
+            'gap_year' => 'nullable',
             'sch_id' => [
                 'required',
                 function ($attribute, $value, $fail) {

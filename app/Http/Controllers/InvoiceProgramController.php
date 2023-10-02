@@ -605,8 +605,8 @@ class InvoiceProgramController extends Controller
         $invoice_id = $clientProg->invoice->inv_id;
 
         $type = $request->get('type');
-        $to = $request->get('to');
-        $name = $request->get('name');
+        $to = $request->get('to'); # our director mail
+        $name = $request->get('name'); # our director name
 
         if ($type == "idr")
             $view = 'pages.invoice.client-program.export.invoice-pdf';
@@ -638,7 +638,7 @@ class InvoiceProgramController extends Controller
 
             # generate invoice as a PDF file
             $file_name = str_replace('/', '-', $invoice_id) . '-' . $type;
-            $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail]);
+            $pdf = PDF::loadView($view, ['clientProg' => $clientProg, 'companyDetail' => $companyDetail, 'director' => $name]);
             Storage::put('public/uploaded_file/invoice/client/' . $file_name . '.pdf', $pdf->output());
 
             # insert to invoice attachment
@@ -684,6 +684,7 @@ class InvoiceProgramController extends Controller
     public function sendToClient(Request $request)
     {
         $clientprog_id = $request->route('client_program');
+        $type_recipient = $request->route('type_recipient');
         $clientProg = $this->clientProgramRepository->getClientProgramById($clientprog_id);
         $invoice = $clientProg->invoice;
         $invoice_id = $invoice->inv_id;
@@ -691,17 +692,25 @@ class InvoiceProgramController extends Controller
         $attachment = $invoice->invoiceAttachment()->where('currency', $currency)->first();
 
         $pic_mail = $clientProg->internalPic->email;
+        
 
+        switch ($type_recipient) {
+            case 'Parent':
+                $data['email'] = $clientProg->client->parents[0]->mail;
+                $data['recipient'] = $clientProg->client->parents[0]->full_name;
+                break;
 
-        $data['email'] = $clientProg->client->parents[0]->mail;
-        // $data['email'] = $clientProg->client->mail;
+            case 'Client':
+                $data['email'] = $clientProg->client->mail;
+                $data['recipient'] = $clientProg->client->full_name;
+                break;
+        }
+
         $data['cc'] = [
             env('CEO_CC'),
             env('FINANCE_CC'),
             $pic_mail
         ];
-        $data['recipient'] = $clientProg->client->parents[0]->full_name;
-        // $data['recipient'] = $clientProg->client->full_name;
         $data['param'] = [
             'clientprog_id' => $clientprog_id,
             'program_name' => $clientProg->program->program_name
@@ -935,18 +944,29 @@ class InvoiceProgramController extends Controller
         return response()->json(['link' => $link]);
     }
 
-    public function updateParentMail(Request $request)
+    public function updateMail(Request $request)
     {
 
-        $client = $this->clientRepository->getClientById($request->parent_id);
-        $parent_mail = $request->parent_mail;
+        $client = $this->clientRepository->getClientById($request->client_id);
+        $mail = $request->mail;
 
         
         if(isset($client)){
-            $client->mail != $parent_mail ? $this->clientRepository->updateClient($client->id, ['mail' => $parent_mail]) : null;
+            DB::beginTransaction();
+            try {
+
+                $client->mail != $mail ? $this->clientRepository->updateClient($client->id, ['mail' => $mail]) : null;
+                DB::commit();
+
+            } catch (Exception $e) {
+
+                DB::rollBack();
+                Log::error('Failed to update client mail '. $e->getMessage().' | line '.$e->getLine() );
+                return response()->json(['status' => 'failed', 'message' => 'Something went wrong. Please try again or contact the administrator.'], 500);
+            }
         }
 
 
-        return response()->json(['status' => 'success', 'message' => 'Success Update Email Parent'], 200);
+        return response()->json(['status' => 'success', 'message' => 'Success Update Email Client'], 200);
     }
 }

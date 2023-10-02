@@ -172,8 +172,11 @@ class EventController extends Controller
         DB::beginTransaction();
         try {
 
+            // return $request->all();
+
             # check if the banner event is changed or not
-            if (isset($request->change_banner) && $request->change_banner == "yes") {
+            // if (isset($request->change_banner) && $request->change_banner == "yes") {
+            if (isset($request->change_banner)) {
                 
                 # get existing banner as a file
                 if ($existingBannerName = $request->old_event_banner) {
@@ -181,12 +184,13 @@ class EventController extends Controller
                     if (File::exists($existingImagePath))
                         File::delete($existingImagePath);
     
-                    # upload banner 
-                    if ($request->file('event_banner')) {
-                        $fileName = time() . '-' . $eventId .'.'. $request->event_banner->extension();
-                        $request->event_banner->storeAs(null, $fileName, 'uploaded_file_event');
-                        $newDetails['event_banner'] = $fileName;
-                    }
+                }
+
+                # upload banner 
+                if ($request->file('event_banner')) {
+                    $fileName = time() . '-' . $eventId .'.'. $request->event_banner->extension();
+                    $request->event_banner->storeAs(null, $fileName, 'uploaded_file_event');
+                    $newDetails['event_banner'] = $fileName;
                 }
             }
 

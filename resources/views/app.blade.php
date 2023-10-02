@@ -326,11 +326,11 @@
             }, 7000);
         }
 
-        $(document).ready(function() {
-            $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
-                window.location.href = "{{ route('logout.expiration') }}"
-            };
-        })
+        // $(document).ready(function() {
+        //     $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
+        //         window.location.href = "{{ route('logout.expiration') }}"
+        //     };
+        // })
     </script>
 
     {{-- Confirm Delete & Deactivate Modal  --}}
@@ -380,6 +380,9 @@
             var link = subject + '/' + id
             $('#send-to-client--app-0604').unbind('click');
             $("#send-to-client--app-0604").bind('click', function() {
+                if (typeof updateMail == "function")
+                    updateMail()
+
                 sendToClient(link)
             })
         }

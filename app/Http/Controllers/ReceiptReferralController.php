@@ -14,6 +14,7 @@ use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateReceiptIdTrait;
+use App\Http\Traits\DirectorListTrait;
 use App\Models\Receipt;
 use Carbon\Carbon;
 use Exception;
@@ -30,6 +31,7 @@ use PDF;
 
 class ReceiptReferralController extends Controller
 {
+    use DirectorListTrait;
     use CreateReceiptIdTrait;
     protected CorporateRepositoryInterface $corporateRepository;
     protected ReferralRepositoryInterface $referralRepository;
@@ -187,6 +189,10 @@ class ReceiptReferralController extends Controller
         $currency = $request->route('currency');
 
         $receiptRef = $this->receiptRepository->getReceiptById($receipt_id);
+        $director = $receiptRef->invoiceB2b->invoiceAttachment()->first();
+        
+        # directors name
+        $name = $this->getDirectorByEmail($director->recipient);
 
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
@@ -195,7 +201,13 @@ class ReceiptReferralController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf', ['receiptRef' => $receiptRef, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+        $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf', 
+                [
+                    'receiptRef' => $receiptRef, 
+                    'currency' => $currency, 
+                    'companyDetail' => $companyDetail,
+                    'director' => $name
+                ]);
 
         # Update status download
         $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
@@ -467,6 +479,10 @@ class ReceiptReferralController extends Controller
         $currency = $request->route('currency');
 
         $receiptRef = $this->receiptRepository->getReceiptById($receipt_identifier);
+        $director = $receiptRef->invoiceB2b->invoiceAttachment()->first();
+        
+        # directors name
+        $name = $this->getDirectorByEmail($director->recipient);
 
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
@@ -475,7 +491,13 @@ class ReceiptReferralController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf', ['receiptRef' => $receiptRef, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+        $pdf = PDF::loadView('pages.receipt.referral.export.receipt-pdf', 
+                [
+                    'receiptRef' => $receiptRef, 
+                    'currency' => $currency, 
+                    'companyDetail' => $companyDetail,
+                    'director' => $name
+                ]);
 
         return $pdf->stream();
     }

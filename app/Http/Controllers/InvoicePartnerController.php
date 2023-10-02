@@ -458,8 +458,8 @@ class InvoicePartnerController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $data['email'] = $to;
-        $data['recipient'] = $name;
+        $data['email'] = $to; # our director email
+        $data['recipient'] = $name; # our director name
         $data['title'] = "Request Sign of Invoice Number : " . $invoice_id;
         $data['param'] = [
             'invb2b_num' => $invoice_num,
@@ -475,7 +475,8 @@ class InvoicePartnerController extends Controller
             $pdf = PDF::loadView('pages.invoice.corporate-program.export.invoice-pdf', [
                 'invoicePartner' => $invoicePartner,
                 'currency' => $currency,
-                'companyDetail' => $companyDetail
+                'companyDetail' => $companyDetail,
+                'director' => $name
             ]);
 
             # Generate PDF file
@@ -618,8 +619,9 @@ class InvoicePartnerController extends Controller
         }
 
         # get partner pic
-        $getPartnerPics = $invoicePartner->partner_prog->corp->pic->where('is_pic', '1')->toArray();
-        $pic = $getPartnerPics[0];
+        #$getPartnerPics = $invoicePartner->partner_prog->corp->pic->where('is_pic', '1')->toArray();
+        #$pic = $getPartnerPics[0];
+
         # uncomment if they want the email send directly to pic partner 
         #$data['email'] = $pic->pic_mail;
         #$data['recipient'] = $pic->pic_name;

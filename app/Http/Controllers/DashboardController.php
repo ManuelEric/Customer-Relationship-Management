@@ -45,6 +45,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use App\Models\v1\Student as CRMStudent;
+use Carbon\CarbonImmutable;
 
 class DashboardController extends SalesDashboardController
 {
@@ -109,50 +110,8 @@ class DashboardController extends SalesDashboardController
     }
 
     public function index(Request $request)
-    {
+    {   
 
-        # will delete soon
-        // $new_lead = $this->clientRepository->getNewLeads(false, null);
-        // $potential = $this->clientRepository->getPotentialClients(false, null);
-        // $existing_mentee = $this->clientRepository->getExistingMentees(false, null);
-        // $existing_nonmentee = $this->clientRepository->getExistingNonMentees(false, null);
-        // $alumni_mentee = $this->clientRepository->getAlumniMentees(false, false, null);
-        // $alumni_nonmentee = $this->clientRepository->getAlumniNonMentees(false, false, null);
-        // $parents = $this->clientRepository->getParents(false, null);
-
-        // $new_lead = $new_lead->pluck('id')->toArray();
-        // $potential = $potential->pluck('id')->toArray();
-        // $merge = array_merge($new_lead, $potential);
-        // $existing_mentee = $existing_mentee->pluck('id')->toArray();
-        // $merge = array_merge($merge, $existing_mentee);
-        // $existing_nonmentee = $existing_nonmentee->pluck('id')->toArray();
-        // $merge = array_merge($merge, $existing_nonmentee);
-        // $alumni_mentee = $alumni_mentee->pluck('id')->toArray();
-        // $merge = array_merge($merge, $alumni_mentee);
-        // $alumni_nonmentee = $alumni_nonmentee->pluck('id')->toArray();
-        // $merge = array_merge($merge, $alumni_nonmentee);
-        // $collect = collect($merge);
-
-        // return $collect->duplicates();
-
-        // $merge_1 = $new_lead->merge($potential);
-        // $merge_2 = $merge_1->merge($existing_mentee);
-        // $merge_3 = $merge_2->merge($existing_nonmentee);
-        // $merge_4 = $merge_3->merge($alumni_mentee);
-        // $merge_5 = $merge_4->merge($alumni_nonmentee);        
-        // $merge_6 = $merge_5->merge($parents);
-        // return $merge_6->map(function($item) {
-        //     return [
-        //     return [
-        //         'id' => $item['id'],
-        //         'first_name' => $item['first_name'],
-        //         'last_name' => $item['last_name'],
-        //     ];
-        // })->pluck('id')->toArray(); 
-        
-        // $data = (new AlarmController($this))->get($request);
-        // return $data;
-        // exit;
         $data = (new SalesDashboardController($this))->get($request);
         $data = array_merge($data, (new PartnerDashboardController($this))->get($request));
         $data = array_merge($data, (new FinanceDashboardController($this))->get($request));

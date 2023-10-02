@@ -77,6 +77,13 @@
                                     {{ $companyDetail['city'] }}
                                     <br><br>
                                 </td>
+                                {{-- <td width="85%"><b>Jawara Edukasih International Pte Ltd</b><br>
+                                    10 Anson Road<br>
+                                    #27-18<br>
+                                    International Plaza <br>
+                                    Singapore (079903)
+                                    <br><br>
+                                </td> --}}
                             </tr>
                         </table>
                     </td>
@@ -265,7 +272,12 @@
                         {{-- PT. Jawara Edukasih Indonesia --}}
                         Jakarta, {{ isset($receiptPartner->receipt_date) ? date('d F Y', strtotime($receiptPartner->receipt_date)) : date('d F Y', strtotime($receiptPartner->created_at)) }}
                         <br><br><br><br><br><br><br>
-                        Nicholas Hendra Soepriatna <br>
+                        @if (isset($director)) 
+                            {{ $director }} 
+                        @else
+                            * Director name *
+                        @endif
+                        <br>
                         Director
                     </td>
                 </tr>

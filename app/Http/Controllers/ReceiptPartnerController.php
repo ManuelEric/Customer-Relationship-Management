@@ -16,6 +16,7 @@ use App\Interfaces\ReceiptAttachmentRepositoryInterface;
 use App\Interfaces\RefundRepositoryInterface;
 use App\Interfaces\AxisRepositoryInterface;
 use App\Http\Traits\CreateReceiptIdTrait;
+use App\Http\Traits\DirectorListTrait;
 use App\Models\Invb2b;
 use App\Models\Receipt;
 use Carbon\Carbon;
@@ -32,6 +33,7 @@ use PDF;
 
 class ReceiptPartnerController extends Controller
 {
+    use DirectorListTrait;
     use CreateReceiptIdTrait;
     protected SchoolRepositoryInterface $schoolRepository;
     protected PartnerProgramRepositoryInterface $partnerProgramRepository;
@@ -207,8 +209,18 @@ class ReceiptPartnerController extends Controller
         $file_name = str_replace('/', '-', $receipt_id) . '-' . ($currency == 'idr' ? $currency : 'other') . '.pdf';
 
         $receiptPartner = $this->receiptRepository->getReceiptById($receipt_id);
+
         $invb2b_id = isset($receiptPartner->invdtl_id) ? $receiptPartner->invoiceInstallment->invb2b_id : $receiptPartner->invb2b_id;
         $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
+        
+        # when invoice is installment
+        if (isset($receiptPartner->invdtl_id))
+            $director = $receiptPartner->invoiceInstallment->invoiceAttachment()->first();
+        else
+            $director = $receiptPartner->invoiceB2b->invoiceAttachment()->first();
+        
+        # directors name
+        $name = $this->getDirectorByEmail($director->recipient);
 
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
@@ -217,7 +229,14 @@ class ReceiptPartnerController extends Controller
             'city' => env('ALLIN_CITY')
         ];
 
-        $pdf = PDF::loadView('pages.receipt.corporate-program.export.receipt-pdf', ['receiptPartner' => $receiptPartner, 'invoicePartner' => $invoicePartner, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+        $pdf = PDF::loadView('pages.receipt.corporate-program.export.receipt-pdf', 
+            [
+                'receiptPartner' => $receiptPartner, 
+                'invoicePartner' => $invoicePartner, 
+                'currency' => $currency, 
+                'companyDetail' => $companyDetail,
+                'director' => $name
+            ]);
 
         # Update status download
         $this->receiptRepository->updateReceipt($receipt_id, ['download_' . $currency => 1]);
@@ -500,14 +519,30 @@ class ReceiptPartnerController extends Controller
         $invb2b_id = isset($receiptPartner->invdtl_id) ? $receiptPartner->invoiceInstallment->invb2b_id : $receiptPartner->invb2b_id;
         $invoicePartner = $this->invoiceB2bRepository->getInvoiceB2bByInvId($invb2b_id)->first();
 
+         # when invoice is installment
+        if (isset($receiptPartner->invdtl_id))
+            $director = $receiptPartner->invoiceInstallment->invoiceAttachment()->first();
+        else
+            $director = $receiptPartner->invoiceB2b->invoiceAttachment()->first();
+        
+        # directors name
+        $name = $this->getDirectorByEmail($director->recipient);
+
         $companyDetail = [
             'name' => env('ALLIN_COMPANY'),
             'address' => env('ALLIN_ADDRESS'),
             'address_dtl' => env('ALLIN_ADDRESS_DTL'),
-            'city' => env('ALLIN_CITY')
+            'city' => env('ALLIN_CITY'),
         ];
 
-        $pdf = PDF::loadView('pages.receipt.corporate-program.export.receipt-pdf', ['receiptPartner' => $receiptPartner, 'invoicePartner' => $invoicePartner, 'currency' => $currency, 'companyDetail' => $companyDetail]);
+        $pdf = PDF::loadView('pages.receipt.corporate-program.export.receipt-pdf', 
+                [
+                    'receiptPartner' => $receiptPartner, 
+                    'invoicePartner' => $invoicePartner, 
+                    'currency' => $currency, 
+                    'companyDetail' => $companyDetail,
+                    'director' => $name
+                ]);
 
         return $pdf->stream();
     }

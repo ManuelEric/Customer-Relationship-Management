@@ -766,6 +766,7 @@ class ClientProgramController extends Controller
             abort('404');
         
         $program = $this->programRepository->getProgramByName($programName);
+
         $leads = $this->leadRepository->getLeadForFormEmbedEvent();
         $schools = $this->schoolRepository->getAllSchools();
         $tags = $this->tagRepository->getAllTags();
@@ -941,7 +942,7 @@ class ClientProgramController extends Controller
 
             DB::rollBack();
             Log::error('Failed to register client from form program embed | error : '.$e->getMessage().' | Line : '.$e->getLine());
-            return Redirect::to('form/program?program_name='.$program->prog_program)->withErrors('Something went wrong. Please try again or contact our administrator.');
+            return Redirect::to('form/program?program_name='.$program->program_name)->withErrors('Something went wrong. Please try again or contact our administrator.');
         
         }
 

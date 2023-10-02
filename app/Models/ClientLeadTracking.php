@@ -28,6 +28,7 @@ class ClientLeadTracking extends Model
         'initialprogram_id',
         'type',
         'total_result',
+        'potential_point', # for digital team only
         'status',
         'reason_id'
     ];
