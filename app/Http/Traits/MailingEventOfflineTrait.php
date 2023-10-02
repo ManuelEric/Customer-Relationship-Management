@@ -18,7 +18,7 @@ trait MailingEventOfflineTrait
     use CreateReferralCodeTrait;
     use CreateShortUrlTrait;
     
-    public function register($email, $event_id, $notes)
+    public function register($email, $event_id, $notes, $indexChild)
     {
         $data = [
             'success' => false,
@@ -36,7 +36,7 @@ trait MailingEventOfflineTrait
 
             $clientEvents = [
                 'client_id' => $client_id,
-                'child_id' => $client->childrens->count() > 0 ? $client->childrens[0]->id : null,
+                'child_id' => $client->childrens->count() > 0 ? $client->childrens[$indexChild]->id : null,
                 'event_id' => $event_id,
                 'lead_id' => 'LS012',
                 'status' => 0,
@@ -160,7 +160,7 @@ trait MailingEventOfflineTrait
 
     }
 
-    public function sendMailInvitation($email, $event_id, $for)
+    public function sendMailInvitation($email, $event_id, $for, $indexChild, $notes)
     {
 
         try {
@@ -171,13 +171,13 @@ trait MailingEventOfflineTrait
             $data['email'] = $email;
             $data['event_id'] = $event_id;
             $data['recipient'] = $client->full_name;
-            $data['title'] = "[VIP Special Invitation] STEM+ Wonderlab, Indonesia’s FIRST Student Makerspace Expo";
+            $data['title'] = "[" . $notes . "Special Invitation] STEM+ Wonderlab, Indonesia's FIRST Student Makerspace Expo";
             $data['param'] = [
                 'referral_page' => route('program.event.referral-page',[
                     'event_slug' => urlencode($event->event_title),
                     'refcode' => $this->createReferralCode($client->first_name, $client->id)
                 ]),                  
-                'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id .'/VIP'),
+                'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id .'/'. $notes .'/'. $indexChild),
             ];
             $data['event'] = [
                 'eventName' => $event->event_title,

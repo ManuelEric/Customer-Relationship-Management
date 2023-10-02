@@ -454,9 +454,9 @@
                                 <select name="notes" id="" class="select w-100"
                                     {{ empty($clientEvent) || isset($edit) ? '' : 'disabled' }}>
                                     @if (isset($clientEvent) && isset($clientEvent->notes))
-                                        <option value="VVIP" {{ $clientEvent->status == 'VVIP' ? 'selected' : '' }}>VVIP
+                                        <option value="VVIP" {{ $clientEvent->notes == 'VVIP' ? 'selected' : '' }}>VVIP
                                         </option>
-                                        <option value="VIP" {{ $clientEvent->status == 'VIP' ? 'selected' : '' }}>VIP
+                                        <option value="VIP" {{ $clientEvent->notes == 'VIP' ? 'selected' : '' }}>VIP
                                         </option>
                                     @else
                                         <option value="">-</option>

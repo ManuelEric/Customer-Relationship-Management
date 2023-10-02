@@ -13,8 +13,8 @@ use App\Http\Traits\MailingEventOfflineTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
 use App\Imports\ClientEventImport;
-use App\Imports\InvitaionMailImport;
-use App\Imports\InvitationMailImport;
+use App\Imports\InvitationMailVIPImport;
+use App\Imports\InvitationMailVVIPImport;
 use App\Imports\ThankMailImport;
 use App\Imports\ReminderEventImport;
 use App\Imports\ReminderReferralImport;
@@ -480,11 +480,11 @@ class ClientEventController extends Controller
         $import = '';
         switch ($type) {
             case 'VVIP':
-                $import = new ThankMailImport;
+                $import = new InvitationMailVVIPImport;
                 break;
 
             case 'VIP':
-                $import = new InvitationMailImport;
+                $import = new InvitationMailVIPImport;
                 break;
 
             case 'reminder_registration':
@@ -1255,8 +1255,9 @@ class ClientEventController extends Controller
         $client = $this->clientRepository->getClientById($clientId);
         $eventId = $request->route('event');
         $notes = $request->route('notes');
+        $indexChild = $request->route('index_child');
 
-        $dataRegister = $this->register($client->mail, $eventId, $notes);
+        $dataRegister = $this->register($client->mail, $eventId, $notes, $indexChild);
 
         if($dataRegister['success'] && !$dataRegister['already_join']){
             return Redirect::to('form/thanks');

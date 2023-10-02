@@ -20,7 +20,7 @@ use App\Models\UserClient;
 use App\Models\UserClientAdditionalInfo;
 use Illuminate\Support\Facades\Mail;
 
-class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidation
+class InvitationMailVVIPImport implements ToCollection, WithHeadingRow, WithValidation
 {
     /**
      * @param Collection $collection
@@ -38,7 +38,7 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
         
         foreach ($rows as $row) {
                 
-            $this->sendMailInvitation($row['email'], $row['event_id'], 'first-send');
+            $this->sendMailInvitation($row['email'], $row['event_id'], 'first-send', $row['index_child'], 'VVIP');
                
         }
     }
@@ -47,12 +47,11 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
 
     public function prepareForValidation($data)
     {
-
-   
         $data = [
             'event_id' => $data['event_id'],
             'full_name' => $data['full_name'],
             'email' => $data['email'],
+            'index_child' => $data['index_child'],
         ];
 
         return $data;
@@ -64,6 +63,7 @@ class InvitationMailImport implements ToCollection, WithHeadingRow, WithValidati
             '*.event_id' => ['required'],
             '*.full_name' => ['required'],
             '*.email' => ['required', 'exists:tbl_client,mail'],
+            '*.index_child' => ['required'],
         ];
     }
 
