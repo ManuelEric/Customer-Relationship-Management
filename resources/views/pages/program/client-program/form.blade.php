@@ -22,6 +22,15 @@
         <div class="col-md-4">
             <div class="card rounded mb-3">
                 <div class="card-body text-center">
+                    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
                     <h3><i class="bi bi-person"></i></h3>
                     <h4>{{ $student->fullname }}</h4>
                     @if (!request()->is('program/client/create*'))
