@@ -58,7 +58,7 @@ Route::post('form/events', [ClientEventController::class, 'storeFormEmbed'])->na
 Route::put('form/event/attend/{clientevent}', [ClientEventController::class, 'handlerScanQrCodeForAttend'])->name('link-event-attend')->withoutMiddleware(['auth', 'auth.department']);
 
 Route::get('form/program', [ClientProgramController::class, 'createFormEmbed']);
-Route::post('form/program', [ClientProgramController::class, 'storeFormEmbed']);
+Route::post('form/program', [ClientProgramController::class, 'storeFormEmbed'])->withoutMiddleware(['auth', 'auth.department']);
 
 Route::get('form/registration', [PublicRegistrationController::class, 'register']);
 Route::post('form/registrations', [PublicRegistrationController::class, 'store'])->name('submit.registration');

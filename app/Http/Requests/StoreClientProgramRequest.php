@@ -165,10 +165,11 @@ class StoreClientProgramRequest extends FormRequest
                         }
                     ];
 
-                } elseif (in_array($this->input('prog_id'), $tutoring_prog_id))
+                } elseif (in_array($this->input('prog_id'), $tutoring_prog_id)){
                     $rules = $this->store_tutoring_success($isMentee);
-                elseif (in_array($this->input('prog_id'), $satact_prog_id))
+                }elseif (in_array($this->input('prog_id'), $satact_prog_id)){
                     $rules = $this->store_satact_success($isMentee, $studentId);
+                }
 
                 
                 break;
