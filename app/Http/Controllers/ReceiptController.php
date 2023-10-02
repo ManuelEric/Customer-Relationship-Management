@@ -148,7 +148,26 @@ class ReceiptController extends Controller
     {
         $receiptId = $request->route('receipt');
         $receipt = $this->receiptRepository->getReceiptById($receiptId);
-        $director = $receipt->invoiceProgram->invoiceAttachment()->first();
+
+        switch ($receipt->receipt_cat) {
+
+            case "referral":
+            case "school":
+            case "partner":
+                $payment_method = $receipt->invoiceB2b->invb2b_pm;
+                if ($payment_method == "Full Payment") {
+                    $director = $receipt->invoiceB2b->invoiceAttachment()->first();
+                } else if ($payment_method == "Installment") {
+                    $director = $receipt->invoiceInstallment->inv_b2b->invoiceAttachment()->first();
+                }
+                break;
+
+            case "student":
+                $director = $receipt->invoiceProgram->invoiceAttachment()->first();
+                break;
+
+        }
+        
         
         # directors name
         $name = $this->getDirectorByEmail($director->recipient);
@@ -277,7 +296,11 @@ class ReceiptController extends Controller
             $attachment->save();
 
             $file_name = str_replace('/', '_', $receipt->receipt_id);
-            $pdf = PDF::loadView($view, ['receipt' => $receipt, 'companyDetail' => $companyDetail]);
+            $pdf = PDF::loadView($view, [
+                'receipt' => $receipt, 
+                'companyDetail' => $companyDetail,
+                'director' => $this->getDirectorByEmail($to)
+            ]);
 
             Mail::send('pages.receipt.client-program.mail.view', $data, function ($message) use ($data, $pdf, $receipt) {
                 $message->to($data['email'], $data['recipient'])

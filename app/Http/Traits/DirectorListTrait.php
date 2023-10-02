@@ -20,7 +20,7 @@ trait DirectorListTrait
     public function getDirectorByEmail(string $email)
     {
         # returned directors name
-        $find_index = array_search($email, $this->directors);
+        $find_index = array_search($email, array_column($this->directors, 'email'));
         return $this->directors[$find_index]['name'];
     }
 }
