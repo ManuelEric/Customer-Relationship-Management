@@ -389,11 +389,20 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4" id="studentYear">
+                    <div class="col-md-2" id="studentYear">
                         <div class="mb-2">
                             <label>Graduation Year</label>
                             <input type="text" class="form-control form-control-sm" id="auto_grad_year" name="graduation_year" readonly value="{{isset($student) ? $student->graduation_year : old('graduation_year') }}">
                             @error('graduation_year')
+                                <small class="text-danger fw-light">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="mb-2">
+                            <label>Gap Year</label>
+                            <input type="text" class="form-control form-control-sm" name="gap_year" value="{{isset($student) ? $student->gap_year : old('gap_year') }}">
+                            @error('gap_year')
                                 <small class="text-danger fw-light">{{ $message }}</small>
                             @enderror
                         </div>

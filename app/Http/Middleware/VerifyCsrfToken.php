@@ -14,5 +14,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'form/events',
         'form/registrations',
+        'form/program',
     ];
 }

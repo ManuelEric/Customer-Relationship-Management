@@ -16,7 +16,7 @@ trait CheckExistingClient {
         if ($clientExistPhone && $clientExistEmail) {
             $existClient['isExist'] = true;
             $existClient['id'] = $clientExistPhone['id'];
-        } else if ($clientExistPhone && !$clientExistEmail) {
+        } else if ($clientExistPhone && !$clientExistEmail && isset($email)) {
             $existClient['isExist'] = true;
             $existClient['id'] = $clientExistPhone['id'];
 
@@ -27,7 +27,7 @@ trait CheckExistingClient {
                 'value' => $email,
             ];
             UserClientAdditionalInfo::create($additionalInfo);
-        } else if (!$clientExistPhone && $clientExistEmail) {
+        } else if (!$clientExistPhone && $clientExistEmail && isset($phone)) {
             $existClient['isExist'] = true;
             $existClient['id'] = $clientExistEmail['id'];
 
