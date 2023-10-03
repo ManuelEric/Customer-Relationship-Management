@@ -64,10 +64,10 @@
                     <div class="bg-secondary px-3 text-white" style="padding-top:10px ">IDR</div>
                     <div class="border p-1 text-center">
                         <div class="d-flex gap-1 justify-content-center">
-                            @if (!$receipt->receiptAttachment()->where('currency', 'idr')->first())
+                            @if (!$receipt->receiptAttachment()->where('currency', 'idr')->whereNotNull('attachment')->first())
                                 <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Download">
-                                    <a href="#" class="text-info">
+                                    <a href="#" class="text-info" id="openModalChooseDirector" data-curr="idr" data-bs-toggle="modal" data-bs-target="#chooseDirector">
                                         <i class="bi bi-download"></i>
                                     </a>
                                 </div>
@@ -77,15 +77,14 @@
                                         <i class="bi bi-upload"></i>
                                     </a>
                                 </div>
-                            @elseif ($receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->first())
+                            @elseif ($receipt->receiptAttachment()->where('currency', 'idr')->where('sign_status', 'not yet')->whereNotNull('attachment')->first())
                                 {{-- <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                     data-bs-title="Request Sign" id="request-acc">
                                     <a href="" class="text-info">
                                         <i class="bi bi-pen-fill"></i>
                                     </a>
                                 </div> --}}
-                                <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="idr"
-                                    data-bs-toggle="modal" data-bs-target="#requestSignModal">
+                                <div class="btn btn-sm py-1 border btn-light" onclick="confirmRequestSign('{{ route('receipt.client-program.request_sign', ['receipt' => $receipt->id]) }}', 'idr')">
                                     <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
                                         <i class="bi bi-pen-fill"></i>
                                     </a>
@@ -123,11 +122,11 @@
                         <div class="bg-secondary px-3 text-white" style="padding-top:10px ">Other Currency</div>
                         <div class="border p-1 text-center">
                             <div class="d-flex gap-1 justify-content-center">
-                                @if (!$receipt->receiptAttachment()->where('currency', 'other')->first())
+                                @if (!$receipt->receiptAttachment()->where('currency', 'other')->whereNotNull('attachment')->first())
                                     {{-- @if ($receipt->invoiceProgram->invoiceAttachment()->where('currency', 'other')->first()) --}}
                                     <div id="print-other" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Download">
-                                        <a href="" class="text-info">
+                                        <a href="" class="text-info" id="openModalChooseDirector" data-curr="other" data-bs-toggle="modal" data-bs-target="#chooseDirector">
                                             <i class="bi bi-download"></i>
                                         </a>
                                     </div>
@@ -139,19 +138,18 @@
                                         </a>
                                     </div>
                                     {{-- @endif --}}
-                                @elseif ($receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->first())
-                                    {{-- <div id="request-acc-other" class="btn btn-sm py-1 border btn-light"
-                                        data-bs-toggle="tooltip" data-bs-title="Request Sign" id="request-acc-other">
-                                        <a href="" class="text-info">
-                                            <i class="bi bi-pen-fill"></i>
-                                        </a>
-                                    </div> --}}
-                                    <div class="btn btn-sm py-1 border btn-light" id="openModalRequestSignIdr" data-curr="other"
-                                        data-bs-toggle="modal" data-bs-target="#requestSignModal">
-                                        <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
-                                            <i class="bi bi-pen-fill"></i>
-                                        </a>
-                                    </div>
+                                @elseif ($receipt->receiptAttachment()->where('currency', 'other')->where('sign_status', 'not yet')->whereNotNull('attachment')->first())
+                                {{-- <div id="request-acc-other" class="btn btn-sm py-1 border btn-light"
+                                    data-bs-toggle="tooltip" data-bs-title="Request Sign" id="request-acc-other">
+                                    <a href="" class="text-info">
+                                        <i class="bi bi-pen-fill"></i>
+                                    </a>
+                                </div> --}}
+                                <div class="btn btn-sm py-1 border btn-light"  onclick="confirmRequestSign('{{ route('receipt.client-program.request_sign', ['receipt' => $receipt->id]) }}', 'other')">
+                                    <a href="#" class="text-info" data-bs-toggle="tooltip" data-bs-title="Request Sign">
+                                        <i class="bi bi-pen-fill"></i>
+                                    </a>
+                                </div>
                                 @else
                                     <div class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Print Receipt">
@@ -190,11 +188,12 @@
                 <div class="card-body position-relative h-auto pb-5">
                     {{-- IDR  --}}
                     @php
-                        $receiptHasBeenDownloaded = $receipt->download_idr;
+                        $receiptHasBeenDownloaded = $receipt->receiptAttachment()->where('currency', 'idr')->where('request_status', 'not yet')->first();
                         $receiptHasBeenStamped =
                             $receipt
                                 ->receiptAttachment()
                                 ->where('currency', 'idr')
+                                ->whereNotNull('attachment')
                                 ->count() > 0
                                 ? true
                                 : false; # with e-materai / uploaded
@@ -312,11 +311,12 @@
 
                     {{-- Other  --}}
                     @php
-                        $receiptHasBeenDownloaded_other = $receipt->download_other;
+                        $receiptHasBeenDownloaded_other = $receipt->receiptAttachment()->where('currency', 'other')->where('request_status', 'not yet')->first();
                         $receiptHasBeenStamped_other =
                             $receipt
                                 ->receiptAttachment()
                                 ->where('currency', 'other')
+                                ->whereNotNull('attachment')
                                 ->count() > 0
                                 ? true
                                 : false; # with e-materai / uploaded
@@ -324,7 +324,7 @@
                             ->receiptAttachment()
                             ->where('currency', 'other')
                             ->where('sign_status', 'not yet')
-                            ->where('request_status', 1)
+                            ->where('request_status', 'requested')
                             ->first();
                         $receiptHasBeenSigned_other = $receipt
                             ->receiptAttachment()
@@ -673,7 +673,7 @@
                 .then(response => {
                     swal.close()
                     notification('success', 'Receipt has been send to client')
-                    $(".step-five").addClass('active');
+                    location.reload()
                 })
                 .catch(error => {
                     var message = error.response.data.message;
@@ -724,6 +724,17 @@
 
         });
 
+        $(document).on("click", "#openModalChooseDirector", function() {
+            var curr = $(this).data('curr');
+            var currency = "'" + curr + "'";
+
+            var url = "{{ route('receipt.client-program.export', ['receipt' => $receipt->id]) }}"
+
+            $("#download").attr("onclick", "downloadFile('"+ url +"', "+ currency +")");
+        });
+
+
+
         $(document).ready(function() {
             $('.modal-select').select2({
                 dropdownParent: $('#addReceipt .modal-content'),
@@ -740,96 +751,63 @@
                 $("#currency").val('other');
             })
 
-            $("#print").on('click', function(e) {
-                e.preventDefault();
+            
+        });
 
-                showLoading()
-                axios
-                    .get('{{ route('receipt.client-program.export', ['receipt' => $receipt->id]) }}', {
-                        responseType: 'arraybuffer',
-                        params: {
-                            type: 'idr'
-                        }
-                    })
-                    .then(response => {
+        function downloadFile(url, type) {
 
+            var selectedDirector = $("input[name=pic_sign]:checked").val();
+
+            showLoading()
+            axios
+                .get(url, {
+                    responseType: 'arraybuffer',
+                    params: {
+                        type: type,
+                        selectedDirectorMail: selectedDirector
+                    }
+                })
+                .then(response => {
+                    
+                    if (type == "idr") {
                         @php
                             $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . 'idr' . '.pdf';
                         @endphp
-
-                        let blob = new Blob([response.data], {
-                                type: 'application/pdf'
-                            }),
-                            url = window.URL.createObjectURL(blob)
-
-                        // create <a> tag dinamically
-                        var fileLink = document.createElement('a');
-                        fileLink.href = url;
-
-                        // it forces the name of the downloaded file
-                        fileLink.download = '{{ $file_name }}';
-
-                        // triggers the click event
-                        fileLink.click();
-
-                        window.open(
-                            url
-                        ) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
-                        swal.close()
-                        notification('success', 'Receipt in Rupiah has been exported')
-                        $(".step-one").addClass('active');
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong while exporting the receipt')
-                        swal.close()
-                    })
-            })
-
-            $("#print-other").on('click', function(e) {
-                e.preventDefault();
-
-                showLoading()
-                axios
-                    .get('{{ route('receipt.client-program.export', ['receipt' => $receipt->id]) }}', {
-                        responseType: 'arraybuffer',
-                        params: {
-                            type: 'other'
-                        }
-                    })
-                    .then(response => {
-
+                    } else if (type == "other") {
                         @php
                             $file_name = str_replace('/', '-', $receipt->receipt_id) . '-' . 'other' . '.pdf';
                         @endphp
+                    }
 
-                        let blob = new Blob([response.data], {
-                                type: 'application/pdf'
-                            }),
-                            url = window.URL.createObjectURL(blob)
+                    let blob = new Blob([response.data], {
+                            type: 'application/pdf'
+                        }),
+                        url = window.URL.createObjectURL(blob)
 
-                        // create <a> tag dinamically
-                        var fileLink = document.createElement('a');
-                        fileLink.href = url;
+                    // create <a> tag dinamically
+                    var fileLink = document.createElement('a');
+                    fileLink.href = url;
 
-                        // it forces the name of the downloaded file
-                        fileLink.download = '{{ $file_name }}';
+                    // it forces the name of the downloaded file
+                    fileLink.download = '{{ $file_name }}';
 
-                        // triggers the click event
-                        fileLink.click();
+                    // triggers the click event
+                    fileLink.click();
 
-                        window.open(
-                            url
-                        ) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
-                        swal.close()
-                        notification('success', 'Receipt in Rupiah has been exported')
-                        $(".step-one-other").addClass('active');
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong while exporting the receipt')
-                        swal.close()
-                    })
-            })
-        });
+                    window.open(
+                        url
+                    ) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
+                    swal.close()
+                    notification('success', 'Receipt in Rupiah has been exported')
+                    $(".step-one").addClass('active');
+
+                    location.reload();
+                })
+                .catch(error => {
+                    notification('error', 'Something went wrong while exporting the receipt')
+                    swal.close()
+                })  
+        }
 
         function checkCurrency() {
             let cur = $('#currency').val()

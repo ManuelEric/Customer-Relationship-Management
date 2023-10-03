@@ -144,33 +144,14 @@ class ReceiptController extends Controller
         return Redirect::to('receipt/client-program?s=list')->withSuccess('Receipt has been deleted');
     }
 
-    public function export(Request $request) # print function
+    public function export(Request $request) # print / download function
     {
         $receiptId = $request->route('receipt');
-        $receipt = $this->receiptRepository->getReceiptById($receiptId);
-
-        switch ($receipt->receipt_cat) {
-
-            case "referral":
-            case "school":
-            case "partner":
-                $payment_method = $receipt->invoiceB2b->invb2b_pm;
-                if ($payment_method == "Full Payment") {
-                    $director = $receipt->invoiceB2b->invoiceAttachment()->first();
-                } else if ($payment_method == "Installment") {
-                    $director = $receipt->invoiceInstallment->inv_b2b->invoiceAttachment()->first();
-                }
-                break;
-
-            case "student":
-                $director = $receipt->invoiceProgram->invoiceAttachment()->first();
-                break;
-
-        }
-        
+        $receipt = $this->receiptRepository->getReceiptById($receiptId);    
         
         # directors name
-        $name = $this->getDirectorByEmail($director->recipient);
+        $choosen_director = $request->get('selectedDirectorMail');
+        $name = $this->getDirectorByEmail($choosen_director);
 
         $type = $request->get('type');
 
@@ -181,8 +162,33 @@ class ReceiptController extends Controller
         else
             $view = 'pages.receipt.client-program.export.receipt-pdf-foreign';
 
-        try {
+            
+        # store to receipt attachment
+        DB::beginTransaction();
 
+
+        if (!$this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receiptId, $type)) {
+
+            try {
+                
+                $attachmentDetails = [
+                    'receipt_id' => $receipt->receipt_id,
+                    'currency' => $type,
+                    'sign_status' => 'not yet',
+                    'recipient' => $choosen_director, # value of choosen director is email
+                    'send_to_client' => 'not sent'
+                ];
+                $this->receiptAttachmentRepository->createReceiptAttachment($attachmentDetails);
+    
+            } catch (Exception $e) {
+                DB::rollBack();
+                Log::error('Error to store receipt attachment : '.$e->getMessage().' | Line '.$e->getLine());
+                return response()->json(['message' => $e->getMessage()], 500);
+            }
+        }
+
+        # generate file 
+        try {
             # update download status on tbl_receipt
             if ($type == "idr")
                 $receipt->download_idr = 1;
@@ -190,6 +196,7 @@ class ReceiptController extends Controller
                 $receipt->download_other = 1;
 
             $receipt->save();
+            DB::commit();
 
             $companyDetail = [
                 'name' => env('ALLIN_COMPANY'),
@@ -202,6 +209,7 @@ class ReceiptController extends Controller
 
         } catch (Exception $e) {
 
+            DB::rollBack();
             Log::info('Export receipt failed: ' . $e->getMessage());
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -213,7 +221,7 @@ class ReceiptController extends Controller
         $receipt = $this->receiptRepository->getReceiptById($receipt_id);
         $currency = $request->currency;
 
-        if ($receipt->receiptAttachment()->where('currency', $currency)->where('sign_status', 'not yet')->first())
+        if ($receipt->receiptAttachment()->where('currency', $currency)->whereNotNull('attachment')->where('sign_status', 'not yet')->first())
             return Redirect::back()->withError('You already upload the receipt.');
 
         $validated = $request->validate([
@@ -229,24 +237,20 @@ class ReceiptController extends Controller
         DB::beginTransaction();
         try {
 
-            # insert to invoice attachment
-            $attachmentDetails = [
-                'receipt_id' => $receipt->receipt_id,
-                'currency' => $currency,
-                'sign_status' => 'not yet',
-                'send_to_client' => 'not sent',
-                'attachment' => $file_name
-            ];
+
 
             # generate invoice as a PDF file
             if ($attachment->storeAs($path, $file_name)) {
-                $this->receiptAttachmentRepository->createReceiptAttachment($attachmentDetails);
+                # update request status on receipt attachment
+                $attachment = $receipt->receiptAttachment()->where('currency', $currency)->first();
+                $attachment->attachment = $file_name;
+                $attachment->save();
             }
             DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
-            Log::info('Failed to request sign invoice : ' . $e->getMessage());
+            Log::info('Failed to request sign receipt : ' . $e->getMessage());
             return Redirect::back()->withError('Failed to upload receipt. Please try again.');
         }
 
@@ -257,11 +261,11 @@ class ReceiptController extends Controller
     {
         $receipt_id = $request->route('receipt');
         $receipt = $this->receiptRepository->getReceiptById($receipt_id);
-        $invoice_id = $receipt->invoiceProgram->inv_id;
-
+        
         $type = $request->get('type');
-        $to = $request->get('to');
-        $name = $request->get('name');
+        $info = $receipt->receiptAttachment()->where('currency', $type)->first();
+        $to = $info->recipient;
+        $name = $this->getDirectorByEmail($to);
 
         if ($type == "idr")
             $view = 'pages.receipt.client-program.export.receipt-pdf';
@@ -291,21 +295,15 @@ class ReceiptController extends Controller
 
             # update request status on receipt attachment
             $attachment = $receipt->receiptAttachment()->where('currency', $type)->first();
-            $attachment->recipient = $to;
             $attachment->request_status = 'requested';
             $attachment->save();
 
-            $file_name = str_replace('/', '_', $receipt->receipt_id);
-            $pdf = PDF::loadView($view, [
-                'receipt' => $receipt, 
-                'companyDetail' => $companyDetail,
-                'director' => $this->getDirectorByEmail($to)
-            ]);
+            $file_name = str_replace('/', '-', $receipt->receipt_id);
 
-            Mail::send('pages.receipt.client-program.mail.view', $data, function ($message) use ($data, $pdf, $receipt) {
+            Mail::send('pages.receipt.client-program.mail.view', $data, function ($message) use ($data, $file_name, $type, $receipt) {
                 $message->to($data['email'], $data['recipient'])
                     ->subject($data['title'])
-                    ->attachData($pdf->output(), $receipt->receipt_id . '.pdf');
+                    ->attach(storage_path('app/public/uploaded_file/receipt/client/'.$file_name.'-'.$type.'.pdf'));
             });
             DB::commit();
 

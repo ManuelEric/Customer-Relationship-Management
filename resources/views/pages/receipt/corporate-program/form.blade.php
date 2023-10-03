@@ -59,6 +59,7 @@
                         $receiptAttachment = $receiptPartner
                             ->receiptAttachment()
                             ->where('currency', 'idr')
+                            ->whereNotNull('attachment')
                             ->first();
                         $receiptAttachmentRequested = $receiptPartner
                             ->receiptAttachment()
@@ -96,7 +97,7 @@
                                 @if (!$receiptAttachment)
                                     <div id="print" class="btn btn-sm py-1 border btn-light" data-bs-toggle="tooltip"
                                         data-bs-title="Download">
-                                        <a href="#" class="text-info" id="export_idr">
+                                        <a href="#" class="text-info" id="openModalChooseDirector" data-curr="idr" data-bs-toggle="modal" data-bs-target="#chooseDirector">
                                             <i class="bi bi-download"></i>
                                         </a>
                                     </div>
@@ -473,54 +474,23 @@
                 allowClear: true
             });
 
+        });
 
+        $("#upload-idr").on('click', function(e) {
+            e.preventDefault();
 
-            $("#export_other").on('click', function(e) {
-                e.preventDefault();
+            $("#currency").val('idr')
+        });
 
-                showLoading()
-                axios
-                    .get(
-                        '{{ route('receipt.corporate.export', ['receipt' => $receiptPartner->id, 'currency' => 'other']) }}', {
-                            responseType: 'arraybuffer'
-                        })
-                    .then(response => {
-                        // console.log(response)
+        $("#upload-other").on('click', function(e) {
+            e.preventDefault();
 
-                        @php
-                            $file_name = str_replace('/', '-', $receiptPartner->receipt_id) . '-' . 'other' . '.pdf';
-                        @endphp
+            $("#currency").val('other')
+        });
 
-                        let blob = new Blob([response.data], {
-                                type: 'application/pdf'
-                            }),
-                            url = window.URL.createObjectURL(blob)
-                        // create <a> tag dinamically
-                        var fileLink = document.createElement('a');
-                        fileLink.href = url;
-
-                        // it forces the name of the downloaded file
-                        fileLink.download = '{{ $file_name }}';
-
-                        // triggers the click event
-                        fileLink.click();
-
-                        window.open(
-                            url) // Mostly the same, I was just experimenting with different approaches, tried link.click, iframe and other solutions
-                        swal.close()
-                        notification('success', 'Invoice has been exported')
-                        setTimeout(location.reload.bind(location), 3000);
-                    })
-                    .catch(error => {
-                        notification('error', 'Something went wrong while exporting the invoice')
-                        swal.close()
-                    })
-            })
-
-            $("#export_idr").on('click', function(e) {
-                e.preventDefault();
-
-                showLoading()
+        function downloadFile()
+        {
+            showLoading()
                 axios
                     .get(
                         '{{ route('receipt.corporate.export', ['receipt' => $receiptPartner->id, 'currency' => 'idr']) }}', {
@@ -557,20 +527,7 @@
                         notification('error', 'Something went wrong while exporting the invoice')
                         swal.close()
                     })
-            })
-        });
-
-        $("#upload-idr").on('click', function(e) {
-            e.preventDefault();
-
-            $("#currency").val('idr')
-        });
-
-        $("#upload-other").on('click', function(e) {
-            e.preventDefault();
-
-            $("#currency").val('other')
-        });
+        }
 
         function requestAcc(link, currency) {
 
@@ -609,6 +566,15 @@
 
             $('#sendToChoosenPic').attr("onclick", "confirmRequestSign('"+ url +"', "+ currency +")");
 
+        });
+
+        $(document).on("click", "#openModalChooseDirector", function() {
+            var curr = $(this).data('curr');
+            var currency = "'" + curr + "'";
+
+            var url = "{{ url('/') }}/receipt/corporate-program/{{ $receiptPartner->id }}/export/" + currency;
+
+            $("#download").attr("onclick", "downloadFile('"+ url +"', "+ currency +")");
         });
 
         function checkCurrency() {
