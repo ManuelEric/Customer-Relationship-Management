@@ -714,16 +714,6 @@
                 })
         }
 
-        $(document).on("click", "#openModalRequestSignIdr", function() {
-            var curr = $(this).data('curr');
-            var currency = "'" + curr + "'";
-
-            var url = "{{ route('receipt.client-program.request_sign', ['receipt' => $receipt->id]) }}"
-
-            $('#sendToChoosenPic').attr("onclick", "confirmRequestSign('"+ url +"', "+ currency +")");
-
-        });
-
         $(document).on("click", "#openModalChooseDirector", function() {
             var curr = $(this).data('curr');
             var currency = "'" + curr + "'";

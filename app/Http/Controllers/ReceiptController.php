@@ -166,7 +166,6 @@ class ReceiptController extends Controller
         # store to receipt attachment
         DB::beginTransaction();
 
-
         if (!$this->receiptAttachmentRepository->getReceiptAttachmentByReceiptId($receiptId, $type)) {
 
             try {
