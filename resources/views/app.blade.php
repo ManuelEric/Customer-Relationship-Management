@@ -9,8 +9,6 @@
     </title>
     <link rel="shortcut icon" href="{{asset('img/favicon.png')}}" type="image/x-icon">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     {{-- CSS  --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
@@ -326,11 +324,15 @@
             }, 7000);
         }
 
+
+        // for redirect to login page after session expired
+
         // $(document).ready(function() {
         //     $.fn.dataTable.ext.errMode = function ( settings, helpPage, message ) { 
         //         window.location.href = "{{ route('logout.expiration') }}"
         //     };
         // })
+        
     </script>
 
     {{-- Confirm Delete & Deactivate Modal  --}}
@@ -358,8 +360,8 @@
 
             var warningMessage = 'You want to request his/her signature for this document?';
 
-            // change form action 
-            $("#formActionRequestSign h6").html(warningMessage);
+        //     // change form action 
+        //     $("#formActionRequestSign h6").html(warningMessage);
 
             var link = subject;
             $('#send-request--app-2908').unbind('click');
@@ -377,7 +379,7 @@
             // change form action 
             $("#formActionSendToClient h6").html(warningMessage);
 
-            var link = subject + '/' + id
+            var link = subject + '/' + id;
             $('#send-to-client--app-0604').unbind('click');
             $("#send-to-client--app-0604").bind('click', function() {
                 if (typeof updateMail == "function")

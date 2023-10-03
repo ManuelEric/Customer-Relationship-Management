@@ -265,7 +265,7 @@
                     <td width="40%" align="center" valign="top">
                         {{-- PT. Jawara Edukasih Indonesia --}}
                         Jakarta, {{ isset($receiptSch->receipt_date) ? date('d F Y', strtotime($receiptSch->receipt_date)) : date('d F Y', strtotime($receiptSch->created_at)) }}
-                        <br><br><br><br><br><br><br>
+                        <br><br><br><br><br><br><br><br><br>
                         @if (isset($director)) 
                             {{ $director }} 
                         @else

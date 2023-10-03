@@ -118,7 +118,6 @@
                 target_people_chart.data.datasets[0].data = obj.dataset.participant // target
                 target_people_chart.data.datasets[1].data = obj.dataset.participant // actual 
                 target_people_chart.update();
-
                 target_revenue_chart.data.datasets[0].data = obj.dataset.revenue // target
                 target_revenue_chart.data.datasets[1].data = obj.dataset.revenue // actual
                 target_revenue_chart.update();
