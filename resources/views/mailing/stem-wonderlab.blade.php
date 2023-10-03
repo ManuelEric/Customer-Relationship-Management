@@ -30,6 +30,7 @@
                                     <div class="col-5">
                                         <select id="type" class="form-select" required onchange="checkType()">
                                             <option value=""></option>
+                                            <option value="check_list_invitation">Check List Invitation</option>
                                             <option value="VVIP">VVIP</option>
                                             <option value="VIP">VIP</option>
                                             <option value="reminder_registration">Reminder Registration</option>

@@ -205,7 +205,7 @@ trait MailingEventOfflineTrait
             DB::rollBack();
 
             $sent_mail = 0;
-            Log::info('Failed to send invitation mail : ' . $e->getMessage());
+            Log::error('Failed to send invitation mail : ' . $e->getMessage());
 
         }
 

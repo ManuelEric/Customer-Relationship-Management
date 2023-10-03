@@ -12,6 +12,7 @@ use App\Http\Traits\CreateCustomPrimaryKeyTrait;
 use App\Http\Traits\MailingEventOfflineTrait;
 use App\Http\Traits\SplitNameTrait;
 use App\Http\Traits\StandardizePhoneNumberTrait;
+use App\Imports\CheckListInvitation;
 use App\Imports\ClientEventImport;
 use App\Imports\InvitationMailVIPImport;
 use App\Imports\InvitationMailVVIPImport;
@@ -479,6 +480,10 @@ class ClientEventController extends Controller
 
         $import = '';
         switch ($type) {
+            case 'check_list_invitation':
+                $import = new CheckListInvitation;
+                break;
+
             case 'VVIP':
                 $import = new InvitationMailVVIPImport;
                 break;
