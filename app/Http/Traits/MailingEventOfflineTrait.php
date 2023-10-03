@@ -96,7 +96,7 @@ trait MailingEventOfflineTrait
         // $data['referral_link'] = url('form/event?event_name='.urlencode($event->event_name).'&form_type=cta&event_type=offline&ref='. substr($client->fist_name,0,3) . $client->id); 
 
         $data['qr_page'] = route('program.event.qr-page', [
-            'event_slug' => urlencode($event->event_title),
+            'event_slug' => str_replace(' ', '-', $event->event_title),
             'clientevent' => $clientEvent->clientevent_id
         ]);
         $data['referral_page'] = route('program.event.referral-page', [
@@ -176,7 +176,7 @@ trait MailingEventOfflineTrait
             $data['title'] = "[" . $notes . " Special Invitation] STEM+ Wonderlab, Indonesia's FIRST Student Makerspace Expo";
             $data['param'] = [
                 'referral_page' => route('program.event.referral-page',[
-                    'event_slug' => urlencode($event->event_title),
+                    'event_slug' => str_replace(' ', '-', $event->event_title),
                     'refcode' => $this->createReferralCode($client->first_name, $client->id)
                 ]),                  
                 'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id .'/'. $notes .'/'. $indexChild),
@@ -241,7 +241,7 @@ trait MailingEventOfflineTrait
                 'title' => $type == 'registration' ? 'Enjoy special privileges as our VIP guest at STEM+ Wonderlab!' : '🔔 Reminder to our VIP guests of STEM+ Wonderlab',
                 'param' => [
                     'referral_page' => route('program.event.referral-page',[
-                        'event_slug' => urlencode($event->event_title),
+                        'event_slug' => str_replace(' ', '-', $event->event_title),
                         'refcode' => $this->createReferralCode($client->first_name, $client->id)
                     ]),                  
                     'link' => url('program/event/reg-exp/' . $client['id'] . '/' . $event_id)
