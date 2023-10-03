@@ -48,7 +48,7 @@ class SalesTrackingController extends Controller
         $leadSource = $this->clientProgramRepository->getLeadSource($dateDetails);
         $conversionLead = $this->clientProgramRepository->getConversionLead($dateDetails);
         $averageConversionSuccessful = $this->clientProgramRepository->getConversionTimeSuccessfulPrograms($dateDetails);
-        
+
         return view('pages.report.sales-tracking.index')->with(
             [
                 'countClientProgram' => $countClientProgram,

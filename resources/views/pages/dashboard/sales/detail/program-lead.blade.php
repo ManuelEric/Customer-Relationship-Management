@@ -4,7 +4,7 @@
             <div class="col-md-6">
                 <div class="card mb-3">
                     <div class="card-body text-center">
-                        <h5>Conversion Leads</h5>
+                        <h5>Conversion Lead Source</h5>
                         <canvas id="leadSource" class="mb-2"></canvas>
                         <canvas id="programLead"></canvas>
                     </div>

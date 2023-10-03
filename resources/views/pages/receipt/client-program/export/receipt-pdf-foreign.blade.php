@@ -13,7 +13,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-size: 12px;
+            font-size: 11px;
         }
         body {
             font-family: 'Poppins', sans-serif;
@@ -38,8 +38,8 @@
 
         table tr td,
         th {
-            padding: 8px 7px;
-            line-height: 16px;
+            padding: 4px;
+            line-height: 1.5;
         }
 
         .table-detail th {
@@ -139,7 +139,7 @@
                 <tr>
                     <td valign="top" align="center">1</td>
                     <td valign="top" style="padding-bottom:10px;">
-                        <div style="height:80px;">
+                        <div style="min-height:80px;">
                             <p>
                                 <strong> {{ $receipt->invoiceProgram->clientProg->invoice_program_name }} </strong>
                             </p>
@@ -154,7 +154,7 @@
                         </div>
                     </td>
                     <td valign="top" align="center">
-                        <div style="height:80px;">
+                        <div style="min-height:80px;">
                             <p>
                                 <strong>
                                     @if ($receipt->invoiceProgram->inv_paymentmethod == "Installment")
@@ -167,7 +167,7 @@
                         </div>
                     </td>
                     <td valign="top" align="center">
-                        <div style="height:80px;">
+                        <div style="min-height:80px;">
                             <p>
                                 <strong>
                                     @if ($receipt->invoiceProgram->inv_paymentmethod == "Installment")
@@ -225,7 +225,7 @@
                     <td width="40%" align="center" valign="top">
                         {{-- PT. Jawara Edukasih Indonesia --}}
                         Jakarta, {{ date('d F Y') }}
-                        <br><br><br><br><br><br><br>
+                        <br><br><br><br><br><br><br><br><br>
                         @if (isset($director)) 
                             {{ $director }} 
                         @else

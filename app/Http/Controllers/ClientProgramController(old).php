@@ -581,7 +581,6 @@ class ClientProgramController extends Controller
                 # when program status is active
             case 1:
                 $clientProgramDetails['prog_running_status'] = $request->prog_running_status;
-                $clientProgramDetails['success_date'] = $request->success_date;
 
                 # and submitted prog_id is admission mentoring
                 if (in_array($progId, $this->admission_prog_list)) {
@@ -943,7 +942,7 @@ class ClientProgramController extends Controller
 
             DB::rollBack();
             Log::error('Failed to register client from form program embed | error : '.$e->getMessage().' | Line : '.$e->getLine());
-            return Redirect::to('form/program?program_name='.$program->prog_program)->withErrors('Something went wrong. Please try again or contact our administrator.');
+            return Redirect::to('form/program?program_name='.$program->program_name)->withErrors('Something went wrong. Please try again or contact our administrator.');
         
         }
 

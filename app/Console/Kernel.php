@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Carbon;
 
 class Kernel extends ConsoleKernel
 {
@@ -90,7 +91,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('automate:determine_hot_leads')->everyMinute();
 
         # cron for target tracking
-        $schedule->command('insert:target_tracking_monthly')->monthly(); # should be run on cron every new month
+        $schedule->command('insert:target_tracking_monthly')->when(function() {
+            return Carbon::now()->firstOfMonth()->isToday();
+        }); # should be run on cron every new month
         $schedule->command('update:target_tracking')->everyMinute(); # run every minute because target tracking should be real-time update
 
         # cron for form event

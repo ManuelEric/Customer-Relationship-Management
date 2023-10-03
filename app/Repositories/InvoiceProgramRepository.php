@@ -196,7 +196,7 @@ class InvoiceProgramRepository implements InvoiceProgramRepositoryInterface
                 '),
                 // DB::raw('DATEDIFF(tbl_inv.inv_duedate, now()) as date_difference')
             ])->
-            // ->whereNull('tbl_receipt.inv_id')
+            // whereNull('tbl_receipt.inv_id')
             whereRaw('
                 (CASE
                     WHEN tbl_inv.inv_paymentmethod = "Full Payment" THEN tbl_inv.reminded = 0 OR tbl_inv.reminded IS NULL

@@ -579,6 +579,7 @@
                             value="{{ $client_prog->client->parents[0]->id }}" class="form-control w-100">
                             {{-- value="{{ $client_prog->client->id }}" class="form-control w-100"> --}}
                         <label for="">Email Parent</label>
+                        
                         <input type="mail" name="mail" id="mail"
                             value="{{ $client_prog->client->parents[0]->mail }}" class="form-control w-100">
                             {{-- value="{{ $client_prog->client->mail }}" class="form-control w-100"> --}}
