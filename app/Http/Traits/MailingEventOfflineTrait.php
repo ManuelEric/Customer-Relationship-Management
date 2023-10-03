@@ -163,6 +163,8 @@ trait MailingEventOfflineTrait
     public function sendMailInvitation($email, $event_id, $for, $indexChild, $notes)
     {
 
+        DB::beginTransaction();
+
         try {
 
             $client = UserClient::where('mail', $email)->first();
@@ -171,7 +173,7 @@ trait MailingEventOfflineTrait
             $data['email'] = $email;
             $data['event_id'] = $event_id;
             $data['recipient'] = $client->full_name;
-            $data['title'] = "[" . $notes . "Special Invitation] STEM+ Wonderlab, Indonesia's FIRST Student Makerspace Expo";
+            $data['title'] = "[" . $notes . " Special Invitation] STEM+ Wonderlab, Indonesia's FIRST Student Makerspace Expo";
             $data['param'] = [
                 'referral_page' => route('program.event.referral-page',[
                     'event_slug' => urlencode($event->event_title),
@@ -188,6 +190,8 @@ trait MailingEventOfflineTrait
                 'eventTime_end' => date('H:i', strtotime($event->event_enddate)),
                 'eventLocation' => $event->event_location,
             ];
+            $data['notes'] = $notes;
+
 
             Mail::send('mail-template.invitation-email', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['recipient'])
@@ -195,7 +199,10 @@ trait MailingEventOfflineTrait
             });
             $sent_mail = 1;
 
+            DB::commit();
+
         } catch (Exception $e) {
+            DB::rollBack();
 
             $sent_mail = 0;
             Log::info('Failed to send invitation mail : ' . $e->getMessage());

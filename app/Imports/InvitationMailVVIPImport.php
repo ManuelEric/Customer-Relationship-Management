@@ -54,6 +54,7 @@ class InvitationMailVVIPImport implements ToCollection, WithHeadingRow, WithVali
             'index_child' => $data['index_child'],
         ];
 
+
         return $data;
     }
 
