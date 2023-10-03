@@ -148,29 +148,9 @@ class ReceiptController extends Controller
     {
         $receiptId = $request->route('receipt');
         $receipt = $this->receiptRepository->getReceiptById($receiptId);
-
-        switch ($receipt->receipt_cat) {
-
-            case "referral":
-            case "school":
-            case "partner":
-                $payment_method = $receipt->invoiceB2b->invb2b_pm;
-                if ($payment_method == "Full Payment") {
-                    $director = $receipt->invoiceB2b->invoiceAttachment()->first();
-                } else if ($payment_method == "Installment") {
-                    $director = $receipt->invoiceInstallment->inv_b2b->invoiceAttachment()->first();
-                }
-                break;
-
-            case "student":
-                $director = $receipt->invoiceProgram->invoiceAttachment()->first();
-                break;
-
-        }
-        
         
         # directors name
-        $name = $this->getDirectorByEmail($director->recipient);
+        $name = $this->getDirectorByEmail("n.hendra@all-inedu.com");
 
         $type = $request->get('type');
 

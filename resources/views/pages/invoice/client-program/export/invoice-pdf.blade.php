@@ -13,7 +13,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-size: 12px;
+            font-size: 11px;
         }
         body {
             font-family: 'Poppins', sans-serif;
@@ -36,8 +36,8 @@
 
         table tr td,
         th {
-            padding: 8px 7px;
-            line-height: 16px;
+            padding: 4px;
+            line-height: 1.5;
         }
 
         .table-detail th {
@@ -59,7 +59,7 @@
         <img src="{{ public_path('img/pdf/header.webp') }}" width="100%">
         <img src="{{ public_path('img/pdf/confidential.webp') }}" width="85%"
             style="position:absolute; left:8%; top:25%; z-index:-999; opacity:0.04;">
-        <div class="" style="height: 840px; padding:0 30px; margin-top:-40px;">
+        <div class="" style="height: 840px; padding:0 30px; margin-top:-60px;">
             <h4 style="line-height:1.6; letter-spacing:3px; font-weight:bold; text-align:center; color:#247df2; font-size:18px; margin-bottom:10px; ">
                 INVOICE
             </h4>
@@ -113,7 +113,6 @@
             </div>
 
             <br>
-            <br>
             <table>
                 <tr>
                     <td>
@@ -136,7 +135,7 @@
                     <tr>
                         <td valign="top" align="center">1</td>
                         <td valign="top" style="padding-bottom:10px;">
-                            <div style="height:80px;">
+                            <div style="min-height:80px;">
                                 <p>
                                     <strong> {{ $clientProg->program->program_name }} </strong>
                                 </p>
@@ -152,7 +151,7 @@
                             </div>
                         </td>
                         <td valign="top" align="center">
-                            <div style="height:80px;">
+                            <div style="min-height:80px;">
                                 <p>
                                     <strong>
                                         {{ $clientProg->invoice->invoice_price_idr }}
@@ -167,7 +166,7 @@
                             <p>{{ $clientProg->invoice->duration }} Min/Session</p>
                         </td>
                         <td valign="top" align="center">
-                            <div style="height:80px;">
+                            <div style="min-height:80px;">
                                 <p>
                                     <strong>
                                         @php
@@ -198,14 +197,14 @@
                 <table width="100%" class="table-detail" style="padding:8px 5px;">
                     <tr align="center">
                         <th width="5%">No</th>
-                        <th width="55%">Description</th>
-                        <th width="20%">Price</th>
+                        <th width="60%">Description</th>
+                        <th width="15%">Price</th>
                         <th width="20%">Total</th>
                     </tr>
                     <tr>
                         <td valign="top" align="center">1</td>
                         <td valign="top" style="padding-bottom:10px;">
-                            <div style="height:80px;">
+                            <div style="min-height:80px;">
                                 <p>
                                     <strong> {{ $clientProg->invoice_program_name }} </strong>
                                 </p>
@@ -217,7 +216,7 @@
                             </div>
                         </td>
                         <td valign="top" align="center">
-                            <div style="height:80px;">
+                            <div style="min-height:80px;">
                                 <p>
                                     <strong>
                                         {{ $clientProg->invoice->invoice_price_idr }}
@@ -226,7 +225,7 @@
                             </div>
                         </td>
                         <td valign="top" align="center">
-                            <div style="height:80px;">
+                            <div style="min-height:80px;">
                                 <p>
                                     <strong>
                                         {{ $clientProg->invoice->invoice_price_idr }}
@@ -318,7 +317,7 @@
                     </td>
                     <td width="40%" align="center" valign="top">
                         {{ $companyDetail['name'] }}
-                        <br><br><br><br><br><br><br>
+                        <br><br><br><br><br>
                         @if (isset($director)) 
                             {{ $director }} 
                         @else
