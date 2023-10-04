@@ -1281,9 +1281,19 @@ class ClientEventController extends Controller
     {
         $refcode = $request->route('refcode');
         $event_slug = $request->route('event_slug');
-        // $client = ViewClientRefCode::where('ref_code', $refcode)->first();
+        $noteEncrypt = $request->route('notes');
+        switch ($noteEncrypt) {
+            case 'VIP':
+            case 'WxSFs0LGh': # Mean VIP
+                $notes = 'VIP';
+                break;
 
-        // $clientEvent = $this->clientEventRepository->getClientEventByClientId($client->id);
+            case 'VVIP':
+            case 'BtSF0x1hK': # Mean VVIP
+                $notes = 'VVIP';
+                break;
+        }
+        $event_slug = $request->route('event_slug');
 
         $shortUrl = ShortURL::where('url_key', $refcode)->first();
         
@@ -1297,7 +1307,7 @@ class ClientEventController extends Controller
         return view('stem-wonderlab.referral-link.index')->with([
             'link' => $link.$query,
             'event' => $event,
-            // 'notes' => $clientEvent->notes
+            'notes' => $notes
         ]);
     }
 

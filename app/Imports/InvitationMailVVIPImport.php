@@ -38,7 +38,7 @@ class InvitationMailVVIPImport implements ToCollection, WithHeadingRow, WithVali
         
         foreach ($rows as $row) {
                 
-            $this->sendMailInvitation($row['email'], $row['event_id'], 'first-send', $row['index_child'], 'VVIP');
+            $this->sendMailInvitation($row['email'], $row['event_id'], 'first-send', $row['index_child'], 'BtSF0x1hK');
                
         }
     }
