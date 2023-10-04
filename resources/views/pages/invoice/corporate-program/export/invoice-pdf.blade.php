@@ -71,18 +71,18 @@
                             <table width="100%" style="padding:0px; margin-left:-10px;">
                                 <tr>
                                     <td width="15%" valign="top">From : </td>
-                                    <td width="85%"><b>PT. Jawara Edukasih Indonesia</b><br>
+                                    {{-- <td width="85%"><b>PT. Jawara Edukasih Indonesia</b><br>
                                         {{ $companyDetail['address'] }} <br>
                                         {{ $companyDetail['address_dtl'] }} <br>
                                         {{ $companyDetail['city'] }}
-                                    </td>
-                                    {{-- <td width="85%"><b>Jawara Edukasih International Pte Ltd</b><br>
+                                    </td> --}}
+                                    <td width="85%"><b>Jawara Edukasih International Pte Ltd</b><br>
                                         10 Anson Road<br>
                                         #27-18<br>
                                         International Plaza <br>
                                         Singapore (079903)
                                         <br><br>
-                                    </td> --}}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td valign="top">To : </td>
@@ -123,12 +123,12 @@
             <br>
             <table>
                 <tr>
-                    <td>
-                        Please process payment to {{ $companyDetail['name'] }} for the following services rendered :
-                    </td>
                     {{-- <td>
-                        Please process payment to Jawara Edukasih International Pte Ltd for the following services rendered :
+                        Please process payment to {{ $companyDetail['name'] }} for the following services rendered :
                     </td> --}}
+                    <td>
+                        Please process payment to Jawara Edukasih International Pte Ltd for the following services rendered :
+                    </td>
                 </tr>
             </table>
 
@@ -271,27 +271,27 @@
                                     Bank <br>
                                     A/C No. <br>
                                     Branch <br>
-                                    {{-- Branch Address <br> --}}
+                                    Branch Address <br>
                                 </td>
-                                <td width="78%">
+                                {{-- <td width="78%">
                                     : PT. Jawara Edukasih International PTI Ltd <br>
                                     : BCA <br>
                                     : 2483016611 <br>
                                     : KCP Pasar Kebayoran Lama Jakarta Selatan
-                                </td>
-                                {{-- <td width="78%">
+                                </td> --}}
+                                <td width="78%">
                                     : Jawara Edukasih International Pte Ltd <br>
                                     : UOB <br>
                                     : 3963153242 <br>
                                     : United Overseas Bank Limited <br>
                                     : Raffless Place 80, UOB Plaza
-                                </td> --}}
+                                </td>
                             </tr>
                         </table>
                     </td>
                     <td width="40%" align="center" valign="top">
-                        {{ $companyDetail['name'] }}
-                        {{-- Jawara Edukasih International Pte Ltd --}}
+                        {{-- {{ $companyDetail['name'] }} --}}
+                        Jawara Edukasih International Pte Ltd
                         {{-- Jakarta, {{ date('d F Y') }} --}}
                         <br><br><br><br><br><br><br>
                         @if (isset($director)) 
@@ -306,7 +306,7 @@
             </table>
         </div>
     </div>
-    <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%">
+    {{-- <img src="{{ public_path('img/pdf/footer.webp') }}" width="100%"> --}}
 </body>
 
 </html>
