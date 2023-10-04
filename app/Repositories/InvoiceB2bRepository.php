@@ -216,7 +216,7 @@ class InvoiceB2bRepository implements InvoiceB2bRepositoryInterface
                     'tbl_partner_prog.success_date',
                     'users.id as pic_id',
                     DB::raw('CONCAT(users.first_name," ",COALESCE(users.last_name, "")) as pic_name')
-                )->where('tbl_partner_prog.status', 1)->whereNull('tbl_invb2b.partnerprog_id')
+                )->where('tbl_partner_prog.status', 1)->orWhere('tbl_partner_prog.status', 1)->whereNull('tbl_invb2b.partnerprog_id')
                 ->orderBy('tbl_partner_prog.success_date', 'DESC')
         )->filterColumn(
             'pic_name',
